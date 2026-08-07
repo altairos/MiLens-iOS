@@ -1,6 +1,6 @@
 # MiLens iOS 迁移计划
 
-最后核对：2026-08-08（P0 收口，P2 进行中）
+最后核对：2026-08-08（P0 收口，P2 进行中，P3 纯逻辑+ViewModel 已落地）
 
 > 里程碑与任务清单。架构见 [DESIGN.md](DESIGN.md)，映射与范围见 [MIGRATION_ASSESSMENT.md](MIGRATION_ASSESSMENT.md)，约束见 [AGENTS.md](AGENTS.md)。
 
@@ -11,7 +11,7 @@
 | **P0** | Harness 与规划 | 文档骨架、约束、目录结构、XcodeGen 声明、范围对齐 | ✅ 已完成 |
 | **P1** | 地基 + 算法核心 | Xcode 工程可编译、SwiftData schema、拼豆 Swift 核心（黄金规格通过）、AI 路线定案 | ⬜ |
 | **P2** | 相册 MVP | 扫描发现（+质量评分/重复分组）+ 手动导入 + 相册网格 + 大图查看 | 🔄 进行中 |
-| **P3** | 宠物档案 | 档案 CRUD + 成长时间线 + 纪念提醒 | ⬜ |
+| **P3** | 宠物档案 | 档案 CRUD + 成长时间线 + 纪念提醒 | 🔄 进行中（纯逻辑+VM✅） |
 | **P4** | 创作入口 + 编辑器 | 拼豆图纸完整流程 + 完整图片编辑器（裁切/滤镜/标注） | ⬜ |
 | **P5** | 首页/我的 + 商业化 | 首页回忆/提醒、设置、StoreKit 订阅、App Store 提审 | ⬜ |
 
@@ -144,12 +144,21 @@
 
 ### 任务
 
+**纯决策逻辑 + ViewModel（可 WSL2/CI 编译测试）✅**
+
+- [x] 纯决策逻辑翻译（3 模块）：`PetProfileLogic`（物种 Emoji / 名称校验 / 数量上限 / 彩蛋）/ `PetFormLogic`（表单状态 / 备注解析格式化校验 / 未保存判定 / 注册常量）/ `TimelineLogic`（时间线条目构建 / 过滤 / 分组 / 索引查找）
+- [x] XCTest：纯决策逻辑全覆盖（84 用例，对应源端 `PetProfileViewModel.test` + `PetFormViewModel.test` + `TimelineViewModel.test` 黄金规格逐条翻译 + iOS 边界增强）
+- [x] `PetProfileViewModel`（@Observable）：宠物列表 / 建档（名称校验 + 数量上限 + 彩蛋触发）/ 删除
+- [x] `PetEditViewModel`（@Observable）：档案加载 / 表单编辑 / 备注增删 / 未保存判定 / 校验保存
+- [x] `TimelineViewModel`（@Observable）：加载宠物+事件+照片 → 构建时间线 → 按宠物筛选
+
+**View + 提醒（需 Mac）**
+
 - [ ] `PetProfileView`：头像/名称/年龄/照片数/成长轨迹（设计稿 Tab 2）
 - [ ] `PetEditView`：档案编辑（翻译 `PetFormViewModel`）
 - [ ] `TimelineView`：成长时间线（翻译 `TimelineViewModel` + `TimeMachineService`）
 - [ ] 纪念提醒：`UNUserNotificationCenter`（生日/领养日）
 - [ ] 档案内照片分类（全部/幼年/玩耍/睡觉等，按设计稿）
-- [ ] XCTest：档案/时间线决策逻辑
 
 ### 验收标准
 
@@ -281,3 +290,7 @@
 
 - 2026-08-08：**P2 纯决策逻辑 + Service + View 层落地**——翻译源端 6 个纯决策模块为 Swift（`GalleryPageState`/`ScanFlowLogic`/`ScanControlMath`/`ImportFlowLogic`/`PhotoMetadataLogic`/`PhotoViewGestureMath`）+ ~84 用例 XCTest（对应源端黄金规格逐条翻译）；`ScanService`（Photos 全库扫描 + VisionService 检测 + Task 取消）+ `ImportService`（复制沙盒 → 入库，DESIGN.md §7 唯一入库路径）+ ~15 用例（in-memory SwiftData + mock）；`GalleryViewModel`（@Observable，分页/筛选/扫描/导入/多选）+ `GalleryView`（LazyVGrid + 分页加载 + 扫描进度条 + 完成弹窗）+ `PhotoViewView`（大图 + PhotoViewGestureMath 驱动的捏合缩放/平移/双击）+ `HomeView`（相册/扫描入口）。扩展 `PhotoLibraryAccess`（`loadImageData` + `dateAdded`）。**CI 验证待推送**。
 - 2026-08-08：**P2 扫描增强落地（质量评分 + 重复分组）**——翻译源端 `QualityScorer.ets` + `ImageUtils.computeQualityScore` + `pHash.ets` 为 Swift：①纯逻辑三模块（`QualityScoringLogic` 质量公式 / `PerceptualHashLogic` 哈希运算 / `DuplicateGroupingLogic` Union-Find 分组）+ 9 用例 XCTest（翻译源端 `MorePureLogic` + `QualityScorer` 黄金规格 + iOS 边界增强）；②`ImageAnalyzer` 协议 + `CoreImageAnalyzer` 实现（Laplacian 方差清晰度 + 8×8 均值哈希，Core Graphics）+ mock；③`QualityScorer` 编排服务（`computeAllQualityScores` + `findDuplicates` + `runPostScanAnalysis`）+ 8 用例 XCTest（in-memory SwiftData + mock，与 ScanServiceTests 同类跳过待 Mac 真机）；④Schema 扩展：`Photo` 加 `phash`/`sharpness`/`qualityScore`/`duplicateOf`/`isBest` 字段，`PhotoRepository` 加 4 个查询/更新方法；⑤集成：`GalleryViewModel` 扫描/导入完成后 fire-and-forget 触发质量分析（对应源端 ScanController 后处理链）。重复分组当前用 pHash，不依赖 CLIP Core ML；待模型就绪后可增强为 embedding 相似度。**CI 验证待推送**。
+
+### P3 进度
+
+- 2026-08-08：**P3 纯决策逻辑 + ViewModel 落地**——翻译源端 3 个宠物档案纯决策模块为 Swift（`PetProfileLogic` / `PetFormLogic` / `TimelineLogic`）+ 84 用例 XCTest（对应源端 `PetProfileViewModel.test` + `PetFormViewModel.test` + `TimelineViewModel.test` 黄金规格逐条翻译 + iOS 边界增强）；3 个 `@Observable` ViewModel（`PetProfileViewModel` 列表/建档/删除 + 彩蛋触发 / `PetEditViewModel` 档案加载/表单编辑/备注增删/未保存判定/校验保存 / `TimelineViewModel` 加载宠物+事件+照片→构建时间线→按宠物筛选）。架构差异：源端 petId/photoId 为整数+`-1` 哨兵 → iOS `UUID?`+`nil`；源端 birthday 为 ISO 字符串 + `substring` 比较彩蛋 → iOS `Date?` + `Calendar` 提取 MM-DD；源端彩蛋/物种 Emoji 在 `PetFormViewModel`/`PetProfileViewModel` 两处重复 → iOS 收敛到 `PetProfileLogic` 单一来源；源端 `new Date(y,month0,d)` → iOS 固定 UTC `Calendar`+`DateComponents` 保证跨环境可复现。**CI 验证待推送**。

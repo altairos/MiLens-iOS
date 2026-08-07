@@ -122,8 +122,9 @@ final class PetFormLogicTests: XCTestCase {
             previous: date(2024, 7, 3), current: date(2024, 7, 3), calendar: cal))
     }
 
-    func testHasBirthdayChangedReturnsFalseWhenPreviousNil() {
-        XCTAssertFalse(PetFormLogic.hasBirthdayChanged(
+    func testHasBirthdayChangedReturnsTrueWhenPreviousNil() {
+        // nil 对应源端空串——isEasterDate 返回 false，故 !false && true = true
+        XCTAssertTrue(PetFormLogic.hasBirthdayChanged(
             previous: nil, current: date(2024, 7, 3), calendar: cal))
     }
 

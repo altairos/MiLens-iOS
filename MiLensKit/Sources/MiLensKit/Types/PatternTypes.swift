@@ -41,10 +41,14 @@ public struct CropRect: Equatable, Sendable {
 /// Geometry/Stats 模块仅用到 bbox；mask/pose 留待生成管线接入。
 public struct BeadSubjectContext: Sendable {
     public var bbox: CropRect
+    public var mask: [UInt8]?
+    public var attentionHeatmap: [Float]?
     public var pose: BeadPoseData?
 
-    public init(bbox: CropRect, pose: BeadPoseData? = nil) {
+    public init(bbox: CropRect, mask: [UInt8]? = nil, attentionHeatmap: [Float]? = nil, pose: BeadPoseData? = nil) {
         self.bbox = bbox
+        self.mask = mask
+        self.attentionHeatmap = attentionHeatmap
         self.pose = pose
     }
 }

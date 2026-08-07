@@ -42,7 +42,7 @@ final class QualityScorerTests: XCTestCase {
         phash: String = ""
     ) throws -> Photo {
         let photo = Photo(uri: uri, originalURI: uri, width: width, height: height,
-                          fileSize: 2048, qualityScore: 0, phash: phash)
+                          fileSize: 2048, phash: phash, qualityScore: 0)
         try repo.insertPhoto(photo)
         fileStorage.preset(Data([0xFF, 0xD8, 0xFF]), at: uri)
         return photo

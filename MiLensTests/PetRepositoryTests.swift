@@ -9,7 +9,7 @@ final class PetRepositoryTests: XCTestCase {
 
     private func makeRepo() -> (SwiftDataPetRepository, ModelContainer) {
         let config = ModelConfiguration(isStoredInMemoryOnly: true)
-        let container = try! ModelContainer(for: SchemaV1.models, configurations: config)
+        let container = try! ModelContainer(for: SchemaV1.models, configurations: [config])
         let repo = SwiftDataPetRepository(context: container.mainContext)
         return (repo, container)
     }

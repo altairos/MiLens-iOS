@@ -12,12 +12,11 @@ struct MiLensApp: App {
     private let photoRepo: any PhotoRepositoryProtocol
 
     init() {
-        let config = ModelConfiguration("MiLens", isStoredInMemoryOnly: false)
         // V1.0 干净 schema——迁移计划为空。创建失败无恢复意义（无数据库 app 不可用）。
         let container = try! ModelContainer(
             for: SchemaV1.models,
             migrationPlan: MiLensMigrationPlan.self,
-            configurations: config
+            configurations: [ModelConfiguration()]
         )
         self.container = container
         self.petRepo = SwiftDataPetRepository(context: container.mainContext)

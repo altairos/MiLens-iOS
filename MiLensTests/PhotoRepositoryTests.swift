@@ -9,7 +9,7 @@ final class PhotoRepositoryTests: XCTestCase {
 
     private func makeRepo() -> (SwiftDataPhotoRepository, ModelContainer) {
         let config = ModelConfiguration(isStoredInMemoryOnly: true)
-        let container = try! ModelContainer(for: SchemaV1.models, configurations: config)
+        let container = try! ModelContainer(for: SchemaV1.models, configurations: [config])
         let repo = SwiftDataPhotoRepository(context: container.mainContext)
         return (repo, container)
     }

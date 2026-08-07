@@ -64,12 +64,8 @@ final class SwiftDataPhotoRepository: PhotoRepositoryProtocol {
     }
 
     func getPhotosByPet(_ pet: Pet) throws -> [Photo] {
-        let petID = pet.id
-        let descriptor = FetchDescriptor<Photo>(
-            predicate: #Predicate { $0.pet?.id == petID },
-            sortBy: [SortDescriptor(\.takenAt, order: .reverse)]
-        )
-        return try context.fetch(descriptor)
+        // 用已加载的关系排序，避免可选关系 predicate 的不确定性。
+        return pet.photos.sorted { ($0.takenAt ?? .distantPast) > ($1.takenAt ?? .distantPast) }
     }
 
     func insertPhoto(_ photo: Photo) throws {

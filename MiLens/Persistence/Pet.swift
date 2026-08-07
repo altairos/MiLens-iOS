@@ -64,5 +64,7 @@ final class Pet {
         self.photoCount = photoCount
         self.createdAt = createdAt
         self.updatedAt = updatedAt
+        self.events = []
+        self.photos = []
     }
 }

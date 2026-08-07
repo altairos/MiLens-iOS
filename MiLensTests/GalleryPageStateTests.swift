@@ -11,32 +11,44 @@ final class GalleryPageStateTests: XCTestCase {
         isLoading: Bool = true, photoCount: Int = 0, visibleCount: Int = 0,
         hasMorePhotos: Bool = false, galleryChromeHidden: Bool = false
     ) -> GalleryDisplaySnapshot {
-        GalleryDisplaySnapshot(
-            isLoading: isLoading, photoCount: photoCount, visibleCount: visibleCount,
-            hasMorePhotos: hasMorePhotos, galleryChromeHidden: galleryChromeHidden
-        )
+        var snap = GalleryDisplaySnapshot.initial
+        snap.isLoading = isLoading
+        snap.photoCount = photoCount
+        snap.visibleCount = visibleCount
+        snap.hasMorePhotos = hasMorePhotos
+        snap.galleryChromeHidden = galleryChromeHidden
+        return snap
     }
 
     private func filterState(
         filterEnabled: Bool = false, favoritesEnabled: Bool = false,
         selectedFilter: GalleryFilter = .empty
     ) -> GalleryFilterSnapshot {
-        GalleryFilterSnapshot(filterEnabled: filterEnabled, favoritesEnabled: favoritesEnabled, selectedFilter: selectedFilter)
+        var snap = GalleryFilterSnapshot.initial()
+        snap.filterEnabled = filterEnabled
+        snap.favoritesEnabled = favoritesEnabled
+        snap.selectedFilter = selectedFilter
+        return snap
     }
 
     private func scanState(
         isScanning: Bool = false, scanPaused: Bool = false,
         showScanCompleteDialog: Bool = false, scanTotal: Int = 0, scanFound: Int = 0
     ) -> GalleryScanSnapshot {
-        GalleryScanSnapshot(
-            isScanning: isScanning, scanPaused: scanPaused,
-            showScanCompleteDialog: showScanCompleteDialog,
-            scanTotal: scanTotal, scanFound: scanFound
-        )
+        var snap = GalleryScanSnapshot.initial
+        snap.isScanning = isScanning
+        snap.scanPaused = scanPaused
+        snap.showScanCompleteDialog = showScanCompleteDialog
+        snap.scanTotal = scanTotal
+        snap.scanFound = scanFound
+        return snap
     }
 
     private func taskState(isImporting: Bool = false, isExporting: Bool = false) -> GalleryTaskSnapshot {
-        GalleryTaskSnapshot(isImporting: isImporting, isExporting: isExporting)
+        var snap = GalleryTaskSnapshot.initial
+        snap.isImporting = isImporting
+        snap.isExporting = isExporting
+        return snap
     }
 
     // MARK: - resolveContentKind

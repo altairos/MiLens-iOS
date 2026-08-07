@@ -1,0 +1,11 @@
+/* 底部标签 */
+"tab.home" = "首页";
+"tab.pets" = "宠物";
+"tab.create" = "创作";
+"tab.settings" = "我的";
+
+/* 各 Tab 占位说明（P1.1，随页面实现逐步替换） */
+"home.placeholder" = "今日照片 · 历史回忆 · 成长提醒\n即将实现";
+"pets.placeholder" = "宠物档案 · 成长时间线 · 纪念提醒\n即将实现";
+"create.placeholder" = "拼豆图纸 · 宠物卡片\n即将实现";
+"settings.placeholder" = "订阅 · 主题 · 隐私 · 关于\n即将实现";

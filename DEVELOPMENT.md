@@ -158,6 +158,7 @@ xcodebuild ... test -enableCodeCoverage YES
 
 - 2026-08-07：harness 文档搭建完成。本地编译闭环验证通过——WSL2 **Ubuntu-24.04** + Swift 6.1.3（/opt/swift），`swift build` 与 `swift test` MiLensKit 全绿（1 用例，0 失败），增量编译 ~1.1s。
 - 2026-08-07：项目推送 GitHub（`altairos/MiLens-iOS`，私有）。**云端编译闭环验证通过**——`MiLensKit (Linux)` 51s + `MiLens App (macOS)` 4m7s 全绿（`BUILD SUCCEEDED` + 测试通过）。首次运行修复 Asset Catalog 缺 `AppIcon.appiconset` 一处。
+- 2026-08-07：**P1.1 工程地基**——新增 `MiLensApp` 组合根、`RootTabView`（4 Tab）、`Route`/`AppTab`、主题 token（5 个 Asset Catalog 语义色含深色 + `Theme.swift`）、简中 `Localizable.strings`、AppTab/Route 测试（8 用例）。编译/测试待 CI 验证。
 
 ## 6. 源端参考资料
 

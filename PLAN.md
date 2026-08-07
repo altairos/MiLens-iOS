@@ -46,11 +46,11 @@
 
 ### P1.1 工程地基
 
-- [ ] 在 Mac 上 `xcodegen generate` 生成 `.xcodeproj`，编译空 App 启动
-- [ ] `MiLensApp`（`@main`）+ `ModelContainer` 初始化 + `scenePhase` 处理
-- [ ] TabView 壳（首页/宠物/创作/我的）+ 路由枚举 `Route`
-- [ ] 主题 token 翻译：`AppTheme.ets` → Asset Catalog 颜色 + Typography 扩展（含深色 Appearance）
-- [ ] 资源迁移：App Icon、占位图、本地化 `.strings`（简体中文）
+- [x] 在 Mac 上 `xcodegen generate` 生成 `.xcodeproj`，编译空 App 启动（P0 已在 CI 验证 BUILD SUCCEEDED）
+- [x] `MiLensApp`（`@main`）组合根 + `scenePhase` 生命周期骨架；`ModelContainer` 待 P1.2 SwiftData `@Model` 接入
+- [x] TabView 壳（首页/宠物/创作/我的）+ 路由枚举 `Route` + `AppTab`（`@AppStorage` 持久化选中项）
+- [x] 主题 token 翻译：Asset Catalog 语义色（`AccentColor` 品牌色 `#FD8663` + 背景/卡片/文字，含深色 Appearance）+ `Theme.swift`（Spacing/Radius/Size/Motion）；Typography 沿用系统字体（源端无自定义字体文件）
+- [x] 本地化 `.strings`（简体中文）；App Icon / 占位图待源端资源整理后补
 
 ### P1.2 数据层
 
@@ -210,4 +210,5 @@
 - 2026-08-07：完成源项目盘点、4 项关键决策、全部 6 份顶层文档（AGENTS / DESIGN / PLAN / MIGRATION_ASSESSMENT / DEVELOPMENT / README）、harness 骨架（XcodeGen `project.yml` + MiLensKit 本地 Swift Package + 21 目录 + `.gitignore`）。
 - 2026-08-07：云端 CI（`.github/workflows/ci.yml`）+ **本地编译闭环**落地——WSL2 Ubuntu-24.04 + Swift 6.1.3（/opt/swift），MiLensKit `swift build`/`swift test` 全绿（增量编译 ~1.1s）。
 - 2026-08-07：项目推送 GitHub（`altairos/MiLens-iOS`，私有）。**云端编译闭环验证通过**——`MiLensKit (Linux)` 51s + `MiLens App (macOS)` 4m7s 全绿（`BUILD SUCCEEDED` + 测试通过）；首次运行修复 Asset Catalog 缺 `AppIcon.appiconset`。
-- 待办：范围裁剪与产品对齐。
+- 2026-08-07：**P1.1 工程地基落地**——`MiLensApp` 组合根 + `RootTabView`（4 Tab：首页/宠物/创作/我的）+ `Route`/`AppTab` 枚举 + 主题 token（Asset Catalog 5 语义色含深色 + `Theme.swift` 尺寸）+ 简中本地化 + AppTab/Route 纯逻辑测试（8 用例）。待 CI 验证编译+模拟器启动。
+- 待办：范围裁剪与产品对齐；P1.2 SwiftData @Model + ModelContainer。

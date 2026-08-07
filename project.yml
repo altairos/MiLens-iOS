@@ -10,6 +10,7 @@ options:
   createIntermediateGroups: true
   groupSortPosition: top
   developmentLanguage: zh-Hans
+  knownRegions: [zh-Hans]
 
 settings:
   base:

@@ -1,33 +1,15 @@
-import SwiftUI
-import SwiftData
-import MiLensKit
+//  组合根（DESIGN.md §4.1）。
+//  应用级依赖（ModelContainer / Repository / 长生命周期 Service）在此构造并注入。
+//  P1.1 暂不接 SwiftData（@Model 待 P1.2）；scenePhase 生命周期编排交由 RootTabView。
+//  对应源端 EntryAbility（HarmonyOS UIAbility 生命周期入口）。
 
-// P0 占位入口。组合根、TabView 壳、ModelContainer、Environment 注入将在 P1 实现。
-// 详见 DESIGN.md §2/§4。
+import SwiftUI
 
 @main
 struct MiLensApp: App {
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            RootTabView()
         }
     }
-}
-
-private struct ContentView: View {
-    var body: some View {
-        VStack(spacing: 12) {
-            Image(systemName: "pawprint.fill")
-                .font(.system(size: 48))
-            Text("咪Lens")
-                .font(.title)
-            Text("MiLensKit \(MiLensKit.version)")
-                .font(.caption)
-                .foregroundStyle(.secondary)
-        }
-    }
-}
-
-#Preview {
-    ContentView()
 }

@@ -53,7 +53,7 @@ jobs:
         run: |
           xcodebuild -project MiLens.xcodeproj \
             -scheme MiLens \
-            -destination 'platform=iOS Simulator,name=iPhone 16' \
+            -destination 'generic/platform=iOS Simulator' \
             -configuration Debug \
             CODE_SIGNING_ALLOWED=NO \
             build
@@ -61,7 +61,7 @@ jobs:
         run: |
           xcodebuild -project MiLens.xcodeproj \
             -scheme MiLens \
-            -destination 'platform=iOS Simulator,name=iPhone 16' \
+            -destination 'generic/platform=iOS Simulator' \
             -configuration Debug \
             -enableCodeCoverage YES \
             CODE_SIGNING_ALLOWED=NO \

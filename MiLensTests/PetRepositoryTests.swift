@@ -8,8 +8,9 @@ import SwiftData
 final class PetRepositoryTests: XCTestCase {
 
     private func makeRepo() -> (SwiftDataPetRepository, ModelContainer) {
+        let schema = Schema(versionedSchema: SchemaV1.self)
         let config = ModelConfiguration(isStoredInMemoryOnly: true)
-        let container = try! ModelContainer(for: SchemaV1.models, configurations: [config])
+        let container = try! ModelContainer(for: schema, configurations: [config])
         let repo = SwiftDataPetRepository(context: container.mainContext)
         return (repo, container)
     }

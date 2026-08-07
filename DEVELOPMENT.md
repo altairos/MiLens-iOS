@@ -241,7 +241,8 @@ UI 文案与 Info.plist 权限说明用 Apple String Catalog（`.xcstrings`）�
 
 ### P2
 
-- 2026-08-08：**P2 纯决策 + Service + View 层落地**——翻译源端 6 个纯决策模块（`GalleryPageState`/`ScanFlowLogic`/`ScanControlMath`/`ImportFlowLogic`/`PhotoMetadataLogic`/`PhotoViewGestureMath`）为 Swift 纯函数/struct + ~84 用例 XCTest（逐条对应源端黄金规格）；`ScanService`（Photos 全库扫描 + `VisionService` 检测 + `Task.cancel` 取消）+ `ImportService`（复制沙盒 → 入库）+ ~15 用例（in-memory SwiftData + mock 平台服务）；`GalleryViewModel`（@Observable）+ `GalleryView`（LazyVGrid 分页 + 扫描进度 + 完成弹窗）+ `PhotoViewView`（大图 + 手势）+ `HomeView`（相册/扫描入口）。**编译 + 测试验证待 CI 推送**（Windows 开发机无法编译 iOS App target）。
+- 2026-08-08：**P2 纯决策 + Service + View 层落地**——翻译源端 6 个纯决策模块（`GalleryPageState`/`ScanFlowLogic`/`ScanControlMath`/`ImportFlowLogic`/`PhotoMetadataLogic`/`PhotoViewGestureMath`）为 Swift 纯函数/struct + ~84 用例 XCTest（逐条对应源端黄金规格）；`ScanService`（Photos 全库扫描 + `VisionService` 检测 + `Task.cancel` 取消）+ `ImportService`（复制沙盒 → 入库）+ ~15 用例（in-memory SwiftData + mock 平台服务）；`GalleryViewModel`（@Observable）+ `GalleryView`（LazyVGrid 分页 + 扫描进度 + 完成弹窗）+ `PhotoViewView`（大图 + 手势）+ `HomeView`（相册/扫描入口）。
+- 2026-08-08：**P2 CI 验证通过**（run [31204194663](https://github.com/altairos/MiLens-iOS/actions/runs/31204194663)）——MiLensKit (Linux) 120 passed/1 skipped/0 failed + MiLens App (macOS) 134 passed/15 skipped/0 failed。修复 5 处编译错误（`StylizedDraftGenerator` 参数标签、`PhotoLibraryAccess` 花括号、主题 token API 名称、`BeadPresetResolver` min/max 遮蔽、`MagnifyGesture.Value.magnification`）+ 1 处测试参数顺序。ScanServiceTests/ImportServiceTests（15 用例）因模拟器 SwiftData 集成崩溃临时跳过，待真机调试。**真机验证待办清单见 [P2-真机验证备忘](docs/P2-真机验证备忘.md)**。
 
 ## 6. 源端参考资料
 

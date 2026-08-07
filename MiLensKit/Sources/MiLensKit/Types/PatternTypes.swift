@@ -130,6 +130,31 @@ public struct PatternDiagnostics: Equatable, Sendable {
     }
 }
 
+// MARK: - 颜色数量上限
+
+/// 按图纸尺寸和预设返回颜色数量上限。对应源端 `getColorLimitBySize`。
+public func getColorLimitBySize(width: Int, height: Int, preset: String) -> Int {
+    let beads = width * height
+    switch preset {
+    case "simple":
+        return beads < 1000 ? 10 : 12
+    case "standard":
+        if beads < 1000 { return 16 }
+        if beads < 2500 { return 20 }
+        return 24
+    case "detailed":
+        if beads < 1000 { return 20 }
+        if beads < 4000 { return 40 }
+        return 48
+    case "realistic":
+        if beads < 1000 { return 24 }
+        if beads < 4000 { return 60 }
+        return 72
+    default:
+        return 24
+    }
+}
+
 // MARK: - 最小颜色使用量阈值
 
 /// 计算最小颜色使用量阈值。对应源端 `minColorUsageThreshold`。

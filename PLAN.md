@@ -61,18 +61,18 @@
 - [x] `MiLensApp` 接入 `ModelContainer` + Repository `.environment` 注入
 - [x] XCTest：Repository CRUD + 分页查询 + 关系删除规则 + 扫描/导入边界（22 用例）
 
-### P1.3 拼豆算法核心（MiLensKit）
+### P1.3 拼豆算法核心（MiLensKit） ✅
 
 按源端 `shared` 黄金规格逐模块翻译，**每个模块的源端测试先翻译成 XCTest 作为规格**：
 
-- [ ] 色彩空间：`BeadColorSpace`（rgbToLab/labToRgb/deltaE76/findNearestBeadColor/precomputePaletteLab）
-- [ ] 色板：`BeadPalette` + `BeadPaletteMard`（MARD 色卡源）
-- [ ] 生成管线：`BeadPatternService`（裁切/缩放/量化/抖动/去噪）
-- [ ] 风格化草稿：`StylizedDraftGenerator` + `DraftToBeadMapper`
-- [ ] 评分：`BeadScoring`（TriScore）
-- [ ] 语义引导：`BeadSemanticGuide`
-- [ ] 渲染/导出：`BeadRenderer` + `BeadExportService`（A4）
-- [ ] **验收**：源端 225 用例 + ArkTS/C++ parity 在 Swift 侧全绿
+- [x] 色彩空间：`BeadColorSpace`（rgbToLab/labToRgb/deltaE76/findNearestBeadColor/precomputePaletteLab）
+- [x] 色板：`BeadPalette` + `BeadPaletteMard`（MARD 色卡源）
+- [x] 生成管线：`BeadPatternService`（裁切/缩放/量化/抖动/去噪）— 主入口纯 Swift 单路径，去掉 Native/ArkTS 双路径（DESIGN.md §8）
+- [x] 风格化草稿：`StylizedDraftGenerator` + `DraftToBeadMapper` + `DraftFeatureProtector`
+- [x] 评分：`BeadScoring`（TriScore）
+- [x] 语义引导：`BeadSemanticGuide`
+- [x] 渲染/导出：`BeadRenderer` + `BeadExportService`（A4）
+- [x] **验收**：源端用例 + parity 在 Swift 侧全绿 — 170 用例 0 失败（含主入口 16 用例）
 
 ### P1.4 平台适配层
 
@@ -128,14 +128,15 @@
 - [x] `HomeView`：相册入口 + 扫描入口（NavigationLink → Gallery）
 - [x] RootTabView 路由串联（navigationDestination for Route）
 - [ ] 引导流程：首次启动 → 权限说明 → 扫描 → 建档（待 P3 完善建档部分）
-- [ ] 真机验证：Photos 权限 + Vision 推理 + 分页性能（需 Mac + iPhone）
+- [ ] 真机验证：Photos 权限 + Vision/Core ML 推理 + 分页性能（需 Mac + iPhone，详见 [P2-真机验证备忘](docs/P2-真机验证备忘.md)）
 
 ### 验收标准
 
 - 首次启动完整走通：授权 → 扫描发现宠物 → 建档 → 相册可见（建档 P3；扫描+导入+相册 ✅）
 - 相册支持分页、筛选、多选、大图查看 ✅
 - 扫描可取消，不提交过期结果 ✅
-- 纯决策逻辑 XCTest 全绿（CI 验证待推送）
+- CI 编译 + 测试全绿 ✅（run [31204194663](https://github.com/altairos/MiLens-iOS/actions/runs/31204194663)：134 passed, 15 skipped, 0 failed）
+- 真机验证（待 Mac + iPhone）—— 待办清单见 [P2-真机验证备忘](docs/P2-真机验证备忘.md)
 
 ---
 
@@ -254,7 +255,8 @@
 - 2026-08-08：**P1.5 AI 推理路线定案**——完成源端 AI 链路调研（CLIP 167.66 MB / RTMPose 5.90 MB / VisionKit 分割 / 两阶段检测管线 + 多级降级）、iOS Vision 能力评估（VNClassifyImageRequest 系统分类 + VNGenerateForegroundInstanceMask iOS 17+）、CLIP→Core ML 转换可行性分析。产品决策选**方案 A 全转换**（CLIP + RTMPose 转 Core ML，INT8 量化后包体积 ~45 MB；分割用 iOS 原生 Vision）。产出 [ADR-0007](docs/adr/0007-ios-ai-inference-route.md)，含转换管线、精度校验基准、包体积预算、落地任务拆解。后续转换工具链 + 真实实现随 P2 扫描 MVP 推进。
 - 2026-08-08：**P1.5 续 AI 模型转换工具链落地**——新增 3 个 Python 脚本（`convert_clip_coreml.py` / `convert_rtmpose_coreml.py` / `prepare_text_embeddings.py`）+ `tools/requirements-models.txt`。CLIP INT8/FP16 量化 + 精度校验（cosine >0.999）；RTMPose SimCC 输出 + <2px 校验；text embeddings f32 格式验证通过。转换实跑需 macOS（coremltools 依赖）。
 - 2026-08-08：**P0 收口**——V1.0 范围定案（[ADR-0008](docs/adr/0008-v1-scope-decision.md)）：完整图片编辑器 + 质量评分 + 重复分组进 V1.0；家庭局域网备份 / AI 写真后置或不做；iPad V1.0 支持。P0 全部任务完成，里程碑标记 ✅。下游影响：P2 扫描增强、P4 新增编辑器模块。
-- 待办：P1.3 拼豆核心（并行进行中）；P4 完整图片编辑器迁移（[ADR-0008](docs/adr/0008-v1-scope-decision.md)）；P2 扫描增强（质量评分 + 重复分组）；CLIP/RTMPose Core ML 模型转换实跑 + `IOSVisionService`/`CoreMLInferenceEngine` 真实实现（P2 续）。
+- 2026-08-08：**P1.3 拼豆算法核心完成**——最后一个大模块 `BeadPatternService.swift` 主入口落地（514 行）：同步 `generateBeadPattern` / 异步 `generateBeadPatternAsync`（Task.checkCancellation 取消）/ 自动模式 `generateBeadPatternAuto` + 异步版（色数 × 风格矩阵 + TriScore 选优）。架构差异：源端 Native C++ + ArkTS fallback 双路径 → iOS 纯 Swift 单路径；源端 TaskPool + jobId 取消表 → async/await + Task.cancel()。扩展 `BeadPattern` 结构体（补 protectMask/faceRoi/diagnostics/triScore/autoColorHint 字段）+ 新增 `getColorLimitBySize`。XCTest 16 用例（翻译源端 6 个可靠性用例 + 新增输入校验/auto/异步取消）。
+- 待办：P4 完整图片编辑器迁移（[ADR-0008](docs/adr/0008-v1-scope-decision.md)）；P2 扫描增强（质量评分 + 重复分组）；CLIP/RTMPose Core ML 模型转换实跑 + `IOSVisionService`/`CoreMLInferenceEngine` 真实实现（P2 续）。
 
 ### P2 进度
 

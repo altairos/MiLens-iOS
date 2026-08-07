@@ -179,20 +179,24 @@ final class EditorHistoryTests: XCTestCase {
 
     func testGestureCoalescing() {
         let h = EditorHistory<String, String>(maxDepth: 10)
-        h.initialize("base")
-        h.push("state-1")
+        h.initialize("base")       // current=base, undoStack=[]
+        h.push("state-1")           // undoStack=[base], current=state-1
 
         h.beginGesture()
-        h.push("state-2")  // 首帧：把 state-1 入栈
-        h.push("state-3")  // 续帧：只替换 current
+        h.push("state-2")           // 手势首帧：把 state-1 入栈，undoStack=[base,state-1], current=state-2
+        h.push("state-3")           // 手势续帧：只替换 current，不入栈
         h.endGesture()
 
-        // undo 栈应只有 1 个条目（state-1），不是 2 个
-        XCTAssertEqual(h.depth, 1)
+        // 手势合并后 undoStack=[base, state-1]，depth=2（不是 3，因为 state-2/state-3 合并为一条）
+        XCTAssertEqual(h.depth, 2)
         XCTAssertEqual(h.current, "state-3")
 
+        // undo 回到手势前的 state-1
         let undoResult = h.undo()
         XCTAssertEqual(undoResult?.snapshot, "state-1")
+        // 再 undo 回到 base
+        let undoResult2 = h.undo()
+        XCTAssertEqual(undoResult2?.snapshot, "base")
     }
 
     func testNestedBeginGestureIgnored() {

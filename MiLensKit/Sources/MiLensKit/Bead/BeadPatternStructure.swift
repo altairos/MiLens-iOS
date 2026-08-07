@@ -1,8 +1,7 @@
 import Foundation
 
-// BeadPatternStructure — 结构诊断 / 眼睛高光 / 主色索引。
+// BeadPatternStructure — 结构诊断 / 眼睛高光 / 主色索引 / finalizeNativePattern。
 // 逐行翻译自源端 shared/.../bead/BeadPatternStructure.ets。
-// finalizeNativePattern 依赖 drawOutline（未迁移）和完整 BeadPattern，暂跳过。
 
 // MARK: - 轻量图纸引用（refreshStructuralDiagnostics 操作的可变引用）
 
@@ -16,10 +15,16 @@ public struct BeadPatternRef {
     public var paletteUsed: [BeadColor]
     public var score: BeadScore
     public var diagnostics: PatternDiagnostics?
+    public var protectMask: [UInt8]?
+    public var colorCounts: [BeadColorCount]?
+    public var shortSymbols: [String]?
 
     public init(width: Int, height: Int, indices: [UInt16], empty: [UInt8],
                 paletteUsed: [BeadColor], score: BeadScore = BeadScore(colorError: 0, detailScore: 0, estimatedDifficulty: 0, level: "", totalBeads: 0, colorCount: 0, estimatedMinutes: ""),
-                diagnostics: PatternDiagnostics? = nil) {
+                diagnostics: PatternDiagnostics? = nil,
+                protectMask: [UInt8]? = nil,
+                colorCounts: [BeadColorCount]? = nil,
+                shortSymbols: [String]? = nil) {
         self.width = width
         self.height = height
         self.indices = indices
@@ -27,6 +32,9 @@ public struct BeadPatternRef {
         self.paletteUsed = paletteUsed
         self.score = score
         self.diagnostics = diagnostics
+        self.protectMask = protectMask
+        self.colorCounts = colorCounts
+        self.shortSymbols = shortSymbols
     }
 }
 
@@ -164,4 +172,37 @@ public func computeTopDominantIndices(
     }
     let sorted = counts.sorted { $0.value > $1.value }
     return sorted.prefix(topN).map(\.key)
+}
+
+// MARK: - 最终化图纸
+
+/// 最终化图纸：可选轮廓绘制 + 诊断刷新。对应源端 `finalizeNativePattern`。
+/// 原地修改 pattern。
+public func finalizeNativePattern(
+    _ pattern: inout BeadPatternRef,
+    options: BeadGenerateOptions,
+    referencePixels: [UInt8]? = nil
+) {
+    if !options.outlineDrawMode.isEmpty && options.outlineDrawMode != "none" {
+        pattern.paletteUsed = drawOutline(
+            &pattern.indices, w: pattern.width, h: pattern.height,
+            palette: pattern.paletteUsed, mode: options.outlineDrawMode,
+            protectMask: pattern.protectMask, empty: pattern.empty)
+        pattern.colorCounts = computePatternColorCounts(
+            indices: pattern.indices, paletteUsed: pattern.paletteUsed, empty: pattern.empty)
+        pattern.score = computePatternDifficulty(
+            colorCounts: pattern.colorCounts ?? [],
+            totalPixels: pattern.score.totalBeads,
+            w: pattern.width, h: pattern.height)
+        pattern.shortSymbols = generatePatternShortSymbols(
+            paletteUsed: pattern.paletteUsed, colorCounts: pattern.colorCounts ?? [])
+    }
+    if let referencePixels, referencePixels.count == pattern.width * pattern.height * 4 {
+        pattern.diagnostics = computeDiagnostics(
+            indices: pattern.indices, w: pattern.width, h: pattern.height,
+            paletteUsed: pattern.paletteUsed, originalPixels: referencePixels,
+            empty: pattern.empty)
+    } else {
+        refreshStructuralDiagnostics(&pattern)
+    }
 }

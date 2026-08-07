@@ -242,6 +242,27 @@ public struct ResolvedBeadGeneration {
     }
 }
 
+// MARK: - 尺寸预设
+
+/// 尺寸预设值。对应源端 `BeadSizePresetValue`（maxDim 为最大边格数）。
+public struct BeadSizePresetValue {
+    public var maxDim: Int
+    public var label: String
+
+    public init(maxDim: Int, label: String) {
+        self.maxDim = maxDim
+        self.label = label
+    }
+}
+
+/// 尺寸预设映射。对应源端 `BEAD_SIZE_PRESETS`。
+public let BEAD_SIZE_PRESETS: [String: BeadSizePresetValue] = [
+    "mini":     BeadSizePresetValue(maxDim: 15, label: "迷你 15×15"),
+    "standard": BeadSizePresetValue(maxDim: 29, label: "标准 29×29"),
+    "large":    BeadSizePresetValue(maxDim: 52, label: "特大 52×52"),
+    "jumbo":    BeadSizePresetValue(maxDim: 78, label: "超大 78×78"),
+]
+
 // MARK: - 颜色数量预设
 
 /// 颜色数量预设值。对应源端 `BeadColorPresetValue`。

@@ -71,4 +71,42 @@ final class BeadPatternStructureTests: XCTestCase {
         XCTAssertEqual(value.diagnostics?.outlineCoverageRatio, 0.667)  // fur_dark 占 2/3
         XCTAssertEqual(value.diagnostics?.blackCoverageRatio, 0.667)   // L(5)<20 占 2/3
     }
+
+    // MARK: - finalizeNativePattern
+
+    /// 构造 outlineDrawMode="none" 的 BeadGenerateOptions（finalizeNativePattern 仅访问此字段）
+    private func optionsNone() -> BeadGenerateOptions {
+        return BeadGenerateOptions(
+            targetWidth: 2, targetHeight: 1, maxColors: 12, paletteId: "MARD_72",
+            mode: "portrait", backgroundMode: "light", outline: false, dithering: "none",
+            denoise: false, eyeEnhance: false, preserveBrightness: false,
+            outlineStrength: 0, saturationBoost: 1, contrastBoost: 1,
+            shadowLift: 0, cleanupSmallRegionMinSize: 0, tinyColorUsageRatio: 0.002,
+            lightnessBucketCoverage: 0.8, petFriendlyPenalty: 0, outlineDrawMode: "none",
+            featureProtectionStrength: 0, autoWhiteBalanceStrength: 0,
+            vibranceBoost: 1, brightnessBoost: 1,
+            neutralGuardStrength: 0.8, highlightProtectStrength: 0.8,
+            subjectLocalContrast: 0, backgroundDesaturation: 0, backgroundBlurStrength: 0)
+    }
+
+    func testFinalizesPatternWithoutOutlinesAndAlwaysRefreshesDiagnostics() {
+        var value = patternRef([0, 0], 2, 1, [color("gray", 120)])
+        finalizeNativePattern(&value, options: optionsNone())
+        // outlineDrawMode="none" → 跳过轮廓分支，直接刷新结构诊断
+        XCTAssertEqual(value.diagnostics?.usedColorCount, 1)
+        XCTAssertEqual(value.diagnostics?.isolatedPixelRatio, 0)
+    }
+
+    func testRecomputesNativeColorDiagnosticsAgainstFinalReferenceGrid() {
+        var value = patternRef([0, 0], 2, 1, [color("gray", 120)])
+        value.diagnostics = PatternDiagnostics(
+            averageDeltaE: 99, maxDeltaE: 99, usedColorCount: 1, tinyColorCount: 0,
+            isolatedPixelRatio: 0
+        )
+        // 参考 grid 与色板色完全一致 → 色差为 0
+        let reference: [UInt8] = [120, 120, 120, 255, 120, 120, 120, 255]
+        finalizeNativePattern(&value, options: optionsNone(), referencePixels: reference)
+        XCTAssertEqual(value.diagnostics?.averageDeltaE, 0)
+        XCTAssertEqual(value.diagnostics?.maxDeltaE, 0)
+    }
 }

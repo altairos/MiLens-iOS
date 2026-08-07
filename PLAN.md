@@ -68,11 +68,12 @@
 - [x] 色彩空间：`BeadColorSpace`（rgbToLab/labToRgb/deltaE76/findNearestBeadColor/precomputePaletteLab）
 - [x] 色板：`BeadPalette` + `BeadPaletteMard`（MARD 色卡源）
 - [x] 生成管线：`BeadPatternService`（裁切/缩放/量化/抖动/去噪）— 主入口纯 Swift 单路径，去掉 Native/ArkTS 双路径（DESIGN.md §8）
-- [x] 风格化草稿：`StylizedDraftGenerator` + `DraftToBeadMapper` + `DraftFeatureProtector`
+- [x] 风格化草稿：`StylizedDraftGenerator` + `DraftToBeadMapper` + `DraftFeatureProtector`（含 finalizeNativePattern）
 - [x] 评分：`BeadScoring`（TriScore）
 - [x] 语义引导：`BeadSemanticGuide`
 - [x] 渲染/导出：`BeadRenderer` + `BeadExportService`（A4）
-- [x] **验收**：源端用例 + parity 在 Swift 侧全绿 — 170 用例 0 失败（含主入口 16 用例）
+- [x] 诊断工具：`AppErrorHandler`（错误分类/脱敏）+ `TaskLogger`（结构化任务日志）+ `DiagnosticsCollector`（诊断报表）
+- [x] **验收**：源端用例 + parity 在 Swift 侧全绿 — 225 用例 0 失败（含主入口 16 用例 + DraftFeatureProtector 3 + BeadPatternStructure finalizeNativePattern 2 + AppErrorHandler 33 + TaskLogger 27 + DiagnosticsCollector 24）
 
 ### P1.4 平台适配层
 
@@ -106,7 +107,7 @@
 - 工程编译通过，空 App + TabView 可在 iPhone 模拟器启动 ✅（CI run 31187548565）
 - SwiftData schema v1 + Repository 测试通过 ✅（CI run 31193790682）
 - 平台适配层 4 协议 + mock + 测试 ✅（CI run 31196033240）
-- MiLensKit 拼豆核心对源端 225 + parity 全绿
+- MiLensKit 拼豆核心对源端 225 + parity 全绿 ✅（DraftFeatureProtector/finalizeNativePattern/utils 三件套已补齐）
 - AI 路线 ADR 定案 ✅（[ADR-0007](docs/adr/0007-ios-ai-inference-route.md)，方案 A 全转换 + Vision 分割）
 
 ---

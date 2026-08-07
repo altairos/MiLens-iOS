@@ -57,7 +57,7 @@ MiLensKit/                      # 本地 Swift Package（对应源端 shared HSP
 ├── Sources/MiLensKit/
 │   ├── Bead/                   # 拼豆算法（生成/色板/渲染/色彩/评分/语义引导）
 │   ├── ColorSpace/             # Lab/deltaE 纯逻辑
-│   ├── Diagnostics/            # 错误分类/任务日志（对应源端 utils）
+│   ├── Diagnostics/            # 错误分类/任务日志/诊断报表（AppErrorHandler/TaskLogger/DiagnosticsCollector，对应源端 utils）
 │   └── Types/                  # 共享类型
 └── Tests/MiLensKitTests/       # 拼豆 XCTest（对照源端 225 + parity）
 

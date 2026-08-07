@@ -87,12 +87,12 @@ struct GalleryView: View {
         VStack(spacing: 16) {
             Image(systemName: "pawprint.fill")
                 .font(.system(size: 60))
-                .foregroundStyle(.milensTextSecondary)
+                .foregroundStyle(Color.milensTextSecondary)
             Text("还没有照片")
-                .font(.milensTitle2)
+                .font(.displayMedium)
             Text("扫描系统相册，自动发现你的宠物照片")
-                .font(.milensBody)
-                .foregroundStyle(.milensTextSecondary)
+                .font(.bodyPrimary)
+                .foregroundStyle(Color.milensTextSecondary)
                 .multilineTextAlignment(.center)
             Button {
                 vm.startScan()
@@ -102,7 +102,7 @@ struct GalleryView: View {
                     .padding(.vertical, 12)
             }
             .buttonStyle(.borderedProminent)
-            .tint(.milensPrimary)
+            .tint(Color.milensPrimary)
             .disabled(vm.isScanning)
         }
         .padding()
@@ -113,10 +113,10 @@ struct GalleryView: View {
         VStack(spacing: 12) {
             Image(systemName: "photo.on.ribbon.angled")
                 .font(.system(size: 48))
-                .foregroundStyle(.milensTextSecondary)
+                .foregroundStyle(Color.milensTextSecondary)
             Text("没有符合条件的照片")
-                .font(.milensBody)
-                .foregroundStyle(.milensTextSecondary)
+                .font(.bodyPrimary)
+                .foregroundStyle(Color.milensTextSecondary)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
@@ -170,15 +170,15 @@ struct GalleryView: View {
             ProgressView()
                 .scaleEffect(0.7)
             Text("正在扫描 \(vm.scanProgressText)")
-                .font(.milensCaption)
+                .font(.caption)
             Spacer()
             Button("取消") { vm.cancelScan() }
-                .font(.milensCaption)
+                .font(.caption)
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 8)
         .background(.ultraThinMaterial)
-        .clipShape(RoundedRectangle(cornerRadius: Theme.radiusMd))
+        .clipShape(RoundedRectangle(cornerRadius: Radius.medium))
         .padding()
     }
 }
@@ -198,13 +198,13 @@ private struct PhotoThumbnailCell: View {
                 .clipShape(RoundedRectangle(cornerRadius: 4))
             if isMultiSelect {
                 Image(systemName: isSelected ? "checkmark.circle.fill" : "circle")
-                    .foregroundStyle(isSelected ? .milensPrimary : .white)
+                    .foregroundStyle(isSelected ? Color.milensPrimary : .white)
                     .padding(4)
             }
             if photo.isFavorite {
                 Image(systemName: "heart.fill")
                     .font(.system(size: 10))
-                    .foregroundStyle(.milensPrimary)
+                    .foregroundStyle(Color.milensPrimary)
                     .padding(4)
             }
         }
@@ -250,14 +250,14 @@ private struct ScanCompleteSheet: View {
             VStack(spacing: 20) {
                 Image(systemName: "checkmark.seal.fill")
                     .font(.system(size: 48))
-                    .foregroundStyle(.milensPrimary)
+                    .foregroundStyle(Color.milensPrimary)
 
                 Text("扫描完成")
-                    .font(.milensTitle2)
+                    .font(.displayMedium)
 
                 Text(viewModel.scanCompleteMessage)
-                    .font(.milensBody)
-                    .foregroundStyle(.milensTextSecondary)
+                    .font(.bodyPrimary)
+                    .foregroundStyle(Color.milensTextSecondary)
                     .multilineTextAlignment(.center)
                     .padding(.horizontal)
 
@@ -270,14 +270,14 @@ private struct ScanCompleteSheet: View {
                             .padding(.vertical, 12)
                     }
                     .buttonStyle(.borderedProminent)
-                    .tint(.milensPrimary)
+                    .tint(Color.milensPrimary)
                     .disabled(viewModel.isImporting)
                 }
 
                 Button("完成") {
                     viewModel.showScanCompleteDialog = false
                 }
-                .font(.milensBody)
+                .font(.bodyPrimary)
             }
             .padding()
             .navigationBarHidden(true)

@@ -20,12 +20,12 @@ struct HomeView: View {
         VStack(spacing: 12) {
             Image(systemName: "pawprint.fill")
                 .font(.system(size: 48))
-                .foregroundStyle(.milensPrimary)
+                .foregroundStyle(Color.milensPrimary)
             Text("咪Lens")
-                .font(.milensLargeTitle)
+                .font(.displayLarge)
             Text("你的宠物数字生命档案")
-                .font(.milensBody)
-                .foregroundStyle(.milensTextSecondary)
+                .font(.bodyPrimary)
+                .foregroundStyle(Color.milensTextSecondary)
         }
         .padding(.top, 40)
     }
@@ -53,22 +53,22 @@ struct HomeView: View {
         HStack(spacing: 16) {
             Image(systemName: icon)
                 .font(.title2)
-                .foregroundStyle(.milensPrimary)
+                .foregroundStyle(Color.milensPrimary)
                 .frame(width: 44)
             VStack(alignment: .leading, spacing: 2) {
                 Text(title)
-                    .font(.milensHeadline)
+                    .font(.titleStandard)
                 Text(subtitle)
-                    .font(.milensCaption)
-                    .foregroundStyle(.milensTextSecondary)
+                    .font(.caption)
+                    .foregroundStyle(Color.milensTextSecondary)
             }
             Spacer()
             Image(systemName: "chevron.right")
-                .foregroundStyle(.milensTextSecondary)
+                .foregroundStyle(Color.milensTextSecondary)
         }
         .padding(16)
-        .background(.milensCard)
-        .clipShape(RoundedRectangle(cornerRadius: Theme.radiusMd))
+        .background(Color.milensCard)
+        .clipShape(RoundedRectangle(cornerRadius: Radius.medium))
     }
 }
 

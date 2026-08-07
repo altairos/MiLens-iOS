@@ -126,7 +126,7 @@ enum Route: Hashable {
 SwiftData 从 V1.0 干净 schema 起步（不复刻源端 16 版历史迁移）。参照源端 ER 模型：
 
 - `Pet`（`@Model`）：name、species、featureData、createdAt、photoCount
-- `Photo`（`@Model`）：uri、originalURI、thumbnailPath、embeddingData、qualityScore、duplicateOf、`@Relationship` to Pet
+- `Photo`（`@Model`）：uri、originalURI、thumbnailPath、phash、sharpness、qualityScore、duplicateOf、isBest、`@Relationship` to Pet（embeddingData 后置 V1.x）
 - `PetEvent`（`@Model`）：eventType、eventDate、`@Relationship` to Pet
 
 变更须同步：`@Model` + `VersionedSchema`/`SchemaMigrationPlan` + Repository + 测试。
@@ -163,7 +163,7 @@ SwiftData 从 V1.0 干净 schema 起步（不复刻源端 16 版历史迁移）�
 ## 10. 已知限制
 
 - AI 推理框架已定案：方案 A 全转换（CLIP + RTMPose → Core ML，INT8 量化）+ Vision 原生分割。详见 [ADR-0007](docs/adr/0007-ios-ai-inference-route.md)。
-- 完整图片编辑器、质量评分、重复分组**已纳入 V1.0**（[ADR-0008](docs/adr/0008-v1-scope-decision.md)）。
+- 质量评分（Laplacian 方差清晰度）+ 重复分组（pHash 视觉哈希）**已实现**（P2，[ADR-0008](docs/adr/0008-v1-scope-decision.md)）；CLIP embedding 相似度增强待 Core ML 模型就绪；完整图片编辑器待 P4。
 - 家庭局域网备份后置 V1.x；AI 写真/回忆视频 V1.0 不做（无源端参照，需独立产品+技术方案），仅 V1.x 重新评估。
 - SwiftData schema 从零设计，与源端数据无直接迁移路径（两平台数据不互通）。
 - 当前在 Windows 搭建文档/harness，编译与真机验证需 Mac + Xcode。

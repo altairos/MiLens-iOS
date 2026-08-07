@@ -139,7 +139,7 @@ final class EditorCropMathTests: XCTestCase {
 final class EditorLayerGeometryTests: XCTestCase {
 
     func testComputeLayerHalfSizeImageLayer() {
-        let layer = EditorLayer(id: "test", type: .photo, width: 200, height: 100, scale: 2.0)
+        let layer = EditorLayer(id: "test", type: .photo, scale: 2.0, width: 200, height: 100)
         let half = computeLayerHalfSize(layer)
         XCTAssertEqual(half.halfW, 200)  // 200 * 2.0 / 2
         XCTAssertEqual(half.halfH, 100)  // 100 * 2.0 / 2
@@ -155,7 +155,7 @@ final class EditorLayerGeometryTests: XCTestCase {
 
     func testIsPointInLayerNoRotation() {
         let layer = EditorLayer(id: "test", type: .photo, x: 100, y: 100,
-                                width: 200, height: 200, scale: 1.0)
+                                scale: 1.0, width: 200, height: 200)
         XCTAssertTrue(isPointInLayer(layer, tapX: 100, tapY: 100))   // 中心
         XCTAssertTrue(isPointInLayer(layer, tapX: 199, tapY: 199))   // 边缘内
         XCTAssertFalse(isPointInLayer(layer, tapX: 250, tapY: 100))  // 外部
@@ -163,7 +163,7 @@ final class EditorLayerGeometryTests: XCTestCase {
 
     func testIsPointInLayerInvisible() {
         var layer = EditorLayer(id: "test", type: .photo, x: 100, y: 100,
-                                width: 200, height: 200, scale: 1.0)
+                                scale: 1.0, width: 200, height: 200)
         layer.visible = false
         XCTAssertFalse(isPointInLayer(layer, tapX: 100, tapY: 100))
     }
@@ -177,7 +177,7 @@ final class EditorLayerGeometryTests: XCTestCase {
 
     func testSelectionBoxGeometryCorners() {
         // width=100, scale=2.0 → halfW = 100*2/2 = 100
-        let layer = EditorLayer(id: "test", type: .photo, width: 100, height: 100, scale: 2.0)
+        let layer = EditorLayer(id: "test", type: .photo, scale: 2.0, width: 100, height: 100)
         let geo = computeSelectionBoxGeometry(layer)
         XCTAssertEqual(geo.corners.count, 4)
         // 左上 (-100, -100), 右上 (100, -100), 右下 (100, 100), 左下 (-100, 100)
@@ -187,7 +187,7 @@ final class EditorLayerGeometryTests: XCTestCase {
 
     func testPhotoExportRegionValid() {
         let layer = EditorLayer(id: "test", type: .photo, x: 200, y: 200,
-                                width: 200, height: 200, scale: 1.0)
+                                scale: 1.0, width: 200, height: 200)
         let region = computePhotoExportRegion(photoLayer: layer, canvasW: 300, canvasH: 300)
         XCTAssertTrue(region.valid)
         // 照片左上 (100,100)，右下 (300,300)；画布 300×300
@@ -200,7 +200,7 @@ final class EditorLayerGeometryTests: XCTestCase {
 
     func testPhotoExportRegionNoOverlap() {
         let layer = EditorLayer(id: "test", type: .photo, x: 500, y: 500,
-                                width: 100, height: 100, scale: 1.0)
+                                scale: 1.0, width: 100, height: 100)
         let region = computePhotoExportRegion(photoLayer: layer, canvasW: 300, canvasH: 300)
         XCTAssertFalse(region.valid)
     }

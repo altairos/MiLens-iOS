@@ -120,8 +120,8 @@
 - [x] `ScanService`：Photos 全库扫描 + 宠物识别（VisionService）+ 取消支持（Task.cancel）
 - [x] `ImportService`：用户主动导入 → 复制沙盒 → 缩略图 → 入库（DESIGN.md §7 唯一入库路径）
 - [x] ScanService/ImportService 测试（~15 用例，in-memory SwiftData + mock）
-- [ ] 扫描增强（[ADR-0008](docs/adr/0008-v1-scope-decision.md) 扩范围）：质量评分（翻译源端 QualityAnalyzer → `Photo.qualityScore`）
-- [ ] 扫描增强：重复分组（CLIP embedding 相似度 + 视觉哈希 → `Photo.duplicateOf`，依赖 P1.5 Core ML 推理）
+- [x] 扫描增强（[ADR-0008](docs/adr/0008-v1-scope-decision.md) 扩范围）：质量评分（翻译源端 QualityScorer → `Photo.qualityScore` / `sharpness`）
+- [x] 扫描增强：重复分组（pHash 视觉哈希 → `Photo.duplicateOf` / `isBest`；CLIP embedding 相似度待 Core ML 模型就绪后增强）
 - [x] `GalleryViewModel`（@Observable）：分页 + 筛选 + 扫描/导入编排 + 多选
 - [x] `GalleryView`：LazyVGrid 虚拟化 + 分页加载 + 扫描入口 + 完成弹窗
 - [x] `PhotoViewView`：大图查看 + 手势（PhotoViewGestureMath 纯函数驱动）
@@ -174,12 +174,30 @@
 
 ### 任务 — 图片编辑器（[ADR-0008](docs/adr/0008-v1-scope-decision.md)）
 
-- [ ] 编辑器骨架：`Views/Editor/` + `EditorViewModel` + 撤销/重做状态机
-- [ ] 裁切/旋转/翻转（纯几何决策 + XCTest）
-- [ ] 滤镜矩阵（亮度/对比度/饱和度等，CIFilter 或纯逻辑）
+**Phase 1：纯逻辑迁移到 MiLensKit（可 WSL2 编译测试）✅**
+
+- [x] `EditorColorAdjust` — 调色参数建模 + 结构化 filter 因子（源端 CSS filter → iOS CIFilter 因子）
+- [x] `EditorSharpnessKernel` — 锐化卷积核构造 + RGBA 卷积
+- [x] `EditorCropMath` — 裁切 AABB 相交计算
+- [x] `EditorLayerModels` — 图层类型定义（去掉 PixelMap 依赖，App 层 ViewModel 持有 CGImage）
+- [x] `EditorLayerGeometry` — 图层几何（hitTest / scale clamp / 选择框 / 导出区域）
+- [x] `EditorExifPolicy` — EXIF 日期/GPS 解析 + 保存策略
+- [x] XCTest：编辑器纯决策逻辑（31 用例）
+
+**Phase 2：文档/历史/序列化（可 WSL2 编译测试）✅**
+
+- [x] `EditorDocument` + 序列化（源端 EditorDocument + LayerSerializer 合并，去掉 PixelMap 恢复回调，用 JSONEncoder/Decoder）
+- [x] `EditorHistory` — 泛型撤销/重做栈 + 手势合并（coalescing）
+- [x] XCTest：文档/历史/序列化（22 用例）
+
+**Phase 3：App 层 Controller + View（需 Mac）**
+
+- [ ] 编辑器骨架：`Views/Editor/` + `EditorViewModel` + 撤销/重做绑定
+- [ ] 裁切/旋转/翻转 UI + 手势（EditorCropMath / LayerGeometry 驱动）
+- [ ] 滤镜面板（CIFilter + EditorColorAdjust 因子）
 - [ ] 标注/马赛克/文字（翻译源端 `editor/` 标注能力）
 - [ ] 编辑产物回写沙盒（沿用 DESIGN.md §7 唯一入库路径）
-- [ ] XCTest：编辑器纯决策逻辑（裁切几何/变换矩阵/撤销栈）
+- [ ] XCTest：编辑器 ViewModel 决策
 
 ### 验收标准
 
@@ -256,8 +274,10 @@
 - 2026-08-08：**P1.5 续 AI 模型转换工具链落地**——新增 3 个 Python 脚本（`convert_clip_coreml.py` / `convert_rtmpose_coreml.py` / `prepare_text_embeddings.py`）+ `tools/requirements-models.txt`。CLIP INT8/FP16 量化 + 精度校验（cosine >0.999）；RTMPose SimCC 输出 + <2px 校验；text embeddings f32 格式验证通过。转换实跑需 macOS（coremltools 依赖）。
 - 2026-08-08：**P0 收口**——V1.0 范围定案（[ADR-0008](docs/adr/0008-v1-scope-decision.md)）：完整图片编辑器 + 质量评分 + 重复分组进 V1.0；家庭局域网备份 / AI 写真后置或不做；iPad V1.0 支持。P0 全部任务完成，里程碑标记 ✅。下游影响：P2 扫描增强、P4 新增编辑器模块。
 - 2026-08-08：**P1.3 拼豆算法核心完成**——最后一个大模块 `BeadPatternService.swift` 主入口落地（514 行）：同步 `generateBeadPattern` / 异步 `generateBeadPatternAsync`（Task.checkCancellation 取消）/ 自动模式 `generateBeadPatternAuto` + 异步版（色数 × 风格矩阵 + TriScore 选优）。架构差异：源端 Native C++ + ArkTS fallback 双路径 → iOS 纯 Swift 单路径；源端 TaskPool + jobId 取消表 → async/await + Task.cancel()。扩展 `BeadPattern` 结构体（补 protectMask/faceRoi/diagnostics/triScore/autoColorHint 字段）+ 新增 `getColorLimitBySize`。XCTest 16 用例（翻译源端 6 个可靠性用例 + 新增输入校验/auto/异步取消）。
-- 待办：P4 完整图片编辑器迁移（[ADR-0008](docs/adr/0008-v1-scope-decision.md)）；P2 扫描增强（质量评分 + 重复分组）；CLIP/RTMPose Core ML 模型转换实跑 + `IOSVisionService`/`CoreMLInferenceEngine` 真实实现（P2 续）。
+- 2026-08-08：**P4 图片编辑器 Phase 1-2 落地**——源端 `editor/` 纯逻辑+文档+历史翻译到 MiLensKit（8 文件 / ~1180 行）：Phase 1 纯逻辑 6 模块（ColorAdjust/SharpnessKernel/CropMath/LayerModels/LayerGeometry/ExifPolicy）；Phase 2 文档+序列化+历史（EditorDocument 含 JSON 序列化，EditorHistory 泛型撤销/重做+手势合并）。XCTest 53 用例。架构差异：源端 CSS Canvas filter → iOS CIFilter 结构化因子；源端 PixelMap 运行时资源 → App ViewModel 持有 CGImage；源端 LayerSerializer PixelMap 恢复回调 → iOS JSONEncoder/Decoder 无回调。本地 swift build 待 WSL2 恢复后验证。
+- 待办：P4 编辑器 Phase 3 App 层 Controller + View（需 Mac）；P2 扫描增强（质量评分 + 重复分组）；CLIP/RTMPose Core ML 模型转换实跑 + `IOSVisionService`/`CoreMLInferenceEngine` 真实实现（P2 续）。
 
 ### P2 进度
 
 - 2026-08-08：**P2 纯决策逻辑 + Service + View 层落地**——翻译源端 6 个纯决策模块为 Swift（`GalleryPageState`/`ScanFlowLogic`/`ScanControlMath`/`ImportFlowLogic`/`PhotoMetadataLogic`/`PhotoViewGestureMath`）+ ~84 用例 XCTest（对应源端黄金规格逐条翻译）；`ScanService`（Photos 全库扫描 + VisionService 检测 + Task 取消）+ `ImportService`（复制沙盒 → 入库，DESIGN.md §7 唯一入库路径）+ ~15 用例（in-memory SwiftData + mock）；`GalleryViewModel`（@Observable，分页/筛选/扫描/导入/多选）+ `GalleryView`（LazyVGrid + 分页加载 + 扫描进度条 + 完成弹窗）+ `PhotoViewView`（大图 + PhotoViewGestureMath 驱动的捏合缩放/平移/双击）+ `HomeView`（相册/扫描入口）。扩展 `PhotoLibraryAccess`（`loadImageData` + `dateAdded`）。**CI 验证待推送**。
+- 2026-08-08：**P2 扫描增强落地（质量评分 + 重复分组）**——翻译源端 `QualityScorer.ets` + `ImageUtils.computeQualityScore` + `pHash.ets` 为 Swift：①纯逻辑三模块（`QualityScoringLogic` 质量公式 / `PerceptualHashLogic` 哈希运算 / `DuplicateGroupingLogic` Union-Find 分组）+ 9 用例 XCTest（翻译源端 `MorePureLogic` + `QualityScorer` 黄金规格 + iOS 边界增强）；②`ImageAnalyzer` 协议 + `CoreImageAnalyzer` 实现（Laplacian 方差清晰度 + 8×8 均值哈希，Core Graphics）+ mock；③`QualityScorer` 编排服务（`computeAllQualityScores` + `findDuplicates` + `runPostScanAnalysis`）+ 8 用例 XCTest（in-memory SwiftData + mock，与 ScanServiceTests 同类跳过待 Mac 真机）；④Schema 扩展：`Photo` 加 `phash`/`sharpness`/`qualityScore`/`duplicateOf`/`isBest` 字段，`PhotoRepository` 加 4 个查询/更新方法；⑤集成：`GalleryViewModel` 扫描/导入完成后 fire-and-forget 触发质量分析（对应源端 ScanController 后处理链）。重复分组当前用 pHash，不依赖 CLIP Core ML；待模型就绪后可增强为 embedding 相似度。**CI 验证待推送**。

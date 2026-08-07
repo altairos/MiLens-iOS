@@ -47,6 +47,7 @@ final class GalleryViewModel {
     private let photoLibrary: any PhotoLibraryAccess
     private let vision: any VisionService
     private let fileStorage: any FileStorage
+    private let imageAnalyzer: any ImageAnalyzer
     private let sandboxDir: String
 
     private let pageSize = 60
@@ -57,13 +58,22 @@ final class GalleryViewModel {
          photoLibrary: any PhotoLibraryAccess,
          vision: any VisionService,
          fileStorage: any FileStorage,
-         sandboxDir: String) {
+         sandboxDir: String,
+         imageAnalyzer: any ImageAnalyzer = CoreImageAnalyzer()) {
         self.photoRepo = photoRepo
         self.petRepo = petRepo
         self.photoLibrary = photoLibrary
         self.vision = vision
         self.fileStorage = fileStorage
+        self.imageAnalyzer = imageAnalyzer
         self.sandboxDir = sandboxDir
+    }
+
+    /// 扫描/导入后后台质量评分 + 重复分组（对应源端 ScanController fire-and-forget 链）。
+    private func triggerQualityAnalysis() {
+        let scorer = QualityScorer(
+            photoRepo: photoRepo, imageAnalyzer: imageAnalyzer, fileStorage: fileStorage)
+        Task { await scorer.runPostScanAnalysis() }
     }
 
     // MARK: - 快照（供 GalleryPageState 纯函数消费）
@@ -179,6 +189,7 @@ final class GalleryViewModel {
             self.showScanCompleteDialog = !result.canceled
             if !result.canceled {
                 self.loadInitial()
+                self.triggerQualityAnalysis()
             }
         }
     }
@@ -208,6 +219,7 @@ final class GalleryViewModel {
             _ = await service.importPhotos(identifiers: identifiers)
             self.isImporting = false
             self.loadInitial()
+            self.triggerQualityAnalysis()
         }
     }
 

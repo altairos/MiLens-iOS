@@ -5,6 +5,13 @@
 import Foundation
 import SwiftData
 
+/// 重复标记组（对应源端 `DuplicateMarkGroup`）。
+/// `replaceDuplicateMarks` 用此结构原子替换所有重复关系。
+struct DuplicateMarkGroup: Equatable, Sendable {
+    let bestID: UUID
+    let duplicateIDs: [UUID]
+}
+
 /// 照片仓储协议（@MainActor —— SwiftData ModelContext 隔离）。
 @MainActor
 protocol PhotoRepositoryProtocol {
@@ -23,6 +30,16 @@ protocol PhotoRepositoryProtocol {
     func assignPhoto(_ photo: Photo, to pet: Pet?) throws
     func setFavorite(_ photo: Photo, favorite: Bool) throws
     func updateNote(_ photo: Photo, note: String) throws
+
+    // ── 质量评分 / 重复分组（ADR-0008）──
+    /// 质量评分待处理的照片（qualityScore == 0），按 createdAt 升序（对应源端 `getPendingQualityScorePage`）。
+    func getPendingQualityScorePhotos(limit: Int) throws -> [Photo]
+    /// 重复分析候选（phash 非空），按 createdAt 升序（对应源端 `getDuplicateCandidates`）。
+    func getDuplicateCandidates() throws -> [Photo]
+    /// 更新照片质量数据（对应源端 `updateQualityScore`，扩展为同时写入 phash）。
+    func updateQualityData(_ photo: Photo, sharpness: Double, qualityScore: Double, phash: String) throws
+    /// 原子替换所有重复标记（对应源端 `replaceDuplicateMarks`）。
+    func replaceDuplicateMarks(_ groups: [DuplicateMarkGroup]) throws
 }
 
 /// SwiftData 实现的照片仓储。
@@ -90,6 +107,55 @@ final class SwiftDataPhotoRepository: PhotoRepositoryProtocol {
 
     func updateNote(_ photo: Photo, note: String) throws {
         photo.note = note
+        try context.save()
+    }
+
+    // MARK: - 质量评分 / 重复分组
+
+    func getPendingQualityScorePhotos(limit: Int) throws -> [Photo] {
+        var descriptor = FetchDescriptor<Photo>(
+            predicate: #Predicate { $0.qualityScore == 0 },
+            sortBy: [SortDescriptor(\.createdAt)]
+        )
+        descriptor.fetchLimit = limit
+        return try context.fetch(descriptor)
+    }
+
+    func getDuplicateCandidates() throws -> [Photo] {
+        let descriptor = FetchDescriptor<Photo>(
+            predicate: #Predicate { !$0.phash.isEmpty },
+            sortBy: [SortDescriptor(\.createdAt)]
+        )
+        return try context.fetch(descriptor)
+    }
+
+    func updateQualityData(_ photo: Photo, sharpness: Double, qualityScore: Double, phash: String) throws {
+        photo.sharpness = sharpness
+        photo.qualityScore = qualityScore
+        if !phash.isEmpty { photo.phash = phash }
+        try context.save()
+    }
+
+    func replaceDuplicateMarks(_ groups: [DuplicateMarkGroup]) throws {
+        // 先清除所有标记（源端 SQL 原子 UPDATE 的等价语义）
+        let all = try context.fetch(FetchDescriptor<Photo>())
+        for photo in all {
+            photo.duplicateOf = nil
+            photo.isBest = true
+        }
+        // 再写入分组关系
+        var duplicateToBest: [UUID: UUID] = [:]
+        for group in groups {
+            for dupID in group.duplicateIDs {
+                duplicateToBest[dupID] = group.bestID
+            }
+        }
+        for photo in all {
+            if let bestID = duplicateToBest[photo.id] {
+                photo.duplicateOf = bestID
+                photo.isBest = false
+            }
+        }
         try context.save()
     }
 }

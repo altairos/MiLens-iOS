@@ -1,7 +1,6 @@
 //  Photo @Model —— 照片记录（对应源端 photo_table + models/Photo.ets）。
-//  V1.0 裁剪：省略 phash/embeddingBlob/sharpness/qualityScore/duplicateOf/
-//  isBest/exportStatus（质量评分/重复分组/导出状态后置 V1.x）。
-//  保留 V1.0 显示与回忆功能所需字段。
+//  质量评分（sharpness / qualityScore）+ 重复分组（phash / duplicateOf / isBest）
+//  已纳入 V1.0（ADR-0008）。embeddingBlob / exportStatus 仍后置 V1.x。
 
 import Foundation
 import SwiftData
@@ -37,6 +36,18 @@ final class Photo {
     var subCategory: String
     var createdAt: Date
 
+    // ── 质量评分 / 重复分组（ADR-0008 纳入 V1.0）──
+    /// 感知哈希（16 位 hex；空串表示未计算，对应源端 `phash`）。
+    var phash: String
+    /// Laplacian 方差清晰度（对应源端 `sharpness`）。
+    var sharpness: Double
+    /// 综合质量评分 0…1（0 表示未评分/pending，对应源端 `quality_score`）。
+    var qualityScore: Double
+    /// 重复归属：指向本组 best 照片的 id（nil = 非重复或自身是 best）。
+    var duplicateOf: UUID?
+    /// 是否为本重复组的最佳照片（对应源端 `is_best`）。
+    var isBest: Bool
+
     init(
         id: UUID = UUID(),
         uri: String,
@@ -55,7 +66,12 @@ final class Photo {
         fileSize: Int64 = 0,
         category: String = "unknown",
         subCategory: String = "other",
-        createdAt: Date = Date()
+        createdAt: Date = Date(),
+        phash: String = "",
+        sharpness: Double = 0,
+        qualityScore: Double = 0,
+        duplicateOf: UUID? = nil,
+        isBest: Bool = true
     ) {
         self.id = id
         self.uri = uri
@@ -75,5 +91,10 @@ final class Photo {
         self.category = category
         self.subCategory = subCategory
         self.createdAt = createdAt
+        self.phash = phash
+        self.sharpness = sharpness
+        self.qualityScore = qualityScore
+        self.duplicateOf = duplicateOf
+        self.isBest = isBest
     }
 }

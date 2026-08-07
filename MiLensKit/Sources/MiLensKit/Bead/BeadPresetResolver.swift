@@ -102,7 +102,7 @@ public var BEAD_EFFECT_PRESETS: [BeadEffectPreset] = makeBuiltinEffectPresets()
 
 private func clampInteger(_ value: Double, _ min: Double, _ max: Double) -> Int {
     if !value.isFinite { return Int(min) }
-    return Int(max(min, min(max, value.rounded())))
+    return Int(Swift.max(min, Swift.min(max, value.rounded())))
 }
 
 private func clampNumber(_ value: Double, _ min: Double, _ max: Double) -> Double {

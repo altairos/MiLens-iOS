@@ -93,6 +93,44 @@ public struct BeadScore: Equatable, Sendable {
     }
 }
 
+// MARK: - 诊断数据
+
+/// 诊断数据 — 评估生成质量。对应源端 `PatternDiagnostics`。
+/// 可选字段为 nil 表示该指标未计算（如 `refreshStructuralDiagnostics` 保留之前的色差值）。
+public struct PatternDiagnostics: Equatable, Sendable {
+    public var averageDeltaE: Double        // 平均色差
+    public var maxDeltaE: Double            // 最大色差
+    public var usedColorCount: Int          // 实际使用颜色数
+    public var tinyColorCount: Int          // 使用量很少的颜色数量（< 阈值）
+    public var isolatedPixelRatio: Double   // 孤立色点比例 (0~1)
+    public var neutralHueShiftRatio: Double?  // 中性色被映射到有色相颜色的比例
+    public var whiteToCoolRatio: Double?      // 高亮低饱和源色映射到冷色的比例
+    public var outlineCoverageRatio: Double?  // 轮廓色占主体有效格比例
+    public var blackCoverageRatio: Double?    // 黑/近黑占比
+
+    public init(averageDeltaE: Double, maxDeltaE: Double, usedColorCount: Int,
+                tinyColorCount: Int, isolatedPixelRatio: Double,
+                neutralHueShiftRatio: Double? = nil, whiteToCoolRatio: Double? = nil,
+                outlineCoverageRatio: Double? = nil, blackCoverageRatio: Double? = nil) {
+        self.averageDeltaE = averageDeltaE
+        self.maxDeltaE = maxDeltaE
+        self.usedColorCount = usedColorCount
+        self.tinyColorCount = tinyColorCount
+        self.isolatedPixelRatio = isolatedPixelRatio
+        self.neutralHueShiftRatio = neutralHueShiftRatio
+        self.whiteToCoolRatio = whiteToCoolRatio
+        self.outlineCoverageRatio = outlineCoverageRatio
+        self.blackCoverageRatio = blackCoverageRatio
+    }
+}
+
+// MARK: - 最小颜色使用量阈值
+
+/// 计算最小颜色使用量阈值。对应源端 `minColorUsageThreshold`。
+public func minColorUsageThreshold(_ totalBeads: Int) -> Int {
+    return max(3, Int(Double(totalBeads) * 0.002))
+}
+
 // MARK: - Math 辅助
 
 /// 对齐 JS `Math.floor`：向下取整后转 Int（负数也向下，如 floor(-0.5) = -1）。

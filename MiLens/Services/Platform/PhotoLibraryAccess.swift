@@ -29,6 +29,7 @@ struct PhotoAssetMetadata: Equatable, Sendable {
         self.fileSize = fileSize
         self.displayName = displayName
     }
+}
 
 /// 照片库访问协议。
 /// V1.0 仅含扫描所需方法；保存到相册（createAsset）待 P4 创作导出时追加。

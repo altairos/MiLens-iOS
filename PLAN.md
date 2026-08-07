@@ -120,6 +120,8 @@
 - [x] `ScanService`：Photos 全库扫描 + 宠物识别（VisionService）+ 取消支持（Task.cancel）
 - [x] `ImportService`：用户主动导入 → 复制沙盒 → 缩略图 → 入库（DESIGN.md §7 唯一入库路径）
 - [x] ScanService/ImportService 测试（~15 用例，in-memory SwiftData + mock）
+- [ ] 扫描增强（[ADR-0008](docs/adr/0008-v1-scope-decision.md) 扩范围）：质量评分（翻译源端 QualityAnalyzer → `Photo.qualityScore`）
+- [ ] 扫描增强：重复分组（CLIP embedding 相似度 + 视觉哈希 → `Photo.duplicateOf`，依赖 P1.5 Core ML 推理）
 - [x] `GalleryViewModel`（@Observable）：分页 + 筛选 + 扫描/导入编排 + 多选
 - [x] `GalleryView`：LazyVGrid 虚拟化 + 分页加载 + 扫描入口 + 完成弹窗
 - [x] `PhotoViewView`：大图查看 + 手势（PhotoViewGestureMath 纯函数驱动）
@@ -156,9 +158,11 @@
 
 ---
 
-## P4 — 创作入口（拼豆图纸）
+## P4 — 创作入口 + 图片编辑器
 
-### 任务
+> 完整图片编辑器进 V1.0（[ADR-0008](docs/adr/0008-v1-scope-decision.md)）。编辑器与拼豆图纸并行推进。
+
+### 任务 — 拼豆图纸
 
 - [ ] `BeadPatternView`：选图 → 预设选择 → 生成预览 → 调参
 - [ ] 接入 MiLensKit 生成管线（P1.3）+ 渲染
@@ -167,10 +171,20 @@
 - [ ] 主体/pose 保护接入（依赖 P1.5 AI 方案）
 - [ ] XCTest：Bead 生成 ViewModel 决策
 
+### 任务 — 图片编辑器（[ADR-0008](docs/adr/0008-v1-scope-decision.md)）
+
+- [ ] 编辑器骨架：`Views/Editor/` + `EditorViewModel` + 撤销/重做状态机
+- [ ] 裁切/旋转/翻转（纯几何决策 + XCTest）
+- [ ] 滤镜矩阵（亮度/对比度/饱和度等，CIFilter 或纯逻辑）
+- [ ] 标注/马赛克/文字（翻译源端 `editor/` 标注能力）
+- [ ] 编辑产物回写沙盒（沿用 DESIGN.md §7 唯一入库路径）
+- [ ] XCTest：编辑器纯决策逻辑（裁切几何/变换矩阵/撤销栈）
+
 ### 验收标准
 
 - 从相册选图到拼豆图纸导出完整走通
 - 行为与源端 BeadPatternPage 一致（对照源端用例）
+- 图片编辑器裁切/滤镜/标注可用，产物正确入库
 
 ---
 
@@ -184,7 +198,7 @@
 - [ ] StoreKit 2 订阅：MiLens Pro 产品配置 + `Transaction` 监听 + 付费墙 UI（设计稿付费墙）
 - [ ] App Store 截图/描述/ASO 关键词（设计稿 §5-6）
 - [ ] 性能基准：大图库（5000+）滚动/内存
-- [ ] iPhone/iPad 适配 + 深色模式 + Dynamic Type 检查
+- [ ] iPhone/iPad 适配（[ADR-0008](docs/adr/0008-v1-scope-decision.md)：iPad 为 V1.0 目标）+ 深色模式 + Dynamic Type 检查
 
 ### 上架（免 Mac 云端一条龙）
 
@@ -208,15 +222,16 @@
 
 ---
 
-## 范围待确认清单（P0 末需产品对齐）
+## V1.0 范围定案（[ADR-0008](docs/adr/0008-v1-scope-decision.md)）
 
-| 项 | 默认建议 | 影响 |
+| 项 | 结论 | 影响 |
 |---|---|---|
-| 完整图片编辑器是否进 V1.0 | 后置 V1.x | P4 范围 |
-| 家庭局域网备份是否进 V1.0 | 后置 V1.x | 是否建 `Services/Backup/` |
-| AI 写真/回忆视频是否进 V1.0 | V1.0 不做 | 是否引入云服务依赖 |
-| 质量评分/重复分组是否进 V1.0 | 后置 | 扫描流程复杂度 |
-| iPad 是否 V1.0 必须适配 | 建议支持 | 适配工作量 |
+| 完整图片编辑器 | ✅ 进 V1.0 | P4 新增编辑器模块（源端 `editor/` ~30 文件） |
+| 质量评分 | ✅ 进 V1.0 | P2 扫描扩展（QualityAnalyzer → `Photo.qualityScore`） |
+| 重复分组 | ✅ 进 V1.0 | P2 扫描扩展（embedding 相似度 → `Photo.duplicateOf`） |
+| 家庭局域网备份 | ❌ 后置 V1.x | V1.0 不建 `Services/Backup/` |
+| AI 写真 / 回忆视频 | ❌ V1.0 不做 | 不引入云服务依赖 |
+| iPad 适配 | ✅ V1.0 支持 | SwiftUI 自适应，跨 P2–P5 |
 
 ---
 
@@ -238,7 +253,8 @@
 - 2026-08-07：**P1.4 平台适配层落地**——4 协议（`PhotoLibraryAccess`/`FileStorage`/`VisionService`/`InferenceEngine`）+ 4 mock + `PlatformEnvironment` 注入 + 15 用例（对应源端 `AdapterContract`）。真实实现待 P1.5 AI 路线 ADR。另修复 SwiftData 测试环境（`MiLensApp.init` 检测 `XCTestConfigurationFilePath` 切 in-memory）。**CI 验证通过**（编译 + 测试全绿，run 31196033240）。
 - 2026-08-08：**P1.5 AI 推理路线定案**——完成源端 AI 链路调研（CLIP 167.66 MB / RTMPose 5.90 MB / VisionKit 分割 / 两阶段检测管线 + 多级降级）、iOS Vision 能力评估（VNClassifyImageRequest 系统分类 + VNGenerateForegroundInstanceMask iOS 17+）、CLIP→Core ML 转换可行性分析。产品决策选**方案 A 全转换**（CLIP + RTMPose 转 Core ML，INT8 量化后包体积 ~45 MB；分割用 iOS 原生 Vision）。产出 [ADR-0007](docs/adr/0007-ios-ai-inference-route.md)，含转换管线、精度校验基准、包体积预算、落地任务拆解。后续转换工具链 + 真实实现随 P2 扫描 MVP 推进。
 - 2026-08-08：**P1.5 续 AI 模型转换工具链落地**——新增 3 个 Python 脚本（`convert_clip_coreml.py` / `convert_rtmpose_coreml.py` / `prepare_text_embeddings.py`）+ `tools/requirements-models.txt`。CLIP INT8/FP16 量化 + 精度校验（cosine >0.999）；RTMPose SimCC 输出 + <2px 校验；text embeddings f32 格式验证通过。转换实跑需 macOS（coremltools 依赖）。
-- 待办：范围裁剪与产品对齐；P1.3 拼豆核心（并行进行中）；CLIP/RTMPose Core ML 模型转换实跑 + `IOSVisionService`/`CoreMLInferenceEngine` 真实实现（P2 续）。
+- 2026-08-08：**P0 收口**——V1.0 范围定案（[ADR-0008](docs/adr/0008-v1-scope-decision.md)）：完整图片编辑器 + 质量评分 + 重复分组进 V1.0；家庭局域网备份 / AI 写真后置或不做；iPad V1.0 支持。P0 全部任务完成，里程碑标记 ✅。下游影响：P2 扫描增强、P4 新增编辑器模块。
+- 待办：P1.3 拼豆核心（并行进行中）；P4 完整图片编辑器迁移（[ADR-0008](docs/adr/0008-v1-scope-decision.md)）；P2 扫描增强（质量评分 + 重复分组）；CLIP/RTMPose Core ML 模型转换实跑 + `IOSVisionService`/`CoreMLInferenceEngine` 真实实现（P2 续）。
 
 ### P2 进度
 

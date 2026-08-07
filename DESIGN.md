@@ -1,6 +1,6 @@
 # MiLens iOS 设计说明
 
-最后核对：2026-08-07（迁移准备阶段，P0 harness 搭建中）
+最后核对：2026-08-08（P0 收口，范围定案 [ADR-0008](docs/adr/0008-v1-scope-decision.md)）
 
 > 本文描述目标 iOS 架构。源 HarmonyOS 架构见 `e:\HarmonyProjects\MiPhoto2\DESIGN.md`，迁移映射见 [MIGRATION_ASSESSMENT.md](MIGRATION_ASSESSMENT.md)，约束见 [AGENTS.md](AGENTS.md)。**视觉与 UI 设计规范见 [UI-DESIGN.md](UI-DESIGN.md)**（色彩/字体/间距/动效/页面视觉的唯一事实来源）。
 
@@ -8,8 +8,8 @@
 
 MiLens（咪Lens）iOS 版是宠物家庭的数字生命档案。基于 `docs/MiLens_iOS_V1.0_页面原型与交互流程设计稿.md`，V1.0 聚焦：发现宠物照片 → 建立档案 → 日常回忆 → 创作变现。
 
-V1.0 范围：首页（今日/回忆/提醒）、宠物档案、创作（拼豆图纸 + 宠物卡片）、我的（订阅/主题/隐私）。
-V1.0 不含：手表、健康管理、社区、云账号、商城（详见评估报告 §5）。
+V1.0 范围：首页（今日/回忆/提醒）、宠物档案、创作（拼豆图纸 + 宠物卡片）、**完整图片编辑器**、扫描增强（质量评分 + 重复分组）、我的（订阅/主题/隐私）；适配 iPhone + iPad。范围详见 [ADR-0008](docs/adr/0008-v1-scope-decision.md)。
+V1.0 不含：手表、健康管理、社区、云账号、商城、家庭局域网备份、AI 写真/回忆视频（详见评估报告 §5、[ADR-0008](docs/adr/0008-v1-scope-decision.md)）。
 
 ## 2. 技术栈
 
@@ -65,7 +65,7 @@ project.yml                     # XcodeGen 声明
 docs/                           # 设计稿/专题
 ```
 
-> 源端 `editor/`（30 文件）的完整编辑器在 V1.0 简化，按需后置，暂不单独建 `Features/Editor/`。
+> 源端 `editor/`（~30 文件）完整编辑器进 V1.0（[ADR-0008](docs/adr/0008-v1-scope-decision.md)），在 `Views/Editor/` + `ViewModels/Editor*` 落地，从相册/大图查看入口进入。
 
 ## 4. 分层与数据流
 
@@ -163,7 +163,7 @@ SwiftData 从 V1.0 干净 schema 起步（不复刻源端 16 版历史迁移）�
 ## 10. 已知限制
 
 - AI 推理框架已定案：方案 A 全转换（CLIP + RTMPose → Core ML，INT8 量化）+ Vision 原生分割。详见 [ADR-0007](docs/adr/0007-ios-ai-inference-route.md)。
-- 完整编辑器、家庭局域网备份、质量评分/重复分组后置到 V1.x。
-- iOS V1.0 新增的 AI 写真/回忆视频无源端参照，需独立产品+技术方案。
+- 完整图片编辑器、质量评分、重复分组**已纳入 V1.0**（[ADR-0008](docs/adr/0008-v1-scope-decision.md)）。
+- 家庭局域网备份后置 V1.x；AI 写真/回忆视频 V1.0 不做（无源端参照，需独立产品+技术方案），仅 V1.x 重新评估。
 - SwiftData schema 从零设计，与源端数据无直接迁移路径（两平台数据不互通）。
 - 当前在 Windows 搭建文档/harness，编译与真机验证需 Mac + Xcode。

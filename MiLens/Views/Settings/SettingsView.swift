@@ -7,8 +7,8 @@ struct SettingsView: View {
     var body: some View {
         PlaceholderTabView(
             systemImage: "person.fill",
-            title: NSLocalizedString("tab.settings", comment: ""),
-            subtitle: NSLocalizedString("settings.placeholder", comment: "我的页占位说明")
+            title: String(localized: "tab.settings"),
+            subtitle: String(localized: "settings.placeholder", comment: "我的页占位说明")
         )
     }
 }

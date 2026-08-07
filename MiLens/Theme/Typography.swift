@@ -1,23 +1,32 @@
 //  字体层级 —— UI-DESIGN.md §2.2。
 //
-//  当前用系统字体 + design 修饰（serif/rounded）定义层级语义，自动响应 Dynamic Type。
-//  自定义字体（霞鹜文楷 LXGW WenKai + Fraunces，均 SIL OFL）待阶段 A 第 4 步
-//  子集化引入后，将 display* 切换为 `.custom(_:size:relativeTo:)`。
-//  切换点见各 display 属性注释。
+//  自定义字体（霞鹜文楷 LXGW WenKai + Fraunces，均 SIL OFL，子集化嵌入）。
+//  - 中文 display：霞鹜文楷 Regular（PostScript: LXGWWenKai-Regular），仅引入 Regular
+//    一个字重——楷书 Regular 已有足够分量感，display 大/中标题靠字号区分而非字重。
+//  - 英文 display：Fraunces（衬线，Bold/Semibold 两个字重），供纯英文大标题/品牌名使用。
+//  - 正文/UI/数字：系统字体（SF Pro + PingFang），零体积成本，保持原生感。
+//
+//  SwiftUI `.custom` 不自动按字符切栈：中文标题用 displayLarge（文楷），纯英文标题手动
+//  用 displayLargeEN/displayMediumEN（Fraunces）。文楷自带基础拉丁可做回退。
+//
+//  字体体积见 Resources/Fonts/README.md（合计 ~3.31 MB）。
 
 import SwiftUI
 
 extension Font {
-    // MARK: - Display（情感标题，衬线 design）
-    //
-    // 字体到位后的切换示例：
-    //   static let displayLarge = Font.custom("LXGWWenKai-Bold", size: 34, relativeTo: .largeTitle)
-    //   static let displayLargeEN = Font.custom("Fraunces-Bold", size: 34, relativeTo: .largeTitle)
+    // MARK: - Display 中文（霞鹜文楷 Regular）
 
-    /// 首页问候（「晚上好」）、档案名字。`.largeTitle` 级别，衬线粗体。
-    static let displayLarge = Font.system(.largeTitle, design: .serif).bold()
-    /// 区块标题（「它的故事」「一年前的今天」）。`.title2` 级别，衬线半粗。
-    static let displayMedium = Font.system(.title2, design: .serif).weight(.semibold)
+    /// 首页问候（「晚上好」）、档案名字。`.largeTitle` 级别。
+    static let displayLarge = Font.custom("LXGWWenKai-Regular", size: 34, relativeTo: .largeTitle)
+    /// 区块标题（「它的故事」「一年前的今天」）。`.title2` 级别。
+    static let displayMedium = Font.custom("LXGWWenKai-Regular", size: 24, relativeTo: .title2)
+
+    // MARK: - Display 英文（Fraunces，纯英文大标题专用）
+
+    /// 英文大标题（品牌名「MiLens」、英文标语）。`.largeTitle` 级别，Bold。
+    static let displayLargeEN = Font.custom("Fraunces-Bold", size: 34, relativeTo: .largeTitle)
+    /// 英文次级标题。`.title2` 级别，Semibold。
+    static let displayMediumEN = Font.custom("Fraunces-Semibold", size: 24, relativeTo: .title2)
 
     // MARK: - Standard（系统原生感）
 

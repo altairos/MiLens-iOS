@@ -7,8 +7,8 @@ struct PetsView: View {
     var body: some View {
         PlaceholderTabView(
             systemImage: "pawprint.fill",
-            title: NSLocalizedString("tab.pets", comment: ""),
-            subtitle: NSLocalizedString("pets.placeholder", comment: "宠物页占位说明")
+            title: String(localized: "tab.pets"),
+            subtitle: String(localized: "pets.placeholder", comment: "宠物页占位说明")
         )
     }
 }

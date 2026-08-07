@@ -10,6 +10,10 @@ options:
   createIntermediateGroups: true
   groupSortPosition: top
   developmentLanguage: zh-Hans
+  # 本地化区域：新增语言在此数组追加（如 ["zh-Hans", "en"]）。
+  # 译文维护在 MiLens/Resources/Localizable.xcstrings（UI 文案）与
+  # InfoPlist.xcstrings（权限说明 / App 显示名）。导出/导入工作流见
+  # DEVELOPMENT.md §4.4 与 tools/localization.py。
   knownRegions: [zh-Hans]
 
 settings:
@@ -46,6 +50,11 @@ targets:
         # 照片库添加：保存导出的拼豆图纸
         NSPhotoLibraryAddUsageDescription: "咪Lens 需要保存导出的拼豆图纸和照片到相册。"
         ITSAppUsesNonExemptEncryption: false
+        # 自定义字体（霞鹜文楷 GB2312 子集 + Fraunces，均 SIL OFL）
+        UIAppFonts:
+          - LXGWWenKaiGB-Regular.ttf
+          - Fraunces-Bold.ttf
+          - Fraunces-Semibold.ttf
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.milens.app

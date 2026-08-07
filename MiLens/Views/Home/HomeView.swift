@@ -7,8 +7,8 @@ struct HomeView: View {
     var body: some View {
         PlaceholderTabView(
             systemImage: "house.fill",
-            title: NSLocalizedString("tab.home", comment: ""),
-            subtitle: NSLocalizedString("home.placeholder", comment: "首页占位说明")
+            title: String(localized: "tab.home"),
+            subtitle: String(localized: "home.placeholder", comment: "首页占位说明")
         )
     }
 }

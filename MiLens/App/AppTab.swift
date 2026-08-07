@@ -11,10 +11,10 @@ enum AppTab: Int, CaseIterable, Hashable {
 
     var title: String {
         switch self {
-        case .home: return NSLocalizedString("tab.home", comment: "底部标签：首页")
-        case .pets: return NSLocalizedString("tab.pets", comment: "底部标签：宠物")
-        case .create: return NSLocalizedString("tab.create", comment: "底部标签：创作")
-        case .settings: return NSLocalizedString("tab.settings", comment: "底部标签：我的")
+        case .home: return String(localized: "tab.home", comment: "底部标签：首页")
+        case .pets: return String(localized: "tab.pets", comment: "底部标签：宠物")
+        case .create: return String(localized: "tab.create", comment: "底部标签：创作")
+        case .settings: return String(localized: "tab.settings", comment: "底部标签：我的")
         }
     }
 

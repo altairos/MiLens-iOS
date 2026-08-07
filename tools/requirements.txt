@@ -1,0 +1,6 @@
+# 本地化导出/导入工具依赖
+# 安装：pip install -r tools/requirements.txt
+openpyxl>=3.1.0
+
+# 字体子集化工具依赖（tools/subset-fonts.py + tools/fix-fraunces-weights.py）
+fonttools>=4.50.0

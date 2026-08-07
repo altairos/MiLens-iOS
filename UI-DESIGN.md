@@ -1,6 +1,6 @@
 # MiLens iOS UI 设计规范
 
-最后核对：2026-08-07（阶段 A 第 1–4 步已落地：Asset Catalog 18 colorset + Color/Theme/Typography token；第 5–6 步字体资源待后续）
+最后核对：2026-08-07（阶段 A 全部完成：Asset Catalog 18 colorset + Color/Theme/Typography token + 字体子集化嵌入）
 
 > 本文是 iOS 版视觉与交互的**唯一事实来源**。架构见 [DESIGN.md](DESIGN.md)，产品叙事与页面原型见 `docs/MiLens_iOS_V1.0_页面原型与交互流程设计稿.md`，迁移映射见 [MIGRATION_ASSESSMENT.md](MIGRATION_ASSESSMENT.md)，约束见 [AGENTS.md](AGENTS.md)。源端 HarmonyOS 主题 token（`baseColors.ets`/`themeColors.ets`/`AppTheme.ets`）仅作色值翻译参照，不照搬视觉风格。
 
@@ -135,38 +135,45 @@ MiLens 不是工具，是宠物家庭的数字生命档案。UI 必须支撑「�
 
 ### 2.2 字体层级（Typography）
 
-建议新增 `Typography.swift`，集中定义层级，`relativeTo` 适配 Dynamic Type：
+`Typography.swift` 集中定义层级，`relativeTo` 适配 Dynamic Type。中文/英文 display 分栈（SwiftUI 不自动按字符切栈）：
 
-| 层级 | 字体 | 字号 / 字重 | 用途示例 |
-|---|---|---|---|
-| `displayLarge` | 霞鹜文楷 / Fraunces | 34 / bold（`.largeTitle`） | 首页问候「晚上好」、档案名字 |
-| `displayMedium` | 霞鹜文楷 / Fraunces | 24 / semibold（`.title2`） | 区块标题「它的故事」「一年前的今天」 |
-| `titleStandard` | SF Pro + PingFang | 20 / semibold | 导航栏标题、卡片标题 |
-| `bodyPrimary` | SF Pro + PingFang | 17 / regular | 正文 |
-| `bodySecondary` | SF Pro + PingFang | 15 / regular | 说明文字 |
-| `caption` | SF Pro + PingFang | 13 / regular | 时间戳、辅助信息 |
-| `numberStat` | SF Pro Rounded | 22 / bold | 「3280」「3岁2个月」统计数字 |
-| `buttonLabel` | SF Pro + PingFang | 17 / semibold | 按钮文字 |
+| 层级 | 字体 | PostScript 名 | 字号（relativeTo） | 用途示例 |
+|---|---|---|---|---|
+| `displayLarge` | 霞鹜文楷 Regular | `LXGWWenKai-Regular` | 34（`.largeTitle`） | 中文首页问候「晚上好」、档案名字 |
+| `displayMedium` | 霞鹜文楷 Regular | `LXGWWenKai-Regular` | 24（`.title2`） | 中文区块标题「它的故事」「一年前的今天」 |
+| `displayLargeEN` | Fraunces Bold | `Fraunces-Bold` | 34（`.largeTitle`） | 英文大标题（品牌名「MiLens」、英文标语） |
+| `displayMediumEN` | Fraunces Semibold | `Fraunces-Semibold` | 24（`.title2`） | 英文次级标题 |
+| `titleStandard` | SF Pro + PingFang | — | `.title3` / semibold | 导航栏标题、卡片标题 |
+| `bodyPrimary` | SF Pro + PingFang | — | `.body` | 正文 |
+| `bodySecondary` | SF Pro + PingFang | — | `.subheadline` | 说明文字 |
+| `caption` | SF Pro + PingFang | — | `.caption` | 时间戳、辅助信息 |
+| `numberStat` | SF Pro Rounded | — | `.title2` / bold | 「3280」「3岁2个月」统计数字 |
+| `buttonLabel` | SF Pro + PingFang | — | `.body` / semibold | 按钮文字 |
 
-```swift
-// 示例：混合栈优先中文文楷，回退英文 Fraunces，最后系统
-extension Font {
-    static let displayLarge = Font.custom("LXGWWenKai-Bold", size: 34, relativeTo: .largeTitle)
-    static let displayLargeEN = Font.custom("Fraunces-Bold", size: 34, relativeTo: .largeTitle)
-    static let numberStat = Font.system(size: 22, weight: .bold, design: .rounded)
-}
-```
+> **字重说明**：霞鹜文楷仅引入 Regular 一个字重——楷书 Regular 已有足够分量感，display 大/中标题靠字号区分而非字重。这样体积最优（单个文楷字重子集后 3.27 MB，引入 Bold 会翻倍）。
 
-> 实操：中文文案用文楷栈，纯英文/数字混排时用 Fraunces/Rounded 栈。SwiftUI 不支持自动按字符切栈，需在文案处按语言约定选择。
+### 2.3 字体体积控制（已落地）
 
-### 2.3 字体体积控制（关键约束）
+霞鹜文楷 v1.522 完整 TTF **24.39 MB**，已子集化控制体积：
 
-霞鹜文楷完整 TTF 约 **12MB+**，直接嵌入显著增加包体积。策略（按优先级）：
+| 字体 | 源体积 | 子集体积 | 压缩率 | 字符集 |
+|---|---|---|---|---|
+| 霞鹜文楷 GB Regular | 24.39 MB | **3.27 MB** | 86.6% | GB2312 全集 6763 汉字 + ASCII + 常用标点（共 6976 字符） |
+| Fraunces Bold | 352 KB（VF） | **22.5 KB** | — | 基本拉丁 |
+| Fraunces Semibold | 352 KB（VF） | **22.5 KB** | — | 基本拉丁 |
 
-1. **子集化（首选）**：用 `pyftsubset`（fonttools）只保留 GB2312 常用 3755 字 + 标点 + 拉丁 + App 专用词，可压到 **2–3MB**。构建脚本纳入 `tools/`。
-2. **屏幕版**：用 LXGW WenKai Screen（屏幕阅读优化版，字形适配 Retina），体积略小。
-3. **按需加载（次选）**：iOS 16+ 支持 `CTFontDescriptor` 后台按需下载，但增加复杂度，V1.0 不建议。
-4. **监测**：每次新增/更新字体后，在 PR 中报告 `.app` 体积变化；单 HAP/App target 不超目标阈值。
+**字体合计约 3.31 MB**，对付费 App 可接受。
+
+**子集化方案**（脚本纳入 `tools/`）：
+1. `tools/subset-fonts.py`：霞鹜文楷 GB2312 子集（`fontTools.subset` + GB2312 codec 反查字符集）。
+2. `tools/fix-fraunces-weights.py`：Fraunces 可变字体 → `varLib.instancer` 固定全 4 轴（opsz=144 display 光学尺寸）→ 静态字重 → name 表修正（避免 PostScript 名冲突）→ 拉丁子集。
+
+**后续策略**：
+- 如需繁体/生僻字，用上述脚本重新子集化（调整字符集），不要直接替换为完整字体。
+- 屏幕版（LXGW WenKai Screen）与按需加载（`CTFontDescriptor`）作为备选，V1.0 不启用。
+- 每次新增/更新字体后，PR 中报告 `.app` 体积变化。
+
+**许可合规**：两款字体均 SIL OFL 1.1。`Resources/Fonts/` 保留 `OFL-LXGWWenKai.txt` 与 `OFL-Fraunces.txt`，「关于」页需注明来源与许可。详见 `Resources/Fonts/README.md`。
 
 > 字体文件放 `Resources/Fonts/`，在 `Info.plist` 注册 `UIAppFonts`（XcodeGen 在 `project.yml` 声明），Asset Catalog 不管理字体。
 
@@ -391,8 +398,8 @@ iOS 差异化武器。动效服务于情感反馈，不炫技。
 2. ✅ **更新 `Color+Theme.swift`**：**已完成**——18 个 `milens` 前缀语义色扩展（旧名 `milensPrimary`/`milensBackground` 等保留兼容，色值随 colorset 自动校准）。
 3. ✅ **更新 `Theme.swift`**：**已完成**——`pagePad` → 24；圆角三档（`small` 10 / `medium` 14 / `large` 20，旧名 `card`/`button`/`chip` 保留为别名）；新增 `Elevation`（`soft`/`medium`/`accent`）+ `ShadowSpec` + `.elevation(_:)` 修饰符。
 4. ✅ **新增 `Typography.swift`**：**已完成**——8 个层级（`displayLarge`/`displayMedium` 用 `.serif` design，`numberStat` 用 `.rounded`，全部基于 Text.Style 自动响应 Dynamic Type）。自定义字体待第 5 步。
-5. ⬜ **字体资源**：下载霞鹜文楷 + Fraunces（OFL），子集化后放 `Resources/Fonts/`，`project.yml` 注册 `UIAppFonts`，保留两份 `OFL.txt` 与来源说明。
-6. ⬜ **体积报告**：记录字体引入前后 App 体积。
+5. ✅ **字体资源**：**已完成**——霞鹜文楷 v1.522 GB2312 子集（24.39 MB → 3.27 MB）+ Fraunces Bold/Semibold（各 22.5 KB）放入 `Resources/Fonts/`，含 `OFL-*.txt` 与 `README.md`（来源/许可/重新生成）。`project.yml` 注册 `UIAppFonts`（3 个 TTF）。子集化脚本入 `tools/subset-fonts.py` + `tools/fix-fraunces-weights.py`。
+6. ✅ **体积报告**：字体合计 **~3.31 MB**（霞鹜文楷 3.27 + Fraunces 0.045）。完整 `.app` 体积需 Mac 构建后确认。
 
 ### 阶段 B：随页面实现逐个打磨（P2–P5）
 

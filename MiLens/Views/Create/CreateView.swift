@@ -7,8 +7,8 @@ struct CreateView: View {
     var body: some View {
         PlaceholderTabView(
             systemImage: "square.and.pencil.fill",
-            title: NSLocalizedString("tab.create", comment: ""),
-            subtitle: NSLocalizedString("create.placeholder", comment: "创作页占位说明")
+            title: String(localized: "tab.create"),
+            subtitle: String(localized: "create.placeholder", comment: "创作页占位说明")
         )
     }
 }

@@ -57,9 +57,32 @@ apt-get install -y --no-install-recommends \
 # Swift 6.1.3 工具链已解压到 /opt/swift
 ```
 
-### 2.2 云端：App 全量编译（GitHub Actions）
+### 2.2 云端：App 全量编译 + 上架（GitHub Actions）
 
-推送到 GitHub 即触发 `.github/workflows/ci.yml`：先在 ubuntu runner 验证 MiLensKit，再在 macOS 15 runner 上 `xcodegen generate` + `xcodebuild build/test`。在 GitHub Actions 页面查看日志。
+仓库 https://github.com/altairos/MiLens-iOS（私有）。推送即触发 `.github/workflows/ci.yml`：
+
+1. `MiLensKit (Linux)`——ubuntu-24.04 上 `swift build/test`，约 50s。
+2. `MiLens App (macOS)`——macos-15 runner 上 `xcodegen generate` → `xcodebuild build/test`，约 4 分钟（依赖 MiLensKit 作业通过）。
+
+查看：`gh run list --repo altairos/MiLens-iOS` 或 https://github.com/altairos/MiLens-iOS/actions。
+
+#### 上架路径（免 Mac 一条龙）
+
+编译、签名、上传 App Store 全部可在同一个 macOS runner 完成，无需本机 Mac：
+
+```
+macos-15 runner
+  ├─ xcodegen + xcodebuild build          ← 已验证
+  ├─ xcodebuild archive                   ← P5 待加
+  ├─ xcodebuild -exportArchive            ← P5 待加（签名，用 .p8 App Store Connect API Key）
+  └─ xcrun altool / notarytool upload     ← P5 待加（苹果官方上传，免费）
+```
+
+证书/描述文件用 **App Store Connect API Key（.p8）** 注入 GitHub Secret，无需钥匙串。`appuploader`/「开心上架」等第三方工具适用于「IPA 已生成、只需在 Windows 本地重传」场景，对原生项目非必需（IPA 本身仍需 macOS runner 产出）。
+
+> **免费额度**：公开仓库 macOS runner 无限免费；私有仓库 macOS 分钟按 10× 计费（每月 2000 免费分钟 ≈ 200 macOS 分钟，足够每日多次编译）。当前仓库为私有，可随时切公开获得无限额度。
+
+**真正还需要 Mac 的只有**：真机调试、模拟器 UI 人工验证、Instruments 性能分析——这些是发布前质量门禁，无法云端替代。
 
 ### 2.3 Mac 本地（借/租 Mac 时）
 
@@ -101,6 +124,7 @@ xcodebuild ... test -enableCodeCoverage YES
 - `MiLens/` —— App target
 - `MiLensKit/` —— 本地 Swift Package（拼豆算法，对应源端 `shared` HSP）
 - `project.yml` —— XcodeGen 声明（**唯一受版本控制的项目配置**，`.xcodeproj` 由其生成，可 gitignore）
+- GitHub 仓库：https://github.com/altairos/MiLens-iOS（私有）
 - 资源统一在 `MiLens/Resources/Assets.xcassets`
 
 ## 4. 开发约定
@@ -133,7 +157,7 @@ xcodebuild ... test -enableCodeCoverage YES
 ### P0
 
 - 2026-08-07：harness 文档搭建完成。本地编译闭环验证通过——WSL2 **Ubuntu-24.04** + Swift 6.1.3（/opt/swift），`swift build` 与 `swift test` MiLensKit 全绿（1 用例，0 失败），增量编译 ~1.1s。
-- App 层（SwiftUI/SwiftData）仍需 Mac+Xcode，走云端 GitHub Actions（`.github/workflows/ci.yml`），**未执行云端编译**（项目未推送 GitHub）。
+- 2026-08-07：项目推送 GitHub（`altairos/MiLens-iOS`，私有）。**云端编译闭环验证通过**——`MiLensKit (Linux)` 51s + `MiLens App (macOS)` 4m7s 全绿（`BUILD SUCCEEDED` + 测试通过）。首次运行修复 Asset Catalog 缺 `AppIcon.appiconset` 一处。
 
 ## 6. 源端参考资料
 

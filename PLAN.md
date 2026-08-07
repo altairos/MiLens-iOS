@@ -167,11 +167,25 @@
 - [ ] 性能基准：大图库（5000+）滚动/内存
 - [ ] iPhone/iPad 适配 + 深色模式 + Dynamic Type 检查
 
+### 上架（免 Mac 云端一条龙）
+
+编译/签名/上传全部在 GitHub Actions macOS runner 完成，无需本机 Mac：
+
+- [ ] 在 `.github/workflows/ci.yml` 新增 `release` 作业（手动触发 `workflow_dispatch`）：`xcodebuild archive` → `xcodebuild -exportArchive`（签名）→ `xcrun altool/notarytool` 上传 App Store Connect
+- [ ] 证书/描述文件用 **App Store Connect API Key（.p8）** 注入 GitHub Secret（不用钥匙串）
+- [ ] App Store Connect 填写元数据/截图/隐私政策（网页端）
+- [ ] 提交审核
+
+> 「开心上架(appuploader)」等第三方工具仅适用于「IPA 已生成、只需在 Windows 本地重传」场景，对原生项目非必需。`altool/notarytool` 是苹果官方免费上传工具，随 runner 自带。
+
 ### 验收标准
 
 - 4 个 Tab 全部功能可用
 - StoreKit Testing 通过，付费墙正确触发
 - App Store 提审材料齐全
+- release workflow 可云端生成签名 IPA 并上传到 App Store Connect
+
+> **真正还需 Mac**：真机调试、模拟器 UI 人工验证、Instruments 性能分析。这些是发布前质量门禁，建议借/租 Mac 完成（上架本身已免 Mac）。
 
 ---
 
@@ -195,4 +209,5 @@
 
 - 2026-08-07：完成源项目盘点、4 项关键决策、全部 6 份顶层文档（AGENTS / DESIGN / PLAN / MIGRATION_ASSESSMENT / DEVELOPMENT / README）、harness 骨架（XcodeGen `project.yml` + MiLensKit 本地 Swift Package + 21 目录 + `.gitignore`）。
 - 2026-08-07：云端 CI（`.github/workflows/ci.yml`）+ **本地编译闭环**落地——WSL2 Ubuntu-24.04 + Swift 6.1.3（/opt/swift），MiLensKit `swift build`/`swift test` 全绿（增量编译 ~1.1s）。
-- 待办：范围裁剪与产品对齐；项目推送 GitHub 验证云端 macOS 编译。
+- 2026-08-07：项目推送 GitHub（`altairos/MiLens-iOS`，私有）。**云端编译闭环验证通过**——`MiLensKit (Linux)` 51s + `MiLens App (macOS)` 4m7s 全绿（`BUILD SUCCEEDED` + 测试通过）；首次运行修复 Asset Catalog 缺 `AppIcon.appiconset`。
+- 待办：范围裁剪与产品对齐。

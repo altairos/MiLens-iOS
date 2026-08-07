@@ -247,14 +247,12 @@ final class BeadPatternServiceTests: XCTestCase {
     }
 
     func testAsyncGenerationCanCancel() async {
-        // 使用较大 fixture（512×384）确保同步核心执行时间足够长，
-        // 避免 cancel() 在任务完成之后才生效的竞态。
-        let fixture = makeFixture(width: 512, height: 384)
+        // 核心管线现在在步骤 3/6/9/11 各有 Task.checkCancellation() 检查点，
+        // 配合 cancel() 后再 await task.value 确保取消信号被观测。
+        let fixture = makeFixture(width: 256, height: 192)
         let opts = makeOptions()
         let task = Task { try await generateBeadPatternAsync(
-            srcPixels: fixture, srcW: 512, srcH: 384, options: opts) }
-        // 让出当前执行权，给任务启动并到达 checkCancellation 点的机会
-        await Task.yield()
+            srcPixels: fixture, srcW: 256, srcH: 192, options: opts) }
         task.cancel()
         do {
             _ = try await task.value

@@ -95,6 +95,7 @@ func generateBeadPatternCore(
                                  mode: options.mode, subject: subject)
 
     // 3. 提取裁切区域
+    try Task.checkCancellation()
     var cropped = [UInt8](repeating: 0, count: crop.w * crop.h * 4)
     for y in 0..<crop.h {
         for x in 0..<crop.w {
@@ -134,6 +135,7 @@ func generateBeadPatternCore(
     }
 
     // 6. 最终缩放 + 空格掩码
+    try Task.checkCancellation()
     let finalPixels = areaResizeRgba(midPixels, srcW: midW, srcH: midH,
                                      dstW: options.targetWidth, dstH: options.targetHeight)
     var empty = [UInt8](repeating: 0, count: options.targetWidth * options.targetHeight)
@@ -167,6 +169,7 @@ func generateBeadPatternCore(
     let paletteLab = precomputePaletteLab(selectedColors)
 
     // 9. 风格化底稿（概括度控制）
+    try Task.checkCancellation()
     var draftOverridePixels: [UInt8]? = nil
     if options.stylizedDraft?.enabled == true, let draftOpts = options.stylizedDraft {
         let draftSubject = subject.map {
@@ -216,6 +219,7 @@ func generateBeadPatternCore(
     }
 
     // 11. 去噪
+    try Task.checkCancellation()
     remapReferenceNeutralPixels(&indices, referencePixels: neutralReferencePixels,
                                 paletteLab: paletteLab, empty: empty)
     if options.denoise {

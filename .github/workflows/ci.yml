@@ -59,9 +59,14 @@ jobs:
             build
       - name: Test (simulator)
         run: |
+          # 查找首个可用的 iPhone 模拟器（runner 上可用的设备名不固定）
+          DEVICE=$(xcrun simctl list devices available -j | 
+            python3 -c "import sys,json; devs=json.load(sys.stdin)['devices']; 
+          print(next(d['udid'] for runtime,devs in devs.items() for d in devs if 'iPhone' in d['name'] and d.get('isAvailable',True)))")
+          echo "Using simulator UDID: $DEVICE"
           xcodebuild -project MiLens.xcodeproj \
             -scheme MiLens \
-            -destination 'generic/platform=iOS Simulator' \
+            -destination "id=$DEVICE" \
             -configuration Debug \
             -enableCodeCoverage YES \
             CODE_SIGNING_ALLOWED=NO \

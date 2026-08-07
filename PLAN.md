@@ -1,6 +1,6 @@
 # MiLens iOS 迁移计划
 
-最后核对：2026-08-07（P0 进行中）
+最后核对：2026-08-08（P2 进行中）
 
 > 里程碑与任务清单。架构见 [DESIGN.md](DESIGN.md)，映射与范围见 [MIGRATION_ASSESSMENT.md](MIGRATION_ASSESSMENT.md)，约束见 [AGENTS.md](AGENTS.md)。
 
@@ -10,7 +10,7 @@
 |---|---|---|---|
 | **P0** | Harness 与规划 | 文档骨架、约束、目录结构、XcodeGen 声明、范围对齐 | 🔄 进行中 |
 | **P1** | 地基 + 算法核心 | Xcode 工程可编译、SwiftData schema、拼豆 Swift 核心（黄金规格通过）、AI 路线定案 | ⬜ |
-| **P2** | 相册 MVP | 扫描发现 + 手动导入 + 相册网格 + 大图查看 | ⬜ |
+| **P2** | 相册 MVP | 扫描发现 + 手动导入 + 相册网格 + 大图查看 | 🔄 进行中 |
 | **P3** | 宠物档案 | 档案 CRUD + 成长时间线 + 纪念提醒 | ⬜ |
 | **P4** | 创作入口 | 拼豆图纸完整流程（选图→生成→预览→A4 导出） | ⬜ |
 | **P5** | 首页/我的 + 商业化 | 首页回忆/提醒、设置、StoreKit 订阅、App Store 提审 | ⬜ |
@@ -83,13 +83,23 @@
 - [x] `PlatformEnvironment`（EnvironmentKey 注入）
 - [x] XCTest：4 个 mock 基础行为（15 用例，对应源端 `AdapterContract`）
 
-### P1.5 AI 推理路线定案（关键决策）
+### P1.5 AI 推理路线定案（关键决策）✅ 已定案
 
-- [ ] 调研 Vision 宠物分类能力覆盖（`VNClassifyImageRequest` 动物标签）
-- [ ] 调研 Vision 主体分割（`VNGenerateForegroundInstanceMask`，iOS 17）
-- [ ] 调研 CLIP → Core ML 转换可行性（coremltools）+ 精度校验方法
-- [ ] 评估 PetMatcher 是否必须依赖 CLIP embedding（决定方案 A/B/C）
-- [ ] **产出 ADR**：AI 推理框架最终方案（Vision / Core ML / 混合）
+> **结论**：采用 **方案 A（Core ML 模型转换）+ Vision 原生分割**。详见 [ADR-0007](docs/adr/0007-ios-ai-inference-route.md)。
+
+- [x] 调研 Vision 宠物分类能力覆盖（`VNClassifyImageRequest` 系统分类含动物类别；`VNRecognizeAnimalsRequest` 仅猫狗，覆盖不足）
+- [x] 调研 Vision 主体分割（`VNGenerateForegroundInstanceMask` iOS 17+，直接对应源端 VisionKit，三方案一致采用）
+- [x] 调研 CLIP → Core ML 转换可行性（coremltools；源端已有 ONNX 导出；INT8 量化 ~42 MB）+ 精度校验方法（cosine >0.999 / 分类一致率 >98% / 关键点 <2px）
+- [x] 评估 PetMatcher 是否必须依赖 CLIP embedding（不强依赖，有降级链；但产品决策选全转换保多宠物自动归属精度）
+- [x] **产出 ADR**：[ADR-0007 iOS AI 推理路线](docs/adr/0007-ios-ai-inference-route.md)
+
+**落地任务**（拆入后续里程碑）：
+
+- [x] `tools/convert_clip_coreml.py`（ONNX/Torch → Core ML + INT8 量化 + 精度校验）→ `CLIPVisionEncoder.mlpackage`
+- [x] `tools/convert_rtmpose_coreml.py`（ONNX → Core ML + 校验）→ `RTMPoseTPetFace.mlpackage`
+- [x] `tools/prepare_text_embeddings.py`（f32 格式校验 + Swift 加载代码生成）
+- [x] 模型资产加入 `Resources/Models/` + `project.yml` 注册（目录骨架 + `pet_text_embeddings.f32` 已复制；`.mlpackage` 需 Mac 转换后放入）
+- [ ] `IOSVisionService` / `CoreMLInferenceEngine` 真实实现（P2 扫描 MVP，协议骨架 P1.4 已有）
 
 ### 验收标准
 
@@ -97,7 +107,7 @@
 - SwiftData schema v1 + Repository 测试通过 ✅（CI run 31193790682）
 - 平台适配层 4 协议 + mock + 测试 ✅（CI run 31196033240）
 - MiLensKit 拼豆核心对源端 225 + parity 全绿
-- AI 路线 ADR 定案
+- AI 路线 ADR 定案 ✅（[ADR-0007](docs/adr/0007-ios-ai-inference-route.md)，方案 A 全转换 + Vision 分割）
 
 ---
 
@@ -105,20 +115,25 @@
 
 ### 任务
 
-- [ ] `ScanService`：Photos 全库扫描 + 宠物识别（按 P1.5 ADR 实现）+ 取消支持
-- [ ] `ScanFlowViewModel`（纯决策）+ `ScanFlowView`：扫描进度/发现/完成文案（翻译源端 `ScanFlowViewModel`）
-- [ ] `ImportService`：用户主动导入 → 复制沙盒 → 缩略图 → 宠物匹配关联 → 入库
-- [ ] `GalleryView`：网格（LazyVGrid 虚拟化）+ 分页 + 宠物归属筛选 + 多选
-- [ ] `GalleryPageState`（纯决策）翻译
-- [ ] `PhotoViewView`：大图查看 + 手势（翻译 `PhotoViewGestureMath`）
-- [ ] 引导流程：欢迎 → 权限说明 → 扫描 → 创建第一份档案（设计稿首次启动）
-- [ ] XCTest：ScanFlow/Import/Gallery 决策逻辑
+- [x] 纯决策逻辑翻译（6 模块）：`GalleryPageState`/`ScanFlowLogic`/`ScanControlMath`/`ImportFlowLogic`/`PhotoMetadataLogic`/`PhotoViewGestureMath`
+- [x] XCTest：纯决策逻辑全覆盖（~84 用例，对应源端黄金规格）
+- [x] `ScanService`：Photos 全库扫描 + 宠物识别（VisionService）+ 取消支持（Task.cancel）
+- [x] `ImportService`：用户主动导入 → 复制沙盒 → 缩略图 → 入库（DESIGN.md §7 唯一入库路径）
+- [x] ScanService/ImportService 测试（~15 用例，in-memory SwiftData + mock）
+- [x] `GalleryViewModel`（@Observable）：分页 + 筛选 + 扫描/导入编排 + 多选
+- [x] `GalleryView`：LazyVGrid 虚拟化 + 分页加载 + 扫描入口 + 完成弹窗
+- [x] `PhotoViewView`：大图查看 + 手势（PhotoViewGestureMath 纯函数驱动）
+- [x] `HomeView`：相册入口 + 扫描入口（NavigationLink → Gallery）
+- [x] RootTabView 路由串联（navigationDestination for Route）
+- [ ] 引导流程：首次启动 → 权限说明 → 扫描 → 建档（待 P3 完善建档部分）
+- [ ] 真机验证：Photos 权限 + Vision 推理 + 分页性能（需 Mac + iPhone）
 
 ### 验收标准
 
-- 首次启动完整走通：授权 → 扫描发现宠物 → 建档 → 相册可见
-- 相册支持分页、筛选、多选、大图查看
-- 扫描可取消，不提交过期结果
+- 首次启动完整走通：授权 → 扫描发现宠物 → 建档 → 相册可见（建档 P3；扫描+导入+相册 ✅）
+- 相册支持分页、筛选、多选、大图查看 ✅
+- 扫描可取消，不提交过期结果 ✅
+- 纯决策逻辑 XCTest 全绿（CI 验证待推送）
 
 ---
 
@@ -221,4 +236,10 @@
 - 2026-08-07：**UI 设计系统阶段 A 全部完成（含字体子集化）**——在阶段 A 1–4 基础上：①霞鹜文楷 v1.522 GB2312 子集化（24.39 MB → **3.27 MB**，6976 字符覆盖 GB2312 全集）+ Fraunces 可变字体全轴静态化（Bold/Semibold 各 22.5 KB）放入 `Resources/Fonts/`，含 OFL 与 README；②`project.yml` 注册 `UIAppFonts`（3 TTF）；③`Typography.swift` 切换为 `.custom`（霞鹜文楷 `LXGWWenKai-Regular` 中文 display + Fraunces 英文 display）；④子集化脚本入 `tools/subset-fonts.py` + `tools/fix-fraunces-weights.py`。字体合计 ~3.31 MB。完整 `.app` 体积待 Mac 构建确认。
 - 2026-08-07：**本地化工具链 + 文档校正落地**——新增 `tools/localization.py`（任意语言 String Catalog 导出/导入/check + Excel 工作流）与 `tools/requirements.txt`；同步工作区至 HEAD 的 String Catalog 与 `String(localized:)` API；文档校正：反映 commit 6b48453 的 `.strings` → `.xcstrings` 迁移（AGENTS/PLAN/DEVELOPMENT/DESIGN）+ 新增 DEVELOPMENT.md §4.4 本地化工作流。本地验证通过，App 编译待 CI。
 - 2026-08-07：**P1.4 平台适配层落地**——4 协议（`PhotoLibraryAccess`/`FileStorage`/`VisionService`/`InferenceEngine`）+ 4 mock + `PlatformEnvironment` 注入 + 15 用例（对应源端 `AdapterContract`）。真实实现待 P1.5 AI 路线 ADR。另修复 SwiftData 测试环境（`MiLensApp.init` 检测 `XCTestConfigurationFilePath` 切 in-memory）。**CI 验证通过**（编译 + 测试全绿，run 31196033240）。
-- 待办：范围裁剪与产品对齐；P1.3 拼豆核心（并行进行中）；P1.5 AI 路线 ADR。
+- 2026-08-08：**P1.5 AI 推理路线定案**——完成源端 AI 链路调研（CLIP 167.66 MB / RTMPose 5.90 MB / VisionKit 分割 / 两阶段检测管线 + 多级降级）、iOS Vision 能力评估（VNClassifyImageRequest 系统分类 + VNGenerateForegroundInstanceMask iOS 17+）、CLIP→Core ML 转换可行性分析。产品决策选**方案 A 全转换**（CLIP + RTMPose 转 Core ML，INT8 量化后包体积 ~45 MB；分割用 iOS 原生 Vision）。产出 [ADR-0007](docs/adr/0007-ios-ai-inference-route.md)，含转换管线、精度校验基准、包体积预算、落地任务拆解。后续转换工具链 + 真实实现随 P2 扫描 MVP 推进。
+- 2026-08-08：**P1.5 续 AI 模型转换工具链落地**——新增 3 个 Python 脚本（`convert_clip_coreml.py` / `convert_rtmpose_coreml.py` / `prepare_text_embeddings.py`）+ `tools/requirements-models.txt`。CLIP INT8/FP16 量化 + 精度校验（cosine >0.999）；RTMPose SimCC 输出 + <2px 校验；text embeddings f32 格式验证通过。转换实跑需 macOS（coremltools 依赖）。
+- 待办：范围裁剪与产品对齐；P1.3 拼豆核心（并行进行中）；CLIP/RTMPose Core ML 模型转换实跑 + `IOSVisionService`/`CoreMLInferenceEngine` 真实实现（P2 续）。
+
+### P2 进度
+
+- 2026-08-08：**P2 纯决策逻辑 + Service + View 层落地**——翻译源端 6 个纯决策模块为 Swift（`GalleryPageState`/`ScanFlowLogic`/`ScanControlMath`/`ImportFlowLogic`/`PhotoMetadataLogic`/`PhotoViewGestureMath`）+ ~84 用例 XCTest（对应源端黄金规格逐条翻译）；`ScanService`（Photos 全库扫描 + VisionService 检测 + Task 取消）+ `ImportService`（复制沙盒 → 入库，DESIGN.md §7 唯一入库路径）+ ~15 用例（in-memory SwiftData + mock）；`GalleryViewModel`（@Observable，分页/筛选/扫描/导入/多选）+ `GalleryView`（LazyVGrid + 分页加载 + 扫描进度条 + 完成弹窗）+ `PhotoViewView`（大图 + PhotoViewGestureMath 驱动的捏合缩放/平移/双击）+ `HomeView`（相册/扫描入口）。扩展 `PhotoLibraryAccess`（`loadImageData` + `dateAdded`）。**CI 验证待推送**。

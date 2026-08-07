@@ -11,7 +11,7 @@
 | iOS 最低版本 | **iOS 17+** | 可用 SwiftData、`@Observable` 宏、NavigationStack 全套、Swift 5.9+ 宏 |
 | 迁移策略 | **完整重写** | 不做跨平台桥接，从零用 SwiftUI 设计，充分利用平台优势 |
 | 拼豆算法核心 | **Swift 重写** | C++ 3,665 行纯逻辑（色彩/量化/抖动/去噪）改写为 Swift，XCTest 完整覆盖，去掉 N-API 边界 |
-| AI 推理框架 | **计划内决策**（见 §6） | Core ML / Vision 二选一或组合，在 P1 阶段调研后定 |
+| AI 推理框架 | **已定案：方案 A 全转换**（见 §6 / [ADR-0007](docs/adr/0007-ios-ai-inference-route.md)） | CLIP + RTMPose 转 Core ML，分割用 iOS 原生 Vision |
 
 ## 2. 源项目规模盘点（MiPhoto2，API 23）
 
@@ -111,23 +111,25 @@
 
 > ⚠️ 范围裁剪是产品决策，[PLAN.md](PLAN.md) 中标注为「待确认」的项需在 P0 阶段与产品对齐。
 
-## 6. AI 推理路线建议（待 P1 调研定案）
+## 6. AI 推理路线（已定案 2026-08-08）
+
+> 决策详见 [ADR-0007](docs/adr/0007-ios-ai-inference-route.md)。本节保留决策背景。
 
 源端 AI 链路三件套：
 
-1. **CLIP 视觉编码器**（`clip_vision_encoder.ms`，512 维特征）——宠物/非宠物分类 + 视觉特征提取
-2. **RTMPose-t 宠物脸**（`rtmpose_t_pet_face.ms`，5 点）——拼豆二次裁切锚点
+1. **CLIP 视觉编码器**（`clip_vision_encoder.ms`，167.66 MB FP32，512 维特征）——宠物/非宠物零样本分类 + 视觉特征提取（PetMatcher）
+2. **RTMPose-t 宠物脸**（`rtmpose_t_pet_face.ms`，5.90 MB，5 点 SimCC）——拼豆二次裁切锚点
 3. **VisionKit 主体分割**——抠图 alpha
 
-iOS 候选方案：
+决策时评估的候选方案：
 
 | 方案 | 适用 | 优势 | 风险 |
 |---|---|---|---|
-| **A. Core ML 全转换** | CLIP + RTMPose | 端侧可控，行为与源端一致 | 需 coremltools 转换 + 校验精度；包体积增加 |
-| **B. Vision 高阶 API 为主** | 宠物识别 + 主体分割 | 零自带模型，集成最快，包体积小 | 宠物分类精度不可控；无法提取自定义特征做 PetMatcher |
-| **C. 混合**（Vision 识别 + Core ML 特征） | 兼顾 | 灵活 | 复杂度最高 |
+| **A. Core ML 全转换**（✅ 选定） | CLIP + RTMPose | 端侧可控，行为与源端一致，PetMatcher 保真 | 需 coremltools 转换 + 校验精度；包体积 +~45 MB（INT8 量化后） |
+| B. Vision 高阶 API 为主 | 宠物识别 + 主体分割 | 零自带模型，集成最快，包体积小 | 宠物分类精度不可控；无法提取自定义特征做 PetMatcher，多宠物自动归属降级 |
+| C. 混合（Vision 识别 + Core ML 特征） | 兼顾 | 灵活 | 复杂度最高，本质是 A 的渐进版 |
 
-**建议**：P1 阶段先用 **方案 B（Vision）** 跑通"发现宠物 + 主体分割"主流程快速验证；同步调研 **方案 A** 的 CLIP 转换可行性（`pet_text_embeddings.f32` 在 Core ML 下需重新设计零样本分类）。PetMatcher 的特征匹配如果依赖 CLIP embedding，则必须走方案 A。最终方案在 P1 末以 ADR 定案。
+**最终决策**：采用 **方案 A**。CLIP vision encoder（只导 image_features，丢弃 12 层 attention）+ RTMPose-t 转 Core ML（INT8 量化），text embeddings（40 KB）直接复用。主体分割用 iOS 17+ `VNGenerateForegroundInstanceMask`（三方案一致）。预筛用 `VNClassifyImageRequest` / `VNRecognizeAnimalsRequest` 替代源端 CoreVisionKit。转换工具链 + 精度校验（cosine >0.999 / 分类一致率 >98% / 关键点 <2px）随 P2 前落地。
 
 ## 7. 风险登记
 

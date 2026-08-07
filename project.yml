@@ -35,6 +35,11 @@ targets:
     deploymentTarget: "17.0"
     sources:
       - path: MiLens
+        # Resources/Models/README.md 是文档，不打包进 App Bundle。
+        # .mlpackage（gitignore）由转换脚本生成后自动识别为 Core ML 模型；
+        # .f32 由 XcodeGen 默认当作 resource。详见 ADR-0007。
+        excludes:
+          - "Resources/Models/README.md"
     info:
       path: MiLens/Resources/Info.plist
       properties:

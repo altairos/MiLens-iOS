@@ -1,0 +1,16 @@
+# AI 模型转换工具链依赖（独立于 tools/requirements.txt）
+#
+# 仅在 macOS 上安装（coremltools 依赖 macOS）：
+#   python3 -m venv .venv-models && source .venv-models/bin/activate
+#   pip install -r tools/requirements-models.txt
+#
+# 用途：将源端 CLIP / RTMPose ONNX 模型转换为 iOS Core ML 格式（.mlpackage）
+# 详见 docs/adr/0007-ios-ai-inference-route.md §4
+
+coremltools>=7.2,<8.0          # Core ML 模型转换 + INT8 量化（需 macOS）
+torch>=2.2.0                   # CLIP 模型导出（transformers 依赖）
+transformers>=4.40.0           # openai/clip-vit-base-patch32
+onnx>=1.15.0                   # ONNX 图操作
+onnxruntime>=1.17.0            # ONNX 推理校验基准
+numpy>=1.26.0                  # 数值计算
+Pillow>=10.0.0                 # 图像预处理

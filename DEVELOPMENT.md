@@ -1,6 +1,6 @@
 # MiLens iOS 开发说明
 
-最后核对：2026-08-07（P0 harness 搭建中）
+最后核对：2026-08-08（P1 进行中，AI 模型转换工具链落地）
 
 > 环境、命令、开发约定、可复现验证快照。架构见 [DESIGN.md](DESIGN.md)，计划见 [PLAN.md](PLAN.md)，约束见 [AGENTS.md](AGENTS.md)。
 
@@ -144,11 +144,84 @@ xcodebuild ... test -enableCodeCoverage YES
 - 避免强制解包 `!`（`@IBOutlet` 等 IBOutlet 除外，本项目以 SwiftUI 为主基本不用）。
 - 访问控制：`MiLensKit` 内部类型默认 `internal`，仅导出面标 `public`。
 
-### 4.3 模拟器 vs 真机
+### 4.3 AI 模型转换工具链
+
+将源端 CLIP / RTMPose 模型转换为 iOS Core ML 格式（`.mlpackage`）。方案详见 [ADR-0007](docs/adr/0007-ios-ai-inference-route.md)。
+
+> **仅 macOS 可运行**：`coremltools` 依赖 macOS。转换产物 `.mlpackage` 加入 Xcode 工程后由 Xcode 自动编译为 `.mlmodelc`。
+
+**环境搭建**（macOS，首次）：
+```bash
+python3 -m venv .venv-models
+source .venv-models/bin/activate
+pip install -r tools/requirements-models.txt
+```
+
+**CLIP vision encoder → Core ML**（`tools/convert_clip_coreml.py`）：
+```bash
+# 全量：加载 CLIP → trace → INT8 量化 → 校验
+python tools/convert_clip_coreml.py \
+    --calibration-dir /path/to/pet_photos \
+    --output MiLens/Resources/Models/CLIPVisionEncoder.mlpackage
+
+# FP16（不量化，精度最高，体积 ~85 MB）
+python tools/convert_clip_coreml.py --quantization fp16 \
+    --output MiLens/Resources/Models/CLIPVisionEncoder.mlpackage
+```
+校验门槛：512 维 embedding cosine >0.999（原始 torch vs Core ML）。
+
+**RTMPose-t → Core ML**（`tools/convert_rtmpose_coreml.py`）：
+```bash
+python tools/convert_rtmpose_coreml.py \
+    --onnx /path/to/rtmpose_t_pet_face.onnx \
+    --quantization fp16 \
+    --output MiLens/Resources/Models/RTMPoseTPetFace.mlpackage
+```
+校验门槛：5 关键点平均像素误差 <2px（ONNX Runtime vs Core ML）。
+
+**Text embeddings 校验/复制**（`tools/prepare_text_embeddings.py`）：
+```bash
+# 校验源端 f32 文件格式（任意平台可跑，不需 coremltools）
+python tools/prepare_text_embeddings.py \
+    --input /path/to/pet_text_embeddings.f32 --verify-only
+
+# 复制到 iOS Resources 并打印 Swift 加载代码参考
+python tools/prepare_text_embeddings.py \
+    --input /path/to/pet_text_embeddings.f32 \
+    --output MiLens/Resources/Models/pet_text_embeddings.f32 \
+    --print-swift
+```
+
+**模型产物**（加入 `MiLens/Resources/Models/` 并在 `project.yml` 中注册打包）：
+
+| 产物 | 体积（估算） | 说明 |
+|---|---|---|
+| `CLIPVisionEncoder.mlpackage` | ~42 MB（INT8）/ ~85 MB（FP16） | 输入 224×224 RGB，输出 512 维 L2-normalized embedding |
+| `RTMPoseTPetFace.mlpackage` | ~3 MB（INT8）/ ~6 MB（FP16） | 输入 192×192 NCHW，输出 simcc_x [1,5,384] + simcc_y [1,5,384] |
+| `pet_text_embeddings.f32` | 0.04 MB | 直接复用源端二进制文件 |
+
+### 4.4 模拟器 vs 真机
 
 - 单元测试、纯逻辑、SwiftData schema：模拟器即可。
 - Photos 权限、Vision/Core ML 推理、相机、推送、后台：**必须真机**（iPhone，iOS 17+）。
 - StoreKit：用 StoreKit Testing（本地 `.storekit` 文件）+ 沙盒账号。
+
+### 4.5 本地化（String Catalog）
+
+UI 文案与 Info.plist 权限说明用 Apple String Catalog（`.xcstrings`）管理，源语言简中，结构支持任意语言：
+
+- `MiLens/Resources/Localizable.xcstrings`——UI 文案（Tab 标题、占位说明等）。
+- `MiLens/Resources/InfoPlist.xcstrings`——权限说明、App 显示名。
+- 代码统一用 `String(localized: "key", comment: "...")`，不用 `NSLocalizedString`。
+
+**新增语言步骤**：
+1. 在 `project.yml` 的 `knownRegions` 追加语言代码（如 `"en"`）。
+2. 导出待翻译 Excel：`python tools/localization.py export MiLens/Resources/Localizable.xcstrings MiLens/Resources/InfoPlist.xcstrings build/loc.xlsx --lang en`。
+3. 翻译人员填写 Excel 中的 `en` 列。
+4. 导入回写（各 `.xcstrings` 分别执行）：`python tools/localization.py import build/loc.xlsx MiLens/Resources/Localizable.xcstrings --lang en`。
+5. 校验：`python tools/localization.py check MiLens/Resources/Localizable.xcstrings MiLens/Resources/InfoPlist.xcstrings --project-yml project.yml --source-root MiLens`。
+
+> 依赖 `openpyxl`（`pip install -r tools/requirements.txt`）。工具支持任意语言，不限于英文；check 可接入 CI。
 
 ## 5. 验证快照
 
@@ -160,6 +233,15 @@ xcodebuild ... test -enableCodeCoverage YES
 - 2026-08-07：项目推送 GitHub（`altairos/MiLens-iOS`，私有）。**云端编译闭环验证通过**——`MiLensKit (Linux)` 51s + `MiLens App (macOS)` 4m7s 全绿（`BUILD SUCCEEDED` + 测试通过）。首次运行修复 Asset Catalog 缺 `AppIcon.appiconset` 一处。
 - 2026-08-07：**P1.1 工程地基**——新增 `MiLensApp` 组合根、`RootTabView`（4 Tab）、`Route`/`AppTab`、主题 token（5 个 Asset Catalog 语义色含深色 + `Theme.swift`）、简中 `Localizable.strings`、AppTab/Route 测试（8 用例）。**CI 验证通过**（编译 + 测试全绿，run 31187548565）。
 - 2026-08-07：**P1.2 数据层**——SwiftData `@Model`（Pet/Photo/PetEvent，UUID 标识，V1.0 裁剪）+ `SchemaV1`/`MiLensMigrationPlan` + Repository 协议/实现（`@MainActor` + EnvironmentKey 注入）+ ModelContainer 接入。Repository 测试（22 用例：CRUD/分页/关系删除/扫描导入边界）。**CI 验证通过**（编译 + 测试全绿，run 31193790682）。
+- 2026-08-07：**本地化工具链 + 文档校正**——新增 `tools/localization.py`（任意语言 String Catalog 导出/导入/check + Excel 工作流）与 `tools/requirements.txt`；同步工作区至 HEAD 的 String Catalog（`Localizable.xcstrings` 8 key + `InfoPlist.xcstrings` 3 key，源语言简中，结构支持任意语言）与 `String(localized:)` API；文档校正：反映 commit 6b48453 的 `.strings` → `.xcstrings` 迁移（AGENTS/PLAN/DEVELOPMENT/DESIGN）+ 新增 DEVELOPMENT.md §4.4 本地化工作流。本地验证：check 全绿、带值 round-trip 通过、回写格式 Xcode 兼容。App 编译待 CI 验证。
+
+### P1
+
+- 2026-08-08：**AI 模型转换工具链落地**——新增 3 个 Python 脚本 + `tools/requirements-models.txt`：①`tools/convert_clip_coreml.py`（CLIP ViT-B/32 vision encoder → Core ML `.mlpackage`，只导 image_features 512 维，支持 INT8/FP16 量化，精度校验 cosine >0.999）；②`tools/convert_rtmpose_coreml.py`（RTMPose-t ONNX → Core ML，SimCC 输出，精度校验 <2px）；③`tools/prepare_text_embeddings.py`（text embeddings f32 格式校验 + Swift 加载代码生成）。三个脚本 `py_compile` 全绿；`prepare_text_embeddings.py --verify-only` 对源端 `pet_text_embeddings.f32`（40960 bytes = 20×512×4）实跑通过，L2 范数全部正常。转换+量化实跑需 macOS（coremltools 依赖）。
+
+### P2
+
+- 2026-08-08：**P2 纯决策 + Service + View 层落地**——翻译源端 6 个纯决策模块（`GalleryPageState`/`ScanFlowLogic`/`ScanControlMath`/`ImportFlowLogic`/`PhotoMetadataLogic`/`PhotoViewGestureMath`）为 Swift 纯函数/struct + ~84 用例 XCTest（逐条对应源端黄金规格）；`ScanService`（Photos 全库扫描 + `VisionService` 检测 + `Task.cancel` 取消）+ `ImportService`（复制沙盒 → 入库）+ ~15 用例（in-memory SwiftData + mock 平台服务）；`GalleryViewModel`（@Observable）+ `GalleryView`（LazyVGrid 分页 + 扫描进度 + 完成弹窗）+ `PhotoViewView`（大图 + 手势）+ `HomeView`（相册/扫描入口）。**编译 + 测试验证待 CI 推送**（Windows 开发机无法编译 iOS App target）。
 
 ## 6. 源端参考资料
 

@@ -21,7 +21,7 @@ V1.0 不含：手表、健康管理、社区、云账号、商城（详见评估
 | 持久化 | SwiftData | `@Model` + `ModelContainer` + `VersionedSchema` 迁移 |
 | 状态管理 | `@Observable` 宏 | iOS 17 现代观察；跨视图共享走 `@Environment` |
 | 导航 | NavigationStack + 路由枚举 | 类型安全，不复刻 URL 字符串 |
-| AI 推理 | Vision（首选）+ Core ML（待定） | 见评估报告 §6 |
+| AI 推理 | Core ML（CLIP + RTMPose 转换）+ Vision（分割） | 方案 A 全转换，见 [ADR-0007](docs/adr/0007-ios-ai-inference-route.md) |
 | 订阅 | StoreKit 2 | `Product` / `Transaction` / `EntitlementTask` |
 | 图片 | Photos / PhotosUI / ImageIO | PHPicker 选图、PHFetch 扫描、CGImageSource 解码 |
 | 项目生成 | XcodeGen（`project.yml`） | 项目文件可声明、可版本控制，适配 Windows 规划 + Mac 编译 |
@@ -50,7 +50,7 @@ MiLens/                         # App target（@main、Views、App 入口）
 ├── Persistence/                # SwiftData @Model + Repository（对应源端 database/+repository/）
 ├── Theme/                      # Asset Catalog + 设计 token 扩展（对应源端 theme/）
 ├── Utilities/                  # 工具/日志/守卫（对应源端 utils/）
-├── Resources/                  # Assets.xcassets / .lproj / Info.plist
+├── Resources/                  # Assets.xcassets / *.xcstrings（本地化）/ Info.plist
 └── Tests/                      # XCTest 单元测试
 
 MiLensKit/                      # 本地 Swift Package（对应源端 shared HSP）
@@ -156,13 +156,13 @@ SwiftData 从 V1.0 干净 schema 起步（不复刻源端 16 版历史迁移）�
 | `PhotoLibraryAccess` | Photos / PhotosUI | `IMediaAccess` |
 | `FileStorage` | FileManager | `IFileService` |
 | `VisionService` | Vision（分类/主体分割） | `IVisionKit` |
-| `InferenceEngine`（待定） | Core ML | `IModelRunner` |
+| `InferenceEngine` | Core ML（CLIP + RTMPose `.mlmodelc`） | `IModelRunner`（定案见 [ADR-0007](docs/adr/0007-ios-ai-inference-route.md)） |
 
 真实实现与 mock 分离，业务/ViewModel 只依赖协议，测试注入 mock（对应源端 `FakeMediaAccess` 等）。
 
 ## 10. 已知限制
 
-- AI 推理框架（Vision vs Core ML）待 P1 调研定案（见评估报告 §6）。
+- AI 推理框架已定案：方案 A 全转换（CLIP + RTMPose → Core ML，INT8 量化）+ Vision 原生分割。详见 [ADR-0007](docs/adr/0007-ios-ai-inference-route.md)。
 - 完整编辑器、家庭局域网备份、质量评分/重复分组后置到 V1.x。
 - iOS V1.0 新增的 AI 写真/回忆视频无源端参照，需独立产品+技术方案。
 - SwiftData schema 从零设计，与源端数据无直接迁移路径（两平台数据不互通）。

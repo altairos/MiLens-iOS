@@ -58,14 +58,21 @@ public struct StylizedDraftResult: Equatable, Sendable {
     public var height: Int
     public var indices: [UInt8]
     public var virtualPalette: [VirtualColor]
+    public var featureMask: [UInt8]?
+    public var subjectMask: [UInt8]?
     public var diagnostics: DraftDiagnostics
 
     public init(width: Int, height: Int, indices: [UInt8],
-                virtualPalette: [VirtualColor], diagnostics: DraftDiagnostics) {
+                virtualPalette: [VirtualColor],
+                featureMask: [UInt8]? = nil,
+                subjectMask: [UInt8]? = nil,
+                diagnostics: DraftDiagnostics) {
         self.width = width
         self.height = height
         self.indices = indices
         self.virtualPalette = virtualPalette
+        self.featureMask = featureMask
+        self.subjectMask = subjectMask
         self.diagnostics = diagnostics
     }
 }

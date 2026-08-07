@@ -32,7 +32,7 @@
 - **平台隔离**：系统框架（Photos/Vision/Core ML/FileManager/StoreKit）通过 Swift `protocol` 抽象，真实实现与 mock 分离（对应源端 `adapters/`）。业务层不直接依赖具体系统类型。
 - **DI**：`@main App` 作为组合根，通过 SwiftUI `Environment` 值注入 service/repository。ViewModel 不持有全局单例入口；用窄协议声明依赖。
 - **导航**：`NavigationStack` + 类型安全路由枚举（`NavigationLink(value:)`），不复刻源端 URL 路由字符串。
-- **资源**：`Assets.xcassets` 集中管理图片（@2x/@3x）、颜色（Any/Dark Appearance）、App Icon；本地化用 `.strings` + `.lproj`。
+- **资源**：`Assets.xcassets` 集中管理图片（@2x/@3x）、颜色（Any/Dark Appearance）、App Icon；本地化用 String Catalog（`MiLens/Resources/Localizable.xcstrings` 管 UI 文案、`InfoPlist.xcstrings` 管权限说明与 App 名），源语言简中，结构支持任意语言；代码用 `String(localized:)`（不用 `NSLocalizedString`）。新增语言在 `project.yml` 的 `knownRegions` 追加，导出/导入见 `tools/localization.py`。
 - **规模**：参照源端 600/800 行守卫思路。单文件超 600 行（编辑器/算法核心 800 行）须拆分，不留长期豁免。
 
 ## 4. 实现规则

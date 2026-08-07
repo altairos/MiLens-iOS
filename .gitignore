@@ -35,13 +35,26 @@ Package.resolved
 .DS_Store
 
 # 模型与媒体（大文件，按需单独管理）
+# .mlpackage 由 tools/convert_*_coreml.py 在 macOS 上生成，不提交。
+# pet_text_embeddings.f32（40 KB）除外，已提交到 Resources/Models/。
 *.mlpackage
 *.mlmodel
 *.coreml
+*.mlmodelc
+
+# 模型转换工具链临时产物
+.venv-models/
+*_traced.pt
+*.onnx
 
 # 临时与备份
 *.tmp
 *~
+
+# Python 生成产物（模型转换工具链）
+__pycache__/
+*.pyc
+*.pyo
 
 *.disabled
 

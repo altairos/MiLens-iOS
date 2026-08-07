@@ -18,6 +18,9 @@ struct RootTabView: View {
                     tabView(tab)
                         .navigationTitle(tab.title)
                         .navigationBarTitleDisplayMode(.large)
+                        .navigationDestination(for: Route.self) { route in
+                            routeDestination(route)
+                        }
                 }
                 .tabItem {
                     Label(tab.title, systemImage: tab.systemImage)
@@ -38,6 +41,28 @@ struct RootTabView: View {
         case .pets: PetsView()
         case .create: CreateView()
         case .settings: SettingsView()
+        }
+    }
+
+    @ViewBuilder
+    private func routeDestination(_ route: Route) -> some View {
+        switch route {
+        case .gallery:
+            GalleryView()
+        case .photoView(let photoID):
+            PhotoViewView(photoID: photoID)
+        case .petProfile(let petID):
+            // P3 实现
+            PlaceholderTabView(systemImage: "pawprint.fill",
+                               title: "宠物档案", subtitle: "P3 待实现")
+        case .beadPattern(let photoID):
+            // P4 实现
+            PlaceholderTabView(systemImage: "square.grid.3x3.fill",
+                               title: "拼豆图纸", subtitle: "P4 待实现")
+        case .petEdit(let petID):
+            // P3 实现
+            PlaceholderTabView(systemImage: "pencil",
+                               title: "编辑档案", subtitle: "P3 待实现")
         }
     }
 

@@ -8,8 +8,8 @@ final class GalleryPageStateTests: XCTestCase {
     // MARK: - 快照构造辅助
 
     private func display(
-        isLoading: Bool = true, photoCount: Int = 0, visibleCount: Int = 0,
-        hasMorePhotos: Bool = false, galleryChromeHidden: Bool = false
+        hasMorePhotos: Bool = false, isLoading: Bool = true,
+        photoCount: Int = 0, visibleCount: Int = 0, galleryChromeHidden: Bool = false
     ) -> GalleryDisplaySnapshot {
         var snap = GalleryDisplaySnapshot.initial
         snap.isLoading = isLoading
@@ -32,8 +32,8 @@ final class GalleryPageStateTests: XCTestCase {
     }
 
     private func scanState(
-        isScanning: Bool = false, scanPaused: Bool = false,
-        showScanCompleteDialog: Bool = false, scanTotal: Int = 0, scanFound: Int = 0
+        showScanCompleteDialog: Bool = false, isScanning: Bool = false,
+        scanPaused: Bool = false, scanTotal: Int = 0, scanFound: Int = 0
     ) -> GalleryScanSnapshot {
         var snap = GalleryScanSnapshot.initial
         snap.isScanning = isScanning

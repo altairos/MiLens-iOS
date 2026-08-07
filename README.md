@@ -23,6 +23,7 @@ open MiLens.xcodeproj
 |---|---|
 | [AGENTS.md](AGENTS.md) | 工程约束（不可破坏的边界/架构/实现/验证规则） |
 | [DESIGN.md](DESIGN.md) | 目标 iOS 架构（技术栈/分层/目录/状态/DI/数据） |
+| [UI-DESIGN.md](UI-DESIGN.md) | UI 设计规范（色彩/字体/间距/动效/页面视觉） |
 | [PLAN.md](PLAN.md) | 迁移里程碑（P0–P5）与任务清单 |
 | [MIGRATION_ASSESSMENT.md](MIGRATION_ASSESSMENT.md) | 源项目盘点、模块/API 映射、范围边界、风险 |
 | [DEVELOPMENT.md](DEVELOPMENT.md) | 环境、构建命令、开发约定、验证快照 |

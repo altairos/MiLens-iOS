@@ -143,7 +143,7 @@ public func generateStylizedDraft(
         }
     }
 
-    let diagnostics = computeDiagnostics(indices, width: width, height: height,
+    let diagnostics = computeDiagnostics(indices: indices, width: width, height: height,
                                          palette: palette, mask: subjectCtx?.mask)
 
     return StylizedDraftResult(

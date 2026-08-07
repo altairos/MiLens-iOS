@@ -1,6 +1,6 @@
 # MiLens iOS 迁移计划
 
-最后核对：2026-08-08（P2 进行中）
+最后核对：2026-08-08（P0 收口，P2 进行中）
 
 > 里程碑与任务清单。架构见 [DESIGN.md](DESIGN.md)，映射与范围见 [MIGRATION_ASSESSMENT.md](MIGRATION_ASSESSMENT.md)，约束见 [AGENTS.md](AGENTS.md)。
 
@@ -8,16 +8,16 @@
 
 | 阶段 | 名称 | 目标 | 状态 |
 |---|---|---|---|
-| **P0** | Harness 与规划 | 文档骨架、约束、目录结构、XcodeGen 声明、范围对齐 | 🔄 进行中 |
+| **P0** | Harness 与规划 | 文档骨架、约束、目录结构、XcodeGen 声明、范围对齐 | ✅ 已完成 |
 | **P1** | 地基 + 算法核心 | Xcode 工程可编译、SwiftData schema、拼豆 Swift 核心（黄金规格通过）、AI 路线定案 | ⬜ |
-| **P2** | 相册 MVP | 扫描发现 + 手动导入 + 相册网格 + 大图查看 | 🔄 进行中 |
+| **P2** | 相册 MVP | 扫描发现（+质量评分/重复分组）+ 手动导入 + 相册网格 + 大图查看 | 🔄 进行中 |
 | **P3** | 宠物档案 | 档案 CRUD + 成长时间线 + 纪念提醒 | ⬜ |
-| **P4** | 创作入口 | 拼豆图纸完整流程（选图→生成→预览→A4 导出） | ⬜ |
+| **P4** | 创作入口 + 编辑器 | 拼豆图纸完整流程 + 完整图片编辑器（裁切/滤镜/标注） | ⬜ |
 | **P5** | 首页/我的 + 商业化 | 首页回忆/提醒、设置、StoreKit 订阅、App Store 提审 | ⬜ |
 
 ---
 
-## P0 — Harness 与规划（当前）
+## P0 — Harness 与规划 ✅
 
 ### 任务
 
@@ -32,13 +32,13 @@
 - [x] DEVELOPMENT.md（环境/命令/验证）
 - [x] 云端 CI：`.github/workflows/ci.yml`（ubuntu-24.04 跑 MiLensKit + macOS-15 跑 App）
 - [x] **本地编译闭环**：WSL2 Ubuntu-24.04 + Swift 6.1.3（/opt/swift），MiLensKit `swift build/test` 全绿
-- [ ] **待确认**：范围裁剪与产品对齐（编辑器简化程度、备份是否 V1.0、AI 写真是否 V1.0）
+- [x] **范围对齐**：V1.0 范围定案（[ADR-0008](docs/adr/0008-v1-scope-decision.md)）—— 完整图片编辑器 + 质量评分 + 重复分组进 V1.0；备份/AI 写真后置；iPad 支持
 
 ### 验收标准
 
 - 6 份顶层文档齐全且互相链接一致
 - `project.yml` 在 Mac 上 `xcodegen generate` 可生成可编译空工程
-- 范围「待确认」项有明确结论（产品签字或显式延后）
+- 范围「待确认」项有明确结论 ✅（[ADR-0008](docs/adr/0008-v1-scope-decision.md)，产品已拍板）
 
 ---
 

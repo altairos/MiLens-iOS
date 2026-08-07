@@ -1,6 +1,6 @@
 # MiLens iOS UI 设计规范
 
-最后核对：2026-08-07（P1.1 主题 token 已落地，本规范指导后续视觉实现）
+最后核对：2026-08-07（阶段 A 第 1–4 步已落地：Asset Catalog 18 colorset + Color/Theme/Typography token；第 5–6 步字体资源待后续）
 
 > 本文是 iOS 版视觉与交互的**唯一事实来源**。架构见 [DESIGN.md](DESIGN.md)，产品叙事与页面原型见 `docs/MiLens_iOS_V1.0_页面原型与交互流程设计稿.md`，迁移映射见 [MIGRATION_ASSESSMENT.md](MIGRATION_ASSESSMENT.md)，约束见 [AGENTS.md](AGENTS.md)。源端 HarmonyOS 主题 token（`baseColors.ets`/`themeColors.ets`/`AppTheme.ets`）仅作色值翻译参照，不照搬视觉风格。
 
@@ -387,12 +387,12 @@ iOS 差异化武器。动效服务于情感反馈，不炫技。
 
 ### 阶段 A：设计系统先行（P2 前，避免返工）
 
-1. **校准 Asset Catalog**：按 §1.2 扩展 colorset（新增 `TextTertiary`/`SurfaceElevated`/`SurfaceGrouped`/`AccentSoft`/`Separator`/`Border`/功能色），更新 5 个已有 colorset 的色值。
-2. **更新 `Color+Theme.swift`**：补全语义色扩展，校准色值。
-3. **更新 `Theme.swift`**：`pagePad` → 24；圆角统一三档；新增 `Elevation` token。
-4. **新增 `Typography.swift`**：定义 §2.2 字体层级。
-5. **字体资源**：下载霞鹜文楷 + Fraunces（OFL），子集化后放 `Resources/Fonts/`，`project.yml` 注册 `UIAppFonts`，保留两份 `OFL.txt` 与来源说明。
-6. **体积报告**：记录字体引入前后 App 体积。
+1. ✅ **校准 Asset Catalog**：按 §1.2 扩展 colorset。**已完成**——18 个 colorset（Any + 暖黑 Dark 双外观）：5 个已有校准色值 + 13 个新增（`TextTertiary`/`TextOnAccent`/`SurfaceElevated`/`SurfaceGrouped`/`AccentSoft`/`AccentGradientEnd`/`Success`/`Warning`/`Danger`/`CatAccent`/`DogAccent`/`Separator`/`Border`）。
+2. ✅ **更新 `Color+Theme.swift`**：**已完成**——18 个 `milens` 前缀语义色扩展（旧名 `milensPrimary`/`milensBackground` 等保留兼容，色值随 colorset 自动校准）。
+3. ✅ **更新 `Theme.swift`**：**已完成**——`pagePad` → 24；圆角三档（`small` 10 / `medium` 14 / `large` 20，旧名 `card`/`button`/`chip` 保留为别名）；新增 `Elevation`（`soft`/`medium`/`accent`）+ `ShadowSpec` + `.elevation(_:)` 修饰符。
+4. ✅ **新增 `Typography.swift`**：**已完成**——8 个层级（`displayLarge`/`displayMedium` 用 `.serif` design，`numberStat` 用 `.rounded`，全部基于 Text.Style 自动响应 Dynamic Type）。自定义字体待第 5 步。
+5. ⬜ **字体资源**：下载霞鹜文楷 + Fraunces（OFL），子集化后放 `Resources/Fonts/`，`project.yml` 注册 `UIAppFonts`，保留两份 `OFL.txt` 与来源说明。
+6. ⬜ **体积报告**：记录字体引入前后 App 体积。
 
 ### 阶段 B：随页面实现逐个打磨（P2–P5）
 

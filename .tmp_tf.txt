@@ -1,0 +1,663 @@
+MiLens App (macOS)	Test (simulator)	锘?026-08-07T15:29:37.2542610Z ##[group]Run xcodebuild -project MiLens.xcodeproj \
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:37.2543090Z ^[[36;1mxcodebuild -project MiLens.xcodeproj \^[[0m
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:37.2543420Z ^[[36;1m  -scheme MiLens \^[[0m
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:37.2543730Z ^[[36;1m  -destination 'platform=iOS Simulator,name=iPhone 16' \^[[0m
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:37.2544100Z ^[[36;1m  -configuration Debug \^[[0m
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:37.2544380Z ^[[36;1m  -enableCodeCoverage YES \^[[0m
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:37.2544680Z ^[[36;1m  CODE_SIGNING_ALLOWED=NO \^[[0m
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:37.2544910Z ^[[36;1m  test^[[0m
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:37.2805160Z shell: /bin/bash -e {0}
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:37.2805430Z ##[endgroup]
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:38.8178940Z Command line invocation:
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:38.8196190Z     /Applications/Xcode_16.4.app/Contents/Developer/usr/bin/xcodebuild -project MiLens.xcodeproj -scheme MiLens -destination "platform=iOS Simulator,name=iPhone 16" -configuration Debug -enableCodeCoverage YES CODE_SIGNING_ALLOWED=NO test
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:38.8197460Z 
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:38.8197830Z Build settings from command line:
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:38.8199980Z     CODE_SIGNING_ALLOWED = NO
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:38.8200940Z 
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:39.1771430Z Resolve Package Graph
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:40.3814610Z 
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:40.3833280Z 
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:40.3834080Z Resolved source packages:
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:40.3834780Z   MiLensKit: /Users/runner/work/MiLens-iOS/MiLens-iOS/MiLensKit
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:40.3835100Z 
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:40.4143340Z --- xcodebuild: WARNING: Using the first of multiple matching destinations:
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:40.4144690Z { platform:iOS Simulator, arch:arm64, id:1556EED5-50E7-4F02-96D3-13F8A52A4EE5, OS:26.2, name:iPhone 16 }
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:40.4155780Z { platform:iOS Simulator, arch:x86_64, id:1556EED5-50E7-4F02-96D3-13F8A52A4EE5, OS:26.2, name:iPhone 16 }
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:40.9463060Z ComputePackagePrebuildTargetDependencyGraph
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:41.0441040Z 
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:41.0450400Z Prepare packages
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:41.0452000Z 
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:41.0469050Z CreateBuildRequest
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:41.0469810Z 
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:41.0470480Z SendProjectDescription
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:41.0622440Z 
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:41.0624020Z CreateBuildOperation
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:41.0759360Z 
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:41.0793610Z ComputeTargetDependencyGraph
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:41.1279380Z note: Building targets in dependency order
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:41.1283480Z note: Target dependency graph (4 targets)
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:41.1285640Z     Target 'MiLensTests' in project 'MiLens'
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:41.1289980Z         鉃?Explicit dependency on target 'MiLens' in project 'MiLens'
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:41.1290500Z     Target 'MiLens' in project 'MiLens'
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:41.1291190Z         鉃?Explicit dependency on target 'MiLensKit' in project 'MiLensKit'
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:41.1292700Z     Target 'MiLensKit' in project 'MiLensKit'
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:41.1293300Z         鉃?Explicit dependency on target 'MiLensKit' in project 'MiLensKit'
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:41.1293910Z     Target 'MiLensKit' in project 'MiLensKit' (no dependencies)
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:41.1361040Z 
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:41.1365500Z GatherProvisioningInputs
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:41.1365950Z 
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:41.1366190Z CreateBuildDescription
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:41.1855840Z 
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:41.1858200Z ExecuteExternalTool /Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc --version
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:41.4644010Z 
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:41.4648510Z ExecuteExternalTool /Applications/Xcode_16.4.app/Contents/Developer/usr/bin/actool --print-asset-tag-combinations --output-format xml1 /Users/runner/work/MiLens-iOS/MiLens-iOS/MiLens/Resources/Assets.xcassets
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:41.4650780Z 
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:41.4654280Z ExecuteExternalTool /Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -v -E -dM -isysroot /Applications/Xcode_16.4.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator18.5.sdk -x c -c /dev/null
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:41.4656990Z 
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:41.4657870Z ExecuteExternalTool /Applications/Xcode_16.4.app/Contents/Developer/usr/bin/actool --version --output-format xml1
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:41.4660430Z 
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:41.4784650Z ExecuteExternalTool /Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/ld -version_details
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:41.4935430Z 
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:41.5351390Z Build description signature: 205c7fa63ba682fddc360ccedb463095
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:41.5356460Z Build description path: /Users/runner/Library/Developer/Xcode/DerivedData/MiLens-hiwspbeyjwjkhmabaquqzogzojrr/Build/Intermediates.noindex/XCBuildData/205c7fa63ba682fddc360ccedb463095.xcbuilddata
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:41.5687250Z ClangStatCache /Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang-stat-cache /Applications/Xcode_16.4.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator18.5.sdk /Users/runner/Library/Developer/Xcode/DerivedData/SDKStatCaches.noindex/iphonesimulator18.5-22F76-96ae0914227b19deccb34b33ba7b5dea.sdkstatcache
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:41.5689490Z     cd /Users/runner/work/MiLens-iOS/MiLens-iOS/MiLens.xcodeproj
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:41.5691470Z     /Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang-stat-cache /Applications/Xcode_16.4.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator18.5.sdk -o /Users/runner/Library/Developer/Xcode/DerivedData/SDKStatCaches.noindex/iphonesimulator18.5-22F76-96ae0914227b19deccb34b33ba7b5dea.sdkstatcache
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:41.8057580Z 
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:41.8062180Z WriteAuxiliaryFile /Users/runner/Library/Developer/Xcode/DerivedData/MiLens-hiwspbeyjwjkhmabaquqzogzojrr/Build/Intermediates.noindex/MiLens.build/Debug-iphonesimulator/MiLensTests.build/Objects-normal/arm64/MiLensTests_const_extract_protocols.json (in target 'MiLensTests' from project 'MiLens')
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:41.8169110Z     cd /Users/runner/work/MiLens-iOS/MiLens-iOS
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:41.8273600Z     write-file /Users/runner/Library/Developer/Xcode/DerivedData/MiLens-hiwspbeyjwjkhmabaquqzogzojrr/Build/Intermediates.noindex/MiLens.build/Debug-iphonesimulator/MiLensTests.build/Objects-normal/arm64/MiLensTests_const_extract_protocols.json
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:41.8286400Z 
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:41.8288960Z WriteAuxiliaryFile /Users/runner/Library/Developer/Xcode/DerivedData/MiLens-hiwspbeyjwjkhmabaquqzogzojrr/Build/Intermediates.noindex/MiLens.build/Debug-iphonesimulator/MiLensTests.build/Objects-normal/arm64/MiLensTests.SwiftFileList (in target 'MiLensTests' from project 'MiLens')
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:41.8290650Z     cd /Users/runner/work/MiLens-iOS/MiLens-iOS
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:41.8293210Z     write-file /Users/runner/Library/Developer/Xcode/DerivedData/MiLens-hiwspbeyjwjkhmabaquqzogzojrr/Build/Intermediates.noindex/MiLens.build/Debug-iphonesimulator/MiLensTests.build/Objects-normal/arm64/MiLensTests.SwiftFileList
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:41.8295930Z 
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:41.8297060Z WriteAuxiliaryFile /Users/runner/Library/Developer/Xcode/DerivedData/MiLens-hiwspbeyjwjkhmabaquqzogzojrr/Build/Intermediates.noindex/MiLens.build/Debug-iphonesimulator/MiLensTests.build/Objects-normal/arm64/MiLensTests.SwiftConstValuesFileList (in target 'MiLensTests' from project 'MiLens')
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:41.8299960Z     cd /Users/runner/work/MiLens-iOS/MiLens-iOS
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:41.8302590Z     write-file /Users/runner/Library/Developer/Xcode/DerivedData/MiLens-hiwspbeyjwjkhmabaquqzogzojrr/Build/Intermediates.noindex/MiLens.build/Debug-iphonesimulator/MiLensTests.build/Objects-normal/arm64/MiLensTests.SwiftConstValuesFileList
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:41.8305230Z 
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:41.8307590Z WriteAuxiliaryFile /Users/runner/Library/Developer/Xcode/DerivedData/MiLens-hiwspbeyjwjkhmabaquqzogzojrr/Build/Intermediates.noindex/MiLens.build/Debug-iphonesimulator/MiLensTests.build/Objects-normal/arm64/MiLensTests.LinkFileList (in target 'MiLensTests' from project 'MiLens')
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:41.8311510Z     cd /Users/runner/work/MiLens-iOS/MiLens-iOS
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:41.8314080Z     write-file /Users/runner/Library/Developer/Xcode/DerivedData/MiLens-hiwspbeyjwjkhmabaquqzogzojrr/Build/Intermediates.noindex/MiLens.build/Debug-iphonesimulator/MiLensTests.build/Objects-normal/arm64/MiLensTests.LinkFileList
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:41.8322040Z 
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:41.8324820Z WriteAuxiliaryFile /Users/runner/Library/Developer/Xcode/DerivedData/MiLens-hiwspbeyjwjkhmabaquqzogzojrr/Build/Intermediates.noindex/MiLens.build/Debug-iphonesimulator/MiLensTests.build/Objects-normal/arm64/MiLensTests-OutputFileMap.json (in target 'MiLensTests' from project 'MiLens')
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:41.8328240Z     cd /Users/runner/work/MiLens-iOS/MiLens-iOS
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:41.8330050Z     write-file /Users/runner/Library/Developer/Xcode/DerivedData/MiLens-hiwspbeyjwjkhmabaquqzogzojrr/Build/Intermediates.noindex/MiLens.build/Debug-iphonesimulator/MiLensTests.build/Objects-normal/arm64/MiLensTests-OutputFileMap.json
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:41.8333970Z 
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:41.8334830Z WriteAuxiliaryFile /Users/runner/Library/Developer/Xcode/DerivedData/MiLens-hiwspbeyjwjkhmabaquqzogzojrr/Build/Intermediates.noindex/MiLens.build/Debug-iphonesimulator/MiLensTests.build/MiLensTests.hmap (in target 'MiLensTests' from project 'MiLens')
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:41.8335950Z     cd /Users/runner/work/MiLens-iOS/MiLens-iOS
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:41.8337890Z     write-file /Users/runner/Library/Developer/Xcode/DerivedData/MiLens-hiwspbeyjwjkhmabaquqzogzojrr/Build/Intermediates.noindex/MiLens.build/Debug-iphonesimulator/MiLensTests.build/MiLensTests.hmap
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:41.8339010Z 
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:41.8339880Z WriteAuxiliaryFile /Users/runner/Library/Developer/Xcode/DerivedData/MiLens-hiwspbeyjwjkhmabaquqzogzojrr/Build/Intermediates.noindex/MiLens.build/Debug-iphonesimulator/MiLensTests.build/MiLensTests.DependencyStaticMetadataFileList (in target 'MiLensTests' from project 'MiLens')
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:41.8341310Z     cd /Users/runner/work/MiLens-iOS/MiLens-iOS
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:41.8342390Z     write-file /Users/runner/Library/Developer/Xcode/DerivedData/MiLens-hiwspbeyjwjkhmabaquqzogzojrr/Build/Intermediates.noindex/MiLens.build/Debug-iphonesimulator/MiLensTests.build/MiLensTests.DependencyStaticMetadataFileList
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:41.8343190Z 
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:41.8344080Z WriteAuxiliaryFile /Users/runner/Library/Developer/Xcode/DerivedData/MiLens-hiwspbeyjwjkhmabaquqzogzojrr/Build/Intermediates.noindex/MiLens.build/Debug-iphonesimulator/MiLensTests.build/MiLensTests.DependencyMetadataFileList (in target 'MiLensTests' from project 'MiLens')
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:41.8347340Z     cd /Users/runner/work/MiLens-iOS/MiLens-iOS
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:41.8350110Z     write-file /Users/runner/Library/Developer/Xcode/DerivedData/MiLens-hiwspbeyjwjkhmabaquqzogzojrr/Build/Intermediates.noindex/MiLens.build/Debug-iphonesimulator/MiLensTests.build/MiLensTests.DependencyMetadataFileList
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:41.8351010Z 
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:41.8351780Z WriteAuxiliaryFile /Users/runner/Library/Developer/Xcode/DerivedData/MiLens-hiwspbeyjwjkhmabaquqzogzojrr/Build/Intermediates.noindex/MiLens.build/Debug-iphonesimulator/MiLensTests.build/MiLensTests-project-headers.hmap (in target 'MiLensTests' from project 'MiLens')
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:41.8352960Z     cd /Users/runner/work/MiLens-iOS/MiLens-iOS
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:41.8354650Z     write-file /Users/runner/Library/Developer/Xcode/DerivedData/MiLens-hiwspbeyjwjkhmabaquqzogzojrr/Build/Intermediates.noindex/MiLens.build/Debug-iphonesimulator/MiLensTests.build/MiLensTests-project-headers.hmap
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:41.8356170Z 
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:41.8360190Z WriteAuxiliaryFile /Users/runner/Library/Developer/Xcode/DerivedData/MiLens-hiwspbeyjwjkhmabaquqzogzojrr/Build/Intermediates.noindex/MiLens.build/Debug-iphonesimulator/MiLensTests.build/MiLensTests-own-target-headers.hmap (in target 'MiLensTests' from project 'MiLens')
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:41.8361730Z     cd /Users/runner/work/MiLens-iOS/MiLens-iOS
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:41.8362830Z     write-file /Users/runner/Library/Developer/Xcode/DerivedData/MiLens-hiwspbeyjwjkhmabaquqzogzojrr/Build/Intermediates.noindex/MiLens.build/Debug-iphonesimulator/MiLensTests.build/MiLensTests-own-target-headers.hmap
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:41.8366220Z 
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:41.8368990Z WriteAuxiliaryFile /Users/runner/Library/Developer/Xcode/DerivedData/MiLens-hiwspbeyjwjkhmabaquqzogzojrr/Build/Intermediates.noindex/MiLens.build/Debug-iphonesimulator/MiLensTests.build/MiLensTests-generated-files.hmap (in target 'MiLensTests' from project 'MiLens')
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:41.8372340Z     cd /Users/runner/work/MiLens-iOS/MiLens-iOS
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:41.8376010Z     write-file /Users/runner/Library/Developer/Xcode/DerivedData/MiLens-hiwspbeyjwjkhmabaquqzogzojrr/Build/Intermediates.noindex/MiLens.build/Debug-iphonesimulator/MiLensTests.build/MiLensTests-generated-files.hmap
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:41.8378060Z 
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:41.8380240Z WriteAuxiliaryFile /Users/runner/Library/Developer/Xcode/DerivedData/MiLens-hiwspbeyjwjkhmabaquqzogzojrr/Build/Intermediates.noindex/MiLens.build/Debug-iphonesimulator/MiLensTests.build/MiLensTests-all-target-headers.hmap (in target 'MiLensTests' from project 'MiLens')
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:41.8383170Z     cd /Users/runner/work/MiLens-iOS/MiLens-iOS
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:41.8385980Z     write-file /Users/runner/Library/Developer/Xcode/DerivedData/MiLens-hiwspbeyjwjkhmabaquqzogzojrr/Build/Intermediates.noindex/MiLens.build/Debug-iphonesimulator/MiLensTests.build/MiLensTests-all-target-headers.hmap
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:41.8387870Z 
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:41.8390300Z WriteAuxiliaryFile /Users/runner/Library/Developer/Xcode/DerivedData/MiLens-hiwspbeyjwjkhmabaquqzogzojrr/Build/Intermediates.noindex/MiLens.build/Debug-iphonesimulator/MiLensTests.build/MiLensTests-all-non-framework-target-headers.hmap (in target 'MiLensTests' from project 'MiLens')
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:41.8394140Z     cd /Users/runner/work/MiLens-iOS/MiLens-iOS
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:41.8396700Z     write-file /Users/runner/Library/Developer/Xcode/DerivedData/MiLens-hiwspbeyjwjkhmabaquqzogzojrr/Build/Intermediates.noindex/MiLens.build/Debug-iphonesimulator/MiLensTests.build/MiLensTests-all-non-framework-target-headers.hmap
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:41.8398880Z 
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:41.8400760Z MkDir /Users/runner/Library/Developer/Xcode/DerivedData/MiLens-hiwspbeyjwjkhmabaquqzogzojrr/Build/Products/Debug-iphonesimulator/MiLens.app/PlugIns/MiLensTests.xctest (in target 'MiLensTests' from project 'MiLens')
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:41.8403040Z     cd /Users/runner/work/MiLens-iOS/MiLens-iOS
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:41.8405210Z     /bin/mkdir -p /Users/runner/Library/Developer/Xcode/DerivedData/MiLens-hiwspbeyjwjkhmabaquqzogzojrr/Build/Products/Debug-iphonesimulator/MiLens.app/PlugIns/MiLensTests.xctest
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:41.8406910Z 
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:41.8412250Z MkDir /Users/runner/Library/Developer/Xcode/DerivedData/MiLens-hiwspbeyjwjkhmabaquqzogzojrr/Build/Products/Debug-iphonesimulator/MiLens.app/PlugIns (in target 'MiLens' from project 'MiLens')
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:41.8413430Z     cd /Users/runner/work/MiLens-iOS/MiLens-iOS
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:41.8414170Z     /bin/mkdir -p /Users/runner/Library/Developer/Xcode/DerivedData/MiLens-hiwspbeyjwjkhmabaquqzogzojrr/Build/Products/Debug-iphonesimulator/MiLens.app/PlugIns
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:41.8414770Z 
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:41.8415370Z MkDir /Users/runner/Library/Developer/Xcode/DerivedData/MiLens-hiwspbeyjwjkhmabaquqzogzojrr/Build/Products/Debug-iphonesimulator/MiLens.app/Frameworks (in target 'MiLens' from project 'MiLens')
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:41.8416210Z     cd /Users/runner/work/MiLens-iOS/MiLens-iOS
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:41.8420530Z     /bin/mkdir -p /Users/runner/Library/Developer/Xcode/DerivedData/MiLens-hiwspbeyjwjkhmabaquqzogzojrr/Build/Products/Debug-iphonesimulator/MiLens.app/Frameworks
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:41.8422170Z 
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:41.8425250Z Copy /Users/runner/Library/Developer/Xcode/DerivedData/MiLens-hiwspbeyjwjkhmabaquqzogzojrr/Build/Products/Debug-iphonesimulator/MiLens.app/Frameworks/libXCTestSwiftSupport.dylib /Applications/Xcode_16.4.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/usr/lib/libXCTestSwiftSupport.dylib (in target 'MiLens' from project 'MiLens')
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:41.8429160Z     cd /Users/runner/work/MiLens-iOS/MiLens-iOS
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:41.8434120Z     builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -exclude Headers -exclude PrivateHeaders -exclude Modules -exclude \*.tbd -resolve-src-symlinks /Applications/Xcode_16.4.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/usr/lib/libXCTestSwiftSupport.dylib /Users/runner/Library/Developer/Xcode/DerivedData/MiLens-hiwspbeyjwjkhmabaquqzogzojrr/Build/Products/Debug-iphonesimulator/MiLens.app/Frameworks
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:41.8438000Z 
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:41.8442540Z Copy /Users/runner/Library/Developer/Xcode/DerivedData/MiLens-hiwspbeyjwjkhmabaquqzogzojrr/Build/Products/Debug-iphonesimulator/MiLens.app/Frameworks/libXCTestBundleInject.dylib /Applications/Xcode_16.4.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/usr/lib/libXCTestBundleInject.dylib (in target 'MiLens' from project 'MiLens')
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:41.8443870Z     cd /Users/runner/work/MiLens-iOS/MiLens-iOS
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:41.8448820Z     builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -exclude Headers -exclude PrivateHeaders -exclude Modules -exclude \*.tbd -resolve-src-symlinks /Applications/Xcode_16.4.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/usr/lib/libXCTestBundleInject.dylib /Users/runner/Library/Developer/Xcode/DerivedData/MiLens-hiwspbeyjwjkhmabaquqzogzojrr/Build/Products/Debug-iphonesimulator/MiLens.app/Frameworks
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:41.8454240Z 
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:41.8457230Z Copy /Users/runner/Library/Developer/Xcode/DerivedData/MiLens-hiwspbeyjwjkhmabaquqzogzojrr/Build/Products/Debug-iphonesimulator/MiLens.app/Frameworks/XCUnit.framework /Applications/Xcode_16.4.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/Library/PrivateFrameworks/XCUnit.framework (in target 'MiLens' from project 'MiLens')
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:41.8576550Z     cd /Users/runner/work/MiLens-iOS/MiLens-iOS
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:41.8578390Z     builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -exclude Headers -exclude PrivateHeaders -exclude Modules -exclude \*.tbd -resolve-src-symlinks /Applications/Xcode_16.4.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/Library/PrivateFrameworks/XCUnit.framework /Users/runner/Library/Developer/Xcode/DerivedData/MiLens-hiwspbeyjwjkhmabaquqzogzojrr/Build/Products/Debug-iphonesimulator/MiLens.app/Frameworks
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:41.8580020Z 
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:41.8581120Z Copy /Users/runner/Library/Developer/Xcode/DerivedData/MiLens-hiwspbeyjwjkhmabaquqzogzojrr/Build/Products/Debug-iphonesimulator/MiLens.app/Frameworks/XCUIAutomation.framework /Applications/Xcode_16.4.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/Library/Frameworks/XCUIAutomation.framework (in target 'MiLens' from project 'MiLens')
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:41.8583310Z     cd /Users/runner/work/MiLens-iOS/MiLens-iOS
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:41.8585000Z     builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -exclude Headers -exclude PrivateHeaders -exclude Modules -exclude \*.tbd -resolve-src-symlinks /Applications/Xcode_16.4.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/Library/Frameworks/XCUIAutomation.framework /Users/runner/Library/Developer/Xcode/DerivedData/MiLens-hiwspbeyjwjkhmabaquqzogzojrr/Build/Products/Debug-iphonesimulator/MiLens.app/Frameworks
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:41.8586540Z 
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:41.8636020Z Copy /Users/runner/Library/Developer/Xcode/DerivedData/MiLens-hiwspbeyjwjkhmabaquqzogzojrr/Build/Products/Debug-iphonesimulator/MiLens.app/Frameworks/XCTestSupport.framework /Applications/Xcode_16.4.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/Library/PrivateFrameworks/XCTestSupport.framework (in target 'MiLens' from project 'MiLens')
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:41.8637880Z     cd /Users/runner/work/MiLens-iOS/MiLens-iOS
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:41.8639670Z     builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -exclude Headers -exclude PrivateHeaders -exclude Modules -exclude \*.tbd -resolve-src-symlinks /Applications/Xcode_16.4.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/Library/PrivateFrameworks/XCTestSupport.framework /Users/runner/Library/Developer/Xcode/DerivedData/MiLens-hiwspbeyjwjkhmabaquqzogzojrr/Build/Products/Debug-iphonesimulator/MiLens.app/Frameworks
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:41.8642230Z 
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:41.8643700Z Copy /Users/runner/Library/Developer/Xcode/DerivedData/MiLens-hiwspbeyjwjkhmabaquqzogzojrr/Build/Products/Debug-iphonesimulator/MiLens.app/Frameworks/XCTestCore.framework /Applications/Xcode_16.4.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/Library/PrivateFrameworks/XCTestCore.framework (in target 'MiLens' from project 'MiLens')
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:41.8645980Z     cd /Users/runner/work/MiLens-iOS/MiLens-iOS
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:41.8647590Z     builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -exclude Headers -exclude PrivateHeaders -exclude Modules -exclude \*.tbd -resolve-src-symlinks /Applications/Xcode_16.4.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/Library/PrivateFrameworks/XCTestCore.framework /Users/runner/Library/Developer/Xcode/DerivedData/MiLens-hiwspbeyjwjkhmabaquqzogzojrr/Build/Products/Debug-iphonesimulator/MiLens.app/Frameworks
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:41.8651040Z 
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:41.8653990Z Copy /Users/runner/Library/Developer/Xcode/DerivedData/MiLens-hiwspbeyjwjkhmabaquqzogzojrr/Build/Products/Debug-iphonesimulator/MiLens.app/Frameworks/XCTest.framework /Applications/Xcode_16.4.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/Library/Frameworks/XCTest.framework (in target 'MiLens' from project 'MiLens')
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:41.8655960Z     cd /Users/runner/work/MiLens-iOS/MiLens-iOS
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:41.8657530Z     builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -exclude Headers -exclude PrivateHeaders -exclude Modules -exclude \*.tbd -resolve-src-symlinks /Applications/Xcode_16.4.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/Library/Frameworks/XCTest.framework /Users/runner/Library/Developer/Xcode/DerivedData/MiLens-hiwspbeyjwjkhmabaquqzogzojrr/Build/Products/Debug-iphonesimulator/MiLens.app/Frameworks
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:41.8659710Z 
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:41.8666040Z Copy /Users/runner/Library/Developer/Xcode/DerivedData/MiLens-hiwspbeyjwjkhmabaquqzogzojrr/Build/Products/Debug-iphonesimulator/MiLens.app/Frameworks/XCTAutomationSupport.framework /Applications/Xcode_16.4.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/Library/PrivateFrameworks/XCTAutomationSupport.framework (in target 'MiLens' from project 'MiLens')
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:41.8667430Z     cd /Users/runner/work/MiLens-iOS/MiLens-iOS
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:41.8669080Z     builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -exclude Headers -exclude PrivateHeaders -exclude Modules -exclude \*.tbd -resolve-src-symlinks /Applications/Xcode_16.4.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/Library/PrivateFrameworks/XCTAutomationSupport.framework /Users/runner/Library/Developer/Xcode/DerivedData/MiLens-hiwspbeyjwjkhmabaquqzogzojrr/Build/Products/Debug-iphonesimulator/MiLens.app/Frameworks
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:41.8733750Z 
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:41.8794950Z Copy /Users/runner/Library/Developer/Xcode/DerivedData/MiLens-hiwspbeyjwjkhmabaquqzogzojrr/Build/Products/Debug-iphonesimulator/MiLens.app/Frameworks/Testing.framework /Applications/Xcode_16.4.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/Library/Frameworks/Testing.framework (in target 'MiLens' from project 'MiLens')
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:41.8804910Z     cd /Users/runner/work/MiLens-iOS/MiLens-iOS
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:41.8811980Z     builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -exclude Headers -exclude PrivateHeaders -exclude Modules -exclude \*.tbd -resolve-src-symlinks /Applications/Xcode_16.4.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/Library/Frameworks/Testing.framework /Users/runner/Library/Developer/Xcode/DerivedData/MiLens-hiwspbeyjwjkhmabaquqzogzojrr/Build/Products/Debug-iphonesimulator/MiLens.app/Frameworks
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:41.8949560Z 
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:41.8952930Z ProcessInfoPlistFile /Users/runner/Library/Developer/Xcode/DerivedData/MiLens-hiwspbeyjwjkhmabaquqzogzojrr/Build/Products/Debug-iphonesimulator/MiLens.app/Info.plist /Users/runner/work/MiLens-iOS/MiLens-iOS/MiLens/Resources/Info.plist (in target 'MiLens' from project 'MiLens')
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:41.8956000Z     cd /Users/runner/work/MiLens-iOS/MiLens-iOS
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:41.8963050Z     builtin-infoPlistUtility /Users/runner/work/MiLens-iOS/MiLens-iOS/MiLens/Resources/Info.plist -producttype com.apple.product-type.application -genpkginfo /Users/runner/Library/Developer/Xcode/DerivedData/MiLens-hiwspbeyjwjkhmabaquqzogzojrr/Build/Products/Debug-iphonesimulator/MiLens.app/PkgInfo -expandbuildsettings -format binary -platform iphonesimulator -additionalcontentfile /Users/runner/Library/Developer/Xcode/DerivedData/MiLens-hiwspbeyjwjkhmabaquqzogzojrr/Build/Intermediates.noindex/MiLens.build/Debug-iphonesimulator/MiLens.build/assetcatalog_generated_info.plist -o /Users/runner/Library/Developer/Xcode/DerivedData/MiLens-hiwspbeyjwjkhmabaquqzogzojrr/Build/Products/Debug-iphonesimulator/MiLens.app/Info.plist
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:41.8969560Z 
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:41.8970760Z SwiftDriver MiLensTests normal arm64 com.apple.xcode.tools.swift.compiler (in target 'MiLensTests' from project 'MiLens')
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:41.8972160Z     cd /Users/runner/work/MiLens-iOS/MiLens-iOS
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:41.9002890Z     builtin-SwiftDriver -- /Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc -module-name MiLensTests -Onone -enforce-exclusivity\=checked @/Users/runner/Library/Developer/Xcode/DerivedData/MiLens-hiwspbeyjwjkhmabaquqzogzojrr/Build/Intermediates.noindex/MiLens.build/Debug-iphonesimulator/MiLensTests.build/Objects-normal/arm64/MiLensTests.SwiftFileList -DDEBUG -plugin-path /Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/host/plugins/testing -enable-bare-slash-regex -enable-experimental-feature DebugDescriptionMacro -sdk /Applications/Xcode_16.4.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator18.5.sdk -target arm64-apple-ios17.0-simulator -g -module-cache-path /Users/runner/Library/Developer/Xcode/DerivedData/ModuleCache.noindex -Xfrontend -serialize-debugging-options -profile-coverage-mapping -profile-generate -enable-testing -index-store-path /Users/runner/Library/Developer/Xcode/DerivedData/MiLens-hiwspbeyjwjkhmabaquqzogzojrr/Index.noindex/DataStore -swift-version 5 -I /Users/runner/Library/Developer/Xcode/DerivedData/MiLens-hiwspbeyjwjkhmabaquqzogzojrr/Build/Products/Debug-iphonesimulator -I /Applications/Xcode_16.4.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/usr/lib -F /Users/runner/Library/Developer/Xcode/DerivedData/MiLens-hiwspbeyjwjkhmabaquqzogzojrr/Build/Products/Debug-iphonesimulator/PackageFrameworks -F /Users/runner/Library/Developer/Xcode/DerivedData/MiLens-hiwspbeyjwjkhmabaquqzogzojrr/Build/Products/Debug-iphonesimulator -F /Applications/Xcode_16.4.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/Library/Frameworks -F /Applications/Xcode_16.4.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator18.5.sdk/Developer/Library/Frameworks -parse-as-library -c -j3 -enable-batch-mode -incremental -Xcc -ivfsstatcache -Xcc /Users/runner/Library/Developer/Xcode/DerivedData/SDKStatCaches.noindex/iphonesimulator18.5-22F76-96ae0914227b19deccb34b33ba7b5dea.sdkstatcache -output-file-map /Users/runner/Library/Developer/Xcode/DerivedData/MiLens-hiwspbeyjwjkhmabaquqzogzojrr/Build/Intermediates.noindex/MiLens.build/Debug-iphonesimulator/MiLensTests.build/Objects-normal/arm64/MiLensTests-OutputFileMap.json -use-frontend-parseable-output -save-temps -no-color-diagnostics -serialize-diagnostics -emit-dependencies -emit-module -emit-module-path /Users/runner/Library/Developer/Xcode/DerivedData/MiLens-hiwspbeyjwjkhmabaquqzogzojrr/Build/Intermediates.noindex/MiLens.build/Debug-iphonesimulator/MiLensTests.build/Objects-normal/arm64/MiLensTests.swiftmodule -validate-clang-modules-once -clang-build-session-file /Users/runner/Library/Developer/Xcode/DerivedData/ModuleCache.noindex/Session.modulevalidation -Xcc -I/Users/runner/Library/Developer/Xcode/DerivedData/MiLens-hiwspbeyjwjkhmabaquqzogzojrr/Build/Intermediates.noindex/MiLens.build/Debug-iphonesimulator/MiLensTests.build/swift-overrides.hmap -emit-const-values -Xfrontend -const-gather-protocols-file -Xfrontend /Users/runner/Library/Developer/Xcode/DerivedData/MiLens-hiwspbeyjwjkhmabaquqzogzojrr/Build/Intermediates.noindex/MiLens.build/Debug-iphonesimulator/MiLensTests.build/Objects-normal/arm64/MiLensTests_const_extract_protocols.json -Xcc -iquote -Xcc /Users/runner/Library/Developer/Xcode/DerivedData/MiLens-hiwspbeyjwjkhmabaquqzogzojrr/Build/Intermediates.noindex/MiLens.build/Debug-iphonesimulator/MiLensTests.build/MiLensTests-generated-files.hmap -Xcc -I/Users/runner/Library/Developer/Xcode/DerivedData/MiLens-hiwspbeyjwjkhmabaquqzogzojrr/Build/Intermediates.noindex/MiLens.build/Debug-iphonesimulator/MiLensTests.build/MiLensTests-own-target-headers.hmap -Xcc -I/Users/runner/Library/Developer/Xcode/DerivedData/MiLens-hiwspbeyjwjkhmabaquqzogzojrr/Build/Intermediates.noindex/MiLens.build/Debug-iphonesimulator/MiLensTests.build/MiLensTests-all-non-framework-target-headers.hmap -Xcc -ivfsoverlay -Xcc /Users/runner/Library/Developer/Xcode/DerivedData/MiLens-hiwspbeyjwjkhmabaquqzogzojrr/Build/Intermediates.noindex/MiLens.build/Debug-iphonesimulator/MiLens-9c1d36771da64a7abd2893acf1c78853-VFS-iphonesimulator/all-product-headers.yaml -Xcc -iquote -Xcc /Users/runner/Library/Developer/Xcode/DerivedData/MiLens-hiwspbeyjwjkhmabaquqzogzojrr/Build/Intermediates.noindex/MiLens.build/Debug-iphonesimulator/MiLensTests.build/MiLensTests-project-headers.hmap -Xcc -I/Users/runner/Library/Developer/Xcode/DerivedData/MiLens-hiwspbeyjwjkhmabaquqzogzojrr/Build/Products/Debug-iphonesimulator/include -Xcc -I/Users/runner/Library/Developer/Xcode/DerivedData/MiLens-hiwspbeyjwjkhmabaquqzogzojrr/Build/Intermediates.noindex/MiLens.build/Debug-iphonesimulator/MiLensTests.build/DerivedSources-normal/arm64 -Xcc -I/Users/runner/Library/Developer/Xcode/DerivedData/MiLens-hiwspbeyjwjkhmabaquqzogzojrr/Build/Intermediates.noindex/MiLens.build/Debug-iphonesimulator/MiLensTests.build/DerivedSources/arm64 -Xcc -I/Users/runner/Library/Developer/Xcode/DerivedData/MiLens-hiwspbeyjwjkhmabaquqzogzojrr/Build/Intermediates.noindex/MiLens.build/Debug-iphonesimulator/MiLensTests.build/DerivedSources -Xcc -DDEBUG\=1 -emit-objc-header -emit-objc-header-path /Users/runner/Library/Developer/Xcode/DerivedData/MiLens-hiwspbeyjwjkhmabaquqzogzojrr/Build/Intermediates.noindex/MiLens.build/Debug-iphonesimulator/MiLensTests.build/Objects-normal/arm64/MiLensTests-Swift.h -working-directory /Users/runner/work/MiLens-iOS/MiLens-iOS -experimental-emit-module-separately -disable-cmo
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:41.9819950Z 
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:41.9826500Z SwiftCompile normal arm64 Compiling\ MiLensTests.swift /Users/runner/work/MiLens-iOS/MiLens-iOS/MiLensTests/MiLensTests.swift (in target 'MiLensTests' from project 'MiLens')
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:42.0430530Z 
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:42.0432690Z SwiftCompile normal arm64 /Users/runner/work/MiLens-iOS/MiLens-iOS/MiLensTests/MiLensTests.swift (in target 'MiLensTests' from project 'MiLens')
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:42.0434560Z     cd /Users/runner/work/MiLens-iOS/MiLens-iOS
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:42.0435660Z     
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:45.9418640Z 
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:45.9433330Z SwiftEmitModule normal arm64 Emitting\ module\ for\ MiLensTests (in target 'MiLensTests' from project 'MiLens')
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:45.9434900Z 
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:45.9436260Z SwiftCompile normal arm64 /Users/runner/work/MiLens-iOS/MiLens-iOS/MiLensTests/MiLensTests.swift (in target 'MiLensTests' from project 'MiLens')
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:45.9437830Z     cd /Users/runner/work/MiLens-iOS/MiLens-iOS
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:45.9439760Z     
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:45.9439960Z 
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:45.9440870Z SwiftDriverJobDiscovery normal arm64 Emitting module for MiLensTests (in target 'MiLensTests' from project 'MiLens')
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:45.9441850Z 
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:45.9443110Z SwiftDriver\ Compilation\ Requirements MiLensTests normal arm64 com.apple.xcode.tools.swift.compiler (in target 'MiLensTests' from project 'MiLens')
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:45.9445050Z     cd /Users/runner/work/MiLens-iOS/MiLens-iOS
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:45.9462590Z     builtin-Swift-Compilation-Requirements -- /Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc -module-name MiLensTests -Onone -enforce-exclusivity\=checked @/Users/runner/Library/Developer/Xcode/DerivedData/MiLens-hiwspbeyjwjkhmabaquqzogzojrr/Build/Intermediates.noindex/MiLens.build/Debug-iphonesimulator/MiLensTests.build/Objects-normal/arm64/MiLensTests.SwiftFileList -DDEBUG -plugin-path /Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/host/plugins/testing -enable-bare-slash-regex -enable-experimental-feature DebugDescriptionMacro -sdk /Applications/Xcode_16.4.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator18.5.sdk -target arm64-apple-ios17.0-simulator -g -module-cache-path /Users/runner/Library/Developer/Xcode/DerivedData/ModuleCache.noindex -Xfrontend -serialize-debugging-options -profile-coverage-mapping -profile-generate -enable-testing -index-store-path /Users/runner/Library/Developer/Xcode/DerivedData/MiLens-hiwspbeyjwjkhmabaquqzogzojrr/Index.noindex/DataStore -swift-version 5 -I /Users/runner/Library/Developer/Xcode/DerivedData/MiLens-hiwspbeyjwjkhmabaquqzogzojrr/Build/Products/Debug-iphonesimulator -I /Applications/Xcode_16.4.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/usr/lib -F /Users/runner/Library/Developer/Xcode/DerivedData/MiLens-hiwspbeyjwjkhmabaquqzogzojrr/Build/Products/Debug-iphonesimulator/PackageFrameworks -F /Users/runner/Library/Developer/Xcode/DerivedData/MiLens-hiwspbeyjwjkhmabaquqzogzojrr/Build/Products/Debug-iphonesimulator -F /Applications/Xcode_16.4.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/Library/Frameworks -F /Applications/Xcode_16.4.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator18.5.sdk/Developer/Library/Frameworks -parse-as-library -c -j3 -enable-batch-mode -incremental -Xcc -ivfsstatcache -Xcc /Users/runner/Library/Developer/Xcode/DerivedData/SDKStatCaches.noindex/iphonesimulator18.5-22F76-96ae0914227b19deccb34b33ba7b5dea.sdkstatcache -output-file-map /Users/runner/Library/Developer/Xcode/DerivedData/MiLens-hiwspbeyjwjkhmabaquqzogzojrr/Build/Intermediates.noindex/MiLens.build/Debug-iphonesimulator/MiLensTests.build/Objects-normal/arm64/MiLensTests-OutputFileMap.json -use-frontend-parseable-output -save-temps -no-color-diagnostics -serialize-diagnostics -emit-dependencies -emit-module -emit-module-path /Users/runner/Library/Developer/Xcode/DerivedData/MiLens-hiwspbeyjwjkhmabaquqzogzojrr/Build/Intermediates.noindex/MiLens.build/Debug-iphonesimulator/MiLensTests.build/Objects-normal/arm64/MiLensTests.swiftmodule -validate-clang-modules-once -clang-build-session-file /Users/runner/Library/Developer/Xcode/DerivedData/ModuleCache.noindex/Session.modulevalidation -Xcc -I/Users/runner/Library/Developer/Xcode/DerivedData/MiLens-hiwspbeyjwjkhmabaquqzogzojrr/Build/Intermediates.noindex/MiLens.build/Debug-iphonesimulator/MiLensTests.build/swift-overrides.hmap -emit-const-values -Xfrontend -const-gather-protocols-file -Xfrontend /Users/runner/Library/Developer/Xcode/DerivedData/MiLens-hiwspbeyjwjkhmabaquqzogzojrr/Build/Intermediates.noindex/MiLens.build/Debug-iphonesimulator/MiLensTests.build/Objects-normal/arm64/MiLensTests_const_extract_protocols.json -Xcc -iquote -Xcc /Users/runner/Library/Developer/Xcode/DerivedData/MiLens-hiwspbeyjwjkhmabaquqzogzojrr/Build/Intermediates.noindex/MiLens.build/Debug-iphonesimulator/MiLensTests.build/MiLensTests-generated-files.hmap -Xcc -I/Users/runner/Library/Developer/Xcode/DerivedData/MiLens-hiwspbeyjwjkhmabaquqzogzojrr/Build/Intermediates.noindex/MiLens.build/Debug-iphonesimulator/MiLensTests.build/MiLensTests-own-target-headers.hmap -Xcc -I/Users/runner/Library/Developer/Xcode/DerivedData/MiLens-hiwspbeyjwjkhmabaquqzogzojrr/Build/Intermediates.noindex/MiLens.build/Debug-iphonesimulator/MiLensTests.build/MiLensTests-all-non-framework-target-headers.hmap -Xcc -ivfsoverlay -Xcc /Users/runner/Library/Developer/Xcode/DerivedData/MiLens-hiwspbeyjwjkhmabaquqzogzojrr/Build/Intermediates.noindex/MiLens.build/Debug-iphonesimulator/MiLens-9c1d36771da64a7abd2893acf1c78853-VFS-iphonesimulator/all-product-headers.yaml -Xcc -iquote -Xcc /Users/runner/Library/Developer/Xcode/DerivedData/MiLens-hiwspbeyjwjkhmabaquqzogzojrr/Build/Intermediates.noindex/MiLens.build/Debug-iphonesimulator/MiLensTests.build/MiLensTests-project-headers.hmap -Xcc -I/Users/runner/Library/Developer/Xcode/DerivedData/MiLens-hiwspbeyjwjkhmabaquqzogzojrr/Build/Products/Debug-iphonesimulator/include -Xcc -I/Users/runner/Library/Developer/Xcode/DerivedData/MiLens-hiwspbeyjwjkhmabaquqzogzojrr/Build/Intermediates.noindex/MiLens.build/Debug-iphonesimulator/MiLensTests.build/DerivedSources-normal/arm64 -Xcc -I/Users/runner/Library/Developer/Xcode/DerivedData/MiLens-hiwspbeyjwjkhmabaquqzogzojrr/Build/Intermediates.noindex/MiLens.build/Debug-iphonesimulator/MiLensTests.build/DerivedSources/arm64 -Xcc -I/Users/runner/Library/Developer/Xcode/DerivedData/MiLens-hiwspbeyjwjkhmabaquqzogzojrr/Build/Intermediates.noindex/MiLens.build/Debug-iphonesimulator/MiLensTests.build/DerivedSources -Xcc -DDEBUG\=1 -emit-objc-header -emit-objc-header-path /Users/runner/Library/Developer/Xcode/DerivedData/MiLens-hiwspbeyjwjkhmabaquqzogzojrr/Build/Intermediates.noindex/MiLens.build/Debug-iphonesimulator/MiLensTests.build/Objects-normal/arm64/MiLensTests-Swift.h -working-directory /Users/runner/work/MiLens-iOS/MiLens-iOS -experimental-emit-module-separately -disable-cmo
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:45.9482000Z 
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:45.9483460Z SwiftMergeGeneratedHeaders /Users/runner/Library/Developer/Xcode/DerivedData/MiLens-hiwspbeyjwjkhmabaquqzogzojrr/Build/Intermediates.noindex/MiLens.build/Debug-iphonesimulator/MiLensTests.build/DerivedSources/MiLensTests-Swift.h /Users/runner/Library/Developer/Xcode/DerivedData/MiLens-hiwspbeyjwjkhmabaquqzogzojrr/Build/Intermediates.noindex/MiLens.build/Debug-iphonesimulator/MiLensTests.build/Objects-normal/arm64/MiLensTests-Swift.h (in target 'MiLensTests' from project 'MiLens')
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:45.9485080Z     cd /Users/runner/work/MiLens-iOS/MiLens-iOS
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:45.9486720Z     builtin-swiftHeaderTool -arch arm64 /Users/runner/Library/Developer/Xcode/DerivedData/MiLens-hiwspbeyjwjkhmabaquqzogzojrr/Build/Intermediates.noindex/MiLens.build/Debug-iphonesimulator/MiLensTests.build/Objects-normal/arm64/MiLensTests-Swift.h -o /Users/runner/Library/Developer/Xcode/DerivedData/MiLens-hiwspbeyjwjkhmabaquqzogzojrr/Build/Intermediates.noindex/MiLens.build/Debug-iphonesimulator/MiLensTests.build/DerivedSources/MiLensTests-Swift.h
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:45.9488280Z 
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:45.9489610Z Copy /Users/runner/Library/Developer/Xcode/DerivedData/MiLens-hiwspbeyjwjkhmabaquqzogzojrr/Build/Products/Debug-iphonesimulator/MiLensTests.swiftmodule/arm64-apple-ios-simulator.swiftmodule /Users/runner/Library/Developer/Xcode/DerivedData/MiLens-hiwspbeyjwjkhmabaquqzogzojrr/Build/Intermediates.noindex/MiLens.build/Debug-iphonesimulator/MiLensTests.build/Objects-normal/arm64/MiLensTests.swiftmodule (in target 'MiLensTests' from project 'MiLens')
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:45.9491280Z     cd /Users/runner/work/MiLens-iOS/MiLens-iOS
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:45.9493640Z     builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -resolve-src-symlinks -rename /Users/runner/Library/Developer/Xcode/DerivedData/MiLens-hiwspbeyjwjkhmabaquqzogzojrr/Build/Intermediates.noindex/MiLens.build/Debug-iphonesimulator/MiLensTests.build/Objects-normal/arm64/MiLensTests.swiftmodule /Users/runner/Library/Developer/Xcode/DerivedData/MiLens-hiwspbeyjwjkhmabaquqzogzojrr/Build/Products/Debug-iphonesimulator/MiLensTests.swiftmodule/arm64-apple-ios-simulator.swiftmodule
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:45.9495670Z 
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:45.9496970Z Copy /Users/runner/Library/Developer/Xcode/DerivedData/MiLens-hiwspbeyjwjkhmabaquqzogzojrr/Build/Products/Debug-iphonesimulator/MiLensTests.swiftmodule/arm64-apple-ios-simulator.swiftdoc /Users/runner/Library/Developer/Xcode/DerivedData/MiLens-hiwspbeyjwjkhmabaquqzogzojrr/Build/Intermediates.noindex/MiLens.build/Debug-iphonesimulator/MiLensTests.build/Objects-normal/arm64/MiLensTests.swiftdoc (in target 'MiLensTests' from project 'MiLens')
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:45.9498650Z     cd /Users/runner/work/MiLens-iOS/MiLens-iOS
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:45.9500330Z     builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -resolve-src-symlinks -rename /Users/runner/Library/Developer/Xcode/DerivedData/MiLens-hiwspbeyjwjkhmabaquqzogzojrr/Build/Intermediates.noindex/MiLens.build/Debug-iphonesimulator/MiLensTests.build/Objects-normal/arm64/MiLensTests.swiftdoc /Users/runner/Library/Developer/Xcode/DerivedData/MiLens-hiwspbeyjwjkhmabaquqzogzojrr/Build/Products/Debug-iphonesimulator/MiLensTests.swiftmodule/arm64-apple-ios-simulator.swiftdoc
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:45.9501890Z 
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:45.9503280Z Copy /Users/runner/Library/Developer/Xcode/DerivedData/MiLens-hiwspbeyjwjkhmabaquqzogzojrr/Build/Products/Debug-iphonesimulator/MiLensTests.swiftmodule/arm64-apple-ios-simulator.abi.json /Users/runner/Library/Developer/Xcode/DerivedData/MiLens-hiwspbeyjwjkhmabaquqzogzojrr/Build/Intermediates.noindex/MiLens.build/Debug-iphonesimulator/MiLensTests.build/Objects-normal/arm64/MiLensTests.abi.json (in target 'MiLensTests' from project 'MiLens')
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:45.9505560Z     cd /Users/runner/work/MiLens-iOS/MiLens-iOS
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:45.9507320Z     builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -resolve-src-symlinks -rename /Users/runner/Library/Developer/Xcode/DerivedData/MiLens-hiwspbeyjwjkhmabaquqzogzojrr/Build/Intermediates.noindex/MiLens.build/Debug-iphonesimulator/MiLensTests.build/Objects-normal/arm64/MiLensTests.abi.json /Users/runner/Library/Developer/Xcode/DerivedData/MiLens-hiwspbeyjwjkhmabaquqzogzojrr/Build/Products/Debug-iphonesimulator/MiLensTests.swiftmodule/arm64-apple-ios-simulator.abi.json
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:45.9509030Z 
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:45.9511390Z Copy /Users/runner/Library/Developer/Xcode/DerivedData/MiLens-hiwspbeyjwjkhmabaquqzogzojrr/Build/Products/Debug-iphonesimulator/MiLensTests.swiftmodule/Project/arm64-apple-ios-simulator.swiftsourceinfo /Users/runner/Library/Developer/Xcode/DerivedData/MiLens-hiwspbeyjwjkhmabaquqzogzojrr/Build/Intermediates.noindex/MiLens.build/Debug-iphonesimulator/MiLensTests.build/Objects-normal/arm64/MiLensTests.swiftsourceinfo (in target 'MiLensTests' from project 'MiLens')
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:45.9513110Z     cd /Users/runner/work/MiLens-iOS/MiLens-iOS
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:45.9514870Z     builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -resolve-src-symlinks -rename /Users/runner/Library/Developer/Xcode/DerivedData/MiLens-hiwspbeyjwjkhmabaquqzogzojrr/Build/Intermediates.noindex/MiLens.build/Debug-iphonesimulator/MiLensTests.build/Objects-normal/arm64/MiLensTests.swiftsourceinfo /Users/runner/Library/Developer/Xcode/DerivedData/MiLens-hiwspbeyjwjkhmabaquqzogzojrr/Build/Products/Debug-iphonesimulator/MiLensTests.swiftmodule/Project/arm64-apple-ios-simulator.swiftsourceinfo
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:45.9516530Z 
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:45.9516950Z SwiftDriverJobDiscovery normal arm64 Compiling MiLensTests.swift (in target 'MiLensTests' from project 'MiLens')
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:45.9517770Z 
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:45.9520710Z SwiftDriver\ Compilation MiLensTests normal arm64 com.apple.xcode.tools.swift.compiler (in target 'MiLensTests' from project 'MiLens')
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:45.9523720Z     cd /Users/runner/work/MiLens-iOS/MiLens-iOS
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:45.9541230Z     builtin-Swift-Compilation -- /Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc -module-name MiLensTests -Onone -enforce-exclusivity\=checked @/Users/runner/Library/Developer/Xcode/DerivedData/MiLens-hiwspbeyjwjkhmabaquqzogzojrr/Build/Intermediates.noindex/MiLens.build/Debug-iphonesimulator/MiLensTests.build/Objects-normal/arm64/MiLensTests.SwiftFileList -DDEBUG -plugin-path /Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/host/plugins/testing -enable-bare-slash-regex -enable-experimental-feature DebugDescriptionMacro -sdk /Applications/Xcode_16.4.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator18.5.sdk -target arm64-apple-ios17.0-simulator -g -module-cache-path /Users/runner/Library/Developer/Xcode/DerivedData/ModuleCache.noindex -Xfrontend -serialize-debugging-options -profile-coverage-mapping -profile-generate -enable-testing -index-store-path /Users/runner/Library/Developer/Xcode/DerivedData/MiLens-hiwspbeyjwjkhmabaquqzogzojrr/Index.noindex/DataStore -swift-version 5 -I /Users/runner/Library/Developer/Xcode/DerivedData/MiLens-hiwspbeyjwjkhmabaquqzogzojrr/Build/Products/Debug-iphonesimulator -I /Applications/Xcode_16.4.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/usr/lib -F /Users/runner/Library/Developer/Xcode/DerivedData/MiLens-hiwspbeyjwjkhmabaquqzogzojrr/Build/Products/Debug-iphonesimulator/PackageFrameworks -F /Users/runner/Library/Developer/Xcode/DerivedData/MiLens-hiwspbeyjwjkhmabaquqzogzojrr/Build/Products/Debug-iphonesimulator -F /Applications/Xcode_16.4.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/Library/Frameworks -F /Applications/Xcode_16.4.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator18.5.sdk/Developer/Library/Frameworks -parse-as-library -c -j3 -enable-batch-mode -incremental -Xcc -ivfsstatcache -Xcc /Users/runner/Library/Developer/Xcode/DerivedData/SDKStatCaches.noindex/iphonesimulator18.5-22F76-96ae0914227b19deccb34b33ba7b5dea.sdkstatcache -output-file-map /Users/runner/Library/Developer/Xcode/DerivedData/MiLens-hiwspbeyjwjkhmabaquqzogzojrr/Build/Intermediates.noindex/MiLens.build/Debug-iphonesimulator/MiLensTests.build/Objects-normal/arm64/MiLensTests-OutputFileMap.json -use-frontend-parseable-output -save-temps -no-color-diagnostics -serialize-diagnostics -emit-dependencies -emit-module -emit-module-path /Users/runner/Library/Developer/Xcode/DerivedData/MiLens-hiwspbeyjwjkhmabaquqzogzojrr/Build/Intermediates.noindex/MiLens.build/Debug-iphonesimulator/MiLensTests.build/Objects-normal/arm64/MiLensTests.swiftmodule -validate-clang-modules-once -clang-build-session-file /Users/runner/Library/Developer/Xcode/DerivedData/ModuleCache.noindex/Session.modulevalidation -Xcc -I/Users/runner/Library/Developer/Xcode/DerivedData/MiLens-hiwspbeyjwjkhmabaquqzogzojrr/Build/Intermediates.noindex/MiLens.build/Debug-iphonesimulator/MiLensTests.build/swift-overrides.hmap -emit-const-values -Xfrontend -const-gather-protocols-file -Xfrontend /Users/runner/Library/Developer/Xcode/DerivedData/MiLens-hiwspbeyjwjkhmabaquqzogzojrr/Build/Intermediates.noindex/MiLens.build/Debug-iphonesimulator/MiLensTests.build/Objects-normal/arm64/MiLensTests_const_extract_protocols.json -Xcc -iquote -Xcc /Users/runner/Library/Developer/Xcode/DerivedData/MiLens-hiwspbeyjwjkhmabaquqzogzojrr/Build/Intermediates.noindex/MiLens.build/Debug-iphonesimulator/MiLensTests.build/MiLensTests-generated-files.hmap -Xcc -I/Users/runner/Library/Developer/Xcode/DerivedData/MiLens-hiwspbeyjwjkhmabaquqzogzojrr/Build/Intermediates.noindex/MiLens.build/Debug-iphonesimulator/MiLensTests.build/MiLensTests-own-target-headers.hmap -Xcc -I/Users/runner/Library/Developer/Xcode/DerivedData/MiLens-hiwspbeyjwjkhmabaquqzogzojrr/Build/Intermediates.noindex/MiLens.build/Debug-iphonesimulator/MiLensTests.build/MiLensTests-all-non-framework-target-headers.hmap -Xcc -ivfsoverlay -Xcc /Users/runner/Library/Developer/Xcode/DerivedData/MiLens-hiwspbeyjwjkhmabaquqzogzojrr/Build/Intermediates.noindex/MiLens.build/Debug-iphonesimulator/MiLens-9c1d36771da64a7abd2893acf1c78853-VFS-iphonesimulator/all-product-headers.yaml -Xcc -iquote -Xcc /Users/runner/Library/Developer/Xcode/DerivedData/MiLens-hiwspbeyjwjkhmabaquqzogzojrr/Build/Intermediates.noindex/MiLens.build/Debug-iphonesimulator/MiLensTests.build/MiLensTests-project-headers.hmap -Xcc -I/Users/runner/Library/Developer/Xcode/DerivedData/MiLens-hiwspbeyjwjkhmabaquqzogzojrr/Build/Products/Debug-iphonesimulator/include -Xcc -I/Users/runner/Library/Developer/Xcode/DerivedData/MiLens-hiwspbeyjwjkhmabaquqzogzojrr/Build/Intermediates.noindex/MiLens.build/Debug-iphonesimulator/MiLensTests.build/DerivedSources-normal/arm64 -Xcc -I/Users/runner/Library/Developer/Xcode/DerivedData/MiLens-hiwspbeyjwjkhmabaquqzogzojrr/Build/Intermediates.noindex/MiLens.build/Debug-iphonesimulator/MiLensTests.build/DerivedSources/arm64 -Xcc -I/Users/runner/Library/Developer/Xcode/DerivedData/MiLens-hiwspbeyjwjkhmabaquqzogzojrr/Build/Intermediates.noindex/MiLens.build/Debug-iphonesimulator/MiLensTests.build/DerivedSources -Xcc -DDEBUG\=1 -emit-objc-header -emit-objc-header-path /Users/runner/Library/Developer/Xcode/DerivedData/MiLens-hiwspbeyjwjkhmabaquqzogzojrr/Build/Intermediates.noindex/MiLens.build/Debug-iphonesimulator/MiLensTests.build/Objects-normal/arm64/MiLensTests-Swift.h -working-directory /Users/runner/work/MiLens-iOS/MiLens-iOS -experimental-emit-module-separately -disable-cmo
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:45.9563470Z 
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:45.9565020Z Ld /Users/runner/Library/Developer/Xcode/DerivedData/MiLens-hiwspbeyjwjkhmabaquqzogzojrr/Build/Products/Debug-iphonesimulator/MiLens.app/PlugIns/MiLensTests.xctest/MiLensTests normal (in target 'MiLensTests' from project 'MiLens')
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:45.9567360Z     cd /Users/runner/work/MiLens-iOS/MiLens-iOS
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:45.9601240Z     /Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -Xlinker -reproducible -target arm64-apple-ios17.0-simulator -bundle -isysroot /Applications/Xcode_16.4.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator18.5.sdk -O0 -L/Users/runner/Library/Developer/Xcode/DerivedData/MiLens-hiwspbeyjwjkhmabaquqzogzojrr/Build/Intermediates.noindex/EagerLinkingTBDs/Debug-iphonesimulator -L/Users/runner/Library/Developer/Xcode/DerivedData/MiLens-hiwspbeyjwjkhmabaquqzogzojrr/Build/Products/Debug-iphonesimulator -L/Applications/Xcode_16.4.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/usr/lib -F/Users/runner/Library/Developer/Xcode/DerivedData/MiLens-hiwspbeyjwjkhmabaquqzogzojrr/Build/Intermediates.noindex/EagerLinkingTBDs/Debug-iphonesimulator -F/Users/runner/Library/Developer/Xcode/DerivedData/MiLens-hiwspbeyjwjkhmabaquqzogzojrr/Build/Products/Debug-iphonesimulator/PackageFrameworks -F/Users/runner/Library/Developer/Xcode/DerivedData/MiLens-hiwspbeyjwjkhmabaquqzogzojrr/Build/Products/Debug-iphonesimulator -iframework /Applications/Xcode_16.4.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/Library/Frameworks -iframework /Applications/Xcode_16.4.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator18.5.sdk/Developer/Library/Frameworks -filelist /Users/runner/Library/Developer/Xcode/DerivedData/MiLens-hiwspbeyjwjkhmabaquqzogzojrr/Build/Intermediates.noindex/MiLens.build/Debug-iphonesimulator/MiLensTests.build/Objects-normal/arm64/MiLensTests.LinkFileList -Xlinker -rpath -Xlinker /Users/runner/Library/Developer/Xcode/DerivedData/MiLens-hiwspbeyjwjkhmabaquqzogzojrr/Build/Products/Debug-iphonesimulator/PackageFrameworks -Xlinker -rpath -Xlinker @loader_path/Frameworks -Xlinker -rpath -Xlinker @executable_path/Frameworks -dead_strip -bundle_loader /Users/runner/Library/Developer/Xcode/DerivedData/MiLens-hiwspbeyjwjkhmabaquqzogzojrr/Build/Products/Debug-iphonesimulator/MiLens.app/MiLens -Xlinker -object_path_lto -Xlinker /Users/runner/Library/Developer/Xcode/DerivedData/MiLens-hiwspbeyjwjkhmabaquqzogzojrr/Build/Intermediates.noindex/MiLens.build/Debug-iphonesimulator/MiLensTests.build/Objects-normal/arm64/MiLensTests_lto.o -rdynamic -Xlinker -no_deduplicate -Xlinker -objc_abi_version -Xlinker 2 -Xlinker -debug_variant -Xlinker -dependency_info -Xlinker /Users/runner/Library/Developer/Xcode/DerivedData/MiLens-hiwspbeyjwjkhmabaquqzogzojrr/Build/Intermediates.noindex/MiLens.build/Debug-iphonesimulator/MiLensTests.build/Objects-normal/arm64/MiLensTests_dependency_info.dat -fobjc-link-runtime -fprofile-instr-generate -L/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/iphonesimulator -L/usr/lib/swift -Xlinker -add_ast_path -Xlinker /Users/runner/Library/Developer/Xcode/DerivedData/MiLens-hiwspbeyjwjkhmabaquqzogzojrr/Build/Intermediates.noindex/MiLens.build/Debug-iphonesimulator/MiLensTests.build/Objects-normal/arm64/MiLensTests.swiftmodule -Wl,-no_warn_duplicate_libraries -framework XCTest -lXCTestSwiftSupport /Users/runner/Library/Developer/Xcode/DerivedData/MiLens-hiwspbeyjwjkhmabaquqzogzojrr/Build/Products/Debug-iphonesimulator/MiLens.app/MiLens.debug.dylib -o /Users/runner/Library/Developer/Xcode/DerivedData/MiLens-hiwspbeyjwjkhmabaquqzogzojrr/Build/Products/Debug-iphonesimulator/MiLens.app/PlugIns/MiLensTests.xctest/MiLensTests
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:46.2327580Z 
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:46.2432660Z CopySwiftLibs /Users/runner/Library/Developer/Xcode/DerivedData/MiLens-hiwspbeyjwjkhmabaquqzogzojrr/Build/Products/Debug-iphonesimulator/MiLens.app/PlugIns/MiLensTests.xctest (in target 'MiLensTests' from project 'MiLens')
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:46.2535160Z     cd /Users/runner/work/MiLens-iOS/MiLens-iOS
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:46.2646310Z     builtin-swiftStdLibTool --copy --verbose --scan-executable /Users/runner/Library/Developer/Xcode/DerivedData/MiLens-hiwspbeyjwjkhmabaquqzogzojrr/Build/Products/Debug-iphonesimulator/MiLens.app/PlugIns/MiLensTests.xctest/MiLensTests --scan-folder /Users/runner/Library/Developer/Xcode/DerivedData/MiLens-hiwspbeyjwjkhmabaquqzogzojrr/Build/Products/Debug-iphonesimulator/MiLens.app/PlugIns/MiLensTests.xctest/Frameworks --scan-folder /Users/runner/Library/Developer/Xcode/DerivedData/MiLens-hiwspbeyjwjkhmabaquqzogzojrr/Build/Products/Debug-iphonesimulator/MiLens.app/PlugIns/MiLensTests.xctest/PlugIns --scan-folder /Users/runner/Library/Developer/Xcode/DerivedData/MiLens-hiwspbeyjwjkhmabaquqzogzojrr/Build/Products/Debug-iphonesimulator/MiLens.app/PlugIns/MiLensTests.xctest/SystemExtensions --scan-folder /Users/runner/Library/Developer/Xcode/DerivedData/MiLens-hiwspbeyjwjkhmabaquqzogzojrr/Build/Products/Debug-iphonesimulator/MiLens.app/PlugIns/MiLensTests.xctest/Extensions --platform iphonesimulator --toolchain /Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain --destination /Users/runner/Library/Developer/Xcode/DerivedData/MiLens-hiwspbeyjwjkhmabaquqzogzojrr/Build/Products/Debug-iphonesimulator/MiLens.app/PlugIns/MiLensTests.xctest/Frameworks --strip-bitcode --scan-executable /Applications/Xcode_16.4.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/usr/lib/libXCTestSwiftSupport.dylib --strip-bitcode-tool /Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/bitcode_strip --emit-dependency-info /Users/runner/Library/Developer/Xcode/DerivedData/MiLens-hiwspbeyjwjkhmabaquqzogzojrr/Build/Intermediates.noindex/MiLens.build/Debug-iphonesimulator/MiLensTests.build/SwiftStdLibToolInputDependencies.dep --filter-for-swift-os
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:46.2791770Z Ignoring --strip-bitcode because --sign was not passed
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:46.2794580Z 
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:46.2794940Z ExtractAppIntentsMetadata (in target 'MiLensTests' from project 'MiLens')
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:46.2796930Z     cd /Users/runner/work/MiLens-iOS/MiLens-iOS
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:46.2819800Z     /Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/appintentsmetadataprocessor --toolchain-dir /Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain --module-name MiLensTests --sdk-root /Applications/Xcode_16.4.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator18.5.sdk --xcode-version 16F6 --platform-family iOS --deployment-target 17.0 --bundle-identifier com.milens.app.tests --output /Users/runner/Library/Developer/Xcode/DerivedData/MiLens-hiwspbeyjwjkhmabaquqzogzojrr/Build/Products/Debug-iphonesimulator/MiLens.app/PlugIns/MiLensTests.xctest --target-triple arm64-apple-ios17.0-simulator --binary-file /Users/runner/Library/Developer/Xcode/DerivedData/MiLens-hiwspbeyjwjkhmabaquqzogzojrr/Build/Products/Debug-iphonesimulator/MiLens.app/PlugIns/MiLensTests.xctest/MiLensTests --dependency-file /Users/runner/Library/Developer/Xcode/DerivedData/MiLens-hiwspbeyjwjkhmabaquqzogzojrr/Build/Intermediates.noindex/MiLens.build/Debug-iphonesimulator/MiLensTests.build/Objects-normal/arm64/MiLensTests_dependency_info.dat --stringsdata-file /Users/runner/Library/Developer/Xcode/DerivedData/MiLens-hiwspbeyjwjkhmabaquqzogzojrr/Build/Intermediates.noindex/MiLens.build/Debug-iphonesimulator/MiLensTests.build/Objects-normal/arm64/ExtractedAppShortcutsMetadata.stringsdata --source-file-list /Users/runner/Library/Developer/Xcode/DerivedData/MiLens-hiwspbeyjwjkhmabaquqzogzojrr/Build/Intermediates.noindex/MiLens.build/Debug-iphonesimulator/MiLensTests.build/Objects-normal/arm64/MiLensTests.SwiftFileList --metadata-file-list /Users/runner/Library/Developer/Xcode/DerivedData/MiLens-hiwspbeyjwjkhmabaquqzogzojrr/Build/Intermediates.noindex/MiLens.build/Debug-iphonesimulator/MiLensTests.build/MiLensTests.DependencyMetadataFileList --static-metadata-file-list /Users/runner/Library/Developer/Xcode/DerivedData/MiLens-hiwspbeyjwjkhmabaquqzogzojrr/Build/Intermediates.noindex/MiLens.build/Debug-iphonesimulator/MiLensTests.build/MiLensTests.DependencyStaticMetadataFileList --swift-const-vals-list /Users/runner/Library/Developer/Xcode/DerivedData/MiLens-hiwspbeyjwjkhmabaquqzogzojrr/Build/Intermediates.noindex/MiLens.build/Debug-iphonesimulator/MiLensTests.build/Objects-normal/arm64/MiLensTests.SwiftConstValuesFileList --compile-time-extraction --deployment-aware-processing --validate-assistant-intents --no-app-shortcuts-localization
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:46.2843680Z 2026-08-07 15:29:46.271 appintentsmetadataprocessor[16208:51288] Starting appintentsmetadataprocessor export
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:46.2845660Z 2026-08-07 15:29:46.276 appintentsmetadataprocessor[16208:51288] warning: Metadata extraction skipped. No AppIntents.framework dependency found.
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:46.2846900Z 
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:46.2848850Z RegisterExecutionPolicyException /Users/runner/Library/Developer/Xcode/DerivedData/MiLens-hiwspbeyjwjkhmabaquqzogzojrr/Build/Products/Debug-iphonesimulator/MiLens.app/PlugIns/MiLensTests.xctest (in target 'MiLensTests' from project 'MiLens')
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:46.2851360Z     cd /Users/runner/work/MiLens-iOS/MiLens-iOS
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:46.2853460Z     builtin-RegisterExecutionPolicyException /Users/runner/Library/Developer/Xcode/DerivedData/MiLens-hiwspbeyjwjkhmabaquqzogzojrr/Build/Products/Debug-iphonesimulator/MiLens.app/PlugIns/MiLensTests.xctest
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:46.2911450Z 
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:46.2916250Z Touch /Users/runner/Library/Developer/Xcode/DerivedData/MiLens-hiwspbeyjwjkhmabaquqzogzojrr/Build/Products/Debug-iphonesimulator/MiLens.app/PlugIns/MiLensTests.xctest (in target 'MiLensTests' from project 'MiLens')
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:46.2917190Z     cd /Users/runner/work/MiLens-iOS/MiLens-iOS
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:46.2917880Z     /usr/bin/touch -c /Users/runner/Library/Developer/Xcode/DerivedData/MiLens-hiwspbeyjwjkhmabaquqzogzojrr/Build/Products/Debug-iphonesimulator/MiLens.app/PlugIns/MiLensTests.xctest
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:46.2949490Z 
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:46.2966080Z Validate /Users/runner/Library/Developer/Xcode/DerivedData/MiLens-hiwspbeyjwjkhmabaquqzogzojrr/Build/Products/Debug-iphonesimulator/MiLens.app (in target 'MiLens' from project 'MiLens')
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:46.2967670Z     cd /Users/runner/work/MiLens-iOS/MiLens-iOS
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:46.2968590Z     builtin-validationUtility /Users/runner/Library/Developer/Xcode/DerivedData/MiLens-hiwspbeyjwjkhmabaquqzogzojrr/Build/Products/Debug-iphonesimulator/MiLens.app -infoplist-subpath Info.plist
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:29:46.3037090Z 
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:17.4793390Z 2026-08-07 15:32:16.997902+0000 MiLens[17978:57575] [error] CoreData: error: Failed to stat path '/Users/runner/Library/Developer/CoreSimulator/Devices/1556EED5-50E7-4F02-96D3-13F8A52A4EE5/data/Containers/Data/Application/AB947FF5-934A-4AFF-B4C9-357614AF11E5/Library/Application Support/default.store', errno 2 / No such file or directory.
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:17.4887800Z CoreData: error: Failed to stat path '/Users/runner/Library/Developer/CoreSimulator/Devices/1556EED5-50E7-4F02-96D3-13F8A52A4EE5/data/Containers/Data/Application/AB947FF5-934A-4AFF-B4C9-357614AF11E5/Library/Application Support/default.store', errno 2 / No such file or directory.
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:17.5028090Z 2026-08-07 15:32:16.998050+0000 MiLens[17978:57575] [error] CoreData: error: Executing as effective user 501
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:17.5232020Z CoreData: error: Executing as effective user 501
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:17.5770380Z 2026-08-07 15:32:16.998123+0000 MiLens[17978:57575] [error] CoreData: error: Failed to statfs file; errno 2 / No such file or directory.
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:17.5930930Z CoreData: error: Failed to statfs file; errno 2 / No such file or directory.
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:17.6105720Z 2026-08-07 15:32:16.998193+0000 MiLens[17978:57575] [error] CoreData: error: Logging status information for directory path: /Users/runner/Library/Developer/CoreSimulator/Devices/1556EED5-50E7-4F02-96D3-13F8A52A4EE5/data/Containers/Data/Application/AB947FF5-934A-4AFF-B4C9-357614AF11E5/Library/Application Support
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:17.6216630Z CoreData: error: Logging status information for directory path: /Users/runner/Library/Developer/CoreSimulator/Devices/1556EED5-50E7-4F02-96D3-13F8A52A4EE5/data/Containers/Data/Application/AB947FF5-934A-4AFF-B4C9-357614AF11E5/Library/Application Support
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:17.6337940Z 2026-08-07 15:32:17.057715+0000 MiLens[17978:57575] [error] CoreData: error: Executing as effective user 501
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:17.6518290Z CoreData: error: Executing as effective user 501
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:17.6762920Z 2026-08-07 15:32:17.058011+0000 MiLens[17978:57575] [error] CoreData: error: Information for /
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:17.6886660Z CoreData: error: Information for /
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:17.7001410Z 2026-08-07 15:32:17.058067+0000 MiLens[17978:57575] [error] CoreData: error:   File Device ID: 	0
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:17.7185680Z CoreData: error:   File Device ID: 	0
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:17.7309020Z 2026-08-07 15:32:17.058119+0000 MiLens[17978:57575] [error] CoreData: error:   Device ID: 		16777231
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:17.7422390Z CoreData: error:   Device ID: 		16777231
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:17.7551650Z 2026-08-07 15:32:17.261542+0000 MiLens[17978:57575] [error] CoreData: error:   File Size: 		704 bytes
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:17.8331450Z CoreData: error:   File Size: 		704 bytes
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:17.8718000Z 2026-08-07 15:32:17.261675+0000 MiLens[17978:57575] [error] CoreData: error:   File inode: 		2
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:17.8784400Z CoreData: error:   File inode: 		2
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:17.8901390Z 2026-08-07 15:32:17.261733+0000 MiLens[17978:57575] [error] CoreData: error:   File user ID: 		0
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:18.2985090Z CoreData: error:   File user ID: 		0
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:18.4616700Z 2026-08-07 15:32:17.261796+0000 MiLens[17978:57575] [error] CoreData: error:   File group ID: 		0
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:18.5423630Z CoreData: error:   File group ID: 		0
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:18.7024940Z 2026-08-07 15:32:17.261881+0000 MiLens[17978:57575] [error] CoreData: error:   File Permissions:
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:18.8669540Z CoreData: error:   File Permissions: 	
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:19.0141000Z 2026-08-07 15:32:17.261951+0000 MiLens[17978:57575] [error] CoreData: error: d
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:19.4360680Z CoreData: error: d
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:19.5740320Z 2026-08-07 15:32:17.262048+0000 MiLens[17978:57575] [error] CoreData: error:   755
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:19.6182820Z CoreData: error:   755
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:20.2825080Z 2026-08-07 15:32:17.262223+0000 MiLens[17978:57575] [error] CoreData: error:   component is not a symbolic link
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:20.5257430Z CoreData: error:   component is not a symbolic link
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:20.6891920Z 2026-08-07 15:32:17.510419+0000 MiLens[17978:57575] [error] CoreData: error:   component is readable
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:20.8543770Z CoreData: error:   component is readable
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:20.9365230Z 2026-08-07 15:32:17.510596+0000 MiLens[17978:57575] [error] CoreData: error:   component is not writeable with errno 30
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:21.0179010Z CoreData: error:   component is not writeable with errno 30
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:21.3422700Z 2026-08-07 15:32:17.510683+0000 MiLens[17978:57575] [error] CoreData: error: Information for /Users
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:21.4255230Z CoreData: error: Information for /Users
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:21.6421190Z 2026-08-07 15:32:17.510733+0000 MiLens[17978:57575] [error] CoreData: error:   File Device ID: 	0
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:21.7237680Z CoreData: error:   File Device ID: 	0
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:22.0024400Z 2026-08-07 15:32:17.510783+0000 MiLens[17978:57575] [error] CoreData: error:   Device ID: 		16777231
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:22.2050520Z CoreData: error:   Device ID: 		16777231
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:22.3662650Z 2026-08-07 15:32:17.510827+0000 MiLens[17978:57575] [error] CoreData: error:   File Size: 		160 bytes
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:22.5280750Z CoreData: error:   File Size: 		160 bytes
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:22.7765720Z 2026-08-07 15:32:17.510895+0000 MiLens[17978:57575] [error] CoreData: error:   File inode: 		17196
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:22.8612110Z CoreData: error:   File inode: 		17196
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:23.0238700Z 2026-08-07 15:32:17.512956+0000 MiLens[17978:57575] [error] CoreData: error:   File user ID: 		0
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:23.1920570Z CoreData: error:   File user ID: 		0
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:23.3561690Z 2026-08-07 15:32:17.513064+0000 MiLens[17978:57575] [error] CoreData: error:   File group ID: 		80
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:23.5454780Z CoreData: error:   File group ID: 		80
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:23.7108130Z 2026-08-07 15:32:17.513131+0000 MiLens[17978:57575] [error] CoreData: error:   File Permissions:
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:23.7895400Z CoreData: error:   File Permissions: 	
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:23.9561510Z 2026-08-07 15:32:17.513191+0000 MiLens[17978:57575] [error] CoreData: error: d
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:24.2815740Z CoreData: error: d
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:24.5279550Z 2026-08-07 15:32:17.513273+0000 MiLens[17978:57575] [error] CoreData: error:   755
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:24.7037790Z CoreData: error:   755
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:24.8891760Z 2026-08-07 15:32:17.513361+0000 MiLens[17978:57575] [error] CoreData: error:   component is not a symbolic link
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:25.3260040Z CoreData: error:   component is not a symbolic link
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:25.6526480Z 2026-08-07 15:32:17.513465+0000 MiLens[17978:57575] [error] CoreData: error:   component is readable
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:25.8192060Z CoreData: error:   component is readable
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:26.1585680Z 2026-08-07 15:32:17.513551+0000 MiLens[17978:57575] [error] CoreData: error:   component is not writeable with errno 13
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:26.3235410Z CoreData: error:   component is not writeable with errno 13
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:27.4589800Z 2026-08-07 15:32:17.520867+0000 MiLens[17978:57575] [error] CoreData: error: Information for /Users/runner
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:27.7246390Z CoreData: error: Information for /Users/runner
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:28.2933070Z 2026-08-07 15:32:17.520998+0000 MiLens[17978:57575] [error] CoreData: error:   File Device ID: 	0
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:28.5549850Z CoreData: error:   File Device ID: 	0
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:28.8795220Z 2026-08-07 15:32:17.521072+0000 MiLens[17978:57575] [error] CoreData: error:   Device ID: 		16777231
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:29.2058740Z CoreData: error:   Device ID: 		16777231
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:29.3707250Z 2026-08-07 15:32:17.521131+0000 MiLens[17978:57575] [error] CoreData: error:   File Size: 		1312 bytes
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:29.6198690Z CoreData: error:   File Size: 		1312 bytes
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:29.7826250Z 2026-08-07 15:32:17.521182+0000 MiLens[17978:57575] [error] CoreData: error:   File inode: 		28132
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:29.9458360Z CoreData: error:   File inode: 		28132
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:30.1896970Z 2026-08-07 15:32:17.521224+0000 MiLens[17978:57575] [error] CoreData: error:   File user ID: 		501
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:30.5170960Z CoreData: error:   File user ID: 		501
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:30.5997380Z 2026-08-07 15:32:17.528605+0000 MiLens[17978:57575] [error] CoreData: error:   File group ID: 		20
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:30.6813080Z CoreData: error:   File group ID: 		20
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:30.7607920Z 2026-08-07 15:32:17.528768+0000 MiLens[17978:57575] [error] CoreData: error:   File Permissions:
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:30.8443530Z CoreData: error:   File Permissions: 	
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:30.9291790Z 2026-08-07 15:32:17.528834+0000 MiLens[17978:57575] [error] CoreData: error: d
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:31.0961020Z CoreData: error: d
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:31.1738470Z 2026-08-07 15:32:17.528884+0000 MiLens[17978:57575] [error] CoreData: error:   750
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:31.2574870Z CoreData: error:   750
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:31.4186180Z 2026-08-07 15:32:17.528932+0000 MiLens[17978:57575] [error] CoreData: error:   component is not a symbolic link
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:31.5009930Z CoreData: error:   component is not a symbolic link
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:31.8270180Z 2026-08-07 15:32:17.529043+0000 MiLens[17978:57575] [error] CoreData: error:   component is readable
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:32.3505770Z CoreData: error:   component is readable
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:32.5989450Z 2026-08-07 15:32:17.529108+0000 MiLens[17978:57575] [error] CoreData: error:   component is writeable
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:36.7476170Z CoreData: error:   component is writeable
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:37.2421140Z 2026-08-07 15:32:17.529189+0000 MiLens[17978:57575] [error] CoreData: error: Information for /Users/runner/Library
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:37.2422820Z CoreData: error: Information for /Users/runner/Library
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:37.3881300Z 2026-08-07 15:32:17.575448+0000 MiLens[17978:57575] [error] CoreData: error:   File Device ID: 	0
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:37.6338500Z CoreData: error:   File Device ID: 	0
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:37.9574190Z 2026-08-07 15:32:17.575563+0000 MiLens[17978:57575] [error] CoreData: error:   Device ID: 		16777231
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:38.1217860Z CoreData: error:   Device ID: 		16777231
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:38.3825680Z 2026-08-07 15:32:17.575628+0000 MiLens[17978:57575] [error] CoreData: error:   File Size: 		2688 bytes
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:38.6275860Z CoreData: error:   File Size: 		2688 bytes
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:38.7907030Z 2026-08-07 15:32:17.575679+0000 MiLens[17978:57575] [error] CoreData: error:   File inode: 		28139
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:39.0392450Z CoreData: error:   File inode: 		28139
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:39.2037160Z 2026-08-07 15:32:17.575724+0000 MiLens[17978:57575] [error] CoreData: error:   File user ID: 		501
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:39.4475560Z CoreData: error:   File user ID: 		501
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:39.6944630Z 2026-08-07 15:32:17.575874+0000 MiLens[17978:57575] [error] CoreData: error:   File group ID: 		20
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:39.9506610Z CoreData: error:   File group ID: 		20
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:40.1929730Z 2026-08-07 15:32:17.576056+0000 MiLens[17978:57575] [error] CoreData: error:   File Permissions:
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:40.3582280Z CoreData: error:   File Permissions: 	
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:40.7766850Z 2026-08-07 15:32:17.581604+0000 MiLens[17978:57575] [error] CoreData: error: d
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:41.0364550Z CoreData: error: d
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:41.1992010Z 2026-08-07 15:32:17.581746+0000 MiLens[17978:57575] [error] CoreData: error:   700
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:41.5235160Z CoreData: error:   700
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:41.6901650Z 2026-08-07 15:32:17.581823+0000 MiLens[17978:57575] [error] CoreData: error:   component is not a symbolic link
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:41.8509770Z CoreData: error:   component is not a symbolic link
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:42.0136050Z 2026-08-07 15:32:17.582016+0000 MiLens[17978:57575] [error] CoreData: error:   component is readable
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:42.3348180Z CoreData: error:   component is readable
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:43.2027430Z 2026-08-07 15:32:17.582106+0000 MiLens[17978:57575] [error] CoreData: error:   component is writeable
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:43.6201590Z CoreData: error:   component is writeable
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:44.6875320Z 2026-08-07 15:32:17.582189+0000 MiLens[17978:57575] [error] CoreData: error: Information for /Users/runner/Library/Developer
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:44.9342290Z CoreData: error: Information for /Users/runner/Library/Developer
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:44.9343490Z 2026-08-07 15:32:17.582236+0000 MiLens[17978:57575] [error] CoreData: error:   File Device ID: 	0
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:44.9344200Z CoreData: error:   File Device ID: 	0
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:44.9344770Z 2026-08-07 15:32:17.582398+0000 MiLens[17978:57575] [error] CoreData: error:   Device ID: 		16777231
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:44.9345310Z CoreData: error:   Device ID: 		16777231
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:44.9345770Z 2026-08-07 15:32:17.631875+0000 MiLens[17978:57575] [error] CoreData: error:   File Size: 		160 bytes
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:45.0409060Z CoreData: error:   File Size: 		160 bytes
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:45.0409950Z 2026-08-07 15:32:17.632595+0000 MiLens[17978:57575] [error] CoreData: error:   File inode: 		2730465
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:45.0428430Z CoreData: error:   File inode: 		2730465
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:45.0432820Z 2026-08-07 15:32:17.632653+0000 MiLens[17978:57575] [error] CoreData: error:   File user ID: 		501
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:45.0435640Z CoreData: error:   File user ID: 		501
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:45.1258960Z 2026-08-07 15:32:17.632695+0000 MiLens[17978:57575] [error] CoreData: error:   File group ID: 		20
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:45.1259580Z CoreData: error:   File group ID: 		20
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:45.1260130Z 2026-08-07 15:32:17.632734+0000 MiLens[17978:57575] [error] CoreData: error:   File Permissions:
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:45.1260600Z CoreData: error:   File Permissions: 	
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:45.1261070Z 2026-08-07 15:32:17.632771+0000 MiLens[17978:57575] [error] CoreData: error: d
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:45.1261560Z CoreData: error: d
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:45.1262220Z 2026-08-07 15:32:17.632809+0000 MiLens[17978:57575] [error] CoreData: error:   755
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:45.1262600Z CoreData: error:   755
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:45.1263170Z 2026-08-07 15:32:17.690653+0000 MiLens[17978:57575] [error] CoreData: error:   component is not a symbolic link
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:45.1263650Z CoreData: error:   component is not a symbolic link
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:45.1264750Z 2026-08-07 15:32:17.691141+0000 MiLens[17978:57575] [error] CoreData: error:   component is readable
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:45.1265220Z CoreData: error:   component is readable
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:45.1265910Z 2026-08-07 15:32:17.691330+0000 MiLens[17978:57575] [error] CoreData: error:   component is writeable
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:45.1266460Z CoreData: error:   component is writeable
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:45.1267150Z 2026-08-07 15:32:17.691479+0000 MiLens[17978:57575] [error] CoreData: error: Information for /Users/runner/Library/Developer/CoreSimulator
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:45.1267980Z CoreData: error: Information for /Users/runner/Library/Developer/CoreSimulator
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:45.1268690Z 2026-08-07 15:32:17.691651+0000 MiLens[17978:57575] [error] CoreData: error:   File Device ID: 	0
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:45.5406410Z CoreData: error:   File Device ID: 	0
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:45.5410170Z 2026-08-07 15:32:17.691778+0000 MiLens[17978:57575] [error] CoreData: error:   Device ID: 		16777231
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:45.5410930Z CoreData: error:   Device ID: 		16777231
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:45.5411400Z 2026-08-07 15:32:17.691892+0000 MiLens[17978:57575] [error] CoreData: error:   File Size: 		160 bytes
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:45.5411880Z CoreData: error:   File Size: 		160 bytes
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:45.5412280Z 2026-08-07 15:32:17.693142+0000 MiLens[17978:57575] [error] CoreData: error:   File inode: 		2730477
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:45.5413170Z CoreData: error:   File inode: 		2730477
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:45.5414230Z 2026-08-07 15:32:17.693338+0000 MiLens[17978:57575] [error] CoreData: error:   File user ID: 		501
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:45.5416000Z CoreData: error:   File user ID: 		501
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:45.6222040Z 2026-08-07 15:32:17.693476+0000 MiLens[17978:57575] [error] CoreData: error:   File group ID: 		20
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:45.6226520Z CoreData: error:   File group ID: 		20
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:45.6227820Z 2026-08-07 15:32:17.693567+0000 MiLens[17978:57575] [error] CoreData: error:   File Permissions:
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:45.6234610Z CoreData: error:   File Permissions: 	
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:45.6235290Z 2026-08-07 15:32:17.693665+0000 MiLens[17978:57575] [error] CoreData: error: d
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:45.6235790Z CoreData: error: d
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:45.6236120Z 2026-08-07 15:32:17.693715+0000 MiLens[17978:57575] [error] CoreData: error:   755
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:45.6236570Z CoreData: error:   755
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:45.6237400Z 2026-08-07 15:32:17.693797+0000 MiLens[17978:57575] [error] CoreData: error:   component is not a symbolic link
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:45.6239290Z CoreData: error:   component is not a symbolic link
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:45.6240470Z 2026-08-07 15:32:17.693925+0000 MiLens[17978:57575] [error] CoreData: error:   component is readable
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:45.6242720Z CoreData: error:   component is readable
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:45.6243790Z 2026-08-07 15:32:17.696504+0000 MiLens[17978:57575] [error] CoreData: error:   component is writeable
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:45.6244610Z CoreData: error:   component is writeable
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:45.6245280Z 2026-08-07 15:32:17.696628+0000 MiLens[17978:57575] [error] CoreData: error: Information for /Users/runner/Library/Developer/CoreSimulator/Devices
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:45.6246050Z CoreData: error: Information for /Users/runner/Library/Developer/CoreSimulator/Devices
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:45.6247200Z 2026-08-07 15:32:17.696700+0000 MiLens[17978:57575] [error] CoreData: error:   File Device ID: 	0
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:45.6247760Z CoreData: error:   File Device ID: 	0
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:45.6248650Z 2026-08-07 15:32:17.696753+0000 MiLens[17978:57575] [error] CoreData: error:   Device ID: 		16777231
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:45.6249220Z CoreData: error:   Device ID: 		16777231
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:45.6249810Z 2026-08-07 15:32:17.696798+0000 MiLens[17978:57575] [error] CoreData: error:   File Size: 		4320 bytes
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:45.6250260Z CoreData: error:   File Size: 		4320 bytes
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:45.6250910Z 2026-08-07 15:32:17.696845+0000 MiLens[17978:57575] [error] CoreData: error:   File inode: 		2730505
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:45.6251650Z CoreData: error:   File inode: 		2730505
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:46.2039040Z 2026-08-07 15:32:17.698988+0000 MiLens[17978:57575] [error] CoreData: error:   File user ID: 		501
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:46.2051090Z CoreData: error:   File user ID: 		501
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:46.2051650Z 2026-08-07 15:32:17.699137+0000 MiLens[17978:57575] [error] CoreData: error:   File group ID: 		20
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:46.2052120Z CoreData: error:   File group ID: 		20
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:46.2052810Z 2026-08-07 15:32:17.699194+0000 MiLens[17978:57575] [error] CoreData: error:   File Permissions:
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:46.2053260Z CoreData: error:   File Permissions: 	
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:46.2053800Z 2026-08-07 15:32:17.699235+0000 MiLens[17978:57575] [error] CoreData: error: d
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:46.2054180Z CoreData: error: d
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:46.2054830Z 2026-08-07 15:32:17.699281+0000 MiLens[17978:57575] [error] CoreData: error:   755
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:46.2055270Z CoreData: error:   755
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:46.9449690Z 2026-08-07 15:32:17.699424+0000 MiLens[17978:57575] [error] CoreData: error:   component is not a symbolic link
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:46.9451220Z CoreData: error:   component is not a symbolic link
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:46.9452230Z 2026-08-07 15:32:17.699514+0000 MiLens[17978:57575] [error] CoreData: error:   component is readable
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:46.9452770Z CoreData: error:   component is readable
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:46.9454870Z 2026-08-07 15:32:17.699577+0000 MiLens[17978:57575] [error] CoreData: error:   component is writeable
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:46.9455360Z CoreData: error:   component is writeable
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:46.9456380Z 2026-08-07 15:32:17.703332+0000 MiLens[17978:57575] [error] CoreData: error: Information for /Users/runner/Library/Developer/CoreSimulator/Devices/1556EED5-50E7-4F02-96D3-13F8A52A4EE5
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:46.9458430Z CoreData: error: Information for /Users/runner/Library/Developer/CoreSimulator/Devices/1556EED5-50E7-4F02-96D3-13F8A52A4EE5
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:46.9459240Z 2026-08-07 15:32:17.703424+0000 MiLens[17978:57575] [error] CoreData: error:   File Device ID: 	0
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:46.9460240Z CoreData: error:   File Device ID: 	0
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:46.9460750Z 2026-08-07 15:32:17.703489+0000 MiLens[17978:57575] [error] CoreData: error:   Device ID: 		16777231
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:46.9461280Z CoreData: error:   Device ID: 		16777231
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:46.9462870Z 2026-08-07 15:32:17.703599+0000 MiLens[17978:57575] [error] CoreData: error:   File Size: 		160 bytes
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:46.9463930Z CoreData: error:   File Size: 		160 bytes
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:46.9464570Z 2026-08-07 15:32:17.703648+0000 MiLens[17978:57575] [error] CoreData: error:   File inode: 		3342211
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:46.9465630Z CoreData: error:   File inode: 		3342211
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:46.9468590Z 2026-08-07 15:32:17.703690+0000 MiLens[17978:57575] [error] CoreData: error:   File user ID: 		501
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:46.9469540Z CoreData: error:   File user ID: 		501
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:46.9470190Z 2026-08-07 15:32:17.719611+0000 MiLens[17978:57575] [error] CoreData: error:   File group ID: 		20
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:46.9471280Z CoreData: error:   File group ID: 		20
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:46.9471980Z 2026-08-07 15:32:17.719726+0000 MiLens[17978:57575] [error] CoreData: error:   File Permissions:
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:46.9472540Z CoreData: error:   File Permissions: 	
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:46.9473250Z 2026-08-07 15:32:17.719782+0000 MiLens[17978:57575] [error] CoreData: error: d
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:46.9475130Z CoreData: error: d
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:46.9477060Z 2026-08-07 15:32:17.719827+0000 MiLens[17978:57575] [error] CoreData: error:   755
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:46.9478120Z CoreData: error:   755
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:46.9480410Z 2026-08-07 15:32:17.719876+0000 MiLens[17978:57575] [error] CoreData: error:   component is not a symbolic link
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:46.9485900Z CoreData: error:   component is not a symbolic link
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:46.9487560Z 2026-08-07 15:32:17.719954+0000 MiLens[17978:57575] [error] CoreData: error:   component is readable
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:46.9490140Z CoreData: error:   component is readable
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:47.6256230Z 2026-08-07 15:32:17.720013+0000 MiLens[17978:57575] [error] CoreData: error:   component is writeable
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:47.6256800Z CoreData: error:   component is writeable
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:47.6257690Z 2026-08-07 15:32:17.720075+0000 MiLens[17978:57575] [error] CoreData: error: Information for /Users/runner/Library/Developer/CoreSimulator/Devices/1556EED5-50E7-4F02-96D3-13F8A52A4EE5/data
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:47.6258660Z CoreData: error: Information for /Users/runner/Library/Developer/CoreSimulator/Devices/1556EED5-50E7-4F02-96D3-13F8A52A4EE5/data
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:47.6259450Z 2026-08-07 15:32:17.722717+0000 MiLens[17978:57575] [error] CoreData: error:   File Device ID: 	0
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:47.6260000Z CoreData: error:   File Device ID: 	0
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:47.6260530Z 2026-08-07 15:32:17.722802+0000 MiLens[17978:57575] [error] CoreData: error:   Device ID: 		16777231
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:47.6260960Z CoreData: error:   Device ID: 		16777231
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:47.6261450Z 2026-08-07 15:32:17.722863+0000 MiLens[17978:57575] [error] CoreData: error:   File Size: 		384 bytes
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:47.6261910Z CoreData: error:   File Size: 		384 bytes
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:47.6262380Z 2026-08-07 15:32:17.722912+0000 MiLens[17978:57575] [error] CoreData: error:   File inode: 		3342212
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:47.6262870Z CoreData: error:   File inode: 		3342212
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:47.6263300Z 2026-08-07 15:32:17.722956+0000 MiLens[17978:57575] [error] CoreData: error:   File user ID: 		501
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:47.6263810Z CoreData: error:   File user ID: 		501
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:47.6264260Z 2026-08-07 15:32:17.723002+0000 MiLens[17978:57575] [error] CoreData: error:   File group ID: 		20
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:47.6269460Z CoreData: error:   File group ID: 		20
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:47.6269900Z 2026-08-07 15:32:17.724384+0000 MiLens[17978:57575] [error] CoreData: error:   File Permissions:
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:47.6270380Z CoreData: error:   File Permissions: 	
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:47.6270760Z 2026-08-07 15:32:17.724456+0000 MiLens[17978:57575] [error] CoreData: error: d
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:48.2554060Z CoreData: error: d
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:48.2555130Z 2026-08-07 15:32:17.724512+0000 MiLens[17978:57575] [error] CoreData: error:   775
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:48.2556220Z CoreData: error:   775
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:48.2558700Z 2026-08-07 15:32:17.724562+0000 MiLens[17978:57575] [error] CoreData: error:   component is not a symbolic link
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:48.2560180Z CoreData: error:   component is not a symbolic link
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:48.2561350Z 2026-08-07 15:32:17.724637+0000 MiLens[17978:57575] [error] CoreData: error:   component is readable
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:48.2562600Z CoreData: error:   component is readable
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:48.2563980Z 2026-08-07 15:32:17.724700+0000 MiLens[17978:57575] [error] CoreData: error:   component is writeable
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:48.2575110Z CoreData: error:   component is writeable
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:48.2577270Z 2026-08-07 15:32:17.724761+0000 MiLens[17978:57575] [error] CoreData: error: Information for /Users/runner/Library/Developer/CoreSimulator/Devices/1556EED5-50E7-4F02-96D3-13F8A52A4EE5/data/Containers
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:48.3358270Z CoreData: error: Information for /Users/runner/Library/Developer/CoreSimulator/Devices/1556EED5-50E7-4F02-96D3-13F8A52A4EE5/data/Containers
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:48.3359760Z 2026-08-07 15:32:17.725773+0000 MiLens[17978:57575] [error] CoreData: error:   File Device ID: 	0
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:48.3360380Z CoreData: error:   File Device ID: 	0
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:48.3360910Z 2026-08-07 15:32:17.725932+0000 MiLens[17978:57575] [error] CoreData: error:   Device ID: 		16777231
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:48.3361410Z CoreData: error:   Device ID: 		16777231
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:48.3361980Z 2026-08-07 15:32:17.725997+0000 MiLens[17978:57575] [error] CoreData: error:   File Size: 		224 bytes
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:48.3362470Z CoreData: error:   File Size: 		224 bytes
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:48.3363010Z 2026-08-07 15:32:17.726110+0000 MiLens[17978:57575] [error] CoreData: error:   File inode: 		3471003
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:48.3363480Z CoreData: error:   File inode: 		3471003
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:48.3364370Z 2026-08-07 15:32:17.726161+0000 MiLens[17978:57575] [error] CoreData: error:   File user ID: 		501
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:48.3374320Z CoreData: error:   File user ID: 		501
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:48.3375980Z 2026-08-07 15:32:17.726218+0000 MiLens[17978:57575] [error] CoreData: error:   File group ID: 		20
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:48.3394260Z CoreData: error:   File group ID: 		20
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:48.3394820Z 2026-08-07 15:32:17.726820+0000 MiLens[17978:57575] [error] CoreData: error:   File Permissions:
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:48.3395330Z CoreData: error:   File Permissions: 	
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:48.3395740Z 2026-08-07 15:32:17.726874+0000 MiLens[17978:57575] [error] CoreData: error: d
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:48.4185920Z CoreData: error: d
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:48.4186730Z 2026-08-07 15:32:17.726975+0000 MiLens[17978:57575] [error] CoreData: error:   755
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:49.1659770Z CoreData: error:   755
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:49.1671420Z 2026-08-07 15:32:17.727036+0000 MiLens[17978:57575] [error] CoreData: error:   component is not a symbolic link
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:49.1672790Z CoreData: error:   component is not a symbolic link
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:49.1673850Z 2026-08-07 15:32:17.727120+0000 MiLens[17978:57575] [error] CoreData: error:   component is readable
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:49.1674990Z CoreData: error:   component is readable
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:49.1675990Z 2026-08-07 15:32:17.727170+0000 MiLens[17978:57575] [error] CoreData: error:   component is writeable
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:49.1677100Z CoreData: error:   component is writeable
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:49.1678900Z 2026-08-07 15:32:17.727226+0000 MiLens[17978:57575] [error] CoreData: error: Information for /Users/runner/Library/Developer/CoreSimulator/Devices/1556EED5-50E7-4F02-96D3-13F8A52A4EE5/data/Containers/Data
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:49.1683450Z CoreData: error: Information for /Users/runner/Library/Developer/CoreSimulator/Devices/1556EED5-50E7-4F02-96D3-13F8A52A4EE5/data/Containers/Data
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:49.1685280Z 2026-08-07 15:32:17.727522+0000 MiLens[17978:57575] [error] CoreData: error:   File Device ID: 	0
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:49.1687680Z CoreData: error:   File Device ID: 	0
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:49.1688630Z 2026-08-07 15:32:17.727577+0000 MiLens[17978:57575] [error] CoreData: error:   Device ID: 		16777231
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:49.1689750Z CoreData: error:   Device ID: 		16777231
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:49.1690720Z 2026-08-07 15:32:17.727613+0000 MiLens[17978:57575] [error] CoreData: error:   File Size: 		192 bytes
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:49.1693000Z CoreData: error:   File Size: 		192 bytes
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:49.1694310Z 2026-08-07 15:32:17.727657+0000 MiLens[17978:57575] [error] CoreData: error:   File inode: 		3471019
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:49.1695450Z CoreData: error:   File inode: 		3471019
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:49.1696400Z 2026-08-07 15:32:17.727698+0000 MiLens[17978:57575] [error] CoreData: error:   File user ID: 		501
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:49.1697470Z CoreData: error:   File user ID: 		501
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:49.1698570Z 2026-08-07 15:32:17.727735+0000 MiLens[17978:57575] [error] CoreData: error:   File group ID: 		20
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:49.1702190Z CoreData: error:   File group ID: 		20
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:49.7517590Z 2026-08-07 15:32:17.727769+0000 MiLens[17978:57575] [error] CoreData: error:   File Permissions:
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:49.8318880Z CoreData: error:   File Permissions: 	
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:49.8325670Z 2026-08-07 15:32:17.728217+0000 MiLens[17978:57575] [error] CoreData: error: d
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:49.8326680Z CoreData: error: d
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:49.8327640Z 2026-08-07 15:32:17.728259+0000 MiLens[17978:57575] [error] CoreData: error:   755
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:49.8328640Z CoreData: error:   755
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:49.8329890Z 2026-08-07 15:32:17.728299+0000 MiLens[17978:57575] [error] CoreData: error:   component is not a symbolic link
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:49.8340350Z CoreData: error:   component is not a symbolic link
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:49.8341730Z 2026-08-07 15:32:17.728375+0000 MiLens[17978:57575] [error] CoreData: error:   component is readable
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:49.8342940Z CoreData: error:   component is readable
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:49.8344270Z 2026-08-07 15:32:17.728436+0000 MiLens[17978:57575] [error] CoreData: error:   component is writeable
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:49.8346130Z CoreData: error:   component is writeable
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:49.8348640Z 2026-08-07 15:32:17.728520+0000 MiLens[17978:57575] [error] CoreData: error: Information for /Users/runner/Library/Developer/CoreSimulator/Devices/1556EED5-50E7-4F02-96D3-13F8A52A4EE5/data/Containers/Data/Application
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:49.9142570Z CoreData: error: Information for /Users/runner/Library/Developer/CoreSimulator/Devices/1556EED5-50E7-4F02-96D3-13F8A52A4EE5/data/Containers/Data/Application
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:49.9147400Z 2026-08-07 15:32:17.732243+0000 MiLens[17978:57575] [error] CoreData: error:   File Device ID: 	0
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:49.9147910Z CoreData: error:   File Device ID: 	0
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:49.9148330Z 2026-08-07 15:32:17.732381+0000 MiLens[17978:57575] [error] CoreData: error:   Device ID: 		16777231
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:49.9148820Z CoreData: error:   Device ID: 		16777231
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:49.9149260Z 2026-08-07 15:32:17.732472+0000 MiLens[17978:57575] [error] CoreData: error:   File Size: 		4640 bytes
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:49.9149770Z CoreData: error:   File Size: 		4640 bytes
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:49.9150190Z 2026-08-07 15:32:17.732580+0000 MiLens[17978:57575] [error] CoreData: error:   File inode: 		3471219
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:49.9150710Z CoreData: error:   File inode: 		3471219
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:49.9151110Z 2026-08-07 15:32:17.732619+0000 MiLens[17978:57575] [error] CoreData: error:   File user ID: 		501
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:49.9151600Z CoreData: error:   File user ID: 		501
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:49.9152010Z 2026-08-07 15:32:17.732665+0000 MiLens[17978:57575] [error] CoreData: error:   File group ID: 		20
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:49.9156110Z CoreData: error:   File group ID: 		20
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:50.6677580Z 2026-08-07 15:32:17.732733+0000 MiLens[17978:57575] [error] CoreData: error:   File Permissions:
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:50.6681050Z CoreData: error:   File Permissions: 	
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:50.6684290Z 2026-08-07 15:32:17.733356+0000 MiLens[17978:57575] [error] CoreData: error: d
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:51.0315280Z CoreData: error: d
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:51.0318410Z 2026-08-07 15:32:17.733442+0000 MiLens[17978:57575] [error] CoreData: error:   755
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:51.0320070Z CoreData: error:   755
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:51.0321360Z 2026-08-07 15:32:17.733481+0000 MiLens[17978:57575] [error] CoreData: error:   component is not a symbolic link
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:53.0698520Z CoreData: error:   component is not a symbolic link
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:53.0701660Z 2026-08-07 15:32:17.733567+0000 MiLens[17978:57575] [error] CoreData: error:   component is readable
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:53.0702310Z CoreData: error:   component is readable
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:53.0702940Z 2026-08-07 15:32:17.733638+0000 MiLens[17978:57575] [error] CoreData: error:   component is writeable
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:53.0708230Z CoreData: error:   component is writeable
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:53.0709220Z 2026-08-07 15:32:17.733714+0000 MiLens[17978:57575] [error] CoreData: error: Information for /Users/runner/Library/Developer/CoreSimulator/Devices/1556EED5-50E7-4F02-96D3-13F8A52A4EE5/data/Containers/Data/Application/AB947FF5-934A-4AFF-B4C9-357614AF11E5
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:53.0711180Z CoreData: error: Information for /Users/runner/Library/Developer/CoreSimulator/Devices/1556EED5-50E7-4F02-96D3-13F8A52A4EE5/data/Containers/Data/Application/AB947FF5-934A-4AFF-B4C9-357614AF11E5
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:53.0712140Z 2026-08-07 15:32:17.734306+0000 MiLens[17978:57575] [error] CoreData: error:   File Device ID: 	0
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:53.0712660Z CoreData: error:   File Device ID: 	0
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:53.0713090Z 2026-08-07 15:32:17.734379+0000 MiLens[17978:57575] [error] CoreData: error:   Device ID: 		16777231
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:53.0713640Z CoreData: error:   Device ID: 		16777231
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:53.0714150Z 2026-08-07 15:32:17.734539+0000 MiLens[17978:57575] [error] CoreData: error:   File Size: 		224 bytes
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:53.0714680Z CoreData: error:   File Size: 		224 bytes
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:53.0715220Z 2026-08-07 15:32:17.734593+0000 MiLens[17978:57575] [error] CoreData: error:   File inode: 		3479646
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:53.0715850Z CoreData: error:   File inode: 		3479646
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:53.0716330Z 2026-08-07 15:32:17.734681+0000 MiLens[17978:57575] [error] CoreData: error:   File user ID: 		501
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:53.0717020Z CoreData: error:   File user ID: 		501
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:53.0717630Z 2026-08-07 15:32:17.734736+0000 MiLens[17978:57575] [error] CoreData: error:   File group ID: 		20
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:53.0718100Z CoreData: error:   File group ID: 		20
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:53.0718500Z 2026-08-07 15:32:17.734788+0000 MiLens[17978:57575] [error] CoreData: error:   File Permissions:
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:53.0718960Z CoreData: error:   File Permissions: 	
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:53.0719280Z 2026-08-07 15:32:17.737060+0000 MiLens[17978:57575] [error] CoreData: error: d
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:53.0719650Z CoreData: error: d
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:53.0719980Z 2026-08-07 15:32:17.737177+0000 MiLens[17978:57575] [error] CoreData: error:   755
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:53.0720450Z CoreData: error:   755
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:53.0720860Z 2026-08-07 15:32:17.737237+0000 MiLens[17978:57575] [error] CoreData: error:   component is not a symbolic link
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:53.0721390Z CoreData: error:   component is not a symbolic link
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:53.0721810Z 2026-08-07 15:32:17.737430+0000 MiLens[17978:57575] [error] CoreData: error:   component is readable
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:53.0728870Z CoreData: error:   component is readable
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:53.0730140Z 2026-08-07 15:32:17.737562+0000 MiLens[17978:57575] [error] CoreData: error:   component is writeable
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:53.0731360Z CoreData: error:   component is writeable
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:53.9014280Z 2026-08-07 15:32:17.737636+0000 MiLens[17978:57575] [error] CoreData: error: Information for /Users/runner/Library/Developer/CoreSimulator/Devices/1556EED5-50E7-4F02-96D3-13F8A52A4EE5/data/Containers/Data/Application/AB947FF5-934A-4AFF-B4C9-357614AF11E5/Library
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:54.8195420Z CoreData: error: Information for /Users/runner/Library/Developer/CoreSimulator/Devices/1556EED5-50E7-4F02-96D3-13F8A52A4EE5/data/Containers/Data/Application/AB947FF5-934A-4AFF-B4C9-357614AF11E5/Library
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:55.4790310Z 2026-08-07 15:32:17.739878+0000 MiLens[17978:57575] [error] CoreData: error:   File Device ID: 	0
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:55.4796950Z CoreData: error:   File Device ID: 	0
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:55.4797420Z 2026-08-07 15:32:17.739995+0000 MiLens[17978:57575] [error] CoreData: error:   Device ID: 		16777231
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:55.4797820Z CoreData: error:   Device ID: 		16777231
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:55.4798240Z 2026-08-07 15:32:17.740186+0000 MiLens[17978:57575] [error] CoreData: error:   File Size: 		128 bytes
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:55.4798730Z CoreData: error:   File Size: 		128 bytes
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:55.4799200Z 2026-08-07 15:32:17.740285+0000 MiLens[17978:57575] [error] CoreData: error:   File inode: 		3479648
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:55.4799690Z CoreData: error:   File inode: 		3479648
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:55.4802590Z 2026-08-07 15:32:17.740337+0000 MiLens[17978:57575] [error] CoreData: error:   File user ID: 		501
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:55.4803010Z CoreData: error:   File user ID: 		501
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:55.4803470Z 2026-08-07 15:32:17.740377+0000 MiLens[17978:57575] [error] CoreData: error:   File group ID: 		20
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:55.4804350Z CoreData: error:   File group ID: 		20
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:55.4804840Z 2026-08-07 15:32:17.740415+0000 MiLens[17978:57575] [error] CoreData: error:   File Permissions:
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:55.4805250Z CoreData: error:   File Permissions: 	
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:55.4805640Z 2026-08-07 15:32:17.741403+0000 MiLens[17978:57575] [error] CoreData: error: d
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:55.5603090Z CoreData: error: d
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:55.5603830Z 2026-08-07 15:32:17.741534+0000 MiLens[17978:57575] [error] CoreData: error:   755
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:55.5604190Z CoreData: error:   755
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:55.5604620Z 2026-08-07 15:32:17.741609+0000 MiLens[17978:57575] [error] CoreData: error:   component is not a symbolic link
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:55.5605070Z CoreData: error:   component is not a symbolic link
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:55.5605580Z 2026-08-07 15:32:17.741746+0000 MiLens[17978:57575] [error] CoreData: error:   component is readable
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:55.5605980Z CoreData: error:   component is readable
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:55.5608950Z 2026-08-07 15:32:17.741847+0000 MiLens[17978:57575] [error] CoreData: error:   component is writeable
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:55.5609360Z CoreData: error:   component is writeable
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:55.5610490Z 2026-08-07 15:32:17.741999+0000 MiLens[17978:57575] [error] CoreData: error: Failed to stat path '/Users/runner/Library/Developer/CoreSimulator/Devices/1556EED5-50E7-4F02-96D3-13F8A52A4EE5/data/Containers/Data/Application/AB947FF5-934A-4AFF-B4C9-357614AF11E5/Library/Application Support', errno 2 / No such file or directory.
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:55.5620060Z CoreData: error: Failed to stat path '/Users/runner/Library/Developer/CoreSimulator/Devices/1556EED5-50E7-4F02-96D3-13F8A52A4EE5/data/Containers/Data/Application/AB947FF5-934A-4AFF-B4C9-357614AF11E5/Library/Application Support', errno 2 / No such file or directory.
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:55.5624440Z 2026-08-07 15:32:17.743120+0000 MiLens[17978:57575] [error] CoreData: error:   Sandbox access to file-write-create denied
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:55.5627700Z CoreData: error:   Sandbox access to file-write-create denied
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:55.5629630Z 2026-08-07 15:32:17.743716+0000 MiLens[17978:57575] [error] CoreData: error: addPersistentStoreWithType:configuration:URL:options:error: returned error NSCocoaErrorDomain (512)
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:56.8416110Z CoreData: error: addPersistentStoreWithType:configuration:URL:options:error: returned error NSCocoaErrorDomain (512)
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:58.6472730Z 2026-08-07 15:32:17.743809+0000 MiLens[17978:57575] [error] CoreData: error: userInfo:
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:58.6483770Z CoreData: error: userInfo:
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:58.6484450Z 2026-08-07 15:32:17.743871+0000 MiLens[17978:57575] [error] CoreData: error: 	reason : Failed to create file; code = 2
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:58.6485010Z CoreData: error: 	reason : Failed to create file; code = 2
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:58.6486020Z 2026-08-07 15:32:17.744154+0000 MiLens[17978:57575] [error] CoreData: error: storeType: SQLite
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:58.6486490Z CoreData: error: storeType: SQLite
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:58.6486890Z 2026-08-07 15:32:17.744215+0000 MiLens[17978:57575] [error] CoreData: error: configuration: default
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:58.6487380Z CoreData: error: configuration: default
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:58.6488400Z 2026-08-07 15:32:17.744286+0000 MiLens[17978:57575] [error] CoreData: error: URL: file:///Users/runner/Library/Developer/CoreSimulator/Devices/1556EED5-50E7-4F02-96D3-13F8A52A4EE5/data/Containers/Data/Application/AB947FF5-934A-4AFF-B4C9-357614AF11E5/Library/Application%20Support/default.store
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:58.6490520Z CoreData: error: URL: file:///Users/runner/Library/Developer/CoreSimulator/Devices/1556EED5-50E7-4F02-96D3-13F8A52A4EE5/data/Containers/Data/Application/AB947FF5-934A-4AFF-B4C9-357614AF11E5/Library/Application%20Support/default.store
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:58.7272880Z CoreData: annotation: options:
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:58.7274250Z CoreData: annotation: 	NSMigratePersistentStoresAutomaticallyOption : 1
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:58.7281670Z CoreData: annotation: 	NSPersistentStoreStagedMigrationManagerOptionKey : <SwiftData.DefaultMigrationManager: 0x60000390c1a0>
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:58.7283480Z CoreData: annotation: 	NSInferMappingModelAutomaticallyOption : 1
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:58.7284680Z CoreData: annotation: 	NSPersistentStoreRemoteChangeNotificationOptionKey : 1
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:32:58.7289450Z CoreData: annotation: 	NSPersistentHistoryTrackingKey : 1
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:33:06.4657530Z 2026-08-07 15:32:17.749989+0000 MiLens[17978:57575] [error] CoreData: error: <NSPersistentStoreCoordinator: 0x600002c0e280>: Attempting recovery from error encountered during addPersistentStore: 0x600000c0a790 Error Domain=NSCocoaErrorDomain Code=512 "鏈兘淇濆瓨璇ユ枃浠躲€? UserInfo={reason=Failed to create file; code = 2}
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:33:06.4662980Z CoreData: error: <NSPersistentStoreCoordinator: 0x600002c0e280>: Attempting recovery from error encountered during addPersistentStore: 0x600000c0a790 Error Domain=NSCocoaErrorDomain Code=512 "鏈兘淇濆瓨璇ユ枃浠躲€? UserInfo={reason=Failed to create file; code = 2}
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:33:06.4664470Z 2026-08-07 15:32:17.750382+0000 MiLens[17978:57575] [error] CoreData: error: During recovery, parent directory path reported as missing
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:33:06.4665550Z CoreData: error: During recovery, parent directory path reported as missing
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:33:06.5536180Z 2026-08-07 15:32:17.760507+0000 MiLens[17978:57575] [error] CoreData: error: Recovery attempt while adding <NSPersistentStoreDescription: 0x600000c0a790> (type: SQLite, url: file:///Users/runner/Library/Developer/CoreSimulator/Devices/1556EED5-50E7-4F02-96D3-13F8A52A4EE5/data/Containers/Data/Application/AB947FF5-934A-4AFF-B4C9-357614AF11E5/Library/Application%20Support/default.store) was successful!
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:33:06.5538810Z CoreData: error: Recovery attempt while adding <NSPersistentStoreDescription: 0x600000c0a790> (type: SQLite, url: file:///Users/runner/Library/Developer/CoreSimulator/Devices/1556EED5-50E7-4F02-96D3-13F8A52A4EE5/data/Containers/Data/Application/AB947FF5-934A-4AFF-B4C9-357614AF11E5/Library/Application%20Support/default.store) was successful!
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:33:07.9898960Z MiLens/RepositoryEnvironment.swift:27: Fatal error: PhotoRepository 蹇呴』閫氳繃 .environment(\.photoRepository, ...) 娉ㄥ叆
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:33:07.9913120Z 2026-08-07 15:32:17.981851+0000 MiLens[17978:57575] MiLens/RepositoryEnvironment.swift:27: Fatal error: PhotoRepository 蹇呴』閫氳繃 .environment(\.photoRepository, ...) 娉ㄥ叆
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:34:10.6158540Z 2026-08-07 15:34:10.614 xcodebuild[16165:50999] [MT] IDETestOperationsObserverDebug: 264.274 elapsed -- Testing started completed.
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:34:10.6161840Z 2026-08-07 15:34:10.614 xcodebuild[16165:50999] [MT] IDETestOperationsObserverDebug: 0.000 sec, +0.000 sec -- start
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:34:10.6162550Z 2026-08-07 15:34:10.614 xcodebuild[16165:50999] [MT] IDETestOperationsObserverDebug: 264.274 sec, +264.274 sec -- end
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:34:16.3227510Z Testing failed:
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:34:16.3228370Z 
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:34:16.3229800Z Test session results, code coverage, and logs:
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:34:16.3235260Z 	MiLens (17978) encountered an error (Early unexpected exit, operation never finished bootstrapping - no restart will be attempted. (Underlying Error: Test crashed with signal trap before starting test execution.))
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:34:16.3240380Z 	/Users/runner/Library/Developer/Xcode/DerivedData/MiLens-hiwspbeyjwjkhmabaquqzogzojrr/Logs/Test/Test-MiLens-2026.08.07_15-29-40-+0000.xcresult
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:34:16.3241230Z 
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:34:16.3241340Z 
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:34:16.3248480Z ** TEST FAILED **
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:34:16.3250130Z 
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:34:16.4059150Z Testing started
+MiLens App (macOS)	Test (simulator)	2026-08-07T15:34:16.6854190Z ##[error]Process completed with exit code 65.

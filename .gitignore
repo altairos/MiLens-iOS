@@ -1,0 +1,44 @@
+# Xcode / Swift 生成产物
+DerivedData/
+build/
+*.build/
+.build/
+
+# XcodeGen 生成的工程文件（每次 xcodegen generate 重建）
+*.xcodeproj/
+*.xcworkspace/
+
+# 用户数据
+*.xcuserstate
+xcuserdata/
+*.xcuserdatad/
+*.swp
+*.lock
+
+# 签名与证书（永不提交）
+*.p12
+*.cer
+*.mobileprovision
+*.pem
+Signing*.xcconfig
+
+# 本机配置（含绝对路径/密码）
+*.local.xcconfig
+.env
+.env.*
+
+# Swift Package Manager 解析缓存
+.swiftpm/
+Package.resolved
+
+# macOS
+.DS_Store
+
+# 模型与媒体（大文件，按需单独管理）
+*.mlpackage
+*.mlmodel
+*.coreml
+
+# 临时与备份
+*.tmp
+*~

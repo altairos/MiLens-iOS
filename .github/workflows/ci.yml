@@ -1,0 +1,68 @@
+# MiLens iOS — 云端编译 / 测试 CI（GitHub Actions macOS runner）
+# 由于 iOS App 必须用 Xcode + iOS SDK，Windows 无法本地编译 App 层。
+# App target（SwiftUI/SwiftData/Photos/Vision）依赖此 workflow 验证。
+# MiLensKit（纯 Swift 拼豆算法）另在 ubuntu runner 上独立验证（见下方 kit 作业）。
+# 详见 DEVELOPMENT.md「双机/云端协作」。
+
+name: CI
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # ── MiLensKit 纯算法包：Linux 上 swift build/test（快、免费分钟多）──
+  kit:
+    name: MiLensKit (Linux)
+    runs-on: ubuntu-24.04
+    defaults:
+      run:
+        working-directory: MiLensKit
+    steps:
+      - uses: actions/checkout@v4
+      - uses: swift-actions/setup-swift@v2
+        with:
+          swift-version: "5.10"
+      - name: Version
+        run: swift --version
+      - name: Build
+        run: swift build
+      - name: Test
+        run: swift test --parallel
+
+  # ── MiLens App：macOS runner 上 xcodegen + xcodebuild（消耗 macOS 分钟）──
+  app:
+    name: MiLens App (macOS)
+    runs-on: macos-15
+    needs: kit
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install XcodeGen
+        run: brew install xcodegen
+      - name: Generate Xcode project
+        run: xcodegen generate
+      - name: Resolve Swift Package deps
+        run: xcodebuild -project MiLens.xcodeproj -resolvePackageDependencies
+      - name: Build (simulator, unsigned)
+        run: |
+          xcodebuild -project MiLens.xcodeproj \
+            -scheme MiLens \
+            -destination 'platform=iOS Simulator,name=iPhone 16' \
+            -configuration Debug \
+            CODE_SIGNING_ALLOWED=NO \
+            build
+      - name: Test (simulator)
+        run: |
+          xcodebuild -project MiLens.xcodeproj \
+            -scheme MiLens \
+            -destination 'platform=iOS Simulator,name=iPhone 16' \
+            -configuration Debug \
+            -enableCodeCoverage YES \
+            CODE_SIGNING_ALLOWED=NO \
+            test

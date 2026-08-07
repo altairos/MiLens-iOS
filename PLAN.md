@@ -135,7 +135,7 @@
 - 首次启动完整走通：授权 → 扫描发现宠物 → 建档 → 相册可见（建档 P3；扫描+导入+相册 ✅）
 - 相册支持分页、筛选、多选、大图查看 ✅
 - 扫描可取消，不提交过期结果 ✅
-- CI 编译 + 测试全绿 ✅（run [31204194663](https://github.com/altairos/MiLens-iOS/actions/runs/31204194663)：134 passed, 15 skipped, 0 failed）
+- CI 编译 + 测试全绿 ✅（run [31209138041](https://github.com/altairos/MiLens-iOS/actions/runs/31209138041)：154 passed, 23 skipped, 0 failed）
 - 真机验证（待 Mac + iPhone）—— 待办清单见 [P2-真机验证备忘](docs/P2-真机验证备忘.md)
 
 ---

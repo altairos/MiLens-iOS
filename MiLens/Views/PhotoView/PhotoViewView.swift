@@ -62,7 +62,7 @@ struct PhotoViewView: View {
     private func magnificationGesture(_ geo: GeometryProxy) -> some Gesture {
         MagnifyGesture()
             .onChanged { value in
-                let newScale = lastScale * value
+                let newScale = lastScale * value.magnification
                 scale = PhotoViewGestureMath.clampScale(newScale)
             }
             .onEnded { _ in

@@ -85,6 +85,9 @@ private func removeIsolatedPixels(
     subjectMask: [UInt8]?,
     pose: BeadPoseData?
 ) {
+    // Swift 安全：1..<(height-1) 在 height ≤ 1 时为非法 Range（JS 源端自动跳过空循环）
+    guard width > 1 && height > 1 else { return }
+
     var changes: [(index: Int, value: UInt8)] = []
 
     // T2d: 预计算有效关键点像素坐标（眼睛 0,1 + 鼻子 2）
@@ -165,6 +168,9 @@ private func protectFeatureRegions(
     height: Int,
     featureMask: [UInt8]
 ) {
+    // Swift 安全：1..<(height-1) 在 height ≤ 1 时为非法 Range
+    guard width > 1 && height > 1 else { return }
+
     // 对五官区域做 2 次迭代平滑
     for _ in 0..<2 {
         var changes: [(index: Int, value: UInt8)] = []
@@ -220,6 +226,9 @@ private func smoothSubjectBoundaries(
     height: Int,
     subjectMask: [UInt8]
 ) {
+    // Swift 安全：1..<(height-1) 在 height ≤ 1 时为非法 Range
+    guard width > 1 && height > 1 else { return }
+
     // 检测主体边界像素（主体内且邻接非主体的像素）
     var boundaryPixels: [Int] = []
     for y in 1..<(height - 1) {

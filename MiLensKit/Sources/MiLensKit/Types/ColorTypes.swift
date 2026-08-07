@@ -61,12 +61,14 @@ public struct BeadColor: Identifiable, Equatable, Sendable {
     public var rgb: RGBColor
     public var symbol: String
     public var brand: String
+    public var tags: [BeadColorTag]?
 
-    public init(id: String, name: String, rgb: RGBColor, symbol: String, brand: String) {
+    public init(id: String, name: String, rgb: RGBColor, symbol: String, brand: String, tags: [BeadColorTag]? = nil) {
         self.id = id
         self.name = name
         self.rgb = rgb
         self.symbol = symbol
         self.brand = brand
+        self.tags = tags
     }
 }

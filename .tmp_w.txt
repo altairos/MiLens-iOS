@@ -1,24 +1,10 @@
 Refreshing run status every 3 seconds. Press Ctrl+C to quit.
 
-* main CI 路 31192685087
+* main CI 路 31193459814
 Triggered via push less than a minute ago
 
 JOBS
-* MiLensKit (Linux) (ID 92913232445)
-  鉁?Set up job
-  * Run actions/checkout@v4
-  * Run swift-actions/setup-swift@v2
-  * Version
-  * Build
-  * Test
-  * Post Run actions/checkout@v4
-Refreshing run status every 3 seconds. Press Ctrl+C to quit.
-
-* main CI 路 31192685087
-Triggered via push less than a minute ago
-
-JOBS
-* MiLensKit (Linux) (ID 92913232445)
+* MiLensKit (Linux) (ID 92915825946)
   鉁?Set up job
   鉁?Run actions/checkout@v4
   * Run swift-actions/setup-swift@v2
@@ -28,11 +14,11 @@ JOBS
   * Post Run actions/checkout@v4
 Refreshing run status every 3 seconds. Press Ctrl+C to quit.
 
-* main CI 路 31192685087
+* main CI 路 31193459814
 Triggered via push less than a minute ago
 
 JOBS
-* MiLensKit (Linux) (ID 92913232445)
+* MiLensKit (Linux) (ID 92915825946)
   鉁?Set up job
   鉁?Run actions/checkout@v4
   * Run swift-actions/setup-swift@v2
@@ -42,11 +28,11 @@ JOBS
   * Post Run actions/checkout@v4
 Refreshing run status every 3 seconds. Press Ctrl+C to quit.
 
-* main CI 路 31192685087
+* main CI 路 31193459814
 Triggered via push less than a minute ago
 
 JOBS
-* MiLensKit (Linux) (ID 92913232445)
+* MiLensKit (Linux) (ID 92915825946)
   鉁?Set up job
   鉁?Run actions/checkout@v4
   * Run swift-actions/setup-swift@v2
@@ -56,11 +42,11 @@ JOBS
   * Post Run actions/checkout@v4
 Refreshing run status every 3 seconds. Press Ctrl+C to quit.
 
-* main CI 路 31192685087
+* main CI 路 31193459814
 Triggered via push less than a minute ago
 
 JOBS
-* MiLensKit (Linux) (ID 92913232445)
+* MiLensKit (Linux) (ID 92915825946)
   鉁?Set up job
   鉁?Run actions/checkout@v4
   * Run swift-actions/setup-swift@v2
@@ -70,11 +56,11 @@ JOBS
   * Post Run actions/checkout@v4
 Refreshing run status every 3 seconds. Press Ctrl+C to quit.
 
-* main CI 路 31192685087
+* main CI 路 31193459814
 Triggered via push less than a minute ago
 
 JOBS
-* MiLensKit (Linux) (ID 92913232445)
+* MiLensKit (Linux) (ID 92915825946)
   鉁?Set up job
   鉁?Run actions/checkout@v4
   * Run swift-actions/setup-swift@v2
@@ -84,11 +70,11 @@ JOBS
   * Post Run actions/checkout@v4
 Refreshing run status every 3 seconds. Press Ctrl+C to quit.
 
-* main CI 路 31192685087
+* main CI 路 31193459814
 Triggered via push less than a minute ago
 
 JOBS
-* MiLensKit (Linux) (ID 92913232445)
+* MiLensKit (Linux) (ID 92915825946)
   鉁?Set up job
   鉁?Run actions/checkout@v4
   * Run swift-actions/setup-swift@v2
@@ -98,11 +84,39 @@ JOBS
   * Post Run actions/checkout@v4
 Refreshing run status every 3 seconds. Press Ctrl+C to quit.
 
-* main CI 路 31192685087
-Triggered via push less than a minute ago
+* main CI 路 31193459814
+Triggered via push about 1 minute ago
 
 JOBS
-* MiLensKit (Linux) (ID 92913232445)
+* MiLensKit (Linux) (ID 92915825946)
+  鉁?Set up job
+  鉁?Run actions/checkout@v4
+  * Run swift-actions/setup-swift@v2
+  * Version
+  * Build
+  * Test
+  * Post Run actions/checkout@v4
+Refreshing run status every 3 seconds. Press Ctrl+C to quit.
+
+* main CI 路 31193459814
+Triggered via push about 1 minute ago
+
+JOBS
+* MiLensKit (Linux) (ID 92915825946)
+  鉁?Set up job
+  鉁?Run actions/checkout@v4
+  * Run swift-actions/setup-swift@v2
+  * Version
+  * Build
+  * Test
+  * Post Run actions/checkout@v4
+Refreshing run status every 3 seconds. Press Ctrl+C to quit.
+
+* main CI 路 31193459814
+Triggered via push about 1 minute ago
+
+JOBS
+* MiLensKit (Linux) (ID 92915825946)
   鉁?Set up job
   鉁?Run actions/checkout@v4
   鉁?Run swift-actions/setup-swift@v2
@@ -112,25 +126,11 @@ JOBS
   * Post Run actions/checkout@v4
 Refreshing run status every 3 seconds. Press Ctrl+C to quit.
 
-* main CI 路 31192685087
+* main CI 路 31193459814
 Triggered via push about 1 minute ago
 
 JOBS
-* MiLensKit (Linux) (ID 92913232445)
-  鉁?Set up job
-  鉁?Run actions/checkout@v4
-  鉁?Run swift-actions/setup-swift@v2
-  鉁?Version
-  * Build
-  * Test
-  * Post Run actions/checkout@v4
-Refreshing run status every 3 seconds. Press Ctrl+C to quit.
-
-* main CI 路 31192685087
-Triggered via push about 1 minute ago
-
-JOBS
-* MiLensKit (Linux) (ID 92913232445)
+* MiLensKit (Linux) (ID 92915825946)
   鉁?Set up job
   鉁?Run actions/checkout@v4
   鉁?Run swift-actions/setup-swift@v2
@@ -140,11 +140,25 @@ JOBS
   * Post Run actions/checkout@v4
 Refreshing run status every 3 seconds. Press Ctrl+C to quit.
 
-* main CI 路 31192685087
+* main CI 路 31193459814
 Triggered via push about 1 minute ago
 
 JOBS
-鉁?MiLensKit (Linux) in 58s (ID 92913232445)
+* MiLensKit (Linux) (ID 92915825946)
+  鉁?Set up job
+  鉁?Run actions/checkout@v4
+  鉁?Run swift-actions/setup-swift@v2
+  鉁?Version
+  鉁?Build
+  鉁?Test
+  * Post Run actions/checkout@v4
+Refreshing run status every 3 seconds. Press Ctrl+C to quit.
+
+* main CI 路 31193459814
+Triggered via push about 1 minute ago
+
+JOBS
+鉁?MiLensKit (Linux) in 1m19s (ID 92915825946)
   鉁?Set up job
   鉁?Run actions/checkout@v4
   鉁?Run swift-actions/setup-swift@v2
@@ -153,7 +167,8 @@ JOBS
   鉁?Test
   鉁?Post Run actions/checkout@v4
   鉁?Complete job
-* MiLens App (macOS) (ID 92913521827)
+* MiLens App (macOS) (ID 92916207787)
+  * Set up job
 
 ANNOTATIONS
 ! Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4, swift-actions/setup-swift@v2. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
@@ -161,11 +176,11 @@ MiLensKit (Linux): .github#2
 
 Refreshing run status every 3 seconds. Press Ctrl+C to quit.
 
-* main CI 路 31192685087
+* main CI 路 31193459814
 Triggered via push about 1 minute ago
 
 JOBS
-鉁?MiLensKit (Linux) in 58s (ID 92913232445)
+鉁?MiLensKit (Linux) in 1m19s (ID 92915825946)
   鉁?Set up job
   鉁?Run actions/checkout@v4
   鉁?Run swift-actions/setup-swift@v2
@@ -174,36 +189,7 @@ JOBS
   鉁?Test
   鉁?Post Run actions/checkout@v4
   鉁?Complete job
-* MiLens App (macOS) (ID 92913521827)
-  鉁?Set up job
-  鉁?Run actions/checkout@v4
-  * Install XcodeGen
-  * Generate Xcode project
-  * Resolve Swift Package deps
-  * Build (simulator, unsigned)
-  * Test (simulator)
-  * Post Run actions/checkout@v4
-
-ANNOTATIONS
-! Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4, swift-actions/setup-swift@v2. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
-MiLensKit (Linux): .github#2
-
-Refreshing run status every 3 seconds. Press Ctrl+C to quit.
-
-* main CI 路 31192685087
-Triggered via push about 1 minute ago
-
-JOBS
-鉁?MiLensKit (Linux) in 58s (ID 92913232445)
-  鉁?Set up job
-  鉁?Run actions/checkout@v4
-  鉁?Run swift-actions/setup-swift@v2
-  鉁?Version
-  鉁?Build
-  鉁?Test
-  鉁?Post Run actions/checkout@v4
-  鉁?Complete job
-* MiLens App (macOS) (ID 92913521827)
+* MiLens App (macOS) (ID 92916207787)
   鉁?Set up job
   鉁?Run actions/checkout@v4
   鉁?Install XcodeGen
@@ -219,11 +205,11 @@ MiLensKit (Linux): .github#2
 
 Refreshing run status every 3 seconds. Press Ctrl+C to quit.
 
-* main CI 路 31192685087
+* main CI 路 31193459814
 Triggered via push about 1 minute ago
 
 JOBS
-鉁?MiLensKit (Linux) in 58s (ID 92913232445)
+鉁?MiLensKit (Linux) in 1m19s (ID 92915825946)
   鉁?Set up job
   鉁?Run actions/checkout@v4
   鉁?Run swift-actions/setup-swift@v2
@@ -232,7 +218,7 @@ JOBS
   鉁?Test
   鉁?Post Run actions/checkout@v4
   鉁?Complete job
-* MiLens App (macOS) (ID 92913521827)
+* MiLens App (macOS) (ID 92916207787)
   鉁?Set up job
   鉁?Run actions/checkout@v4
   鉁?Install XcodeGen
@@ -248,11 +234,11 @@ MiLensKit (Linux): .github#2
 
 Refreshing run status every 3 seconds. Press Ctrl+C to quit.
 
-* main CI 路 31192685087
+* main CI 路 31193459814
 Triggered via push about 1 minute ago
 
 JOBS
-鉁?MiLensKit (Linux) in 58s (ID 92913232445)
+鉁?MiLensKit (Linux) in 1m19s (ID 92915825946)
   鉁?Set up job
   鉁?Run actions/checkout@v4
   鉁?Run swift-actions/setup-swift@v2
@@ -261,65 +247,7 @@ JOBS
   鉁?Test
   鉁?Post Run actions/checkout@v4
   鉁?Complete job
-* MiLens App (macOS) (ID 92913521827)
-  鉁?Set up job
-  鉁?Run actions/checkout@v4
-  鉁?Install XcodeGen
-  鉁?Generate Xcode project
-  * Resolve Swift Package deps
-  * Build (simulator, unsigned)
-  * Test (simulator)
-  * Post Run actions/checkout@v4
-
-ANNOTATIONS
-! Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4, swift-actions/setup-swift@v2. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
-MiLensKit (Linux): .github#2
-
-Refreshing run status every 3 seconds. Press Ctrl+C to quit.
-
-* main CI 路 31192685087
-Triggered via push about 1 minute ago
-
-JOBS
-鉁?MiLensKit (Linux) in 58s (ID 92913232445)
-  鉁?Set up job
-  鉁?Run actions/checkout@v4
-  鉁?Run swift-actions/setup-swift@v2
-  鉁?Version
-  鉁?Build
-  鉁?Test
-  鉁?Post Run actions/checkout@v4
-  鉁?Complete job
-* MiLens App (macOS) (ID 92913521827)
-  鉁?Set up job
-  鉁?Run actions/checkout@v4
-  鉁?Install XcodeGen
-  鉁?Generate Xcode project
-  * Resolve Swift Package deps
-  * Build (simulator, unsigned)
-  * Test (simulator)
-  * Post Run actions/checkout@v4
-
-ANNOTATIONS
-! Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4, swift-actions/setup-swift@v2. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
-MiLensKit (Linux): .github#2
-
-Refreshing run status every 3 seconds. Press Ctrl+C to quit.
-
-* main CI 路 31192685087
-Triggered via push about 1 minute ago
-
-JOBS
-鉁?MiLensKit (Linux) in 58s (ID 92913232445)
-  鉁?Set up job
-  鉁?Run actions/checkout@v4
-  鉁?Run swift-actions/setup-swift@v2
-  鉁?Version
-  鉁?Build
-  鉁?Test
-  鉁?Post Run actions/checkout@v4
-  鉁?Complete job
-* MiLens App (macOS) (ID 92913521827)
+* MiLens App (macOS) (ID 92916207787)
   鉁?Set up job
   鉁?Run actions/checkout@v4
   鉁?Install XcodeGen
@@ -335,11 +263,11 @@ MiLensKit (Linux): .github#2
 
 Refreshing run status every 3 seconds. Press Ctrl+C to quit.
 
-* main CI 路 31192685087
-Triggered via push about 1 minute ago
+* main CI 路 31193459814
+Triggered via push about 2 minutes ago
 
 JOBS
-鉁?MiLensKit (Linux) in 58s (ID 92913232445)
+鉁?MiLensKit (Linux) in 1m19s (ID 92915825946)
   鉁?Set up job
   鉁?Run actions/checkout@v4
   鉁?Run swift-actions/setup-swift@v2
@@ -348,7 +276,7 @@ JOBS
   鉁?Test
   鉁?Post Run actions/checkout@v4
   鉁?Complete job
-* MiLens App (macOS) (ID 92913521827)
+* MiLens App (macOS) (ID 92916207787)
   鉁?Set up job
   鉁?Run actions/checkout@v4
   鉁?Install XcodeGen
@@ -364,11 +292,11 @@ MiLensKit (Linux): .github#2
 
 Refreshing run status every 3 seconds. Press Ctrl+C to quit.
 
-* main CI 路 31192685087
+* main CI 路 31193459814
 Triggered via push about 2 minutes ago
 
 JOBS
-鉁?MiLensKit (Linux) in 58s (ID 92913232445)
+鉁?MiLensKit (Linux) in 1m19s (ID 92915825946)
   鉁?Set up job
   鉁?Run actions/checkout@v4
   鉁?Run swift-actions/setup-swift@v2
@@ -377,7 +305,7 @@ JOBS
   鉁?Test
   鉁?Post Run actions/checkout@v4
   鉁?Complete job
-* MiLens App (macOS) (ID 92913521827)
+* MiLens App (macOS) (ID 92916207787)
   鉁?Set up job
   鉁?Run actions/checkout@v4
   鉁?Install XcodeGen
@@ -393,11 +321,11 @@ MiLensKit (Linux): .github#2
 
 Refreshing run status every 3 seconds. Press Ctrl+C to quit.
 
-* main CI 路 31192685087
+* main CI 路 31193459814
 Triggered via push about 2 minutes ago
 
 JOBS
-鉁?MiLensKit (Linux) in 58s (ID 92913232445)
+鉁?MiLensKit (Linux) in 1m19s (ID 92915825946)
   鉁?Set up job
   鉁?Run actions/checkout@v4
   鉁?Run swift-actions/setup-swift@v2
@@ -406,7 +334,7 @@ JOBS
   鉁?Test
   鉁?Post Run actions/checkout@v4
   鉁?Complete job
-* MiLens App (macOS) (ID 92913521827)
+* MiLens App (macOS) (ID 92916207787)
   鉁?Set up job
   鉁?Run actions/checkout@v4
   鉁?Install XcodeGen
@@ -422,11 +350,11 @@ MiLensKit (Linux): .github#2
 
 Refreshing run status every 3 seconds. Press Ctrl+C to quit.
 
-* main CI 路 31192685087
+* main CI 路 31193459814
 Triggered via push about 2 minutes ago
 
 JOBS
-鉁?MiLensKit (Linux) in 58s (ID 92913232445)
+鉁?MiLensKit (Linux) in 1m19s (ID 92915825946)
   鉁?Set up job
   鉁?Run actions/checkout@v4
   鉁?Run swift-actions/setup-swift@v2
@@ -435,7 +363,7 @@ JOBS
   鉁?Test
   鉁?Post Run actions/checkout@v4
   鉁?Complete job
-* MiLens App (macOS) (ID 92913521827)
+* MiLens App (macOS) (ID 92916207787)
   鉁?Set up job
   鉁?Run actions/checkout@v4
   鉁?Install XcodeGen
@@ -451,11 +379,11 @@ MiLensKit (Linux): .github#2
 
 Refreshing run status every 3 seconds. Press Ctrl+C to quit.
 
-* main CI 路 31192685087
+* main CI 路 31193459814
 Triggered via push about 2 minutes ago
 
 JOBS
-鉁?MiLensKit (Linux) in 58s (ID 92913232445)
+鉁?MiLensKit (Linux) in 1m19s (ID 92915825946)
   鉁?Set up job
   鉁?Run actions/checkout@v4
   鉁?Run swift-actions/setup-swift@v2
@@ -464,13 +392,13 @@ JOBS
   鉁?Test
   鉁?Post Run actions/checkout@v4
   鉁?Complete job
-* MiLens App (macOS) (ID 92913521827)
+* MiLens App (macOS) (ID 92916207787)
   鉁?Set up job
   鉁?Run actions/checkout@v4
   鉁?Install XcodeGen
   鉁?Generate Xcode project
   鉁?Resolve Swift Package deps
-  鉁?Build (simulator, unsigned)
+  * Build (simulator, unsigned)
   * Test (simulator)
   * Post Run actions/checkout@v4
 
@@ -480,11 +408,11 @@ MiLensKit (Linux): .github#2
 
 Refreshing run status every 3 seconds. Press Ctrl+C to quit.
 
-* main CI 路 31192685087
+* main CI 路 31193459814
 Triggered via push about 2 minutes ago
 
 JOBS
-鉁?MiLensKit (Linux) in 58s (ID 92913232445)
+鉁?MiLensKit (Linux) in 1m19s (ID 92915825946)
   鉁?Set up job
   鉁?Run actions/checkout@v4
   鉁?Run swift-actions/setup-swift@v2
@@ -493,1486 +421,7 @@ JOBS
   鉁?Test
   鉁?Post Run actions/checkout@v4
   鉁?Complete job
-* MiLens App (macOS) (ID 92913521827)
-  鉁?Set up job
-  鉁?Run actions/checkout@v4
-  鉁?Install XcodeGen
-  鉁?Generate Xcode project
-  鉁?Resolve Swift Package deps
-  鉁?Build (simulator, unsigned)
-  * Test (simulator)
-  * Post Run actions/checkout@v4
-
-ANNOTATIONS
-! Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4, swift-actions/setup-swift@v2. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
-MiLensKit (Linux): .github#2
-
-Refreshing run status every 3 seconds. Press Ctrl+C to quit.
-
-* main CI 路 31192685087
-Triggered via push about 2 minutes ago
-
-JOBS
-鉁?MiLensKit (Linux) in 58s (ID 92913232445)
-  鉁?Set up job
-  鉁?Run actions/checkout@v4
-  鉁?Run swift-actions/setup-swift@v2
-  鉁?Version
-  鉁?Build
-  鉁?Test
-  鉁?Post Run actions/checkout@v4
-  鉁?Complete job
-* MiLens App (macOS) (ID 92913521827)
-  鉁?Set up job
-  鉁?Run actions/checkout@v4
-  鉁?Install XcodeGen
-  鉁?Generate Xcode project
-  鉁?Resolve Swift Package deps
-  鉁?Build (simulator, unsigned)
-  * Test (simulator)
-  * Post Run actions/checkout@v4
-
-ANNOTATIONS
-! Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4, swift-actions/setup-swift@v2. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
-MiLensKit (Linux): .github#2
-
-Refreshing run status every 3 seconds. Press Ctrl+C to quit.
-
-* main CI 路 31192685087
-Triggered via push about 2 minutes ago
-
-JOBS
-鉁?MiLensKit (Linux) in 58s (ID 92913232445)
-  鉁?Set up job
-  鉁?Run actions/checkout@v4
-  鉁?Run swift-actions/setup-swift@v2
-  鉁?Version
-  鉁?Build
-  鉁?Test
-  鉁?Post Run actions/checkout@v4
-  鉁?Complete job
-* MiLens App (macOS) (ID 92913521827)
-  鉁?Set up job
-  鉁?Run actions/checkout@v4
-  鉁?Install XcodeGen
-  鉁?Generate Xcode project
-  鉁?Resolve Swift Package deps
-  鉁?Build (simulator, unsigned)
-  * Test (simulator)
-  * Post Run actions/checkout@v4
-
-ANNOTATIONS
-! Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4, swift-actions/setup-swift@v2. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
-MiLensKit (Linux): .github#2
-
-Refreshing run status every 3 seconds. Press Ctrl+C to quit.
-
-* main CI 路 31192685087
-Triggered via push about 2 minutes ago
-
-JOBS
-鉁?MiLensKit (Linux) in 58s (ID 92913232445)
-  鉁?Set up job
-  鉁?Run actions/checkout@v4
-  鉁?Run swift-actions/setup-swift@v2
-  鉁?Version
-  鉁?Build
-  鉁?Test
-  鉁?Post Run actions/checkout@v4
-  鉁?Complete job
-* MiLens App (macOS) (ID 92913521827)
-  鉁?Set up job
-  鉁?Run actions/checkout@v4
-  鉁?Install XcodeGen
-  鉁?Generate Xcode project
-  鉁?Resolve Swift Package deps
-  鉁?Build (simulator, unsigned)
-  * Test (simulator)
-  * Post Run actions/checkout@v4
-
-ANNOTATIONS
-! Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4, swift-actions/setup-swift@v2. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
-MiLensKit (Linux): .github#2
-
-Refreshing run status every 3 seconds. Press Ctrl+C to quit.
-
-* main CI 路 31192685087
-Triggered via push about 2 minutes ago
-
-JOBS
-鉁?MiLensKit (Linux) in 58s (ID 92913232445)
-  鉁?Set up job
-  鉁?Run actions/checkout@v4
-  鉁?Run swift-actions/setup-swift@v2
-  鉁?Version
-  鉁?Build
-  鉁?Test
-  鉁?Post Run actions/checkout@v4
-  鉁?Complete job
-* MiLens App (macOS) (ID 92913521827)
-  鉁?Set up job
-  鉁?Run actions/checkout@v4
-  鉁?Install XcodeGen
-  鉁?Generate Xcode project
-  鉁?Resolve Swift Package deps
-  鉁?Build (simulator, unsigned)
-  * Test (simulator)
-  * Post Run actions/checkout@v4
-
-ANNOTATIONS
-! Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4, swift-actions/setup-swift@v2. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
-MiLensKit (Linux): .github#2
-
-Refreshing run status every 3 seconds. Press Ctrl+C to quit.
-
-* main CI 路 31192685087
-Triggered via push about 2 minutes ago
-
-JOBS
-鉁?MiLensKit (Linux) in 58s (ID 92913232445)
-  鉁?Set up job
-  鉁?Run actions/checkout@v4
-  鉁?Run swift-actions/setup-swift@v2
-  鉁?Version
-  鉁?Build
-  鉁?Test
-  鉁?Post Run actions/checkout@v4
-  鉁?Complete job
-* MiLens App (macOS) (ID 92913521827)
-  鉁?Set up job
-  鉁?Run actions/checkout@v4
-  鉁?Install XcodeGen
-  鉁?Generate Xcode project
-  鉁?Resolve Swift Package deps
-  鉁?Build (simulator, unsigned)
-  * Test (simulator)
-  * Post Run actions/checkout@v4
-
-ANNOTATIONS
-! Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4, swift-actions/setup-swift@v2. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
-MiLensKit (Linux): .github#2
-
-Refreshing run status every 3 seconds. Press Ctrl+C to quit.
-
-* main CI 路 31192685087
-Triggered via push about 2 minutes ago
-
-JOBS
-鉁?MiLensKit (Linux) in 58s (ID 92913232445)
-  鉁?Set up job
-  鉁?Run actions/checkout@v4
-  鉁?Run swift-actions/setup-swift@v2
-  鉁?Version
-  鉁?Build
-  鉁?Test
-  鉁?Post Run actions/checkout@v4
-  鉁?Complete job
-* MiLens App (macOS) (ID 92913521827)
-  鉁?Set up job
-  鉁?Run actions/checkout@v4
-  鉁?Install XcodeGen
-  鉁?Generate Xcode project
-  鉁?Resolve Swift Package deps
-  鉁?Build (simulator, unsigned)
-  * Test (simulator)
-  * Post Run actions/checkout@v4
-
-ANNOTATIONS
-! Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4, swift-actions/setup-swift@v2. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
-MiLensKit (Linux): .github#2
-
-Refreshing run status every 3 seconds. Press Ctrl+C to quit.
-
-* main CI 路 31192685087
-Triggered via push about 3 minutes ago
-
-JOBS
-鉁?MiLensKit (Linux) in 58s (ID 92913232445)
-  鉁?Set up job
-  鉁?Run actions/checkout@v4
-  鉁?Run swift-actions/setup-swift@v2
-  鉁?Version
-  鉁?Build
-  鉁?Test
-  鉁?Post Run actions/checkout@v4
-  鉁?Complete job
-* MiLens App (macOS) (ID 92913521827)
-  鉁?Set up job
-  鉁?Run actions/checkout@v4
-  鉁?Install XcodeGen
-  鉁?Generate Xcode project
-  鉁?Resolve Swift Package deps
-  鉁?Build (simulator, unsigned)
-  * Test (simulator)
-  * Post Run actions/checkout@v4
-
-ANNOTATIONS
-! Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4, swift-actions/setup-swift@v2. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
-MiLensKit (Linux): .github#2
-
-Refreshing run status every 3 seconds. Press Ctrl+C to quit.
-
-* main CI 路 31192685087
-Triggered via push about 3 minutes ago
-
-JOBS
-鉁?MiLensKit (Linux) in 58s (ID 92913232445)
-  鉁?Set up job
-  鉁?Run actions/checkout@v4
-  鉁?Run swift-actions/setup-swift@v2
-  鉁?Version
-  鉁?Build
-  鉁?Test
-  鉁?Post Run actions/checkout@v4
-  鉁?Complete job
-* MiLens App (macOS) (ID 92913521827)
-  鉁?Set up job
-  鉁?Run actions/checkout@v4
-  鉁?Install XcodeGen
-  鉁?Generate Xcode project
-  鉁?Resolve Swift Package deps
-  鉁?Build (simulator, unsigned)
-  * Test (simulator)
-  * Post Run actions/checkout@v4
-
-ANNOTATIONS
-! Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4, swift-actions/setup-swift@v2. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
-MiLensKit (Linux): .github#2
-
-Refreshing run status every 3 seconds. Press Ctrl+C to quit.
-
-* main CI 路 31192685087
-Triggered via push about 3 minutes ago
-
-JOBS
-鉁?MiLensKit (Linux) in 58s (ID 92913232445)
-  鉁?Set up job
-  鉁?Run actions/checkout@v4
-  鉁?Run swift-actions/setup-swift@v2
-  鉁?Version
-  鉁?Build
-  鉁?Test
-  鉁?Post Run actions/checkout@v4
-  鉁?Complete job
-* MiLens App (macOS) (ID 92913521827)
-  鉁?Set up job
-  鉁?Run actions/checkout@v4
-  鉁?Install XcodeGen
-  鉁?Generate Xcode project
-  鉁?Resolve Swift Package deps
-  鉁?Build (simulator, unsigned)
-  * Test (simulator)
-  * Post Run actions/checkout@v4
-
-ANNOTATIONS
-! Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4, swift-actions/setup-swift@v2. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
-MiLensKit (Linux): .github#2
-
-Refreshing run status every 3 seconds. Press Ctrl+C to quit.
-
-* main CI 路 31192685087
-Triggered via push about 3 minutes ago
-
-JOBS
-鉁?MiLensKit (Linux) in 58s (ID 92913232445)
-  鉁?Set up job
-  鉁?Run actions/checkout@v4
-  鉁?Run swift-actions/setup-swift@v2
-  鉁?Version
-  鉁?Build
-  鉁?Test
-  鉁?Post Run actions/checkout@v4
-  鉁?Complete job
-* MiLens App (macOS) (ID 92913521827)
-  鉁?Set up job
-  鉁?Run actions/checkout@v4
-  鉁?Install XcodeGen
-  鉁?Generate Xcode project
-  鉁?Resolve Swift Package deps
-  鉁?Build (simulator, unsigned)
-  * Test (simulator)
-  * Post Run actions/checkout@v4
-
-ANNOTATIONS
-! Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4, swift-actions/setup-swift@v2. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
-MiLensKit (Linux): .github#2
-
-Refreshing run status every 3 seconds. Press Ctrl+C to quit.
-
-* main CI 路 31192685087
-Triggered via push about 3 minutes ago
-
-JOBS
-鉁?MiLensKit (Linux) in 58s (ID 92913232445)
-  鉁?Set up job
-  鉁?Run actions/checkout@v4
-  鉁?Run swift-actions/setup-swift@v2
-  鉁?Version
-  鉁?Build
-  鉁?Test
-  鉁?Post Run actions/checkout@v4
-  鉁?Complete job
-* MiLens App (macOS) (ID 92913521827)
-  鉁?Set up job
-  鉁?Run actions/checkout@v4
-  鉁?Install XcodeGen
-  鉁?Generate Xcode project
-  鉁?Resolve Swift Package deps
-  鉁?Build (simulator, unsigned)
-  * Test (simulator)
-  * Post Run actions/checkout@v4
-
-ANNOTATIONS
-! Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4, swift-actions/setup-swift@v2. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
-MiLensKit (Linux): .github#2
-
-Refreshing run status every 3 seconds. Press Ctrl+C to quit.
-
-* main CI 路 31192685087
-Triggered via push about 3 minutes ago
-
-JOBS
-鉁?MiLensKit (Linux) in 58s (ID 92913232445)
-  鉁?Set up job
-  鉁?Run actions/checkout@v4
-  鉁?Run swift-actions/setup-swift@v2
-  鉁?Version
-  鉁?Build
-  鉁?Test
-  鉁?Post Run actions/checkout@v4
-  鉁?Complete job
-* MiLens App (macOS) (ID 92913521827)
-  鉁?Set up job
-  鉁?Run actions/checkout@v4
-  鉁?Install XcodeGen
-  鉁?Generate Xcode project
-  鉁?Resolve Swift Package deps
-  鉁?Build (simulator, unsigned)
-  * Test (simulator)
-  * Post Run actions/checkout@v4
-
-ANNOTATIONS
-! Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4, swift-actions/setup-swift@v2. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
-MiLensKit (Linux): .github#2
-
-Refreshing run status every 3 seconds. Press Ctrl+C to quit.
-
-* main CI 路 31192685087
-Triggered via push about 3 minutes ago
-
-JOBS
-鉁?MiLensKit (Linux) in 58s (ID 92913232445)
-  鉁?Set up job
-  鉁?Run actions/checkout@v4
-  鉁?Run swift-actions/setup-swift@v2
-  鉁?Version
-  鉁?Build
-  鉁?Test
-  鉁?Post Run actions/checkout@v4
-  鉁?Complete job
-* MiLens App (macOS) (ID 92913521827)
-  鉁?Set up job
-  鉁?Run actions/checkout@v4
-  鉁?Install XcodeGen
-  鉁?Generate Xcode project
-  鉁?Resolve Swift Package deps
-  鉁?Build (simulator, unsigned)
-  * Test (simulator)
-  * Post Run actions/checkout@v4
-
-ANNOTATIONS
-! Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4, swift-actions/setup-swift@v2. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
-MiLensKit (Linux): .github#2
-
-Refreshing run status every 3 seconds. Press Ctrl+C to quit.
-
-* main CI 路 31192685087
-Triggered via push about 3 minutes ago
-
-JOBS
-鉁?MiLensKit (Linux) in 58s (ID 92913232445)
-  鉁?Set up job
-  鉁?Run actions/checkout@v4
-  鉁?Run swift-actions/setup-swift@v2
-  鉁?Version
-  鉁?Build
-  鉁?Test
-  鉁?Post Run actions/checkout@v4
-  鉁?Complete job
-* MiLens App (macOS) (ID 92913521827)
-  鉁?Set up job
-  鉁?Run actions/checkout@v4
-  鉁?Install XcodeGen
-  鉁?Generate Xcode project
-  鉁?Resolve Swift Package deps
-  鉁?Build (simulator, unsigned)
-  * Test (simulator)
-  * Post Run actions/checkout@v4
-
-ANNOTATIONS
-! Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4, swift-actions/setup-swift@v2. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
-MiLensKit (Linux): .github#2
-
-Refreshing run status every 3 seconds. Press Ctrl+C to quit.
-
-* main CI 路 31192685087
-Triggered via push about 3 minutes ago
-
-JOBS
-鉁?MiLensKit (Linux) in 58s (ID 92913232445)
-  鉁?Set up job
-  鉁?Run actions/checkout@v4
-  鉁?Run swift-actions/setup-swift@v2
-  鉁?Version
-  鉁?Build
-  鉁?Test
-  鉁?Post Run actions/checkout@v4
-  鉁?Complete job
-* MiLens App (macOS) (ID 92913521827)
-  鉁?Set up job
-  鉁?Run actions/checkout@v4
-  鉁?Install XcodeGen
-  鉁?Generate Xcode project
-  鉁?Resolve Swift Package deps
-  鉁?Build (simulator, unsigned)
-  * Test (simulator)
-  * Post Run actions/checkout@v4
-
-ANNOTATIONS
-! Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4, swift-actions/setup-swift@v2. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
-MiLensKit (Linux): .github#2
-
-Refreshing run status every 3 seconds. Press Ctrl+C to quit.
-
-* main CI 路 31192685087
-Triggered via push about 3 minutes ago
-
-JOBS
-鉁?MiLensKit (Linux) in 58s (ID 92913232445)
-  鉁?Set up job
-  鉁?Run actions/checkout@v4
-  鉁?Run swift-actions/setup-swift@v2
-  鉁?Version
-  鉁?Build
-  鉁?Test
-  鉁?Post Run actions/checkout@v4
-  鉁?Complete job
-* MiLens App (macOS) (ID 92913521827)
-  鉁?Set up job
-  鉁?Run actions/checkout@v4
-  鉁?Install XcodeGen
-  鉁?Generate Xcode project
-  鉁?Resolve Swift Package deps
-  鉁?Build (simulator, unsigned)
-  * Test (simulator)
-  * Post Run actions/checkout@v4
-
-ANNOTATIONS
-! Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4, swift-actions/setup-swift@v2. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
-MiLensKit (Linux): .github#2
-
-Refreshing run status every 3 seconds. Press Ctrl+C to quit.
-
-* main CI 路 31192685087
-Triggered via push about 3 minutes ago
-
-JOBS
-鉁?MiLensKit (Linux) in 58s (ID 92913232445)
-  鉁?Set up job
-  鉁?Run actions/checkout@v4
-  鉁?Run swift-actions/setup-swift@v2
-  鉁?Version
-  鉁?Build
-  鉁?Test
-  鉁?Post Run actions/checkout@v4
-  鉁?Complete job
-* MiLens App (macOS) (ID 92913521827)
-  鉁?Set up job
-  鉁?Run actions/checkout@v4
-  鉁?Install XcodeGen
-  鉁?Generate Xcode project
-  鉁?Resolve Swift Package deps
-  鉁?Build (simulator, unsigned)
-  * Test (simulator)
-  * Post Run actions/checkout@v4
-
-ANNOTATIONS
-! Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4, swift-actions/setup-swift@v2. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
-MiLensKit (Linux): .github#2
-
-Refreshing run status every 3 seconds. Press Ctrl+C to quit.
-
-* main CI 路 31192685087
-Triggered via push about 4 minutes ago
-
-JOBS
-鉁?MiLensKit (Linux) in 58s (ID 92913232445)
-  鉁?Set up job
-  鉁?Run actions/checkout@v4
-  鉁?Run swift-actions/setup-swift@v2
-  鉁?Version
-  鉁?Build
-  鉁?Test
-  鉁?Post Run actions/checkout@v4
-  鉁?Complete job
-* MiLens App (macOS) (ID 92913521827)
-  鉁?Set up job
-  鉁?Run actions/checkout@v4
-  鉁?Install XcodeGen
-  鉁?Generate Xcode project
-  鉁?Resolve Swift Package deps
-  鉁?Build (simulator, unsigned)
-  * Test (simulator)
-  * Post Run actions/checkout@v4
-
-ANNOTATIONS
-! Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4, swift-actions/setup-swift@v2. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
-MiLensKit (Linux): .github#2
-
-Refreshing run status every 3 seconds. Press Ctrl+C to quit.
-
-* main CI 路 31192685087
-Triggered via push about 4 minutes ago
-
-JOBS
-鉁?MiLensKit (Linux) in 58s (ID 92913232445)
-  鉁?Set up job
-  鉁?Run actions/checkout@v4
-  鉁?Run swift-actions/setup-swift@v2
-  鉁?Version
-  鉁?Build
-  鉁?Test
-  鉁?Post Run actions/checkout@v4
-  鉁?Complete job
-* MiLens App (macOS) (ID 92913521827)
-  鉁?Set up job
-  鉁?Run actions/checkout@v4
-  鉁?Install XcodeGen
-  鉁?Generate Xcode project
-  鉁?Resolve Swift Package deps
-  鉁?Build (simulator, unsigned)
-  * Test (simulator)
-  * Post Run actions/checkout@v4
-
-ANNOTATIONS
-! Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4, swift-actions/setup-swift@v2. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
-MiLensKit (Linux): .github#2
-
-Refreshing run status every 3 seconds. Press Ctrl+C to quit.
-
-* main CI 路 31192685087
-Triggered via push about 4 minutes ago
-
-JOBS
-鉁?MiLensKit (Linux) in 58s (ID 92913232445)
-  鉁?Set up job
-  鉁?Run actions/checkout@v4
-  鉁?Run swift-actions/setup-swift@v2
-  鉁?Version
-  鉁?Build
-  鉁?Test
-  鉁?Post Run actions/checkout@v4
-  鉁?Complete job
-* MiLens App (macOS) (ID 92913521827)
-  鉁?Set up job
-  鉁?Run actions/checkout@v4
-  鉁?Install XcodeGen
-  鉁?Generate Xcode project
-  鉁?Resolve Swift Package deps
-  鉁?Build (simulator, unsigned)
-  * Test (simulator)
-  * Post Run actions/checkout@v4
-
-ANNOTATIONS
-! Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4, swift-actions/setup-swift@v2. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
-MiLensKit (Linux): .github#2
-
-Refreshing run status every 3 seconds. Press Ctrl+C to quit.
-
-* main CI 路 31192685087
-Triggered via push about 4 minutes ago
-
-JOBS
-鉁?MiLensKit (Linux) in 58s (ID 92913232445)
-  鉁?Set up job
-  鉁?Run actions/checkout@v4
-  鉁?Run swift-actions/setup-swift@v2
-  鉁?Version
-  鉁?Build
-  鉁?Test
-  鉁?Post Run actions/checkout@v4
-  鉁?Complete job
-* MiLens App (macOS) (ID 92913521827)
-  鉁?Set up job
-  鉁?Run actions/checkout@v4
-  鉁?Install XcodeGen
-  鉁?Generate Xcode project
-  鉁?Resolve Swift Package deps
-  鉁?Build (simulator, unsigned)
-  * Test (simulator)
-  * Post Run actions/checkout@v4
-
-ANNOTATIONS
-! Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4, swift-actions/setup-swift@v2. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
-MiLensKit (Linux): .github#2
-
-Refreshing run status every 3 seconds. Press Ctrl+C to quit.
-
-* main CI 路 31192685087
-Triggered via push about 4 minutes ago
-
-JOBS
-鉁?MiLensKit (Linux) in 58s (ID 92913232445)
-  鉁?Set up job
-  鉁?Run actions/checkout@v4
-  鉁?Run swift-actions/setup-swift@v2
-  鉁?Version
-  鉁?Build
-  鉁?Test
-  鉁?Post Run actions/checkout@v4
-  鉁?Complete job
-* MiLens App (macOS) (ID 92913521827)
-  鉁?Set up job
-  鉁?Run actions/checkout@v4
-  鉁?Install XcodeGen
-  鉁?Generate Xcode project
-  鉁?Resolve Swift Package deps
-  鉁?Build (simulator, unsigned)
-  * Test (simulator)
-  * Post Run actions/checkout@v4
-
-ANNOTATIONS
-! Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4, swift-actions/setup-swift@v2. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
-MiLensKit (Linux): .github#2
-
-Refreshing run status every 3 seconds. Press Ctrl+C to quit.
-
-* main CI 路 31192685087
-Triggered via push about 4 minutes ago
-
-JOBS
-鉁?MiLensKit (Linux) in 58s (ID 92913232445)
-  鉁?Set up job
-  鉁?Run actions/checkout@v4
-  鉁?Run swift-actions/setup-swift@v2
-  鉁?Version
-  鉁?Build
-  鉁?Test
-  鉁?Post Run actions/checkout@v4
-  鉁?Complete job
-* MiLens App (macOS) (ID 92913521827)
-  鉁?Set up job
-  鉁?Run actions/checkout@v4
-  鉁?Install XcodeGen
-  鉁?Generate Xcode project
-  鉁?Resolve Swift Package deps
-  鉁?Build (simulator, unsigned)
-  * Test (simulator)
-  * Post Run actions/checkout@v4
-
-ANNOTATIONS
-! Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4, swift-actions/setup-swift@v2. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
-MiLensKit (Linux): .github#2
-
-Refreshing run status every 3 seconds. Press Ctrl+C to quit.
-
-* main CI 路 31192685087
-Triggered via push about 4 minutes ago
-
-JOBS
-鉁?MiLensKit (Linux) in 58s (ID 92913232445)
-  鉁?Set up job
-  鉁?Run actions/checkout@v4
-  鉁?Run swift-actions/setup-swift@v2
-  鉁?Version
-  鉁?Build
-  鉁?Test
-  鉁?Post Run actions/checkout@v4
-  鉁?Complete job
-* MiLens App (macOS) (ID 92913521827)
-  鉁?Set up job
-  鉁?Run actions/checkout@v4
-  鉁?Install XcodeGen
-  鉁?Generate Xcode project
-  鉁?Resolve Swift Package deps
-  鉁?Build (simulator, unsigned)
-  * Test (simulator)
-  * Post Run actions/checkout@v4
-
-ANNOTATIONS
-! Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4, swift-actions/setup-swift@v2. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
-MiLensKit (Linux): .github#2
-
-Refreshing run status every 3 seconds. Press Ctrl+C to quit.
-
-* main CI 路 31192685087
-Triggered via push about 4 minutes ago
-
-JOBS
-鉁?MiLensKit (Linux) in 58s (ID 92913232445)
-  鉁?Set up job
-  鉁?Run actions/checkout@v4
-  鉁?Run swift-actions/setup-swift@v2
-  鉁?Version
-  鉁?Build
-  鉁?Test
-  鉁?Post Run actions/checkout@v4
-  鉁?Complete job
-* MiLens App (macOS) (ID 92913521827)
-  鉁?Set up job
-  鉁?Run actions/checkout@v4
-  鉁?Install XcodeGen
-  鉁?Generate Xcode project
-  鉁?Resolve Swift Package deps
-  鉁?Build (simulator, unsigned)
-  * Test (simulator)
-  * Post Run actions/checkout@v4
-
-ANNOTATIONS
-! Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4, swift-actions/setup-swift@v2. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
-MiLensKit (Linux): .github#2
-
-Refreshing run status every 3 seconds. Press Ctrl+C to quit.
-
-* main CI 路 31192685087
-Triggered via push about 4 minutes ago
-
-JOBS
-鉁?MiLensKit (Linux) in 58s (ID 92913232445)
-  鉁?Set up job
-  鉁?Run actions/checkout@v4
-  鉁?Run swift-actions/setup-swift@v2
-  鉁?Version
-  鉁?Build
-  鉁?Test
-  鉁?Post Run actions/checkout@v4
-  鉁?Complete job
-* MiLens App (macOS) (ID 92913521827)
-  鉁?Set up job
-  鉁?Run actions/checkout@v4
-  鉁?Install XcodeGen
-  鉁?Generate Xcode project
-  鉁?Resolve Swift Package deps
-  鉁?Build (simulator, unsigned)
-  * Test (simulator)
-  * Post Run actions/checkout@v4
-
-ANNOTATIONS
-! Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4, swift-actions/setup-swift@v2. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
-MiLensKit (Linux): .github#2
-
-Refreshing run status every 3 seconds. Press Ctrl+C to quit.
-
-* main CI 路 31192685087
-Triggered via push about 4 minutes ago
-
-JOBS
-鉁?MiLensKit (Linux) in 58s (ID 92913232445)
-  鉁?Set up job
-  鉁?Run actions/checkout@v4
-  鉁?Run swift-actions/setup-swift@v2
-  鉁?Version
-  鉁?Build
-  鉁?Test
-  鉁?Post Run actions/checkout@v4
-  鉁?Complete job
-* MiLens App (macOS) (ID 92913521827)
-  鉁?Set up job
-  鉁?Run actions/checkout@v4
-  鉁?Install XcodeGen
-  鉁?Generate Xcode project
-  鉁?Resolve Swift Package deps
-  鉁?Build (simulator, unsigned)
-  * Test (simulator)
-  * Post Run actions/checkout@v4
-
-ANNOTATIONS
-! Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4, swift-actions/setup-swift@v2. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
-MiLensKit (Linux): .github#2
-
-Refreshing run status every 3 seconds. Press Ctrl+C to quit.
-
-* main CI 路 31192685087
-Triggered via push about 4 minutes ago
-
-JOBS
-鉁?MiLensKit (Linux) in 58s (ID 92913232445)
-  鉁?Set up job
-  鉁?Run actions/checkout@v4
-  鉁?Run swift-actions/setup-swift@v2
-  鉁?Version
-  鉁?Build
-  鉁?Test
-  鉁?Post Run actions/checkout@v4
-  鉁?Complete job
-* MiLens App (macOS) (ID 92913521827)
-  鉁?Set up job
-  鉁?Run actions/checkout@v4
-  鉁?Install XcodeGen
-  鉁?Generate Xcode project
-  鉁?Resolve Swift Package deps
-  鉁?Build (simulator, unsigned)
-  * Test (simulator)
-  * Post Run actions/checkout@v4
-
-ANNOTATIONS
-! Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4, swift-actions/setup-swift@v2. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
-MiLensKit (Linux): .github#2
-
-Refreshing run status every 3 seconds. Press Ctrl+C to quit.
-
-* main CI 路 31192685087
-Triggered via push about 5 minutes ago
-
-JOBS
-鉁?MiLensKit (Linux) in 58s (ID 92913232445)
-  鉁?Set up job
-  鉁?Run actions/checkout@v4
-  鉁?Run swift-actions/setup-swift@v2
-  鉁?Version
-  鉁?Build
-  鉁?Test
-  鉁?Post Run actions/checkout@v4
-  鉁?Complete job
-* MiLens App (macOS) (ID 92913521827)
-  鉁?Set up job
-  鉁?Run actions/checkout@v4
-  鉁?Install XcodeGen
-  鉁?Generate Xcode project
-  鉁?Resolve Swift Package deps
-  鉁?Build (simulator, unsigned)
-  * Test (simulator)
-  * Post Run actions/checkout@v4
-
-ANNOTATIONS
-! Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4, swift-actions/setup-swift@v2. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
-MiLensKit (Linux): .github#2
-
-Refreshing run status every 3 seconds. Press Ctrl+C to quit.
-
-* main CI 路 31192685087
-Triggered via push about 5 minutes ago
-
-JOBS
-鉁?MiLensKit (Linux) in 58s (ID 92913232445)
-  鉁?Set up job
-  鉁?Run actions/checkout@v4
-  鉁?Run swift-actions/setup-swift@v2
-  鉁?Version
-  鉁?Build
-  鉁?Test
-  鉁?Post Run actions/checkout@v4
-  鉁?Complete job
-* MiLens App (macOS) (ID 92913521827)
-  鉁?Set up job
-  鉁?Run actions/checkout@v4
-  鉁?Install XcodeGen
-  鉁?Generate Xcode project
-  鉁?Resolve Swift Package deps
-  鉁?Build (simulator, unsigned)
-  * Test (simulator)
-  * Post Run actions/checkout@v4
-
-ANNOTATIONS
-! Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4, swift-actions/setup-swift@v2. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
-MiLensKit (Linux): .github#2
-
-Refreshing run status every 3 seconds. Press Ctrl+C to quit.
-
-* main CI 路 31192685087
-Triggered via push about 5 minutes ago
-
-JOBS
-鉁?MiLensKit (Linux) in 58s (ID 92913232445)
-  鉁?Set up job
-  鉁?Run actions/checkout@v4
-  鉁?Run swift-actions/setup-swift@v2
-  鉁?Version
-  鉁?Build
-  鉁?Test
-  鉁?Post Run actions/checkout@v4
-  鉁?Complete job
-* MiLens App (macOS) (ID 92913521827)
-  鉁?Set up job
-  鉁?Run actions/checkout@v4
-  鉁?Install XcodeGen
-  鉁?Generate Xcode project
-  鉁?Resolve Swift Package deps
-  鉁?Build (simulator, unsigned)
-  * Test (simulator)
-  * Post Run actions/checkout@v4
-
-ANNOTATIONS
-! Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4, swift-actions/setup-swift@v2. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
-MiLensKit (Linux): .github#2
-
-Refreshing run status every 3 seconds. Press Ctrl+C to quit.
-
-* main CI 路 31192685087
-Triggered via push about 5 minutes ago
-
-JOBS
-鉁?MiLensKit (Linux) in 58s (ID 92913232445)
-  鉁?Set up job
-  鉁?Run actions/checkout@v4
-  鉁?Run swift-actions/setup-swift@v2
-  鉁?Version
-  鉁?Build
-  鉁?Test
-  鉁?Post Run actions/checkout@v4
-  鉁?Complete job
-* MiLens App (macOS) (ID 92913521827)
-  鉁?Set up job
-  鉁?Run actions/checkout@v4
-  鉁?Install XcodeGen
-  鉁?Generate Xcode project
-  鉁?Resolve Swift Package deps
-  鉁?Build (simulator, unsigned)
-  * Test (simulator)
-  * Post Run actions/checkout@v4
-
-ANNOTATIONS
-! Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4, swift-actions/setup-swift@v2. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
-MiLensKit (Linux): .github#2
-
-Refreshing run status every 3 seconds. Press Ctrl+C to quit.
-
-* main CI 路 31192685087
-Triggered via push about 5 minutes ago
-
-JOBS
-鉁?MiLensKit (Linux) in 58s (ID 92913232445)
-  鉁?Set up job
-  鉁?Run actions/checkout@v4
-  鉁?Run swift-actions/setup-swift@v2
-  鉁?Version
-  鉁?Build
-  鉁?Test
-  鉁?Post Run actions/checkout@v4
-  鉁?Complete job
-* MiLens App (macOS) (ID 92913521827)
-  鉁?Set up job
-  鉁?Run actions/checkout@v4
-  鉁?Install XcodeGen
-  鉁?Generate Xcode project
-  鉁?Resolve Swift Package deps
-  鉁?Build (simulator, unsigned)
-  * Test (simulator)
-  * Post Run actions/checkout@v4
-
-ANNOTATIONS
-! Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4, swift-actions/setup-swift@v2. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
-MiLensKit (Linux): .github#2
-
-Refreshing run status every 3 seconds. Press Ctrl+C to quit.
-
-* main CI 路 31192685087
-Triggered via push about 5 minutes ago
-
-JOBS
-鉁?MiLensKit (Linux) in 58s (ID 92913232445)
-  鉁?Set up job
-  鉁?Run actions/checkout@v4
-  鉁?Run swift-actions/setup-swift@v2
-  鉁?Version
-  鉁?Build
-  鉁?Test
-  鉁?Post Run actions/checkout@v4
-  鉁?Complete job
-* MiLens App (macOS) (ID 92913521827)
-  鉁?Set up job
-  鉁?Run actions/checkout@v4
-  鉁?Install XcodeGen
-  鉁?Generate Xcode project
-  鉁?Resolve Swift Package deps
-  鉁?Build (simulator, unsigned)
-  * Test (simulator)
-  * Post Run actions/checkout@v4
-
-ANNOTATIONS
-! Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4, swift-actions/setup-swift@v2. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
-MiLensKit (Linux): .github#2
-
-Refreshing run status every 3 seconds. Press Ctrl+C to quit.
-
-* main CI 路 31192685087
-Triggered via push about 5 minutes ago
-
-JOBS
-鉁?MiLensKit (Linux) in 58s (ID 92913232445)
-  鉁?Set up job
-  鉁?Run actions/checkout@v4
-  鉁?Run swift-actions/setup-swift@v2
-  鉁?Version
-  鉁?Build
-  鉁?Test
-  鉁?Post Run actions/checkout@v4
-  鉁?Complete job
-* MiLens App (macOS) (ID 92913521827)
-  鉁?Set up job
-  鉁?Run actions/checkout@v4
-  鉁?Install XcodeGen
-  鉁?Generate Xcode project
-  鉁?Resolve Swift Package deps
-  鉁?Build (simulator, unsigned)
-  * Test (simulator)
-  * Post Run actions/checkout@v4
-
-ANNOTATIONS
-! Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4, swift-actions/setup-swift@v2. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
-MiLensKit (Linux): .github#2
-
-Refreshing run status every 3 seconds. Press Ctrl+C to quit.
-
-* main CI 路 31192685087
-Triggered via push about 5 minutes ago
-
-JOBS
-鉁?MiLensKit (Linux) in 58s (ID 92913232445)
-  鉁?Set up job
-  鉁?Run actions/checkout@v4
-  鉁?Run swift-actions/setup-swift@v2
-  鉁?Version
-  鉁?Build
-  鉁?Test
-  鉁?Post Run actions/checkout@v4
-  鉁?Complete job
-* MiLens App (macOS) (ID 92913521827)
-  鉁?Set up job
-  鉁?Run actions/checkout@v4
-  鉁?Install XcodeGen
-  鉁?Generate Xcode project
-  鉁?Resolve Swift Package deps
-  鉁?Build (simulator, unsigned)
-  * Test (simulator)
-  * Post Run actions/checkout@v4
-
-ANNOTATIONS
-! Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4, swift-actions/setup-swift@v2. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
-MiLensKit (Linux): .github#2
-
-Refreshing run status every 3 seconds. Press Ctrl+C to quit.
-
-* main CI 路 31192685087
-Triggered via push about 5 minutes ago
-
-JOBS
-鉁?MiLensKit (Linux) in 58s (ID 92913232445)
-  鉁?Set up job
-  鉁?Run actions/checkout@v4
-  鉁?Run swift-actions/setup-swift@v2
-  鉁?Version
-  鉁?Build
-  鉁?Test
-  鉁?Post Run actions/checkout@v4
-  鉁?Complete job
-* MiLens App (macOS) (ID 92913521827)
-  鉁?Set up job
-  鉁?Run actions/checkout@v4
-  鉁?Install XcodeGen
-  鉁?Generate Xcode project
-  鉁?Resolve Swift Package deps
-  鉁?Build (simulator, unsigned)
-  * Test (simulator)
-  * Post Run actions/checkout@v4
-
-ANNOTATIONS
-! Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4, swift-actions/setup-swift@v2. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
-MiLensKit (Linux): .github#2
-
-Refreshing run status every 3 seconds. Press Ctrl+C to quit.
-
-* main CI 路 31192685087
-Triggered via push about 5 minutes ago
-
-JOBS
-鉁?MiLensKit (Linux) in 58s (ID 92913232445)
-  鉁?Set up job
-  鉁?Run actions/checkout@v4
-  鉁?Run swift-actions/setup-swift@v2
-  鉁?Version
-  鉁?Build
-  鉁?Test
-  鉁?Post Run actions/checkout@v4
-  鉁?Complete job
-* MiLens App (macOS) (ID 92913521827)
-  鉁?Set up job
-  鉁?Run actions/checkout@v4
-  鉁?Install XcodeGen
-  鉁?Generate Xcode project
-  鉁?Resolve Swift Package deps
-  鉁?Build (simulator, unsigned)
-  * Test (simulator)
-  * Post Run actions/checkout@v4
-
-ANNOTATIONS
-! Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4, swift-actions/setup-swift@v2. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
-MiLensKit (Linux): .github#2
-
-Refreshing run status every 3 seconds. Press Ctrl+C to quit.
-
-* main CI 路 31192685087
-Triggered via push about 5 minutes ago
-
-JOBS
-鉁?MiLensKit (Linux) in 58s (ID 92913232445)
-  鉁?Set up job
-  鉁?Run actions/checkout@v4
-  鉁?Run swift-actions/setup-swift@v2
-  鉁?Version
-  鉁?Build
-  鉁?Test
-  鉁?Post Run actions/checkout@v4
-  鉁?Complete job
-* MiLens App (macOS) (ID 92913521827)
-  鉁?Set up job
-  鉁?Run actions/checkout@v4
-  鉁?Install XcodeGen
-  鉁?Generate Xcode project
-  鉁?Resolve Swift Package deps
-  鉁?Build (simulator, unsigned)
-  * Test (simulator)
-  * Post Run actions/checkout@v4
-
-ANNOTATIONS
-! Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4, swift-actions/setup-swift@v2. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
-MiLensKit (Linux): .github#2
-
-Refreshing run status every 3 seconds. Press Ctrl+C to quit.
-
-* main CI 路 31192685087
-Triggered via push about 5 minutes ago
-
-JOBS
-鉁?MiLensKit (Linux) in 58s (ID 92913232445)
-  鉁?Set up job
-  鉁?Run actions/checkout@v4
-  鉁?Run swift-actions/setup-swift@v2
-  鉁?Version
-  鉁?Build
-  鉁?Test
-  鉁?Post Run actions/checkout@v4
-  鉁?Complete job
-* MiLens App (macOS) (ID 92913521827)
-  鉁?Set up job
-  鉁?Run actions/checkout@v4
-  鉁?Install XcodeGen
-  鉁?Generate Xcode project
-  鉁?Resolve Swift Package deps
-  鉁?Build (simulator, unsigned)
-  * Test (simulator)
-  * Post Run actions/checkout@v4
-
-ANNOTATIONS
-! Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4, swift-actions/setup-swift@v2. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
-MiLensKit (Linux): .github#2
-
-Refreshing run status every 3 seconds. Press Ctrl+C to quit.
-
-* main CI 路 31192685087
-Triggered via push about 6 minutes ago
-
-JOBS
-鉁?MiLensKit (Linux) in 58s (ID 92913232445)
-  鉁?Set up job
-  鉁?Run actions/checkout@v4
-  鉁?Run swift-actions/setup-swift@v2
-  鉁?Version
-  鉁?Build
-  鉁?Test
-  鉁?Post Run actions/checkout@v4
-  鉁?Complete job
-* MiLens App (macOS) (ID 92913521827)
-  鉁?Set up job
-  鉁?Run actions/checkout@v4
-  鉁?Install XcodeGen
-  鉁?Generate Xcode project
-  鉁?Resolve Swift Package deps
-  鉁?Build (simulator, unsigned)
-  * Test (simulator)
-  * Post Run actions/checkout@v4
-
-ANNOTATIONS
-! Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4, swift-actions/setup-swift@v2. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
-MiLensKit (Linux): .github#2
-
-Refreshing run status every 3 seconds. Press Ctrl+C to quit.
-
-* main CI 路 31192685087
-Triggered via push about 6 minutes ago
-
-JOBS
-鉁?MiLensKit (Linux) in 58s (ID 92913232445)
-  鉁?Set up job
-  鉁?Run actions/checkout@v4
-  鉁?Run swift-actions/setup-swift@v2
-  鉁?Version
-  鉁?Build
-  鉁?Test
-  鉁?Post Run actions/checkout@v4
-  鉁?Complete job
-* MiLens App (macOS) (ID 92913521827)
-  鉁?Set up job
-  鉁?Run actions/checkout@v4
-  鉁?Install XcodeGen
-  鉁?Generate Xcode project
-  鉁?Resolve Swift Package deps
-  鉁?Build (simulator, unsigned)
-  * Test (simulator)
-  * Post Run actions/checkout@v4
-
-ANNOTATIONS
-! Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4, swift-actions/setup-swift@v2. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
-MiLensKit (Linux): .github#2
-
-Refreshing run status every 3 seconds. Press Ctrl+C to quit.
-
-* main CI 路 31192685087
-Triggered via push about 6 minutes ago
-
-JOBS
-鉁?MiLensKit (Linux) in 58s (ID 92913232445)
-  鉁?Set up job
-  鉁?Run actions/checkout@v4
-  鉁?Run swift-actions/setup-swift@v2
-  鉁?Version
-  鉁?Build
-  鉁?Test
-  鉁?Post Run actions/checkout@v4
-  鉁?Complete job
-* MiLens App (macOS) (ID 92913521827)
-  鉁?Set up job
-  鉁?Run actions/checkout@v4
-  鉁?Install XcodeGen
-  鉁?Generate Xcode project
-  鉁?Resolve Swift Package deps
-  鉁?Build (simulator, unsigned)
-  * Test (simulator)
-  * Post Run actions/checkout@v4
-
-ANNOTATIONS
-! Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4, swift-actions/setup-swift@v2. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
-MiLensKit (Linux): .github#2
-
-Refreshing run status every 3 seconds. Press Ctrl+C to quit.
-
-* main CI 路 31192685087
-Triggered via push about 6 minutes ago
-
-JOBS
-鉁?MiLensKit (Linux) in 58s (ID 92913232445)
-  鉁?Set up job
-  鉁?Run actions/checkout@v4
-  鉁?Run swift-actions/setup-swift@v2
-  鉁?Version
-  鉁?Build
-  鉁?Test
-  鉁?Post Run actions/checkout@v4
-  鉁?Complete job
-* MiLens App (macOS) (ID 92913521827)
-  鉁?Set up job
-  鉁?Run actions/checkout@v4
-  鉁?Install XcodeGen
-  鉁?Generate Xcode project
-  鉁?Resolve Swift Package deps
-  鉁?Build (simulator, unsigned)
-  * Test (simulator)
-  * Post Run actions/checkout@v4
-
-ANNOTATIONS
-! Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4, swift-actions/setup-swift@v2. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
-MiLensKit (Linux): .github#2
-
-Refreshing run status every 3 seconds. Press Ctrl+C to quit.
-
-* main CI 路 31192685087
-Triggered via push about 6 minutes ago
-
-JOBS
-鉁?MiLensKit (Linux) in 58s (ID 92913232445)
-  鉁?Set up job
-  鉁?Run actions/checkout@v4
-  鉁?Run swift-actions/setup-swift@v2
-  鉁?Version
-  鉁?Build
-  鉁?Test
-  鉁?Post Run actions/checkout@v4
-  鉁?Complete job
-* MiLens App (macOS) (ID 92913521827)
-  鉁?Set up job
-  鉁?Run actions/checkout@v4
-  鉁?Install XcodeGen
-  鉁?Generate Xcode project
-  鉁?Resolve Swift Package deps
-  鉁?Build (simulator, unsigned)
-  * Test (simulator)
-  * Post Run actions/checkout@v4
-
-ANNOTATIONS
-! Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4, swift-actions/setup-swift@v2. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
-MiLensKit (Linux): .github#2
-
-Refreshing run status every 3 seconds. Press Ctrl+C to quit.
-
-* main CI 路 31192685087
-Triggered via push about 6 minutes ago
-
-JOBS
-鉁?MiLensKit (Linux) in 58s (ID 92913232445)
-  鉁?Set up job
-  鉁?Run actions/checkout@v4
-  鉁?Run swift-actions/setup-swift@v2
-  鉁?Version
-  鉁?Build
-  鉁?Test
-  鉁?Post Run actions/checkout@v4
-  鉁?Complete job
-* MiLens App (macOS) (ID 92913521827)
-  鉁?Set up job
-  鉁?Run actions/checkout@v4
-  鉁?Install XcodeGen
-  鉁?Generate Xcode project
-  鉁?Resolve Swift Package deps
-  鉁?Build (simulator, unsigned)
-  * Test (simulator)
-  * Post Run actions/checkout@v4
-
-ANNOTATIONS
-! Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4, swift-actions/setup-swift@v2. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
-MiLensKit (Linux): .github#2
-
-Refreshing run status every 3 seconds. Press Ctrl+C to quit.
-
-* main CI 路 31192685087
-Triggered via push about 6 minutes ago
-
-JOBS
-鉁?MiLensKit (Linux) in 58s (ID 92913232445)
-  鉁?Set up job
-  鉁?Run actions/checkout@v4
-  鉁?Run swift-actions/setup-swift@v2
-  鉁?Version
-  鉁?Build
-  鉁?Test
-  鉁?Post Run actions/checkout@v4
-  鉁?Complete job
-* MiLens App (macOS) (ID 92913521827)
-  鉁?Set up job
-  鉁?Run actions/checkout@v4
-  鉁?Install XcodeGen
-  鉁?Generate Xcode project
-  鉁?Resolve Swift Package deps
-  鉁?Build (simulator, unsigned)
-  * Test (simulator)
-  * Post Run actions/checkout@v4
-
-ANNOTATIONS
-! Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4, swift-actions/setup-swift@v2. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
-MiLensKit (Linux): .github#2
-
-Refreshing run status every 3 seconds. Press Ctrl+C to quit.
-
-* main CI 路 31192685087
-Triggered via push about 6 minutes ago
-
-JOBS
-鉁?MiLensKit (Linux) in 58s (ID 92913232445)
-  鉁?Set up job
-  鉁?Run actions/checkout@v4
-  鉁?Run swift-actions/setup-swift@v2
-  鉁?Version
-  鉁?Build
-  鉁?Test
-  鉁?Post Run actions/checkout@v4
-  鉁?Complete job
-* MiLens App (macOS) (ID 92913521827)
-  鉁?Set up job
-  鉁?Run actions/checkout@v4
-  鉁?Install XcodeGen
-  鉁?Generate Xcode project
-  鉁?Resolve Swift Package deps
-  鉁?Build (simulator, unsigned)
-  * Test (simulator)
-  * Post Run actions/checkout@v4
-
-ANNOTATIONS
-! Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4, swift-actions/setup-swift@v2. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
-MiLensKit (Linux): .github#2
-
-Refreshing run status every 3 seconds. Press Ctrl+C to quit.
-
-* main CI 路 31192685087
-Triggered via push about 6 minutes ago
-
-JOBS
-鉁?MiLensKit (Linux) in 58s (ID 92913232445)
-  鉁?Set up job
-  鉁?Run actions/checkout@v4
-  鉁?Run swift-actions/setup-swift@v2
-  鉁?Version
-  鉁?Build
-  鉁?Test
-  鉁?Post Run actions/checkout@v4
-  鉁?Complete job
-* MiLens App (macOS) (ID 92913521827)
-  鉁?Set up job
-  鉁?Run actions/checkout@v4
-  鉁?Install XcodeGen
-  鉁?Generate Xcode project
-  鉁?Resolve Swift Package deps
-  鉁?Build (simulator, unsigned)
-  * Test (simulator)
-  * Post Run actions/checkout@v4
-
-ANNOTATIONS
-! Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4, swift-actions/setup-swift@v2. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
-MiLensKit (Linux): .github#2
-
-Refreshing run status every 3 seconds. Press Ctrl+C to quit.
-
-* main CI 路 31192685087
-Triggered via push about 6 minutes ago
-
-JOBS
-鉁?MiLensKit (Linux) in 58s (ID 92913232445)
-  鉁?Set up job
-  鉁?Run actions/checkout@v4
-  鉁?Run swift-actions/setup-swift@v2
-  鉁?Version
-  鉁?Build
-  鉁?Test
-  鉁?Post Run actions/checkout@v4
-  鉁?Complete job
-* MiLens App (macOS) (ID 92913521827)
-  鉁?Set up job
-  鉁?Run actions/checkout@v4
-  鉁?Install XcodeGen
-  鉁?Generate Xcode project
-  鉁?Resolve Swift Package deps
-  鉁?Build (simulator, unsigned)
-  * Test (simulator)
-  * Post Run actions/checkout@v4
-
-ANNOTATIONS
-! Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4, swift-actions/setup-swift@v2. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
-MiLensKit (Linux): .github#2
-
-Refreshing run status every 3 seconds. Press Ctrl+C to quit.
-
-* main CI 路 31192685087
-Triggered via push about 6 minutes ago
-
-JOBS
-鉁?MiLensKit (Linux) in 58s (ID 92913232445)
-  鉁?Set up job
-  鉁?Run actions/checkout@v4
-  鉁?Run swift-actions/setup-swift@v2
-  鉁?Version
-  鉁?Build
-  鉁?Test
-  鉁?Post Run actions/checkout@v4
-  鉁?Complete job
-* MiLens App (macOS) (ID 92913521827)
+* MiLens App (macOS) (ID 92916207787)
   鉁?Set up job
   鉁?Run actions/checkout@v4
   鉁?Install XcodeGen
@@ -1987,11 +436,11 @@ ANNOTATIONS
 ! Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4, swift-actions/setup-swift@v2. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
 MiLensKit (Linux): .github#2
 
-X main CI 路 31192685087
-Triggered via push about 7 minutes ago
+X main CI 路 31193459814
+Triggered via push about 2 minutes ago
 
 JOBS
-鉁?MiLensKit (Linux) in 58s (ID 92913232445)
+鉁?MiLensKit (Linux) in 1m19s (ID 92915825946)
   鉁?Set up job
   鉁?Run actions/checkout@v4
   鉁?Run swift-actions/setup-swift@v2
@@ -2000,7 +449,7 @@ JOBS
   鉁?Test
   鉁?Post Run actions/checkout@v4
   鉁?Complete job
-X MiLens App (macOS) in 5m42s (ID 92913521827)
+X MiLens App (macOS) in 1m3s (ID 92916207787)
   鉁?Set up job
   鉁?Run actions/checkout@v4
   鉁?Install XcodeGen
@@ -2014,4 +463,31 @@ X MiLens App (macOS) in 5m42s (ID 92913521827)
 ANNOTATIONS
 ! Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4, swift-actions/setup-swift@v2. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
 MiLensKit (Linux): .github#2
+
+! Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+MiLens App (macOS): .github#3
+
+X Process completed with exit code 64.
+MiLens App (macOS): .github#25
+
+! The following taps are not trusted:
+  aws/tap
+
+Homebrew is currently ignoring formulae, casks and commands from these taps because tap trust is required.
+Untap them with:
+  brew untap aws/tap
+Trust specific formulae, casks and commands with:
+  brew trust --formula <user>/<tap>/<formula>
+  brew trust --cask <user>/<tap>/<cask>
+  brew trust --command <user>/<tap>/<command>
+Whole-tap trust is broader and includes all current and future formulae,
+casks and commands from the listed taps. Trust whole taps with:
+  brew trust aws/tap
+To disable trust checks:
+  export HOMEBREW_NO_REQUIRE_TAP_TRUST=1
+This is not recommended and will be removed in a later release.
+For more information, see:
+  https://docs.brew.sh/Tap-Trust
+
+MiLens App (macOS): .github#5
 

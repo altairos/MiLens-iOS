@@ -44,3 +44,6 @@ Package.resolved
 *~
 
 *.disabled
+
+# 字体子集化临时工作目录
+.tmp-fonts/

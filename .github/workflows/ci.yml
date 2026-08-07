@@ -65,6 +65,5 @@ jobs:
             -scheme MiLens \
             -destination 'platform=iOS Simulator,name=iPhone 16' \
             -configuration Debug \
-            -enableCodeCoverage YES \
             CODE_SIGNING_ALLOWED=NO \
             build  # test disabled until SwiftData test config fixed

@@ -14,15 +14,18 @@ public struct BeadPatternRef {
     public var indices: [UInt16]
     public var empty: [UInt8]
     public var paletteUsed: [BeadColor]
+    public var score: BeadScore
     public var diagnostics: PatternDiagnostics?
 
     public init(width: Int, height: Int, indices: [UInt16], empty: [UInt8],
-                paletteUsed: [BeadColor], diagnostics: PatternDiagnostics? = nil) {
+                paletteUsed: [BeadColor], score: BeadScore = BeadScore(colorError: 0, detailScore: 0, estimatedDifficulty: 0, level: "", totalBeads: 0, colorCount: 0, estimatedMinutes: ""),
+                diagnostics: PatternDiagnostics? = nil) {
         self.width = width
         self.height = height
         self.indices = indices
         self.empty = empty
         self.paletteUsed = paletteUsed
+        self.score = score
         self.diagnostics = diagnostics
     }
 }

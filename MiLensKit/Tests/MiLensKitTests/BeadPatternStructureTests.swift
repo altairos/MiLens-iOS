@@ -12,7 +12,8 @@ final class BeadPatternStructureTests: XCTestCase {
     private func patternRef(_ indices: [UInt16], _ width: Int, _ height: Int, _ palette: [BeadColor]) -> BeadPatternRef {
         return BeadPatternRef(width: width, height: height, indices: indices,
                               empty: [UInt8](repeating: 0, count: indices.count),
-                              paletteUsed: palette)
+                              paletteUsed: palette,
+                              score: BeadScore(colorError: 0, detailScore: 0, estimatedDifficulty: 0, level: "", totalBeads: indices.count, colorCount: 0, estimatedMinutes: ""))
     }
 
     func testReturnsDominantIndicesByUsageWhileExcludingEmptyCells() {

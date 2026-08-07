@@ -48,7 +48,8 @@ final class PlatformContractTests: XCTestCase {
         ]
         let access = MockPhotoLibraryAccess(assets: assets)
 
-        XCTAssertEqual(try await access.photoCount(), 1)
+        let count = try await access.photoCount()
+        XCTAssertEqual(count, 1)
 
         let hit = try await access.metadata(forIdentifier: "uri_1")
         XCTAssertEqual(hit?.displayName, "cat.jpg")

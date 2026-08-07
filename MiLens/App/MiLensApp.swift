@@ -13,8 +13,9 @@ struct MiLensApp: App {
 
     init() {
         // V1.0 干净 schema——迁移计划为空。创建失败无恢复意义（无数据库 app 不可用）。
+        let schema = Schema(versionedSchema: SchemaV1.self)
         let container = try! ModelContainer(
-            for: SchemaV1.models,
+            for: schema,
             migrationPlan: MiLensMigrationPlan.self,
             configurations: [ModelConfiguration()]
         )

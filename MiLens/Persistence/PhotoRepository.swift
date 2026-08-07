@@ -55,7 +55,7 @@ final class SwiftDataPhotoRepository: PhotoRepositoryProtocol {
     }
 
     func getPhotosPage(offset: Int, limit: Int) throws -> [Photo] {
-        let descriptor = FetchDescriptor<Photo>(
+        var descriptor = FetchDescriptor<Photo>(
             sortBy: [SortDescriptor(\.takenAt, order: .reverse)]
         )
         descriptor.fetchOffset = offset

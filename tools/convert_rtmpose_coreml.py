@@ -9,8 +9,12 @@ Model contract (from source PoseInferenceService.ets / PoseInferenceMath.ets):
 - Preprocessing: ImageNet normalize (mean=[0.485,0.456,0.406], std=[0.229,0.224,0.225])
 - Constants: INPUT_SIZE=192, NUM_KEYPOINTS=5, UPSCALE_FACTOR=2, SIMCC_LENGTH=384
 
+Conversion pipeline (coremltools 8.x removed the ONNX frontend):
+    ONNX → (patch empty Clip inputs) → PyTorch (onnx2torch) → trace → Core ML.
+
 Prerequisites:
     pip install -r tools/requirements-models.txt   (macOS only)
+    # INT8 quantization additionally needs scikit-learn (k-means)
 
 Examples:
     # Basic conversion (FP16 by default, ~6 MB)
@@ -85,6 +89,64 @@ def collect_images(directory: Path, limit: int) -> list[Path]:
     return images[:limit]
 
 
+# ── ONNX → PyTorch bridge (coremltools 8.x removed the ONNX frontend) ──────
+
+
+def patch_onnx_clip_nodes(onnx_path: Path, patched_path: Path) -> Path:
+    """Replace empty (omitted) Clip min/max inputs with explicit constants.
+
+    The RTMPose ONNX uses ``Clip`` with omitted max inputs (opset 12 allows
+    optional min/max). ``onnx2torch`` cannot convert a Clip with an empty
+    input name, so we materialise a large constant (+1e10 ≈ +inf) for every
+    empty Clip input. This is numerically equivalent for GELU-style clipping.
+    """
+    import numpy as np
+    import onnx
+    from onnx import numpy_helper
+
+    model = onnx.load(str(onnx_path))
+    graph = model.graph
+    existing = {init.name for init in graph.initializer}
+    patched = 0
+
+    for idx, node in enumerate(n for n in graph.node if n.op_type == "Clip"):
+        for j, inp in enumerate(node.input):
+            if inp == "":
+                name = f"_clip_bound_{idx}_{j}"
+                if name not in existing:
+                    graph.initializer.append(
+                        numpy_helper.from_array(
+                            np.array(1e10, dtype=np.float32), name=name
+                        )
+                    )
+                node.input[j] = name
+                patched += 1
+
+    onnx.checker.check_model(model)
+    onnx.save(model, str(patched_path))
+    if patched:
+        print(f"Patched {patched} empty Clip input(s) → {patched_path}")
+    return patched_path
+
+
+def onnx_to_torch(onnx_path: Path) -> "torch.nn.Module":
+    """Convert an RTMPose ONNX to a traceable PyTorch module.
+
+    coremltools 8.x removed its ONNX frontend, so we bridge via
+    ``onnx2torch`` after patching empty Clip inputs. The resulting module is
+    numerically validated against ONNX Runtime in ``validate`` below.
+    """
+    import onnx2torch
+    import torch
+
+    patched = onnx_path.with_suffix(".patched.onnx")
+    patch_onnx_clip_nodes(onnx_path, patched)
+    module = onnx2torch.convert(str(patched))
+    module.eval()
+    print("ONNX → PyTorch (onnx2torch) OK")
+    return module
+
+
 # ── Core ML conversion ───────────────────────────────────────────────────────
 
 
@@ -95,19 +157,33 @@ def convert_to_coreml(
 ) -> None:
     """Convert ONNX → Core ML .mlpackage.
 
-    The input is configured as a flexible MultiArray (not ImageType) because
-    RTMPose receives a pre-cropped, pre-resized tensor from the Swift pose
+    Pipeline (coremltools 8.x has no ONNX frontend):
+        ONNX → (patch Clip) → PyTorch → trace → Core ML ML Program.
+
+    The input is a MultiArray (1×3×192×192 NCHW float32) because RTMPose
+    receives a pre-cropped, pre-resized tensor from the Swift pose
     preprocessing pipeline (matching source preparePoseInput). ImageNet
-    normalization is applied in Swift code, not inside the model — this
-    keeps the model a pure function of its ONNX semantics.
+    normalization is applied in Swift, not inside the model — this keeps the
+    model a pure function of its ONNX semantics.
     """
     import coremltools as ct
+    import torch
+
+    # FP16 via compute_precision at convert-time; INT8 keeps FLOAT32 here
+    # and palettizes weights afterwards (activations stay fp16 in backend).
+    precision = (
+        ct.precision.FLOAT16 if quantization == "fp16" else ct.precision.FLOAT32
+    )
 
     print(f"Loading ONNX: {onnx_path}")
-    print(f"Converting ONNX → Core ML (target iOS 17+), opset 12...")
+    print("Converting ONNX → PyTorch → Core ML (target iOS 17+)...")
+
+    torch_module = onnx_to_torch(onnx_path)
+    dummy = torch.randn(1, 3, INPUT_SIZE, INPUT_SIZE, dtype=torch.float32)
+    traced = torch.jit.trace(torch_module, dummy)
 
     mlmodel = ct.convert(
-        str(onnx_path),
+        traced,
         inputs=[
             ct.TensorType(
                 name="images",
@@ -120,7 +196,8 @@ def convert_to_coreml(
         ],
         minimum_deployment_target=ct.target.iOS17,
         compute_units=ct.ComputeUnit.ALL,
-        convert_to="ml-program",
+        convert_to="mlprogram",
+        compute_precision=precision,
     )
 
     # Metadata
@@ -130,14 +207,12 @@ def convert_to_coreml(
     mlmodel.author = "MiLens iOS — converted from rtmpose_t_pet_face.onnx"
     mlmodel.version = "1.0"
 
-    if quantization == "fp16":
-        mlmodel = ct.optimize.coreml.use_fp16storage(mlmodel)
-        print("Applied FP16 storage optimization.")
-    elif quantization == "int8":
+    # FP16 is applied at convert-time via compute_precision above.
+    if quantization == "int8":
         from coremltools.optimize.coreml import (
             OpPalettizerConfig,
             OptimizationConfig,
-            op_palettizer,
+            palettize_weights,
         )
 
         config = OptimizationConfig(
@@ -146,7 +221,7 @@ def convert_to_coreml(
                 nbits=8,
             )
         )
-        mlmodel = op_palettizer(mlmodel, config)
+        mlmodel = palettize_weights(mlmodel, config)
         print("Applied INT8 (8-bit palette) quantization.")
 
     mlmodel.save(str(output_path))

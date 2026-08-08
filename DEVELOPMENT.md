@@ -150,34 +150,48 @@ xcodebuild ... test -enableCodeCoverage YES
 
 > **仅 macOS 可运行**：`coremltools` 依赖 macOS。转换产物 `.mlpackage` 加入 Xcode 工程后由 Xcode 自动编译为 `.mlmodelc`。
 
-**环境搭建**（macOS，首次）：
+**环境搭建**（macOS，首次）
+
+python.org 的 Python 3.12 不含 CA bundle，需 `truststore` 走系统 keychain；若 PyPI/HuggingFace 直连慢，用清华 PyPI 镜像 + hf-mirror（见下）
 ```bash
 python3 -m venv .venv-models
 source .venv-models/bin/activate
-pip install -r tools/requirements-models.txt
+pip install -r tools/requirements-models.txt \
+    -i https://pypi.tuna.tsinghua.edu.cn/simple \
+    --trusted-host pypi.tuna.tsinghua.edu.cn
+# truststore 自动 inject（sitecustomize.py）让 SSL 走 macOS keychain
 ```
+
+**coremltools 8.x 要点**（实跑验证）
+
+- coremltools 7.x 在 Python 3.12 / macOS 26 上从源码编译，native 后端加载失败；须用 **8.x**（`>=8.0,<9.0`）。
+- 8.x **移除了 ONNX frontend**：RTMPose 需走 `ONNX → (patch Clip) → onnx2torch → PyTorch trace → Core ML` 桥接（已内置 `convert_rtmpose_coreml.py`）。
+- `convert_to="mlprogram"`（7.x 的 `"ml-program""` 无效）；FP16 用 `compute_precision=ct.precision.FLOAT16`；INT8 用 `palettize_weights`（7.x 的 `op_palettizer`/`use_fp16storage` 已移除）。
 
 **CLIP vision encoder → Core ML**（`tools/convert_clip_coreml.py`）：
 ```bash
-# 全量：加载 CLIP → trace → INT8 量化 → 校验
-python tools/convert_clip_coreml.py \
-    --calibration-dir /path/to/pet_photos \
-    --output MiLens/Resources/Models/CLIPVisionEncoder.mlpackage
+# HuggingFace 不可达时，git clone / curl 到本地后用 --model-path
+#   git clone --depth 1 https://hf-mirror.com/openai/clip-vit-base-patch32 /tmp/clip
+#   curl -L -o /tmp/clip/pytorch_model.bin \
+#       https://hf-mirror.com/openai/clip-vit-base-patch32/resolve/main/pytorch_model.bin
+# FP16（~168 MB，精度最高）
+python tools/convert_clip_coreml.py --model-path /tmp/clip \
+    --quantization fp16 --output MiLens/Resources/Models/CLIPVisionEncoder_fp16.mlpackage
 
-# FP16（不量化，精度最高，体积 ~85 MB）
-python tools/convert_clip_coreml.py --quantization fp16 \
-    --output MiLens/Resources/Models/CLIPVisionEncoder.mlpackage
+# INT8 weight-only palettize（~42 MB）
+python tools/convert_clip_coreml.py --model-path /tmp/clip \
+    --quantization int8 --output MiLens/Resources/Models/CLIPVisionEncoder_int8.mlpackage
 ```
-校验门槛：512 维 embedding cosine >0.999（原始 torch vs Core ML）。
+输入为 MultiArray `1×3×224×224` NCHW float32（已 CLIP normalize）；预处理在 Swift 完成。校验门槛：512 维 embedding cosine >0.999（原始 torch vs Core ML）。
 
 **RTMPose-t → Core ML**（`tools/convert_rtmpose_coreml.py`）：
 ```bash
 python tools/convert_rtmpose_coreml.py \
     --onnx /path/to/rtmpose_t_pet_face.onnx \
     --quantization fp16 \
-    --output MiLens/Resources/Models/RTMPoseTPetFace.mlpackage
+    --output MiLens/Resources/Models/RTMPoseTPetFace_fp16.mlpackage
 ```
-校验门槛：5 关键点平均像素误差 <2px（ONNX Runtime vs Core ML）。
+管线：ONNX → (patch 空 Clip 输入) → onnx2torch → PyTorch trace → Core ML（coremltools 8.x 无 ONNX frontend）。输入 MultiArray `1×3×192×192` NCHW float32（已 ImageNet normalize）。校验门槛：5 关键点平均像素误差 <2px（ONNX Runtime vs Core ML，需真实宠物脸图片）。
 
 **Text embeddings 校验/复制**（`tools/prepare_text_embeddings.py`）：
 ```bash

@@ -7,10 +7,14 @@
 # 用途：将源端 CLIP / RTMPose ONNX 模型转换为 iOS Core ML 格式（.mlpackage）
 # 详见 docs/adr/0007-ios-ai-inference-route.md §4
 
-coremltools>=7.2,<8.0          # Core ML 模型转换 + INT8 量化（需 macOS）
-torch>=2.2.0                   # CLIP 模型导出（transformers 依赖）
+# coremltools 8.x（7.x 不含 cp312/macOS 26 预编译 wheel，native 后端加载失败）
+coremltools>=8.0,<9.0          # Core ML 模型转换 + INT8 palettize
+torch>=2.2.0                   # CLIP 模型导出 + RTMPose ONNX→torch trace
 transformers>=4.40.0           # openai/clip-vit-base-patch32
-onnx>=1.15.0                   # ONNX 图操作
+onnx>=1.15.0                   # ONNX 图操作 + Clip 算子修补
 onnxruntime>=1.17.0            # ONNX 推理校验基准
+onnx2torch>=1.5.0             # ONNX→PyTorch 桥接（coremltools 8.x 移除了 ONNX frontend）
 numpy>=1.26.0                  # 数值计算
 Pillow>=10.0.0                 # 图像预处理
+scikit-learn>=1.0,<1.6         # INT8 k-means palettize（coremltools 上限 1.5.1）
+truststore>=0.10.0            # 让 Python ssl 走 macOS keychain（python.org 3.12 无 CA bundle）

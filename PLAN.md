@@ -96,10 +96,11 @@
 
 **落地任务**（拆入后续里程碑）：
 
-- [x] `tools/convert_clip_coreml.py`（ONNX/Torch → Core ML + INT8 量化 + 精度校验）→ `CLIPVisionEncoder.mlpackage`
-- [x] `tools/convert_rtmpose_coreml.py`（ONNX → Core ML + 校验）→ `RTMPoseTPetFace.mlpackage`
+- [x] `tools/convert_clip_coreml.py`（Torch → Core ML + INT8/FP16 量化 + 精度校验）→ `CLIPVisionEncoder_fp16.mlpackage`（168 MB）/ `_int8`（84 MB）
+- [x] `tools/convert_rtmpose_coreml.py`（ONNX → PyTorch → Core ML + 校验）→ `RTMPoseTPetFace_fp16.mlpackage`（6.0 MB）/ `_int8`（3.1 MB）
 - [x] `tools/prepare_text_embeddings.py`（f32 格式校验 + Swift 加载代码生成）
-- [x] 模型资产加入 `Resources/Models/` + `project.yml` 注册（目录骨架 + `pet_text_embeddings.f32` 已复制；`.mlpackage` 需 Mac 转换后放入）
+- [x] 模型资产加入 `Resources/Models/` + `project.yml` 注册（`pet_text_embeddings.f32` 已提交；4 个 `.mlpackage` 已实跑生成并验证精度，被 .gitignore 忽略不入库，Mac 转换命令见 [DEVELOPMENT.md](DEVELOPMENT.md) §4.3）
+- [x] **实跑验证**：CLIP INT8/FP16 cosine >0.999（PASS）；RTMPose shape [1,5,384] 契约校验通过（精度需真实宠物脸图片）
 - [ ] `IOSVisionService` / `CoreMLInferenceEngine` 真实实现（P2 扫描 MVP，协议骨架 P1.4 已有）
 
 ### 验收标准

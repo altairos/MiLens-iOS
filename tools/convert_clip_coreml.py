@@ -7,9 +7,12 @@ HarmonyOS pipeline (MiPhoto2/tools/build_clip_vision_encoder.py) but:
 - Drops the 12 attention outputs (heatmap) — iOS V1.0 only needs image_features.
 - Converts directly from a traced PyTorch module (not via ONNX) for best
   transformer operator compatibility in Core ML.
-- Builds CLIP preprocessing (center-crop + bicubic + normalize) into the model
-  as an ImageType input so Swift code can pass a raw CVPixelBuffer/CGImage.
-- Applies INT8 weight-only quantization to control .ipa size (~42 MB target).
+- Uses a MultiArray input (NCHW float32, already CLIP-normalized). CLIP
+  preprocessing (center-crop + bicubic + mean/std) is done in Swift (mirrors
+  the source ClipPreprocess); the model is a pure encoder function. See
+  ADR-0007 §4.1 ("Swift 纯函数" option).
+- Applies INT8 weight-only palettization to control .ipa size (~42 MB target),
+  or FP16 compute precision (~85 MB) for highest accuracy.
 
 Prerequisites:
     pip install -r tools/requirements-models.txt   (macOS only)
@@ -19,9 +22,8 @@ Examples:
     python tools/convert_clip_coreml.py \\
         --output MiLens/Resources/Models/CLIPVisionEncoder.mlpackage
 
-    # With calibration images for INT8 quantization
-    python tools/convert_clip_coreml.py \\
-        --calibration-dir /path/to/pet_photos \\
+    # INT8 weight-only palettization (no calibration data needed)
+    python tools/convert_clip_coreml.py --quantization int8 \\
         --output MiLens/Resources/Models/CLIPVisionEncoder.mlpackage
 
     # FP16 only (skip INT8)
@@ -56,23 +58,32 @@ IMAGE_SUFFIXES = {".bmp", ".jpeg", ".jpg", ".png", ".webp"}
 # ── PyTorch model wrapper (image_features only) ──────────────────────────────
 
 
-def build_clip_vision_module(local_files_only: bool = False):
+def build_clip_vision_module(
+    local_files_only: bool = False,
+    model_path: Path | None = None,
+):
     """Load CLIP ViT-B/32 and wrap it to return only the 512-d image embedding.
 
     The wrapper mirrors ``ClipVisionNHWC`` from the source build script but:
     - Takes NCHW input (Core ML convention).
     - Returns only ``image_features`` (no attention tensors).
     - Applies L2 normalization inside the graph.
+
+    ``model_path`` overrides the HuggingFace hub id (useful when the hub is
+    unreachable or behind a mirror — download the snapshot via
+    ``git clone`` / ``curl`` and point here).
     """
     import torch
     from torch import nn
     from transformers import CLIPModel
 
+    source = str(model_path) if model_path else MODEL_NAME
+
     class ClipVisionEncoderOnly(nn.Module):
         def __init__(self) -> None:
             super().__init__()
             self.clip = CLIPModel.from_pretrained(
-                MODEL_NAME,
+                source,
                 local_files_only=local_files_only,
                 attn_implementation="eager",
             )
@@ -157,27 +168,29 @@ def convert_to_coreml(
     traced_path: str,
     output_path: Path,
     quantization: str,
-    calibration_dir: Path | None,
-    calibration_count: int,
 ) -> None:
     """Convert traced TorchScript → Core ML .mlpackage with optional quantization.
 
-    The input is configured as an ImageType (224x224 RGB) so that Core ML handles
-    pixel scaling and color space conversion automatically. Normalization
-    (mean/std subtraction) is applied as a NearestFeature within the model.
+    The input is a MultiArray (1×3×224×224 NCHW float32, already CLIP-normalized);
+    CLIP preprocessing (center-crop/resize/normalize) is performed in Swift.
+    See ADR-0007 §4.1 ("Swift 纯函数" option).
     """
     import coremltools as ct
 
-    # Configure image input with CLIP preprocessing built in.
-    # Core ML ImageType applies: scale=1/255, bias=0 (0-255 → 0-1).
-    # The model graph itself then applies (x - mean) / std via the first
-    # operations we inject below.
-    image_input = ct.ImageType(
+    # MultiArray input (NCHW float32, already CLIP-normalized). CLIP
+    # normalization (center-crop → 224 → mean/std) is performed in Swift
+    # (mirrors source ClipPreprocess), keeping the model a pure function of
+    # its TorchScript semantics. See ADR-0007 §4.1 ("Swift 纯函数" option).
+    image_input = ct.TensorType(
         name="image",
         shape=(1, 3, INPUT_SIZE, INPUT_SIZE),
-        color_layout=ct.colorlayout.RGB,
-        scale=1.0 / 255.0,
-        bias=[0.0, 0.0, 0.0],
+    )
+
+    # FP16 ML Program: compute_precision=FLOAT16 makes the MIL graph use fp16
+    # storage/compute. For INT8 we keep FLOAT32 here and palettize weights
+    # after conversion (activations stay fp16 in the mlprogram backend).
+    precision = (
+        ct.precision.FLOAT16 if quantization == "fp16" else ct.precision.FLOAT32
     )
 
     print(f"Converting TorchScript → Core ML (target iOS 17+)...")
@@ -187,13 +200,9 @@ def convert_to_coreml(
         outputs=[ct.TensorType(name="image_features")],
         minimum_deployment_target=ct.target.iOS17,
         compute_units=ct.ComputeUnit.ALL,
-        convert_to="ml-program",
+        convert_to="mlprogram",
+        compute_precision=precision,
     )
-
-    # Add normalization as a preprocessing step inside the model spec.
-    # coremltools converts the torch graph which already includes the
-    # (pixel_values - mean) / std operations from CLIPModel's internal
-    # preprocessing, so we don't need to add them separately.
 
     # Set user-friendly metadata.
     mlmodel.short_description = "CLIP ViT-B/32 vision encoder (image_features only)"
@@ -201,71 +210,37 @@ def convert_to_coreml(
     mlmodel.license = "MIT (CLIP model weights)"
     mlmodel.version = "1.0"
 
-    spec = mlmodel.get_spec()
-    input_desc = spec.description.input[0]
-    input_desc.type.imageType.width = INPUT_SIZE
-    input_desc.type.imageType.height = INPUT_SIZE
-    input_desc.type.imageType.colorSpace = ct.FeatureType.ImageFeatureType.ColorSpace.Value("RGB")
-
+    # FP16 is applied at convert-time via compute_precision above.
+    # INT8 weight palettization runs as a post-conversion pass.
     if quantization == "int8":
-        mlmodel = quantize_int8(
-            mlmodel, calibration_dir, calibration_count
-        )
-
-    # FP16 is handled by convert_to="ml-program" default precision.
-    # coremltools ML Programs use FP16 by default when compute_precision
-    # is set. We can explicitly request it:
-    if quantization == "fp16":
-        mlmodel = ct.optimize.coreml.use_fp16storage(mlmodel)
+        mlmodel = quantize_int8(mlmodel)
 
     mlmodel.save(str(output_path))
     print(f"Saved → {output_path} ({output_path.stat().st_size / 1024 / 1024:.2f} MB)")
 
 
-def quantize_int8(mlmodel, calibration_dir: Path | None, calibration_count: int):
-    """Apply weight-only INT8 quantization to the ML Program.
+def quantize_int8(mlmodel):
+    """Apply weight-only INT8 palettization to the ML Program.
 
-    Uses coremltools' compression utilities. If calibration images are
-    provided, uses data-calibrated activation quantization; otherwise
-    falls back to weight-only quantization (no activation calibration).
+    Uses coremltools.optimize.coreml.palettize_weights (8-bit kmeans palette).
+    This is weight-only quantization — activations remain fp16 in the mlprogram
+    backend — which preserves transformer accuracy better than full INT8
+    (see ADR-0007 §6 risk table).
     """
-    import coremltools as ct
     from coremltools.optimize.coreml import (
         OpPalettizerConfig,
         OptimizationConfig,
-        op_palettizer,
+        palettize_weights,
     )
 
-    if calibration_dir:
-        calibration_images = collect_images(calibration_dir, calibration_count)
-        print(f"INT8 calibration with {len(calibration_images)} images...")
-        # Convert images to the format Core ML expects for calibration
-        calibration_data = []
-        for img_path in calibration_images:
-            with Image.open(img_path) as img:
-                resized = img.convert("RGB").resize(
-                    (INPUT_SIZE, INPUT_SIZE), Image.Resampling.BICUBIC
-                )
-                calibration_data.append(np.asarray(resized, dtype=np.float32))
-
-        # op_palettizer with calibration data
-        config = OptimizationConfig(
-            global_config=OpPalettizerConfig(
-                mode="kmeans",
-                nbits=8,
-            )
+    print("INT8 weight-only palettization (8-bit kmeans)...")
+    config = OptimizationConfig(
+        global_config=OpPalettizerConfig(
+            mode="kmeans",
+            nbits=8,
         )
-    else:
-        print("INT8 weight-only quantization (no calibration data)...")
-        config = OptimizationConfig(
-            global_config=OpPalettizerConfig(
-                mode="kmeans",
-                nbits=8,
-            )
-        )
-
-    compressed = op_palettizer(mlmodel, config)
-    return compressed
+    )
+    return palettize_weights(mlmodel, config)
 
 
 # ── Validation ───────────────────────────────────────────────────────────────
@@ -304,16 +279,10 @@ def validate(
                 baseline(torch.from_numpy(preprocessed)).numpy().reshape(-1)
             )
 
-        # Core ML (pass raw PIL image — model handles preprocessing)
-        with Image.open(img_path) as img:
-            rgb = img.convert("RGB").resize(
-                (INPUT_SIZE, INPUT_SIZE), Image.Resampling.BICUBIC
-            )
-            from coremltools.models import _feature_management as fm
-            input_dict = {"image": rgb}
-            coreml_out = (
-                mlmodel.predict(input_dict)["image_features"].reshape(-1)
-            )
+        # Core ML (MultiArray: same normalized NCHW tensor as PyTorch)
+        coreml_out = mlmodel.predict(
+            {"image": preprocessed.astype(np.float32)}
+        )["image_features"].reshape(-1)
 
         sim = cosine_similarity(torch_out, coreml_out)
         similarities.append(sim)
@@ -389,6 +358,13 @@ def parse_args() -> argparse.Namespace:
         help="Reuse --trace-path instead of loading CLIP from HuggingFace.",
     )
     parser.add_argument(
+        "--model-path",
+        type=Path,
+        default=None,
+        help="Local CLIP snapshot dir (overrides HuggingFace hub id; "
+             "useful when the hub is behind a mirror).",
+    )
+    parser.add_argument(
         "--local-files-only",
         action="store_true",
         help="Only load CLIP from local HuggingFace cache.",
@@ -413,7 +389,10 @@ def main() -> None:
         traced_path = str(args.trace_path)
         print(f"Reusing traced model: {traced_path}")
     else:
-        model = build_clip_vision_module(args.local_files_only)
+        model = build_clip_vision_module(
+            local_files_only=args.local_files_only,
+            model_path=args.model_path,
+        )
         traced_path = trace_model(model, args.trace_path)
 
     # Step 2: Convert to Core ML
@@ -421,8 +400,6 @@ def main() -> None:
         traced_path=traced_path,
         output_path=args.output,
         quantization=args.quantization,
-        calibration_dir=args.calibration_dir,
-        calibration_count=args.calibration_count,
     )
 
     # Step 3: Validate

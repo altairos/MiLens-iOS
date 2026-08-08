@@ -120,16 +120,18 @@ ViewModel / Service（业务决策）
 
 ## 5. 包体积预算
 
-| 资产 | 体积（估算） |
-|---|---|
-| CLIP vision encoder（INT8 量化 .mlmodelc） | ~42 MB |
-| RTMPose-t（INT8 量化 .mlmodelc） | ~3 MB |
-| pet_text_embeddings.f32 | 0.04 MB |
-| 字体子集（霞鹜文楷 + Fraunces） | ~3.3 MB |
-| App 框架代码 + 资源 | ~5–10 MB |
-| **合计预估 .ipa** | **~55–60 MB** |
+| 资产 | 体积 | 备注 |
+|---|---|---|
+| CLIP vision encoder（INT8 .mlpackage） | **84 MB** | 实跑值；INT8 cosine >0.999（PASS） |
+| CLIP vision encoder（FP16 .mlpackage） | 168 MB | 精度最高（min cosine 0.999988），INT8 不达标时备选 |
+| RTMPose-t（INT8 .mlpackage） | **3.1 MB** | 实跑值 |
+| RTMPose-t（FP16 .mlpackage） | 6.0 MB | 默认推荐 |
+| pet_text_embeddings.f32 | 0.04 MB | 已入仓库 |
+| 字体子集（霞鹜文楷 + Fraunces） | ~3.3 MB | |
+| App 框架代码 + 资源 | ~5–10 MB | |
+| **合计预估 .ipa（INT8 CLIP）** | **~95–100 MB** | |
 
-对照片类 App 可接受（App Store 蜂窝下载已无硬性限制，但首次下载转化率仍受体积影响）。若 INT8 精度不达标退 FP16，体积升至 ~95 MB，仍可接受。
+对照片类 App 可接受（App Store 蜂窝下载已无硬性限制）。CLIP INT8 实跑 84 MB（高于早期估算 ~42 MB，因 8-bit kmeans palettize 含 LUT 结构开销），但 cosine 精度达标（min 0.999128 >0.999）。若后续真机验证发现 INT8 分类精度退化，可退 FP16（168 MB）。
 
 ## 6. 风险与缓解
 

@@ -1,6 +1,8 @@
 //  PhotoRepository —— 照片数据访问（对应源端 repository/PhotoRepository.ets）。
-//  扫描/导入边界（DESIGN.md §7）：扫描只调用 getAllPhotoURIs() 做去重，
+//  扫描/导入边界（DESIGN.md §7）：扫描只调用 getAllOriginalURIs() 做去重，
 //  入库唯一路径是用户主动触发的 insertPhoto()。
+//  去重键是 originalURI（Photos localIdentifier）——uri 是沙盒副本路径，
+//  由 hashToFilename 生成，不能与系统库 identifier 比较（P0 修复）。
 
 import Foundation
 import SwiftData
@@ -17,7 +19,11 @@ struct DuplicateMarkGroup: Equatable, Sendable {
 protocol PhotoRepositoryProtocol {
     func getPhoto(id: UUID) throws -> Photo?
     func getPhotoByURI(_ uri: String) throws -> Photo?
-    /// 已入库的所有 URI（扫描去重用——对应源端 getAllPhotoUris）。
+    /// 按系统原图 URI（originalURI，Photos localIdentifier）查询——扫描/导入去重主键。
+    func getPhotoByOriginalURI(_ originalURI: String) throws -> Photo?
+    /// 已入库的所有原图 URI（扫描/导入去重用——对应源端 getAllPhotoUris）。
+    func getAllOriginalURIs() throws -> Set<String>
+    /// 已入库的所有 URI（沙盒副本路径集合，兼容旧调用方）。
     func getAllPhotoURIs() throws -> Set<String>
     /// 相册分页（按拍摄时间倒序，对应源端 getPhotosPage）。
     func getPhotosPage(offset: Int, limit: Int) throws -> [Photo]
@@ -71,6 +77,19 @@ final class SwiftDataPhotoRepository: PhotoRepositoryProtocol {
             predicate: #Predicate { $0.uri == uri }
         )
         return try context.fetch(descriptor).first
+    }
+
+    func getPhotoByOriginalURI(_ originalURI: String) throws -> Photo? {
+        let descriptor = FetchDescriptor<Photo>(
+            predicate: #Predicate { $0.originalURI == originalURI }
+        )
+        return try context.fetch(descriptor).first
+    }
+
+    func getAllOriginalURIs() throws -> Set<String> {
+        let descriptor = FetchDescriptor<Photo>()
+        let photos = try context.fetch(descriptor)
+        return Set(photos.map(\.originalURI))
     }
 
     func getAllPhotoURIs() throws -> Set<String> {

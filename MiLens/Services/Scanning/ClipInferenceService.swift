@@ -78,7 +78,16 @@ enum ClipInferenceError: Error, LocalizedError {
 ///
 /// 一个实例绑定一个已加载的 `InferenceEngine`（CLIPVisionEncoder）和一组文本 embedding。
 /// 构造后可直接调用 `detect` / `extractEmbedding`；模型不可用时用 `extractFallbackEmbedding` 降级。
-final class ClipInferenceService {
+///
+/// ScanService 只依赖 `ClipInference` 协议（Phase 2 精筛），测试注入 mock。
+protocol ClipInference {
+    /// 完整 CLIP 推理：分类 + 提取 embedding。
+    func detect(imageData: Data) async throws -> ClipDetectionResult
+    /// 手工特征降级 embedding（CLIP 模型不可用时，仅用于已注册宠物视觉匹配）。
+    func extractFallbackEmbedding(imageData: Data) async throws -> [Float]
+}
+
+final class ClipInferenceService: ClipInference {
 
     private let engine: InferenceEngine
     private let textEmbeddings: PetTextEmbeddingSet

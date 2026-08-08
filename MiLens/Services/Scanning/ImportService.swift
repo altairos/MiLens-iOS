@@ -5,6 +5,8 @@
 //  扫描只筛选不入库；用户手动选择后通过本服务导入。
 //
 //  流程：加载原图 → 复制到沙盒（缩放 1024px JPEG）→ 创建 Photo 元数据 → 入库。
+//  去重：以 originalURI（Photos localIdentifier）为键——uri 是沙盒副本路径不能作比较；
+//  同一批次内重复 identifier 只导入一次。
 //  V1.0 不含 pHash/embedding 计算（后置 V1.x）。
 
 import Foundation
@@ -49,8 +51,10 @@ final class ImportService {
         // 确保沙盒目录存在
         try? await fileStorage.createDirectory(at: sandboxDir)
 
-        // 去重集合
-        let existingURIs = (try? photoRepo.getAllPhotoURIs()) ?? []
+        // 去重集合：以 originalURI（Photos localIdentifier）为键
+        let existingOriginalURIs = (try? photoRepo.getAllOriginalURIs()) ?? []
+        // 同一批次内已处理的 identifier（输入列表可能含重复）
+        var seenInBatch: Set<String> = []
 
         var imported = 0
         let total = min(identifiers.count, ScanConfig.maxImportBatch)
@@ -58,8 +62,15 @@ final class ImportService {
         for (index, identifier) in identifiers.prefix(ScanConfig.maxImportBatch).enumerated() {
             if Task.isCancelled { break }
 
-            // 跳过已导入
-            if existingURIs.contains(identifier) {
+            // 同一批次内重复 identifier：跳过
+            if seenInBatch.contains(identifier) {
+                onProgress?(ImportProgress(current: index + 1, total: total))
+                continue
+            }
+            seenInBatch.insert(identifier)
+
+            // 跳过已导入（originalURI 去重）
+            if existingOriginalURIs.contains(identifier) {
                 onProgress?(ImportProgress(current: index + 1, total: total))
                 continue
             }

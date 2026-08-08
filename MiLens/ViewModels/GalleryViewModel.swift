@@ -49,6 +49,10 @@ final class GalleryViewModel {
     private let fileStorage: any FileStorage
     private let imageAnalyzer: any ImageAnalyzer
     private let sandboxDir: String
+    /// Phase 2 CLIP 精筛（nil = 模型缺失，仅 Vision 预筛）
+    private let clipService: (any ClipInference)?
+    /// 上次成功扫描游标（「仅扫描新增」过滤基准）
+    private let cursorStore: any ScanCursorStore
 
     private let pageSize = 60
     private var scanTask: Task<Void, Never>?
@@ -59,7 +63,9 @@ final class GalleryViewModel {
          vision: any VisionService,
          fileStorage: any FileStorage,
          sandboxDir: String,
-         imageAnalyzer: any ImageAnalyzer = CoreImageAnalyzer()) {
+         imageAnalyzer: any ImageAnalyzer = CoreImageAnalyzer(),
+         clipService: (any ClipInference)? = nil,
+         cursorStore: any ScanCursorStore = UserDefaultsScanCursorStore()) {
         self.photoRepo = photoRepo
         self.petRepo = petRepo
         self.photoLibrary = photoLibrary
@@ -67,6 +73,8 @@ final class GalleryViewModel {
         self.fileStorage = fileStorage
         self.imageAnalyzer = imageAnalyzer
         self.sandboxDir = sandboxDir
+        self.clipService = clipService
+        self.cursorStore = cursorStore
     }
 
     /// 扫描/导入后后台质量评分 + 重复分组（对应源端 ScanController fire-and-forget 链）。
@@ -163,12 +171,17 @@ final class GalleryViewModel {
 
         let service = ScanService(
             photoLibrary: photoLibrary, vision: vision,
-            photoRepo: photoRepo, petRepo: petRepo
+            photoRepo: photoRepo, petRepo: petRepo,
+            clipService: clipService
         )
+        // 增量扫描基准：上次成功扫描开始时刻（无历史游标 = 全量扫描）
+        let afterTimestamp = scanNewOnly ? cursorStore.lastSuccessfulScan : nil
+        // 游标 = 本次扫描开始时刻；扫描成功（未取消）后持久化，作为下次增量基准
+        let scanStart = Date()
 
         scanTask = Task { [weak self] in
             guard let self else { return }
-            let result = await service.scanAlbum(afterTimestamp: scanNewOnly ? Date() : nil) { progress in
+            let result = await service.scanAlbum(afterTimestamp: afterTimestamp) { progress in
                 self.scanProgressText = GalleryPageState.resolveScanProgressLabel(
                     GalleryScanSnapshot(
                         isScanning: true, scanPaused: false,
@@ -188,6 +201,7 @@ final class GalleryViewModel {
             )
             self.showScanCompleteDialog = !result.canceled
             if !result.canceled {
+                self.cursorStore.saveLastSuccessfulScan(scanStart)
                 self.loadInitial()
                 self.triggerQualityAnalysis()
             }

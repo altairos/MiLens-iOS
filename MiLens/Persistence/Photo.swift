@@ -10,8 +10,10 @@ final class Photo {
     @Attribute(.unique) var id: UUID
     /// 沙盒显示/分析副本路径
     var uri: String
-    /// 系统媒体库或选择器返回的原图 URI（对应源端 original_uri）
-    var originalURI: String
+    /// 系统媒体库或选择器返回的原图 URI（对应源端 original_uri）。
+    /// 唯一约束：扫描/导入以 originalURI 去重（uri 是沙盒副本路径，每次导入会变化；
+    /// originalURI 稳定不变）。init 保证非空（为空时回退 uri），约束安全。
+    @Attribute(.unique) var originalURI: String
     /// 归属宠物（nil = 未分配）
     var pet: Pet?
     /// 拍摄时间（EXIF 解析，可能为 nil）

@@ -195,7 +195,7 @@ final class HomeMemoryLogicTests: XCTestCase {
         let march = HomeMemoryPhoto(id: UUID(), takenAt: HomeTestSupport.makeDate(2025, 3, 1, 10))
         let entries = HomeMemoryLogic.selectMemoryPhotos([march, july], now: now)
         XCTAssertEqual(entries.map(\.photoID), [july.id, march.id])
-        XCTAssertEqual(entries[0].title, "往日的回忆")
+        XCTAssertEqual(entries[0].title, "最近回忆")
     }
 
     func testFallbackSubtitleContainsDateAndPetName() {

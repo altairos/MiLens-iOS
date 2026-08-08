@@ -1,8 +1,5 @@
 //  QualityScorerTests —— 质量评分 + 重复分组编排测试
 //  对应源端 QualityScorer 行为（in-memory SwiftData + mock 平台服务）。
-//
-//  ⚠️ 与 ScanServiceTests 同类：模拟器 CI 中 SwiftData @Model 集成可能崩溃，
-//  待 Mac 真机调试后恢复。
 
 import XCTest
 import SwiftData
@@ -11,16 +8,14 @@ import SwiftData
 @MainActor
 final class QualityScorerTests: XCTestCase {
 
-    override func setUp() async throws {
-        try XCTSkipIf(true, "待 Mac 真机调试：模拟器 CI 中 SwiftData 集成测试崩溃")
-    }
-
     // MARK: - 辅助
 
     private func makeScorer(
         sharpness: Double = 3000,
         phash: String? = "0000000000000000"
-    ) -> (QualityScorer, SwiftDataPhotoRepository, MockFileStorage, MockImageAnalyzer) {
+    ) -> (QualityScorer, SwiftDataPhotoRepository, MockFileStorage, MockImageAnalyzer, ModelContainer) {
+        // container 必须返回并持有——mainContext 不持有 container，
+        // 局部变量释放后 repo 的 fetch 触发 SwiftData 内部 SIGTRAP（悬垂引用）。
         let schema = Schema(versionedSchema: SchemaV1.self)
         let config = ModelConfiguration(isStoredInMemoryOnly: true)
         let container = try! ModelContainer(for: schema, configurations: [config])
@@ -31,7 +26,7 @@ final class QualityScorerTests: XCTestCase {
         analyzer.phashResult = phash
         let scorer = QualityScorer(
             photoRepo: photoRepo, imageAnalyzer: analyzer, fileStorage: fileStorage)
-        return (scorer, photoRepo, fileStorage, analyzer)
+        return (scorer, photoRepo, fileStorage, analyzer, container)
     }
 
     /// 插入一张 pending 照片（qualityScore == 0）并预设其文件数据。
@@ -51,7 +46,7 @@ final class QualityScorerTests: XCTestCase {
     // MARK: - computeAllQualityScores
 
     func testComputeScoresForPendingPhotos() async throws {
-        let (scorer, repo, fs, _) = makeScorer(sharpness: 3000)
+        let (scorer, repo, fs, _, container) = makeScorer(sharpness: 3000)
         try insertPending(into: repo, fileStorage: fs)
         try insertPending(into: repo, fileStorage: fs, uri: "/documents/b.jpg")
 
@@ -66,7 +61,7 @@ final class QualityScorerTests: XCTestCase {
     }
 
     func testSkipsPhotoWithEmptyURI() async throws {
-        let (scorer, repo, fs, _) = makeScorer()
+        let (scorer, repo, fs, _, container) = makeScorer()
         // qualityScore=0 但 uri 为空 → 跳过
         let photo = Photo(uri: "", originalURI: "x", qualityScore: 0)
         try repo.insertPhoto(photo)
@@ -76,7 +71,7 @@ final class QualityScorerTests: XCTestCase {
     }
 
     func testSkipsPhotoWhenFileReadFails() async throws {
-        let (scorer, repo, fs, _) = makeScorer()
+        let (scorer, repo, fs, _, container) = makeScorer()
         // 插入但**不**预设文件数据 → read 抛错 → 跳过
         let photo = Photo(uri: "/missing.jpg", originalURI: "/missing.jpg", qualityScore: 0)
         try repo.insertPhoto(photo)
@@ -86,7 +81,7 @@ final class QualityScorerTests: XCTestCase {
     }
 
     func testFillsPHashWhenMissing() async throws {
-        let (scorer, repo, fs, analyzer) = makeScorer(phash: "abcdef0123456789")
+        let (scorer, repo, fs, analyzer, container) = makeScorer(phash: "abcdef0123456789")
         try insertPending(into: repo, fileStorage: fs) // phash 初始为空
 
         _ = await scorer.computeAllQualityScores()
@@ -97,7 +92,7 @@ final class QualityScorerTests: XCTestCase {
     }
 
     func testDoesNotRecomputeExistingPHash() async throws {
-        let (scorer, repo, fs, analyzer) = makeScorer(phash: "ffffffffffffffff")
+        let (scorer, repo, fs, analyzer, container) = makeScorer(phash: "ffffffffffffffff")
         try insertPending(into: repo, fileStorage: fs, phash: "1122334455667788")
 
         _ = await scorer.computeAllQualityScores()
@@ -108,7 +103,7 @@ final class QualityScorerTests: XCTestCase {
     // MARK: - findDuplicates
 
     func testFindDuplicatesGroupsSimilarPhotos() async throws {
-        let (scorer, repo, fs, _) = makeScorer()
+        let (scorer, repo, fs, _, container) = makeScorer()
         // 两张相似 pHash（距离 ≤ 8）
         let a = try insertPending(into: repo, fileStorage: fs, uri: "/a.jpg", phash: "0000000000000000")
         _ = try insertPending(into: repo, fileStorage: fs, uri: "/b.jpg", phash: "0000000000000001")
@@ -127,7 +122,7 @@ final class QualityScorerTests: XCTestCase {
     }
 
     func testFindDuplicatesReturnsZeroWhenNoCandidates() async throws {
-        let (scorer, repo, fs, _) = makeScorer()
+        let (scorer, repo, fs, _, container) = makeScorer()
         // 无 phash 的照片 → 无候选
         try insertPending(into: repo, fileStorage: fs, phash: "")
 
@@ -138,7 +133,7 @@ final class QualityScorerTests: XCTestCase {
     // MARK: - runPostScanAnalysis
 
     func testPostScanAnalysisScoresThenGroups() async throws {
-        let (scorer, repo, fs, _) = makeScorer(sharpness: 4000, phash: "0000000000000000")
+        let (scorer, repo, fs, _, container) = makeScorer(sharpness: 4000, phash: "0000000000000000")
         try insertPending(into: repo, fileStorage: fs, uri: "/a.jpg")
         try insertPending(into: repo, fileStorage: fs, uri: "/b.jpg")
 

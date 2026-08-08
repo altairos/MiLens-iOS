@@ -1,12 +1,12 @@
 # MiLens iOS UI Rework 计划
 
-最后核对：2026-08-08（方案定稿，未开始执行）
+最后核对：2026-08-08（方案定稿，Phase 3 首页首轮已开始执行）
 
 > 本文是 UI rework 的**执行计划**（阶段划分、任务明细、验收方式）。视觉规范唯一事实来源为 [UI-DESIGN.md](../UI-DESIGN.md)（色彩/字体/间距/动效/页面视觉）；架构见 [DESIGN.md](../DESIGN.md)，里程碑见 [PLAN.md](../PLAN.md)。执行期间按本文 §7 同步勾选状态。
 
 ## 1. 背景与目标
 
-设计系统阶段 A（UI-DESIGN.md §9）已全部完成——18 colorset（含暖黑 Dark）、Color/Theme/Typography token、字体子集化（霞鹜文楷 + Fraunces，~3.31 MB）都已代码化。但**阶段 B「随页面实现逐个打磨」尚未开始**：P2-P4 各页面功能完整，视觉仍停留在默认 SwiftUI 风格，与 UI-DESIGN.md §5 的关键页面规范存在系统性差距。
+设计系统基础 token 已存在，但原先页面仍停留在默认 SwiftUI 风格，与 UI-DESIGN.md §5 的关键页面规范存在系统性差距。本轮先按已确认的首页方案建立可运行闭环，再按 Phase 1 → 2 → 3 → 4 扩展。
 
 目标：按 UI-DESIGN.md 逐页打磨至符合规范（含深色模式、Dynamic Type、iPhone/iPad 适配），并补齐 P5 中与视觉强相关的功能（Settings 页、付费墙、首页 hero 数据层），使 V1.0 具备可提审的视觉完成度。
 
@@ -14,7 +14,7 @@
 
 | 页面 | 现状 | 与 UI-DESIGN.md 的差距 |
 |---|---|---|
-| HomeView | P2 占位：图标 + 两个入口卡片 | §5.1 hero 照片方案全部未做；无数据层 |
+| HomeView | 首轮已落地：真实 hero、回忆横滑、无照片/读取失败状态、创作 CTA | 成长提醒、深色/Dynamic Type 走查仍待完成 |
 | GalleryView | 对齐网格 ✅（2pt 间隙） | 无日期分组标题、无筛选 chip、无 context menu、无 hero 转场 |
 | PetsView | 列表卡片 ✅ token 化良好 | 未做传记式设计；卡片视觉可打磨 |
 | PetProfileView | 常规布局 | §5.3 出血肖像 + 名字浮图 + 时间线节点未做 |
@@ -92,11 +92,11 @@
 ### Phase 3 — 首页 hero（先补数据层）
 
 **3.1 HomeViewModel（@Observable）+ XCTest**
-- ✅ **数据层纯逻辑已提前落地**（2026-08-08，Windows/WSL2 完成）：`MiLensKit/Sources/MiLensKit/Home/` 新增 `HomeGreetingLogic`（时段问候，5-11 早 / 12-17 午 / 18-4 晚）/ `HomeHeroLogic`（今日判定 + hero 选片「今日最新 → 回退最近一张」+ 「今天 · 小橘」标注）/ `HomeMemoryLogic`（一年前的今天：同月同日历史照片按年份倒序，空则回退最近历史照片，标题「往日的回忆」）+ `HomeDateSupport`（固定 UTC Calendar）。`HomeLogicTests` 32 用例，MiLensKit 全量 554 用例 WSL2 全绿。
-- ⬜ **HomeViewModel（@Observable）编排层留 Mac**：Repository 查询 → 投影组装 → 调用 Home 纯逻辑；hero 来源：今日最新/最佳照片 → 无今日照片回退最近一张（§5.1）。
+- ✅ **数据层纯逻辑已提前落地**（2026-08-08，Windows/WSL2 完成）：`MiLensKit/Sources/MiLensKit/Home/` 新增 `HomeGreetingLogic`（时段问候，5-11 早 / 12-17 午 / 18-4 晚）/ `HomeHeroLogic`（今日判定 + hero 选片「今日最新 → 回退最近一张」+ 「今天 · 小橘」标注）/ `HomeMemoryLogic`（一年前的今天：同月同日历史照片按年份倒序，空则回退最近历史照片，标题「最近回忆」）+ `HomeDateSupport`（固定 UTC Calendar）。`HomeLogicTests` 32 用例，MiLensKit 全量 578 用例全绿。
+- ✅ **HomeViewModel（@Observable）编排层已落地**：`MiLens/ViewModels/HomeViewModel.swift` 负责 Repository 查询 → 投影组装 → 调用 Home 纯逻辑；首页只读取最近 500 张，避免无界加载。
 - ⬜ 「一年前的今天」回忆横滑数据：复用 `HomeMemoryLogic`（已落地）+ Repository 查询。
 - ✅ 时段问候语（「早上好/下午好/晚上好」）纯函数 + 测试（32 用例中的 4 用例）。
-- ⬜ 空态判定：无任何照片时的插画 + 衬线引导文案（View 层，与 3.2 一并做）。
+- ✅ 空态判定：无照片可恢复入口、读取失败可重试；没有往年同日照片时由纯逻辑回退最近历史照片，历史也为空时展示紧凑说明，不伪造回忆。
 
 **3.2 hero 视觉**
 - 全宽 hero 卡片：圆角 20、无文字遮挡、底部极淡渐变（透明 → 背景）增强深度；「今天 · 小橘」caption 极简标注；点击进大图（`Route.photoView`）。
@@ -182,13 +182,20 @@ cd MiLensKit && swift test
 | Phase 2 | 2.2 PetProfile 传记式 | ⬜ |
 | Phase 2 | 2.3 Timeline 节点化 | ⬜ |
 | Phase 2 | 2.4 表单/弹窗视觉统一 | ⬜ |
-| Phase 3 | 3.1 HomeViewModel + 测试 | 🔄 纯逻辑 ✅（MiLensKit Home/ 32 用例）／VM 编排留 Mac |
-| Phase 3 | 3.2 hero 视觉 + 回忆 + CTA | ⬜ |
+| Phase 3 | 3.1 HomeViewModel + 测试 | ✅ 纯逻辑（MiLensKit Home/ 32 用例）+ App 编排已落地 |
+| Phase 3 | 3.2 hero 视觉 + 回忆 + CTA | 🔄 首轮已落地；待模拟器尺寸/深色/Dynamic Type 走查 |
 | Phase 4 | 4.1 Create 大卡片入口 | ⬜ |
 | Phase 4 | 4.2 拼豆工作室化 | ⬜ |
 | Phase 4 | 4.3 Onboarding 打磨 | ⬜ |
 | Phase 4 | 4.4 Settings 功能实现 | ⬜ |
 | Phase 4 | 4.5 付费墙 | ⬜ |
+
+### 本轮验证记录（2026-08-08）
+
+- `git diff --check`：通过。
+- `xcodebuild … -destination 'platform=iOS Simulator,name=iPhone 17' build CODE_SIGNING_ALLOWED=NO`：通过。
+- `cd MiLensKit && swift test`：578 个测试通过。
+- iOS `xcodebuild test`：未完成测试汇总；测试进程在模拟器建立连接前被系统以 signal kill 终止（`Early unexpected exit`），不是首页编译错误。需在 Xcode/真机环境复核。
 
 ## 8. 风险与注意事项
 

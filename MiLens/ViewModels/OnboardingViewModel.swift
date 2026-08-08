@@ -49,6 +49,10 @@ final class OnboardingViewModel {
     private let photoLibrary: any PhotoLibraryAccess
     private let vision: any VisionService
     private let onFinish: () -> Void
+    /// Phase 2 CLIP 精筛（nil = 模型缺失，仅 Vision 预筛）
+    private let clipService: (any ClipInference)?
+    /// 上次成功扫描游标（引导扫描完成即建立基准，供相册增量扫描使用）
+    private let cursorStore: any ScanCursorStore
 
     private var scanTask: Task<Void, Never>?
 
@@ -56,12 +60,16 @@ final class OnboardingViewModel {
          petRepo: any PetRepositoryProtocol,
          photoLibrary: any PhotoLibraryAccess,
          vision: any VisionService,
-         onFinish: @escaping () -> Void) {
+         onFinish: @escaping () -> Void,
+         clipService: (any ClipInference)? = nil,
+         cursorStore: any ScanCursorStore = UserDefaultsScanCursorStore()) {
         self.photoRepo = photoRepo
         self.petRepo = petRepo
         self.photoLibrary = photoLibrary
         self.vision = vision
         self.onFinish = onFinish
+        self.clipService = clipService
+        self.cursorStore = cursorStore
     }
 
     // MARK: - 步骤控制
@@ -119,8 +127,11 @@ final class OnboardingViewModel {
 
         let service = ScanService(
             photoLibrary: photoLibrary, vision: vision,
-            photoRepo: photoRepo, petRepo: petRepo
+            photoRepo: photoRepo, petRepo: petRepo,
+            clipService: clipService
         )
+        // 游标 = 本次扫描开始时刻；成功后持久化（引导扫描是全量，之后相册增量扫描以此为基准）
+        let scanStart = Date()
 
         scanTask = Task { [weak self] in
             guard let self else { return }
@@ -132,8 +143,11 @@ final class OnboardingViewModel {
             self.scanCompleted = !result.canceled
             self.isScanning = false
             self.scanProgressText = ""
-            if !result.canceled, !result.unassignedPetUris.isEmpty {
-                self.scanError = ""
+            if !result.canceled {
+                self.cursorStore.saveLastSuccessfulScan(scanStart)
+                if !result.unassignedPetUris.isEmpty {
+                    self.scanError = ""
+                }
             }
         }
     }

@@ -5,18 +5,16 @@ import SwiftData
 /// ImportService 测试——导入编排逻辑（对应源端 PhotoScanner.importPhotos）。
 /// 使用 in-memory SwiftData + mock 平台服务，覆盖入库、去重、上限。
 ///
-/// ⚠️ 已知问题：模拟器 CI 环境中 SwiftData @Model insert + mock 平台服务集成
-/// 导致测试进程崩溃（Early unexpected exit）。待 Mac 真机调试定位根因后恢复。
+/// 注：container 必须由 makeService 返回并持有——mainContext 不持有 container，
+/// 局部变量释放后 repo 的 fetch 会触发 SwiftData 内部 SIGTRAP（悬垂引用）。
 @MainActor
 final class ImportServiceTests: XCTestCase {
 
-    override func setUp() async throws {
-        try XCTSkipIf(true, "待 Mac 真机调试：模拟器 CI 中 SwiftData 集成测试崩溃")
-    }
-
     private func makeService(
         assets: [PhotoAssetMetadata] = []
-    ) -> (ImportService, SwiftDataPhotoRepository, MockFileStorage) {
+    ) -> (ImportService, SwiftDataPhotoRepository, MockFileStorage, ModelContainer) {
+        // container 必须返回并持有——mainContext 不持有 container，
+        // 局部变量释放后 repo 的 fetch 触发 SwiftData 内部 SIGTRAP（悬垂引用）。
         let schema = Schema(versionedSchema: SchemaV1.self)
         let config = ModelConfiguration(isStoredInMemoryOnly: true)
         let container = try! ModelContainer(for: schema, configurations: [config])
@@ -27,7 +25,7 @@ final class ImportServiceTests: XCTestCase {
             photoLibrary: photoLibrary, fileStorage: fileStorage,
             photoRepo: photoRepo, sandboxDir: "/documents/MiPhotos"
         )
-        return (service, photoRepo, fileStorage)
+        return (service, photoRepo, fileStorage, container)
     }
 
     private func asset(_ id: String) -> PhotoAssetMetadata {
@@ -40,7 +38,7 @@ final class ImportServiceTests: XCTestCase {
     // MARK: - 基本导入
 
     func testImportCreatesPhotoRecord() async {
-        let (service, photoRepo, _) = makeService(assets: [asset("a")])
+        let (service, photoRepo, _, container) = makeService(assets: [asset("a")])
         let count = await service.importPhotos(identifiers: ["a"])
         XCTAssertEqual(count, 1)
 
@@ -50,7 +48,7 @@ final class ImportServiceTests: XCTestCase {
     }
 
     func testImportMultiplePhotos() async {
-        let (service, photoRepo, _) = makeService(assets: [asset("a"), asset("b"), asset("c")])
+        let (service, photoRepo, _, container) = makeService(assets: [asset("a"), asset("b"), asset("c")])
         let count = await service.importPhotos(identifiers: ["a", "b", "c"])
         XCTAssertEqual(count, 3)
 
@@ -58,10 +56,10 @@ final class ImportServiceTests: XCTestCase {
         XCTAssertEqual(photos.count, 3)
     }
 
-    // MARK: - 去重
+    // MARK: - 去重（originalURI 为主键，P0 修复）
 
     func testImportSkipsAlreadyImportedIdentifiers() async {
-        let (service, photoRepo, _) = makeService(assets: [asset("a"), asset("b")])
+        let (service, photoRepo, _, container) = makeService(assets: [asset("a"), asset("b")])
         // 第一次导入
         _ = await service.importPhotos(identifiers: ["a", "b"])
         // 再次导入相同 identifier
@@ -72,10 +70,34 @@ final class ImportServiceTests: XCTestCase {
         XCTAssertEqual(photos.count, 2) // 仍然是 2 张
     }
 
+    func testImportSkipsByOriginalURIEvenIfSandboxPathDiffers() async {
+        let (service, photoRepo, _, container) = makeService(assets: [asset("a"), asset("b")])
+        // 已入库照片：uri 是沙盒副本路径（hashToFilename 生成，与 identifier 无关），
+        // originalURI = "a"——去重必须以 originalURI 为准。
+        try! photoRepo.insertPhoto(Photo(uri: "/documents/MiPhotos/xyz.jpg", originalURI: "a"))
+
+        // 再次导入 "a" → 按 originalURI 跳过；"b" 正常导入
+        let count = await service.importPhotos(identifiers: ["a", "b"])
+        XCTAssertEqual(count, 1)
+
+        let photos = try! photoRepo.getPhotosPage(offset: 0, limit: 10)
+        XCTAssertEqual(photos.count, 2)
+    }
+
+    func testImportSkipsDuplicateIdentifiersWithinBatch() async {
+        let (service, photoRepo, _, container) = makeService(assets: [asset("a"), asset("b")])
+        // 同一批次内重复 identifier 只导入一次
+        let count = await service.importPhotos(identifiers: ["a", "a", "b", "b", "a"])
+        XCTAssertEqual(count, 2)
+
+        let photos = try! photoRepo.getPhotosPage(offset: 0, limit: 10)
+        XCTAssertEqual(photos.count, 2)
+    }
+
     // MARK: - 空输入
 
     func testImportEmptyIdentifiersReturnsZero() async {
-        let (service, _, _) = makeService(assets: [])
+        let (service, _, _, container) = makeService(assets: [])
         let count = await service.importPhotos(identifiers: [])
         XCTAssertEqual(count, 0)
     }
@@ -85,7 +107,7 @@ final class ImportServiceTests: XCTestCase {
     func testImportRespectsMaxBatch() async {
         // 生成 60 个 asset（超过 maxImportBatch=50）
         let assets = (0..<60).map { asset("photo_\($0)") }
-        let (service, photoRepo, _) = makeService(assets: assets)
+        let (service, photoRepo, _, container) = makeService(assets: assets)
         let identifiers = (0..<60).map { "photo_\($0)" }
         let count = await service.importPhotos(identifiers: identifiers)
         XCTAssertEqual(count, ScanConfig.maxImportBatch)
@@ -97,7 +119,7 @@ final class ImportServiceTests: XCTestCase {
     // MARK: - 元数据
 
     func testImportPreservesDimensions() async {
-        let (service, photoRepo, _) = makeService(assets: [asset("a")])
+        let (service, photoRepo, _, container) = makeService(assets: [asset("a")])
         _ = await service.importPhotos(identifiers: ["a"])
         let photos = try! photoRepo.getPhotosPage(offset: 0, limit: 10)
         XCTAssertEqual(photos[0].width, 1080)
@@ -105,7 +127,7 @@ final class ImportServiceTests: XCTestCase {
     }
 
     func testImportSetsPetPhotoCategory() async {
-        let (service, photoRepo, _) = makeService(assets: [asset("a")])
+        let (service, photoRepo, _, container) = makeService(assets: [asset("a")])
         _ = await service.importPhotos(identifiers: ["a"])
         let photos = try! photoRepo.getPhotosPage(offset: 0, limit: 10)
         XCTAssertEqual(photos[0].category, "pet_photo")
@@ -114,7 +136,7 @@ final class ImportServiceTests: XCTestCase {
     // MARK: - 进度回调
 
     func testImportReportsProgress() async {
-        let (service, _, _) = makeService(assets: [asset("a"), asset("b")])
+        let (service, _, _, container) = makeService(assets: [asset("a"), asset("b")])
         var reported: [Int] = []
         _ = await service.importPhotos(identifiers: ["a", "b"]) { progress in
             reported.append(progress.current)

@@ -10,6 +10,8 @@ struct GalleryView: View {
     @Environment(\.photoLibraryAccess) private var photoLibrary
     @Environment(\.visionService) private var vision
     @Environment(\.fileStorage) private var fileStorage
+    @Environment(\.clipInferenceService) private var clipInferenceService
+    @Environment(\.scanCursorStore) private var scanCursorStore
 
     @State private var viewModel: GalleryViewModel?
     @State private var navigationPath = NavigationPath()
@@ -31,7 +33,9 @@ struct GalleryView: View {
                 let vm = GalleryViewModel(
                     photoRepo: photoRepo, petRepo: petRepo,
                     photoLibrary: photoLibrary, vision: vision,
-                    fileStorage: fileStorage, sandboxDir: dir
+                    fileStorage: fileStorage, sandboxDir: dir,
+                    clipService: clipInferenceService,
+                    cursorStore: scanCursorStore
                 )
                 vm.loadInitial()
                 viewModel = vm

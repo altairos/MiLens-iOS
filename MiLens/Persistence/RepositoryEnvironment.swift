@@ -7,15 +7,26 @@
 import SwiftUI
 import SwiftData
 
+// MARK: - fallback 共享容器
+
+/// 环境 fallback 的共享 in-memory 容器。
+/// 必须 static 缓存：mainContext 不持有 container，每次 defaultValue 新建容器
+/// 会在返回后释放，repo 的 fetch 触发 SwiftData 内部 SIGTRAP（悬垂引用，已在测试中复现）。
+@MainActor
+private enum FallbackContainer {
+    static let shared: ModelContainer = {
+        let schema = Schema(versionedSchema: SchemaV1.self)
+        let config = ModelConfiguration(isStoredInMemoryOnly: true)
+        return try! ModelContainer(for: schema, configurations: [config])
+    }()
+}
+
 // MARK: - PetRepository
 
 private struct PetRepositoryKey: EnvironmentKey {
     @MainActor
     static var defaultValue: any PetRepositoryProtocol {
-        let schema = Schema(versionedSchema: SchemaV1.self)
-        let config = ModelConfiguration(isStoredInMemoryOnly: true)
-        let container = try! ModelContainer(for: schema, configurations: [config])
-        return SwiftDataPetRepository(context: container.mainContext)
+        SwiftDataPetRepository(context: FallbackContainer.shared.mainContext)
     }
 }
 
@@ -31,10 +42,7 @@ extension EnvironmentValues {
 private struct PhotoRepositoryKey: EnvironmentKey {
     @MainActor
     static var defaultValue: any PhotoRepositoryProtocol {
-        let schema = Schema(versionedSchema: SchemaV1.self)
-        let config = ModelConfiguration(isStoredInMemoryOnly: true)
-        let container = try! ModelContainer(for: schema, configurations: [config])
-        return SwiftDataPhotoRepository(context: container.mainContext)
+        SwiftDataPhotoRepository(context: FallbackContainer.shared.mainContext)
     }
 }
 

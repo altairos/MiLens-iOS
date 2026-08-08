@@ -6,8 +6,10 @@
 //  - 支持取消（Task.cancel → Task.isCancelled 检查点）。
 //  - 依赖通过协议注入，mock 可覆盖（ADR-0007 §2.1 分层）。
 //
-//  V1.0 降级说明：Core ML 模型尚未就绪时，VisionService 使用系统 Vision API
-//  做 pet detection（VNClassifyImageRequest / VNRecognizeAnimalsRequest），精度有限。
+//  两阶段检测（诚实标注）：
+//  - Phase 1：VisionService 预筛（VNClassifyImageRequest 宠物标签匹配，宽松）；
+//  - Phase 2：ClipInferenceService 精筛（模型缺失/失败时降级为 Phase 1 结论）。
+//  自动匹配已注册宠物（PetMatcher）V1.0 未实现，matchedCount 恒为 0。
 
 import Foundation
 
@@ -19,6 +21,8 @@ final class ScanService {
     private let vision: any VisionService
     private let photoRepo: any PhotoRepositoryProtocol
     private let petRepo: any PetRepositoryProtocol
+    /// Phase 2 精筛（nil = CLIP 模型缺失，仅 Phase 1 预筛结果生效）
+    private let clipService: (any ClipInference)?
 
     /// 当前是否正在扫描（对应源端 isScanning）
     private(set) var isScanning = false
@@ -26,18 +30,21 @@ final class ScanService {
     init(photoLibrary: any PhotoLibraryAccess,
          vision: any VisionService,
          photoRepo: any PhotoRepositoryProtocol,
-         petRepo: any PetRepositoryProtocol) {
+         petRepo: any PetRepositoryProtocol,
+         clipService: (any ClipInference)? = nil) {
         self.photoLibrary = photoLibrary
         self.vision = vision
         self.photoRepo = photoRepo
         self.petRepo = petRepo
+        self.clipService = clipService
     }
 
     /// 扫描系统相册，检测宠物照片。支持取消。
     /// - Parameters:
-    ///   - afterTimestamp: 仅扫描此时间之后新增的照片（nil = 全量扫描）
+    ///   - afterTimestamp: 增量扫描游标——仅处理 dateAdded >= 此时间的照片
+    ///     （nil = 全量扫描；iOS 上 dateAdded 以 creationDate 近似，见 ScanCursorStore）。
     ///   - onProgress: 进度回调（在 main actor 上调用）
-    /// - Returns: 扫描结果（matchedCount 始终为 0——V1.0 扫描不做自动匹配）
+    /// - Returns: 扫描结果（matchedCount 始终为 0——V1.0 未实现 PetMatcher 自动匹配）
     @discardableResult
     func scanAlbum(
         afterTimestamp: Date? = nil,
@@ -49,9 +56,9 @@ final class ScanService {
         isScanning = true
         defer { isScanning = false }
 
-        let existingURIs: Set<String>
+        let existingOriginalURIs: Set<String>
         do {
-            existingURIs = try photoRepo.getAllPhotoURIs()
+            existingOriginalURIs = try photoRepo.getAllOriginalURIs()
         } catch {
             return ScanResult()
         }
@@ -75,8 +82,8 @@ final class ScanService {
 
                 scanned += 1
 
-                // 跳过已导入的照片（去重）
-                if existingURIs.contains(asset.identifier) {
+                // 跳过已导入的照片（按 originalURI 去重——uri 是沙盒副本路径，不能与 identifier 比较）
+                if existingOriginalURIs.contains(asset.identifier) {
                     onProgress?(ScanProgress(
                         scanned: scanned, total: totalCount,
                         petPhotosFound: petPhotosFound, matchedCount: 0,
@@ -97,14 +104,14 @@ final class ScanService {
 
                 processedCount += 1
 
-                // 加载缩略图数据用于 AI 检测
+                // 两阶段检测：Phase 1 VisionService 预筛（宽松）→ Phase 2 CLIP 精筛（可选，失败降级）
                 if let imageData = try? await photoLibrary.loadImageData(
                     forIdentifier: asset.identifier,
                     maxDimension: ScanConfig.detectInputSize
                 ) {
-                    // 两阶段检测（VisionService 内部实现 Phase1 prefilter + Phase2 CLIP）
                     let detections = (try? await vision.detectPets(in: imageData)) ?? []
-                    if !detections.isEmpty {
+                    if !detections.isEmpty,
+                       await confirmPetWithClipIfAvailable(imageData) {
                         petPhotosFound += 1
                         unassignedURIs.append(asset.identifier)
                     }
@@ -131,5 +138,15 @@ final class ScanService {
             processedCount: processedCount,
             canceled: Task.isCancelled
         )
+    }
+
+    /// Phase 2 CLIP 精筛：预筛命中后进一步确认是否为宠物。
+    /// CLIP 不可用或推理失败时降级为 Phase 1 预筛结论（不中断扫描，对应源端多级降级）。
+    private func confirmPetWithClipIfAvailable(_ imageData: Data) async -> Bool {
+        guard let clipService else { return true }
+        guard let result = try? await clipService.detect(imageData: imageData) else {
+            return true
+        }
+        return result.isPet
     }
 }

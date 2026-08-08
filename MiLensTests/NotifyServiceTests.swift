@@ -174,6 +174,8 @@ private final class InMemoryPhotoRepository: PhotoRepositoryProtocol {
 
     func getPhoto(id: UUID) throws -> Photo? { photos.first { $0.id == id } }
     func getPhotoByURI(_ uri: String) throws -> Photo? { photos.first { $0.uri == uri } }
+    func getPhotoByOriginalURI(_ originalURI: String) throws -> Photo? { photos.first { $0.originalURI == originalURI } }
+    func getAllOriginalURIs() throws -> Set<String> { Set(photos.map(\.originalURI)) }
     func getAllPhotoURIs() throws -> Set<String> { Set(photos.map(\.uri)) }
     func getPhotosPage(offset: Int, limit: Int) throws -> [Photo] {
         Array(photos.sorted { ($0.takenAt ?? .distantPast) > ($1.takenAt ?? .distantPast) }.dropFirst(offset).prefix(limit))

@@ -54,6 +54,8 @@ final class IOSPhotoLibraryAccess: PhotoLibraryAccess {
         var visited = 0
         for index in 0..<fetchResult.count {
             let asset = fetchResult.object(at: index)
+            // dateAdded：iOS 无公开「加入相册时间」API，以 creationDate 近似填充
+            // （诚实标注，增量扫描游标按此字段过滤，见 ScanCursorStore）。
             let metadata = PhotoAssetMetadata(
                 identifier: asset.localIdentifier,
                 dateTaken: asset.creationDate,
@@ -81,6 +83,7 @@ final class IOSPhotoLibraryAccess: PhotoLibraryAccess {
     func metadata(forIdentifier identifier: String) async throws -> PhotoAssetMetadata? {
         let assets = PHAsset.fetchAssets(withLocalIdentifiers: [identifier], options: nil)
         guard let asset = assets.firstObject else { return nil }
+        // dateAdded：iOS 无公开「加入相册时间」API，以 creationDate 近似填充（诚实标注）。
         return PhotoAssetMetadata(
             identifier: asset.localIdentifier,
             dateTaken: asset.creationDate,

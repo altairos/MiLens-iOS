@@ -1,8 +1,8 @@
 //  平台适配层的 EnvironmentKey 注入（DESIGN.md §4.1 DI + §9 平台隔离）。
 //  应用级适配器在 MiLensApp 构造，通过 .environment 注入。
 //  ViewModel / Service 通过 @Environment 消费协议，不引用具体实现。
-//  默认值提供 mock 兜底（测试 host 启动时不崩溃）；
-//  真实实现待 P1.5 AI 路线定案后在 MiLensApp.init 注入。
+//  默认值提供 mock/in-memory 兜底（测试 host 启动时不崩溃）；
+//  生产环境由 MiLensApp.init 注入真实实现（IOSFileStorage / UserDefaultsScanCursorStore 等）。
 
 import SwiftUI
 
@@ -33,6 +33,21 @@ extension EnvironmentValues {
     var fileStorage: any FileStorage {
         get { self[FileStorageKey.self] }
         set { self[FileStorageKey.self] = newValue }
+    }
+}
+
+// MARK: - ScanCursorStore（上次成功扫描游标，增量扫描过滤基准）
+
+private struct ScanCursorStoreKey: EnvironmentKey {
+    static var defaultValue: any ScanCursorStore {
+        UserDefaultsScanCursorStore()
+    }
+}
+
+extension EnvironmentValues {
+    var scanCursorStore: any ScanCursorStore {
+        get { self[ScanCursorStoreKey.self] }
+        set { self[ScanCursorStoreKey.self] = newValue }
     }
 }
 

@@ -136,6 +136,10 @@ SwiftData 从 V1.0 干净 schema 起步（不复刻源端 16 版历史迁移）�
 
 扫描/导入边界（沿用源端硬约束）：扫描只筛选不入库；入库唯一路径是用户主动「导入」。`MediaMonitor` 等价物（后台检测新增）不自动入库。
 
+**去重**：以 `Photo.originalURI`（Photos localIdentifier，稳定不变）为唯一键，`@Attribute(.unique)` 约束 + 仓储 `getPhotoByOriginalURI`/`getAllOriginalURIs` 查询；`uri` 是沙盒副本路径（每次导入变化），不参与去重。同一批次内重复 identifier 由 ImportService 的 `seenInBatch` 去重。
+
+**增量扫描**：`ScanCursorStore`（UserDefaults）持久化上次成功扫描开始时刻作为游标，下次增量扫描以此为过滤基准（无游标 = 全量）。iOS 无公开「加入相册时间」API，以 `creationDate` 近似 `dateAdded`——老照片（早于游标）导入相册不会被增量发现，首次使用建议全量扫描。
+
 ## 8. 拼豆子系统（MiLensKit）
 
 源端 `shared` 的 ArkTS + C++ 双路径在 iOS 合并为纯 Swift 实现：

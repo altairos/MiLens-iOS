@@ -18,6 +18,8 @@ struct MiLensApp: App {
     private let vision: any VisionService
     private let clipService: ClipInferenceService?
     private let photoLibrary: any PhotoLibraryAccess
+    private let fileStorage: any FileStorage
+    private let scanCursorStore: any ScanCursorStore
     private let onboardingViewModel: OnboardingViewModel
     /// 纪念提醒服务（测试环境不注入——避免测试进程触发通知授权）
     private let notifyService: NotifyService?
@@ -48,6 +50,10 @@ struct MiLensApp: App {
         self.clipService = isTesting ? nil : ClipInferenceService.create()
         // 照片库适配器：真实 Photos 框架实现（授权 + 流式遍历）。
         self.photoLibrary = IOSPhotoLibraryAccess()
+        // 文件存储：真实 FileManager 实现（导入/编辑产物写入沙盒，重启后仍存在）。
+        self.fileStorage = IOSFileStorage()
+        // 扫描游标：UserDefaults 持久化上次成功扫描时刻（增量扫描过滤基准）。
+        self.scanCursorStore = UserDefaultsScanCursorStore()
         // 纪念提醒：每日检查（纪念日 + 时光机）。测试环境不构造，避免触发通知授权。
         self.notifyService = isTesting ? nil : NotifyService(
             photoRepo: self.photoRepo,
@@ -62,7 +68,9 @@ struct MiLensApp: App {
             vision: self.vision,
             onFinish: {
                 UserDefaults.standard.set(true, forKey: "hasCompletedOnboarding")
-            }
+            },
+            clipService: self.clipService,
+            cursorStore: self.scanCursorStore
         )
     }
 
@@ -81,6 +89,8 @@ struct MiLensApp: App {
             .environment(\.visionService, vision)
             .environment(\.clipInferenceService, clipService)
             .environment(\.photoLibraryAccess, photoLibrary)
+            .environment(\.fileStorage, fileStorage)
+            .environment(\.scanCursorStore, scanCursorStore)
             .environment(\.notifyService, notifyService)
         }
     }

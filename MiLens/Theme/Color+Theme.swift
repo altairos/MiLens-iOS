@@ -26,11 +26,15 @@ extension Color {
     static let milensTextTertiary = Color("TextTertiary")
     /// 品牌色按钮上的文字（纯白）
     static let milensTextOnAccent = Color("TextOnAccent")
+    /// 高对比主动作文字（浅色白字 / 深色暖黑字）
+    static let milensTextOnActionPrimary = Color("TextOnActionPrimary")
 
     // MARK: - Accent 品牌与强调
 
     /// 品牌主色（浅：#FD8663 / 深：#E8845F）—— 只用于 CTA/选中态/品牌瞬间，禁止铺底
     static let milensPrimary = Color("AccentColor")
+    /// 高对比主动作底色（浅：#BC4727 / 深：#E8845F）
+    static let milensActionPrimary = Color("ActionPrimary")
     /// 品牌色浅底（浅：#FDEEE6 / 深：#3A241C）—— 选中卡片底/标签底
     static let milensAccentSoft = Color("AccentSoft")
     /// 品牌渐变终点（浅：#FE8764 / 深：#D9704A）

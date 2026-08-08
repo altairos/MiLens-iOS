@@ -21,7 +21,8 @@ struct PhotoAssetMetadata: Equatable, Sendable {
     let identifier: String
     /// EXIF 拍摄时间（对应源端 dateTaken，可能为 nil）
     let dateTaken: Date?
-    /// 系统库添加时间（对应源端 dateAdded，扫描新增照片模式过滤用）
+    /// 系统库添加时间（对应源端 dateAdded，增量扫描过滤用）。
+    /// iOS 无公开「加入相册时间」API，真实实现以 creationDate 近似填充（诚实标注）。
     let dateAdded: Date?
     let pixelWidth: Int
     let pixelHeight: Int

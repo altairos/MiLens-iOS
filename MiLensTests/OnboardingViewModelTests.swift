@@ -206,6 +206,8 @@ private final class InMemoryPetRepository: PetRepositoryProtocol {
 private final class InMemoryPhotoRepository: PhotoRepositoryProtocol {
     func getPhoto(id: UUID) throws -> Photo? { nil }
     func getPhotoByURI(_ uri: String) throws -> Photo? { nil }
+    func getPhotoByOriginalURI(_ originalURI: String) throws -> Photo? { nil }
+    func getAllOriginalURIs() throws -> Set<String> { [] }
     func getAllPhotoURIs() throws -> Set<String> { [] }
     func getPhotosPage(offset: Int, limit: Int) throws -> [Photo] { [] }
     func getPhotosByPet(_ pet: Pet) throws -> [Photo] { [] }

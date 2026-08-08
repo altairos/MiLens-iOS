@@ -2,7 +2,7 @@
 //
 //  UI-DESIGN.md §5.1：回忆横滑卡片展示「一年前的今天」。
 //  主筛：与今天同月同日且年份更早的历史照片（N 年前的今天），按年份倒序；
-//  回退：主筛为空时展示最近历史照片（避免区块空白），标题改为「往日的回忆」。
+//  回退：主筛为空时展示最近历史照片（避免区块空白），标题改为「最近回忆」。
 //  源端无对应实现（首页为设计稿新增概念），行为规格由本文件 + HomeLogicTests 定义并守护。
 //
 //  纯函数：输入照片投影（脱离 SwiftData @Model），now 参数化，固定 UTC Calendar
@@ -46,7 +46,7 @@ public struct HomeMemoryPet: Equatable, Sendable {
 /// 回忆横滑条目（宿主据此渲染卡片）。
 public struct HomeMemoryEntry: Equatable, Sendable {
     public let photoID: UUID
-    /// 条目标题：「N年前的今天」/「往日的回忆」。
+    /// 条目标题：「N年前的今天」/「最近回忆」。
     public let title: String
     /// 副标题：主筛为宠物名；回退为「2024年8月8日 · 小橘」。
     public let subtitle: String
@@ -112,7 +112,7 @@ public enum HomeMemoryLogic {
             let subtitle = name.isEmpty ? dateText : "\(dateText) · \(name)"
             return HomeMemoryEntry(
                 photoID: photo.id,
-                title: "往日的回忆",
+                title: "最近回忆",
                 subtitle: subtitle
             )
         }

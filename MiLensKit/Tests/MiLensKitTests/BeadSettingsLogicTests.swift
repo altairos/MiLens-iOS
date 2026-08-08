@@ -99,10 +99,10 @@ final class BeadSettingsLogicTests: XCTestCase {
         XCTAssertTrue(summary.contains("标准"))
     }
 
-    func testApplyStylePresetMapsIllustrationSizeToLarge() {
-        // illustration_v1 recommendedSizes = [58]，58 > 52 → "large"
+    func testApplyStylePresetMapsIllustrationSizeToJumbo() {
+        // illustration_v1 recommendedSizes = [58]，58 > 52 → "jumbo"
         let s = applyStylePreset("illustration_v1")
-        XCTAssertEqual(s.sizeKey, "large")
+        XCTAssertEqual(s.sizeKey, "jumbo")
         // maxColors = 28，28 > 24 且 <= 40 → "detailed"
         XCTAssertEqual(s.colorKey, "detailed")
     }

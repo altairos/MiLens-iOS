@@ -38,6 +38,7 @@ struct PetsView: View {
             }
         }
         .animation(.easeInOut(duration: Motion.durationSlow), value: viewModel?.showEasterEgg)
+        .background(Color.milensBackground)
     }
 
     // MARK: - 内容区
@@ -57,13 +58,14 @@ struct PetsView: View {
 
     private func emptyState(_ vm: PetProfileViewModel) -> some View {
         VStack(spacing: Spacing.lg) {
-            Image(systemName: "pawprint.fill")
-                .font(.system(size: 56))
+            Image(systemName: "pawprint")
+                .font(.system(size: 44, weight: .light))
                 .foregroundStyle(Color.milensTextSecondary)
             Text("还没有伙伴档案")
                 .font(.displayMedium)
-            Text("点击下方按钮，添加第一个伙伴档案")
-                .font(.bodySecondary)
+                .foregroundStyle(Color.milensTextPrimary)
+            Text("为它建立一份档案，\n照片、纪念日和故事都会留在这里。")
+                .font(.bodyPrimary)
                 .foregroundStyle(Color.milensTextSecondary)
                 .multilineTextAlignment(.center)
             Button {
@@ -71,13 +73,16 @@ struct PetsView: View {
                 showAddSheet = true
             } label: {
                 Label("添加伙伴", systemImage: "plus")
-                    .padding(.horizontal, 24)
-                    .padding(.vertical, 12)
+                    .font(.buttonLabel)
+                    .foregroundStyle(Color.milensTextOnActionPrimary)
+                    .frame(minHeight: Sizing.touchTarget)
+                    .padding(.horizontal, Spacing.lg)
+                    .background(Color.milensActionPrimary)
+                    .clipShape(Capsule())
             }
-            .buttonStyle(.borderedProminent)
-            .tint(Color.milensPrimary)
+            .buttonStyle(.plain)
         }
-        .padding()
+        .padding(.horizontal, Spacing.pagePad)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 
@@ -137,7 +142,11 @@ private struct PetCard: View {
         }
         .padding(Spacing.lg)
         .background(Color.milensCard)
-        .clipShape(RoundedRectangle(cornerRadius: Radius.large))
+        .overlay {
+            RoundedRectangle(cornerRadius: Radius.large, style: .continuous)
+                .stroke(Color.milensBorder, lineWidth: 0.5)
+        }
+        .clipShape(RoundedRectangle(cornerRadius: Radius.large, style: .continuous))
     }
 
     private var avatarView: some View {
@@ -211,6 +220,7 @@ private struct EasterEggOverlay: View {
                     .font(.system(size: 40))
                 Text("特别的缘分")
                     .font(.displayMedium)
+                    .foregroundStyle(Color.milensTextPrimary)
                 Text("这位可爱的宝贝和本APP的开发者同一天出生。\n感谢屏幕前的你，呵护着如此珍贵的生命。")
                     .font(.bodyPrimary)
                     .foregroundStyle(Color.milensTextSecondary)
@@ -218,17 +228,19 @@ private struct EasterEggOverlay: View {
                 Button {
                     onClose()
                 } label: {
-                    Text("👍")
-                        .font(.system(size: 24))
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, Spacing.md)
+                    Text("知道啦")
+                        .font(.buttonLabel)
+                        .foregroundStyle(Color.milensTextOnActionPrimary)
+                        .frame(maxWidth: .infinity, minHeight: Sizing.touchTarget)
+                        .background(Color.milensActionPrimary)
+                        .clipShape(Capsule())
                 }
-                .buttonStyle(.borderedProminent)
-                .tint(Color.milensPrimary)
+                .buttonStyle(.plain)
             }
             .padding(Spacing.xxl)
-            .background(Color.milensCard)
-            .clipShape(RoundedRectangle(cornerRadius: Radius.large))
+            .background(Color.milensElevated)
+            .clipShape(RoundedRectangle(cornerRadius: Radius.large, style: .continuous))
+            .elevation(Elevation.medium)
             .padding(.horizontal, Spacing.xxl)
         }
     }

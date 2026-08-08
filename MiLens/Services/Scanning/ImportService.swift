@@ -13,10 +13,13 @@
 //  V1.0 不含 pHash/embedding 计算（后置 V1.x）。
 
 import Foundation
+import os
 
 /// 导入服务（@MainActor——PhotoRepository 为 @MainActor 隔离）。
 @MainActor
 final class ImportService {
+
+    private let logger = Logger(subsystem: "com.milens.app", category: "Import")
 
     private let photoLibrary: any PhotoLibraryAccess
     private let fileStorage: any FileStorage
@@ -61,8 +64,15 @@ final class ImportService {
             return 0
         }
 
-        // 去重集合：以 originalURI（Photos localIdentifier）为键
-        let existingOriginalURIs = (try? photoRepo.getAllOriginalURIs()) ?? []
+        // 去重集合：以 originalURI（Photos localIdentifier）为键；
+        // 读取失败时按无既有记录处理（可能重复导入，但保证不中断本次导入）
+        let existingOriginalURIs: Set<String>
+        do {
+            existingOriginalURIs = try photoRepo.getAllOriginalURIs()
+        } catch {
+            logger.error("importPhotos: 读取既有 originalURI 失败（\(error.localizedDescription)），本次去重失效")
+            existingOriginalURIs = []
+        }
         // 同一批次内已处理的 identifier（输入列表可能含重复）
         var seenInBatch: Set<String> = []
 

@@ -6,10 +6,13 @@
 
 import SwiftUI
 import MiLensKit
+import os
 
 @MainActor
 @Observable
 final class BeadViewModel {
+
+    private let logger = Logger(subsystem: "com.milens.app", category: "Bead")
 
     // MARK: - 设置（对应源端 selectedStyleKey 等状态）
 
@@ -68,7 +71,17 @@ final class BeadViewModel {
 
     /// 按照片 ID 加载源图路径（对应源端 aboutToAppear 的路由参数赋值）。
     func load(photoID: UUID) async {
-        guard let photo = try? photoRepo.getPhoto(id: photoID) else { return }
+        let photo: Photo
+        do {
+            guard let found = try photoRepo.getPhoto(id: photoID) else {
+                logger.error("load: 照片不存在（\(photoID)）")
+                return
+            }
+            photo = found
+        } catch {
+            logger.error("load: 读取照片失败（\(photoID)，\(error.localizedDescription)）")
+            return
+        }
         photoURI = photo.uri
         thumbnailPath = photo.thumbnailPath
     }
@@ -293,7 +306,12 @@ final class BeadViewModel {
                                  exportOpts: opts)
         }.value
         guard let png else { return nil }
-        return try? exportService.writeShareCache(pngData: png)
+        do {
+            return try exportService.writeShareCache(pngData: png)
+        } catch {
+            logger.error("prepareShareFile: 写入分享缓存失败（\(error.localizedDescription)）")
+            return nil
+        }
     }
 
     // MARK: - Toast
@@ -303,7 +321,11 @@ final class BeadViewModel {
         toastMessage = message
         toastDismissTask?.cancel()
         toastDismissTask = Task { [weak self] in
-            try? await Task.sleep(for: .seconds(2.5))
+            do {
+                try await Task.sleep(for: .seconds(2.5))
+            } catch {
+                return  // 任务被取消（新的 toast 或 VM 释放）
+            }
             guard !Task.isCancelled else { return }
             self?.toastMessage = nil
         }

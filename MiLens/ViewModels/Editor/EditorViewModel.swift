@@ -18,6 +18,7 @@ import Foundation
 import ImageIO
 import MiLensKit
 import Observation
+import os
 
 /// 调色面板字段（Slider 绑定用）。
 enum EditorAdjustField: Sendable {
@@ -34,6 +35,7 @@ final class EditorViewModel {
 
     // MARK: - 依赖
 
+    private let logger = Logger(subsystem: "com.milens.app", category: "EditorVM")
     private let photoRepo: any PhotoRepositoryProtocol
     private let visionService: any VisionService
     private let imageProcessor: any EditorImageProcessing
@@ -130,7 +132,12 @@ final class EditorViewModel {
     /// 加载照片：读记录 → 沙盒文件解码 → 建立底图图层 + 历史基线。
     func load() async {
         guard !photoLoaded else { return }
-        photo = try? photoRepo.getPhoto(id: photoID)
+        do {
+            photo = try photoRepo.getPhoto(id: photoID)
+        } catch {
+            photo = nil
+            logger.error("load: 读取照片记录失败（\(self.photoID)，\(error.localizedDescription)）")
+        }
         guard let photo else {
             isPhotoLoading = false
             errorMessage = "照片不存在"
@@ -261,7 +268,8 @@ final class EditorViewModel {
     func rotate(_ direction: RotationDirection) {
         guard let baseImage else { return }
         let degrees = direction == .cw ? 90.0 : 270.0
-        self.baseImage = imageProcessor.rotating(baseImage, degrees: degrees)
+        let rotated = imageProcessor.rotating(baseImage, degrees: degrees)
+        self.baseImage = rotated
         if let layer = photoLayer() {
             document.updateLayer(layer.id) { l in
                 let w = l.width
@@ -271,7 +279,7 @@ final class EditorViewModel {
             }
         }
         adjustState.sharpness = 0
-        photoAspectRatio = clampAspectRatio(Double(self.baseImage!.width) / Double(self.baseImage!.height))
+        photoAspectRatio = clampAspectRatio(Double(rotated.width) / Double(rotated.height))
         photoGeneration += 1
         resetHistory()
         refreshPhotoImage()
@@ -448,7 +456,13 @@ final class EditorViewModel {
             return
         }
 
-        let result = try? await visionService.segmentSubject(in: data)
+        let result: SegmentationResult?
+        do {
+            result = try await visionService.segmentSubject(in: data)
+        } catch {
+            logger.error("startCutout: 主体分割失败（\(error.localizedDescription)）")
+            result = nil
+        }
         let guardSnapshot = EditorCutoutGuard(
             pageActive: true,
             photoGeneration: photoGeneration,

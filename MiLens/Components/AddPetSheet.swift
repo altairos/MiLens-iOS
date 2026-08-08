@@ -21,7 +21,10 @@ struct AddPetSheet: View {
 
     private let dateRange: ClosedRange<Date> = {
         let cal = Calendar(identifier: .gregorian)
-        let start = cal.date(from: DateComponents(year: 2000, month: 1, day: 1))!
+        // 2000-01-01 在 Gregorian 日历必然有效；失败属于日历基础设施异常，显式崩溃并携带原因。
+        guard let start = cal.date(from: DateComponents(year: 2000, month: 1, day: 1)) else {
+            fatalError("无法构造 2000-01-01 日期（Gregorian 日历异常）")
+        }
         return start...Date()
     }()
 
@@ -35,17 +38,29 @@ struct AddPetSheet: View {
                     errorSection
                 }
             }
+            .scrollContentBackground(.hidden)
+            .listRowBackground(Color.milensGrouped)
+            .background(Color.milensBackground)
             .navigationTitle("添加伙伴")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
                     Button("取消") { viewModel.resetForm(); dismiss() }
                 }
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button("添加") { submit() }
+            }
+            .safeAreaInset(edge: .bottom) {
+                Button { submit() } label: {
+                    Text("添加伙伴")
                         .font(.buttonLabel)
-                        .disabled(name.trimmingCharacters(in: .whitespaces).isEmpty)
+                        .foregroundStyle(Color.milensTextOnActionPrimary)
+                        .frame(maxWidth: .infinity, minHeight: Sizing.touchTarget)
+                        .background(Color.milensActionPrimary)
+                        .clipShape(Capsule())
                 }
+                .buttonStyle(.plain)
+                .disabled(name.trimmingCharacters(in: .whitespaces).isEmpty)
+                .padding(.horizontal, Spacing.pagePad)
+                .padding(.vertical, Spacing.sm)
             }
         }
     }

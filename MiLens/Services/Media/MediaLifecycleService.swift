@@ -46,8 +46,12 @@ final class MediaLifecycleService {
         do {
             try photoRepo.insertPhoto(photo)
         } catch {
-            // DB 失败 → 回滚已写文件，不留孤儿文件
-            try? await fileStorage.removeItem(at: path)
+            // DB 失败 → 回滚已写文件，不留孤儿文件；回滚失败仅记日志（文件可手工清理）
+            do {
+                try await fileStorage.removeItem(at: path)
+            } catch {
+                logger.error("commitImport: 回滚删除失败（\(path)，\(error.localizedDescription)）")
+            }
             throw error
         }
     }
@@ -83,7 +87,11 @@ final class MediaLifecycleService {
             photo.fileSize = oldFileSize
             photo.width = oldWidth
             photo.height = oldHeight
-            try? await fileStorage.removeItem(at: newPath)
+            do {
+                try await fileStorage.removeItem(at: newPath)
+            } catch {
+                logger.error("saveEditedPhoto: 回滚删除新文件失败（\(newPath)，\(error.localizedDescription)）")
+            }
             throw error
         }
         // 成功：清理旧版本文件（路径唯一由 hash/时间戳生成；仍防御性检查引用）
@@ -97,7 +105,11 @@ final class MediaLifecycleService {
                 stillReferenced = true
             }
             if !stillReferenced {
-                try? await fileStorage.removeItem(at: oldURI)
+                do {
+                    try await fileStorage.removeItem(at: oldURI)
+                } catch {
+                    logger.error("saveEditedPhoto: 清理旧版本文件失败（\(oldURI)，\(error.localizedDescription)）")
+                }
             }
         }
         return newPath
@@ -115,14 +127,27 @@ final class MediaLifecycleService {
 
         try photoRepo.deletePhoto(photo)
 
+        // 文件删除失败不阻断记录删除（媒体文件是派生资源，可经系统相册重新导入），仅记日志
         if !uri.isEmpty {
-            try? await fileStorage.removeItem(at: uri)
+            do {
+                try await fileStorage.removeItem(at: uri)
+            } catch {
+                logger.error("deletePhoto: 删除媒体文件失败（\(uri)，\(error.localizedDescription)）")
+            }
         }
         if !thumbnail.isEmpty, thumbnail != uri {
-            try? await fileStorage.removeItem(at: thumbnail)
+            do {
+                try await fileStorage.removeItem(at: thumbnail)
+            } catch {
+                logger.error("deletePhoto: 删除缩略图失败（\(thumbnail)，\(error.localizedDescription)）")
+            }
         }
         if let pet {
-            try? petRepo.refreshPhotoCount(for: pet)
+            do {
+                try petRepo.refreshPhotoCount(for: pet)
+            } catch {
+                logger.error("deletePhoto: 刷新宠物照片计数失败（\(error.localizedDescription)）")
+            }
         }
     }
 
@@ -149,7 +174,11 @@ final class MediaLifecycleService {
         let files = fileStorage.listFiles(in: sandboxDir)
         var orphanCount = 0
         for path in files where !knownPaths.contains(path) {
-            try? await fileStorage.removeItem(at: path)
+            do {
+                try await fileStorage.removeItem(at: path)
+            } catch {
+                logger.error("auditOrphans: 删除孤儿文件失败（\(path)，\(error.localizedDescription)）")
+            }
             orphanCount += 1
         }
         if orphanCount > 0 {

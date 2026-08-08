@@ -5,9 +5,12 @@
 //  写文件前自动创建父目录，保证 ImportService / EditorSaveService 不依赖调用方建目录。
 
 import Foundation
+import os
 
 /// FileManager 沙盒文件操作实现。
 final class IOSFileStorage: FileStorage, @unchecked Sendable {
+
+    private let logger = Logger(subsystem: "com.milens.app", category: "FileStorage")
 
     func copy(from source: String, to destination: String) async throws {
         guard fileExists(at: source) else {
@@ -49,12 +52,23 @@ final class IOSFileStorage: FileStorage, @unchecked Sendable {
 
     func listFiles(in directory: String) -> [String] {
         let fm = FileManager.default
-        guard let urls = try? fm.contentsOfDirectory(
-            at: URL(fileURLWithPath: directory),
-            includingPropertiesForKeys: [.isRegularFileKey]
-        ) else { return [] }
+        let urls: [URL]
+        do {
+            urls = try fm.contentsOfDirectory(
+                at: URL(fileURLWithPath: directory),
+                includingPropertiesForKeys: [.isRegularFileKey]
+            )
+        } catch {
+            logger.error("listFiles: 读取目录失败（\(directory)，\(error.localizedDescription)）")
+            return []
+        }
         return urls.filter { url in
-            (try? url.resourceValues(forKeys: [.isRegularFileKey]).isRegularFile) ?? false
+            do {
+                return try url.resourceValues(forKeys: [.isRegularFileKey]).isRegularFile ?? false
+            } catch {
+                logger.error("listFiles: 文件属性读取失败（\(url.path)），按非常规文件跳过")
+                return false
+            }
         }.map(\.path)
     }
 

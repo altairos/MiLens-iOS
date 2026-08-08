@@ -324,16 +324,22 @@ final class MockEditorImageProcessing: EditorImageProcessing {
 // MARK: - 辅助
 
 /// 生成最小测试用 CGImage（白色，像素缓冲随 width×height 分配）。
+/// 仅测试使用；创建失败属于图像基础设施异常，显式崩溃并携带尺寸信息。
 func makeTestCGImage(width: Int = 1, height: Int = 1) -> CGImage {
     var pixels = [UInt8](repeating: 255, count: width * height * 4)
     let colorSpace = CGColorSpaceCreateDeviceRGB()
-    let provider = CGDataProvider(data: Data(pixels) as CFData)!
-    return CGImage(
+    guard let provider = CGDataProvider(data: Data(pixels) as CFData) else {
+        fatalError("CGDataProvider 创建失败（\(width)x\(height)）")
+    }
+    guard let image = CGImage(
         width: width, height: height, bitsPerComponent: 8, bitsPerPixel: 32,
         bytesPerRow: width * 4, space: colorSpace,
         bitmapInfo: CGBitmapInfo(rawValue: CGImageAlphaInfo.premultipliedLast.rawValue),
         provider: provider, decode: nil, shouldInterpolate: false, intent: .defaultIntent
-    )!
+    ) else {
+        fatalError("CGImage 创建失败（\(width)x\(height)）")
+    }
+    return image
 }
 
 private extension UIColor {

@@ -6,13 +6,20 @@
 
 import Foundation
 import UserNotifications
+import os
 
 final class IOSNotificationCenter: NotificationPosting {
 
+    private let logger = Logger(subsystem: "com.milens.app", category: "NotificationCenter")
+
     func requestAuthorization() async -> Bool {
-        let granted = (try? await UNUserNotificationCenter.current()
-            .requestAuthorization(options: [.alert, .sound, .badge])) ?? false
-        return granted
+        do {
+            return try await UNUserNotificationCenter.current()
+                .requestAuthorization(options: [.alert, .sound, .badge])
+        } catch {
+            logger.error("请求通知授权失败：\(error.localizedDescription)")
+            return false
+        }
     }
 
     func authorizationStatus() async -> Bool {

@@ -6,6 +6,9 @@
 //  对应源端暂无（HarmonyOS 启动失败无恢复 UI，iOS 首发补充）。
 
 import SwiftUI
+import os
+
+private let logger = Logger(subsystem: "com.milens.app", category: "DatabaseRecovery")
 
 struct DatabaseRecoveryView: View {
     /// 启动失败的原始错误描述（可读化展示）
@@ -86,7 +89,11 @@ struct DatabaseRecoveryView: View {
     private static func exportDiagnostics(error: String) -> String {
         let fm = FileManager.default
         let dir = URL.documentsDirectory.appendingPathComponent("Diagnostics")
-        try? fm.createDirectory(at: dir, withIntermediateDirectories: true)
+        do {
+            try fm.createDirectory(at: dir, withIntermediateDirectories: true)
+        } catch {
+            logger.error("exportDiagnostics: 创建 Diagnostics 目录失败（\(error.localizedDescription)）")
+        }
         let formatter = DateFormatter()
         formatter.dateFormat = "yyyyMMdd-HHmmss"
         let file = dir.appendingPathComponent("startup-error-\(formatter.string(from: Date())).log")
@@ -95,7 +102,11 @@ struct DatabaseRecoveryView: View {
         时间：\(Date())
         错误：\(error)
         """
-        try? content.write(to: file, atomically: true, encoding: .utf8)
+        do {
+            try content.write(to: file, atomically: true, encoding: .utf8)
+        } catch {
+            logger.error("exportDiagnostics: 写入诊断文件失败（\(error.localizedDescription)）")
+        }
         return file.path
     }
 }

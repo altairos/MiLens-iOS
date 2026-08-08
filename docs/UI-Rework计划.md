@@ -178,10 +178,10 @@ cd MiLensKit && swift test
 | Phase 1 | 1.3 Gallery context menu | ✅ 收藏 / 创作拼豆 / 移除 + 删除二次确认已落地 |
 | Phase 1 | 1.4 PhotoView 下滑关闭 + hero | ✅ 下滑关闭、背景淡出、轻触感与相册→大图 matchedGeometry 转场已落地；真机手势待验收 |
 | Phase 1 | 1.5 RootTab 动效触感 | ✅ 原生 TabView + 淡入动画 + selection 触感已落地 |
-| Phase 2 | 2.1 Pets 卡片打磨 | ⬜ |
-| Phase 2 | 2.2 PetProfile 传记式 | ⬜ |
-| Phase 2 | 2.3 Timeline 节点化 | ⬜ |
-| Phase 2 | 2.4 表单/弹窗视觉统一 | ⬜ |
+| Phase 2 | 2.1 Pets 卡片打磨 | ✅ 卡片 0.5pt 描边分层 + 空态衬线引导 + 彩蛋弹窗统一已落地 |
+| Phase 2 | 2.2 PetProfile 传记式 | ✅ 出血肖像（~40% 屏高）+ 名字浮渐变 + 统计行已落地 |
+| Phase 2 | 2.3 Timeline 节点化 | ✅ 节点竖线 + 圆点 + 照片缩略图 + displayMedium 分组标题已落地 |
+| Phase 2 | 2.4 表单/弹窗视觉统一 | ✅ PetEditView / AddPetSheet / 彩蛋弹窗底色与胶囊 CTA 已落地 |
 | Phase 3 | 3.1 HomeViewModel + 测试 | ✅ 纯逻辑（MiLensKit Home/ 32 用例）+ App 编排已落地 |
 | Phase 3 | 3.2 hero 视觉 + 回忆 + CTA | 🔄 首轮已落地；待模拟器尺寸/深色/Dynamic Type 走查 |
 | Phase 4 | 4.1 Create 大卡片入口 | ⬜ |
@@ -189,6 +189,14 @@ cd MiLensKit && swift test
 | Phase 4 | 4.3 Onboarding 打磨 | ⬜ |
 | Phase 4 | 4.4 Settings 功能实现 | ⬜ |
 | Phase 4 | 4.5 付费墙 | ⬜ |
+
+### 本轮验证记录（2026-08-09，Phase 2 宠物档案传记化）
+
+- `xcodebuild … -destination 'platform=iOS Simulator,name=iPhone 17' build CODE_SIGNING_ALLOWED=NO`：通过（首次增量编译 BeadViewModel 出现一过性失败，重跑即 BUILD SUCCEEDED，与本次改动文件无关）。
+- `xcodebuild … test CODE_SIGNING_ALLOWED=NO`：**TEST SUCCEEDED，403 用例 0 失败**；上轮出现的「Early unexpected exit」环境问题本轮未复现。
+- `cd MiLensKit && swift test`：578 个测试通过（纯 View 层改动，包未受影响）。
+- swift-format lint：未执行（本机未安装 swift-format/swiftformat）。
+- 模拟器尺寸/深色模式/Dynamic Type 走查与真机验收：未执行，留待阶段收尾统一走查。
 
 ### 本轮验证记录（2026-08-09）
 

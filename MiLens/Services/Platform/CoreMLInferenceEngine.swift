@@ -183,9 +183,11 @@ final class CoreMLInferenceEngine: InferenceEngine {
         }
         // contiguous 拷贝：MLMultiArray(shape:dataType:) 创建的数组是 C-order contiguous，
         // 直接用 dataPointer + memcpy 写入输入字节。
-        data.withUnsafeBytes { src in
-            memcpy(array.dataPointer, src.baseAddress!, data.count)
+        // 空数据（shape 含 0 维度）时 baseAddress 为 nil，无字节可拷贝，直接返回。
+        guard let baseAddress = data.withUnsafeBytes({ $0.baseAddress }) else {
+            return array
         }
+        memcpy(array.dataPointer, baseAddress, data.count)
         return array
     }
 

@@ -4,10 +4,13 @@
 //  对应源端 TimelinePage（翻译 TimelineViewModel + 页面加载编排）。
 
 import Foundation
+import os
 
 @MainActor
 @Observable
 final class TimelineViewModel {
+
+    private let logger = Logger(subsystem: "com.milens.app", category: "Timeline")
 
     // MARK: - 显示层状态
 
@@ -31,8 +34,21 @@ final class TimelineViewModel {
 
     func load(now: Date = Date()) {
         isLoading = true
-        let pets = (try? petRepo.getAllPets()) ?? []
-        let allPhotos = pets.flatMap { (try? photoRepo.getPhotosByPet($0)) ?? [] }
+        let pets: [Pet]
+        do {
+            pets = try petRepo.getAllPets()
+        } catch {
+            logger.error("load: 读取宠物列表失败（\(error.localizedDescription)）")
+            pets = []
+        }
+        var allPhotos: [Photo] = []
+        for pet in pets {
+            do {
+                allPhotos.append(contentsOf: try photoRepo.getPhotosByPet(pet))
+            } catch {
+                logger.error("load: 读取宠物照片失败（\(pet.name)，\(error.localizedDescription)）")
+            }
+        }
 
         let timelinePets = pets.map { p in
             TimelinePet(id: p.id, name: p.name, birthday: p.birthday, hasFeatureData: p.featureData != nil)

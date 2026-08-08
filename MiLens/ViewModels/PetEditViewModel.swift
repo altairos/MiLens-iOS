@@ -4,10 +4,13 @@
 //  对应源端 PetEditPage（翻译 PetFormViewModel 编排部分）。
 
 import Foundation
+import os
 
 @MainActor
 @Observable
 final class PetEditViewModel {
+
+    private let logger = Logger(subsystem: "com.milens.app", category: "PetEdit")
 
     // MARK: - 显示层状态
 
@@ -39,9 +42,18 @@ final class PetEditViewModel {
     func loadPet(id: UUID) {
         isLoading = true
         petID = id
-        guard let pet = try? petRepo.getPet(id: id) else {
+        let pet: Pet
+        do {
+            guard let found = try petRepo.getPet(id: id) else {
+                isLoading = false
+                errorMessage = "档案加载失败"
+                return
+            }
+            pet = found
+        } catch {
             isLoading = false
             errorMessage = "档案加载失败"
+            logger.error("loadPet: 读取档案失败（\(id)，\(error.localizedDescription)）")
             return
         }
         form.name = pet.name
@@ -119,8 +131,16 @@ final class PetEditViewModel {
             errorMessage = noteError
             return false
         }
-        guard let pet = try? petRepo.getPet(id: petID) else {
+        let pet: Pet
+        do {
+            guard let found = try petRepo.getPet(id: petID) else {
+                errorMessage = "档案加载失败"
+                return false
+            }
+            pet = found
+        } catch {
             errorMessage = "档案加载失败"
+            logger.error("save: 读取档案失败（\(self.petID?.uuidString ?? "nil")，\(error.localizedDescription)）")
             return false
         }
         pet.name = form.name.trimmingCharacters(in: .whitespaces)

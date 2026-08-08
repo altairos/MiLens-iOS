@@ -195,43 +195,42 @@ enum AiInferenceLogic {
         }
 
         petScores.sort { $0.confidence > $1.confidence }
-        let bestPet = petScores.first
+        guard let bestPet = petScores.first else {
+            // 无可用宠物标签：非宠物，且不携带 topLabel（对应源端无 bestPet 分支）。
+            return ClipClassificationResult(
+                isPet: false,
+                labels: petScores,
+                species: nil,
+                topLabel: "",
+                topConfidence: 0,
+                diagnostics: "classify: no pet labels matched (petScores=\(petScores.count))"
+            )
+        }
 
-        let gap: Float = bestPet != nil ? bestPet!.confidence - maxNonPetSim : -1.0
-        let isPet = bestPet != nil
-            && bestPet!.confidence > config.petDetectThreshold
+        let gap = bestPet.confidence - maxNonPetSim
+        let isPet = bestPet.confidence > config.petDetectThreshold
             && gap >= -config.petNonPetTolerance
 
-        let diagnostics: String
-        if let bestPet = bestPet {
-            diagnostics = String(
-                format: "classify: isPet=%@, bestPet=%@/%@ conf=%.4f, bestNonPet=%@ conf=%.4f, gap=%.4f, threshold=%@, tolerance=%@",
-                isPet ? "true" : "false",
-                bestPet.name, bestPet.key ?? "",
-                bestPet.confidence,
-                bestNonPetName,
-                maxNonPetSim,
-                gap,
-                String(format: "%g", config.petDetectThreshold as CVarArg) as String,
-                String(format: "%g", config.petNonPetTolerance as CVarArg) as String
-            )
-        } else {
-            diagnostics = "classify: no pet labels matched (petScores=\(petScores.count))"
-        }
+        let diagnostics = String(
+            format: "classify: isPet=%@, bestPet=%@/%@ conf=%.4f, bestNonPet=%@ conf=%.4f, gap=%.4f, threshold=%@, tolerance=%@",
+            isPet ? "true" : "false",
+            bestPet.name, bestPet.key ?? "",
+            bestPet.confidence,
+            bestNonPetName,
+            maxNonPetSim,
+            gap,
+            String(format: "%g", config.petDetectThreshold as CVarArg) as String,
+            String(format: "%g", config.petNonPetTolerance as CVarArg) as String
+        )
 
-        let species: String?
-        if isPet, let bestPet = bestPet {
-            species = bestPet.key ?? bestPet.name
-        } else {
-            species = nil
-        }
+        let species = isPet ? (bestPet.key ?? bestPet.name) : nil
 
         return ClipClassificationResult(
             isPet: isPet,
             labels: petScores,
             species: species,
-            topLabel: bestPet?.name ?? "",
-            topConfidence: bestPet?.confidence ?? 0,
+            topLabel: bestPet.name,
+            topConfidence: bestPet.confidence,
             diagnostics: diagnostics
         )
     }

@@ -6,6 +6,9 @@
 
 import SwiftUI
 import SwiftData
+import OSLog
+
+private let logger = Logger(subsystem: "com.milens.app", category: "Editor")
 
 struct EditorView: View {
     let photoID: UUID
@@ -32,16 +35,18 @@ struct EditorView: View {
             let sandboxDir = URL.documentsDirectory
                 .appendingPathComponent(ScanConfig.sandboxDirName)
                 .path
+            // 环境注入的 service 优先；缺失时走 in-memory 兜底，兜底失败则保持黑屏（不崩溃）。
+            guard let mediaLifecycle = mediaLifecycleService ?? Self.fallbackLifecycle(
+                photoRepo: photoRepo, fileStorage: fileStorage,
+                sandboxDir: sandboxDir
+            ) else { return }
             let vm = EditorViewModel(
                 photoID: photoID,
                 photoRepo: photoRepo,
                 visionService: visionService,
                 imageProcessor: CoreImageEditorProcessing(),
                 saveService: EditorSaveService(
-                    mediaLifecycle: mediaLifecycleService ?? Self.fallbackLifecycle(
-                        photoRepo: photoRepo, fileStorage: fileStorage,
-                        sandboxDir: sandboxDir
-                    ),
+                    mediaLifecycle: mediaLifecycle,
                     sandboxDir: sandboxDir
                 )
             )
@@ -52,16 +57,23 @@ struct EditorView: View {
 
     // MARK: - 内容
 
-    /// 环境未注入 MediaLifecycleService 时的兜底（Preview/异常路径）：in-memory 容器。
+    /// 环境未注入 MediaLifecycleService 时的兜底（Preview/异常路径）：in-memory 容器；
+    /// 容器创建失败返回 nil，调用方保持黑屏而不崩溃。
     @MainActor
     private static func fallbackLifecycle(
         photoRepo: any PhotoRepositoryProtocol,
         fileStorage: any FileStorage,
         sandboxDir: String
-    ) -> MediaLifecycleService {
+    ) -> MediaLifecycleService? {
         let config = ModelConfiguration(isStoredInMemoryOnly: true)
-        let container = try! ModelContainer(
-            for: Schema(versionedSchema: SchemaV1.self), configurations: [config])
+        let container: ModelContainer
+        do {
+            container = try ModelContainer(
+                for: Schema(versionedSchema: SchemaV1.self), configurations: [config])
+        } catch {
+            logger.error("Editor fallback in-memory 容器创建失败: \(error, privacy: .public)")
+            return nil
+        }
         return MediaLifecycleService(
             photoRepo: photoRepo,
             petRepo: SwiftDataPetRepository(context: container.mainContext),

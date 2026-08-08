@@ -5,10 +5,13 @@
 //  对应源端 Index.ets 引导编排（步骤顺序按 iOS 设计稿调整）。
 
 import Foundation
+import os
 
 @MainActor
 @Observable
 final class OnboardingViewModel {
+
+    private let logger = Logger(subsystem: "com.milens.app", category: "Onboarding")
 
     // MARK: - 步骤
 
@@ -188,7 +191,13 @@ final class OnboardingViewModel {
         name: String, species: Species = .unknown, gender: Gender = .unknown,
         birthday: Date? = nil, adoptionDay: Date? = nil
     ) -> Bool {
-        let currentCount = (try? petRepo.getAllPets().count) ?? 0
+        let currentCount: Int
+        do {
+            currentCount = try petRepo.getAllPets().count
+        } catch {
+            logger.error("addFirstPet: 读取宠物数量失败（\(error.localizedDescription)），按 0 处理")
+            currentCount = 0
+        }
         if let nameError = PetProfileLogic.validateNewPetName(name) {
             scanError = nameError
             return false

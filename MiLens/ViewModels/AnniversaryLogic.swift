@@ -119,7 +119,8 @@ func timeMachineNotificationID(month: Int, day: Int) -> Int {
 /// 固定使用 UTC Calendar，与 TimelineLogic 保持一致。
 var utcCalendar: Calendar {
     var cal = Calendar(identifier: .gregorian)
-    cal.timeZone = TimeZone(identifier: "UTC")!
+    // “UTC” 标识符解析失败时回退 .gmt（同为零偏移时区，语义等价）。
+    cal.timeZone = TimeZone(identifier: "UTC") ?? .gmt
     return cal
 }
 

@@ -32,7 +32,8 @@ struct GalleryView: View {
         }
         .onAppear {
             if viewModel == nil {
-                let docs = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
+                // URL.documentsDirectory（iOS 16+）等价于 urls(for: .documentDirectory).first
+                let docs = URL.documentsDirectory
                 let dir = docs.appendingPathComponent(ScanConfig.sandboxDirName).path
                 let vm = GalleryViewModel(
                     photoRepo: photoRepo, petRepo: petRepo,

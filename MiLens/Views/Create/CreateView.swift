@@ -3,6 +3,9 @@
 //  宠物卡片生成待 P4 后续（依赖 AI 方案定案）。
 
 import SwiftUI
+import os
+
+private let logger = Logger(subsystem: "com.milens.app", category: "Create")
 
 struct CreateView: View {
     @Environment(\.photoRepository) private var photoRepo
@@ -69,6 +72,11 @@ struct CreateView: View {
     @MainActor
     private func loadPhotos() async {
         defer { isLoading = false }
-        photos = (try? photoRepo.getPhotosPage(offset: 0, limit: 200)) ?? []
+        do {
+            photos = try photoRepo.getPhotosPage(offset: 0, limit: 200)
+        } catch {
+            logger.error("loadPhotos: 读取照片列表失败（\(error.localizedDescription)）")
+            photos = []
+        }
     }
 }

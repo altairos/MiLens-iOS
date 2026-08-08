@@ -10,10 +10,13 @@
 //  源端在 ScanController 扫描完成后 fire-and-forget 调用本服务。
 
 import Foundation
+import os
 
 /// 质量评分 + 重复分组服务（@MainActor——PhotoRepository 为 @MainActor 隔离）。
 @MainActor
 final class QualityScorer {
+
+    private let logger = Logger(subsystem: "com.milens.app", category: "QualityScorer")
 
     private let photoRepo: any PhotoRepositoryProtocol
     private let imageAnalyzer: any ImageAnalyzer
@@ -40,7 +43,13 @@ final class QualityScorer {
     @discardableResult
     func computeAllQualityScores() async -> Int {
         var computed = 0
-        let pending = (try? photoRepo.getPendingQualityScorePhotos(limit: batchSize)) ?? []
+        let pending: [Photo]
+        do {
+            pending = try photoRepo.getPendingQualityScorePhotos(limit: batchSize)
+        } catch {
+            logger.error("computeAllQualityScores: 读取待评分照片失败（\(error.localizedDescription)）")
+            return 0
+        }
         for photo in pending {
             if Task.isCancelled { break }
             guard !photo.uri.isEmpty else { continue }
@@ -79,7 +88,13 @@ final class QualityScorer {
     /// - Returns: 重复组数量
     @discardableResult
     func findDuplicates() async -> Int {
-        let candidates = (try? photoRepo.getDuplicateCandidates()) ?? []
+        let candidates: [Photo]
+        do {
+            candidates = try photoRepo.getDuplicateCandidates()
+        } catch {
+            logger.error("findDuplicates: 读取重复候选失败（\(error.localizedDescription)）")
+            return 0
+        }
         // 在 MainActor 上把 @Model 投影为 Sendable 值类型，再交后台执行 O(n²) 分组
         let projected = candidates.map { photo in
             DuplicateCandidate(
@@ -97,7 +112,11 @@ final class QualityScorer {
         } catch {
             return 0
         }
-        try? photoRepo.replaceDuplicateMarks(groups)
+        do {
+            try photoRepo.replaceDuplicateMarks(groups)
+        } catch {
+            logger.error("findDuplicates: 写入重复标记失败（\(error.localizedDescription)）")
+        }
         return groups.count
     }
 

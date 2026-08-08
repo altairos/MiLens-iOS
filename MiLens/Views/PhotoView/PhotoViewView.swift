@@ -4,6 +4,9 @@
 
 import SwiftUI
 import UIKit
+import os
+
+private let logger = Logger(subsystem: "com.milens.app", category: "PhotoView")
 
 struct PhotoViewView: View {
     let photoID: UUID
@@ -160,7 +163,11 @@ struct PhotoViewView: View {
                         backgroundOpacity = 0
                     }
                     Task { @MainActor in
-                        try? await Task.sleep(nanoseconds: 260_000_000)
+                        do {
+                            try await Task.sleep(nanoseconds: 260_000_000)
+                        } catch {
+                            return  // 任务被取消（视图已离开）
+                        }
                         dismiss()
                     }
                 } else {
@@ -184,7 +191,12 @@ struct PhotoViewView: View {
 
     @MainActor
     private func loadData() async {
-        photo = try? photoRepo.getPhoto(id: photoID)
+        do {
+            photo = try photoRepo.getPhoto(id: photoID)
+        } catch {
+            photo = nil
+            logger.error("loadData: 读取照片记录失败（\(self.photoID)，\(error.localizedDescription)）")
+        }
         guard let photo else { return }
         let path = photo.thumbnailPath.isEmpty ? photo.uri : photo.thumbnailPath
         let loaded = await Task.detached(priority: .utility) {

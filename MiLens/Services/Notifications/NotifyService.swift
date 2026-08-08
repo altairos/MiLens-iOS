@@ -8,9 +8,12 @@
 //  查照片、查宠物、调度/撤销通知（DESIGN.md §4）。
 
 import Foundation
+import os
 
 @MainActor
 final class NotifyService {
+
+    private let logger = Logger(subsystem: "com.milens.app", category: "Notify")
 
     /// 时光机每日通知标识符（固定——重调度覆盖内容，撤销按此定位）。
     static let timeMachineIdentifier = "tm-daily"
@@ -83,8 +86,18 @@ final class NotifyService {
 
     // MARK: - 宠物纪念日（年度重复，月日组件 + 固定 09:00）
 
-    private func schedulePetAnniversaries(pets: [Pet]?, calendar: Calendar) async {
-        let pets = pets ?? ((try? petRepo.getAllPets()) ?? [])
+    private func schedulePetAnniversaries(pets providedPets: [Pet]?, calendar: Calendar) async {
+        let pets: [Pet]
+        if let providedPets {
+            pets = providedPets
+        } else {
+            do {
+                pets = try petRepo.getAllPets()
+            } catch {
+                logger.error("schedulePetAnniversaries: 读取宠物列表失败（\(error.localizedDescription)），跳过宠物纪念通知")
+                pets = []
+            }
+        }
         for pet in pets {
             if let birthday = pet.birthday {
                 await scheduleAnniversary(pet: pet, kind: .birthday, date: birthday, calendar: calendar)
@@ -117,12 +130,16 @@ final class NotifyService {
             now: date
         ).first else { return }
 
-        // 单条调度失败静默（通知非关键路径，不阻断其余提醒）
-        try? await poster.schedule(
-            title: data.title, body: data.body,
-            identifier: Self.anniversaryIdentifier(for: pet, kind: kind),
-            dateComponents: trigger, repeats: true
-        )
+        // 单条调度失败不阻断其余提醒（通知非关键路径），但记录错误便于诊断
+        do {
+            try await poster.schedule(
+                title: data.title, body: data.body,
+                identifier: Self.anniversaryIdentifier(for: pet, kind: kind),
+                dateComponents: trigger, repeats: true
+            )
+        } catch {
+            logger.error("scheduleAnniversary: 调度失败（\(pet.name)，\(error.localizedDescription)）")
+        }
     }
 
     // MARK: - 时光机（每日 09:00，调度时固定当日选片）
@@ -133,9 +150,16 @@ final class NotifyService {
 
         // SQL 层排除当年（对应源端 getAnniversaryEvents 的 excludeYear），
         // 内存再校验一次历史照片（对应源端 historicalPhotos filter）。
-        guard let photos = try? photoRepo.getAnniversaryPhotos(
-            month: month, day: day, excludeYear: year
-        ), !photos.isEmpty else { return }
+        let photos: [Photo]
+        do {
+            photos = try photoRepo.getAnniversaryPhotos(
+                month: month, day: day, excludeYear: year
+            )
+        } catch {
+            logger.error("scheduleTimeMachine: 读取纪念照片失败（\(error.localizedDescription)），跳过今日时光机")
+            return
+        }
+        guard !photos.isEmpty else { return }
 
         let projections = photos
             .filter { isHistoricalPhoto(takenAt: $0.takenAt, now: now) }
@@ -146,22 +170,33 @@ final class NotifyService {
             projections, randomIndex: randomSource()
         ) else { return }
 
-        let pets = ((try? petRepo.getAllPets()) ?? []).map {
+        let pets: [Pet]
+        do {
+            pets = try petRepo.getAllPets()
+        } catch {
+            logger.error("scheduleTimeMachine: 读取宠物列表失败（\(error.localizedDescription)），时光机通知不带宠物名")
+            pets = []
+        }
+        let petProjections = pets.map {
             TimeMachinePet(id: $0.id, name: $0.name)
         }
         let data = buildTimeMachineResult(
-            photo: selected, pets: pets, now: now, templateIndex: randomSource()
+            photo: selected, pets: petProjections, now: now, templateIndex: randomSource()
         )
 
         // 每日 09:00 重复；内容在调度时固定，下次 reschedule 刷新
         var trigger = DateComponents()
         trigger.hour = Self.reminderHour
         trigger.minute = Self.reminderMinute
-        try? await poster.schedule(
-            title: data.title, body: data.body,
-            identifier: Self.timeMachineIdentifier,
-            dateComponents: trigger, repeats: true
-        )
+        do {
+            try await poster.schedule(
+                title: data.title, body: data.body,
+                identifier: Self.timeMachineIdentifier,
+                dateComponents: trigger, repeats: true
+            )
+        } catch {
+            logger.error("scheduleTimeMachine: 调度失败（\(error.localizedDescription)）")
+        }
     }
 
     // MARK: - 标识符

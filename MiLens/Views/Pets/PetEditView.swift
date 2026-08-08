@@ -4,6 +4,9 @@
 //  头像裁切/视觉特征注册后置 V1.x（依赖图片编辑器 + CLIP 模型）。
 
 import SwiftUI
+import os
+
+private let logger = Logger(subsystem: "com.milens.app", category: "PetEditView")
 
 struct PetEditView: View {
     let petID: UUID
@@ -19,7 +22,10 @@ struct PetEditView: View {
 
     private let dateRange: ClosedRange<Date> = {
         let cal = Calendar(identifier: .gregorian)
-        let start = cal.date(from: DateComponents(year: 2000, month: 1, day: 1))!
+        // 2000-01-01 在 Gregorian 日历必然有效；失败属于日历基础设施异常，显式崩溃并携带原因。
+        guard let start = cal.date(from: DateComponents(year: 2000, month: 1, day: 1)) else {
+            fatalError("无法构造 2000-01-01 日期（Gregorian 日历异常）")
+        }
         return start...Date()
     }()
 
@@ -37,13 +43,20 @@ struct PetEditView: View {
         }
         .navigationTitle("编辑档案")
         .navigationBarTitleDisplayMode(.inline)
-        .toolbar {
-            ToolbarItem(placement: .topBarTrailing) {
-                if let vm = viewModel, !vm.isLoading {
-                    Button("保存") { save(vm) }
+        .safeAreaInset(edge: .bottom) {
+            if let vm = viewModel, !vm.isLoading {
+                Button { save(vm) } label: {
+                    Text("保存")
                         .font(.buttonLabel)
-                        .disabled(vm.isSaving)
+                        .foregroundStyle(Color.milensTextOnActionPrimary)
+                        .frame(maxWidth: .infinity, minHeight: Sizing.touchTarget)
+                        .background(Color.milensActionPrimary)
+                        .clipShape(Capsule())
                 }
+                .buttonStyle(.plain)
+                .disabled(vm.isSaving)
+                .padding(.horizontal, Spacing.pagePad)
+                .padding(.vertical, Spacing.sm)
             }
         }
         .task {
@@ -124,6 +137,9 @@ struct PetEditView: View {
             }
         }
         .scrollDismissesKeyboard(.interactively)
+        .scrollContentBackground(.hidden)
+        .listRowBackground(Color.milensGrouped)
+        .background(Color.milensBackground)
     }
 
     // MARK: - 头像区
@@ -254,16 +270,33 @@ struct PetEditView: View {
     private func save(_ vm: PetEditViewModel) {
         if vm.save() {
             // 生日/领养日可能变更：局部重调度该宠物的纪念提醒
-            if let notifyService, let pet = try? petRepo.getPet(id: petID) {
-                Task { await notifyService.updateReminders(for: pet) }
+            if let notifyService {
+                do {
+                    if let pet = try petRepo.getPet(id: petID) {
+                        Task { await notifyService.updateReminders(for: pet) }
+                    }
+                } catch {
+                    logger.error("save: 读取宠物失败（\(self.petID)，\(error.localizedDescription)）")
+                }
             }
             dismiss()
         }
     }
 
     private func deletePet() {
-        if let pet = try? petRepo.getPet(id: petID) {
-            try? petRepo.deletePet(pet)
+        let pet: Pet?
+        do {
+            pet = try petRepo.getPet(id: petID)
+        } catch {
+            pet = nil
+            logger.error("deletePet: 读取档案失败（\(self.petID)，\(error.localizedDescription)）")
+        }
+        if let pet {
+            do {
+                try petRepo.deletePet(pet)
+            } catch {
+                logger.error("deletePet: 删除档案失败（\(self.petID)，\(error.localizedDescription)）")
+            }
             // 撤销该宠物的纪念提醒
             if let notifyService {
                 Task { await notifyService.removeReminders(for: pet) }

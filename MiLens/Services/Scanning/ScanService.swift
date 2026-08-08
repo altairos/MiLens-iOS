@@ -19,10 +19,13 @@
 //  自动匹配已注册宠物（PetMatcher）V1.0 未实现，matchedCount 恒为 0。
 
 import Foundation
+import os
 
 /// 扫描服务（@MainActor——PhotoRepository/PetRepository 均为 @MainActor 隔离）。
 @MainActor
 final class ScanService {
+
+    private let logger = Logger(subsystem: "com.milens.app", category: "Scan")
 
     private let photoLibrary: any PhotoLibraryAccess
     private let vision: any VisionService
@@ -157,9 +160,13 @@ final class ScanService {
                     currentIdentifier: identifier))
             }
 
-            // 冷却（防止 CPU 过热，对应源端 COOLDOWN）
+            // 冷却（防止 CPU 过热，对应源端 COOLDOWN）；sleep 失败即任务被取消，结束扫描
             if processedCount % ScanConfig.cooldownBatchSize == 0 {
-                try? await Task.sleep(for: ScanConfig.cooldownInterval)
+                do {
+                    try await Task.sleep(for: ScanConfig.cooldownInterval)
+                } catch {
+                    break
+                }
             }
         }
 
@@ -196,20 +203,41 @@ final class ScanService {
         let vision = self.vision
         let clipService = self.clipService
         let executor = self.executor
-        // 执行器异常视为单张失败（不收录，不中断扫描）
-        return (try? await executor.run {
-            guard let imageData = try? await photoLibrary.loadImageData(
-                forIdentifier: identifier,
-                maxDimension: ScanConfig.detectInputSize
-            ) else { return false }
-            let detections = (try? await vision.detectPets(in: imageData)) ?? []
-            guard !detections.isEmpty else { return false }
-            // CLIP 不可用或推理失败时降级为 Phase 1 预筛结论（不中断扫描，对应源端多级降级）
-            guard let clipService else { return true }
-            guard let result = try? await clipService.detect(imageData: imageData) else {
-                return true
+        // 执行器异常视为单张失败（不收录，不中断扫描），记录错误便于诊断
+        do {
+            return try await executor.run {
+                let imageData: Data
+                do {
+                    imageData = try await photoLibrary.loadImageData(
+                        forIdentifier: identifier,
+                        maxDimension: ScanConfig.detectInputSize
+                    )
+                } catch {
+                    self.logger.error("analyzeOne: 读取照片失败（\(identifier)，\(error.localizedDescription)）")
+                    return false
+                }
+                let detections: [DetectionBox]
+                do {
+                    detections = try await vision.detectPets(in: imageData)
+                } catch {
+                    self.logger.error("analyzeOne: 宠物预筛失败（\(identifier)，\(error.localizedDescription)）")
+                    detections = []
+                }
+                guard !detections.isEmpty else { return false }
+                // CLIP 不可用或推理失败时降级为 Phase 1 预筛结论（不中断扫描，对应源端多级降级）
+                guard let clipService else { return true }
+                let result: ClipDetectionResult
+                do {
+                    result = try await clipService.detect(imageData: imageData)
+                } catch {
+                    self.logger.error("analyzeOne: CLIP 精筛失败（\(identifier)，\(error.localizedDescription)），降级为 Phase 1 结论")
+                    return true
+                }
+                return result.isPet
             }
-            return result.isPet
-        }) ?? false
+        } catch {
+            self.logger.error("analyzeOne: 执行器异常（\(identifier)，\(error.localizedDescription)）")
+            return false
+        }
     }
 }

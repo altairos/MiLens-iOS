@@ -5,10 +5,13 @@
 
 import SwiftUI
 import SwiftData
+import os
 
 @MainActor
 @Observable
 final class GalleryViewModel {
+
+    private let logger = Logger(subsystem: "com.milens.app", category: "Gallery")
 
     // MARK: - 显示层状态
 
@@ -146,7 +149,6 @@ final class GalleryViewModel {
         currentLoadedCount = 0
         do {
             totalPhotoCount = try photoRepo.getAllPhotoURIs().count
-            pets = (try? petRepo.getAllPets()) ?? []
             let page = try photoRepo.getPhotosPage(offset: 0, limit: pageSize)
             photos = page
             hasMorePhotos = page.count == pageSize
@@ -154,6 +156,13 @@ final class GalleryViewModel {
         } catch {
             photos = []
             hasMorePhotos = false
+        }
+        // 宠物列表失败不影响照片列表（独立降级，记录错误便于诊断）
+        do {
+            pets = try petRepo.getAllPets()
+        } catch {
+            logger.error("loadInitial: 读取宠物列表失败（\(error.localizedDescription)）")
+            pets = []
         }
         isLoading = false
     }

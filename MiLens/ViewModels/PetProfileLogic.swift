@@ -79,7 +79,8 @@ enum PetProfileLogic {
 enum PetDateCalendar {
     static let gregorian: Calendar = {
         var cal = Calendar(identifier: .gregorian)
-        cal.timeZone = TimeZone(identifier: "UTC")!
+        // “UTC” 标识符解析失败时回退 .gmt（同为零偏移时区，语义等价）。
+        cal.timeZone = TimeZone(identifier: "UTC") ?? .gmt
         return cal
     }()
 }

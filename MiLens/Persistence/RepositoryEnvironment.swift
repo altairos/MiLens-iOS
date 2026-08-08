@@ -17,7 +17,13 @@ private enum FallbackContainer {
     static let shared: ModelContainer = {
         let schema = Schema(versionedSchema: SchemaV1.self)
         let config = ModelConfiguration(isStoredInMemoryOnly: true)
-        return try! ModelContainer(for: schema, configurations: [config])
+        do {
+            return try ModelContainer(for: schema, configurations: [config])
+        } catch {
+            // EnvironmentKey.defaultValue 同步不可抛错，fallback 已是最后兜底；
+            // 创建失败属于 SwiftData 基础设施异常，显式崩溃并携带 underlying error 以便诊断。
+            fatalError("无法创建 fallback in-memory ModelContainer: \(error)")
+        }
     }()
 }
 

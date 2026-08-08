@@ -1,6 +1,6 @@
 # MiLens iOS 迁移计划
 
-最后核对：2026-08-08（P0 收口，P2 进行中，P3 纯逻辑+VM 已落地，P4 编辑器 Phase 1-2.5 纯逻辑全部落地）
+最后核对：2026-08-08（P0 收口，P2 进行中，P3 纯逻辑+VM+View 层已落地，P4 编辑器 Phase 1-2.5 纯逻辑全部落地）
 
 > 里程碑与任务清单。架构见 [DESIGN.md](DESIGN.md)，映射与范围见 [MIGRATION_ASSESSMENT.md](MIGRATION_ASSESSMENT.md)，约束见 [AGENTS.md](AGENTS.md)。
 
@@ -11,7 +11,7 @@
 | **P0** | Harness 与规划 | 文档骨架、约束、目录结构、XcodeGen 声明、范围对齐 | ✅ 已完成 |
 | **P1** | 地基 + 算法核心 | Xcode 工程可编译、SwiftData schema、拼豆 Swift 核心（黄金规格通过）、AI 路线定案 | ⬜ |
 | **P2** | 相册 MVP | 扫描发现（+质量评分/重复分组）+ 手动导入 + 相册网格 + 大图查看 | 🔄 进行中 |
-| **P3** | 宠物档案 | 档案 CRUD + 成长时间线 + 纪念提醒 | 🔄 进行中（纯逻辑+VM✅） |
+| **P3** | 宠物档案 | 档案 CRUD + 成长时间线 + 纪念提醒 | 🔄 进行中（纯逻辑+VM+View ✅） |
 | **P4** | 创作入口 + 编辑器 | 拼豆图纸完整流程 + 完整图片编辑器（裁切/滤镜/标注） | ⬜ |
 | **P5** | 首页/我的 + 商业化 | 首页回忆/提醒、设置、StoreKit 订阅、App Store 提审 | ⬜ |
 
@@ -156,9 +156,13 @@
 
 **View + 提醒（需 Mac）**
 
-- [ ] `PetProfileView`：头像/名称/年龄/照片数/成长轨迹（设计稿 Tab 2）
-- [ ] `PetEditView`：档案编辑（翻译 `PetFormViewModel`）
-- [ ] `TimelineView`：成长时间线（翻译 `TimelineViewModel` + `TimeMachineService`）
+- [x] `PetsView`：宠物列表 Tab（替换占位）——卡片（头像/名称/物种·年龄·性别/照片数·相处天数）+ 建档 Sheet + 彩蛋弹窗 + 长按删除（对应源端 PetProfilePage 列表部分）
+- [x] `PetProfileView`：单只宠物详情（route .petProfile）——头像/名称/物种/年龄 + 统计行（照片数/相处天数/年龄）+ 最近照片网格 + 备忘列表 + 编辑/时间线入口
+- [x] `PetEditView`：档案编辑（route .petEdit，翻译 PetEditViewModel）——名称/物种/性别/生日/领养日/备忘条目编辑 + 保存 + 删除 + 未保存确认
+- [x] `TimelineView`：成长时间线（route .timeline）——按年月分组 + 宠物筛选 + 条目点击进大图
+- [x] `AddPetSheet` 复用组件（建档表单：名称/物种/性别/生日/领养日）
+- [x] `PetDisplayLogic` 纯函数（年龄/物种名/性别名/相处天数格式化）+ 15 用例 XCTest（翻译源端 DateUtils.test + Pet getSpeciesName/getGenderName）
+- [x] Route 枚举扩展 `.timeline` + RootTabView 路由串联
 - [ ] 纪念提醒：`UNUserNotificationCenter`（生日/领养日）
 - [ ] 档案内照片分类（全部/幼年/玩耍/睡觉等，按设计稿）
 
@@ -310,3 +314,4 @@
 
 - 2026-08-08：**P3 纯决策逻辑 + ViewModel 落地**——翻译源端 3 个宠物档案纯决策模块为 Swift（`PetProfileLogic` / `PetFormLogic` / `TimelineLogic`）+ 84 用例 XCTest（对应源端 `PetProfileViewModel.test` + `PetFormViewModel.test` + `TimelineViewModel.test` 黄金规格逐条翻译 + iOS 边界增强）；3 个 `@Observable` ViewModel（`PetProfileViewModel` 列表/建档/删除 + 彩蛋触发 / `PetEditViewModel` 档案加载/表单编辑/备注增删/未保存判定/校验保存 / `TimelineViewModel` 加载宠物+事件+照片→构建时间线→按宠物筛选）。架构差异：源端 petId/photoId 为整数+`-1` 哨兵 → iOS `UUID?`+`nil`；源端 birthday 为 ISO 字符串 + `substring` 比较彩蛋 → iOS `Date?` + `Calendar` 提取 MM-DD；源端彩蛋/物种 Emoji 在 `PetFormViewModel`/`PetProfileViewModel` 两处重复 → iOS 收敛到 `PetProfileLogic` 单一来源；源端 `new Date(y,month0,d)` → iOS 固定 UTC `Calendar`+`DateComponents` 保证跨环境可复现。**CI 验证待推送**。
 - 2026-08-08：**P5 回忆/通知纯逻辑落地**——翻译源端 `PhotoQueryLogic.ets` 日期格式化 + `TimeMachineService.ets` 选片/文案 + `NotifyScheduler.ets` 纪念日逻辑为 Swift 纯函数：①`AnniversaryLogic`（`formatAnniversaryMonthDay` / `computeYearsAgo` / `isHistoricalPhoto` / `buildAnniversaryNotificationText` / `buildTimeMachineText` 4 模板 / `timeMachineNotificationID` 公式 parity）；②`TimeMachineLogic`（`selectTimeMachinePhoto` 随机选片参数化 + `buildTimeMachineResult` 端到端结果构建 + `buildAnniversaryNotifications` 批量纪念日通知）。38 用例 XCTest（日期格式化 5 + 年份差 5 + 历史筛选 4 + 文案 parity 9 + ID 公式 2 + 选片 4 + 结果构建 6 + 批量通知 4）。架构差异：源端 `Math.random()` → iOS `randomIndex` 参数化可测；源端 `new Date(string).getFullYear()` → iOS `utcCalendar` 固定时区可复现。**CI 验证待推送**。
+- 2026-08-08：**P3 View 层落地（宠物档案四页面）**——①`PetsView` 替换占位为宠物列表 Tab（卡片：头像/名称/物种·年龄·性别/照片数·相处天数 + 建档 Sheet + 彩蛋弹窗 + 长按删除，对应源端 PetProfilePage 列表部分）；②`PetProfileView`（route .petProfile）单宠详情：头像/统计行（照片数/相处天数/年龄）+ 最近照片网格 + 备忘列表 + 编辑/时间线入口；③`PetEditView`（route .petEdit）档案编辑：名称/物种/性别/生日/领养日/备忘条目 + 保存/删除/未保存确认（翻译 PetEditViewModel）；④`TimelineView`（route .timeline）成长时间线：按年月分组 + 宠物筛选 chips + 条目点击进大图（翻译 TimelineViewModel + TimelineLogic）；⑤`AddPetSheet` 复用组件；⑥`PetDisplayLogic` 纯函数（年龄/物种名/性别名/相处天数/日期格式化）+ 15 用例 XCTest（翻译源端 DateUtils.test + Pet getSpeciesName/getGenderName）；⑦Route 枚举扩展 `.timeline` + RootTabView 路由串联。架构差异：源端 FAB + 页面级 Sheet → iOS toolbar/按钮 + SwiftUI `.sheet`；源端日期字符串 → iOS `DatePicker` 直接绑定 `Date?`。头像裁切/视觉特征注册后置 V1.x（依赖图片编辑器 + CLIP 模型）。**编译通过 + 296 用例全绿（新增 PetDisplayLogicTests 15 个）**。

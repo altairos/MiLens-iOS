@@ -10,4 +10,5 @@ enum Route: Hashable {
     case petProfile(petID: UUID)
     case beadPattern(photoID: UUID)
     case petEdit(petID: UUID)
+    case timeline         // 成长时间线（全部宠物）
 }

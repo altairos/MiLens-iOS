@@ -16,7 +16,8 @@
 //  两阶段检测（诚实标注）：
 //  - Phase 1：VisionService 预筛（VNClassifyImageRequest 宠物标签匹配，宽松）；
 //  - Phase 2：ClipInferenceService 精筛（模型缺失/失败时降级为 Phase 1 结论）。
-//  自动匹配已注册宠物（PetMatcher）V1.0 未实现，matchedCount 恒为 0。
+//  自动匹配已注册宠物（PetMatcher）发生在导入阶段（ImportService → matchFromEmbedding
+//  → assignPhoto，与源端一致）——扫描只收集候选，matchedCount 恒为 0 是设计如此。
 
 import Foundation
 import os

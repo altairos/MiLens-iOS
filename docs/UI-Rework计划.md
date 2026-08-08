@@ -184,8 +184,8 @@ cd MiLensKit && swift test
 | Phase 2 | 2.4 表单/弹窗视觉统一 | ✅ PetEditView / AddPetSheet / 彩蛋弹窗底色与胶囊 CTA 已落地 |
 | Phase 3 | 3.1 HomeViewModel + 测试 | ✅ 纯逻辑（MiLensKit Home/ 32 用例）+ App 编排已落地 |
 | Phase 3 | 3.2 hero 视觉 + 回忆 + CTA | 🔄 首轮已落地；待模拟器尺寸/深色/Dynamic Type 走查 |
-| Phase 4 | 4.1 Create 大卡片入口 | ⬜ |
-| Phase 4 | 4.2 拼豆工作室化 | ⬜ |
+| Phase 4 | 4.1 Create 大卡片入口 | ✅ 大卡片列表 + 拼豆入口（真实照片像素化示意）+ 宠物卡片诚实占位 + 选照片流程搬入 BeadPhotoPickerView |
+| Phase 4 | 4.2 拼豆工作室化 | ✅ 上预览下参数 + 防抖实时重渲染 + 模糊→清晰揭示 + .success 触感 + 全屏导出三按钮（含 A4 PDF）；build/test 被并发 WIP 阻塞待复验 |
 | Phase 4 | 4.3 Onboarding 打磨 | ⬜ |
 | Phase 4 | 4.4 Settings 功能实现 | ⬜ |
 | Phase 4 | 4.5 付费墙 | ⬜ |
@@ -197,6 +197,14 @@ cd MiLensKit && swift test
 - `cd MiLensKit && swift test`：578 个测试通过（纯 View 层改动，包未受影响）。
 - swift-format lint：未执行（本机未安装 swift-format/swiftformat）。
 - 模拟器尺寸/深色模式/Dynamic Type 走查与真机验收：未执行，留待阶段收尾统一走查。
+
+### 本轮验证记录（2026-08-09，Phase 4.1/4.2 创作页）
+
+- 改动：CreateView 重写为大卡片入口；新增 BeadPhotoPickerView（`xcodegen generate` 已入工程）；BeadPatternView 工作室布局；BeadSettingsPanelView 双态主按钮；BeadPatternResultView 全屏导出 + A4 PDF（`BeadExportService.renderA4PDF`，UIGraphicsPDFRenderer 单页 A4）。
+- `xcodegen generate`、`git diff --check`：通过。
+- `xcodebuild build`：**未通过，但与本次改动无关**——工作区被另一会话并发修改，未跟踪 WIP 文件 `MiLens/Services/Scanning/PetMatcher.swift:115-117` 有 3 处 optional 解包编译错误；本次触动的 9 个文件在完整构建日志中 0 error。`xcodebuild test` 因此被阻塞**未执行**，待 PetMatcher.swift 修复后需重跑 build + test 闭环。
+- swift-format lint：未执行（本机未安装）。
+- 揭示动画/防抖重渲染/A4 PDF 分享面板/深色模式走查与真机验收：未执行。
 
 ### 本轮验证记录（2026-08-09）
 

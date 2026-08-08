@@ -59,6 +59,8 @@ struct RootTabView: View {
             EditorView(photoID: photoID)
         case .petProfile(let petID):
             PetProfileView(petID: petID)
+        case .beadPhotoPicker:
+            BeadPhotoPickerView()
         case .beadPattern(let photoID):
             BeadPatternView(photoID: photoID)
         case .petEdit(let petID):

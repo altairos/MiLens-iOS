@@ -290,12 +290,19 @@ final class GalleryViewModel {
             let service = ImportService(
                 photoLibrary: self.photoLibrary, fileStorage: self.fileStorage,
                 photoRepo: self.photoRepo, mediaLifecycle: self.mediaLifecycle,
-                sandboxDir: self.sandboxDir
+                sandboxDir: self.sandboxDir, petRepo: self.petRepo,
+                clipService: self.clipService
             )
-            _ = await service.importPhotos(identifiers: identifiers)
+            let result = await service.importPhotos(identifiers: identifiers)
             self.isImporting = false
             self.loadInitial()
             self.triggerQualityAnalysis()
+            // 自动归属结果提示（复用扫描完成弹窗）
+            if result.imported > 0 {
+                self.scanCompleteMessage = ImportFlowLogic.resolveImportSummary(
+                    imported: result.imported, matched: result.matched)
+                self.showScanCompleteDialog = true
+            }
         }
     }
 

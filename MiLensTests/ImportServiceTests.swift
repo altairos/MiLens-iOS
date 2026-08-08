@@ -1,5 +1,8 @@
 import XCTest
 import SwiftData
+import CoreGraphics
+import ImageIO
+import UniformTypeIdentifiers
 @testable import MiLens
 
 /// ImportService 测试——导入编排逻辑（对应源端 PhotoScanner.importPhotos）。
@@ -28,7 +31,7 @@ final class ImportServiceTests: XCTestCase {
         let service = ImportService(
             photoLibrary: photoLibrary, fileStorage: fileStorage,
             photoRepo: photoRepo, mediaLifecycle: mediaLifecycle,
-            sandboxDir: "/documents/MiPhotos"
+            sandboxDir: "/documents/MiPhotos", petRepo: petRepo
         )
         return (service, photoRepo, fileStorage, container)
     }
@@ -44,8 +47,9 @@ final class ImportServiceTests: XCTestCase {
 
     func testImportCreatesPhotoRecord() async {
         let (service, photoRepo, _, container) = makeService(assets: [asset("a")])
-        let count = await service.importPhotos(identifiers: ["a"])
-        XCTAssertEqual(count, 1)
+        let result = await service.importPhotos(identifiers: ["a"])
+        XCTAssertEqual(result.imported, 1)
+        XCTAssertEqual(result.matched, 0)
 
         let photos = try! photoRepo.getPhotosPage(offset: 0, limit: 10)
         XCTAssertEqual(photos.count, 1)
@@ -54,8 +58,8 @@ final class ImportServiceTests: XCTestCase {
 
     func testImportMultiplePhotos() async {
         let (service, photoRepo, _, container) = makeService(assets: [asset("a"), asset("b"), asset("c")])
-        let count = await service.importPhotos(identifiers: ["a", "b", "c"])
-        XCTAssertEqual(count, 3)
+        let result = await service.importPhotos(identifiers: ["a", "b", "c"])
+        XCTAssertEqual(result.imported, 3)
 
         let photos = try! photoRepo.getPhotosPage(offset: 0, limit: 10)
         XCTAssertEqual(photos.count, 3)
@@ -68,8 +72,8 @@ final class ImportServiceTests: XCTestCase {
         // 第一次导入
         _ = await service.importPhotos(identifiers: ["a", "b"])
         // 再次导入相同 identifier
-        let count = await service.importPhotos(identifiers: ["a"])
-        XCTAssertEqual(count, 0)
+        let result = await service.importPhotos(identifiers: ["a"])
+        XCTAssertEqual(result.imported, 0)
 
         let photos = try! photoRepo.getPhotosPage(offset: 0, limit: 10)
         XCTAssertEqual(photos.count, 2) // 仍然是 2 张
@@ -82,8 +86,8 @@ final class ImportServiceTests: XCTestCase {
         try! photoRepo.insertPhoto(Photo(uri: "/documents/MiPhotos/xyz.jpg", originalURI: "a"))
 
         // 再次导入 "a" → 按 originalURI 跳过；"b" 正常导入
-        let count = await service.importPhotos(identifiers: ["a", "b"])
-        XCTAssertEqual(count, 1)
+        let result = await service.importPhotos(identifiers: ["a", "b"])
+        XCTAssertEqual(result.imported, 1)
 
         let photos = try! photoRepo.getPhotosPage(offset: 0, limit: 10)
         XCTAssertEqual(photos.count, 2)
@@ -92,8 +96,8 @@ final class ImportServiceTests: XCTestCase {
     func testImportSkipsDuplicateIdentifiersWithinBatch() async {
         let (service, photoRepo, _, container) = makeService(assets: [asset("a"), asset("b")])
         // 同一批次内重复 identifier 只导入一次
-        let count = await service.importPhotos(identifiers: ["a", "a", "b", "b", "a"])
-        XCTAssertEqual(count, 2)
+        let result = await service.importPhotos(identifiers: ["a", "a", "b", "b", "a"])
+        XCTAssertEqual(result.imported, 2)
 
         let photos = try! photoRepo.getPhotosPage(offset: 0, limit: 10)
         XCTAssertEqual(photos.count, 2)
@@ -103,8 +107,8 @@ final class ImportServiceTests: XCTestCase {
 
     func testImportEmptyIdentifiersReturnsZero() async {
         let (service, _, _, container) = makeService(assets: [])
-        let count = await service.importPhotos(identifiers: [])
-        XCTAssertEqual(count, 0)
+        let result = await service.importPhotos(identifiers: [])
+        XCTAssertEqual(result.imported, 0)
     }
 
     // MARK: - 上限
@@ -114,8 +118,8 @@ final class ImportServiceTests: XCTestCase {
         let assets = (0..<60).map { asset("photo_\($0)") }
         let (service, photoRepo, _, container) = makeService(assets: assets)
         let identifiers = (0..<60).map { "photo_\($0)" }
-        let count = await service.importPhotos(identifiers: identifiers)
-        XCTAssertEqual(count, ScanConfig.maxImportBatch)
+        let result = await service.importPhotos(identifiers: identifiers)
+        XCTAssertEqual(result.imported, ScanConfig.maxImportBatch)
 
         let photos = try! photoRepo.getPhotosPage(offset: 0, limit: 100)
         XCTAssertEqual(photos.count, ScanConfig.maxImportBatch)
@@ -162,4 +166,126 @@ final class ImportServiceTests: XCTestCase {
         XCTAssertEqual(fileName, photos[0].id.uuidString + ".jpg")
         XCTAssertNotEqual(fileName, "a.jpg") // 不再是 identifier 的短哈希
     }
+
+    // MARK: - 自动归属（导入时匹配已注册宠物，对应源端 importPhotos 匹配链路）
+
+    func testImportAutoMatchesRegisteredPet() async throws {
+        // 1. 注册一只宠物（8 张橙色图 + 固定 clip embedding）
+        let (_, petRepo, photoRepo, container) = makeAutoMatchService(
+            assets: [asset("a")],
+            imageDataOverrides: ["a": makeSolidPNG(width: 64, height: 64, r: 255, g: 120, b: 60)]
+        )
+        let pet = Pet(name: "小橘")
+        try petRepo.insertPet(pet)
+        let clip = MockClipInference()
+        let matcher = PetMatcher(
+            petRepo: petRepo, clipService: clip,
+            executor: AnalysisExecutor(maxConcurrent: 1))
+        let images = (0..<8).map { _ in makeSolidPNG(width: 64, height: 64, r: 255, g: 120, b: 60) }
+        let registered = await matcher.registerPetFeatures(petID: pet.id, imageDatas: images)
+        XCTAssertTrue(registered)
+
+        // 2. 用同一 CLIP mock + 同色图片导入 → 自动归属到该宠物
+        let service2 = ImportService(
+            photoLibrary: MockPhotoLibraryAccess(
+                assets: [asset("a")],
+                imageDataOverrides: ["a": makeSolidPNG(width: 64, height: 64, r: 255, g: 120, b: 60)]
+            ),
+            fileStorage: MockFileStorage(),
+            photoRepo: photoRepo, mediaLifecycle: MediaLifecycleService(
+                photoRepo: photoRepo, petRepo: petRepo,
+                fileStorage: MockFileStorage(), sandboxDir: "/documents/MiPhotos"),
+            sandboxDir: "/documents/MiPhotos", petRepo: petRepo,
+            clipService: clip
+        )
+
+        let result = await service2.importPhotos(identifiers: ["a"])
+        XCTAssertEqual(result.imported, 1)
+        XCTAssertEqual(result.matched, 1)
+
+        // 照片已归属 + 宠物照片计数已刷新
+        let photos = try photoRepo.getPhotosPage(offset: 0, limit: 10)
+        XCTAssertEqual(photos[0].pet?.id, pet.id)
+        XCTAssertEqual(try petRepo.getPet(id: pet.id)?.photoCount, 1)
+    }
+
+    func testImportAutoMatchSkipsWhenNoRegisteredPet() async throws {
+        // 有 CLIP 模型但没有任何已注册宠物 → 导入正常，matched = 0
+        let clip = MockClipInference()
+        let (service, _, _, _) = makeAutoMatchService(
+            assets: [asset("a")],
+            imageDataOverrides: ["a": makeSolidPNG(width: 64, height: 64, r: 10, g: 200, b: 80)],
+            clip: clip
+        )
+
+        let result = await service.importPhotos(identifiers: ["a"])
+        XCTAssertEqual(result.imported, 1)
+        XCTAssertEqual(result.matched, 0)
+    }
+
+    func testImportAutoMatchFailsGracefullyOnExtractionError() async throws {
+        // CLIP detect 失败 → 降级 fallback 提取（无注册宠物）→ 导入仍成功，matched = 0
+        let failingClip = MockClipInference(detectError: ImportTestError.extractionFailed)
+        let (service, _, _, _) = makeAutoMatchService(
+            assets: [asset("a")],
+            imageDataOverrides: ["a": makeSolidPNG(width: 64, height: 64, r: 200, g: 60, b: 60)],
+            clip: failingClip
+        )
+
+        let result = await service.importPhotos(identifiers: ["a"])
+        XCTAssertEqual(result.imported, 1, "特征提取失败不应阻止导入")
+        XCTAssertEqual(result.matched, 0)
+    }
+
+    // MARK: - 自动归属辅助
+
+    /// 构造带可选 CLIP mock 的导入服务（返回 petRepo 供注册特征）。
+    private func makeAutoMatchService(
+        assets: [PhotoAssetMetadata],
+        imageDataOverrides: [String: Data] = [:],
+        clip: (any ClipInference)? = nil
+    ) -> (ImportService, SwiftDataPetRepository, SwiftDataPhotoRepository, ModelContainer) {
+        let schema = Schema(versionedSchema: SchemaV1.self)
+        let config = ModelConfiguration(isStoredInMemoryOnly: true)
+        let container = try! ModelContainer(for: schema, configurations: [config])
+        let photoRepo = SwiftDataPhotoRepository(context: container.mainContext)
+        let petRepo = SwiftDataPetRepository(context: container.mainContext)
+        let library = MockPhotoLibraryAccess(assets: assets, imageDataOverrides: imageDataOverrides)
+        let fileStorage = MockFileStorage()
+        let mediaLifecycle = MediaLifecycleService(
+            photoRepo: photoRepo, petRepo: petRepo,
+            fileStorage: fileStorage, sandboxDir: "/documents/MiPhotos")
+        let service = ImportService(
+            photoLibrary: library, fileStorage: fileStorage,
+            photoRepo: photoRepo, mediaLifecycle: mediaLifecycle,
+            sandboxDir: "/documents/MiPhotos", petRepo: petRepo,
+            clipService: clip
+        )
+        return (service, petRepo, photoRepo, container)
+    }
+
+    /// 生成纯色 PNG 图片数据（供 decodeToRGBA 解码）。
+    private func makeSolidPNG(width: Int, height: Int, r: Int, g: Int, b: Int) -> Data {
+        let colorSpace = CGColorSpaceCreateDeviceRGB()
+        let ctx = CGContext(
+            data: nil, width: width, height: height, bitsPerComponent: 8,
+            bytesPerRow: width * 4, space: colorSpace,
+            bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue
+        )!
+        ctx.setFillColor(CGColor(
+            red: CGFloat(r) / 255, green: CGFloat(g) / 255,
+            blue: CGFloat(b) / 255, alpha: 1))
+        ctx.fill(CGRect(x: 0, y: 0, width: width, height: height))
+        let image = ctx.makeImage()!
+        let data = NSMutableData()
+        let destination = CGImageDestinationCreateWithData(
+            data, UTType.png.identifier as CFString, 1, nil)!
+        CGImageDestinationAddImage(destination, image, nil)
+        CGImageDestinationFinalize(destination)
+        return data as Data
+    }
+}
+
+private enum ImportTestError: Error {
+    case extractionFailed
 }

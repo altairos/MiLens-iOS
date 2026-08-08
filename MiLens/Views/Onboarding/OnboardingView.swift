@@ -72,15 +72,18 @@ struct OnboardingView: View {
 
     private var footer: some View {
         VStack(spacing: Spacing.sm) {
-            Button(action: primaryAction) {
-                Text(primaryButtonTitle)
-                    .font(.buttonLabel)
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 12)
+            // 特征注册引导卡片自含操作按钮（开始注册/稍后再说），隐藏容器主按钮
+            if !(viewModel.step == .createPet && viewModel.showFeatureRegistration) {
+                Button(action: primaryAction) {
+                    Text(primaryButtonTitle)
+                        .font(.buttonLabel)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 12)
+                }
+                .buttonStyle(.borderedProminent)
+                .tint(Color.milensPrimary)
+                .disabled(!canAdvance)
             }
-            .buttonStyle(.borderedProminent)
-            .tint(Color.milensPrimary)
-            .disabled(!canAdvance)
 
             // 扫描步骤的辅助跳过入口：扫描中或扫描失败（未完成）时可用
             if viewModel.step == .scan, viewModel.isScanning || !viewModel.scanCompleted {

@@ -307,9 +307,35 @@ final class BeadViewModel {
         }.value
         guard let png else { return nil }
         do {
-            return try exportService.writeShareCache(pngData: png)
+            return try exportService.writeShareCache(data: png)
         } catch {
             logger.error("prepareShareFile: 写入分享缓存失败（\(error.localizedDescription)）")
+            return nil
+        }
+    }
+
+    /// 渲染 A4 PDF 分享文件（与 prepareShareFile 同一渲染路径，封装为单页 A4 PDF，
+    /// 经系统分享面板可打印或存储到文件）。返回 nil 表示失败（调用方静默处理）。
+    func preparePDFFile() async -> URL? {
+        guard canStartBeadExport(isExporting: isExporting, hasPattern: pattern != nil) else { return nil }
+        isExporting = true
+        defer { isExporting = false }
+        guard let pattern else { return nil }
+        let photoData = await loadPhotoPixels()
+        let opts = beadExportOptions(styleKey: settings.styleKey, pattern: pattern)
+        let renderer = exportService
+        let pdf: Data? = await Task.detached(priority: .userInitiated) {
+            renderer.renderA4PDF(pattern: pattern,
+                                 photoPixels: photoData?.pixels,
+                                 photoW: photoData?.w ?? 0,
+                                 photoH: photoData?.h ?? 0,
+                                 exportOpts: opts)
+        }.value
+        guard let pdf else { return nil }
+        do {
+            return try exportService.writeShareCache(data: pdf, filename: "bead_pattern_a4.pdf")
+        } catch {
+            logger.error("preparePDFFile: 写入 PDF 缓存失败（\(error.localizedDescription)）")
             return nil
         }
     }

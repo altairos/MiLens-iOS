@@ -88,6 +88,20 @@ enum AiInferenceLogic {
         return copy
     }
 
+    /// 计算一组向量的逐元素均值（对应源端 `averageEmbeddings`）。
+    /// 空输入返回空数组；输入向量长度不一致时按最短长度对齐。
+    static func averageEmbeddings(_ embeddings: [[Float]]) -> [Float] {
+        guard let first = embeddings.first, !first.isEmpty else { return [] }
+        let dim = embeddings.map(\.count).min() ?? first.count
+        var sum = [Float](repeating: 0, count: dim)
+        for embedding in embeddings {
+            for i in 0..<dim { sum[i] += embedding[i] }
+        }
+        let count = Float(embeddings.count)
+        for i in 0..<dim { sum[i] /= count }
+        return sum
+    }
+
     // MARK: - 输出 embedding 选择（对应源端 selectOutputEmbedding）
 
     /// 从模型多输出张量中选择最佳 CLIP embedding（对应源端 `selectOutputEmbedding`）。

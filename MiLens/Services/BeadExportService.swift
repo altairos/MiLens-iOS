@@ -25,6 +25,26 @@ struct BeadExportService {
         return UIImage(cgImage: cgImage).pngData()
     }
 
+    /// 渲染 A4 高清图纸为单页 PDF Data（与 renderA4PNG 同一像素渲染结果，仅封装容器不同：
+    /// 2480×3508 @300DPI 位图嵌入 595.2×841.8pt 的 A4 页面）。
+    func renderA4PDF(pattern: BeadPattern,
+                     photoPixels: [UInt8]?, photoW: Int, photoH: Int,
+                     exportOpts: BeadExportOpts?) -> Data? {
+        let buffer = renderA4Export(pattern: pattern, photoPixels: photoPixels,
+                                    photoW: photoW, photoH: photoH, exportOpts: exportOpts)
+        let a4 = getA4Size()
+        guard let cgImage = Self.makeCGImage(rgba: buffer, width: a4.width, height: a4.height) else {
+            return nil
+        }
+        // A4 纸 @ 72dpi：210×297mm = 595.2×841.8pt
+        let pageRect = CGRect(x: 0, y: 0, width: 595.2, height: 841.8)
+        let renderer = UIGraphicsPDFRenderer(bounds: pageRect)
+        return renderer.pdfData { context in
+            context.beginPage()
+            UIImage(cgImage: cgImage).draw(in: pageRect)
+        }
+    }
+
     /// 保存 PNG 到系统相册（对应源端 createAsset + writePixelMapAsPng）。
     /// 需要 NSPhotoLibraryAddUsageDescription（已配置）。
     func saveToPhotoLibrary(pngData: Data) async throws {
@@ -35,10 +55,10 @@ struct BeadExportService {
     }
 
     /// 写入分享缓存文件（对应源端 sharePattern 写入 cacheDir/bead_pattern_share.png）。
-    func writeShareCache(pngData: Data, filename: String = "bead_pattern_share.png") throws -> URL {
+    func writeShareCache(data: Data, filename: String = "bead_pattern_share.png") throws -> URL {
         let dir = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask)[0]
         let url = dir.appendingPathComponent(filename)
-        try pngData.write(to: url, options: .atomic)
+        try data.write(to: url, options: .atomic)
         return url
     }
 

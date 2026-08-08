@@ -1,9 +1,10 @@
 //  PetEditView —— 宠物档案编辑（route .petEdit，对应源端 pages/PetEditPage.ets）。
 //  PetEditViewModel（@Observable）驱动表单状态，校验/保存/未保存判定通过 PetFormLogic 纯函数。
 //  P3 实现：名称/物种/性别/生日/领养日/备忘条目编辑 + 保存 + 删除 + 未保存确认。
-//  头像裁切/视觉特征注册后置 V1.x（依赖图片编辑器 + CLIP 模型）。
+//  特征注册：PhotosPicker 选 8–15 张 → PetMatcher 提取聚合写入 featureData（自动归属前置条件）。
 
 import SwiftUI
+import PhotosUI
 import os
 
 private let logger = Logger(subsystem: "com.milens.app", category: "PetEditView")
@@ -13,12 +14,17 @@ struct PetEditView: View {
 
     @Environment(\.petRepository) private var petRepo
     @Environment(\.notifyService) private var notifyService
+    @Environment(\.clipInferenceService) private var clipService
     @Environment(\.dismiss) private var dismiss
 
     @State private var viewModel: PetEditViewModel?
     @State private var newNoteItem = ""
     @State private var showDeleteConfirm = false
     @State private var showBackConfirm = false
+    /// 特征注册选中的照片（PhotosPicker 8–15 张）
+    @State private var selectedFeatureItems: [PhotosPickerItem] = []
+    /// 照片数据加载任务（loadTransferable，页面消失时取消）
+    @State private var featureLoadTask: Task<Void, Never>?
 
     private let dateRange: ClosedRange<Date> = {
         let cal = Calendar(identifier: .gregorian)
@@ -61,10 +67,13 @@ struct PetEditView: View {
         }
         .task {
             if viewModel == nil {
-                let vm = PetEditViewModel(petRepo: petRepo)
+                let vm = PetEditViewModel(petRepo: petRepo, clipService: clipService)
                 vm.loadPet(id: petID)
                 viewModel = vm
             }
+        }
+        .onDisappear {
+            featureLoadTask?.cancel()
         }
         .alert("删除伙伴档案", isPresented: $showDeleteConfirm) {
             Button("取消", role: .cancel) {}
@@ -113,6 +122,9 @@ struct PetEditView: View {
 
             // 重要日期
             dateSection(vm)
+
+            // 视觉特征（自动归属前置条件）
+            featureSection(vm)
 
             // 备忘
             notesSection(vm)
@@ -170,6 +182,89 @@ struct PetEditView: View {
         } footer: {
             Text("头像选择功能将在后续版本支持")
                 .font(.caption)
+        }
+    }
+
+    // MARK: - 视觉特征区（对应源端 PetEditPage 注册区块）
+
+    private func featureSection(_ vm: PetEditViewModel) -> some View {
+        Section {
+            if vm.featureRegistered {
+                Label("已注册视觉特征", systemImage: "checkmark.circle.fill")
+                    .font(.bodyPrimary)
+                    .foregroundStyle(Color.milensPrimary)
+            }
+
+            if vm.isRegisteringFeatures {
+                HStack(spacing: Spacing.md) {
+                    ProgressView()
+                    Text("正在提取特征 \(vm.featureRegistrationProgress)/\(selectedFeatureItems.count)")
+                        .font(.bodyPrimary)
+                }
+                Button("取消") { vm.cancelFeatureRegistration() }
+                    .font(.caption)
+            } else {
+                PhotosPicker(
+                    selection: $selectedFeatureItems,
+                    maxSelectionCount: PetFormConstants.maxRegistrationPhotos,
+                    matching: .images
+                ) {
+                    Label(vm.featureRegistered ? "重新注册（更新特征）" : "选择照片注册",
+                          systemImage: "photo.on.rectangle")
+                        .frame(maxWidth: .infinity)
+                }
+                .disabled(clipService == nil)
+
+                if clipService == nil {
+                    Text("AI 模型未就绪，暂不能注册视觉特征")
+                        .font(.caption)
+                        .foregroundStyle(Color.milensTextSecondary)
+                }
+
+                if !selectedFeatureItems.isEmpty {
+                    Text("已选 \(selectedFeatureItems.count) 张")
+                        .font(.caption)
+                        .foregroundStyle(Color.milensTextSecondary)
+                    Button {
+                        loadAndRegister(vm)
+                    } label: {
+                        Text("开始注册")
+                            .frame(maxWidth: .infinity)
+                    }
+                    .disabled(selectedFeatureItems.count < PetFormConstants.minRegistrationPhotos)
+                }
+            }
+
+            if !vm.featureRegistrationMessage.isEmpty {
+                Text(vm.featureRegistrationMessage)
+                    .font(.caption)
+                    .foregroundStyle(vm.featureRegistered ? Color.milensTextSecondary : Color.milensDanger)
+            }
+        } header: {
+            Text("视觉特征")
+        } footer: {
+            Text(vm.featureRegistered
+                 ? "更新特征需要重新选择照片（\(PetFormConstants.minRegistrationPhotos)–\(PetFormConstants.maxRegistrationPhotos) 张）"
+                 : "选择 \(PetFormConstants.minRegistrationPhotos)–\(PetFormConstants.maxRegistrationPhotos) 张不同角度与光线的照片，导入新照片时将自动归入此档案")
+                .font(.caption)
+        }
+    }
+
+    /// 加载选中的照片数据后触发注册（加载失败的照片自动跳过）。
+    private func loadAndRegister(_ vm: PetEditViewModel) {
+        let items = selectedFeatureItems
+        guard !items.isEmpty else { return }
+        featureLoadTask = Task {
+            var datas: [Data] = []
+            for item in items {
+                if Task.isCancelled { break }
+                if let data = try? await item.loadTransferable(type: Data.self) {
+                    datas.append(data)
+                }
+            }
+            if !Task.isCancelled {
+                vm.registerFeature(imageDatas: datas)
+            }
         }
     }
 

@@ -9,6 +9,7 @@ enum Route: Hashable {
     case photoView(photoID: UUID)  // 大图查看
     case editor(photoID: UUID)     // 图片编辑器（从大图查看进入）
     case petProfile(petID: UUID)
+    case beadPhotoPicker   // 拼豆：选择照片（CreateView 大卡片入口进入）
     case beadPattern(photoID: UUID)
     case petEdit(petID: UUID)
     case timeline         // 成长时间线（全部宠物）

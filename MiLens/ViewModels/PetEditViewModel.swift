@@ -2,6 +2,8 @@
 //  持有可编辑表单状态 + 原始快照（未保存判定），编排加载/校验/保存。
 //  决策通过 PetFormLogic 纯函数完成（DESIGN.md §4）。
 //  对应源端 PetEditPage（翻译 PetFormViewModel 编排部分）。
+//  特征注册：PhotosPicker 选 8–15 张 → PetMatcher.registerPetFeatures 提取并写入
+//  Pet.featureData（对应源端 PetEditPage 注册流程；模型缺失时按钮禁用并提示）。
 
 import Foundation
 import os
@@ -22,6 +24,17 @@ final class PetEditViewModel {
     /// 保存成功后通知视图 dismiss（对应源端 pop 页面）
     var didSaveSuccessfully = false
 
+    // MARK: - 特征注册状态（对应源端 PetEditPage 注册区块）
+
+    /// 该宠物已注册视觉特征（loadPet 时读取 featureData）
+    var featureRegistered = false
+    /// 正在提取特征（PhotosPicker 选图后置灰按钮）
+    var isRegisteringFeatures = false
+    /// 特征提取进度（已处理张数）
+    var featureRegistrationProgress = 0
+    /// 注册结果消息（成功/失败原因，展示在区块 footer）
+    var featureRegistrationMessage = ""
+
     // MARK: - 内部
 
     private var petID: UUID?
@@ -30,11 +43,14 @@ final class PetEditViewModel {
         birthday: nil, adoptionDay: nil, notes: "", avatarPath: ""
     )
     private var avatarPath = ""
+    private var featureTask: Task<Void, Never>?
 
     private let petRepo: any PetRepositoryProtocol
+    private let clipService: (any ClipInference)?
 
-    init(petRepo: any PetRepositoryProtocol) {
+    init(petRepo: any PetRepositoryProtocol, clipService: (any ClipInference)? = nil) {
         self.petRepo = petRepo
+        self.clipService = clipService
     }
 
     // MARK: - 加载
@@ -63,6 +79,7 @@ final class PetEditViewModel {
         form.adoptionDay = pet.adoptionDay
         form.noteItems = PetFormLogic.parseNoteItems(pet.notes)
         avatarPath = pet.avatarPath
+        featureRegistered = pet.featureData != nil
         originalSnapshot = makeSnapshot()
         errorMessage = ""
         isLoading = false
@@ -165,5 +182,49 @@ final class PetEditViewModel {
         }
         isSaving = false
         return true
+    }
+
+    // MARK: - 视觉特征注册（对应源端 PetEditPage 注册流程）
+
+    /// 用选中的照片注册/更新宠物视觉特征（8–15 张，经 PetMatcher 提取聚合后写入 DB）。
+    /// 异步执行：进度与结果分别写入 featureRegistrationProgress / featureRegistrationMessage。
+    func registerFeature(imageDatas: [Data]) {
+        guard let petID, !isRegisteringFeatures else { return }
+        // 数量校验（对应源端 resolveRegistrationValidation）
+        if imageDatas.count < PetFormConstants.minRegistrationPhotos {
+            featureRegistrationMessage = "请至少选择 \(PetFormConstants.minRegistrationPhotos) 张照片"
+            return
+        }
+        if imageDatas.count > PetFormConstants.maxRegistrationPhotos {
+            featureRegistrationMessage = "最多选择 \(PetFormConstants.maxRegistrationPhotos) 张照片"
+            return
+        }
+        isRegisteringFeatures = true
+        featureRegistrationProgress = 0
+        featureRegistrationMessage = ""
+        featureTask = Task { [weak self] in
+            guard let self else { return }
+            let matcher = PetMatcher(petRepo: self.petRepo, clipService: self.clipService)
+            let ok = await matcher.registerPetFeatures(
+                petID: petID, imageDatas: imageDatas
+            ) { [weak self] progress in
+                self?.featureRegistrationProgress = progress
+            }
+            self.isRegisteringFeatures = false
+            if ok {
+                self.featureRegistered = true
+                self.featureRegistrationMessage = "已注册 \(imageDatas.count) 张照片的视觉特征"
+            } else {
+                self.featureRegistrationMessage = "注册失败：\(matcher.lastRegisterDiagnostics)"
+            }
+            self.featureTask = nil
+        }
+    }
+
+    /// 取消进行中的特征注册（任务取消；已在提取中的单张完成后停止）。
+    func cancelFeatureRegistration() {
+        featureTask?.cancel()
+        featureTask = nil
+        isRegisteringFeatures = false
     }
 }

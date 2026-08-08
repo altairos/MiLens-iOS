@@ -122,4 +122,5 @@ private final class InMemoryPetRepository: PetRepositoryProtocol {
     func updatePet(_ pet: Pet) throws {}
     func deletePet(_ pet: Pet) throws { pets.removeAll { $0.id == pet.id } }
     func refreshPhotoCount(for pet: Pet) throws {}
+    func updateFeatureData(_ pet: Pet, data: Data?) throws {}
 }

@@ -14,6 +14,8 @@ protocol PetRepositoryProtocol {
     func deletePet(_ pet: Pet) throws
     /// 刷新宠物照片计数缓存（对应源端 updatePetPhotoCount）。
     func refreshPhotoCount(for pet: Pet) throws
+    /// 更新宠物视觉特征 blob（对应源端 updateFeatureData；data 为 nil 表示清除）。
+    func updateFeatureData(_ pet: Pet, data: Data?) throws
 }
 
 /// SwiftData 实现的宠物档案仓储。
@@ -57,6 +59,12 @@ final class SwiftDataPetRepository: PetRepositoryProtocol {
     func refreshPhotoCount(for pet: Pet) throws {
         // 关系查询——直接计数 photos 数组（SwiftData 延迟加载关系）
         pet.photoCount = pet.photos.count
+        pet.updatedAt = Date()
+        try context.save()
+    }
+
+    func updateFeatureData(_ pet: Pet, data: Data?) throws {
+        pet.featureData = data
         pet.updatedAt = Date()
         try context.save()
     }

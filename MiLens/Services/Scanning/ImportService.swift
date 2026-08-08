@@ -4,18 +4,29 @@
 //  DESIGN.md §7 硬约束：insertPhoto() 是唯一入库路径。
 //  扫描只筛选不入库；用户手动选择后通过本服务导入。
 //
-//  流程：加载原图 → 复制到沙盒（缩放 1024px JPEG）→ 创建 Photo 元数据 → 入库。
+//  流程：加载原图 → 复制到沙盒（缩放 1024px JPEG）→ 创建 Photo 元数据 → 入库 →
+//  自动归属（PetMatcher：CLIP embedding + 颜色签名匹配已注册宠物 → assignPhoto，
+//  对应源端 importPhotos 中 matchFromEmbedding → assignPhotoToPet）。
 //  文件写入与入库的一致性由 MediaLifecycleService.commitImport 保证（DB 失败回滚文件）。
 //  去重：以 originalURI（Photos localIdentifier）为键——uri 是沙盒副本路径不能作比较；
 //  同一批次内重复 identifier 只导入一次。
 //  文件名：UUID（与 Photo.id 一致）——短哈希可能碰撞覆盖已有文件，且无法确认
 //  失败回滚时删除的是本次写入的文件。
-//  V1.0 不含 pHash/embedding 计算（后置 V1.x）。
+//  自动归属失败（模型缺失/提取失败/未达阈值）不阻止导入；
+//  embedding 提取与颜色签名经 AnalysisExecutor 后台执行，不占 MainActor。
 
 import Foundation
 import os
 
-/// 导入服务（@MainActor——PhotoRepository 为 @MainActor 隔离）。
+/// 导入结果汇总。
+struct ImportResult: Equatable, Sendable {
+    /// 实际入库数量。
+    let imported: Int
+    /// 自动归属到已注册宠物的数量（≤ imported）。
+    let matched: Int
+}
+
+/// 导入服务（@MainActor——PhotoRepository/PetRepository 均为 @MainActor 隔离）。
 @MainActor
 final class ImportService {
 
@@ -25,8 +36,11 @@ final class ImportService {
     private let fileStorage: any FileStorage
     private let photoRepo: any PhotoRepositoryProtocol
     private let mediaLifecycle: MediaLifecycleService
+    /// 自动归属匹配服务（clipService 为 nil 时不创建——无模型可提取 embedding）。
+    private let matcher: PetMatcher?
     /// 沙盒照片目录路径（Documents/MiPhotos）
     private let sandboxDir: String
+    private let executor: AnalysisExecutor
 
     /// 当前是否正在导入
     private(set) var isImporting = false
@@ -35,25 +49,32 @@ final class ImportService {
          fileStorage: any FileStorage,
          photoRepo: any PhotoRepositoryProtocol,
          mediaLifecycle: MediaLifecycleService,
-         sandboxDir: String) {
+         sandboxDir: String,
+         petRepo: any PetRepositoryProtocol,
+         clipService: (any ClipInference)? = nil,
+         executor: AnalysisExecutor = AnalysisExecutor()) {
         self.photoLibrary = photoLibrary
         self.fileStorage = fileStorage
         self.photoRepo = photoRepo
         self.mediaLifecycle = mediaLifecycle
         self.sandboxDir = sandboxDir
+        self.executor = executor
+        self.matcher = clipService.map {
+            PetMatcher(petRepo: petRepo, clipService: $0, executor: executor)
+        }
     }
 
-    /// 导入选中的照片到应用沙盒并入库。
+    /// 导入选中的照片到应用沙盒并入库，随后自动归属到已注册宠物（如有匹配）。
     /// - Parameters:
     ///   - identifiers: 照片库 identifier 列表（来自扫描结果或 PHPicker）
     ///   - onProgress: 进度回调
-    /// - Returns: 实际导入数量
+    /// - Returns: 导入结果（imported = 实际入库数，matched = 自动归属数）
     @discardableResult
     func importPhotos(
         identifiers: [String],
         onProgress: (@MainActor (ImportProgress) -> Void)? = nil
-    ) async -> Int {
-        guard !isImporting, !identifiers.isEmpty else { return 0 }
+    ) async -> ImportResult {
+        guard !isImporting, !identifiers.isEmpty else { return ImportResult(imported: 0, matched: 0) }
         isImporting = true
         defer { isImporting = false }
 
@@ -61,7 +82,7 @@ final class ImportService {
         do {
             try await fileStorage.createDirectory(at: sandboxDir)
         } catch {
-            return 0
+            return ImportResult(imported: 0, matched: 0)
         }
 
         // 去重集合：以 originalURI（Photos localIdentifier）为键；
@@ -77,6 +98,7 @@ final class ImportService {
         var seenInBatch: Set<String> = []
 
         var imported = 0
+        var matched = 0
         let total = min(identifiers.count, ScanConfig.maxImportBatch)
 
         for (index, identifier) in identifiers.prefix(ScanConfig.maxImportBatch).enumerated() {
@@ -126,6 +148,20 @@ final class ImportService {
                 // 写文件 + 入库（事务段：DB 失败回滚已写文件）
                 try await mediaLifecycle.commitImport(data: imageData, to: sandboxPath, photo: photo)
                 imported += 1
+
+                // 自动归属（对应源端 importPhotos 中 matchFromEmbedding → assignPhotoToPet）：
+                // 仅对成功入库的照片执行；提取/匹配失败不影响导入
+                if let matcher, let match = await resolveAutoMatch(matcher: matcher, imageData: imageData) {
+                    do {
+                        if let pet = try petRepo.getPet(id: match.petID) {
+                            try photoRepo.assignPhoto(photo, to: pet)
+                            try petRepo.refreshPhotoCount(for: pet)
+                            matched += 1
+                        }
+                    } catch {
+                        logger.warning("importPhotos: 自动归属写入失败（\(error.localizedDescription)）")
+                    }
+                }
             } catch {
                 // 单张导入失败不阻止后续（commitImport 已回滚已写文件，不留孤儿）
                 continue
@@ -134,6 +170,31 @@ final class ImportService {
             onProgress?(ImportProgress(current: index + 1, total: total))
         }
 
-        return imported
+        logger.info("importPhotos: imported=\(imported), matched=\(matched)")
+        return ImportResult(imported: imported, matched: matched)
+    }
+
+    /// 自动归属判定：提取 embedding + 颜色签名 → PetMatcher 匹配。
+    /// 任一步失败返回 nil（不阻止导入，对应源端 importPhotos 失败容错）。
+    private func resolveAutoMatch(matcher: PetMatcher, imageData: Data) async -> PetMatchResult? {
+        let extraction: (kind: PetEmbeddingKind, embedding: [Float])?
+        do {
+            extraction = try await matcher.extractEmbedding(imageData: imageData)
+        } catch {
+            logger.warning("importPhotos: embedding 提取失败，跳过自动归属（\(error.localizedDescription)）")
+            return nil
+        }
+        guard let extraction, extraction.embedding.count == ClipConstants.embeddingDim else {
+            return nil
+        }
+        // 颜色签名失败时跳过颜色约束（匹配仍可进行）
+        let colorSignature = await matcher.extractMatchColorSignature(imageData: imageData)
+        // 手工特征（fallback）放宽阈值，与源端 ScanControlMath.resolveMatchThreshold 一致
+        let threshold = ScanControlMath.resolveMatchThreshold(matchRequired: extraction.kind == .fallback)
+        return await matcher.matchFromEmbedding(
+            embedding: extraction.embedding,
+            threshold: Float(threshold),
+            colorSignature: colorSignature,
+            kind: extraction.kind)
     }
 }

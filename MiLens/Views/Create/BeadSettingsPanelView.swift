@@ -1,5 +1,7 @@
 //  BeadSettingsPanelView —— 拼豆设置面板（对应源端 BeadSettingsPanel.ets）。
-//  风格选择 / 尺寸选择 / 当前方案摘要 / 高级设置（颜色、过渡、开关、概括度）/ 生成按钮。
+//  工作室下半屏：风格选择 / 尺寸选择 / 当前方案摘要 / 高级设置 / 主按钮。
+//  已有图纸时主按钮切换为「查看图纸与导出」（参数变化由工作室防抖实时重渲染，
+//  无需手动重新生成）。
 //  纯决策（applyStylePreset / buildSummary / abstractionLevelLabel）在 MiLensKit。
 
 import SwiftUI
@@ -7,6 +9,8 @@ import MiLensKit
 
 struct BeadSettingsPanelView: View {
     @Bindable var vm: BeadViewModel
+    /// 打开导出全屏预览（仅 pattern != nil 时由主按钮触发）。
+    let onExport: () -> Void
 
     /// 风格选项数据（对应源端 StyleOption 列表）。
     private struct StyleOptionData: Identifiable {
@@ -42,30 +46,11 @@ struct BeadSettingsPanelView: View {
 
     var body: some View {
         ScrollView {
-            VStack(spacing: 0) {
-                header
-                settingsCard
-            }
-            .padding(16)
+            settingsCard
+                .padding(.horizontal, Spacing.lg)
+                .padding(.vertical, Spacing.md)
         }
         .background(Color.milensBackground)
-    }
-
-    // MARK: - 顶部标题
-
-    private var header: some View {
-        VStack(spacing: 6) {
-            Text("🧩").font(.system(size: 40))
-            Text("把照片变成拼豆作品")
-                .font(.headline)
-                .foregroundStyle(Color.milensTextPrimary)
-            Text("先选想要的效果，其余参数已经帮你配好")
-                .font(.subheadline)
-                .foregroundStyle(Color.milensTextTertiary)
-                .multilineTextAlignment(.center)
-        }
-        .frame(maxWidth: .infinity)
-        .padding(.top, 24)
     }
 
     // MARK: - 设置卡片
@@ -74,14 +59,14 @@ struct BeadSettingsPanelView: View {
         VStack(alignment: .leading, spacing: 0) {
             HStack {
                 Text("选择效果")
-                    .font(.subheadline.weight(.medium))
+                    .font(.bodySecondary.weight(.medium))
                     .foregroundStyle(Color.milensTextPrimary)
                 Spacer()
                 Text("推荐：拼豆插画")
                     .font(.caption2)
                     .foregroundStyle(Color.milensPrimary)
             }
-            .padding(.bottom, 12)
+            .padding(.bottom, Spacing.md)
 
             ForEach(Self.styleOptions) { option in
                 styleOption(option)
@@ -124,8 +109,8 @@ struct BeadSettingsPanelView: View {
                         .font(.subheadline)
                         .foregroundStyle(Color.milensPrimary)
                     Spacer()
-                    Text(vm.showAdvancedSettings ? "⌃" : "⌄")
-                        .font(.body)
+                    Image(systemName: vm.showAdvancedSettings ? "chevron.up" : "chevron.down")
+                        .font(.caption.weight(.semibold))
                         .foregroundStyle(Color.milensPrimary)
                 }
                 .padding(.vertical, 8)
@@ -135,17 +120,21 @@ struct BeadSettingsPanelView: View {
                 advancedSettings
             }
 
-            // 生成按钮
+            // 主按钮：无图纸时生成；已有图纸时进入导出（参数变化由工作室实时重渲染）
             Button {
-                vm.generate()
+                if vm.pattern != nil {
+                    onExport()
+                } else {
+                    vm.generate()
+                }
             } label: {
-                Text(isGenerating ? "正在生成..." : "生成拼豆图纸")
-                    .font(.body.weight(.medium))
-                    .foregroundStyle(Color.milensTextOnAccent)
+                Text(primaryButtonTitle)
+                    .font(.buttonLabel)
+                    .foregroundStyle(Color.milensTextOnActionPrimary)
                     .frame(maxWidth: .infinity)
                     .frame(height: 50)
-                    .background(Color.milensPrimary)
-                    .clipShape(RoundedRectangle(cornerRadius: 14))
+                    .background(Color.milensActionPrimary)
+                    .clipShape(Capsule())
             }
             .disabled(isGenerating)
             .padding(.top, 16)
@@ -157,10 +146,17 @@ struct BeadSettingsPanelView: View {
                 .frame(maxWidth: .infinity)
                 .padding(.top, 8)
         }
-        .padding(16)
+        .padding(Spacing.lg)
         .background(Color.milensCard)
-        .clipShape(RoundedRectangle(cornerRadius: 16))
-        .padding(.top, 20)
+        .clipShape(RoundedRectangle(cornerRadius: Radius.large, style: .continuous))
+        // 参数切换 spring（UI-DESIGN.md §7：弹簧只用于直接操控的控件）
+        .animation(.spring(duration: Motion.durationFast, bounce: 0.2), value: vm.settings)
+        .animation(.spring(duration: Motion.durationFast, bounce: 0.2), value: vm.showAdvancedSettings)
+    }
+
+    private var primaryButtonTitle: String {
+        if isGenerating { return "正在生成..." }
+        return vm.pattern != nil ? "查看图纸与导出" : "生成拼豆图纸"
     }
 
     // MARK: - 风格选项

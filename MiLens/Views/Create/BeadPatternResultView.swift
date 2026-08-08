@@ -1,5 +1,5 @@
-//  BeadPatternResultView —— 拼豆图纸结果视图（对应源端 BeadPatternResult.ets）。
-//  统计行 / 彩色-字母模式切换 / 缩放画布 / 保存高清图纸 / 分享 / 材料清单。
+//  BeadPatternResultView —— 拼豆图纸导出页（全屏预览，对应源端 BeadPatternResult.ets）。
+//  统计行 / 彩色-字母模式切换 / 缩放画布 / 保存相册 / 分享 / A4 PDF / 材料清单。
 //  画布渲染走 MiLensKit drawBeadPattern（BeadViewModel.refreshPreview 重绘）。
 
 import SwiftUI
@@ -28,13 +28,18 @@ struct BeadPatternResultView: View {
                 materialList(pattern)
             }
         }
-        .padding(.horizontal, 16)
-        .padding(.bottom, 24)
+        .padding(.horizontal, Spacing.lg)
+        .padding(.bottom, Spacing.xxl)
+        .background(Color.milensBackground)
         .onChange(of: vm.canvasScale) { _, _ in
             vm.refreshPreview()
         }
         .sheet(item: $shareItem) { item in
             ShareSheet(items: [item.url])
+        }
+        // 保存相册真正完成后的一次轻成功触感（UI-DESIGN.md §7）
+        .sensoryFeedback(.success, trigger: vm.toastMessage) { _, new in
+            new == .exportSuccess
         }
     }
 
@@ -142,19 +147,19 @@ struct BeadPatternResultView: View {
         .padding(.top, 8)
     }
 
-    // MARK: - 导出 / 分享
+    // MARK: - 导出（保存相册 / 分享 / A4 PDF）
 
     private var actionButtons: some View {
-        HStack(spacing: 8) {
+        HStack(spacing: Spacing.sm) {
             Button {
                 vm.export()
             } label: {
-                Text(vm.isExporting ? "导出中..." : "保存高清图纸")
-                    .font(.subheadline.weight(.medium))
-                    .foregroundStyle(Color.milensTextOnAccent)
+                Text(vm.isExporting ? "导出中..." : "保存相册")
+                    .font(.bodySecondary.weight(.medium))
+                    .foregroundStyle(Color.milensTextOnActionPrimary)
                     .frame(maxWidth: .infinity)
-                    .frame(height: 36)
-                    .background(Color.milensPrimary)
+                    .frame(height: 44)
+                    .background(Color.milensActionPrimary)
                     .clipShape(Capsule())
             }
             .disabled(vm.isExporting)
@@ -163,24 +168,50 @@ struct BeadPatternResultView: View {
                 share()
             } label: {
                 Text("分享")
-                    .font(.subheadline.weight(.medium))
-                    .foregroundStyle(Color.milensPrimary)
+                    .font(.bodySecondary.weight(.medium))
+                    .foregroundStyle(Color.milensActionPrimary)
                     .frame(maxWidth: .infinity)
-                    .frame(height: 36)
+                    .frame(height: 44)
                     .background(Color.milensCard)
                     .clipShape(Capsule())
                     .overlay(
-                        Capsule().stroke(Color.milensPrimary, lineWidth: 1)
+                        Capsule().stroke(Color.milensActionPrimary, lineWidth: 1)
+                    )
+            }
+            .disabled(vm.isExporting)
+
+            // A4 PDF 与 PNG 走同一渲染结果（renderA4Export），仅封装为单页 PDF；
+            // 经系统分享面板可打印或存储到文件。
+            Button {
+                exportPDF()
+            } label: {
+                Text("A4 PDF")
+                    .font(.bodySecondary.weight(.medium))
+                    .foregroundStyle(Color.milensActionPrimary)
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 44)
+                    .background(Color.milensCard)
+                    .clipShape(Capsule())
+                    .overlay(
+                        Capsule().stroke(Color.milensActionPrimary, lineWidth: 1)
                     )
             }
             .disabled(vm.isExporting)
         }
-        .padding(.top, 8)
+        .padding(.top, Spacing.sm)
     }
 
     private func share() {
         Task { @MainActor in
             if let url = await vm.prepareShareFile() {
+                shareItem = ShareItem(url: url)
+            }
+        }
+    }
+
+    private func exportPDF() {
+        Task { @MainActor in
+            if let url = await vm.preparePDFFile() {
                 shareItem = ShareItem(url: url)
             }
         }

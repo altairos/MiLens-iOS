@@ -1,6 +1,6 @@
 # MiLens iOS 迁移计划
 
-最后核对：2026-08-08（P0 收口，P2 进行中，P3 纯逻辑+ViewModel 已落地）
+最后核对：2026-08-08（P0 收口，P2 进行中，P3 纯逻辑+VM 已落地，P4 编辑器 Phase 1-2.5 纯逻辑全部落地）
 
 > 里程碑与任务清单。架构见 [DESIGN.md](DESIGN.md)，映射与范围见 [MIGRATION_ASSESSMENT.md](MIGRATION_ASSESSMENT.md)，约束见 [AGENTS.md](AGENTS.md)。
 
@@ -200,10 +200,21 @@
 - [x] `EditorHistory` — 泛型撤销/重做栈 + 手势合并（coalescing）
 - [x] XCTest：文档/历史/序列化（22 用例）
 
+**Phase 2.5：编辑器 ViewModel 纯逻辑迁移到 MiLensKit（可 WSL2/CI 编译测试）✅**
+
+- [x] `EditorToolLogic` — 工具切换/宽高比约束/文字图层默认值/裁剪比例选择/裁剪框初始化/工具组双层状态（源端 EditorToolViewModel 263 行）
+- [x] `EditorCropOverlay` — 裁剪框覆盖层几何：遮罩/九宫格/角手柄/clamp（源端 EditorCropViewModel 137 行）
+- [x] `EditorCanvasLogic` — 画布状态查询：工具激活/可保存/交互态/就绪（源端 EditorCanvasViewModel 36 行）
+- [x] `EditorAdjustLogic` — 调色面板组装/中性判断/滑块手势合并/锐化异步卷积触发决策（源端 EditorAdjustViewModel 159 行）
+- [x] `EditorCutoutLogic` — 抠图四态机/竞态守卫/结果验收（成功/降级/失败/过期）（源端 EditorCutoutViewModel 166 行）
+- [x] `EditorSaveLogic` — 保存前置条件/返回动作/格式决策（PNG/JPEG）/文件名构造（源端 EditorSaveViewModel 115 行）
+- [x] `EditorTextToolLogic` — 文字工具激活/输入校验/编辑面板可见性/图层编辑组装（源端 EditorTextToolViewModel 76 行）
+- [x] XCTest：编辑器 ViewModel 纯逻辑（~152 用例，对应源端 7 个黄金规格测试逐条翻译）
+
 **Phase 3：App 层 Controller + View（需 Mac）**
 
 - [ ] 编辑器骨架：`Views/Editor/` + `EditorViewModel` + 撤销/重做绑定
-- [ ] 裁切/旋转/翻转 UI + 手势（EditorCropMath / LayerGeometry 驱动）
+- [ ] 裁切/旋转/翻转 UI + 手势（EditorCropMath / LayerGeometry / CropOverlay 驱动）
 - [ ] 滤镜面板（CIFilter + EditorColorAdjust 因子）
 - [ ] 标注/马赛克/文字（翻译源端 `editor/` 标注能力）
 - [ ] 编辑产物回写沙盒（沿用 DESIGN.md §7 唯一入库路径）
@@ -285,7 +296,8 @@
 - 2026-08-08：**P0 收口**——V1.0 范围定案（[ADR-0008](docs/adr/0008-v1-scope-decision.md)）：完整图片编辑器 + 质量评分 + 重复分组进 V1.0；家庭局域网备份 / AI 写真后置或不做；iPad V1.0 支持。P0 全部任务完成，里程碑标记 ✅。下游影响：P2 扫描增强、P4 新增编辑器模块。
 - 2026-08-08：**P1.3 拼豆算法核心完成**——最后一个大模块 `BeadPatternService.swift` 主入口落地（514 行）：同步 `generateBeadPattern` / 异步 `generateBeadPatternAsync`（Task.checkCancellation 取消）/ 自动模式 `generateBeadPatternAuto` + 异步版（色数 × 风格矩阵 + TriScore 选优）。架构差异：源端 Native C++ + ArkTS fallback 双路径 → iOS 纯 Swift 单路径；源端 TaskPool + jobId 取消表 → async/await + Task.cancel()。扩展 `BeadPattern` 结构体（补 protectMask/faceRoi/diagnostics/triScore/autoColorHint 字段）+ 新增 `getColorLimitBySize`。XCTest 16 用例（翻译源端 6 个可靠性用例 + 新增输入校验/auto/异步取消）。
 - 2026-08-08：**P4 图片编辑器 Phase 1-2 落地**——源端 `editor/` 纯逻辑+文档+历史翻译到 MiLensKit（8 文件 / ~1180 行）：Phase 1 纯逻辑 6 模块（ColorAdjust/SharpnessKernel/CropMath/LayerModels/LayerGeometry/ExifPolicy）；Phase 2 文档+序列化+历史（EditorDocument 含 JSON 序列化，EditorHistory 泛型撤销/重做+手势合并）。XCTest 53 用例。架构差异：源端 CSS Canvas filter → iOS CIFilter 结构化因子；源端 PixelMap 运行时资源 → App ViewModel 持有 CGImage；源端 LayerSerializer PixelMap 恢复回调 → iOS JSONEncoder/Decoder 无回调。本地 swift build 待 WSL2 恢复后验证。
-- 待办：P4 编辑器 Phase 3 App 层 Controller + View（需 Mac）；P2 扫描增强（质量评分 + 重复分组）；CLIP/RTMPose Core ML 模型转换实跑 + `IOSVisionService`/`CoreMLInferenceEngine` 真实实现（P2 续）。
+- 2026-08-08：**P4 图片编辑器 Phase 2.5 ViewModel 纯逻辑落地**——源端 `viewmodels/Editor*ViewModel.ets` 7 个纯逻辑文件翻译到 MiLensKit（7 文件 / ~825 行）：EditorToolLogic（工具切换/宽高比/裁剪比例/工具组双层状态 263 行→273 行）、EditorCropOverlay（裁剪框覆盖层遮罩/九宫格/角手柄/clamp 137 行→140 行）、EditorCanvasLogic（画布状态查询 36 行→49 行）、EditorAdjustLogic（调色面板/滑块手势合并/锐化异步卷积决策 159 行→144 行）、EditorCutoutLogic（抠图四态机/竞态守卫/结果验收 166 行→151 行）、EditorSaveLogic（保存/返回/格式决策 115 行→106 行）、EditorTextToolLogic（文字工具决策 76 行→62 行）。XCTest ~152 用例（对应源端 7 个黄金规格测试逐条翻译）。架构差异：源端 EditorToolMode/Group 字符串联合类型 → iOS String enum；源端 EditorCanvasViewModel 重复定义 `EditorTool` → iOS 统一到 `EditorToolMode`；源端 `guard` 参数名（JS 合法）→ iOS `guard_`（Swift 关键字）；源端 timestamp 为 number → iOS Int64；源端 resolveSaveFileNameHint/WithDecision 两函数 → iOS 函数重载。
+- 待办：P4 编辑器 Phase 3 App 层 Controller + View（需 Mac）；CLIP/RTMPose Core ML 模型转换实跑 + `IOSVisionService`/`CoreMLInferenceEngine` 真实实现（P2 续）。
 
 ### P2 进度
 

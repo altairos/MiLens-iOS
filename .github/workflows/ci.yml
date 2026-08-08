@@ -1,7 +1,6 @@
-# MiLens iOS — 云端编译 / 测试 CI（GitHub Actions macOS runner）
-# 由于 iOS App 必须用 Xcode + iOS SDK，Windows 无法本地编译 App 层。
-# App target（SwiftUI/SwiftData/Photos/Vision）依赖此 workflow 验证。
-# MiLensKit（纯 Swift 拼豆算法）另在 ubuntu runner 上独立验证（见下方 kit 作业）。
+# MiLens iOS — 云端编译 / 测试 CI（GitHub Actions runner）
+# 成本优化：macOS 运行器分钟乘数 10×，仅在 push 到 main/master 时触发 app 作业；
+# PR 只跑 kit（ubuntu, 1×），避免昂贵的 macOS 计费分钟。
 # 详见 DEVELOPMENT.md「双机/云端协作」。
 
 name: CI
@@ -21,6 +20,7 @@ jobs:
   kit:
     name: MiLensKit (Linux)
     runs-on: ubuntu-24.04
+    timeout-minutes: 10
     defaults:
       run:
         working-directory: MiLensKit
@@ -29,6 +29,12 @@ jobs:
       - uses: swift-actions/setup-swift@v2
         with:
           swift-version: "5.10"
+      - name: Cache Swift build artifacts
+        uses: actions/cache@v4
+        with:
+          path: MiLensKit/.build
+          key: swift-kit-${{ runner.os }}-5.10-${{ hashFiles('MiLensKit/Package.swift', 'MiLensKit/Package.resolved') }}
+          restore-keys: swift-kit-${{ runner.os }}-5.10-
       - name: Version
         run: swift --version
       - name: Build
@@ -36,17 +42,32 @@ jobs:
       - name: Test
         run: swift test --parallel
 
-  # ── MiLens App：macOS runner 上 xcodegen + xcodebuild（消耗 macOS 分钟）──
+  # ── MiLens App：macOS runner 上 xcodegen + xcodebuild（消耗 macOS 分钟，10× 乘数）──
+  # 仅在 push 到 main/master 或手动触发时运行；PR 只跑 kit。
   app:
     name: MiLens App (macOS)
     runs-on: macos-15
     needs: kit
+    if: github.event_name != 'pull_request'
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
+      - name: Cache Homebrew packages
+        uses: actions/cache@v4
+        with:
+          path: ~/Library/Caches/Homebrew
+          key: brew-xcodegen-${{ runner.os }}
       - name: Install XcodeGen
         run: brew install xcodegen
       - name: Generate Xcode project
         run: xcodegen generate
+      - name: Cache Swift Package dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/Library/Developer/Xcode/DerivedData/*/SourcePackages
+          key: spm-app-${{ runner.os }}-${{ hashFiles('project.yml', 'MiLensKit/Package.swift') }}
+          restore-keys: spm-app-${{ runner.os }}-
       - name: Resolve Swift Package deps
         run: xcodebuild -project MiLens.xcodeproj -resolvePackageDependencies
       - name: Build (simulator, unsigned)

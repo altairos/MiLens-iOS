@@ -27,7 +27,20 @@
 
 ## 2. 常用命令
 
-### 2.1 本地：MiLensKit 纯算法包（WSL2 Ubuntu-24.04，最高频）
+### 2.1 本地：MiLensKit 纯算法包（Mac 或 WSL2 Ubuntu-24.04，最高频）
+
+**Mac 直接跑（推荐）**：包已声明 `.macOS(.v13)`，全量 522 用例可在 macOS 上独立验证，无需 iOS 模拟器：
+
+```bash
+cd MiLensKit
+swift build              # 编译拼豆包
+swift test               # 全量 XCTest（522 用例）
+```
+
+> 注意：macOS 上 Quickdraw（经 XCTest→AppKit 传递导入）与包内 `RGBColor` 同名，
+> 用到该类型的测试文件已用 `import struct MiLensKit.RGBColor` 显式绑定，勿删除。
+
+**WSL2 Ubuntu-24.04**：
 
 > ⚠️ **必须用 Ubuntu 24.04 发行版**，不能用 26.04：Swift 6.1.3 为 24.04 编译，依赖的 `libxml2.so.2` / `libpython3.12` 在 26.04 上 soname 已变（`.so.16` / Python 3.14），ABI 不兼容，apt 也无法解决。已安装发行版名 `Ubuntu-24.04`（root 用户，apt 无需密码）。
 

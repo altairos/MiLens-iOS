@@ -1,5 +1,8 @@
 import XCTest
 @testable import MiLensKit
+// 显式绑定 RGBColor：macOS 上 Quickdraw（经 XCTest→AppKit 传递导入）有同名 C struct，
+// 不限定会报 ambiguous；Linux/WSL2 无此冲突。
+import struct MiLensKit.RGBColor
 
 /// BeadPaletteSelection 测试。翻译自源端 shared/.../test/BeadPaletteSelection.test.ets。
 final class BeadPaletteSelectionTests: XCTestCase {

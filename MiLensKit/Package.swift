@@ -8,7 +8,10 @@ import PackageDescription
 let package = Package(
     name: "MiLensKit",
     platforms: [
-        .iOS(.v17)
+        .iOS(.v17),
+        // 纯逻辑包在 macOS 上可独立 swift test（BeadFlowLogicTests 等 26 用例）。
+        // Task.checkCancellation() 需要 macOS 10.15+，故显式声明部署目标。
+        .macOS(.v13)
     ],
     products: [
         .library(name: "MiLensKit", targets: ["MiLensKit"])

@@ -65,3 +65,16 @@ extension EnvironmentValues {
         set { self[InferenceEngineKey.self] = newValue }
     }
 }
+
+// MARK: - ClipInferenceService（CLIP 推理编排，模型缺失时为 nil）
+
+private struct ClipInferenceServiceKey: EnvironmentKey {
+    static var defaultValue: ClipInferenceService? { nil }
+}
+
+extension EnvironmentValues {
+    var clipInferenceService: ClipInferenceService? {
+        get { self[ClipInferenceServiceKey.self] }
+        set { self[ClipInferenceServiceKey.self] = newValue }
+    }
+}

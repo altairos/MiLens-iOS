@@ -28,8 +28,8 @@ struct ClassificationConfig: Equatable, Sendable {
     let petNonPetTolerance: Float
 }
 
-/// 分类决策结果（对应源端 ClassificationResult）。
-struct ClassificationResult: Equatable, Sendable {
+/// 分类决策结果（对应源端 ClipClassificationResult）。
+struct ClipClassificationResult: Equatable, Sendable {
     let isPet: Bool
     let labels: [DetectionLabel]
     /// 物种 key（如 "cat"/"dog"/"bird"）；非宠物为 nil。
@@ -174,7 +174,7 @@ enum AiInferenceLogic {
         nonPetTextEmbeddings: [String: [Float]],
         speciesLabels: [String: String],
         config: ClassificationConfig
-    ) -> ClassificationResult {
+    ) -> ClipClassificationResult {
         var petScores: [DetectionLabel] = []
         for (key, textVec) in petTextEmbeddings {
             guard textVec.count == config.embeddingDim, !isAllZero(textVec) else { continue }
@@ -226,7 +226,7 @@ enum AiInferenceLogic {
             species = nil
         }
 
-        return ClassificationResult(
+        return ClipClassificationResult(
             isPet: isPet,
             labels: petScores,
             species: species,

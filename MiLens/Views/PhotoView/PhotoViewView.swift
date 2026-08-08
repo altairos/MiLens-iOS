@@ -7,6 +7,14 @@ import UIKit
 
 struct PhotoViewView: View {
     let photoID: UUID
+    let heroNamespace: Namespace.ID?
+    let heroID: UUID?
+
+    init(photoID: UUID, heroNamespace: Namespace.ID? = nil, heroID: UUID? = nil) {
+        self.photoID = photoID
+        self.heroNamespace = heroNamespace
+        self.heroID = heroID
+    }
 
     @Environment(\.photoRepository) private var photoRepo
     @Environment(\.dismiss) private var dismiss
@@ -32,13 +40,7 @@ struct PhotoViewView: View {
                     .ignoresSafeArea()
 
                 if let image {
-                    Image(uiImage: image)
-                        .resizable()
-                        .aspectRatio(contentMode: .fit)
-                        .frame(width: geo.size.width, height: geo.size.height)
-                        .scaleEffect(scale * dismissScale)
-                        .offset(x: offset.width + dismissOffset.width,
-                                y: offset.height + dismissOffset.height)
+                    imageView(image: image, geometry: geo)
                         .gesture(magnificationGesture(geo))
                         .gesture(dragGesture(geo))
                         .onTapGesture(count: 2) {
@@ -78,6 +80,23 @@ struct PhotoViewView: View {
         }
         .task {
             await loadData()
+        }
+    }
+
+    @ViewBuilder
+    private func imageView(image: UIImage, geometry geo: GeometryProxy) -> some View {
+        let content = Image(uiImage: image)
+            .resizable()
+            .aspectRatio(contentMode: .fit)
+            .frame(width: geo.size.width, height: geo.size.height)
+            .scaleEffect(scale * dismissScale)
+            .offset(x: offset.width + dismissOffset.width,
+                    y: offset.height + dismissOffset.height)
+
+        if let heroNamespace, let heroID {
+            content.matchedGeometryEffect(id: heroID, in: heroNamespace)
+        } else {
+            content
         }
     }
 

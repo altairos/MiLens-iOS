@@ -36,10 +36,15 @@ targets:
     sources:
       - path: MiLens
         # Resources/Models/README.md 是文档，不打包进 App Bundle。
+        # 发布包只含两套生产模型（CLIP int8 + RTMPose fp16），由 GitHub Release
+        # 交付（tools/fetch-models.sh 下载）；其余实验模型（CLIP fp16 / RTMPose int8）
+        # 不随 App 打包，避免体积膨胀（~87MB 而非 261MB）。
         # .mlpackage（gitignore）由转换脚本生成后自动识别为 Core ML 模型；
         # .f32 由 XcodeGen 默认当作 resource。详见 ADR-0007。
         excludes:
           - "Resources/Models/README.md"
+          - "Resources/Models/CLIPVisionEncoder_fp16.mlpackage"
+          - "Resources/Models/RTMPoseTPetFace_int8.mlpackage"
     info:
       path: MiLens/Resources/Info.plist
       properties:

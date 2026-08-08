@@ -1,0 +1,24 @@
+{
+  "schema_version": 1,
+  "repo": "altairos/MiLens-iOS",
+  "release_tag": "models-v1",
+  "archive": "models-v1.tar.gz",
+  "archive_sha256": "484fb976c5f9a789e6a6170541775307e328e122b25ce1ba0fe35c6cd8b8b94a",
+  "archive_size_bytes": 89191821,
+  "files": [
+    {
+      "name": "CLIPVisionEncoder_int8",
+      "path": "MiLens/Resources/Models/CLIPVisionEncoder_int8.mlpackage",
+      "size_bytes": 88080384,
+      "purpose": "production",
+      "loaded_by": "CoreMLInferenceEngine.loadFromBundle\uff08ClipInferenceService \u5ba0\u7269\u7cbe\u7b5b\uff0c\u4ee3\u7801\u9ed8\u8ba4\u6a21\u578b\u540d\uff09"
+    },
+    {
+      "name": "RTMPoseTPetFace_fp16",
+      "path": "MiLens/Resources/Models/RTMPoseTPetFace_fp16.mlpackage",
+      "size_bytes": 6291456,
+      "purpose": "production",
+      "loaded_by": "\u6682\u65e0\u53ef\u52a0\u8f7d\u4ee3\u7801\uff08\u7528\u6237\u786e\u8ba4\u4fdd\u7559\uff0c\u4f9b V1.x \u5173\u952e\u70b9\u68c0\u6d4b\uff1b\u4e0d\u65b0\u589e\u52a0\u8f7d\u4ee3\u7801\uff09"
+    }
+  ]
+}

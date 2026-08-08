@@ -19,11 +19,16 @@ final class ImportServiceTests: XCTestCase {
         let config = ModelConfiguration(isStoredInMemoryOnly: true)
         let container = try! ModelContainer(for: schema, configurations: [config])
         let photoRepo = SwiftDataPhotoRepository(context: container.mainContext)
+        let petRepo = SwiftDataPetRepository(context: container.mainContext)
         let photoLibrary = MockPhotoLibraryAccess(assets: assets)
         let fileStorage = MockFileStorage()
+        let mediaLifecycle = MediaLifecycleService(
+            photoRepo: photoRepo, petRepo: petRepo,
+            fileStorage: fileStorage, sandboxDir: "/documents/MiPhotos")
         let service = ImportService(
             photoLibrary: photoLibrary, fileStorage: fileStorage,
-            photoRepo: photoRepo, sandboxDir: "/documents/MiPhotos"
+            photoRepo: photoRepo, mediaLifecycle: mediaLifecycle,
+            sandboxDir: "/documents/MiPhotos"
         )
         return (service, photoRepo, fileStorage, container)
     }
@@ -72,7 +77,7 @@ final class ImportServiceTests: XCTestCase {
 
     func testImportSkipsByOriginalURIEvenIfSandboxPathDiffers() async {
         let (service, photoRepo, _, container) = makeService(assets: [asset("a"), asset("b")])
-        // 已入库照片：uri 是沙盒副本路径（hashToFilename 生成，与 identifier 无关），
+        // 已入库照片：uri 是沙盒副本路径（UUID 文件名，与 identifier 无关），
         // originalURI = "a"——去重必须以 originalURI 为准。
         try! photoRepo.insertPhoto(Photo(uri: "/documents/MiPhotos/xyz.jpg", originalURI: "a"))
 
@@ -142,5 +147,19 @@ final class ImportServiceTests: XCTestCase {
             reported.append(progress.current)
         }
         XCTAssertEqual(reported, [1, 2])
+    }
+
+    // MARK: - 文件名（UUID，避免短哈希碰撞覆盖已有文件）
+
+    func testImportUsesUUIDFileNameMatchingPhotoID() async {
+        let (service, photoRepo, _, container) = makeService(assets: [asset("a")])
+        _ = await service.importPhotos(identifiers: ["a"])
+
+        let photos = try! photoRepo.getPhotosPage(offset: 0, limit: 10)
+        XCTAssertEqual(photos.count, 1)
+        // 沙盒文件名 = UUID（大写）且与 Photo.id 的 uuidString 一致
+        let fileName = URL(fileURLWithPath: photos[0].uri).lastPathComponent
+        XCTAssertEqual(fileName, photos[0].id.uuidString + ".jpg")
+        XCTAssertNotEqual(fileName, "a.jpg") // 不再是 identifier 的短哈希
     }
 }

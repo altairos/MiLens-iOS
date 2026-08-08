@@ -9,7 +9,7 @@
 | 阶段 | 名称 | 目标 | 状态 |
 |---|---|---|---|
 | **P0** | Harness 与规划 | 文档骨架、约束、目录结构、XcodeGen 声明、范围对齐 | ✅ 已完成 |
-| **P1** | 地基 + 算法核心 | Xcode 工程可编译、SwiftData schema、拼豆 Swift 核心（黄金规格通过）、AI 路线定案 | ⬜ |
+| **P1** | 地基 + 算法核心 | Xcode 工程可编译、SwiftData schema、拼豆 Swift 核心（黄金规格通过）、AI 路线定案 | ✅ 已完成（含 2026-08-09 可靠性收口） |
 | **P2** | 相册 MVP | 扫描发现（+质量评分/重复分组）+ 手动导入 + 相册网格 + 大图查看 | 🔄 进行中 |
 | **P3** | 宠物档案 | 档案 CRUD + 成长时间线 + 纪念提醒 | 🔄 进行中（纯逻辑+VM+View+提醒 ✅，剩照片分类） |
 | **P4** | 创作入口 + 编辑器 | 拼豆图纸完整流程 + 完整图片编辑器（裁切/滤镜/标注） | 🔄 进行中（拼豆图纸 App 层 ✅ + 编辑器 Phase 1-3 ✅；剩宠物卡片生成） |
@@ -103,6 +103,17 @@
 - [x] **实跑验证**：CLIP INT8/FP16 cosine >0.999（PASS）；RTMPose shape [1,5,384] 契约校验通过（精度需真实宠物脸图片）
 - [x] `IOSVisionService` / `CoreMLInferenceEngine` 真实实现（P2 扫描 MVP，协议骨架 P1.4 已有）→ 已落地：`IOSVisionService`（VNClassifyImageRequest + VNGenerateForegroundInstanceMask）+ `CoreMLInferenceEngine`（MLModel + MLMultiArray）+ `ClipInferenceService`（推理编排）+ `AiInferenceLogic`/`ClipPreprocess`/`PetTextEmbeddings` 配套纯逻辑。编译通过 + 28 用例单测全绿；推理质量/精度/资源待真机验证（见 [P2-真机验证备忘](docs/P2-真机验证备忘.md) §2.2）
 
+### P1 可靠性收口（2026-08-09）
+
+P1 核心可靠性与性能六项修复全部落地（实现记录见状态摘要 P2 进度 2026-08-09 条）：
+
+- [x] **模型交付**：`tools/model-manifest.json`（内嵌 SHA256）+ `tools/fetch-models.sh`（下载 → `shasum -a 256` 校验 → 解包，幂等，失败绝不带病构建）；`project.yml` excludes 实验模型（CLIP fp16 / RTMPose int8），App 体积 ~87MB 而非 261MB；发布到 GitHub Release（tag `models-v1`）
+- [x] **像素计算移出主线程**：`AnalysisExecutor`（actor，utility 优先级，受限并发 2）+ `QualityScorer`/`ScanService` 两阶段重构，全部 CPU 密集段经后台执行器，进度回调次数保持按照片数
+- [x] **媒体生命周期**：`MediaLifecycleService`（事务回滚 / 编辑旧文件清理 / 删除联动 / 孤儿审计）+ `refreshPetPhotoCounts` 补上生产链路 + 4 场景单测
+- [x] **SwiftData 启动恢复**：SchemaV1 注释冻结 + `AppDependencies.make(isTesting:)` 工厂 + `DatabaseRecoveryView`（重试/导出诊断/重建本地数据），不再 `try!` 崩溃
+- [x] **通知真调度**：`NotificationPosting.schedule`（`UNCalendarNotificationTrigger`）+ `NotifyService` 幂等重调度（Pet 生日/领养日年度 09:00 + 时光机每日 09:00）+ 设置开关（默认关闭，授权放开关路径）+ 宠物编辑/删除局部更新
+- [x] **CI 覆盖 App**：PR 也跑 macOS app 作业（构建 + 测试 + 覆盖率），新增 `fetch-models.sh` 步骤 + `actions/cache` 缓存模型
+
 ### 验收标准
 
 - 工程编译通过，空 App + TabView 可在 iPhone 模拟器启动 ✅（CI run 31187548565）
@@ -135,7 +146,7 @@
 - [x] P0 修复：`ScanCursorStore`（UserDefaults）持久化上次成功扫描时刻，增量扫描不再用 `Date()` 截止；dateAdded 以 creationDate 近似并诚实标注（iOS 无公开「加入相册时间」API）
 - [x] P0 修复：CLIP Phase 2 精筛接入扫描（`ClipInference` 协议 + 失败降级），App Store 文案去除「按宠物分别归类」不实描述
 - [x] P0 修复：**SwiftData 测试进程崩溃根因修复**（ModelContainer 悬垂）——`container.mainContext` 不持有 container，测试 helper 局部 container 返回后释放，repo fetch 触发 SwiftData 内部 SIGTRAP（此前 XCTSkipIf 掩盖，CI/本地间歇崩溃）。修复：测试 helper 返回并持有 container（ImportServiceTests/ScanServiceTests/QualityScorerTests 全部调用点）；`RepositoryEnvironment` fallback 改 static 缓存容器。恢复 QualityScorerTests 运行（移除 XCTSkipIf）。全套 389 用例通过
-- [ ] 真机验证：Photos 权限 + Vision/Core ML 推理 + 分页性能（需 Mac + iPhone，详见 [P2-真机验证备忘](docs/P2-真机验证备忘.md)）
+- [ ] 真机验证：Photos 权限 + Vision/Core ML 推理 + 分页性能 + PhotoView 下滑手势（需 Mac + iPhone，详见 [P2-真机验证备忘](docs/P2-真机验证备忘.md)）
 
 ### 验收标准
 
@@ -314,6 +325,9 @@
 
 ### P2 进度
 
+- 2026-08-09：**P1 核心可靠性收口（六项全部落地）**——①**模型交付**：`tools/model-manifest.json` + `tools/fetch-models.sh`（GitHub Release 下载 + SHA256 校验 + 解包，幂等；`MILENS_MODEL_BASE_URL` 可覆盖做本地/镜像测试），生产模型 = CLIP int8（84MB）+ RTMPose fp16（6MB），`project.yml` excludes 两个实验模型（App ~87MB 而非 261MB），fetch-models.sh 三条路径实跑验证（幂等跳过 ✅ / 下载校验解包 ✅ / 篡改 sha256 拒绝 ✅，修复 macOS bash 3.2 在 UTF-8 locale 下 `$VAR`+全角标点解析缺陷）；②**后台执行器**：`AnalysisExecutor`（actor + utility 优先级 + 受限并发 2，in-flight 计数 + continuation 队列），`QualityScorer` 像素计算（解码/Laplacian/pHash）与 O(n²) 重复分组移入执行器，`ScanService` 两阶段重构（阶段 1 MainActor 轻量过滤收集候选，阶段 2 分批后台分析回 MainActor 汇总），测试注入串行执行器保证确定性；③**媒体生命周期**：`MediaLifecycleService` 接管导入/编辑/删除（DB 失败回滚文件、编辑成功清理旧文件、删除联动媒体 + 刷新 photoCount、启动孤儿审计），ImportService/EditorSaveService 委托 + MiLensApp 注入 + 4 场景单测；④**SwiftData 启动恢复**：SchemaV1 注释冻结（后续字段必须 SchemaV2 + MigrationStage），`MiLensApp` `try!` → `@State` 启动状态机 + `DatabaseRecoveryView`（可读错误/重试/导出诊断 Documents/Diagnostics/重建本地数据二次确认），依赖组装收口 `AppDependencies.make(isTesting:)`；⑤**通知真调度**：`NotificationPosting.post` → `schedule(dateComponents:repeats:)`（`UNCalendarNotificationTrigger`），`NotifyService.rescheduleAllReminders` 幂等（Pet 生日/领养日年度重复 + 时光机每日 09:00），设置开关默认关闭（授权放开关路径，拒绝回弹），RootTabView 移除自动授权，宠物编辑/删除接局部更新；⑥**CI**：app job 去掉 `if: pull_request` 限制（PR 也构建 + 测试 + 覆盖率），新增模型下载步骤 + `actions/cache` 缓存 `MiLens/Resources/Models`。**本机验证：全套 App 测试 400/400 通过 0 失败**（含 ScanService 15 / NotifyService 10 / MediaLifecycleService 4 / NotifyCheckLogic 2），23 项模拟器跳过已全部恢复（30/30 通过）。
+
+- 2026-08-09：**P0 续：扫描状态化 + 数据一致性收口**——①`ScanResult` 增加 `error`/`completedSuccessfully` 状态：仓储读取失败、照片计数失败、流式遍历中断均返回 error（不再伪装成空结果），`GalleryViewModel` 只在 `completedSuccessfully` 时保存增量游标（失败/取消不保存，避免下次增量跳过未扫照片），失败弹窗显示「扫描未完成」+ 错误信息；②Schema 迁移策略正式化：产品未发布，V1 即首发基线（含 originalURI unique），旧开发库首发前清库重装（SwiftData 对「新增唯一约束」无 lightweight migration），首发后 schema 变更必须递增版本号（见 SchemaVersion.swift 文件头 + DESIGN.md §7）；③导入文件名由短哈希改为 UUID（与 Photo.id 一致，避免碰撞覆盖已有文件）；④`MediaLifecycleService` 落地（写文件+入库事务段，DB 失败回滚文件；编辑保存失败恢复记录旧属性并删新文件、成功清理旧版本文件；删除联动媒体文件；启动孤儿审计）。新增/适配 XCTest：ScanService 失败路径 3 用例 + GalleryViewModelTests 3 用例（游标保存条件）+ MediaLifecycleServiceTests（事务回滚）+ 导入 UUID 文件名 1 用例。
 - 2026-08-08：**P0 扫描/导入数据闭环修复（iOS）**——①`IOSFileStorage`（FileManager 真实实现）落地并注入组合根，生产环境不再用内存 Mock（导入/编辑产物持久化到沙盒，重启不丢）；②去重字段改为 `Photo.originalURI`（Photos localIdentifier，`@Attribute(.unique)` 约束），仓储新增 `getPhotoByOriginalURI`/`getAllOriginalURIs`，ScanService/ImportService 按 originalURI 去重（含批次内重复 identifier）；③新增 `ScanCursorStore`（UserDefaults 持久化上次成功扫描时刻），GalleryViewModel/OnboardingViewModel 增量扫描改用游标替代 `Date()` 截止，dateAdded 以 creationDate 近似并诚实标注（iOS 无公开「加入相册时间」API，老照片导入相册不会被增量发现）；④CLIP Phase 2 精筛接入扫描链路（`ClipInference` 协议 + ScanService.confirmPetWithClipIfAvailable，失败降级），App Store 文案去除「按宠物分别归类」不实描述。schema 变更（originalURI unique）需删除旧开发数据重装。新增/适配 XCTest：IOSFileStorage 8 用例 + ScanCursorStore 3 用例 + CLIP 精筛 4 用例 + 去重回归 4 用例。
 - 2026-08-08：**P2 纯决策逻辑 + Service + View 层落地**——翻译源端 6 个纯决策模块为 Swift（`GalleryPageState`/`ScanFlowLogic`/`ScanControlMath`/`ImportFlowLogic`/`PhotoMetadataLogic`/`PhotoViewGestureMath`）+ ~84 用例 XCTest（对应源端黄金规格逐条翻译）；`ScanService`（Photos 全库扫描 + VisionService 检测 + Task 取消）+ `ImportService`（复制沙盒 → 入库，DESIGN.md §7 唯一入库路径）+ ~15 用例（in-memory SwiftData + mock）；`GalleryViewModel`（@Observable，分页/筛选/扫描/导入/多选）+ `GalleryView`（LazyVGrid + 分页加载 + 扫描进度条 + 完成弹窗）+ `PhotoViewView`（大图 + PhotoViewGestureMath 驱动的捏合缩放/平移/双击）+ `HomeView`（相册/扫描入口）。扩展 `PhotoLibraryAccess`（`loadImageData` + `dateAdded`）。**CI 验证待推送**。
 - 2026-08-08：**P2 扫描增强落地（质量评分 + 重复分组）**——翻译源端 `QualityScorer.ets` + `ImageUtils.computeQualityScore` + `pHash.ets` 为 Swift：①纯逻辑三模块（`QualityScoringLogic` 质量公式 / `PerceptualHashLogic` 哈希运算 / `DuplicateGroupingLogic` Union-Find 分组）+ 9 用例 XCTest（翻译源端 `MorePureLogic` + `QualityScorer` 黄金规格 + iOS 边界增强）；②`ImageAnalyzer` 协议 + `CoreImageAnalyzer` 实现（Laplacian 方差清晰度 + 8×8 均值哈希，Core Graphics）+ mock；③`QualityScorer` 编排服务（`computeAllQualityScores` + `findDuplicates` + `runPostScanAnalysis`）+ 8 用例 XCTest（in-memory SwiftData + mock，与 ScanServiceTests 同类跳过待 Mac 真机）；④Schema 扩展：`Photo` 加 `phash`/`sharpness`/`qualityScore`/`duplicateOf`/`isBest` 字段，`PhotoRepository` 加 4 个查询/更新方法；⑤集成：`GalleryViewModel` 扫描/导入完成后 fire-and-forget 触发质量分析（对应源端 ScanController 后处理链）。重复分组当前用 pHash，不依赖 CLIP Core ML；待模型就绪后可增强为 embedding 相似度。**CI 验证待推送**。

@@ -9,6 +9,7 @@ struct PetEditView: View {
     let petID: UUID
 
     @Environment(\.petRepository) private var petRepo
+    @Environment(\.notifyService) private var notifyService
     @Environment(\.dismiss) private var dismiss
 
     @State private var viewModel: PetEditViewModel?
@@ -252,6 +253,10 @@ struct PetEditView: View {
 
     private func save(_ vm: PetEditViewModel) {
         if vm.save() {
+            // 生日/领养日可能变更：局部重调度该宠物的纪念提醒
+            if let notifyService, let pet = try? petRepo.getPet(id: petID) {
+                Task { await notifyService.updateReminders(for: pet) }
+            }
             dismiss()
         }
     }
@@ -259,6 +264,10 @@ struct PetEditView: View {
     private func deletePet() {
         if let pet = try? petRepo.getPet(id: petID) {
             try? petRepo.deletePet(pet)
+            // 撤销该宠物的纪念提醒
+            if let notifyService {
+                Task { await notifyService.removeReminders(for: pet) }
+            }
         }
         dismiss()
     }

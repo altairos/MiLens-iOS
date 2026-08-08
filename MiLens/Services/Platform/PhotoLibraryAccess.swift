@@ -44,7 +44,8 @@ struct PhotoAssetMetadata: Equatable, Sendable {
 
 /// 照片库访问协议。
 /// V1.0 仅含扫描所需方法；保存到相册（createAsset）待 P4 创作导出时追加。
-protocol PhotoLibraryAccess {
+/// Sendable：实现类无共享可变状态（或单线程测试 mock），供后台执行器捕获。
+protocol PhotoLibraryAccess: Sendable {
     /// 流式遍历系统相册照片元数据（对应源端 streamPhotoAssets）。
     /// - Parameter consumer: 每张照片的回调，返回 false 时提前终止（对应源端 stopSignal/consumer 返回值）。
     ///   回调支持 async——ScanService 需在回调内加载图片数据并调用 AI 检测。
@@ -76,7 +77,7 @@ protocol PhotoLibraryAccess {
 // MARK: - Mock（对应源端 FakeMediaAccess）
 
 /// 预设照片列表的 mock，用于单元测试。
-final class MockPhotoLibraryAccess: PhotoLibraryAccess {
+final class MockPhotoLibraryAccess: PhotoLibraryAccess, @unchecked Sendable {
     private let assets: [PhotoAssetMetadata]
     /// 预设的图片数据（按 identifier 查找；未预设时返回占位 Data）
     private let imageDataOverrides: [String: Data]
@@ -84,6 +85,12 @@ final class MockPhotoLibraryAccess: PhotoLibraryAccess {
     var authorizationStatusValue: PhotoLibraryAuthorizationStatus = .authorized
     /// requestAuthorization 调用后生效的状态（默认与当前状态一致）
     var requestedResult: PhotoLibraryAuthorizationStatus? = nil
+    /// 失败注入：photoCount() 抛错（扫描失败路径测试用）
+    var photoCountError: Error?
+    /// 失败注入：streamPhotos() 遍历前抛错（扫描中断路径测试用）
+    var streamError: Error?
+    /// 失败注入：metadata(forIdentifier:) 抛错（导入失败清理路径测试用）
+    var metadataError: Error?
 
     init(assets: [PhotoAssetMetadata] = [], imageDataOverrides: [String: Data] = [:]) {
         self.assets = assets
@@ -91,6 +98,7 @@ final class MockPhotoLibraryAccess: PhotoLibraryAccess {
     }
 
     func streamPhotos(_ consumer: @escaping (PhotoAssetMetadata) async throws -> Bool) async throws -> Int {
+        if let streamError { throw streamError }
         var visited = 0
         for asset in assets {
             visited += 1
@@ -100,11 +108,13 @@ final class MockPhotoLibraryAccess: PhotoLibraryAccess {
     }
 
     func photoCount() async throws -> Int {
-        assets.count
+        if let photoCountError { throw photoCountError }
+        return assets.count
     }
 
     func metadata(forIdentifier identifier: String) async throws -> PhotoAssetMetadata? {
-        assets.first { $0.identifier == identifier }
+        if let metadataError { throw metadataError }
+        return assets.first { $0.identifier == identifier }
     }
 
     func loadImageData(forIdentifier identifier: String, maxDimension: Int) async throws -> Data {

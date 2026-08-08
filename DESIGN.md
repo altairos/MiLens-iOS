@@ -1,6 +1,6 @@
 # MiLens iOS 设计说明
 
-最后核对：2026-08-08（范围定案 [ADR-0008](docs/adr/0008-v1-scope-decision.md)，UI Rework v2.0）
+最后核对：2026-08-09（P1 核心可靠性收口：后台执行器 / 媒体生命周期 / 通知真调度 / 启动恢复）
 
 > 本文描述目标 iOS 架构。源 HarmonyOS 架构见 `e:\HarmonyProjects\MiPhoto2\DESIGN.md`，迁移映射见 [MIGRATION_ASSESSMENT.md](MIGRATION_ASSESSMENT.md)，约束见 [AGENTS.md](AGENTS.md)。**视觉与 UI 设计规范见 [UI-DESIGN.md](UI-DESIGN.md)**（色彩/字体/间距/动效/页面视觉的唯一事实来源）。
 
@@ -45,7 +45,8 @@ MiLens/                         # App target（@main、Views、App 入口）
 ├── Components/                 # 复用组件（对应源端 components/）
 ├── ViewModels/                 # @Observable 视图模型 + 纯决策（对应源端 viewmodels/）
 ├── Services/                   # 用例层（对应源端 services/）
-│   ├── Scanning/               # 扫描/导入（PhotoScanner→ScanService）
+│   ├── Scanning/               # 扫描/导入（PhotoScanner→ScanService）+ AnalysisExecutor 受限并发执行器
+│   ├── Media/                  # 媒体生命周期（MediaLifecycleService：文件-记录事务/孤儿审计）
 │   ├── AI/                     # AI 推理/匹配（AiService→PetRecognitionService 等）
 │   ├── Export/                 # 导出/分享
 │   ├── Notifications/          # 纪念/时光机提醒（NotifyService，对应源端 NotifyScheduler/TimeMachineService）
@@ -134,11 +135,19 @@ SwiftData 从 V1.0 干净 schema 起步（不复刻源端 16 版历史迁移）�
 
 变更须同步：`@Model` + `VersionedSchema`/`SchemaMigrationPlan` + Repository + 测试。
 
+**Schema 迁移策略**（正式决策）：产品尚未发布，V1 即首发基线（含 `originalURI` 唯一约束）；P0 修复前创建的开发库不支持自动升级（SwiftData 对「新增唯一约束」无 lightweight migration），首发前删除旧开发库重装。首发后任何 schema 变更必须递增版本号并追加 MigrationStage，禁止改动模型后保持版本号不变。详见 [SchemaVersion.swift](MiLens/Persistence/SchemaVersion.swift) 文件头。
+
 扫描/导入边界（沿用源端硬约束）：扫描只筛选不入库；入库唯一路径是用户主动「导入」。`MediaMonitor` 等价物（后台检测新增）不自动入库。
 
-**去重**：以 `Photo.originalURI`（Photos localIdentifier，稳定不变）为唯一键，`@Attribute(.unique)` 约束 + 仓储 `getPhotoByOriginalURI`/`getAllOriginalURIs` 查询；`uri` 是沙盒副本路径（每次导入变化），不参与去重。同一批次内重复 identifier 由 ImportService 的 `seenInBatch` 去重。
+**去重**：以 `Photo.originalURI`（Photos localIdentifier，稳定不变）为唯一键，`@Attribute(.unique)` 约束 + 仓储 `getPhotoByOriginalURI`/`getAllOriginalURIs` 查询；`uri` 是沙盒副本路径（每次导入变化，UUID 文件名），不参与去重。同一批次内重复 identifier 由 ImportService 的 `seenInBatch` 去重。
 
-**增量扫描**：`ScanCursorStore`（UserDefaults）持久化上次成功扫描开始时刻作为游标，下次增量扫描以此为过滤基准（无游标 = 全量）。iOS 无公开「加入相册时间」API，以 `creationDate` 近似 `dateAdded`——老照片（早于游标）导入相册不会被增量发现，首次使用建议全量扫描。
+**增量扫描**：`ScanCursorStore`（UserDefaults）持久化上次成功扫描开始时刻作为游标，下次增量扫描以此为过滤基准（无游标 = 全量）。iOS 无公开「加入相册时间」API，以 `creationDate` 近似 `dateAdded`——老照片（早于游标）导入相册不会被增量发现，首次使用建议全量扫描。游标只在扫描**完整完成**（`ScanResult.completedSuccessfully`：未取消且无错误）时保存——仓储读取失败、计数失败或流式遍历中断时返回 `error` 状态，上层不保存游标，避免下次增量扫描跳过本次未扫到的照片。
+
+**文件-记录事务性**：`MediaLifecycleService` 统一治理导入/编辑/删除的文件-记录一致性——`commitImport`（DB 失败回滚已写文件）、`saveEditedPhoto`（失败删新文件，成功清理旧版本文件）、`deletePhoto`（删除联动媒体文件）、`auditOrphans`（启动孤儿审计）。DB 是事实源，媒体文件是派生资源。
+
+**像素计算移出主线程**：CPU 密集段（JPEG 解码、Laplacian、pHash、VNRequest、CLIP 预处理、O(n²) 重复分组）统一经 `AnalysisExecutor`（actor，utility 优先级，受限并发 `maxConcurrent = 2`，内部 in-flight 计数 + continuation 队列）执行，只把 Sendable 结果回 MainActor 写库/更新 UI。`ScanService` 两阶段：阶段 1（MainActor 轻量）过滤已导入/过旧照片收集候选；阶段 2 候选分批（每批 `maxConcurrent` 个）后台分析，进度回调次数保持按照片数。
+
+**启动恢复**：`ModelContainer` 构造失败不再 `try!` 崩溃——`MiLensApp` 用 `@State` 启动状态机（正常容器 / `DatabaseRecoveryView`），失败时可查看可读错误、导出诊断（Documents/Diagnostics/ 日志文件）、重试，或重建本地数据（二次确认，清除相册记录不动系统相册原图）。依赖组装收口到 `AppDependencies.make(isTesting:)` 工厂，测试环境保持 in-memory 快速路径。
 
 ## 8. 拼豆子系统（MiLensKit）
 
@@ -167,6 +176,8 @@ SwiftData 从 V1.0 干净 schema 起步（不复刻源端 16 版历史迁移）�
 | `InferenceEngine` | Core ML（CLIP + RTMPose `.mlmodelc`） | `IModelRunner`（定案见 [ADR-0007](docs/adr/0007-ios-ai-inference-route.md)） |
 
 真实实现与 mock 分离，业务/ViewModel 只依赖协议，测试注入 mock（对应源端 `FakeMediaAccess` 等）。
+
+**通知调度语义**：`NotificationPosting` 提供 `schedule(title:body:identifier:dateComponents:repeats:)`（`UNCalendarNotificationTrigger` 真调度）而非一次性 post。`NotifyService.rescheduleAllReminders()` 幂等（先 `removeAllNotifications` 再全量调度）：Pet 生日/领养日 → 年度重复通知（月日组件 + 09:00，identifier `anniversary-<petID>-<kind>`）；时光机历史同日照片非空 → 每日 09:00（identifier `tm-daily`，内容由 `TimeMachineLogic` 调度时选定）。设置页「纪念提醒」开关（`@AppStorage`，默认关闭）是唯一授权入口：打开 → `requestAuthorization()` 成功才重调度，拒绝回弹；关闭 → 撤销全部。宠物编辑/删除走 `updateReminders`/`removeReminders` 局部更新。
 
 ## 10. 已知限制
 

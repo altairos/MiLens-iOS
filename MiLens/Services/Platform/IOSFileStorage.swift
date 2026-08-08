@@ -7,7 +7,7 @@
 import Foundation
 
 /// FileManager 沙盒文件操作实现。
-final class IOSFileStorage: FileStorage {
+final class IOSFileStorage: FileStorage, @unchecked Sendable {
 
     func copy(from source: String, to destination: String) async throws {
         guard fileExists(at: source) else {
@@ -45,6 +45,17 @@ final class IOSFileStorage: FileStorage {
             throw FileStorageError.fileNotFound(path)
         }
         try FileManager.default.removeItem(atPath: path)
+    }
+
+    func listFiles(in directory: String) -> [String] {
+        let fm = FileManager.default
+        guard let urls = try? fm.contentsOfDirectory(
+            at: URL(fileURLWithPath: directory),
+            includingPropertiesForKeys: [.isRegularFileKey]
+        ) else { return [] }
+        return urls.filter { url in
+            (try? url.resourceValues(forKeys: [.isRegularFileKey]).isRegularFile) ?? false
+        }.map(\.path)
     }
 
     // MARK: - 私有

@@ -6,6 +6,7 @@ import SwiftUI
 
 struct PetsView: View {
     @Environment(\.petRepository) private var petRepo
+    @Environment(\.notifyService) private var notifyService
 
     @State private var viewModel: PetProfileViewModel?
     @State private var showAddSheet = false
@@ -93,6 +94,10 @@ struct PetsView: View {
                     .contextMenu {
                         Button(role: .destructive) {
                             vm.deletePet(pet)
+                            // 撤销该宠物的纪念提醒
+                            if let notifyService {
+                                Task { await notifyService.removeReminders(for: pet) }
+                            }
                         } label: {
                             Label("删除伙伴", systemImage: "trash")
                         }

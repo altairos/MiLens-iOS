@@ -1,10 +1,11 @@
 //  EditorView —— 图片编辑器页面（对应源端 pages/EditorPage.ets）。
 //  结构：自定义顶栏（返回/撤销/重做/保存）+ 画布（EditorCanvasView）+ 面板区 + 底部 dock。
-//  依赖注入：Environment 取 photoRepo/fileStorage/visionService，sandboxDir 与导入同目录
-//  （Documents/MiPhotos，DESIGN.md §7 唯一入库路径）。
+//  依赖注入：Environment 取 photoRepo/fileStorage/visionService/mediaLifecycle，
+//  sandboxDir 与导入同目录（Documents/MiPhotos，DESIGN.md §7 唯一入库路径）。
 //  保存/返回决策全部走 EditorViewModel（EditorSaveLogic 驱动）。
 
 import SwiftUI
+import SwiftData
 
 struct EditorView: View {
     let photoID: UUID
@@ -12,6 +13,7 @@ struct EditorView: View {
     @Environment(\.photoRepository) private var photoRepo
     @Environment(\.fileStorage) private var fileStorage
     @Environment(\.visionService) private var visionService
+    @Environment(\.mediaLifecycleService) private var mediaLifecycleService
     @Environment(\.dismiss) private var dismiss
 
     @State private var viewModel: EditorViewModel?
@@ -36,8 +38,10 @@ struct EditorView: View {
                 visionService: visionService,
                 imageProcessor: CoreImageEditorProcessing(),
                 saveService: EditorSaveService(
-                    fileStorage: fileStorage,
-                    photoRepo: photoRepo,
+                    mediaLifecycle: mediaLifecycleService ?? Self.fallbackLifecycle(
+                        photoRepo: photoRepo, fileStorage: fileStorage,
+                        sandboxDir: sandboxDir
+                    ),
                     sandboxDir: sandboxDir
                 )
             )
@@ -47,6 +51,23 @@ struct EditorView: View {
     }
 
     // MARK: - 内容
+
+    /// 环境未注入 MediaLifecycleService 时的兜底（Preview/异常路径）：in-memory 容器。
+    @MainActor
+    private static func fallbackLifecycle(
+        photoRepo: any PhotoRepositoryProtocol,
+        fileStorage: any FileStorage,
+        sandboxDir: String
+    ) -> MediaLifecycleService {
+        let config = ModelConfiguration(isStoredInMemoryOnly: true)
+        let container = try! ModelContainer(
+            for: Schema(versionedSchema: SchemaV1.self), configurations: [config])
+        return MediaLifecycleService(
+            photoRepo: photoRepo,
+            petRepo: SwiftDataPetRepository(context: container.mainContext),
+            fileStorage: fileStorage,
+            sandboxDir: sandboxDir)
+    }
 
     private func content(_ vm: EditorViewModel) -> some View {
         VStack(spacing: 0) {

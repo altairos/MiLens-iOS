@@ -1,7 +1,8 @@
 import XCTest
 @testable import MiLens
 
-/// NotifyCheckLogic 纯函数测试——每日去重判断 + 纪念日日期匹配。
+/// NotifyCheckLogic 纯函数测试——纪念日日期匹配。
+/// P1 重构：每日去重判断（shouldRunDailyCheck/dayKey）随前台检查语义一并移除。
 final class NotifyCheckLogicTests: XCTestCase {
 
     private var calendar: Calendar {
@@ -12,37 +13,6 @@ final class NotifyCheckLogicTests: XCTestCase {
 
     private func date(_ year: Int, _ month: Int, _ day: Int) -> Date {
         calendar.date(from: DateComponents(year: year, month: month, day: day))!
-    }
-
-    // MARK: - shouldRunDailyCheck
-
-    func testNeverCheckedShouldRun() {
-        XCTAssertTrue(NotifyCheckLogic.shouldRunDailyCheck(
-            lastCheckDate: nil, now: date(2026, 8, 8), calendar: calendar))
-    }
-
-    func testSameDayShouldNotRun() {
-        let now = date(2026, 8, 8)
-        let sameDay = date(2026, 8, 8)  // 同一天不同时刻
-        XCTAssertFalse(NotifyCheckLogic.shouldRunDailyCheck(
-            lastCheckDate: sameDay, now: now, calendar: calendar))
-    }
-
-    func testNextDayShouldRun() {
-        XCTAssertTrue(NotifyCheckLogic.shouldRunDailyCheck(
-            lastCheckDate: date(2026, 8, 7), now: date(2026, 8, 8), calendar: calendar))
-    }
-
-    func testCrossYearShouldRun() {
-        XCTAssertTrue(NotifyCheckLogic.shouldRunDailyCheck(
-            lastCheckDate: date(2025, 12, 31), now: date(2026, 1, 1), calendar: calendar))
-    }
-
-    // MARK: - dayKey
-
-    func testDayKeyFormat() {
-        XCTAssertEqual(NotifyCheckLogic.dayKey(for: date(2026, 8, 8), calendar: calendar), "2026-08-08")
-        XCTAssertEqual(NotifyCheckLogic.dayKey(for: date(2026, 1, 1), calendar: calendar), "2026-01-01")
     }
 
     // MARK: - matchesMonthDay

@@ -94,7 +94,7 @@ extension EnvironmentValues {
     }
 }
 
-// MARK: - NotifyService（纪念提醒每日检查，测试环境不注入为 nil）
+// MARK: - NotifyService（纪念提醒调度，测试环境不注入为 nil）
 
 private struct NotifyServiceKey: EnvironmentKey {
     @MainActor
@@ -105,5 +105,19 @@ extension EnvironmentValues {
     var notifyService: NotifyService? {
         get { self[NotifyServiceKey.self] }
         set { self[NotifyServiceKey.self] = newValue }
+    }
+}
+
+// MARK: - MediaLifecycleService（媒体文件-数据库事务一致性）
+
+private struct MediaLifecycleServiceKey: EnvironmentKey {
+    @MainActor
+    static var defaultValue: MediaLifecycleService? { nil }
+}
+
+extension EnvironmentValues {
+    var mediaLifecycleService: MediaLifecycleService? {
+        get { self[MediaLifecycleServiceKey.self] }
+        set { self[MediaLifecycleServiceKey.self] = newValue }
     }
 }

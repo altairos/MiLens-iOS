@@ -6,6 +6,7 @@ import SwiftUI
 
 struct RootTabView: View {
     @AppStorage("selectedTab") private var selectedTabRaw: Int = AppTab.home.rawValue
+    @AppStorage("reminderNotificationsEnabled") private var remindersEnabled = false
     @Environment(\.scenePhase) private var scenePhase
     @Environment(\.notifyService) private var notifyService
 
@@ -70,9 +71,9 @@ struct RootTabView: View {
     private func handleScenePhase(_ phase: ScenePhase) {
         switch phase {
         case .active:
-            // 纪念提醒每日检查（对应源端 EntryAbility onPageShow 的 scheduleDailyEventCheck）
-            if let notifyService {
-                Task { await notifyService.runDailyCheck() }
+            // 纪念提醒：仅开关开启时幂等重调度（刷新当日时光机内容）；不自动请求授权
+            if let notifyService, remindersEnabled {
+                Task { await notifyService.rescheduleAllReminders() }
             }
         case .inactive, .background:
             break

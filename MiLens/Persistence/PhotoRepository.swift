@@ -2,7 +2,7 @@
 //  扫描/导入边界（DESIGN.md §7）：扫描只调用 getAllOriginalURIs() 做去重，
 //  入库唯一路径是用户主动触发的 insertPhoto()。
 //  去重键是 originalURI（Photos localIdentifier）——uri 是沙盒副本路径，
-//  由 hashToFilename 生成，不能与系统库 identifier 比较（P0 修复）。
+//  每次导入由 ImportService 以 UUID 文件名生成，不能与系统库 identifier 比较（P0 修复）。
 
 import Foundation
 import SwiftData

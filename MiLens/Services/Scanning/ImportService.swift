@@ -5,8 +5,11 @@
 //  扫描只筛选不入库；用户手动选择后通过本服务导入。
 //
 //  流程：加载原图 → 复制到沙盒（缩放 1024px JPEG）→ 创建 Photo 元数据 → 入库。
+//  文件写入与入库的一致性由 MediaLifecycleService.commitImport 保证（DB 失败回滚文件）。
 //  去重：以 originalURI（Photos localIdentifier）为键——uri 是沙盒副本路径不能作比较；
 //  同一批次内重复 identifier 只导入一次。
+//  文件名：UUID（与 Photo.id 一致）——短哈希可能碰撞覆盖已有文件，且无法确认
+//  失败回滚时删除的是本次写入的文件。
 //  V1.0 不含 pHash/embedding 计算（后置 V1.x）。
 
 import Foundation
@@ -18,6 +21,7 @@ final class ImportService {
     private let photoLibrary: any PhotoLibraryAccess
     private let fileStorage: any FileStorage
     private let photoRepo: any PhotoRepositoryProtocol
+    private let mediaLifecycle: MediaLifecycleService
     /// 沙盒照片目录路径（Documents/MiPhotos）
     private let sandboxDir: String
 
@@ -27,10 +31,12 @@ final class ImportService {
     init(photoLibrary: any PhotoLibraryAccess,
          fileStorage: any FileStorage,
          photoRepo: any PhotoRepositoryProtocol,
+         mediaLifecycle: MediaLifecycleService,
          sandboxDir: String) {
         self.photoLibrary = photoLibrary
         self.fileStorage = fileStorage
         self.photoRepo = photoRepo
+        self.mediaLifecycle = mediaLifecycle
         self.sandboxDir = sandboxDir
     }
 
@@ -48,8 +54,12 @@ final class ImportService {
         isImporting = true
         defer { isImporting = false }
 
-        // 确保沙盒目录存在
-        try? await fileStorage.createDirectory(at: sandboxDir)
+        // 确保沙盒目录存在（目录创建失败是环境级错误，直接终止本次导入）
+        do {
+            try await fileStorage.createDirectory(at: sandboxDir)
+        } catch {
+            return 0
+        }
 
         // 去重集合：以 originalURI（Photos localIdentifier）为键
         let existingOriginalURIs = (try? photoRepo.getAllOriginalURIs()) ?? []
@@ -76,21 +86,22 @@ final class ImportService {
             }
 
             do {
+                // 文件名 = UUID（与 Photo.id 一致）——避免短哈希碰撞覆盖已有文件
+                let fileID = UUID()
+                let sandboxPath = "\(sandboxDir)/\(fileID.uuidString).jpg"
+
                 // 加载原图数据（缩放到 1024px 用于沙盒副本）
                 let imageData = try await photoLibrary.loadImageData(
                     forIdentifier: identifier,
                     maxDimension: ScanConfig.importMaxDimension
                 )
 
-                // 复制到沙盒（文件名 = hash(identifier).jpg）
-                let sandboxPath = "\(sandboxDir)/\(hashToFilename(identifier)).jpg"
-                try await fileStorage.write(imageData, to: sandboxPath)
-
                 // 从照片库获取元数据
                 let metadata = try await photoLibrary.metadata(forIdentifier: identifier)
 
-                // 创建 Photo 对象
+                // 创建 Photo 对象（id 与沙盒文件名一致，便于排查与清理）
                 let photo = Photo(
+                    id: fileID,
                     uri: sandboxPath,
                     originalURI: identifier,
                     takenAt: metadata?.dateTaken,
@@ -102,11 +113,11 @@ final class ImportService {
                     subCategory: "other"
                 )
 
-                // 入库（DESIGN.md §7 唯一入库路径）
-                try photoRepo.insertPhoto(photo)
+                // 写文件 + 入库（事务段：DB 失败回滚已写文件）
+                try await mediaLifecycle.commitImport(data: imageData, to: sandboxPath, photo: photo)
                 imported += 1
             } catch {
-                // 单张导入失败不阻止后续
+                // 单张导入失败不阻止后续（commitImport 已回滚已写文件，不留孤儿）
                 continue
             }
 

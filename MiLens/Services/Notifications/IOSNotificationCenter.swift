@@ -1,6 +1,7 @@
 //  IOSNotificationCenter —— NotificationPosting 的 UserNotifications 框架真实实现
 //  （对应源端 notificationManager.publish / cancel）。
-//  立即送达的本地通知：纪念日回忆 + 时光机每日推送。
+//  P1 重构：`schedule` 用 UNCalendarNotificationTrigger 真调度——
+//  纪念日年度重复通知 + 时光机每日通知由系统在后台触发，不再依赖前台检查。
 //  DESIGN.md §9 平台适配层：业务层只依赖协议，本文件是唯一直接接触 UserNotifications 的地方。
 
 import Foundation
@@ -19,17 +20,22 @@ final class IOSNotificationCenter: NotificationPosting {
         return settings.authorizationStatus == .authorized
     }
 
-    func post(title: String, body: String, identifier: String) async {
+    func schedule(
+        title: String, body: String, identifier: String,
+        dateComponents: DateComponents, repeats: Bool
+    ) async throws {
         let content = UNMutableNotificationContent()
         content.title = title
         content.body = body
         content.sound = .default
+        let trigger = UNCalendarNotificationTrigger(
+            dateMatching: dateComponents, repeats: repeats)
         let request = UNNotificationRequest(
-            identifier: identifier, content: content, trigger: nil
+            identifier: identifier, content: content, trigger: trigger
         )
-        // 权限被拒时 add 不抛错但不送达；业务层通过 authorizationStatus 判断，
-        // 发布失败静默忽略（通知非关键路径，对应源端 publish 的 try/catch warn）。
-        try? await UNUserNotificationCenter.current().add(request)
+        // 权限被拒时 add 不抛错但不送达；业务层通过开关路径保证授权后调度，
+        // 调度失败向上抛（调用方可感知），通知非关键路径由调用方 decide 是否降级。
+        try await UNUserNotificationCenter.current().add(request)
     }
 
     func removeNotifications(identifiers: [String]) async {

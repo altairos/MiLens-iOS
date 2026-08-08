@@ -72,10 +72,10 @@ apt-get install -y --no-install-recommends \
 
 ### 2.2 云端：App 全量编译 + 上架（GitHub Actions）
 
-仓库 https://github.com/altairos/MiLens-iOS（私有）。推送即触发 `.github/workflows/ci.yml`：
+仓库 https://github.com/altairos/MiLens-iOS（私有）。推送即触发 `.github/workflows/ci.yml`（PR 与 main/master push 均运行两个作业）：
 
 1. `MiLensKit (Linux)`——ubuntu-24.04 上 `swift build/test`，约 50s。
-2. `MiLens App (macOS)`——macos-15 runner 上 `xcodegen generate` → `xcodebuild build/test`，约 4 分钟（依赖 MiLensKit 作业通过）。
+2. `MiLens App (macOS)`——macos-15 runner 上 `xcodegen generate` → `tools/fetch-models.sh`（从 Release 下载生产模型 + SHA256 校验，`actions/cache` 缓存 `MiLens/Resources/Models`，命中则幂等跳过）→ `xcodebuild build/test`（含覆盖率），约 4-5 分钟（依赖 MiLensKit 作业通过）。
 
 查看：`gh run list --repo altairos/MiLens-iOS` 或 https://github.com/altairos/MiLens-iOS/actions。
 
@@ -221,11 +221,30 @@ python tools/prepare_text_embeddings.py \
 
 **模型产物**（加入 `MiLens/Resources/Models/` 并在 `project.yml` 中注册打包）：
 
-| 产物 | 体积（估算） | 说明 |
-|---|---|---|
-| `CLIPVisionEncoder.mlpackage` | ~42 MB（INT8）/ ~85 MB（FP16） | 输入 224×224 RGB，输出 512 维 L2-normalized embedding |
-| `RTMPoseTPetFace.mlpackage` | ~3 MB（INT8）/ ~6 MB（FP16） | 输入 192×192 NCHW，输出 simcc_x [1,5,384] + simcc_y [1,5,384] |
-| `pet_text_embeddings.f32` | 0.04 MB | 直接复用源端二进制文件 |
+| 产物 | 体积（估算） | 进 App Bundle | 说明 |
+|---|---|---|---|
+| `CLIPVisionEncoder_int8.mlpackage` | ~84 MB | ✅ **生产模型** | 输入 224×224 RGB，输出 512 维 L2-normalized embedding；`CoreMLInferenceEngine` 默认加载名 |
+| `RTMPoseTPetFace_fp16.mlpackage` | ~6 MB | ✅ **生产模型** | 输入 192×192 NCHW，输出 simcc_x [1,5,384] + simcc_y [1,5,384]；已随包交付，暂无可加载代码（供 V1.x） |
+| `CLIPVisionEncoder_fp16.mlpackage` | ~85 MB | ❌ excludes | 实验模型（仅本机转换/调试） |
+| `RTMPoseTPetFace_int8.mlpackage` | ~3 MB | ❌ excludes | 实验模型（仅本机转换/调试） |
+| `pet_text_embeddings.f32` | 0.04 MB | ✅ | 直接复用源端二进制文件 |
+
+**生产模型交付（GitHub Release + SHA256 校验）**
+
+生产模型（CLIP int8 + RTMPose fp16）以 tar 包发布到 Release（tag `models-v1`），清单 `tools/model-manifest.json` 内嵌 sha256，脚本 `tools/fetch-models.sh` 负责下载/校验/解包（幂等，`MILENS_MODEL_BASE_URL` 可覆盖基址做本地/镜像测试）。首次发布命令：
+
+```bash
+cd MiLens/Resources/Models
+# 固定 mtime 保证 tar 包 SHA256 可复现（macOS bsdtar 无 --sort=name，用 touch 统一时间戳）
+find CLIPVisionEncoder_int8.mlpackage RTMPoseTPetFace_fp16.mlpackage -exec touch -t 202608010000 {} +
+tar -czf /tmp/models-v1.tar.gz CLIPVisionEncoder_int8.mlpackage RTMPoseTPetFace_fp16.mlpackage
+shasum -a 256 /tmp/models-v1.tar.gz   # 将结果写入 tools/model-manifest.json 的 archive_sha256
+cd <repo-root>
+git tag models-v1 && git push origin models-v1 && git push origin --tags
+gh release create models-v1 /tmp/models-v1.tar.gz --title "Model pack v1" --notes "CLIP int8 + RTMPose fp16"
+```
+
+> 发布后 CI 与本地共用同一下载路径；模型更新时递增 tag（如 `models-v2`）并同步 manifest。
 
 ### 4.4 模拟器 vs 真机
 
@@ -267,6 +286,8 @@ UI 文案与 Info.plist 权限说明用 Apple String Catalog（`.xcstrings`）�
 - 2026-08-08：**AI 模型转换工具链落地**——新增 3 个 Python 脚本 + `tools/requirements-models.txt`：①`tools/convert_clip_coreml.py`（CLIP ViT-B/32 vision encoder → Core ML `.mlpackage`，只导 image_features 512 维，支持 INT8/FP16 量化，精度校验 cosine >0.999）；②`tools/convert_rtmpose_coreml.py`（RTMPose-t ONNX → Core ML，SimCC 输出，精度校验 <2px）；③`tools/prepare_text_embeddings.py`（text embeddings f32 格式校验 + Swift 加载代码生成）。三个脚本 `py_compile` 全绿；`prepare_text_embeddings.py --verify-only` 对源端 `pet_text_embeddings.f32`（40960 bytes = 20×512×4）实跑通过，L2 范数全部正常。转换+量化实跑需 macOS（coremltools 依赖）。
 
 ### P2
+
+- 2026-08-09：**P1 核心可靠性收口——本机 Mac 模拟器全套验证通过**——①模型交付：`tools/fetch-models.sh` 三条路径实跑验证（幂等跳过 / 下载+SHA256 校验+解包 / 篡改 sha256 拒绝退出非零），`project.yml` excludes 实验模型（`xcodegen generate` 重新生成工程编译通过）；②后台执行器 + 两阶段扫描重构：ScanServiceTests 15/15、QualityScorer 相关全绿；③MediaLifecycleService 4 场景单测通过；④SwiftData 启动恢复：编译通过，测试环境 in-memory 快速路径保持；⑤通知真调度：NotifyServiceTests 10/10、NotifyCheckLogicTests 2/2；⑥CI：app job 移除 PR 限制 + 模型下载/缓存步骤。**全套 App 测试 400/400 通过、0 失败**（23 项模拟器跳过已恢复：ScanService/ImportService/QualityScorer 30/30）。模型 Release 创建后 PR 即可全绿。
 
 - 2026-08-08：**P2 纯决策 + Service + View 层落地**——翻译源端 6 个纯决策模块（`GalleryPageState`/`ScanFlowLogic`/`ScanControlMath`/`ImportFlowLogic`/`PhotoMetadataLogic`/`PhotoViewGestureMath`）为 Swift 纯函数/struct + ~84 用例 XCTest（逐条对应源端黄金规格）；`ScanService`（Photos 全库扫描 + `VisionService` 检测 + `Task.cancel` 取消）+ `ImportService`（复制沙盒 → 入库）+ ~15 用例（in-memory SwiftData + mock 平台服务）；`GalleryViewModel`（@Observable）+ `GalleryView`（LazyVGrid 分页 + 扫描进度 + 完成弹窗）+ `PhotoViewView`（大图 + 手势）+ `HomeView`（相册/扫描入口）。
 - 2026-08-08：**P2 CI 验证通过**（run [31204194663](https://github.com/altairos/MiLens-iOS/actions/runs/31204194663)）——MiLensKit (Linux) 120 passed/1 skipped/0 failed + MiLens App (macOS) 134 passed/15 skipped/0 failed。修复 5 处编译错误（`StylizedDraftGenerator` 参数标签、`PhotoLibraryAccess` 花括号、主题 token API 名称、`BeadPresetResolver` min/max 遮蔽、`MagnifyGesture.Value.magnification`）+ 1 处测试参数顺序。ScanServiceTests/ImportServiceTests（15 用例）因模拟器 SwiftData 集成崩溃临时跳过，待真机调试。**真机验证待办清单见 [P2-真机验证备忘](docs/P2-真机验证备忘.md)**。

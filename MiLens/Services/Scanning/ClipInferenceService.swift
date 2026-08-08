@@ -80,14 +80,15 @@ enum ClipInferenceError: Error, LocalizedError {
 /// 构造后可直接调用 `detect` / `extractEmbedding`；模型不可用时用 `extractFallbackEmbedding` 降级。
 ///
 /// ScanService 只依赖 `ClipInference` 协议（Phase 2 精筛），测试注入 mock。
-protocol ClipInference {
+/// Sendable：实现类不可变（let 存储，MLModel 线程安全），供后台执行器捕获。
+protocol ClipInference: Sendable {
     /// 完整 CLIP 推理：分类 + 提取 embedding。
     func detect(imageData: Data) async throws -> ClipDetectionResult
     /// 手工特征降级 embedding（CLIP 模型不可用时，仅用于已注册宠物视觉匹配）。
     func extractFallbackEmbedding(imageData: Data) async throws -> [Float]
 }
 
-final class ClipInferenceService: ClipInference {
+final class ClipInferenceService: ClipInference, @unchecked Sendable {
 
     private let engine: InferenceEngine
     private let textEmbeddings: PetTextEmbeddingSet

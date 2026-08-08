@@ -1,6 +1,6 @@
 # MiLens iOS — 云端编译 / 测试 CI（GitHub Actions runner）
-# 成本优化：macOS 运行器分钟乘数 10×，仅在 push 到 main/master 时触发 app 作业；
-# PR 只跑 kit（ubuntu, 1×），避免昂贵的 macOS 计费分钟。
+# PR 与 main/master push 均运行 app 作业（构建 + 测试 + 覆盖率）；
+# 生产模型经 tools/fetch-models.sh 从 GitHub Release 下载（SHA256 校验）并缓存。
 # 详见 DEVELOPMENT.md「双机/云端协作」。
 
 name: CI
@@ -42,13 +42,11 @@ jobs:
       - name: Test
         run: swift test --parallel
 
-  # ── MiLens App：macOS runner 上 xcodegen + xcodebuild（消耗 macOS 分钟，10× 乘数）──
-  # 仅在 push 到 main/master 或手动触发时运行；PR 只跑 kit。
+  # ── MiLens App：macOS runner 上 xcodegen + xcodebuild（PR 与 main/master push 均运行）──
   app:
     name: MiLens App (macOS)
     runs-on: macos-15
     needs: kit
-    if: github.event_name != 'pull_request'
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
@@ -61,6 +59,14 @@ jobs:
         run: brew install xcodegen
       - name: Generate Xcode project
         run: xcodegen generate
+      - name: Cache AI models
+        uses: actions/cache@v4
+        with:
+          path: MiLens/Resources/Models
+          key: models-${{ runner.os }}-${{ hashFiles('tools/model-manifest.json') }}
+          restore-keys: models-${{ runner.os }}-
+      - name: Fetch production models (Release + SHA256)
+        run: tools/fetch-models.sh
       - name: Cache Swift Package dependencies
         uses: actions/cache@v4
         with:

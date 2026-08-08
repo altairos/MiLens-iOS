@@ -23,7 +23,7 @@ private extension PHAuthorizationStatus {
     }
 }
 
-final class IOSPhotoLibraryAccess: PhotoLibraryAccess {
+final class IOSPhotoLibraryAccess: PhotoLibraryAccess, @unchecked Sendable {
 
     // MARK: - 授权
 

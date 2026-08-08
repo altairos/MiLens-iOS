@@ -37,7 +37,11 @@ final class EditorViewModelTests: XCTestCase {
             visionService: vision,
             imageProcessor: processor,
             saveService: EditorSaveService(
-                fileStorage: storage, photoRepo: repo, sandboxDir: sandboxDir
+                mediaLifecycle: MediaLifecycleService(
+                    photoRepo: repo, petRepo: InMemoryPetRepository(),
+                    fileStorage: storage, sandboxDir: sandboxDir
+                ),
+                sandboxDir: sandboxDir
             )
         )
     }
@@ -455,4 +459,16 @@ private final class InMemoryPhotoRepository: PhotoRepositoryProtocol {
     func getDuplicateCandidates() throws -> [Photo] { [] }
     func updateQualityData(_ photo: Photo, sharpness: Double, qualityScore: Double, phash: String) throws {}
     func replaceDuplicateMarks(_ groups: [DuplicateMarkGroup]) throws {}
+}
+
+/// 内存宠物仓储（编辑保存链路不触碰宠物，最简实现即可）。
+@MainActor
+private final class InMemoryPetRepository: PetRepositoryProtocol {
+    private var pets: [Pet] = []
+    func getAllPets() throws -> [Pet] { pets }
+    func getPet(id: UUID) throws -> Pet? { pets.first { $0.id == id } }
+    func insertPet(_ pet: Pet) throws { pets.append(pet) }
+    func updatePet(_ pet: Pet) throws {}
+    func deletePet(_ pet: Pet) throws { pets.removeAll { $0.id == pet.id } }
+    func refreshPhotoCount(for pet: Pet) throws {}
 }

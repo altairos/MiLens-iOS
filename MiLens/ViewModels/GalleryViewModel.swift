@@ -30,6 +30,8 @@ final class GalleryViewModel {
     var scanProgressText = ""
     var showScanCompleteDialog = false
     var scanCompleteMessage = ""
+    /// 本次扫描是否失败（未完整遍历）。决定完成弹窗的标题/图标与游标保存。
+    var scanFailed = false
     var unassignedPetUris: [String] = []
 
     // MARK: - 导入
@@ -50,6 +52,8 @@ final class GalleryViewModel {
     private let fileStorage: any FileStorage
     private let imageAnalyzer: any ImageAnalyzer
     private let sandboxDir: String
+    /// 媒体生命周期（导入事务段：写文件 + 入库一致性）
+    private let mediaLifecycle: MediaLifecycleService
     /// Phase 2 CLIP 精筛（nil = 模型缺失，仅 Vision 预筛）
     private let clipService: (any ClipInference)?
     /// 上次成功扫描游标（「仅扫描新增」过滤基准）
@@ -66,7 +70,8 @@ final class GalleryViewModel {
          sandboxDir: String,
          imageAnalyzer: any ImageAnalyzer = CoreImageAnalyzer(),
          clipService: (any ClipInference)? = nil,
-         cursorStore: any ScanCursorStore = UserDefaultsScanCursorStore()) {
+         cursorStore: any ScanCursorStore = UserDefaultsScanCursorStore(),
+         mediaLifecycle: MediaLifecycleService? = nil) {
         self.photoRepo = photoRepo
         self.petRepo = petRepo
         self.photoLibrary = photoLibrary
@@ -76,6 +81,9 @@ final class GalleryViewModel {
         self.sandboxDir = sandboxDir
         self.clipService = clipService
         self.cursorStore = cursorStore
+        self.mediaLifecycle = mediaLifecycle ?? MediaLifecycleService(
+            photoRepo: photoRepo, petRepo: petRepo,
+            fileStorage: fileStorage, sandboxDir: sandboxDir)
     }
 
     /// 扫描/导入后后台质量评分 + 重复分组（对应源端 ScanController fire-and-forget 链）。
@@ -202,6 +210,7 @@ final class GalleryViewModel {
         guard !isScanning else { return }
         isScanning = true
         showScanCompleteDialog = false
+        scanFailed = false
         unassignedPetUris = []
 
         let service = ScanService(
@@ -228,14 +237,22 @@ final class GalleryViewModel {
             self.isScanning = false
             self.scanProgressText = ""
             self.unassignedPetUris = result.unassignedPetUris
-            self.scanCompleteMessage = ScanFlowLogic.resolveCompleteMessage(
-                matchedCount: result.matchedCount,
-                unassignedCount: result.unassignedPetUris.count,
-                processedCount: result.processedCount,
-                isNewOnly: scanNewOnly
-            )
+            self.scanFailed = result.error != nil
+            if let error = result.error {
+                // 失败：弹窗展示错误信息（标题/图标走 scanFailed 分支，可重试）
+                self.scanCompleteMessage = error
+            } else {
+                self.scanCompleteMessage = ScanFlowLogic.resolveCompleteMessage(
+                    matchedCount: result.matchedCount,
+                    unassignedCount: result.unassignedPetUris.count,
+                    processedCount: result.processedCount,
+                    isNewOnly: scanNewOnly
+                )
+            }
+            // 只有真正完整完成（未取消且无错误）才保存增量游标——
+            // 失败/取消时保存会导致下次增量扫描跳过本次未扫到的照片。
             self.showScanCompleteDialog = !result.canceled
-            if !result.canceled {
+            if result.completedSuccessfully {
                 self.cursorStore.saveLastSuccessfulScan(scanStart)
                 self.loadInitial()
                 self.triggerQualityAnalysis()
@@ -263,7 +280,8 @@ final class GalleryViewModel {
             guard let self else { return }
             let service = ImportService(
                 photoLibrary: self.photoLibrary, fileStorage: self.fileStorage,
-                photoRepo: self.photoRepo, sandboxDir: self.sandboxDir
+                photoRepo: self.photoRepo, mediaLifecycle: self.mediaLifecycle,
+                sandboxDir: self.sandboxDir
             )
             _ = await service.importPhotos(identifiers: identifiers)
             self.isImporting = false

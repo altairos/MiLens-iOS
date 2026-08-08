@@ -2,6 +2,8 @@
 //  流程：写沙盒新文件（MiLens_Edit_<ts>.<ext>）→ 就地更新 Photo 记录
 //  （uri/thumbnailPath/fileSize/width/height，DESIGN.md §7：不新增记录，编辑覆盖原照片）。
 //  格式决策（PNG/JPEG）来自 EditorSaveLogic.resolveSaveFormat（MiLensKit）。
+//  文件写入与记录更新的一致性由 MediaLifecycleService.saveEditedPhoto 保证
+//  （失败回滚新文件，成功清理旧版本文件）。
 
 import Foundation
 import MiLensKit
@@ -10,16 +12,13 @@ import MiLensKit
 @MainActor
 final class EditorSaveService {
 
-    private let fileStorage: any FileStorage
-    private let photoRepo: any PhotoRepositoryProtocol
+    private let mediaLifecycle: MediaLifecycleService
     /// 沙盒照片目录路径（Documents/MiPhotos，与 ImportService 同目录）
     private let sandboxDir: String
 
-    init(fileStorage: any FileStorage,
-         photoRepo: any PhotoRepositoryProtocol,
+    init(mediaLifecycle: MediaLifecycleService,
          sandboxDir: String) {
-        self.fileStorage = fileStorage
-        self.photoRepo = photoRepo
+        self.mediaLifecycle = mediaLifecycle
         self.sandboxDir = sandboxDir
     }
 
@@ -42,16 +41,8 @@ final class EditorSaveService {
     ) async throws -> String {
         let fileName = resolveSaveFileNameHint(timestamp: timestamp, decision: decision)
         let path = "\(sandboxDir)/\(fileName)"
-        try? await fileStorage.createDirectory(at: sandboxDir)
-        try await fileStorage.write(data, to: path)
-
-        // 就地更新记录（编辑覆盖原照片；thumbnailPath 置空 → 读取端回退 uri）。
-        photo.uri = path
-        photo.thumbnailPath = ""
-        photo.fileSize = Int64(data.count)
-        photo.width = width
-        photo.height = height
-        try photoRepo.updatePhoto(photo)
-        return path
+        // 事务段：写新文件 → 更新记录 → 清理旧版本文件（失败回滚）
+        return try await mediaLifecycle.saveEditedPhoto(
+            photo, data: data, to: path, width: width, height: height)
     }
 }

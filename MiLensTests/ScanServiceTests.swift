@@ -13,7 +13,8 @@ final class ScanServiceTests: XCTestCase {
     private func makeService(
         assets: [PhotoAssetMetadata] = [],
         detections: [DetectionBox] = [],
-        clipService: (any ClipInference)? = nil
+        clipService: (any ClipInference)? = nil,
+        photoLibrary: MockPhotoLibraryAccess? = nil
     ) -> (ScanService, SwiftDataPhotoRepository, ModelContainer) {
         // container 必须返回并持有——mainContext 不持有 container，
         // 局部变量释放后 repo 的 fetch 触发 SwiftData 内部 SIGTRAP（悬垂引用）。
@@ -22,12 +23,14 @@ final class ScanServiceTests: XCTestCase {
         let container = try! ModelContainer(for: schema, configurations: [config])
         let photoRepo = SwiftDataPhotoRepository(context: container.mainContext)
         let petRepo = SwiftDataPetRepository(context: container.mainContext)
-        let photoLibrary = MockPhotoLibraryAccess(assets: assets)
+        let photoLibrary = photoLibrary ?? MockPhotoLibraryAccess(assets: assets)
         let vision = MockVisionService(detections: detections)
         let service = ScanService(
             photoLibrary: photoLibrary, vision: vision,
             photoRepo: photoRepo, petRepo: petRepo,
-            clipService: clipService
+            clipService: clipService,
+            // 串行执行器：阶段 2 逐张分析，保证 mock 调用顺序与进度回调确定性
+            executor: AnalysisExecutor(maxConcurrent: 1)
         )
         return (service, photoRepo, container)
     }
@@ -182,7 +185,8 @@ final class ScanServiceTests: XCTestCase {
             DetectionBox(x: 0, y: 0, width: 0.5, height: 0.5, label: "cat", confidence: 0.9)
         ])
         let service = ScanService(photoLibrary: photoLibrary, vision: vision,
-                                  photoRepo: photoRepo, petRepo: petRepo)
+                                  photoRepo: photoRepo, petRepo: petRepo,
+                                  executor: AnalysisExecutor(maxConcurrent: 1))
 
         let result = await service.scanAlbum(afterTimestamp: cutoff)
         // "old" 被跳过（dateAdded < cutoff），只处理 "recent"
@@ -197,6 +201,50 @@ final class ScanServiceTests: XCTestCase {
         var progressCount = 0
         _ = await service.scanAlbum { _ in progressCount += 1 }
         XCTAssertEqual(progressCount, 2)
+    }
+
+    // MARK: - 失败路径（P0 续：失败不得被当作完成——上层不保存游标）
+
+    func testScanRepoFailureReturnsError() async {
+        // 已导入照片读取失败：返回 error，不视为完成
+        let schema = Schema(versionedSchema: SchemaV1.self)
+        let config = ModelConfiguration(isStoredInMemoryOnly: true)
+        let container = try! ModelContainer(for: schema, configurations: [config])
+        let petRepo = SwiftDataPetRepository(context: container.mainContext)
+        let service = ScanService(
+            photoLibrary: MockPhotoLibraryAccess(assets: [asset("a")]),
+            vision: MockVisionService(),
+            photoRepo: FailingPhotoRepository(),
+            petRepo: petRepo
+        )
+
+        let result = await service.scanAlbum()
+        XCTAssertNotNil(result.error)
+        XCTAssertFalse(result.completedSuccessfully)
+        XCTAssertFalse(result.canceled)
+    }
+
+    func testScanCountFailureReturnsError() async {
+        let library = MockPhotoLibraryAccess(assets: [asset("a")])
+        library.photoCountError = MockScanError.countFailure
+        let (service, _, container) = makeService(photoLibrary: library)
+
+        let result = await service.scanAlbum()
+        XCTAssertNotNil(result.error)
+        XCTAssertFalse(result.completedSuccessfully)
+        XCTAssertEqual(result.processedCount, 0)
+    }
+
+    func testScanStreamFailureReturnsError() async {
+        let library = MockPhotoLibraryAccess(assets: [asset("a"), asset("b")])
+        library.streamError = MockScanError.streamFailure
+        let (service, _, container) = makeService(photoLibrary: library)
+
+        let result = await service.scanAlbum()
+        XCTAssertNotNil(result.error)
+        XCTAssertFalse(result.completedSuccessfully)
+        XCTAssertFalse(result.canceled)
+        XCTAssertEqual(result.processedCount, 0) // 遍历前中断，未处理任何照片
     }
 
     // MARK: - 互斥
@@ -243,4 +291,34 @@ private final class MockClipInference: ClipInference {
 
 private enum MockClipError: Error {
     case inferenceFailed
+}
+
+/// 扫描失败路径测试用错误。
+private enum MockScanError: Error {
+    case repoFailure
+    case countFailure
+    case streamFailure
+}
+
+/// 失败注入仓储：getAllOriginalURIs 抛错（其余方法不触发）。
+@MainActor
+private final class FailingPhotoRepository: PhotoRepositoryProtocol {
+    func getAllOriginalURIs() throws -> Set<String> { throw MockScanError.repoFailure }
+    func getAllPhotoURIs() throws -> Set<String> { [] }
+    func getPhoto(id: UUID) throws -> Photo? { nil }
+    func getPhotoByURI(_ uri: String) throws -> Photo? { nil }
+    func getPhotoByOriginalURI(_ originalURI: String) throws -> Photo? { nil }
+    func getPhotosPage(offset: Int, limit: Int) throws -> [Photo] { [] }
+    func getPhotosByPet(_ pet: Pet) throws -> [Photo] { [] }
+    func getAnniversaryPhotos(month: Int, day: Int, excludeYear: Int?) throws -> [Photo] { [] }
+    func insertPhoto(_ photo: Photo) throws {}
+    func deletePhoto(_ photo: Photo) throws {}
+    func updatePhoto(_ photo: Photo) throws {}
+    func assignPhoto(_ photo: Photo, to pet: Pet?) throws {}
+    func setFavorite(_ photo: Photo, favorite: Bool) throws {}
+    func updateNote(_ photo: Photo, note: String) throws {}
+    func getPendingQualityScorePhotos(limit: Int) throws -> [Photo] { [] }
+    func getDuplicateCandidates() throws -> [Photo] { [] }
+    func updateQualityData(_ photo: Photo, sharpness: Double, qualityScore: Double, phash: String) throws {}
+    func replaceDuplicateMarks(_ groups: [DuplicateMarkGroup]) throws {}
 }

@@ -21,7 +21,7 @@ import Foundation
 ///
 /// - detectPets：VNClassifyImageRequest 系统分类 → 宠物标签匹配（无定位，返回全图 bbox）。
 /// - segmentSubject：VNGenerateForegroundInstanceMask（iOS 17+）→ 前景 alpha 蒙版。
-final class IOSVisionService: VisionService {
+final class IOSVisionService: VisionService, @unchecked Sendable {
 
     /// VNClassifyImageRequest 的最低置信度阈值（低于此值忽略，对应扫描预筛宽松度）。
     private let classificationThreshold: Float = 0.3

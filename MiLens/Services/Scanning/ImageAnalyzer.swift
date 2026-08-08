@@ -8,7 +8,8 @@ import CoreGraphics
 import ImageIO
 
 /// 图像分析协议。
-protocol ImageAnalyzer {
+/// Sendable：实现类无共享可变状态（或单线程测试 mock），供后台执行器捕获。
+protocol ImageAnalyzer: Sendable {
     /// 计算 Laplacian 方差清晰度（对应源端 `ImageUtils.computeSharpness`）。
     /// - Parameter imageData: 编码图片数据（JPEG/PNG）
     /// - Returns: 方差值（越大越清晰）；解码失败返回 0
@@ -25,7 +26,7 @@ protocol ImageAnalyzer {
 /// 基于 Core Graphics 的图像分析实现。
 /// - sharpness：缩放到 256px → 灰度 → 3×3 Laplacian 四邻域卷积 → 方差（对应源端 `computeSharpnessInline`）。
 /// - pHash：缩放到 8×8 → 灰度 → 均值二值化 → hex（对应源端 `PHash.compute`）。
-final class CoreImageAnalyzer: ImageAnalyzer {
+final class CoreImageAnalyzer: ImageAnalyzer, @unchecked Sendable {
 
     /// 清晰度计算的目标最大边长（对应源端 `loadPixelMap(uri, 256)`）。
     private let sharpnessTargetSize = 256
@@ -144,7 +145,7 @@ final class CoreImageAnalyzer: ImageAnalyzer {
 // MARK: - Mock（测试用）
 
 /// 预设返回值的 mock，用于 QualityScorer 单元测试。
-final class MockImageAnalyzer: ImageAnalyzer {
+final class MockImageAnalyzer: ImageAnalyzer, @unchecked Sendable {
     var sharpnessResult: Double = 0
     var phashResult: String? = ""
     /// 记录被分析的 imageData，便于断言调用次数/内容。

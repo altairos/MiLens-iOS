@@ -1,5 +1,7 @@
 //  组合根（DESIGN.md §4.1）。
-//  应用级依赖（ModelContainer / Repository / 平台适配器）在此构造并注入。
+//  应用级依赖（ModelContainer / Repository / 平台适配器）经 AppDependencies 构造并注入。
+//  启动可靠性（P1）：ModelContainer 创建失败时进入 DatabaseRecoveryView——
+//  可重试 / 导出诊断 / 重建本地数据（不 crash）。
 //  首次启动引导（Onboarding）在此编排：完成引导后置位 hasCompletedOnboarding，
 //  @AppStorage 监听 UserDefaults 变化自动切换到主界面（RootTabView）。
 //  对应源端 EntryAbility（HarmonyOS UIAbility 生命周期入口）+ AppServiceLocator DI。
@@ -12,86 +14,92 @@ struct MiLensApp: App {
     /// 首次启动引导是否已完成（@AppStorage 自动监听 UserDefaults 变化）
     @AppStorage("hasCompletedOnboarding") private var hasCompletedOnboarding = false
 
-    private let container: ModelContainer
-    private let petRepo: any PetRepositoryProtocol
-    private let photoRepo: any PhotoRepositoryProtocol
-    private let vision: any VisionService
-    private let clipService: ClipInferenceService?
-    private let photoLibrary: any PhotoLibraryAccess
-    private let fileStorage: any FileStorage
-    private let scanCursorStore: any ScanCursorStore
-    private let onboardingViewModel: OnboardingViewModel
-    /// 纪念提醒服务（测试环境不注入——避免测试进程触发通知授权）
-    private let notifyService: NotifyService?
+    /// 启动状态：依赖构造成功后持有（失败为 nil → 展示恢复界面）
+    @State private var dependencies: AppDependencies?
+    /// 启动失败的错误描述（展示在恢复界面；重试/重建后清除）
+    @State private var startupError: String?
+
     /// 测试环境（XCTest host 加载 @main App）跳过引导直接进主界面
     private let isTesting: Bool
 
     init() {
-        // V1.0 干净 schema——迁移计划为空。创建失败无恢复意义（无数据库 app 不可用）。
         // 测试环境（XCTest host 加载 @main App）切 in-memory，避免模拟器
         // Application Support 目录不可写导致 CoreData 存储错误噪音。
         let isTesting = ProcessInfo.processInfo.environment["XCTestConfigurationFilePath"] != nil
         self.isTesting = isTesting
-        let schema = Schema(versionedSchema: SchemaV1.self)
-        let config = isTesting
-            ? ModelConfiguration(isStoredInMemoryOnly: true)
-            : ModelConfiguration()
-        let container = try! ModelContainer(
-            for: schema,
-            migrationPlan: MiLensMigrationPlan.self,
-            configurations: [config]
-        )
-        self.container = container
-        self.petRepo = SwiftDataPetRepository(context: container.mainContext)
-        self.photoRepo = SwiftDataPhotoRepository(context: container.mainContext)
-        // 平台适配层：注入真实 VisionService（VNClassifyImageRequest 宠物预筛 + VNGenerateForegroundInstanceMask 分割）。
-        // ClipInferenceService 在测试环境跳过（避免加载 ~80MB CLIP 模型拖慢单测）。
-        self.vision = IOSVisionService()
-        self.clipService = isTesting ? nil : ClipInferenceService.create()
-        // 照片库适配器：真实 Photos 框架实现（授权 + 流式遍历）。
-        self.photoLibrary = IOSPhotoLibraryAccess()
-        // 文件存储：真实 FileManager 实现（导入/编辑产物写入沙盒，重启后仍存在）。
-        self.fileStorage = IOSFileStorage()
-        // 扫描游标：UserDefaults 持久化上次成功扫描时刻（增量扫描过滤基准）。
-        self.scanCursorStore = UserDefaultsScanCursorStore()
-        // 纪念提醒：每日检查（纪念日 + 时光机）。测试环境不构造，避免触发通知授权。
-        self.notifyService = isTesting ? nil : NotifyService(
-            photoRepo: self.photoRepo,
-            petRepo: self.petRepo,
-            poster: IOSNotificationCenter()
-        )
-        // 首次启动引导状态机（onFinish 置位持久化标记，触发 @AppStorage 切换主界面）。
-        self.onboardingViewModel = OnboardingViewModel(
-            photoRepo: self.photoRepo,
-            petRepo: self.petRepo,
-            photoLibrary: self.photoLibrary,
-            vision: self.vision,
-            onFinish: {
-                UserDefaults.standard.set(true, forKey: "hasCompletedOnboarding")
-            },
-            clipService: self.clipService,
-            cursorStore: self.scanCursorStore
-        )
+
+        // 构造依赖；失败不 crash——进入 DatabaseRecoveryView（P1 启动可靠性）。
+        do {
+            _dependencies = State(initialValue: try AppDependencies.make(isTesting: isTesting))
+        } catch {
+            _startupError = State(initialValue: String(describing: error))
+        }
     }
 
     var body: some Scene {
         WindowGroup {
-            Group {
-                if isTesting || hasCompletedOnboarding {
-                    RootTabView()
-                } else {
-                    OnboardingView(viewModel: onboardingViewModel)
+            content
+        }
+    }
+
+    @ViewBuilder
+    private var content: some View {
+        if let dependencies {
+            mainContent(dependencies)
+                .modelContainer(dependencies.container)
+                .environment(\.petRepository, dependencies.petRepo)
+                .environment(\.photoRepository, dependencies.photoRepo)
+                .environment(\.visionService, dependencies.vision)
+                .environment(\.clipInferenceService, dependencies.clipService)
+                .environment(\.photoLibraryAccess, dependencies.photoLibrary)
+                .environment(\.fileStorage, dependencies.fileStorage)
+                .environment(\.scanCursorStore, dependencies.scanCursorStore)
+                .environment(\.mediaLifecycleService, dependencies.mediaLifecycle)
+                .environment(\.notifyService, dependencies.notifyService)
+                .task {
+                    // 启动孤儿审计：清理上一次崩溃/回滚残留的媒体文件（仅生产环境）
+                    guard !isTesting else { return }
+                    await dependencies.mediaLifecycle.auditOrphans()
                 }
+        } else {
+            DatabaseRecoveryView(
+                errorDescription: startupError ?? "未知错误",
+                onRetry: retryLaunch,
+                onRebuild: rebuildLocalData
+            )
+        }
+    }
+
+    private func mainContent(_ dependencies: AppDependencies) -> some View {
+        Group {
+            if isTesting || hasCompletedOnboarding {
+                RootTabView()
+            } else {
+                OnboardingView(viewModel: dependencies.onboardingViewModel)
             }
-            .modelContainer(container)
-            .environment(\.petRepository, petRepo)
-            .environment(\.photoRepository, photoRepo)
-            .environment(\.visionService, vision)
-            .environment(\.clipInferenceService, clipService)
-            .environment(\.photoLibraryAccess, photoLibrary)
-            .environment(\.fileStorage, fileStorage)
-            .environment(\.scanCursorStore, scanCursorStore)
-            .environment(\.notifyService, notifyService)
+        }
+    }
+
+    // MARK: - 启动恢复
+
+    /// 重试：重新构造依赖（容器损坏可能是瞬态的）。
+    private func retryLaunch() {
+        do {
+            dependencies = try AppDependencies.make(isTesting: isTesting)
+            startupError = nil
+        } catch {
+            startupError = String(describing: error)
+        }
+    }
+
+    /// 重建本地数据：销毁持久化存储后重新构造（仅清除 MiLens 记录，不动系统相册原图）。
+    private func rebuildLocalData() {
+        do {
+            try AppDependencies.destroyPersistentStore()
+            dependencies = try AppDependencies.make(isTesting: isTesting)
+            startupError = nil
+        } catch {
+            startupError = String(describing: error)
         }
     }
 }

@@ -1,7 +1,8 @@
 import XCTest
 @testable import MiLens
 
-/// NotifyService 编排测试——纪念日 + 时光机发布、每日去重、授权拒绝、撤销。
+/// NotifyService 调度编排测试——宠物纪念日年度重复 + 时光机每日、幂等重调度、
+/// 宠物编辑/删除局部更新、开关撤销。
 /// 使用纯内存 mock（不碰 SwiftData），与 OnboardingViewModelTests 同策略。
 @MainActor
 final class NotifyServiceTests: XCTestCase {
@@ -20,144 +21,170 @@ final class NotifyServiceTests: XCTestCase {
     private func makeService(
         photos: [Photo] = [],
         pets: [Pet] = [],
-        authorization: Bool = true,
         random: Int = 0
-    ) -> (NotifyService, MockNotificationPoster, InMemoryPhotoRepository, InMemoryPetRepository, UserDefaults) {
+    ) -> (NotifyService, MockNotificationPoster, InMemoryPhotoRepository, InMemoryPetRepository) {
         let photoRepo = InMemoryPhotoRepository(photos: photos)
         let petRepo = InMemoryPetRepository(pets: pets)
         let poster = MockNotificationPoster()
-        poster.authorizationResult = authorization
-        // 每个用例独立 suite，天然隔离（避免 UserDefaults 跨测试残留）
-        let defaults = UserDefaults(suiteName: "test-notify-\(UUID().uuidString)")!
         let service = NotifyService(
             photoRepo: photoRepo, petRepo: petRepo, poster: poster,
-            defaults: defaults, randomSource: { random }
+            randomSource: { random }
         )
-        return (service, poster, photoRepo, petRepo, defaults)
+        return (service, poster, photoRepo, petRepo)
     }
 
     private func photo(_ id: String, takenAt: Date?, note: String = "纪念日", pet: Pet? = nil) -> Photo {
         Photo(uri: id, pet: pet, takenAt: takenAt, note: note)
     }
 
-    // MARK: - 纪念日 + 时光机
+    // MARK: - 宠物纪念日（年度重复）
 
-    func testDailyCheckPostsAnniversaryAndTimeMachine() async {
-        let pet = Pet(name: "小橘")
-        let today = date(2026, 8, 8)
-        let photos = [
-            photo("hist-2025", takenAt: date(2025, 8, 8), note: "第一次见面", pet: pet),  // 去年今日
-            photo("cur-2026", takenAt: today, note: "今天的照片"),                          // 今年今日
-            photo("other-day", takenAt: date(2025, 8, 9), note: "不是今天"),               // 非同日
-        ]
-        let (service, poster, _, _, _) = makeService(photos: photos, pets: [pet])
+    func testRescheduleSchedulesPetBirthdayAndAdoption() async {
+        let pet = Pet(name: "小橘", birthday: date(2020, 5, 1), adoptionDay: date(2021, 6, 2))
+        let (service, poster, _, _) = makeService(pets: [pet])
 
-        await service.runDailyCheck(now: today, calendar: calendar)
+        await service.rescheduleAllReminders(now: date(2026, 8, 8), calendar: calendar)
 
-        // 纪念日：2 条（去年今日 + 今年今日；8月9日不匹配）
-        let anniversary = poster.posted.filter { !$0.identifier.hasPrefix("tm-") }
-        XCTAssertEqual(anniversary.count, 2)
-        XCTAssertTrue(anniversary.contains { $0.title == "纪念日回忆" && $0.body == "1年前的今天：第一次见面" })
-        XCTAssertTrue(anniversary.contains { $0.title == "纪念日回忆" && $0.body == "今天的回忆：今天的照片" })
+        // 幂等：先清空再按数据调度
+        XCTAssertEqual(poster.removeAllCount, 1)
 
-        // 时光机：1 条（排除当年后随机选一张）
-        let timeMachine = poster.posted.filter { $0.identifier.hasPrefix("tm-") }
-        XCTAssertEqual(timeMachine.count, 1)
-        XCTAssertEqual(timeMachine.first?.title, "1年前的今天")
-        XCTAssertTrue(timeMachine.first!.identifier.hasPrefix("tm-"))
+        // 生日：anniversary-<petID>-birthday，5/1 09:00 每年重复
+        let birthday = poster.scheduled.first {
+            $0.identifier == NotifyService.anniversaryIdentifier(for: pet, kind: .birthday)
+        }
+        XCTAssertNotNil(birthday)
+        XCTAssertEqual(birthday?.dateComponents.month, 5)
+        XCTAssertEqual(birthday?.dateComponents.day, 1)
+        XCTAssertEqual(birthday?.dateComponents.hour, NotifyService.reminderHour)
+        XCTAssertEqual(birthday?.dateComponents.minute, NotifyService.reminderMinute)
+        XCTAssertNil(birthday?.dateComponents.year, "无年份 = 每年重复")
+        XCTAssertEqual(birthday?.repeats, true)
+
+        // 领养日：anniversary-<petID>-adoption，6/2 09:00 每年重复
+        let adoption = poster.scheduled.first {
+            $0.identifier == NotifyService.anniversaryIdentifier(for: pet, kind: .adoption)
+        }
+        XCTAssertNotNil(adoption)
+        XCTAssertEqual(adoption?.dateComponents.month, 6)
+        XCTAssertEqual(adoption?.dateComponents.day, 2)
+        XCTAssertEqual(adoption?.repeats, true)
     }
 
-    func testTimeMachineOnlyUsesHistoricalPhotos() async {
-        // 只有今年今日的照片：纪念日 1 条，时光机 0 条
-        let photos = [
-            photo("cur-2026", takenAt: date(2026, 8, 8), note: "今年今天"),
-        ]
-        let (service, poster, _, _, _) = makeService(photos: photos)
+    func testPetWithoutAnniversaryDatesSchedulesNothing() async {
+        let pet = Pet(name: "无纪念日")
+        let (service, poster, _, _) = makeService(pets: [pet])
 
-        await service.runDailyCheck(now: date(2026, 8, 8), calendar: calendar)
+        await service.rescheduleAllReminders(now: date(2026, 8, 8), calendar: calendar)
 
-        let anniversary = poster.posted.filter { !$0.identifier.hasPrefix("tm-") }
-        let timeMachine = poster.posted.filter { $0.identifier.hasPrefix("tm-") }
-        XCTAssertEqual(anniversary.count, 1)
-        XCTAssertTrue(timeMachine.isEmpty)
+        XCTAssertTrue(poster.scheduled.isEmpty)
     }
 
-    func testTimeMachineUsesRandomIndexForSelection() async {
-        let photos = [
-            photo("a", takenAt: date(2024, 8, 8), note: "A"),
-            photo("b", takenAt: date(2025, 8, 8), note: "B"),
-        ]
-        // 仓储按拍摄时间倒序返回 [b(2025), a(2024)]，random = 1 → 选中 a(2024) → "2年前的今天"
-        let (service, poster, _, _, _) = makeService(photos: photos, random: 1)
+    func testBirthdayBodyReusesAnniversaryWording() async {
+        let pet = Pet(name: "小橘", birthday: date(2020, 5, 1))
+        let (service, poster, _, _) = makeService(pets: [pet])
 
-        await service.runDailyCheck(now: date(2026, 8, 8), calendar: calendar)
+        await service.rescheduleAllReminders(now: date(2026, 8, 8), calendar: calendar)
 
-        let timeMachine = poster.posted.filter { $0.identifier.hasPrefix("tm-") }
-        XCTAssertEqual(timeMachine.count, 1)
-        XCTAssertEqual(timeMachine.first?.title, "2年前的今天")
+        let birthday = poster.scheduled.first {
+            $0.identifier == NotifyService.anniversaryIdentifier(for: pet, kind: .birthday)
+        }
+        XCTAssertEqual(birthday?.title, "纪念日回忆")
+        XCTAssertEqual(birthday?.body, "今天的回忆：小橘的生日")
     }
 
-    // MARK: - 每日去重
+    // MARK: - 时光机（每日 09:00）
 
-    func testDailyCheckRunsOnlyOncePerDay() async {
+    func testRescheduleSchedulesTimeMachineWhenHistoricalPhotosExist() async {
         let photos = [photo("a", takenAt: date(2025, 8, 8), note: "A")]
-        let (service, poster, _, _, _) = makeService(photos: photos)
+        let (service, poster, _, _) = makeService(photos: photos)
 
-        let today = date(2026, 8, 8)
-        await service.runDailyCheck(now: today, calendar: calendar)
-        await service.runDailyCheck(now: today, calendar: calendar)  // 同日重复
+        await service.rescheduleAllReminders(now: date(2026, 8, 8), calendar: calendar)
 
-        XCTAssertEqual(poster.posted.count, 2, "纪念日 + 时光机各 1 条，同日不重复发布")
-        XCTAssertEqual(poster.authorizationRequestCount, 1)
+        let tm = poster.scheduled.first {
+            $0.identifier == NotifyService.timeMachineIdentifier
+        }
+        XCTAssertNotNil(tm)
+        XCTAssertEqual(tm?.dateComponents.hour, NotifyService.reminderHour)
+        XCTAssertEqual(tm?.dateComponents.minute, NotifyService.reminderMinute)
+        XCTAssertNil(tm?.dateComponents.month, "仅时分 = 每日重复")
+        XCTAssertEqual(tm?.repeats, true)
+        XCTAssertEqual(tm?.title, "1年前的今天")
     }
 
-    func testDailyCheckRunsAgainNextDay() async {
-        let photos = [photo("a", takenAt: date(2025, 8, 8), note: "A")]
-        let (service, poster, _, _, _) = makeService(photos: photos)
+    func testRescheduleSkipsTimeMachineWithoutHistoricalPhotos() async {
+        // 只有今年今日的照片（时光机排除当年）→ 不调度每日通知
+        let photos = [photo("cur", takenAt: date(2026, 8, 8), note: "今年")]
+        let (service, poster, _, _) = makeService(photos: photos)
 
-        let today = date(2026, 8, 8)
-        await service.runDailyCheck(now: today, calendar: calendar)
-        let firstCount = poster.posted.count
-        // 次日无同日照片 → 不发布但仍标记
-        await service.runDailyCheck(now: date(2026, 8, 9), calendar: calendar)
+        await service.rescheduleAllReminders(now: date(2026, 8, 8), calendar: calendar)
 
-        XCTAssertEqual(poster.posted.count, firstCount)
-        XCTAssertEqual(poster.authorizationRequestCount, 2)
+        XCTAssertFalse(poster.scheduled.contains {
+            $0.identifier == NotifyService.timeMachineIdentifier
+        })
     }
 
-    // MARK: - 授权拒绝
+    // MARK: - 幂等重调度
 
-    func testDeniedAuthorizationSkipsPostingButMarksChecked() async {
-        let photos = [photo("a", takenAt: date(2025, 8, 8), note: "A")]
-        let (service, poster, _, _, _) = makeService(photos: photos, authorization: false)
+    func testRescheduleIsIdempotent() async {
+        let pet = Pet(name: "小橘", birthday: date(2020, 5, 1))
+        let (service, poster, _, _) = makeService(pets: [pet])
 
-        let today = date(2026, 8, 8)
-        await service.runDailyCheck(now: today, calendar: calendar)
-        XCTAssertTrue(poster.posted.isEmpty, "授权拒绝时不发布")
+        await service.rescheduleAllReminders(now: date(2026, 8, 8), calendar: calendar)
+        await service.rescheduleAllReminders(now: date(2026, 8, 8), calendar: calendar)
 
-        // 已标记当日，同日再次激活不再请求授权
-        await service.runDailyCheck(now: today, calendar: calendar)
-        XCTAssertEqual(poster.authorizationRequestCount, 1)
+        XCTAssertEqual(poster.removeAllCount, 2)
+        // 同一 identifier 重复调度由系统覆盖（mock 追加记录），去重后仍只有一份数据
+        XCTAssertEqual(Set(poster.scheduled.map(\.identifier)).count, 1)
     }
 
-    // MARK: - 无照片
+    // MARK: - 宠物编辑/删除局部更新
 
-    func testNoPhotosStillMarksChecked() async {
-        let (service, poster, _, _, _) = makeService()
+    func testUpdateRemindersReschedulesPetAfterEdit() async {
+        let pet = Pet(name: "小橘", birthday: date(2020, 5, 1))
+        let (service, poster, _, _) = makeService(pets: [pet])
 
-        await service.runDailyCheck(now: date(2026, 8, 8), calendar: calendar)
-        XCTAssertTrue(poster.posted.isEmpty)
-        // 同日重复调用不再请求授权（已标记）
-        await service.runDailyCheck(now: date(2026, 8, 8), calendar: calendar)
-        XCTAssertEqual(poster.authorizationRequestCount, 1)
+        // 编辑：生日改为 6/1
+        pet.birthday = date(2020, 6, 1)
+        await service.updateReminders(for: pet, calendar: calendar)
+
+        // 先撤销旧的两个 identifier（birthday + adoption）
+        XCTAssertEqual(Set(poster.removedIdentifiers), Set(NotifyService.anniversaryIdentifiers(for: pet)))
+        // 按新日期调度
+        let birthday = poster.scheduled.first {
+            $0.identifier == NotifyService.anniversaryIdentifier(for: pet, kind: .birthday)
+        }
+        XCTAssertEqual(birthday?.dateComponents.month, 6)
+        XCTAssertEqual(birthday?.dateComponents.day, 1)
     }
 
-    // MARK: - 撤销
+    func testRemoveRemindersAfterPetDeletion() async {
+        let pet = Pet(name: "小橘", birthday: date(2020, 5, 1), adoptionDay: date(2021, 6, 2))
+        let (service, poster, _, _) = makeService(pets: [pet])
+
+        await service.removeReminders(for: pet)
+
+        XCTAssertEqual(Set(poster.removedIdentifiers), Set(NotifyService.anniversaryIdentifiers(for: pet)))
+        XCTAssertTrue(poster.scheduled.isEmpty)
+    }
+
+    // MARK: - 开关撤销
 
     func testCancelAllNotificationsRemovesEverything() async {
-        let (service, poster, _, _, _) = makeService()
+        let (service, poster, _, _) = makeService()
         await service.cancelAllNotifications()
         XCTAssertEqual(poster.removeAllCount, 1)
+    }
+
+    // MARK: - 授权转发
+
+    func testRequestAuthorizationForwardsToPoster() async {
+        let (service, poster, _, _) = makeService()
+        poster.authorizationResult = false
+
+        let granted = await service.requestAuthorization()
+
+        XCTAssertFalse(granted)
+        XCTAssertEqual(poster.authorizationRequestCount, 1)
     }
 }
 

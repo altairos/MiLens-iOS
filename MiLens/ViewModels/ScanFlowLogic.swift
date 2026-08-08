@@ -14,13 +14,21 @@ struct ScanResult: Equatable, Sendable {
     /// 实际经过 AI 检测处理的照片数（排除已导入和按时间过滤跳过的）
     var processedCount: Int
     var canceled: Bool
+    /// 错误描述（nil = 扫描完整结束；非 nil = 中途失败，未完整遍历全部照片）。
+    /// 上层必须以 `completedSuccessfully` 为准决定是否保存增量游标——
+    /// 失败时保存游标会导致下次增量扫描跳过本次未扫到的照片。
+    var error: String?
+
+    /// 是否真正完整完成（未取消且无错误）——唯一允许保存增量游标的状态。
+    var completedSuccessfully: Bool { error == nil && !canceled }
 
     init(matchedCount: Int = 0, unassignedPetUris: [String] = [],
-         processedCount: Int = 0, canceled: Bool = false) {
+         processedCount: Int = 0, canceled: Bool = false, error: String? = nil) {
         self.matchedCount = matchedCount
         self.unassignedPetUris = unassignedPetUris
         self.processedCount = processedCount
         self.canceled = canceled
+        self.error = error
     }
 }
 

@@ -13,10 +13,12 @@ struct GalleryView: View {
     @Environment(\.fileStorage) private var fileStorage
     @Environment(\.clipInferenceService) private var clipInferenceService
     @Environment(\.scanCursorStore) private var scanCursorStore
+    @Environment(\.mediaLifecycleService) private var mediaLifecycleService
 
     @State private var viewModel: GalleryViewModel?
     @State private var navigationPath = NavigationPath()
     @State private var pendingDeleteID: UUID?
+    @Namespace private var photoHeroNamespace
 
     private let columns = [GridItem(.adaptive(minimum: 100), spacing: 2)]
 
@@ -37,7 +39,8 @@ struct GalleryView: View {
                     photoLibrary: photoLibrary, vision: vision,
                     fileStorage: fileStorage, sandboxDir: dir,
                     clipService: clipInferenceService,
-                    cursorStore: scanCursorStore
+                    cursorStore: scanCursorStore,
+                    mediaLifecycle: mediaLifecycleService
                 )
                 vm.loadInitial()
                 viewModel = vm
@@ -247,8 +250,20 @@ struct GalleryView: View {
                 }
                 .buttonStyle(.plain)
             } else {
-                NavigationLink(value: Route.photoView(photoID: photo.id)) {
-                    PhotoThumbnailCell(photo: photo, isMultiSelect: false, isSelected: false)
+                NavigationLink {
+                    PhotoViewView(
+                        photoID: photo.id,
+                        heroNamespace: photoHeroNamespace,
+                        heroID: photo.id
+                    )
+                } label: {
+                    PhotoThumbnailCell(
+                        photo: photo,
+                        isMultiSelect: false,
+                        isSelected: false,
+                        heroNamespace: photoHeroNamespace,
+                        heroID: photo.id
+                    )
                 }
                 .buttonStyle(.plain)
                 .contextMenu {
@@ -294,13 +309,37 @@ private struct PhotoThumbnailCell: View {
     let photo: Photo
     let isMultiSelect: Bool
     let isSelected: Bool
+    let heroNamespace: Namespace.ID?
+    let heroID: UUID?
+
+    init(
+        photo: Photo,
+        isMultiSelect: Bool,
+        isSelected: Bool,
+        heroNamespace: Namespace.ID? = nil,
+        heroID: UUID? = nil
+    ) {
+        self.photo = photo
+        self.isMultiSelect = isMultiSelect
+        self.isSelected = isSelected
+        self.heroNamespace = heroNamespace
+        self.heroID = heroID
+    }
 
     var body: some View {
         ZStack(alignment: .topTrailing) {
-            ThumbnailImage(path: photo.thumbnailPath.isEmpty ? photo.uri : photo.thumbnailPath)
-                .aspectRatio(1, contentMode: .fill)
-                .clipped()
-                .clipShape(RoundedRectangle(cornerRadius: 4))
+            if let heroNamespace, let heroID {
+                ThumbnailImage(path: photo.thumbnailPath.isEmpty ? photo.uri : photo.thumbnailPath)
+                    .aspectRatio(1, contentMode: .fill)
+                    .clipped()
+                    .clipShape(RoundedRectangle(cornerRadius: 4))
+                    .matchedGeometryEffect(id: heroID, in: heroNamespace)
+            } else {
+                ThumbnailImage(path: photo.thumbnailPath.isEmpty ? photo.uri : photo.thumbnailPath)
+                    .aspectRatio(1, contentMode: .fill)
+                    .clipped()
+                    .clipShape(RoundedRectangle(cornerRadius: 4))
+            }
             if isMultiSelect {
                 Image(systemName: isSelected ? "checkmark.circle.fill" : "circle")
                     .foregroundStyle(isSelected ? Color.milensPrimary : .white)
@@ -353,11 +392,11 @@ private struct ScanCompleteSheet: View {
     var body: some View {
         NavigationStack {
             VStack(spacing: 20) {
-                Image(systemName: "checkmark.seal.fill")
+                Image(systemName: viewModel.scanFailed ? "exclamationmark.triangle.fill" : "checkmark.seal.fill")
                     .font(.system(size: 48))
-                    .foregroundStyle(Color.milensPrimary)
+                    .foregroundStyle(viewModel.scanFailed ? Color.orange : Color.milensPrimary)
 
-                Text("扫描完成")
+                Text(viewModel.scanFailed ? "扫描未完成" : "扫描完成")
                     .font(.displayMedium)
 
                 Text(viewModel.scanCompleteMessage)

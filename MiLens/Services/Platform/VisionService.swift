@@ -28,7 +28,8 @@ struct SegmentationResult: Equatable, Sendable {
 /// Vision 推理协议。
 /// 输入为编码后的图片数据（JPEG/PNG），避免协议层引入 CoreGraphics 依赖。
 /// 真实实现内部解码后调用 VNClassifyImageRequest / VNGenerateForegroundInstanceMask。
-protocol VisionService {
+/// Sendable：实现类无共享可变状态（或单线程测试 mock），供后台执行器捕获。
+protocol VisionService: Sendable {
     /// 检测图片中的宠物，返回边界框列表（对应源端 detectObjects）。
     func detectPets(in imageData: Data) async throws -> [DetectionBox]
 
@@ -39,7 +40,7 @@ protocol VisionService {
 // MARK: - Mock（对应源端 FakeVisionKit）
 
 /// 预设检测/分割结果的 mock，用于单元测试。
-final class MockVisionService: VisionService {
+final class MockVisionService: VisionService, @unchecked Sendable {
     /// 预设的检测结果（每次 detectPets 返回此列表的拷贝）。
     var presetDetections: [DetectionBox]
     /// 预设的分割结果（nil 模拟失败）。

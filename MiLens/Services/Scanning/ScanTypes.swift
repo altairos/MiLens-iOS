@@ -33,13 +33,3 @@ enum ScanConfig {
     /// 单次导入上限（对应源端 picker maxSelectNumber）
     static let maxImportBatch = 50
 }
-
-/// 将字符串哈希为短文件名（对应源端 PhotoImportFileUtils.hashString）
-func hashToFilename(_ value: String) -> String {
-    var hash = 0
-    for char in value.unicodeScalars {
-        hash = ((hash << 5) &- hash &+ Int(char.value)) & 0xFFFFFFFF
-    }
-    let absHash = abs(hash)
-    return String(absHash, radix: 36)
-}

@@ -11,6 +11,9 @@ import Foundation
 struct ScanResult: Equatable, Sendable {
     var matchedCount: Int
     var unassignedPetUris: [String]
+    /// 预匹配到已注册宠物的照片 identifier（扫描阶段的只读预判，尚未入库；
+    /// 导入时由 ImportService 真正写入归属）。
+    var matchedUris: [String]
     /// 实际经过 AI 检测处理的照片数（排除已导入和按时间过滤跳过的）
     var processedCount: Int
     var canceled: Bool
@@ -23,9 +26,11 @@ struct ScanResult: Equatable, Sendable {
     var completedSuccessfully: Bool { error == nil && !canceled }
 
     init(matchedCount: Int = 0, unassignedPetUris: [String] = [],
+         matchedUris: [String] = [],
          processedCount: Int = 0, canceled: Bool = false, error: String? = nil) {
         self.matchedCount = matchedCount
         self.unassignedPetUris = unassignedPetUris
+        self.matchedUris = matchedUris
         self.processedCount = processedCount
         self.canceled = canceled
         self.error = error

@@ -24,6 +24,7 @@ final class AppDependencies {
     let mediaLifecycle: MediaLifecycleService
     let notifyService: NotifyService?
     let onboardingViewModel: OnboardingViewModel
+    let storeService: any StoreService
 
     init(container: ModelContainer,
          petRepo: any PetRepositoryProtocol,
@@ -35,7 +36,8 @@ final class AppDependencies {
          scanCursorStore: any ScanCursorStore,
          mediaLifecycle: MediaLifecycleService,
          notifyService: NotifyService?,
-         onboardingViewModel: OnboardingViewModel) {
+         onboardingViewModel: OnboardingViewModel,
+         storeService: any StoreService) {
         self.container = container
         self.petRepo = petRepo
         self.photoRepo = photoRepo
@@ -47,6 +49,7 @@ final class AppDependencies {
         self.mediaLifecycle = mediaLifecycle
         self.notifyService = notifyService
         self.onboardingViewModel = onboardingViewModel
+        self.storeService = storeService
     }
 
     /// 构造完整依赖图。失败时抛出——调用方进入可诊断恢复界面。
@@ -102,6 +105,8 @@ final class AppDependencies {
             clipService: clipService,
             cursorStore: scanCursorStore
         )
+        // 订阅服务：StoreKit 2 真实实现（测试环境用 mock，避免启动 Transaction.updates 监听）。
+        let storeService: any StoreService = isTesting ? MockStoreService() : StoreKit2StoreService()
 
         return AppDependencies(
             container: container,
@@ -114,7 +119,8 @@ final class AppDependencies {
             scanCursorStore: scanCursorStore,
             mediaLifecycle: mediaLifecycle,
             notifyService: notifyService,
-            onboardingViewModel: onboardingViewModel
+            onboardingViewModel: onboardingViewModel,
+            storeService: storeService
         )
     }
 

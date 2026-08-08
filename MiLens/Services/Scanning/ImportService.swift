@@ -35,6 +35,7 @@ final class ImportService {
     private let photoLibrary: any PhotoLibraryAccess
     private let fileStorage: any FileStorage
     private let photoRepo: any PhotoRepositoryProtocol
+    private let petRepo: any PetRepositoryProtocol
     private let mediaLifecycle: MediaLifecycleService
     /// 自动归属匹配服务（clipService 为 nil 时不创建——无模型可提取 embedding）。
     private let matcher: PetMatcher?
@@ -56,6 +57,7 @@ final class ImportService {
         self.photoLibrary = photoLibrary
         self.fileStorage = fileStorage
         self.photoRepo = photoRepo
+        self.petRepo = petRepo
         self.mediaLifecycle = mediaLifecycle
         self.sandboxDir = sandboxDir
         self.executor = executor

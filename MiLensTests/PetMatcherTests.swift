@@ -81,7 +81,13 @@ final class PetMatcherTests: XCTestCase {
         let feature = try petRepo.getPet(id: pet.id).flatMap { $0.featureData }
             .flatMap { PetFeatureCodec.decode($0) }
         XCTAssertEqual(feature?.kind, .fallback, "CLIP 全部失败时应降级为手工特征")
-        XCTAssertEqual(feature?.aggregate, fallback)
+        // averageEmbeddings 求和存在 ~1e-8 级 Float 舍入，逐元素精度比较
+        XCTAssertEqual(feature?.aggregate.count, fallback.count)
+        if let aggregate = feature?.aggregate {
+            for (i, value) in aggregate.enumerated() {
+                XCTAssertEqual(value, fallback[i], accuracy: 1e-6)
+            }
+        }
     }
 
     // MARK: - 自动归属匹配
@@ -138,16 +144,16 @@ final class PetMatcherTests: XCTestCase {
         try petRepo.insertPet(petA)
         try petRepo.insertPet(petB)
 
-        // 两只宠物特征接近（A 与 B 的差异很小）
+        // 两只宠物特征接近（A 与 B 的差异很小：仅在第 0 维偏移 0.02）
         let embeddingA = MockClipInference.randomEmbedding()
         var shifted = embeddingA
         shifted[0] += 0.02
         let embeddingB = AiInferenceLogic.normalized(shifted)
         let images = (0..<8).map { _ in makeSolidPNG(width: 64, height: 64, r: 120, g: 120, b: 120) }
 
-        let matcher = makeMatcher(petRepo: petRepo, clip: MockClipInference())
+        // A 用 embeddingA 注册，B 用 embeddingB 注册（必须显式传入，否则默认随机 embedding 与 A 无关）
+        let matcher = makeMatcher(petRepo: petRepo, clip: MockClipInference(embedding: embeddingA))
         _ = await matcher.registerPetFeatures(petID: petA.id, imageDatas: images, onProgress: nil)
-        // 用不同 mock（不同 embedding）注册 B
         let matcherB = makeMatcher(petRepo: petRepo, clip: MockClipInference(embedding: embeddingB))
         _ = await matcherB.registerPetFeatures(petID: petB.id, imageDatas: images, onProgress: nil)
 
@@ -299,19 +305,3 @@ private enum MockClipError: Error {
     case inferenceFailed
 }
 
-/// 内存宠物仓储（含 featureData 读写）。
-/// internal——供 ImportServiceTests 自动归属用例复用。
-@MainActor
-final class InMemoryPetRepository: PetRepositoryProtocol {
-    private var pets: [Pet] = []
-
-    func getAllPets() throws -> [Pet] { pets }
-    func getPet(id: UUID) throws -> Pet? { pets.first { $0.id == id } }
-    func insertPet(_ pet: Pet) throws { pets.append(pet) }
-    func updatePet(_ pet: Pet) throws {}
-    func deletePet(_ pet: Pet) throws { pets.removeAll { $0.id == pet.id } }
-    func refreshPhotoCount(for pet: Pet) throws {}
-    func updateFeatureData(_ pet: Pet, data: Data?) throws {
-        pet.featureData = data
-    }
-}

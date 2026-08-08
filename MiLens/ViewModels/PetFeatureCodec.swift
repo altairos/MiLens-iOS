@@ -150,17 +150,26 @@ enum PetFeatureCodec {
         let embeddingDim = ClipConstants.embeddingDim
         guard floats.count >= embeddingDim else { return nil }
         let aggregate = Array(floats[0..<embeddingDim])
+        let remaining = floats.count - embeddingDim
+        // Legacy 无 header，布局按对齐优先判定（消除 [aggregate + sample] 与
+        // [aggregate + color + sample] 的歧义）：
+        // 1. 剩余字节是 embeddingDim 整数倍 → 无颜色签名，全部为样本；
+        // 2. 否则尝试 [color(14) + 样本] 布局（颜色签名须可用且剩余部分仍对齐）。
         var colorSignature: [Float]? = nil
-        var sampleOffset = embeddingDim
-        if floats.count >= embeddingDim + PetMatchThreshold.colorSignatureDim {
+        var sampleStart = embeddingDim
+        if remaining % embeddingDim != 0,
+           remaining >= PetMatchThreshold.colorSignatureDim,
+           (remaining - PetMatchThreshold.colorSignatureDim) % embeddingDim == 0 {
             let candidate = Array(floats[embeddingDim..<(embeddingDim + PetMatchThreshold.colorSignatureDim)])
-            colorSignature = isUsableColorSignature(candidate) ? candidate : nil
-            sampleOffset += PetMatchThreshold.colorSignatureDim
+            if isUsableColorSignature(candidate) {
+                colorSignature = candidate
+                sampleStart += PetMatchThreshold.colorSignatureDim
+            }
         }
-        let availableSamples = max(0, (floats.count - sampleOffset) / embeddingDim)
+        let availableSamples = max(0, (floats.count - sampleStart) / embeddingDim)
         var samples: [[Float]] = []
         for i in 0..<availableSamples {
-            let start = sampleOffset + i * embeddingDim
+            let start = sampleStart + i * embeddingDim
             samples.append(Array(floats[start..<(start + embeddingDim)]))
         }
         return PetFeatureRecord(

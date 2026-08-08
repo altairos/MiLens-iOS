@@ -1,5 +1,8 @@
 import XCTest
 import SwiftData
+import CoreGraphics
+import ImageIO
+import UniformTypeIdentifiers
 @testable import MiLens
 
 /// ScanService 测试——扫描编排逻辑（对应源端 PhotoScanner 行为）。
@@ -120,7 +123,7 @@ final class ScanServiceTests: XCTestCase {
     }
 
     func testClipSecondPhaseConfirmsPet() async {
-        let clip = MockClipInference(result: ClipDetectionResult(
+        let clip = ScanClipInferenceMock(result: ClipDetectionResult(
             isPet: true, labels: [], species: "cat", embedding: [],
             topLabel: "cat", topConfidence: 0.9, usedClipModel: true, diagnostics: ""))
         let (service, _, container) = makeService(
@@ -135,7 +138,7 @@ final class ScanServiceTests: XCTestCase {
     }
 
     func testClipSecondPhaseRejectsNonPet() async {
-        let clip = MockClipInference(result: ClipDetectionResult(
+        let clip = ScanClipInferenceMock(result: ClipDetectionResult(
             isPet: false, labels: [], species: nil, embedding: [],
             topLabel: "person", topConfidence: 0.95, usedClipModel: true, diagnostics: ""))
         let (service, _, container) = makeService(
@@ -151,7 +154,7 @@ final class ScanServiceTests: XCTestCase {
 
     func testClipFailureFallsBackToPrefilter() async {
         // CLIP 推理失败 → 降级为 Phase 1 预筛结论（不中断扫描，对应源端多级降级）
-        let clip = MockClipInference(error: MockClipError.inferenceFailed)
+        let clip = ScanClipInferenceMock(error: ScanClipMockError.inferenceFailed)
         let (service, _, container) = makeService(
             assets: [asset("a"), asset("b")],
             detections: [DetectionBox(x: 0, y: 0, width: 0.5, height: 0.5, label: "cat", confidence: 0.9)],
@@ -160,6 +163,114 @@ final class ScanServiceTests: XCTestCase {
         let result = await service.scanAlbum()
         XCTAssertEqual(result.unassignedPetUris, ["a", "b"])
         XCTAssertEqual(result.processedCount, 2)
+    }
+
+    // MARK: - 自动归属（扫描预匹配已注册宠物，对应源端 matchedCount 语义）
+
+    func testScanAutoMatchesRegisteredPet() async throws {
+        // 1. 注册一只宠物（8 张同色图 + 固定 CLIP embedding）
+        let embedding = makeEmbedding(seed: 1)
+        let clip = ScanClipInferenceMock(result: ClipDetectionResult(
+            isPet: true, labels: [], species: "cat", embedding: embedding,
+            topLabel: "cat", topConfidence: 0.9, usedClipModel: true, diagnostics: ""))
+        let orange = makeSolidPNG(width: 64, height: 64, r: 255, g: 120, b: 60)
+        let (service, petRepo, photoRepo, container) = makeAutoMatchService(
+            assets: [asset("a")],
+            detections: [DetectionBox(x: 0, y: 0, width: 0.5, height: 0.5, label: "cat", confidence: 0.9)],
+            clipService: clip,
+            imageDataOverrides: ["a": orange]
+        )
+        let pet = Pet(name: "小橘")
+        try petRepo.insertPet(pet)
+        let matcher = PetMatcher(petRepo: petRepo, clipService: clip, executor: AnalysisExecutor(maxConcurrent: 1))
+        let registered = await matcher.registerPetFeatures(
+            petID: pet.id, imageDatas: (0..<8).map { _ in orange })
+        XCTAssertTrue(registered)
+
+        // 2. 扫描：同一 CLIP mock + 同色照片 → 预匹配成功（只读，不写库）
+        var lastProgress: ScanProgress?
+        let result = await service.scanAlbum { lastProgress = $0 }
+        XCTAssertEqual(result.matchedCount, 1)
+        XCTAssertEqual(result.matchedUris, ["a"])
+        XCTAssertTrue(result.unassignedPetUris.isEmpty)
+        XCTAssertEqual(result.processedCount, 1)
+        // 预匹配只读——照片尚未入库，由用户导入时真正归属
+        XCTAssertTrue(try photoRepo.getAllOriginalURIs().isEmpty)
+        // 进度回调实时反映 matchedCount / petPhotosFound（宠物照片总数 = 匹配 + 未匹配）
+        XCTAssertEqual(lastProgress?.matchedCount, 1)
+        XCTAssertEqual(lastProgress?.petPhotosFound, 1)
+    }
+
+    func testScanAutoMatchFallsBackToUnassignedWhenNoMatch() async throws {
+        // 注册宠物 A（embedding A）；扫描照片用无关 embedding B → 未达阈值，进 unassigned
+        let clipRegister = ScanClipInferenceMock(result: ClipDetectionResult(
+            isPet: true, labels: [], species: "cat", embedding: makeEmbedding(seed: 1),
+            topLabel: "cat", topConfidence: 0.9, usedClipModel: true, diagnostics: ""))
+        let clipScan = ScanClipInferenceMock(result: ClipDetectionResult(
+            isPet: true, labels: [], species: "cat", embedding: makeEmbedding(seed: 2),
+            topLabel: "cat", topConfidence: 0.9, usedClipModel: true, diagnostics: ""))
+        let orange = makeSolidPNG(width: 64, height: 64, r: 255, g: 120, b: 60)
+        let (service, petRepo, _, container) = makeAutoMatchService(
+            assets: [asset("a")],
+            detections: [DetectionBox(x: 0, y: 0, width: 0.5, height: 0.5, label: "cat", confidence: 0.9)],
+            clipService: clipScan,
+            imageDataOverrides: ["a": orange]
+        )
+        let pet = Pet(name: "小橘")
+        try petRepo.insertPet(pet)
+        let matcher = PetMatcher(petRepo: petRepo, clipService: clipRegister, executor: AnalysisExecutor(maxConcurrent: 1))
+        let registered = await matcher.registerPetFeatures(
+            petID: pet.id, imageDatas: (0..<8).map { _ in orange })
+        XCTAssertTrue(registered)
+
+        let result = await service.scanAlbum()
+        XCTAssertEqual(result.matchedCount, 0)
+        XCTAssertTrue(result.matchedUris.isEmpty)
+        XCTAssertEqual(result.unassignedPetUris, ["a"])
+    }
+
+    func testScanAutoMatchSkipsWhenNoRegisteredPet() async throws {
+        // 有 CLIP 模型但没有任何已注册宠物 → 全部进 unassigned，matched = 0
+        let clip = ScanClipInferenceMock(result: ClipDetectionResult(
+            isPet: true, labels: [], species: "cat", embedding: makeEmbedding(seed: 1),
+            topLabel: "cat", topConfidence: 0.9, usedClipModel: true, diagnostics: ""))
+        let (service, _, _, container) = makeAutoMatchService(
+            assets: [asset("a")],
+            detections: [DetectionBox(x: 0, y: 0, width: 0.5, height: 0.5, label: "cat", confidence: 0.9)],
+            clipService: clip
+        )
+
+        let result = await service.scanAlbum()
+        XCTAssertEqual(result.matchedCount, 0)
+        XCTAssertTrue(result.matchedUris.isEmpty)
+        XCTAssertEqual(result.unassignedPetUris, ["a"])
+    }
+
+    func testScanAutoMatchSkipsWhenEmbeddingUnavailable() async throws {
+        // 已注册宠物 + CLIP 确认是宠物但 embedding 为空（手工特征降级）→ 不可匹配，进 unassigned
+        let clipRegister = ScanClipInferenceMock(result: ClipDetectionResult(
+            isPet: true, labels: [], species: "cat", embedding: makeEmbedding(seed: 1),
+            topLabel: "cat", topConfidence: 0.9, usedClipModel: true, diagnostics: ""))
+        let clipScan = ScanClipInferenceMock(result: ClipDetectionResult(
+            isPet: true, labels: [], species: "cat", embedding: [],
+            topLabel: "cat", topConfidence: 0.9, usedClipModel: false, diagnostics: "fallback"))
+        let orange = makeSolidPNG(width: 64, height: 64, r: 255, g: 120, b: 60)
+        let (service, petRepo, _, container) = makeAutoMatchService(
+            assets: [asset("a")],
+            detections: [DetectionBox(x: 0, y: 0, width: 0.5, height: 0.5, label: "cat", confidence: 0.9)],
+            clipService: clipScan,
+            imageDataOverrides: ["a": orange]
+        )
+        let pet = Pet(name: "小橘")
+        try petRepo.insertPet(pet)
+        let matcher = PetMatcher(petRepo: petRepo, clipService: clipRegister, executor: AnalysisExecutor(maxConcurrent: 1))
+        let registered = await matcher.registerPetFeatures(
+            petID: pet.id, imageDatas: (0..<8).map { _ in orange })
+        XCTAssertTrue(registered)
+
+        let result = await service.scanAlbum()
+        XCTAssertEqual(result.matchedCount, 0)
+        XCTAssertEqual(result.unassignedPetUris, ["a"])
     }
 
     // MARK: - 新增模式
@@ -258,16 +369,73 @@ final class ScanServiceTests: XCTestCase {
         let result = await service.scanAlbum()
         XCTAssertEqual(result.processedCount, 1)
     }
+    // MARK: - 自动归属辅助
+
+    /// 构造带自动归属（CLIP 预匹配）的扫描服务；返回 petRepo 供注册特征。
+    private func makeAutoMatchService(
+        assets: [PhotoAssetMetadata],
+        detections: [DetectionBox],
+        clipService: (any ClipInference)?,
+        imageDataOverrides: [String: Data] = [:]
+    ) -> (ScanService, SwiftDataPetRepository, SwiftDataPhotoRepository, ModelContainer) {
+        let schema = Schema(versionedSchema: SchemaV1.self)
+        let config = ModelConfiguration(isStoredInMemoryOnly: true)
+        let container = try! ModelContainer(for: schema, configurations: [config])
+        let photoRepo = SwiftDataPhotoRepository(context: container.mainContext)
+        let petRepo = SwiftDataPetRepository(context: container.mainContext)
+        let photoLibrary = MockPhotoLibraryAccess(assets: assets, imageDataOverrides: imageDataOverrides)
+        let vision = MockVisionService(detections: detections)
+        let service = ScanService(
+            photoLibrary: photoLibrary, vision: vision,
+            photoRepo: photoRepo, petRepo: petRepo,
+            clipService: clipService,
+            executor: AnalysisExecutor(maxConcurrent: 1)
+        )
+        return (service, petRepo, photoRepo, container)
+    }
+
+    /// 生成确定性的 512 维归一化 embedding（LCG 伪随机，不同 seed 向量差异显著）。
+    private func makeEmbedding(seed: UInt32) -> [Float] {
+        var state = seed
+        var values = [Float]()
+        values.reserveCapacity(ClipConstants.embeddingDim)
+        for _ in 0..<ClipConstants.embeddingDim {
+            state = state &* 1664525 &+ 1013904223
+            values.append((Float(state) / Float(UInt32.max)) * 2 - 1)
+        }
+        return AiInferenceLogic.normalized(values)
+    }
+
+    /// 生成纯色 PNG 图片数据（供 decodeToRGBA 解码与颜色签名提取）。
+    private func makeSolidPNG(width: Int, height: Int, r: Int, g: Int, b: Int) -> Data {
+        let colorSpace = CGColorSpaceCreateDeviceRGB()
+        let ctx = CGContext(
+            data: nil, width: width, height: height, bitsPerComponent: 8,
+            bytesPerRow: width * 4, space: colorSpace,
+            bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue
+        )!
+        ctx.setFillColor(CGColor(
+            red: CGFloat(r) / 255, green: CGFloat(g) / 255,
+            blue: CGFloat(b) / 255, alpha: 1))
+        ctx.fill(CGRect(x: 0, y: 0, width: width, height: height))
+        let image = ctx.makeImage()!
+        let data = NSMutableData()
+        let destination = CGImageDestinationCreateWithData(
+            data, UTType.png.identifier as CFString, 1, nil)!
+        CGImageDestinationAddImage(destination, image, nil)
+        CGImageDestinationFinalize(destination)
+        return data as Data
+    }
 }
 
-/// ScanResult 测试辅助——petPhotosFound 通过 unassignedPetUris.count 反映
+/// ScanResult 测试辅助——petPhotosFound 通过 unassigned + matched 反映
 private extension ScanResult {
-    var petPhotosFoundCount: Int { unassignedPetUris.count }
+    var petPhotosFoundCount: Int { unassignedPetUris.count + matchedUris.count }
 }
 
 /// CLIP 精筛 mock（记录 detect 调用次数，可预设结果或错误）。
 @MainActor
-private final class MockClipInference: ClipInference {
+private final class ScanClipInferenceMock: ClipInference {
     private(set) var detectCallCount = 0
     private let result: ClipDetectionResult?
     private let error: Error?
@@ -281,7 +449,7 @@ private final class MockClipInference: ClipInference {
         detectCallCount += 1
         if let error { throw error }
         guard let result else {
-            throw MockClipError.inferenceFailed
+            throw ScanClipMockError.inferenceFailed
         }
         return result
     }
@@ -289,7 +457,7 @@ private final class MockClipInference: ClipInference {
     func extractFallbackEmbedding(imageData: Data) async throws -> [Float] { [] }
 }
 
-private enum MockClipError: Error {
+private enum ScanClipMockError: Error {
     case inferenceFailed
 }
 

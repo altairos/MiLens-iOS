@@ -145,7 +145,7 @@ SwiftData 从 V1.0 干净 schema 起步（不复刻源端 16 版历史迁移）�
 
 **文件-记录事务性**：`MediaLifecycleService` 统一治理导入/编辑/删除的文件-记录一致性——`commitImport`（DB 失败回滚已写文件）、`saveEditedPhoto`（失败删新文件，成功清理旧版本文件）、`deletePhoto`（删除联动媒体文件）、`auditOrphans`（启动孤儿审计）。DB 是事实源，媒体文件是派生资源。
 
-**像素计算移出主线程**：CPU 密集段（JPEG 解码、Laplacian、pHash、VNRequest、CLIP 预处理、O(n²) 重复分组）统一经 `AnalysisExecutor`（actor，utility 优先级，受限并发 `maxConcurrent = 2`，内部 in-flight 计数 + continuation 队列）执行，只把 Sendable 结果回 MainActor 写库/更新 UI。`ScanService` 两阶段：阶段 1（MainActor 轻量）过滤已导入/过旧照片收集候选；阶段 2 候选分批（每批 `maxConcurrent` 个）后台分析，进度回调次数保持按照片数。
+**像素计算移出主线程**：CPU 密集段（JPEG 解码、Laplacian、pHash、VNRequest、CLIP 预处理、O(n²) 重复分组）统一经 `AnalysisExecutor`（actor，utility 优先级，受限并发 `maxConcurrent = 2`，内部 in-flight 计数 + continuation 队列）执行，只把 Sendable 结果回 MainActor 写库/更新 UI。`ScanService` 两阶段：阶段 1（MainActor 轻量）过滤已导入/过旧照片收集候选；阶段 2 候选分批（每批 `maxConcurrent` 个）后台分析，进度回调次数保持按照片数。扫描阶段对已注册宠物做只读预匹配（复用 CLIP 同一次推理的 embedding + 14 维颜色签名，`matchedCount`/`matchedUris` 真实反映归属判定），真正归属写入仍在导入时（`ImportService` → `assignPhoto`）——扫描不写库的硬约束不变。
 
 **启动恢复**：`ModelContainer` 构造失败不再 `try!` 崩溃——`MiLensApp` 用 `@State` 启动状态机（正常容器 / `DatabaseRecoveryView`），失败时可查看可读错误、导出诊断（Documents/Diagnostics/ 日志文件）、重试，或重建本地数据（二次确认，清除相册记录不动系统相册原图）。依赖组装收口到 `AppDependencies.make(isTesting:)` 工厂，测试环境保持 in-memory 快速路径。
 

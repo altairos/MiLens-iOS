@@ -13,6 +13,8 @@ import SwiftData
 struct MiLensApp: App {
     /// 首次启动引导是否已完成（@AppStorage 自动监听 UserDefaults 变化）
     @AppStorage("hasCompletedOnboarding") private var hasCompletedOnboarding = false
+    /// 外观模式（Settings 页设置：跟随系统/浅色/深色；未知值回退系统）
+    @AppStorage("appearanceMode") private var appearanceRaw = AppearanceMode.system.rawValue
 
     /// 启动状态：依赖构造成功后持有（失败为 nil → 展示恢复界面）
     @State private var dependencies: AppDependencies?
@@ -21,6 +23,15 @@ struct MiLensApp: App {
 
     /// 测试环境（XCTest host 加载 @main App）跳过引导直接进主界面
     private let isTesting: Bool
+
+    /// 外观模式 → ColorScheme（.system 映射为 nil 跟随系统）
+    private var preferredScheme: ColorScheme? {
+        switch AppearanceMode.parse(appearanceRaw) {
+        case .system: return nil
+        case .light: return .light
+        case .dark: return .dark
+        }
+    }
 
     init() {
         // 测试环境（XCTest host 加载 @main App）切 in-memory，避免模拟器
@@ -56,6 +67,8 @@ struct MiLensApp: App {
                 .environment(\.scanCursorStore, dependencies.scanCursorStore)
                 .environment(\.mediaLifecycleService, dependencies.mediaLifecycle)
                 .environment(\.notifyService, dependencies.notifyService)
+                .environment(\.storeService, dependencies.storeService)
+                .preferredColorScheme(preferredScheme)
                 .task {
                     // 启动孤儿审计：清理上一次崩溃/回滚残留的媒体文件（仅生产环境）
                     guard !isTesting else { return }

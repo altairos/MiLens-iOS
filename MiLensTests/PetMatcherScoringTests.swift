@@ -75,16 +75,23 @@ final class PetMatcherScoringTests: XCTestCase {
     }
 
     func testScoreFeatureRecordTakesTopKOfSamples() {
+        // aggregate 与 embedding 略偏离（cosine < 1），4 个样本与 embedding 完全一致（cosine=1）
+        // blend = 0.85*1 + 0.15*aggregateScore > aggregateScore → 采用 top3 均值（prototypeMean[3]）
         let embedding = normalized([Float](repeating: 0.5, count: 8))
+        var shifted = [Float](repeating: 0.5, count: 8)
+        shifted[0] = -0.5
+        let aggregate = normalized(shifted)
         let feature = PetFeatureRecord(
-            version: 1, kind: .clip, aggregate: embedding,
+            version: 1, kind: .clip, aggregate: aggregate,
             colorSignature: nil,
             samples: [embedding, embedding, embedding, embedding], // 4 个一致样本，取 top3
             legacy: false)
 
         let evidence = PetMatcherScoring.scoreFeatureRecord(embedding: embedding, feature: feature)
         XCTAssertEqual(evidence?.source, "prototypeMean[3]")
-        XCTAssertEqual(evidence?.score ?? 0, 1.0, accuracy: 0.0001)
+        let aggregateScore = AiInferenceLogic.cosineSimilarity(embedding, aggregate)
+        let expected = 1.0 * PetMatcherScoring.prototypeWeight + aggregateScore * PetMatcherScoring.aggregateWeight
+        XCTAssertEqual(evidence?.score ?? 0, expected, accuracy: 0.0001)
     }
 
     func testScoreFeatureRecordRejectsNonFiniteAggregate() {
@@ -177,8 +184,8 @@ final class PetMatcherScoringTests: XCTestCase {
     func testColorDistanceAlignsShorterLength() {
         let a = [Float](repeating: 0, count: 14)
         let b = [Float](repeating: 1, count: 4)
-        // 按较短长度（4）对齐：RMS = sqrt(sum(1)/4) = 0.5
-        XCTAssertEqual(PetMatcherScoring.colorDistance(a, b), 0.5, accuracy: 0.0001)
+        // 按较短长度（4）对齐：RMS = sqrt(Σd²/4) = sqrt(4/4) = 1.0
+        XCTAssertEqual(PetMatcherScoring.colorDistance(a, b), 1.0, accuracy: 0.0001)
     }
 
     // MARK: - compactDiagnostics

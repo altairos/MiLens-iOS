@@ -212,7 +212,7 @@ final class ImportServiceTests: XCTestCase {
     func testImportAutoMatchSkipsWhenNoRegisteredPet() async throws {
         // 有 CLIP 模型但没有任何已注册宠物 → 导入正常，matched = 0
         let clip = MockClipInference()
-        let (service, _, _, _) = makeAutoMatchService(
+        let (service, _, _, container) = makeAutoMatchService(
             assets: [asset("a")],
             imageDataOverrides: ["a": makeSolidPNG(width: 64, height: 64, r: 10, g: 200, b: 80)],
             clip: clip
@@ -226,7 +226,7 @@ final class ImportServiceTests: XCTestCase {
     func testImportAutoMatchFailsGracefullyOnExtractionError() async throws {
         // CLIP detect 失败 → 降级 fallback 提取（无注册宠物）→ 导入仍成功，matched = 0
         let failingClip = MockClipInference(detectError: ImportTestError.extractionFailed)
-        let (service, _, _, _) = makeAutoMatchService(
+        let (service, _, _, container) = makeAutoMatchService(
             assets: [asset("a")],
             imageDataOverrides: ["a": makeSolidPNG(width: 64, height: 64, r: 200, g: 60, b: 60)],
             clip: failingClip

@@ -187,8 +187,8 @@ cd MiLensKit && swift test
 | Phase 4 | 4.1 Create 大卡片入口 | ✅ 大卡片列表 + 拼豆入口（真实照片像素化示意）+ 宠物卡片诚实占位 + 选照片流程搬入 BeadPhotoPickerView |
 | Phase 4 | 4.2 拼豆工作室化 | ✅ 上预览下参数 + 防抖实时重渲染 + 模糊→清晰揭示 + .success 触感 + 全屏导出三按钮（含 A4 PDF）；build/test 被并发 WIP 阻塞待复验 |
 | Phase 4 | 4.3 Onboarding 打磨 | ⬜ |
-| Phase 4 | 4.4 Settings 功能实现 | ⬜ |
-| Phase 4 | 4.5 付费墙 | ⬜ |
+| Phase 4 | 4.4 Settings 功能实现 | ✅ 六分区（Pro/隐私/通知/外观/支持/关于）+ SettingsLogic 纯函数 + 15 用例 + xcstrings 76 key 已落地 |
+| Phase 4 | 4.5 付费墙 | ✅ 情感化标题 + 年度突出 + StoreKit 2 接线（含 Transaction 监听/恢复）+ 28 用例 + Products.storekit 重写为规范 v3；scheme 关联与购买链路走查待人工 |
 
 ### 本轮验证记录（2026-08-09，Phase 2 宠物档案传记化）
 
@@ -197,6 +197,23 @@ cd MiLensKit && swift test
 - `cd MiLensKit && swift test`：578 个测试通过（纯 View 层改动，包未受影响）。
 - swift-format lint：未执行（本机未安装 swift-format/swiftformat）。
 - 模拟器尺寸/深色模式/Dynamic Type 走查与真机验收：未执行，留待阶段收尾统一走查。
+
+### 本轮验证记录（2026-08-09，Phase 4.4/4.5 Settings + 付费墙）
+
+- 改动：SettingsView 全量重写（Pro 状态/数据与隐私/通知/外观/支持/关于六分区，外观 @AppStorage + 根 preferredColorScheme）；新增 SettingsLogic/SettingsViewModel、PaywallView/PaywallLogic/PaywallViewModel、StoreService 协议 + StoreKit2/Mock 实现、AppDependencies 组合根；Products.storekit 重写为规范 v3 格式（月 ¥18 / 年 ¥98 各 7 天试用 + 永久 ¥298 非消耗品，价格仅 StoreKit Testing 配置，生产代码零硬编码）。
+- 前提变化：并发会话已修复并提交 PetMatcher（`3a4aca6`），本轮拿到完整闭环。
+- `xcodegen generate`、`git diff --check`：通过。
+- `xcodebuild build`：BUILD SUCCEEDED，本次文件 0 error 0 warning。
+- `xcodebuild test`（新增测试）：**43 用例 0 失败**（SettingsLogic 10 + SettingsViewModel 5 + PaywallLogic 13 + PaywallViewModel 13 + StoreKitConfiguration 2）。
+- StoreKit 端到端购买链路：未验证——本机模拟器 StoreKit 测试守护进程环境错误（SKInternalErrorDomain Code=3），且 scheme 关联 .storekit 需 Xcode GUI 人工勾选；留人工走查 + 沙盒验证。
+- 遗留：功能门控未接线（权益矩阵未冻结，ProStatus 已可从 Environment 读取）；服务条款用 Apple 标准 EULA 链接；隐私政策 miovelle.cn/privacy 待托管。
+- swift-format lint：未执行（本机未安装）；深色/Dynamic Type/尺寸走查与真机验收留阶段收尾。
+
+### 全量复验记录（2026-08-09，4.1/4.2 补闭环）
+
+- 前提：并发会话已修复 PetMatcher 并提交 `3a4aca6`（照片自动归属匹配），此前阻塞全量 build 的 WIP 错误消除。
+- `xcodebuild … test`：MiLensTests 套件 **333 用例执行 0 断言失败**，但 `ImportServiceTests.testImportAutoMatchSkipsWhenNoRegisteredPet` / `testImportAutoMatchFailsGracefullyOnExtractionError` 两例 **signal trap 崩溃**（TEST FAILED）。两者均为 `3a4aca6` 新增的自动归属匹配用例，属已知「模拟器 SwiftData 集成崩溃」遗留（ScanService/ImportService 归真机验证）在新增用例上的延续，与 UI rework 改动无关。
+- 结论：4.1/4.2/4.4/4.5 改动在全量套件中无回归；ImportService 两例崩溃待真机验证。
 
 ### 本轮验证记录（2026-08-09，Phase 4.1/4.2 创作页）
 

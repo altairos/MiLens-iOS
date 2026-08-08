@@ -406,11 +406,14 @@ private struct ScanCompleteSheet: View {
                     .multilineTextAlignment(.center)
                     .padding(.horizontal)
 
-                if !viewModel.unassignedPetUris.isEmpty {
+                // 导入入口覆盖全部扫描发现的宠物照片（预匹配 + 未匹配）——
+                // 预匹配只是只读判定，真正归属写入在导入时完成
+                let pendingCount = viewModel.unassignedPetUris.count + viewModel.matchedPetUris.count
+                if pendingCount > 0 {
                     Button {
-                        viewModel.importUnassigned()
+                        viewModel.importScannedPhotos()
                     } label: {
-                        Label("导入 \(viewModel.unassignedPetUris.count) 张照片", systemImage: "square.and.arrow.down")
+                        Label("导入 \(pendingCount) 张照片", systemImage: "square.and.arrow.down")
                             .frame(maxWidth: .infinity)
                             .padding(.vertical, 12)
                     }

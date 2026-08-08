@@ -77,6 +77,8 @@ enum PetMatcherScoring {
     /// - 否则计算 top-K sample 均值，按 0.85/0.15 与 aggregate 混合；
     ///   混合分数严格高于 aggregate 时采用混合分（prototype 在样本充足且一致时更鲁棒）。
     static func scoreFeatureRecord(embedding: [Float], feature: PetFeatureRecord) -> MatchEvidence? {
+        // 聚合向量含非有限元素视为损坏特征，直接拒绝（cosineSimilarity 对 NaN 输入返回 0，需显式检查）
+        for value in feature.aggregate where !value.isFinite { return nil }
         let aggregateScore = AiInferenceLogic.cosineSimilarity(embedding, feature.aggregate)
         guard aggregateScore.isFinite else { return nil }
         var sampleScores: [Float] = []

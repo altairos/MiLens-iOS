@@ -16,8 +16,10 @@
 //  两阶段检测（诚实标注）：
 //  - Phase 1：VisionService 预筛（VNClassifyImageRequest 宠物标签匹配，宽松）；
 //  - Phase 2：ClipInferenceService 精筛（模型缺失/失败时降级为 Phase 1 结论）。
-//  自动匹配已注册宠物（PetMatcher）发生在导入阶段（ImportService → matchFromEmbedding
-//  → assignPhoto，与源端一致）——扫描只收集候选，matchedCount 恒为 0 是设计如此。
+//  自动归属（PetMatcher）：扫描阶段做只读预匹配——复用 CLIP 同一次推理的 512 维
+//  embedding + 14 维颜色签名，匹配已注册宠物的照片计入 matchedCount/matchedUris，
+//  未匹配的宠物照片收集到 unassignedPetUris 由用户手动导入；真正归属写入
+//  （assignPhoto）仍在导入阶段（ImportService → matchFromEmbedding，唯一入库路径）。
 
 import Foundation
 import os
@@ -34,6 +36,9 @@ final class ScanService {
     private let petRepo: any PetRepositoryProtocol
     /// Phase 2 精筛（nil = CLIP 模型缺失，仅 Phase 1 预筛结果生效）
     private let clipService: (any ClipInference)?
+    /// 自动归属预匹配（clipService 为 nil 时不创建——无模型可提取 embedding）。
+    /// 扫描阶段只读匹配不写库；真正归属写入在 ImportService 导入时完成。
+    private let matcher: PetMatcher?
     /// 受限并发后台执行器（阶段 2 的读文件 + 解码 + 检测在此执行，不占 MainActor）
     private let executor: AnalysisExecutor
 
@@ -52,6 +57,9 @@ final class ScanService {
         self.petRepo = petRepo
         self.clipService = clipService
         self.executor = executor
+        self.matcher = clipService.map {
+            PetMatcher(petRepo: petRepo, clipService: $0, executor: executor)
+        }
     }
 
     /// 扫描系统相册，检测宠物照片。支持取消。
@@ -59,7 +67,8 @@ final class ScanService {
     ///   - afterTimestamp: 增量扫描游标——仅处理 dateAdded >= 此时间的照片
     ///     （nil = 全量扫描；iOS 上 dateAdded 以 creationDate 近似，见 ScanCursorStore）。
     ///   - onProgress: 进度回调（在 main actor 上调用）
-    /// - Returns: 扫描结果（matchedCount 始终为 0——V1.0 未实现 PetMatcher 自动匹配）。
+    /// - Returns: 扫描结果（matchedCount = 预匹配到已注册宠物的照片数，matchedUris 为对应
+    ///   identifier 列表——只读预判，照片尚未入库；unassignedPetUris 为未匹配的宠物照片）。
     ///   注意：失败路径（error != nil）不代表完整遍历——上层不得保存增量游标。
     @discardableResult
     func scanAlbum(
@@ -89,7 +98,9 @@ final class ScanService {
         var scanned = 0
         var processedCount = 0
         var petPhotosFound = 0
+        var matchedCount = 0
         var unassignedURIs: [String] = []
+        var matchedURIs: [String] = []
         // 阶段 2 待分析的候选 identifiers（已通过已导入/过旧过滤）
         var candidates: [String] = []
 
@@ -106,7 +117,7 @@ final class ScanService {
                 if existingOriginalURIs.contains(asset.identifier) {
                     onProgress?(ScanProgress(
                         scanned: scanned, total: totalCount,
-                        petPhotosFound: petPhotosFound, matchedCount: 0,
+                        petPhotosFound: petPhotosFound, matchedCount: matchedCount,
                         currentIdentifier: asset.identifier))
                     return true
                 }
@@ -116,7 +127,7 @@ final class ScanService {
                     if let added = asset.dateAdded, added < after {
                         onProgress?(ScanProgress(
                             scanned: scanned, total: totalCount,
-                            petPhotosFound: petPhotosFound, matchedCount: 0,
+                            petPhotosFound: petPhotosFound, matchedCount: matchedCount,
                             currentIdentifier: asset.identifier))
                         return true
                     }
@@ -131,8 +142,9 @@ final class ScanService {
             // 未完整遍历全部照片，上层不得保存增量游标。
             // 用户取消（CancellationError）优先记为 canceled（error 为 nil）。
             return ScanResult(
-                matchedCount: 0,
+                matchedCount: matchedCount,
                 unassignedPetUris: unassignedURIs,
+                matchedUris: matchedURIs,
                 processedCount: processedCount,
                 canceled: Task.isCancelled,
                 error: Task.isCancelled ? nil : "扫描中断"
@@ -150,14 +162,20 @@ final class ScanService {
 
             let results = await analyzeBatch(batch)
             for identifier in batch {
-                if results[identifier] == true {
+                guard let analysis = results[identifier] else { continue }
+                if analysis.isPet {
                     petPhotosFound += 1
-                    unassignedURIs.append(identifier)
+                    if analysis.matchedPetID != nil {
+                        matchedCount += 1
+                        matchedURIs.append(identifier)
+                    } else {
+                        unassignedURIs.append(identifier)
+                    }
                 }
                 processedCount += 1
                 onProgress?(ScanProgress(
                     scanned: scanned, total: totalCount,
-                    petPhotosFound: petPhotosFound, matchedCount: 0,
+                    petPhotosFound: petPhotosFound, matchedCount: matchedCount,
                     currentIdentifier: identifier))
             }
 
@@ -172,41 +190,45 @@ final class ScanService {
         }
 
         return ScanResult(
-            matchedCount: 0,
+            matchedCount: matchedCount,
             unassignedPetUris: unassignedURIs,
+            matchedUris: matchedURIs,
             processedCount: processedCount,
             canceled: Task.isCancelled
         )
     }
 
     /// 并发分析一批候选（每批提交 maxConcurrent 个任务，内部排队由执行器保证）。
-    /// - Returns: identifier → 是否为宠物照片。
-    private func analyzeBatch(_ batch: [String]) async -> [String: Bool] {
-        await withTaskGroup(of: (String, Bool).self) { group in
+    /// - Returns: identifier → 分析结果（是否为宠物 + 预匹配宠物 ID）。
+    private func analyzeBatch(_ batch: [String]) async -> [String: ScanAnalysisResult] {
+        await withTaskGroup(of: (String, ScanAnalysisResult).self) { group in
             for identifier in batch {
                 group.addTask {
-                    let isPet = await self.analyzeOne(identifier)
-                    return (identifier, isPet)
+                    let analysis = await self.analyzeOne(identifier)
+                    return (identifier, analysis)
                 }
             }
-            var results: [String: Bool] = [:]
-            for await (identifier, isPet) in group {
-                results[identifier] = isPet
+            var results: [String: ScanAnalysisResult] = [:]
+            for await (identifier, analysis) in group {
+                results[identifier] = analysis
             }
             return results
         }
     }
 
-    /// 分析单张照片：读数据 → Phase 1 Vision 预筛 → Phase 2 CLIP 精筛（可选，失败降级）。
-    /// 整段经 AnalysisExecutor 在后台执行（像素解码/推理不占 MainActor）。
-    private func analyzeOne(_ identifier: String) async -> Bool {
+    /// 分析单张照片：读数据 → Phase 1 Vision 预筛 → Phase 2 CLIP 精筛（可选，失败降级）
+    /// → 自动归属预匹配（只读，不写库；真正归属在导入时写入）。
+    /// 像素段（解码/预筛/CLIP/颜色签名）经 AnalysisExecutor 后台执行；
+    /// PetMatcher 匹配回 MainActor（PetMatcher 为 @MainActor 隔离）。
+    private func analyzeOne(_ identifier: String) async -> ScanAnalysisResult {
         let photoLibrary = self.photoLibrary
         let vision = self.vision
         let clipService = self.clipService
         let executor = self.executor
         // 执行器异常视为单张失败（不收录，不中断扫描），记录错误便于诊断
+        let extraction: (isPet: Bool, embedding: [Float], colorSignature: [Float]?)?
         do {
-            return try await executor.run {
+            extraction = try await executor.run {
                 let imageData: Data
                 do {
                     imageData = try await photoLibrary.loadImageData(
@@ -215,7 +237,7 @@ final class ScanService {
                     )
                 } catch {
                     self.logger.error("analyzeOne: 读取照片失败（\(identifier)，\(error.localizedDescription)）")
-                    return false
+                    return (false, [], nil)
                 }
                 let detections: [DetectionBox]
                 do {
@@ -224,21 +246,64 @@ final class ScanService {
                     self.logger.error("analyzeOne: 宠物预筛失败（\(identifier)，\(error.localizedDescription)）")
                     detections = []
                 }
-                guard !detections.isEmpty else { return false }
+                guard !detections.isEmpty else { return (false, [], nil) }
                 // CLIP 不可用或推理失败时降级为 Phase 1 预筛结论（不中断扫描，对应源端多级降级）
-                guard let clipService else { return true }
+                guard let clipService else { return (true, [], nil) }
                 let result: ClipDetectionResult
                 do {
                     result = try await clipService.detect(imageData: imageData)
                 } catch {
                     self.logger.error("analyzeOne: CLIP 精筛失败（\(identifier)，\(error.localizedDescription)），降级为 Phase 1 结论")
-                    return true
+                    return (true, [], nil)
                 }
-                return result.isPet
+                guard result.isPet else { return (false, [], nil) }
+                // 宠物照片：复用本次推理的 embedding 预匹配（embedding 为空 = 不可匹配）
+                var colorSignature: [Float]?
+                if !result.embedding.isEmpty {
+                    colorSignature = extractColorSignature(imageData: imageData)
+                }
+                return (true, result.embedding, colorSignature)
             }
         } catch {
             self.logger.error("analyzeOne: 执行器异常（\(identifier)，\(error.localizedDescription)）")
-            return false
+            return ScanAnalysisResult(isPet: false, matchedPetID: nil)
         }
+        guard let extraction, extraction.isPet else {
+            return ScanAnalysisResult(isPet: false, matchedPetID: nil)
+        }
+        // 自动归属预匹配（只读）：仅对有效 embedding 执行；未注册宠物/未达阈值返回 nil，
+        // 照片仍进 unassigned 由用户决定是否导入（与 ImportService 判定一致）。
+        var matchedPetID: UUID?
+        if let matcher, !extraction.embedding.isEmpty {
+            if let match = await matcher.matchFromEmbedding(
+                embedding: extraction.embedding,
+                colorSignature: extraction.colorSignature,
+                kind: .clip
+            ) {
+                matchedPetID = match.petID
+                logger.info("analyzeOne: 预匹配宠物（\(identifier)，score=\(String(format: "%.4f", match.score))）")
+            }
+        }
+        return ScanAnalysisResult(isPet: true, matchedPetID: matchedPetID)
     }
+}
+
+/// 单张照片分析结果（阶段 2 汇总用）。
+private struct ScanAnalysisResult: Sendable {
+    let isPet: Bool
+    /// 自动归属预匹配的宠物 ID（nil = 未匹配或不可匹配）
+    let matchedPetID: UUID?
+}
+
+/// 从照片数据提取 14 维颜色签名（CPU 密集，仅在后台执行器闭包内调用）；
+/// 失败返回 nil（匹配时跳过颜色约束，与 PetMatcher.extractMatchColorSignature 一致）。
+/// 文件级函数（非 MainActor 隔离），供后台闭包调用。
+private func extractColorSignature(imageData: Data) -> [Float]? {
+    guard let (pixels, width, height) = ClipInferenceService.decodeToRGBA(
+        imageData, maxDimension: ClipConstants.detectInputSize) else {
+        return nil
+    }
+    return ColorSignatureMath.computeColorSignature(
+        pixelBytes: pixels, width: width, height: height,
+        dim: PetMatchThreshold.colorSignatureDim)
 }

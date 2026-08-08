@@ -1,8 +1,15 @@
 {
   "sourceLanguage" : "zh-Hans",
   "strings" : {
-    "·" : {
-
+    "%@ %@" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$@ %2$@"
+          }
+        }
+      }
     },
     "%@ / %@" : {
       "localizations" : {
@@ -14,27 +21,29 @@
         }
       }
     },
-    "%@ %@" : {
+    "%@ 年" : {},
+    "%@ 张照片" : {},
+    "about.fonts.note" : {
+      "extractionState" : "manual",
       "localizations" : {
         "zh-Hans" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "%1$@ %2$@"
+            "state" : "translated",
+            "value" : "以上字体均以 SIL Open Font License 1.1 授权，许可证原文随 App 分发。"
           }
         }
       }
     },
-    "%@ 年" : {
-
-    },
-    "%@ 张照片" : {
-
-    },
-    "🎂" : {
-
-    },
-    "👍" : {
-
+    "about.fonts.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "字体与开源许可"
+          }
+        }
+      }
     },
     "create.placeholder" : {
       "extractionState" : "manual",
@@ -43,6 +52,94 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "创作工作室正在准备中。"
+          }
+        }
+      }
+    },
+    "help.a1" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在相册页使用「扫描」，咪Lens 会在本机找出可能含宠物的照片，确认后导入。"
+          }
+        }
+      }
+    },
+    "help.a2" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "扫描确认时选择宠物即可；相册里也可以多选照片后归档到指定宠物。"
+          }
+        }
+      }
+    },
+    "help.a3" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在创作 Tab 选择「拼豆图纸」，挑一张照片，调整尺寸与风格后即可生成并导出。"
+          }
+        }
+      }
+    },
+    "help.a4" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "拼豆图纸可以保存到系统相册，也可以通过系统分享发送给他人。"
+          }
+        }
+      }
+    },
+    "help.q1" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "如何找到手机里的宠物照片？"
+          }
+        }
+      }
+    },
+    "help.q2" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "如何把照片归到宠物档案？"
+          }
+        }
+      }
+    },
+    "help.q3" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "如何制作拼豆图纸？"
+          }
+        }
+      }
+    },
+    "help.q4" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "导出的作品保存在哪里？"
           }
         }
       }
@@ -58,6 +155,347 @@
         }
       }
     },
+    "paywall.alert.ok" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "好"
+          }
+        }
+      }
+    },
+    "paywall.alert.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "提示"
+          }
+        }
+      }
+    },
+    "paywall.badge.recommended" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "推荐"
+          }
+        }
+      }
+    },
+    "paywall.benefit.create" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "全部创作能力：拼豆全风格与完整图片编辑器"
+          }
+        }
+      }
+    },
+    "paywall.benefit.export" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "无限制导出拼豆图纸（含 A4 打印稿）"
+          }
+        }
+      }
+    },
+    "paywall.benefit.family" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "支持家庭共享，与家人一起使用"
+          }
+        }
+      }
+    },
+    "paywall.close" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "关闭"
+          }
+        }
+      }
+    },
+    "paywall.cta.lifetime.price" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "永久解锁 · %@"
+          }
+        }
+      }
+    },
+    "paywall.cta.subscribe.price" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "立即订阅 · %@"
+          }
+        }
+      }
+    },
+    "paywall.cta.trial" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "免费试用 %d 天"
+          }
+        }
+      }
+    },
+    "paywall.cta.unavailable" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "暂不可购买"
+          }
+        }
+      }
+    },
+    "paywall.link.privacy" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "隐私政策"
+          }
+        }
+      }
+    },
+    "paywall.link.terms" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "服务条款"
+          }
+        }
+      }
+    },
+    "paywall.load.failed" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "暂时无法加载订阅信息，请检查网络后重试。"
+          }
+        }
+      }
+    },
+    "paywall.period.monthly" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "每月"
+          }
+        }
+      }
+    },
+    "paywall.period.once" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "一次性"
+          }
+        }
+      }
+    },
+    "paywall.period.yearly" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "每年"
+          }
+        }
+      }
+    },
+    "paywall.pro.owned" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "你已解锁 MiLens Pro"
+          }
+        }
+      }
+    },
+    "paywall.purchase.failed" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "购买未完成，请稍后再试。"
+          }
+        }
+      }
+    },
+    "paywall.purchase.pending" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "购买待确认，完成后将自动解锁。"
+          }
+        }
+      }
+    },
+    "paywall.restore" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "恢复购买"
+          }
+        }
+      }
+    },
+    "paywall.restore.done" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "已恢复你的购买。"
+          }
+        }
+      }
+    },
+    "paywall.restore.failed" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "恢复购买失败，请稍后再试。"
+          }
+        }
+      }
+    },
+    "paywall.restore.none" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "未找到可恢复的购买。"
+          }
+        }
+      }
+    },
+    "paywall.retry" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "重试"
+          }
+        }
+      }
+    },
+    "paywall.subtitle" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "一次解锁全部创作能力"
+          }
+        }
+      }
+    },
+    "paywall.terms.lifetime" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "一次购买，永久使用，无后续费用。"
+          }
+        }
+      }
+    },
+    "paywall.terms.subscription" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "按 %@ 自动续费，可随时在 App Store 账户设置中取消，取消后当前已生效周期不受影响。"
+          }
+        }
+      }
+    },
+    "paywall.terms.trial" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "免费试用 %1$d 天，之后按 %2$@ 自动续费。可随时在 App Store 账户设置中取消，取消后当前已生效周期不受影响。"
+          }
+        }
+      }
+    },
+    "paywall.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "让这份回忆继续成长"
+          }
+        }
+      }
+    },
+    "paywall.trial.hint" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "前 %d 天免费"
+          }
+        }
+      }
+    },
     "pets.placeholder" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -69,6 +507,248 @@
         }
       }
     },
+    "privacy.commit.control" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "由你决定导入什么"
+          }
+        }
+      }
+    },
+    "privacy.commit.control.detail" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "扫描只找出候选照片；导入哪张、归给哪只宠物，都由你确认。"
+          }
+        }
+      }
+    },
+    "privacy.commit.local" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "分析在本机完成"
+          }
+        }
+      }
+    },
+    "privacy.commit.local.detail" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "宠物照片识别由设备本地的模型完成，不经过任何服务器。"
+          }
+        }
+      }
+    },
+    "privacy.commit.ondevice" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "照片不离开设备"
+          }
+        }
+      }
+    },
+    "privacy.commit.ondevice.detail" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "所有照片与分析数据只保存在你的 iPhone 上。"
+          }
+        }
+      }
+    },
+    "privacy.commit.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "本地处理承诺"
+          }
+        }
+      }
+    },
+    "privacy.permissions.manage" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "管理照片与通知权限"
+          }
+        }
+      }
+    },
+    "privacy.policy.link" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "查看隐私政策"
+          }
+        }
+      }
+    },
+    "privacy.storage.detail" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "导入的照片副本与档案数据保存在 App 沙盒内。删除 App 会一并删除这些数据；系统相册中的原图不受影响。"
+          }
+        }
+      }
+    },
+    "privacy.storage.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "数据存储"
+          }
+        }
+      }
+    },
+    "settings.about.entry" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "关于咪Lens"
+          }
+        }
+      }
+    },
+    "settings.about.version" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "版本"
+          }
+        }
+      }
+    },
+    "settings.appearance.dark" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "深色"
+          }
+        }
+      }
+    },
+    "settings.appearance.light" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "浅色"
+          }
+        }
+      }
+    },
+    "settings.appearance.system" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "跟随系统"
+          }
+        }
+      }
+    },
+    "settings.appearance.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "外观"
+          }
+        }
+      }
+    },
+    "settings.notifications.denied.message" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "请在系统设置中允许 MiLens 发送通知，再开启纪念提醒。"
+          }
+        }
+      }
+    },
+    "settings.notifications.denied.ok" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "好"
+          }
+        }
+      }
+    },
+    "settings.notifications.denied.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "未获得通知权限"
+          }
+        }
+      }
+    },
+    "settings.notifications.footer" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "开启后：宠物生日与领养日当天 09:00 提醒；有历史同日照片时每日 09:00 推送时光机。"
+          }
+        }
+      }
+    },
+    "settings.notifications.reminders" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "纪念提醒"
+          }
+        }
+      }
+    },
     "settings.placeholder" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -76,6 +756,149 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "个人设置正在准备中。"
+          }
+        }
+      }
+    },
+    "settings.privacy.local" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "本地数据与隐私说明"
+          }
+        }
+      }
+    },
+    "settings.privacy.policy" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "隐私政策"
+          }
+        }
+      }
+    },
+    "settings.pro.active.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "已解锁 MiLens Pro"
+          }
+        }
+      }
+    },
+    "settings.pro.manage" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "管理订阅"
+          }
+        }
+      }
+    },
+    "settings.pro.unlock.subtitle" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "无限制拼豆导出与全部创作能力"
+          }
+        }
+      }
+    },
+    "settings.pro.unlock.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "解锁 MiLens Pro"
+          }
+        }
+      }
+    },
+    "settings.section.about" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "关于"
+          }
+        }
+      }
+    },
+    "settings.section.appearance" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "外观"
+          }
+        }
+      }
+    },
+    "settings.section.notifications" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "通知"
+          }
+        }
+      }
+    },
+    "settings.section.privacy" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "数据与隐私"
+          }
+        }
+      }
+    },
+    "settings.section.pro" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "MiLens Pro"
+          }
+        }
+      }
+    },
+    "settings.section.support" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "支持"
+          }
+        }
+      }
+    },
+    "settings.support.help" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "使用帮助"
           }
         }
       }
@@ -124,114 +947,45 @@
         }
       }
     },
-    "为它创建第一份档案" : {
-
-    },
-    "你的宠物数字生命档案" : {
-
-    },
-    "你的照片只属于你" : {
-
-    },
-    "保存" : {
-
-    },
-    "保存后将以 PNG 格式保留透明背景" : {
-
-    },
-    "最近照片" : {
-
-    },
-    "发现 %@ 张宠物照片" : {
-
-    },
-    "可在「设置 → 隐私 → 照片」中开启，也可以稍后在相册页授权" : {
-
-    },
-    "咪Lens" : {
-
-    },
-    "头像" : {
-
-    },
-    "头像选择功能将在后续版本支持" : {
-
-    },
-    "字号" : {
-
-    },
-    "它叫什么名字？" : {
-
-    },
-    "我们找到了它" : {
-
-    },
-    "我已阅读并同意《隐私政策》" : {
-
-    },
-    "扫描完成" : {
-
-    },
-    "扫描系统相册，自动发现你的宠物照片" : {
-
-    },
-    "查看全部 %@ 张" : {
-
-    },
-    "档案加载失败" : {
-
-    },
-    "正在扫描 %@" : {
-
-    },
-    "每条不超过 %@ 字" : {
-
-    },
-    "没有符合条件的照片" : {
-
-    },
-    "添加宠物档案和照片后，这里会自动生成成长时间线" : {
-
-    },
-    "点击下方按钮，添加第一个伙伴档案" : {
-
-    },
-    "照片：%@ 张" : {
-
-    },
-    "特别的缘分" : {
-
-    },
-    "相处 %@ 天" : {
-
-    },
-    "确定删除「%@」吗？\n关联照片将解除归属但不会删除。" : {
-
-    },
-    "记录爱的一生" : {
-
-    },
-    "还没有伙伴档案" : {
-
-    },
-    "还没有成长记录" : {
-
-    },
-    "还没有照片" : {
-
-    },
-    "这位可爱的宝贝和本APP的开发者同一天出生。\n感谢屏幕前的你，呵护着如此珍贵的生命。" : {
-
-    },
-    "重要事件" : {
-
-    },
-    "隐私优先" : {
-
-    },
-    "随时可以在相册页扫描并导入更多照片" : {
-
-    }
+    "·" : {},
+    "为它创建第一份档案" : {},
+    "你的宠物数字生命档案" : {},
+    "你的照片只属于你" : {},
+    "保存" : {},
+    "保存后将以 PNG 格式保留透明背景" : {},
+    "发现 %@ 张宠物照片" : {},
+    "可在「设置 → 隐私 → 照片」中开启，也可以稍后在相册页授权" : {},
+    "咪Lens" : {},
+    "头像" : {},
+    "头像选择功能将在后续版本支持" : {},
+    "字号" : {},
+    "它叫什么名字？" : {},
+    "我们找到了它" : {},
+    "我已阅读并同意《隐私政策》" : {},
+    "扫描完成" : {},
+    "扫描系统相册，自动发现你的宠物照片" : {},
+    "最近照片" : {},
+    "查看全部 %@ 张" : {},
+    "档案加载失败" : {},
+    "正在扫描 %@" : {},
+    "每条不超过 %@ 字" : {},
+    "没有符合条件的照片" : {},
+    "添加宠物档案和照片后，这里会自动生成成长时间线" : {},
+    "点击下方按钮，添加第一个伙伴档案" : {},
+    "照片：%@ 张" : {},
+    "特别的缘分" : {},
+    "相处 %@ 天" : {},
+    "确定删除「%@」吗？\n关联照片将解除归属但不会删除。" : {},
+    "记录爱的一生" : {},
+    "还没有伙伴档案" : {},
+    "还没有成长记录" : {},
+    "还没有照片" : {},
+    "这位可爱的宝贝和本APP的开发者同一天出生。\n感谢屏幕前的你，呵护着如此珍贵的生命。" : {},
+    "重要事件" : {},
+    "随时可以在相册页扫描并导入更多照片" : {},
+    "隐私优先" : {},
+    "🎂" : {},
+    "👍" : {}
   },
   "version" : "1.0"
 }

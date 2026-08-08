@@ -79,7 +79,7 @@ final class PetMatcher {
         for (index, data) in imageDatas.enumerated() {
             if Task.isCancelled { break }
             // 单张提取（CLIP embedding / 降级手工特征 + 颜色签名）经后台执行器，不占 MainActor
-            let extraction: (kind: PetEmbeddingKind, embedding: [Float], colorSignature: [Float]?)?
+            let extraction: (kind: PetEmbeddingKind, embedding: [Float], colorSignature: [Float]?)
             do {
                 extraction = try await executor.run {
                     let clipService = self.clipService

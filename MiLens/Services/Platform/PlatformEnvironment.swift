@@ -121,3 +121,18 @@ extension EnvironmentValues {
         set { self[MediaLifecycleServiceKey.self] = newValue }
     }
 }
+
+// MARK: - StoreService（StoreKit 2 订阅/购买，默认 mock 兜底）
+
+private struct StoreServiceKey: EnvironmentKey {
+    static var defaultValue: any StoreService {
+        MockStoreService()
+    }
+}
+
+extension EnvironmentValues {
+    var storeService: any StoreService {
+        get { self[StoreServiceKey.self] }
+        set { self[StoreServiceKey.self] = newValue }
+    }
+}

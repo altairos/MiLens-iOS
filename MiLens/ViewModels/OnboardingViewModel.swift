@@ -161,7 +161,7 @@ final class OnboardingViewModel {
                 self.scanProgressText = "正在寻找它的身影... \(progress.scanned)/\(progress.total)"
                 self.scanFoundCount = progress.petPhotosFound
             }
-            self.scanFoundCount = result.unassignedPetUris.count
+            self.scanFoundCount = result.unassignedPetUris.count + result.matchedUris.count
             // 只有真正完整完成（未取消且无错误）才视为完成并保存增量游标——
             // 中途失败：不显示“扫描完成”，错误写入 scanError 供界面展示，
             // 且下次增量扫描不会跳过本次未扫到的照片（与 GalleryViewModel 一致）。

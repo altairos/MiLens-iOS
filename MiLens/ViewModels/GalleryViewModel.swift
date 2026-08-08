@@ -36,6 +36,9 @@ final class GalleryViewModel {
     /// 本次扫描是否失败（未完整遍历）。决定完成弹窗的标题/图标与游标保存。
     var scanFailed = false
     var unassignedPetUris: [String] = []
+    /// 预匹配到已注册宠物的照片 identifier（只读预判，尚未入库；
+    /// 与 unassignedPetUris 一并提供导入入口，导入时真正归属写入）。
+    var matchedPetUris: [String] = []
 
     // MARK: - 导入
 
@@ -221,6 +224,7 @@ final class GalleryViewModel {
         showScanCompleteDialog = false
         scanFailed = false
         unassignedPetUris = []
+        matchedPetUris = []
 
         let service = ScanService(
             photoLibrary: photoLibrary, vision: vision,
@@ -246,6 +250,7 @@ final class GalleryViewModel {
             self.isScanning = false
             self.scanProgressText = ""
             self.unassignedPetUris = result.unassignedPetUris
+            self.matchedPetUris = result.matchedUris
             self.scanFailed = result.error != nil
             if let error = result.error {
                 // 失败：弹窗展示错误信息（标题/图标走 scanFailed 分支，可重试）
@@ -278,11 +283,14 @@ final class GalleryViewModel {
 
     // MARK: - 导入
 
-    func importUnassigned() {
-        guard !unassignedPetUris.isEmpty, !isImporting else { return }
+    /// 导入本次扫描发现的宠物照片（未匹配 + 预匹配）。
+    /// 预匹配只是扫描阶段的只读判定，真正归属写入在 ImportService 导入时完成。
+    func importScannedPhotos() {
+        let identifiers = unassignedPetUris + matchedPetUris
+        guard !identifiers.isEmpty, !isImporting else { return }
         isImporting = true
-        let identifiers = unassignedPetUris
         unassignedPetUris = []
+        matchedPetUris = []
         showScanCompleteDialog = false
 
         Task { [weak self] in

@@ -70,7 +70,6 @@ final class PetMatcher {
         var clipColorSignatures: [[Float]] = []
         var fallbackColorSignatures: [[Float]] = []
         var loadFailCount = 0
-        var extractFailCount = 0
         var fallbackCount = 0
         var dimMismatchCount = 0
         var colorFailCount = 0
@@ -150,7 +149,7 @@ final class PetMatcher {
         let discardedOtherKind = embeddingKind == .clip ? fallbackEmbeddings.count : clipEmbeddings.count
 
         guard !embeddings.isEmpty else {
-            lastRegisterDiagnostics = "0 valid embeddings out of \(imageDatas.count) — all failed"
+            lastRegisterDiagnostics = "0 valid embeddings out of \(imageDatas.count) — all failed: \(lastFailure)"
             logger.warning("registerPetFeatures: 全部照片提取失败（\(imageDatas.count) 张）")
             return false
         }
@@ -189,7 +188,8 @@ final class PetMatcher {
         lastRegisterDiagnostics = PetMatcherScoring.compactDiagnostics(
             "success: valid=\(embeddings.count)/\(imageDatas.count), kind=\(embeddingKind.rawValue), " +
             "fallback=\(fallbackCount), discardedOtherKind=\(discardedOtherKind), " +
-            "dimMismatch=\(dimMismatchCount), colorFail=\(colorFailCount), blob=\(blob.count) bytes")
+            "loadFail=\(loadFailCount), dimMismatch=\(dimMismatchCount), " +
+            "colorFail=\(colorFailCount), blob=\(blob.count) bytes")
         logger.info("registerPetFeatures: 注册成功（\(embeddings.count)/\(imageDatas.count)）")
         return true
     }

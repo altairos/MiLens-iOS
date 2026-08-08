@@ -304,4 +304,3 @@ final class MockClipInference: ClipInference {
 private enum MockClipError: Error {
     case inferenceFailed
 }
-

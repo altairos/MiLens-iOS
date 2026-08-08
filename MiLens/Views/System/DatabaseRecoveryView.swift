@@ -20,6 +20,7 @@ struct DatabaseRecoveryView: View {
 
     @State private var showRebuildConfirm = false
     @State private var diagnosticsPath: String?
+    @State private var diagnosticsError: String?
 
     var body: some View {
         VStack(spacing: Spacing.lg) {
@@ -49,7 +50,14 @@ struct DatabaseRecoveryView: View {
                 .tint(Color.milensPrimary)
 
                 Button {
-                    diagnosticsPath = Self.exportDiagnostics(error: errorDescription)
+                    switch Self.exportDiagnostics(error: errorDescription) {
+                    case .success(let path):
+                        diagnosticsPath = path
+                        diagnosticsError = nil
+                    case .failure(let error):
+                        // 导出失败必须可见：不得仍显示「诊断已导出」
+                        diagnosticsError = error.localizedDescription
+                    }
                 } label: {
                     Label(diagnosticsPath == nil ? "导出诊断信息" : "诊断已导出", systemImage: "square.and.arrow.up")
                         .frame(maxWidth: .infinity)
@@ -83,16 +91,26 @@ struct DatabaseRecoveryView: View {
         } message: {
             Text(diagnosticsPath ?? "")
         }
+        .alert("导出失败", isPresented: Binding(
+            get: { diagnosticsError != nil },
+            set: { if !$0 { diagnosticsError = nil } }
+        )) {
+            Button("好", role: .cancel) {}
+        } message: {
+            Text(diagnosticsError ?? "")
+        }
     }
 
     /// 把启动错误写入 Documents/Diagnostics/ 日志文件（用户可从文件 App 访问）。
-    private static func exportDiagnostics(error: String) -> String {
+    /// 返回 Result：目录创建/文件写入任一失败都返回失败原因，界面不得显示「已导出」。
+    private static func exportDiagnostics(error: String) -> Result<String, DiagnosticsExportError> {
         let fm = FileManager.default
         let dir = URL.documentsDirectory.appendingPathComponent("Diagnostics")
         do {
             try fm.createDirectory(at: dir, withIntermediateDirectories: true)
         } catch {
             logger.error("exportDiagnostics: 创建 Diagnostics 目录失败（\(error.localizedDescription)）")
+            return .failure(.createDirectory(error.localizedDescription))
         }
         let formatter = DateFormatter()
         formatter.dateFormat = "yyyyMMdd-HHmmss"
@@ -106,7 +124,21 @@ struct DatabaseRecoveryView: View {
             try content.write(to: file, atomically: true, encoding: .utf8)
         } catch {
             logger.error("exportDiagnostics: 写入诊断文件失败（\(error.localizedDescription)）")
+            return .failure(.writeFile(error.localizedDescription))
         }
-        return file.path
+        return .success(file.path)
+    }
+}
+
+/// 诊断导出失败原因（LocalizedError，界面直接展示 errorDescription）。
+private enum DiagnosticsExportError: LocalizedError {
+    case createDirectory(String)
+    case writeFile(String)
+
+    var errorDescription: String? {
+        switch self {
+        case .createDirectory(let detail): return "创建诊断目录失败：\(detail)"
+        case .writeFile(let detail): return "写入诊断文件失败：\(detail)"
+        }
     }
 }

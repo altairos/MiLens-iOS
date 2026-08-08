@@ -7,7 +7,9 @@ import MiLensKit
 
 struct BeadPatternResultView: View {
     @Bindable var vm: BeadViewModel
+    @Environment(\.proEntitlement) private var entitlement
     @State private var shareItem: ShareItem?
+    @State private var showPaywall = false
 
     var body: some View {
         VStack(spacing: 0) {
@@ -36,6 +38,10 @@ struct BeadPatternResultView: View {
         }
         .sheet(item: $shareItem) { item in
             ShareSheet(items: [item.url])
+        }
+        // Pro 门控：未解锁时导出（保存相册/分享/PDF）拦截到付费墙
+        .sheet(isPresented: $showPaywall) {
+            NavigationStack { PaywallView() }
         }
         // 保存相册真正完成后的一次轻成功触感（UI-DESIGN.md §7）
         .sensoryFeedback(.success, trigger: vm.toastMessage) { _, new in
@@ -147,11 +153,12 @@ struct BeadPatternResultView: View {
         .padding(.top, 8)
     }
 
-    // MARK: - 导出（保存相册 / 分享 / A4 PDF）
+    // MARK: - 导出（保存相册 / 分享 / A4 PDF，Pro 门控）
 
     private var actionButtons: some View {
         HStack(spacing: Spacing.sm) {
             Button {
+                guard entitlement.isPro else { showPaywall = true; return }
                 vm.export()
             } label: {
                 Text(vm.isExporting ? "导出中..." : "保存相册")
@@ -202,6 +209,7 @@ struct BeadPatternResultView: View {
     }
 
     private func share() {
+        guard entitlement.isPro else { showPaywall = true; return }
         Task { @MainActor in
             if let url = await vm.prepareShareFile() {
                 shareItem = ShareItem(url: url)
@@ -210,6 +218,7 @@ struct BeadPatternResultView: View {
     }
 
     private func exportPDF() {
+        guard entitlement.isPro else { showPaywall = true; return }
         Task { @MainActor in
             if let url = await vm.preparePDFFile() {
                 shareItem = ShareItem(url: url)

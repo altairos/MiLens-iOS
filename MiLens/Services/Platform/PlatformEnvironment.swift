@@ -136,3 +136,19 @@ extension EnvironmentValues {
         set { self[StoreServiceKey.self] = newValue }
     }
 }
+
+// MARK: - ProEntitlementStore（应用级权益状态；proStatusUpdates 的唯一流消费者）
+
+private struct ProEntitlementKey: EnvironmentKey {
+    @MainActor
+    static var defaultValue: ProEntitlementStore {
+        ProEntitlementStore(store: MockStoreService())
+    }
+}
+
+extension EnvironmentValues {
+    var proEntitlement: ProEntitlementStore {
+        get { self[ProEntitlementKey.self] }
+        set { self[ProEntitlementKey.self] = newValue }
+    }
+}

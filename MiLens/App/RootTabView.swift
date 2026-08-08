@@ -9,6 +9,7 @@ struct RootTabView: View {
     @AppStorage("reminderNotificationsEnabled") private var remindersEnabled = false
     @Environment(\.scenePhase) private var scenePhase
     @Environment(\.notifyService) private var notifyService
+    @Environment(\.proEntitlement) private var entitlement
 
     var body: some View {
         TabView(selection: Binding(
@@ -60,9 +61,18 @@ struct RootTabView: View {
         case .petProfile(let petID):
             PetProfileView(petID: petID)
         case .beadPhotoPicker:
-            BeadPhotoPickerView()
+            // Pro 门控：未解锁时所有拼豆入口（相册/大图页）落到付费墙
+            if entitlement.isPro {
+                BeadPhotoPickerView()
+            } else {
+                PaywallView()
+            }
         case .beadPattern(let photoID):
-            BeadPatternView(photoID: photoID)
+            if entitlement.isPro {
+                BeadPatternView(photoID: photoID)
+            } else {
+                PaywallView()
+            }
         case .petEdit(let petID):
             PetEditView(petID: petID)
         case .timeline:

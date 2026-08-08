@@ -145,6 +145,23 @@ final class OnboardingViewModelTests: XCTestCase {
         XCTAssertTrue(vm.scanCompleted)
     }
 
+    func testSkipScanCanceledTaskCannotOverwriteCompleted() async {
+        // 取消竞争回归：skipScan 先把 scanCompleted 置 true，被取消的旧任务随后
+        // 返回 canceled 结果——generation 守卫下不得把它覆盖回 false。
+        // （旧测试只等到 !isScanning 就结束，没真正等旧任务退出，覆盖不了该竞争。）
+        let (vm, _, _) = makeVM(assets: [asset("a")])
+        vm.step = .scan
+        vm.onStepAppear()
+        XCTAssertTrue(vm.isScanning)
+        vm.skipScan()
+        XCTAssertTrue(vm.scanCompleted)
+        // 让出 MainActor，给被取消的旧任务完整执行收尾回写的机会
+        for _ in 0..<50 { await Task.yield() }
+        XCTAssertTrue(vm.scanCompleted, "被取消的旧任务不得把 scanCompleted 覆盖回 false")
+        XCTAssertFalse(vm.isScanning)
+        XCTAssertTrue(vm.canAdvance)
+    }
+
     func testScanSuccessSavesCursor() async {
         let cursor = MockScanCursorStore()
         let (vm, _, _) = makeVM(assets: [asset("a")], cursorStore: cursor)
@@ -231,4 +248,3 @@ final class OnboardingViewModelTests: XCTestCase {
 private enum MockOnboardingScanError: Error {
     case countFailure
 }
-

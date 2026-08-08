@@ -2,7 +2,8 @@
 //
 //  P1 重构：前台每日检查 → UNCalendarNotificationTrigger 真调度 + 幂等重调度。
 //  - rescheduleAllReminders()：先 removeAllNotifications 再按当前数据全量调度
-//    （宠物生日/领养日 → 年度重复通知；时光机 → 每日通知），调用方可反复执行。
+//    （宠物生日/领养日 → 年度重复通知；时光机 → 预排未来 N 天每天一条单次通知），
+//    调用方可反复执行。
 //  - updateReminders(for:)/removeReminders(for:)：宠物编辑/删除后的局部更新。
 //  决策逻辑下沉为纯函数（AnniversaryLogic / TimeMachineLogic），本服务只做 IO：
 //  查照片、查宠物、调度/撤销通知（DESIGN.md §4）。
@@ -15,8 +16,12 @@ final class NotifyService {
 
     private let logger = Logger(subsystem: "com.milens.app", category: "Notify")
 
-    /// 时光机每日通知标识符（固定——重调度覆盖内容，撤销按此定位）。
-    static let timeMachineIdentifier = "tm-daily"
+    /// 时光机预排窗口天数：每天一条**单次**通知（内容按当天选片生成），
+    /// App 每次激活/重调度刷新窗口。不用固定内容的 repeating trigger——
+    /// 否则用户多日不打开 App 时，每天收到的仍是首次调度时的过期选片与文案。
+    static let timeMachineWindowDays = 7
+    /// 时光机通知标识符前缀：`tm-daily-<yyyyMMdd>`（每天一条，撤销/覆盖按标识符定位）。
+    static let timeMachineIdentifierPrefix = "tm-daily"
     /// 宠物纪念日通知标识符前缀：`anniversary-<petID>-birthday|adoption`。
     static let anniversaryIdentifierPrefix = "anniversary-"
     /// 提醒触发时间（固定 09:00，P1 不引入可配置时间 UI）。
@@ -142,21 +147,44 @@ final class NotifyService {
         }
     }
 
-    // MARK: - 时光机（每日 09:00，调度时固定当日选片）
+    // MARK: - 时光机（预排未来 N 天，每天 09:00 单次通知，内容按当天选片）
 
+    /// 预排未来 timeMachineWindowDays 天的单次通知。
+    /// 每天一条独立标识符 + 独立内容（标题「N年前的今天」按当天日期计算）；
+    /// 当天触发时刻已过 → 跳过当天；当天无历史照片 → 不调度。
+    /// 窗口每天刷新（App 激活时 rescheduleAllReminders），避免固定内容的每日重复。
     private func scheduleTimeMachine(now: Date, calendar: Calendar) async {
-        let comp = calendar.dateComponents([.year, .month, .day], from: now)
-        guard let month = comp.month, let day = comp.day, let year = comp.year else { return }
+        let startOfDay = calendar.startOfDay(for: now)
+        for offset in 0..<Self.timeMachineWindowDays {
+            guard let day = calendar.date(byAdding: .day, value: offset, to: startOfDay) else { continue }
+            // 单次触发时刻（当天 09:00）已过 → 跳过（今天的内容不再送达）
+            var trigger = calendar.dateComponents([.year, .month, .day], from: day)
+            trigger.hour = Self.reminderHour
+            trigger.minute = Self.reminderMinute
+            guard let fireDate = calendar.date(from: trigger), fireDate > now else { continue }
+            await scheduleTimeMachineDay(day: day, now: fireDate, calendar: calendar)
+        }
+    }
+
+    /// 调度某一天的单次时光机通知（选片/文案以当天为「现在」计算）。
+    private func scheduleTimeMachineDay(day: Date, now: Date, calendar: Calendar) async {
+        let comp = calendar.dateComponents([.year, .month, .day], from: day)
+        guard let month = comp.month, let dayOfMonth = comp.day, let year = comp.year else { return }
+
+        // 单次触发时刻：当天 09:00（含年月日 → 不重复）
+        var trigger = calendar.dateComponents([.year, .month, .day], from: day)
+        trigger.hour = Self.reminderHour
+        trigger.minute = Self.reminderMinute
 
         // SQL 层排除当年（对应源端 getAnniversaryEvents 的 excludeYear），
         // 内存再校验一次历史照片（对应源端 historicalPhotos filter）。
         let photos: [Photo]
         do {
             photos = try photoRepo.getAnniversaryPhotos(
-                month: month, day: day, excludeYear: year
+                month: month, day: dayOfMonth, excludeYear: year
             )
         } catch {
-            logger.error("scheduleTimeMachine: 读取纪念照片失败（\(error.localizedDescription)），跳过今日时光机")
+            logger.error("scheduleTimeMachine: 读取纪念照片失败（\(error.localizedDescription)），跳过当天时光机")
             return
         }
         guard !photos.isEmpty else { return }
@@ -184,15 +212,12 @@ final class NotifyService {
             photo: selected, pets: petProjections, now: now, templateIndex: randomSource()
         )
 
-        // 每日 09:00 重复；内容在调度时固定，下次 reschedule 刷新
-        var trigger = DateComponents()
-        trigger.hour = Self.reminderHour
-        trigger.minute = Self.reminderMinute
+        // 单次通知（repeats = false）：每天一条独立标识符；单条失败不阻断其余日期
         do {
             try await poster.schedule(
                 title: data.title, body: data.body,
-                identifier: Self.timeMachineIdentifier,
-                dateComponents: trigger, repeats: true
+                identifier: Self.timeMachineIdentifier(for: day, calendar: calendar),
+                dateComponents: trigger, repeats: false
             )
         } catch {
             logger.error("scheduleTimeMachine: 调度失败（\(error.localizedDescription)）")
@@ -200,6 +225,15 @@ final class NotifyService {
     }
 
     // MARK: - 标识符
+
+    /// 时光机通知标识符：`tm-daily-<yyyyMMdd>`（按调度日生成，稳定可撤销）。
+    static func timeMachineIdentifier(for day: Date, calendar: Calendar = .current) -> String {
+        let comp = calendar.dateComponents([.year, .month, .day], from: day)
+        let year = comp.year ?? 0
+        let month = comp.month ?? 0
+        let dayOfMonth = comp.day ?? 0
+        return "\(timeMachineIdentifierPrefix)-\(String(format: "%04d%02d%02d", year, month, dayOfMonth))"
+    }
 
     static func anniversaryIdentifier(for pet: Pet, kind: PetAnniversaryKind) -> String {
         "\(anniversaryIdentifierPrefix)\(pet.id.uuidString)-\(kind.rawValue)"

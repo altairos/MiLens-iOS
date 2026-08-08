@@ -11,6 +11,7 @@ import SwiftUI
 
 struct PaywallView: View {
     @Environment(\.storeService) private var storeService
+    @Environment(\.proEntitlement) private var entitlement
     @Environment(\.dismiss) private var dismiss
     @State private var model: PaywallViewModel?
 
@@ -26,7 +27,7 @@ struct PaywallView: View {
         .background(Color.milensBackground)
         .onAppear {
             guard model == nil else { return }
-            let viewModel = PaywallViewModel(store: storeService)
+            let viewModel = PaywallViewModel(store: storeService, entitlement: entitlement)
             viewModel.onAppear()
             model = viewModel
         }

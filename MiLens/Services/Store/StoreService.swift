@@ -77,5 +77,7 @@ protocol StoreService {
     /// 当前 Pro 权益状态。
     func currentProStatus() async -> ProStatus
     /// 权益变更流（Transaction.updates 驱动；购买/恢复成功后也会推送）。
+    /// 单消费者语义：唯一消费者是应用级 ProEntitlementStore，页面/ViewModel
+    /// 经该 store 读权益，不得直接并发消费本流（会竞争元素、丢失更新）。
     var proStatusUpdates: AsyncStream<ProStatus> { get }
 }

@@ -2,6 +2,8 @@
 //
 //  只依赖 StoreService 窄协议与 PaywallLogic 纯决策，不直接引用 StoreKit；
 //  测试注入 MockStoreService 即可单测（产品加载/选中/购买/恢复/权益监听）。
+//  权益状态读应用级 ProEntitlementStore（proStatusUpdates 唯一流消费者，P2 广播语义收口），
+//  不再直接消费 store.proStatusUpdates，避免多页面并发消费竞争元素。
 
 import Foundation
 import Observation
@@ -21,7 +23,6 @@ final class PaywallViewModel {
     /// 已按 PaywallLogic.orderedForDisplay 排序（年度优先）
     private(set) var products: [StoreProductInfo] = []
     var selectedID: String?
-    private(set) var proStatus: ProStatus = .inactive
     private(set) var isPurchasing = false
     private(set) var isRestoring = false
     /// 购买/恢复结果提示（View 按枚举取本地化文案展示 alert）
@@ -29,18 +30,14 @@ final class PaywallViewModel {
     private(set) var restoreMessage: PaywallLogic.RestoreMessage?
 
     private let store: any StoreService
-    /// deinit 为 nonisolated 上下文，Task 放入非隔离容器以便释放时取消（SE-0371 前标准做法）
-    private final class ListenerBox {
-        var task: Task<Void, Never>?
-    }
-    private let listenerBox = ListenerBox()
+    private let entitlement: ProEntitlementStore
 
-    init(store: any StoreService) {
+    /// 当前权益（读应用级权益 store——权益状态的单一事实源）。
+    var proStatus: ProStatus { entitlement.status }
+
+    init(store: any StoreService, entitlement: ProEntitlementStore) {
         self.store = store
-    }
-
-    deinit {
-        listenerBox.task?.cancel()
+        self.entitlement = entitlement
     }
 
     var selectedProduct: StoreProductInfo? {
@@ -49,16 +46,8 @@ final class PaywallViewModel {
 
     // MARK: - 生命周期
 
-    /// 进入付费墙：开始监听权益变更并加载产品。
+    /// 进入付费墙：加载产品并校准一次权益（权益流由应用级 store 常驻消费）。
     func onAppear() {
-        guard listenerBox.task == nil else { return }
-        listenerBox.task = Task { [weak self] in
-            guard let self else { return }
-            for await status in store.proStatusUpdates {
-                guard !Task.isCancelled else { return }
-                self.proStatus = status
-            }
-        }
         Task { await load() }
     }
 
@@ -72,7 +61,7 @@ final class PaywallViewModel {
             if selectedID == nil || !products.contains(where: { $0.id == selectedID }) {
                 selectedID = PaywallLogic.defaultSelectionID(loaded)
             }
-            proStatus = await store.currentProStatus()
+            await entitlement.refresh()
             phase = .ready
         } catch {
             products = []
@@ -90,7 +79,7 @@ final class PaywallViewModel {
             let outcome = try await store.purchase(productID: productID)
             purchaseMessage = PaywallLogic.message(for: outcome)
             if outcome == .success {
-                proStatus = await store.currentProStatus()
+                await entitlement.refresh()
             }
         } catch {
             purchaseMessage = .failed
@@ -105,7 +94,7 @@ final class PaywallViewModel {
         defer { isRestoring = false }
         do {
             try await store.restorePurchases()
-            proStatus = await store.currentProStatus()
+            await entitlement.refresh()
             restoreMessage = PaywallLogic.message(restoredTo: proStatus)
         } catch {
             restoreMessage = .failed

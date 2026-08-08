@@ -424,4 +424,3 @@ final class EditorViewModelTests: XCTestCase {
         XCTAssertTrue(dirty.shouldDismiss)
     }
 }
-

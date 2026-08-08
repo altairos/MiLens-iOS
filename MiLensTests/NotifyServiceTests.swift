@@ -92,7 +92,7 @@ final class NotifyServiceTests: XCTestCase {
         XCTAssertEqual(birthday?.body, "今天的回忆：小橘的生日")
     }
 
-    // MARK: - 时光机（每日 09:00）
+    // MARK: - 时光机（预排未来 N 天，每天 09:00 单次通知）
 
     func testRescheduleSchedulesTimeMachineWhenHistoricalPhotosExist() async {
         let photos = [photo("a", takenAt: date(2025, 8, 8), note: "A")]
@@ -100,27 +100,82 @@ final class NotifyServiceTests: XCTestCase {
 
         await service.rescheduleAllReminders(now: date(2026, 8, 8), calendar: calendar)
 
+        // 8/8 有历史照片 → 预排当天单次通知（未来 7 天窗口内只有这天有照片）
         let tm = poster.scheduled.first {
-            $0.identifier == NotifyService.timeMachineIdentifier
+            $0.identifier == NotifyService.timeMachineIdentifier(for: date(2026, 8, 8), calendar: calendar)
         }
         XCTAssertNotNil(tm)
         XCTAssertEqual(tm?.dateComponents.hour, NotifyService.reminderHour)
         XCTAssertEqual(tm?.dateComponents.minute, NotifyService.reminderMinute)
-        XCTAssertNil(tm?.dateComponents.month, "仅时分 = 每日重复")
-        XCTAssertEqual(tm?.repeats, true)
+        XCTAssertEqual(tm?.dateComponents.month, 8)
+        XCTAssertEqual(tm?.dateComponents.day, 8)
+        XCTAssertEqual(tm?.dateComponents.year, 2026, "单次通知带年份（当天触发，不重复）")
+        XCTAssertEqual(tm?.repeats, false, "时光机必须用单次通知，不能用固定内容的每日重复")
         XCTAssertEqual(tm?.title, "1年前的今天")
+
+        // 窗口内其余日期无照片 → 不调度
+        let tmTomorrow = poster.scheduled.first {
+            $0.identifier == NotifyService.timeMachineIdentifier(for: date(2026, 8, 9), calendar: calendar)
+        }
+        XCTAssertNil(tmTomorrow)
+    }
+
+    func testTimeMachineWindowSchedulesEachDayWithOwnContent() async {
+        // 两天各有历史照片：内容必须按各自日期生成（标题年份不同）
+        let photos = [
+            photo("a", takenAt: date(2025, 8, 8), note: "A"),
+            photo("b", takenAt: date(2024, 8, 9), note: "B")
+        ]
+        let (service, poster, _, _) = makeService(photos: photos)
+
+        await service.rescheduleAllReminders(now: date(2026, 8, 8), calendar: calendar)
+
+        let tmDay1 = poster.scheduled.first {
+            $0.identifier == NotifyService.timeMachineIdentifier(for: date(2026, 8, 8), calendar: calendar)
+        }
+        let tmDay2 = poster.scheduled.first {
+            $0.identifier == NotifyService.timeMachineIdentifier(for: date(2026, 8, 9), calendar: calendar)
+        }
+        XCTAssertNotNil(tmDay1)
+        XCTAssertNotNil(tmDay2)
+        XCTAssertEqual(tmDay1?.title, "1年前的今天", "8/8 的照片按 8/8 计算年份差")
+        XCTAssertEqual(tmDay2?.title, "2年前的今天", "8/9 的照片按 8/9 计算年份差")
+        XCTAssertNotEqual(tmDay1?.identifier, tmDay2?.identifier, "每天独立标识符，可单独撤销/覆盖")
+        XCTAssertEqual(tmDay1?.repeats, false)
+        XCTAssertEqual(tmDay2?.repeats, false)
+    }
+
+    func testTimeMachineSkipsTodayWhenTriggerTimeAlreadyPassed() async {
+        // now = 2026-08-08 10:00（已过 09:00）→ 当天不调度，但 8/9 仍正常预排
+        let now = calendar.date(from: DateComponents(year: 2026, month: 8, day: 8, hour: 10))!
+        let photos = [
+            photo("a", takenAt: date(2025, 8, 8), note: "A"),
+            photo("b", takenAt: date(2025, 8, 9), note: "B")
+        ]
+        let (service, poster, _, _) = makeService(photos: photos)
+
+        await service.rescheduleAllReminders(now: now, calendar: calendar)
+
+        let tmToday = poster.scheduled.first {
+            $0.identifier == NotifyService.timeMachineIdentifier(for: date(2026, 8, 8), calendar: calendar)
+        }
+        XCTAssertNil(tmToday, "当天触发时刻已过：不得调度已过期的单次通知")
+        let tmTomorrow = poster.scheduled.first {
+            $0.identifier == NotifyService.timeMachineIdentifier(for: date(2026, 8, 9), calendar: calendar)
+        }
+        XCTAssertNotNil(tmTomorrow)
     }
 
     func testRescheduleSkipsTimeMachineWithoutHistoricalPhotos() async {
-        // 只有今年今日的照片（时光机排除当年）→ 不调度每日通知
+        // 只有今年今日的照片（时光机排除当年）→ 不调度任何时光机通知
         let photos = [photo("cur", takenAt: date(2026, 8, 8), note: "今年")]
         let (service, poster, _, _) = makeService(photos: photos)
 
         await service.rescheduleAllReminders(now: date(2026, 8, 8), calendar: calendar)
 
-        XCTAssertFalse(poster.scheduled.contains {
-            $0.identifier == NotifyService.timeMachineIdentifier
-        })
+        XCTAssertTrue(poster.scheduled.filter {
+            $0.identifier.hasPrefix(NotifyService.timeMachineIdentifierPrefix)
+        }.isEmpty)
     }
 
     // MARK: - 幂等重调度
@@ -187,4 +242,3 @@ final class NotifyServiceTests: XCTestCase {
         XCTAssertEqual(poster.authorizationRequestCount, 1)
     }
 }
-

@@ -74,6 +74,42 @@ final class GalleryViewModelTests: XCTestCase {
         XCTAssertEqual(cursorStore.savedTimestamps.count, 0)
         XCTAssertEqual(cursorStore.lastSuccessfulScan, baseline, "失败扫描不得覆盖历史游标")
     }
+
+    // MARK: - 删除（走媒体生命周期服务）
+
+    func testDeletePhotoGoesThroughMediaLifecycle() async {
+        // 删除必须走 MediaLifecycleService（DB + 沙盒文件 + 宠物计数联动），
+        // 直接调 photoRepo.deletePhoto 会残留沙盒孤儿文件、宠物计数不刷新
+        let pet = Pet(name: "小橘")
+        let photoRepo = InMemoryPhotoRepository()
+        let petRepo = InMemoryPetRepository(pets: [pet])
+        let fileStorage = MockFileStorage()
+        let photo = Photo(uri: "/documents/MiPhotos/a.jpg", pet: pet, takenAt: Date(), note: "")
+        try? photoRepo.insertPhoto(photo)
+        fileStorage.preset(Data([1]), at: photo.uri)
+
+        let library = MockPhotoLibraryAccess(assets: [])
+        let vm = GalleryViewModel(
+            photoRepo: photoRepo, petRepo: petRepo,
+            photoLibrary: library, vision: MockVisionService(),
+            fileStorage: fileStorage, sandboxDir: "/documents/MiPhotos",
+            cursorStore: MockScanCursorStore()
+        )
+        vm.loadInitial()
+        XCTAssertEqual(vm.photos.count, 1)
+        XCTAssertEqual(vm.totalPhotoCount, 1)
+
+        vm.deletePhoto(id: photo.id)
+        // 删除是异步编排（mediaLifecycle.deletePhoto async）：等待内存状态收敛
+        for _ in 0..<200 where vm.photos.count == 1 {
+            try? await Task.sleep(for: .milliseconds(10))
+        }
+
+        XCTAssertTrue(vm.photos.isEmpty)
+        XCTAssertEqual(vm.totalPhotoCount, 0)
+        XCTAssertNil(try? photoRepo.getPhoto(id: photo.id), "DB 记录必须删除")
+        XCTAssertFalse(fileStorage.fileExists(at: photo.uri), "沙盒媒体文件必须联动删除，不留孤儿文件")
+    }
 }
 
 /// 测试用错误。
@@ -81,4 +117,3 @@ private enum GalleryTestError: Error {
     case streamFailure
     case countFailure
 }
-

@@ -58,7 +58,7 @@ final class GalleryViewModel {
     private let fileStorage: any FileStorage
     private let imageAnalyzer: any ImageAnalyzer
     private let sandboxDir: String
-    /// 媒体生命周期（导入事务段：写文件 + 入库一致性）
+    /// 媒体生命周期（导入事务段 + 删除联动：写文件/入库一致性、DB 删除连带沙盒文件清理）
     private let mediaLifecycle: MediaLifecycleService
     /// Phase 2 CLIP 精筛（nil = 模型缺失，仅 Vision 预筛）
     private let clipService: (any ClipInference)?
@@ -205,14 +205,18 @@ final class GalleryViewModel {
         }
     }
 
+    /// 删除照片：走媒体生命周期服务（DB 删除 + 沙盒文件联动删除 + 宠物照片计数刷新），
+    /// 不再直接调 photoRepo.deletePhoto（否则沙盒文件残留、归属宠物计数不刷新）。
     func deletePhoto(id: UUID) {
         guard let photo = photos.first(where: { $0.id == id }) else { return }
-        do {
-            try photoRepo.deletePhoto(photo)
-            photos.removeAll { $0.id == id }
-            totalPhotoCount = max(0, totalPhotoCount - 1)
-        } catch {
-            // 删除失败不从内存移除，等待用户重试。
+        Task {
+            do {
+                try await mediaLifecycle.deletePhoto(photo)
+                photos.removeAll { $0.id == id }
+                totalPhotoCount = max(0, totalPhotoCount - 1)
+            } catch {
+                // 删除失败不从内存移除，等待用户重试。
+            }
         }
     }
 

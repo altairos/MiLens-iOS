@@ -25,6 +25,8 @@ final class AppDependencies {
     let notifyService: NotifyService?
     let onboardingViewModel: OnboardingViewModel
     let storeService: any StoreService
+    /// 应用级权益状态（proStatusUpdates 唯一消费者，功能门控统一判定源）
+    let proEntitlement: ProEntitlementStore
 
     init(container: ModelContainer,
          petRepo: any PetRepositoryProtocol,
@@ -37,7 +39,8 @@ final class AppDependencies {
          mediaLifecycle: MediaLifecycleService,
          notifyService: NotifyService?,
          onboardingViewModel: OnboardingViewModel,
-         storeService: any StoreService) {
+         storeService: any StoreService,
+         proEntitlement: ProEntitlementStore) {
         self.container = container
         self.petRepo = petRepo
         self.photoRepo = photoRepo
@@ -50,6 +53,7 @@ final class AppDependencies {
         self.notifyService = notifyService
         self.onboardingViewModel = onboardingViewModel
         self.storeService = storeService
+        self.proEntitlement = proEntitlement
     }
 
     /// 构造完整依赖图。失败时抛出——调用方进入可诊断恢复界面。
@@ -107,6 +111,8 @@ final class AppDependencies {
         )
         // 订阅服务：StoreKit 2 真实实现（测试环境用 mock，避免启动 Transaction.updates 监听）。
         let storeService: any StoreService = isTesting ? MockStoreService() : StoreKit2StoreService()
+        // 应用级权益：唯一流消费者，页面/ViewModel 经它读权益（P2 广播语义收口）。
+        let proEntitlement = ProEntitlementStore(store: storeService)
 
         return AppDependencies(
             container: container,
@@ -120,7 +126,8 @@ final class AppDependencies {
             mediaLifecycle: mediaLifecycle,
             notifyService: notifyService,
             onboardingViewModel: onboardingViewModel,
-            storeService: storeService
+            storeService: storeService,
+            proEntitlement: proEntitlement
         )
     }
 

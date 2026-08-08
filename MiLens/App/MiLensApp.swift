@@ -68,6 +68,7 @@ struct MiLensApp: App {
                 .environment(\.mediaLifecycleService, dependencies.mediaLifecycle)
                 .environment(\.notifyService, dependencies.notifyService)
                 .environment(\.storeService, dependencies.storeService)
+                .environment(\.proEntitlement, dependencies.proEntitlement)
                 .preferredColorScheme(preferredScheme)
                 .task {
                     // 启动孤儿审计：清理上一次崩溃/回滚残留的媒体文件（仅生产环境）

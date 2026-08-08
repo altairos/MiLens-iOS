@@ -73,6 +73,8 @@ final class OnboardingViewModel {
 
     private var scanTask: Task<Void, Never>?
     private var featureTask: Task<Void, Never>?
+    /// 扫描代次：skipScan/新扫描时递增，旧任务据此丢弃回写（防止取消竞争覆盖状态）
+    private var scanGeneration = 0
 
     init(photoRepo: any PhotoRepositoryProtocol,
          petRepo: any PetRepositoryProtocol,
@@ -142,6 +144,9 @@ final class OnboardingViewModel {
 
     func startScan() {
         guard !isScanning else { return }
+        // 代次递增：skipScan 后旧任务即使随后返回 canceled 也不得回写状态
+        scanGeneration += 1
+        let generation = scanGeneration
         isScanning = true
         scanCompleted = false
         scanError = ""
@@ -158,9 +163,12 @@ final class OnboardingViewModel {
         scanTask = Task { [weak self] in
             guard let self else { return }
             let result = await service.scanAlbum { progress in
+                guard self.scanGeneration == generation else { return }
                 self.scanProgressText = "正在寻找它的身影... \(progress.scanned)/\(progress.total)"
                 self.scanFoundCount = progress.petPhotosFound
             }
+            // 已被 skipScan/新扫描接管：旧任务的收尾回写全部丢弃
+            guard self.scanGeneration == generation else { return }
             self.scanFoundCount = result.unassignedPetUris.count + result.matchedUris.count
             // 只有真正完整完成（未取消且无错误）才视为完成并保存增量游标——
             // 中途失败：不显示“扫描完成”，错误写入 scanError 供界面展示，
@@ -177,6 +185,7 @@ final class OnboardingViewModel {
 
     /// 跳过扫描（直接进入建档）。
     func skipScan() {
+        scanGeneration += 1
         scanTask?.cancel()
         scanTask = nil
         isScanning = false
@@ -300,6 +309,8 @@ final class OnboardingViewModel {
     func finish() {
         guard !isFinishing else { return }
         isFinishing = true
+        // 代次递增：扫描任务即使随后退出也不得再回写状态（防止覆盖完成态）
+        scanGeneration += 1
         scanTask?.cancel()
         onFinish()
     }

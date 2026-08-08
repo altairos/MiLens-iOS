@@ -204,12 +204,14 @@ struct PetEditView: View {
                 Button("取消") { vm.cancelFeatureRegistration() }
                     .font(.caption)
             } else {
+                // PhotosPicker 的 label 闭包是 Sendable：先取出局部值，不在闭包内读 MainActor 隔离属性
+                let isRegistered = vm.featureRegistered
                 PhotosPicker(
                     selection: $selectedFeatureItems,
                     maxSelectionCount: PetFormConstants.maxRegistrationPhotos,
                     matching: .images
                 ) {
-                    Label(vm.featureRegistered ? "重新注册（更新特征）" : "选择照片注册",
+                    Label(isRegistered ? "重新注册（更新特征）" : "选择照片注册",
                           systemImage: "photo.on.rectangle")
                         .frame(maxWidth: .infinity)
                 }

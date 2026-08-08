@@ -14,10 +14,9 @@ struct SettingsView: View {
     @AppStorage("reminderNotificationsEnabled") private var remindersEnabled = false
     @AppStorage("appearanceMode") private var appearanceRaw = AppearanceMode.system.rawValue
     @Environment(\.notifyService) private var notifyService
-    @Environment(\.storeService) private var storeService
+    @Environment(\.proEntitlement) private var entitlement
 
     @State private var viewModel: SettingsViewModel?
-    @State private var proStatus: ProStatus = .inactive
     @State private var showPaywall = false
 
     var body: some View {
@@ -35,10 +34,8 @@ struct SettingsView: View {
             viewModel = SettingsViewModel(notifyService: notifyService)
         }
         .task {
-            proStatus = await storeService.currentProStatus()
-            for await status in storeService.proStatusUpdates {
-                proStatus = status
-            }
+            // 权益校准：权益流由应用级 ProEntitlementStore 常驻消费，页面只读状态
+            await entitlement.refresh()
         }
         .sheet(isPresented: $showPaywall) {
             NavigationStack { PaywallView() }
@@ -77,7 +74,7 @@ struct SettingsView: View {
 
     private var proSection: some View {
         Section {
-            if proStatus.isActive {
+            if entitlement.isPro {
                 Label {
                     Text(String(localized: "settings.pro.active.title"))
                 } icon: {

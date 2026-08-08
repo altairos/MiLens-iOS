@@ -10,9 +10,11 @@ private let logger = Logger(subsystem: "com.milens.app", category: "Create")
 
 struct CreateView: View {
     @Environment(\.photoRepository) private var photoRepo
+    @Environment(\.proEntitlement) private var entitlement
 
     @State private var photos: [Photo] = []
     @State private var isLoading = true
+    @State private var showPaywall = false
 
     var body: some View {
         Group {
@@ -29,6 +31,9 @@ struct CreateView: View {
         .navigationTitle(String(localized: "tab.create"))
         .navigationBarTitleDisplayMode(.large)
         .task { await loadPhotos() }
+        .sheet(isPresented: $showPaywall) {
+            NavigationStack { PaywallView() }
+        }
     }
 
     // MARK: - 大卡片列表
@@ -51,45 +56,72 @@ struct CreateView: View {
     }
 
     /// 拼豆图纸入口：真实照片像素化示意 + displayMedium 标题。
+    /// Pro 门控：已解锁 → 进入选照片；未解锁 → 拦截并弹出付费墙（卡片带 Pro 徽标）。
     private var beadEntryCard: some View {
-        NavigationLink(value: Route.beadPhotoPicker) {
-            VStack(alignment: .leading, spacing: 0) {
-                BeadExampleVisual(path: photos.first.map {
-                    $0.thumbnailPath.isEmpty ? $0.uri : $0.thumbnailPath
-                } ?? "")
-                .frame(maxWidth: .infinity)
-                .frame(height: 180)
-                .clipped()
+        Group {
+            if entitlement.isPro {
+                NavigationLink(value: Route.beadPhotoPicker) {
+                    beadCardContent
+                }
+                .buttonStyle(.plain)
+            } else {
+                Button {
+                    showPaywall = true
+                } label: {
+                    beadCardContent
+                }
+                .buttonStyle(.plain)
+            }
+        }
+        .accessibilityLabel("拼豆图纸，选择照片开始")
+    }
 
-                HStack(alignment: .center, spacing: Spacing.md) {
-                    VStack(alignment: .leading, spacing: Spacing.xs) {
+    private var beadCardContent: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            BeadExampleVisual(path: photos.first.map {
+                $0.thumbnailPath.isEmpty ? $0.uri : $0.thumbnailPath
+            } ?? "")
+            .frame(maxWidth: .infinity)
+            .frame(height: 180)
+            .clipped()
+
+            HStack(alignment: .center, spacing: Spacing.md) {
+                VStack(alignment: .leading, spacing: Spacing.xs) {
+                    HStack(spacing: Spacing.sm) {
                         Text("拼豆图纸")
                             .font(.displayMedium)
                             .foregroundStyle(Color.milensTextPrimary)
-                        Text("把照片变成一格一格的拼豆图案，附配色方案与材料清单")
-                            .font(.bodySecondary)
-                            .foregroundStyle(Color.milensTextSecondary)
-                            .fixedSize(horizontal: false, vertical: true)
+                        if !entitlement.isPro {
+                            Text("Pro")
+                                .font(.caption)
+                                .foregroundStyle(Color.milensActionPrimary)
+                                .padding(.horizontal, Spacing.sm)
+                                .padding(.vertical, Spacing.xs)
+                                .background(Color.milensAccentSoft)
+                                .clipShape(Capsule())
+                        }
                     }
-                    Spacer(minLength: 0)
-                    Image(systemName: "arrow.right")
-                        .font(.system(size: Sizing.iconSm, weight: .semibold))
-                        .foregroundStyle(Color.milensTextOnActionPrimary)
-                        .frame(width: 32, height: 32)
-                        .background(Color.milensActionPrimary)
-                        .clipShape(Circle())
+                    Text("把照片变成一格一格的拼豆图案，附配色方案与材料清单")
+                        .font(.bodySecondary)
+                        .foregroundStyle(Color.milensTextSecondary)
+                        .fixedSize(horizontal: false, vertical: true)
                 }
-                .padding(Spacing.lg)
+                Spacer(minLength: 0)
+                Image(systemName: "arrow.right")
+                    .font(.system(size: Sizing.iconSm, weight: .semibold))
+                    .foregroundStyle(Color.milensTextOnActionPrimary)
+                    .frame(width: 32, height: 32)
+                    .background(Color.milensActionPrimary)
+                    .clipShape(Circle())
             }
-            .background(Color.milensCard)
-            .overlay {
-                RoundedRectangle(cornerRadius: Radius.large, style: .continuous)
-                    .stroke(Color.milensBorder, lineWidth: 0.5)
-            }
-            .clipShape(RoundedRectangle(cornerRadius: Radius.large, style: .continuous))
+            .padding(Spacing.lg)
         }
-        .buttonStyle(.plain)
-        .accessibilityLabel("拼豆图纸，选择照片开始")
+        .background(Color.milensCard)
+        .overlay {
+            RoundedRectangle(cornerRadius: Radius.large, style: .continuous)
+                .stroke(Color.milensBorder, lineWidth: 0.5)
+        }
+        .clipShape(RoundedRectangle(cornerRadius: Radius.large, style: .continuous))
     }
 
     /// 宠物卡片占位：功能未实现，禁用态 + 诚实标注（不用品牌色、不可点击）。

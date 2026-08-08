@@ -2,7 +2,8 @@ import XCTest
 @testable import MiLens
 
 /// PaywallViewModel 测试：产品加载（排序/默认选中/失败降级）、购买四分支、
-/// 恢复购买三分支、权益流监听。全部经 MockStoreService，不触 StoreKit。
+/// 恢复购买三分支、权益状态（经应用级 ProEntitlementStore，不再直接消费流）。
+/// 全部经 MockStoreService，不触 StoreKit。
 @MainActor
 final class PaywallViewModelTests: XCTestCase {
 
@@ -12,7 +13,8 @@ final class PaywallViewModelTests: XCTestCase {
     ) -> (PaywallViewModel, MockStoreService) {
         let store = MockStoreService(proStatus: proStatus)
         store.purchaseBehavior = purchaseBehavior
-        return (PaywallViewModel(store: store), store)
+        let entitlement = ProEntitlementStore(store: store)
+        return (PaywallViewModel(store: store, entitlement: entitlement), store)
     }
 
     // MARK: - 加载
@@ -112,9 +114,10 @@ final class PaywallViewModelTests: XCTestCase {
         XCTAssertEqual(vm.restoreMessage, .failed)
     }
 
-    // MARK: - 权益流监听
+    // MARK: - 权益状态（经应用级 ProEntitlementStore）
 
-    func testOnAppearObservesStatusUpdates() async {
+    func testEntitlementUpdatesPropagateToViewModel() async {
+        // 权益流唯一消费者是 ProEntitlementStore：pushStatus → store 更新 → VM 读到最新值
         let (vm, store) = makeViewModel()
         vm.onAppear()
         // 等待 load 完成

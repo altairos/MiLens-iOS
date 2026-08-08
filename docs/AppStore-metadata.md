@@ -11,13 +11,13 @@
 | 字段 | 内容 | 字数限制 |
 |---|---|---|
 | App 名称 | 咪Lens - 宠物照片整理与拼豆创作 | 30 字符 |
-| 副标题 | 记住你与爱宠共度的一生 | 30 字符 |
+| 副标题 | 拾回散落的每一张照片，记住你与爱宠共度的一生 | 30 字符 |
 | Bundle ID | `com.milens.app` | — |
 | 主要类别 | 摄影与录像 (Photo & Video) | — |
 | 次要类别 | 生活 (Lifestyle) | — |
 | 内容分级 | 4+（无不良内容） | — |
 | 价格 | 免费（含应用内订阅） | — |
-| 隐私政策 URL | 待准备（V1.0 需托管网页） | — |
+| 隐私政策 URL | https://miovelle.cn/privacy | 已起草（[privacy-policy.html](privacy-policy.html)） | — |
 | 支持 URL | 待准备 | — |
 | 营销 URL | 可留空 | — |
 
@@ -228,7 +228,7 @@ MiLens Pro
 ### 上架前必须完成（需 Mac）
 
 - [ ] 截图制作（3 种设备尺寸 × 5 张）
-- [ ] 隐私政策网页托管
+- [ ] 隐私政策网页托管（[privacy-policy.html](privacy-policy.html) 已起草，上传到 miovelle.cn）
 - [ ] App Store Connect 录入全部元数据
 - [ ] App Store Connect 录入订阅产品 + 本地化
 - [ ] 审核备注确认

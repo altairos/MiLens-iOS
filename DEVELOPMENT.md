@@ -1,6 +1,6 @@
 # MiLens iOS 开发说明
 
-最后核对：2026-08-08（P1 进行中，AI 模型转换工具链落地）
+最后核对：2026-08-08（P2 进行中，CLIP/Vision/CoreML 真实实现落地）
 
 > 环境、命令、开发约定、可复现验证快照。架构见 [DESIGN.md](DESIGN.md)，计划见 [PLAN.md](PLAN.md)，约束见 [AGENTS.md](AGENTS.md)。
 
@@ -258,6 +258,9 @@ UI 文案与 Info.plist 权限说明用 Apple String Catalog（`.xcstrings`）�
 - 2026-08-08：**P2 纯决策 + Service + View 层落地**——翻译源端 6 个纯决策模块（`GalleryPageState`/`ScanFlowLogic`/`ScanControlMath`/`ImportFlowLogic`/`PhotoMetadataLogic`/`PhotoViewGestureMath`）为 Swift 纯函数/struct + ~84 用例 XCTest（逐条对应源端黄金规格）；`ScanService`（Photos 全库扫描 + `VisionService` 检测 + `Task.cancel` 取消）+ `ImportService`（复制沙盒 → 入库）+ ~15 用例（in-memory SwiftData + mock 平台服务）；`GalleryViewModel`（@Observable）+ `GalleryView`（LazyVGrid 分页 + 扫描进度 + 完成弹窗）+ `PhotoViewView`（大图 + 手势）+ `HomeView`（相册/扫描入口）。
 - 2026-08-08：**P2 CI 验证通过**（run [31204194663](https://github.com/altairos/MiLens-iOS/actions/runs/31204194663)）——MiLensKit (Linux) 120 passed/1 skipped/0 failed + MiLens App (macOS) 134 passed/15 skipped/0 failed。修复 5 处编译错误（`StylizedDraftGenerator` 参数标签、`PhotoLibraryAccess` 花括号、主题 token API 名称、`BeadPresetResolver` min/max 遮蔽、`MagnifyGesture.Value.magnification`）+ 1 处测试参数顺序。ScanServiceTests/ImportServiceTests（15 用例）因模拟器 SwiftData 集成崩溃临时跳过，待真机调试。**真机验证待办清单见 [P2-真机验证备忘](docs/P2-真机验证备忘.md)**。
 - 2026-08-08：**P2 扫描增强（质量评分 + 重复分组）**——纯逻辑三模块（`QualityScoringLogic` 质量公式 / `PerceptualHashLogic` 哈希运算 / `DuplicateGroupingLogic` Union-Find 分组）+ 9 用例 XCTest（翻译源端 `MorePureLogic` + `QualityScorer` 黄金规格 + iOS 边界）；`ImageAnalyzer` 协议 + `CoreImageAnalyzer` 实现（Core Graphics Laplacian 方差 + 8×8 均值哈希）+ mock；`QualityScorer` 编排服务（`computeAllQualityScores` + `findDuplicates` + `runPostScanAnalysis`）+ 8 用例（SwiftData 集成跳过待 Mac 真机）；`Photo` schema 加 `phash`/`sharpness`/`qualityScore`/`duplicateOf`/`isBest` 字段，`PhotoRepository` 加 4 方法；`GalleryViewModel` 扫描/导入后 fire-and-forget 触发。**CI 验证待推送**。
+- 2026-08-08：**CLIP/Vision/CoreML 真实实现落地**——`IOSVisionService`（VNClassifyImageRequest + VNGenerateForegroundInstanceMask）+ `CoreMLInferenceEngine`（MLModel + MLMultiArray）+ `ClipInferenceService`（推理编排）+ `AiInferenceLogic`/`ClipPreprocess`/`PetTextEmbeddings` 纯逻辑。**本地验证通过**：`xcodebuild build` BUILD SUCCEEDED + `xcodebuild test` AiInferenceLogicTests 17 用例 + ClipPreprocessTests 11 用例全绿（28 passed, 0 failed）。编译修复 7 处错误（ClassificationResult 重名冲突 → ClipClassificationResult、Optional multiArrayConstraint 解包、MLModel.prediction async、compactMap 类型推断、Data.copyBytes 歧义、MLMultiArray 无 withUnsafeMutableBytes → memcpy、VNClassificationObservation 无 label → identifier）。**推理质量/精度/资源待真机验证**——详细清单见 [P2-真机验证备忘](docs/P2-真机验证备忘.md) §2.2。
+
+---
 
 ## 6. 源端参考资料
 

@@ -3,6 +3,7 @@
 //  内容区渲染分支由 GalleryPageState.resolveContentKind 决定。
 
 import SwiftUI
+import MiLensKit
 
 struct GalleryView: View {
     @Environment(\.photoRepository) private var photoRepo
@@ -15,6 +16,7 @@ struct GalleryView: View {
 
     @State private var viewModel: GalleryViewModel?
     @State private var navigationPath = NavigationPath()
+    @State private var pendingDeleteID: UUID?
 
     private let columns = [GridItem(.adaptive(minimum: 100), spacing: 2)]
 
@@ -63,6 +65,22 @@ struct GalleryView: View {
                     }
                 }
             }
+        }
+        .alert("删除这张照片？", isPresented: Binding(
+            get: { pendingDeleteID != nil },
+            set: { if !$0 { pendingDeleteID = nil } }
+        )) {
+            Button("删除", role: .destructive) {
+                if let id = pendingDeleteID {
+                    viewModel?.deletePhoto(id: id)
+                }
+                pendingDeleteID = nil
+            }
+            Button("取消", role: .cancel) {
+                pendingDeleteID = nil
+            }
+        } message: {
+            Text("只会从咪Lens 的整理记录中移除，不会删除系统相册原图。")
         }
     }
 
@@ -129,32 +147,48 @@ struct GalleryView: View {
 
     private func photoGrid(_ vm: GalleryViewModel) -> some View {
         ScrollView {
-            LazyVGrid(columns: columns, spacing: 2) {
-                ForEach(Array(vm.photos.enumerated()), id: \.element.id) { index, photo in
-                    Group {
-                        if vm.isMultiSelectMode {
-                            Button {
-                                vm.toggleSelection(photo.id)
-                            } label: {
-                                PhotoThumbnailCell(photo: photo, isMultiSelect: true,
-                                                   isSelected: vm.selectedPhotoIDs.contains(photo.id))
-                            }
-                            .buttonStyle(.plain)
+            VStack(alignment: .leading, spacing: Spacing.xl) {
+                filterChips(vm)
+                let visiblePhotos = vm.filteredPhotos
+                let photoByID = Dictionary(uniqueKeysWithValues: vm.photos.map { ($0.id, $0) })
+                let sections = GallerySectionLogic.groupPhotos(visiblePhotos.map {
+                    GalleryPhoto(id: $0.id, takenAt: $0.takenAt, petID: $0.pet?.id)
+                })
+
+                ForEach(Array(sections.enumerated()), id: \.offset) { sectionIndex, section in
+                    VStack(alignment: .leading, spacing: Spacing.md) {
+                        if !section.title.isEmpty {
+                            Text(section.title)
+                                .font(.displayMedium)
+                                .foregroundStyle(Color.milensTextPrimary)
+                                .padding(.horizontal, Spacing.pagePad)
+                                .accessibilityAddTraits(.isHeader)
                         } else {
-                            NavigationLink(value: Route.photoView(photoID: photo.id)) {
-                                PhotoThumbnailCell(photo: photo, isMultiSelect: false, isSelected: false)
-                            }
-                            .buttonStyle(.plain)
+                            Text("未标注日期")
+                                .font(.titleStandard)
+                                .foregroundStyle(Color.milensTextSecondary)
+                                .padding(.horizontal, Spacing.pagePad)
                         }
-                    }
-                    .onAppear {
-                        // 分页：最后 10 个 item 出现时加载更多
-                        if index >= vm.photos.count - 10 {
-                            vm.loadMore()
+
+                        LazyVGrid(columns: columns, spacing: 2) {
+                            ForEach(Array(section.photos.enumerated()), id: \.element.id) { itemIndex, projection in
+                                if let photo = photoByID[projection.id] {
+                                    photoCell(photo: photo, vm: vm)
+                                        .onAppear {
+                                            let isLastSection = sectionIndex == sections.count - 1
+                                            let isNearEnd = itemIndex >= section.photos.count - 3
+                                            if isLastSection && isNearEnd && visiblePhotos.count >= vm.photos.count - 10 {
+                                                vm.loadMore()
+                                            }
+                                        }
+                                }
+                            }
                         }
                     }
                 }
             }
+            .padding(.top, Spacing.sm)
+            .padding(.bottom, Spacing.xxl)
         }
         .overlay(alignment: .top) {
             if vm.isScanning {
@@ -166,6 +200,73 @@ struct GalleryView: View {
             set: { vm.showScanCompleteDialog = $0 }
         )) {
             ScanCompleteSheet(viewModel: vm)
+        }
+    }
+
+    @ViewBuilder
+    private func filterChips(_ vm: GalleryViewModel) -> some View {
+        let pets = vm.pets.map { GalleryFilterPet(id: $0.id, name: $0.name) }
+        let chips = GalleryFilterLogic.buildChips(pets: pets, selectedPetID: vm.selectedFilter.petID)
+        ScrollView(.horizontal) {
+            HStack(spacing: Spacing.sm) {
+                ForEach(chips) { chip in
+                    Button {
+                        withAnimation(.easeInOut(duration: Motion.durationFast)) {
+                            vm.selectPet(chip.petID)
+                        }
+                    } label: {
+                        Text(chip.title)
+                            .font(.bodySecondary.weight(.semibold))
+                            .foregroundStyle(chip.isSelected ? Color.milensTextOnActionPrimary : Color.milensTextSecondary)
+                            .padding(.horizontal, Spacing.lg)
+                            .frame(minHeight: Sizing.touchTarget)
+                            .background(chip.isSelected ? Color.milensActionPrimary : Color.milensCard)
+                            .overlay {
+                                Capsule().stroke(Color.milensBorder, lineWidth: chip.isSelected ? 0 : 0.5)
+                            }
+                            .clipShape(Capsule())
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityAddTraits(chip.isSelected ? .isSelected : [])
+                }
+            }
+            .padding(.horizontal, Spacing.pagePad)
+        }
+        .scrollIndicators(.hidden)
+    }
+
+    @ViewBuilder
+    private func photoCell(photo: Photo, vm: GalleryViewModel) -> some View {
+        Group {
+            if vm.isMultiSelectMode {
+                Button {
+                    vm.toggleSelection(photo.id)
+                } label: {
+                    PhotoThumbnailCell(photo: photo, isMultiSelect: true,
+                                       isSelected: vm.selectedPhotoIDs.contains(photo.id))
+                }
+                .buttonStyle(.plain)
+            } else {
+                NavigationLink(value: Route.photoView(photoID: photo.id)) {
+                    PhotoThumbnailCell(photo: photo, isMultiSelect: false, isSelected: false)
+                }
+                .buttonStyle(.plain)
+                .contextMenu {
+                    Button {
+                        vm.setFavorite(photo)
+                    } label: {
+                        Label(photo.isFavorite ? "取消收藏" : "收藏", systemImage: photo.isFavorite ? "heart.slash" : "heart")
+                    }
+                    NavigationLink(value: Route.beadPattern(photoID: photo.id)) {
+                        Label("创作拼豆图纸", systemImage: "square.grid.3x3.topleft.filled")
+                    }
+                    Button(role: .destructive) {
+                        pendingDeleteID = photo.id
+                    } label: {
+                        Label("从咪Lens 移除", systemImage: "trash")
+                    }
+                }
+            }
         }
     }
 

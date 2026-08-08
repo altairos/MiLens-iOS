@@ -173,9 +173,9 @@ cd MiLensKit && swift test
 
 | 阶段 | 任务 | 状态 |
 |---|---|---|
-| Phase 1 | 1.1 Gallery 日期分组 | 🔄 纯逻辑 ✅（`GallerySectionLogic` 12 用例，MiLensKit 566 全绿）／View 渲染 + 分页重分组留 Mac |
-| Phase 1 | 1.2 Gallery 筛选 chip | 🔄 纯逻辑 ✅（`GalleryFilterLogic` 12 用例，MiLensKit 578 全绿）／chip 渲染 + 触感 + VM 桥接留 Mac |
-| Phase 1 | 1.3 Gallery context menu | ⬜ |
+| Phase 1 | 1.1 Gallery 日期分组 | ✅ 纯逻辑 + View 渲染 + 分页重分组已落地 |
+| Phase 1 | 1.2 Gallery 筛选 chip | ✅ 纯逻辑 + chip 渲染 + VM 桥接已落地 |
+| Phase 1 | 1.3 Gallery context menu | ✅ 收藏 / 创作拼豆 / 移除 + 删除二次确认已落地 |
 | Phase 1 | 1.4 PhotoView 下滑关闭 + hero | ⬜ |
 | Phase 1 | 1.5 RootTab 动效触感 | ⬜ |
 | Phase 2 | 2.1 Pets 卡片打磨 | ⬜ |
@@ -190,7 +190,7 @@ cd MiLensKit && swift test
 | Phase 4 | 4.4 Settings 功能实现 | ⬜ |
 | Phase 4 | 4.5 付费墙 | ⬜ |
 
-### 本轮验证记录（2026-08-08）
+### 本轮验证记录（2026-08-09）
 
 - `git diff --check`：通过。
 - `xcodebuild … -destination 'platform=iOS Simulator,name=iPhone 17' build CODE_SIGNING_ALLOWED=NO`：通过。

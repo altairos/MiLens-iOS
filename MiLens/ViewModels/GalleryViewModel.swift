@@ -13,6 +13,7 @@ final class GalleryViewModel {
     // MARK: - 显示层状态
 
     var photos: [Photo] = []
+    var pets: [Pet] = []
     var isLoading = false
     var hasMorePhotos = true
     private(set) var totalPhotoCount = 0
@@ -90,7 +91,7 @@ final class GalleryViewModel {
         GalleryDisplaySnapshot(
             isLoading: isLoading,
             photoCount: totalPhotoCount,
-            visibleCount: photos.count,
+            visibleCount: filteredPhotos.count,
             hasMorePhotos: hasMorePhotos,
             galleryChromeHidden: false
         )
@@ -102,6 +103,18 @@ final class GalleryViewModel {
             favoritesEnabled: favoritesEnabled,
             selectedFilter: selectedFilter
         )
+    }
+
+    /// 当前筛选条件下的显示照片。原始分页数组保持不变，避免切换筛选后分页偏移失效。
+    var filteredPhotos: [Photo] {
+        var result = photos
+        if let petID = selectedFilter.petID {
+            result = result.filter { $0.pet?.id == petID }
+        }
+        if favoritesEnabled {
+            result = result.filter(\.isFavorite)
+        }
+        return result
     }
 
     var scanSnapshot: GalleryScanSnapshot {
@@ -125,6 +138,7 @@ final class GalleryViewModel {
         currentLoadedCount = 0
         do {
             totalPhotoCount = try photoRepo.getAllPhotoURIs().count
+            pets = (try? petRepo.getAllPets()) ?? []
             let page = try photoRepo.getPhotosPage(offset: 0, limit: pageSize)
             photos = page
             hasMorePhotos = page.count == pageSize
@@ -154,10 +168,31 @@ final class GalleryViewModel {
 
     func toggleFavorites() {
         favoritesEnabled.toggle()
-        if favoritesEnabled {
-            photos = photos.filter(\.isFavorite)
-        } else {
-            loadInitial()
+    }
+
+    func selectPet(_ petID: UUID?) {
+        selectedFilter.petID = petID
+        filterEnabled = petID != nil
+    }
+
+    func setFavorite(_ photo: Photo) {
+        let nextValue = !photo.isFavorite
+        do {
+            try photoRepo.setFavorite(photo, favorite: nextValue)
+            photo.isFavorite = nextValue
+        } catch {
+            // 仓储失败时保留当前状态，避免 UI 假装完成。
+        }
+    }
+
+    func deletePhoto(id: UUID) {
+        guard let photo = photos.first(where: { $0.id == id }) else { return }
+        do {
+            try photoRepo.deletePhoto(photo)
+            photos.removeAll { $0.id == id }
+            totalPhotoCount = max(0, totalPhotoCount - 1)
+        } catch {
+            // 删除失败不从内存移除，等待用户重试。
         }
     }
 

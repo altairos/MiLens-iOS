@@ -4,6 +4,8 @@
 
 > 本文是 UI rework 的**执行计划**（阶段划分、任务明细、验收方式）。视觉规范唯一事实来源为 [UI-DESIGN.md](../UI-DESIGN.md)（色彩/字体/间距/动效/页面视觉）；架构见 [DESIGN.md](../DESIGN.md)，里程碑见 [PLAN.md](../PLAN.md)。执行期间按本文 §7 同步勾选状态。
 
+> **2026-08-09 对齐说明**：本计划早期条目中「大卡片列表」「宠物卡片占位」「敬请期待」等内容已被 `UI-DESIGN.md` v2 覆盖，不再是实施标准。当前页面必须优先遵循 Quiet Archive：真实照片、时间/记忆标记、细分隔和单一主动作；未实现能力不显示入口。本文保留阶段记录，但后续实现以 v2 规范为准。
+
 ## 1. 背景与目标
 
 设计系统基础 token 已存在，但原先页面仍停留在默认 SwiftUI 风格，与 UI-DESIGN.md §5 的关键页面规范存在系统性差距。本轮先按已确认的首页方案建立可运行闭环，再按 Phase 1 → 2 → 3 → 4 扩展。
@@ -18,7 +20,7 @@
 | GalleryView | 对齐网格 ✅（2pt 间隙） | 无日期分组标题、无筛选 chip、无 context menu、无 hero 转场 |
 | PetsView | 列表卡片 ✅ token 化良好 | 未做传记式设计；卡片视觉可打磨 |
 | PetProfileView | 常规布局 | §5.3 出血肖像 + 名字浮图 + 时间线节点未做 |
-| CreateView | 简单照片网格 | §5.4 大卡片入口未做 |
+| CreateView | 照片驱动的作品列表 | 已按 v2 移除未实现能力占位，待 iPad/动态字体走查 |
 | SettingsView | 纯占位（PlaceholderTabView） | 功能 + 视觉均未做（归本计划 Phase 4） |
 | PhotoViewView | 黑底大图 + 手势 ✅ | 无下滑关闭、无 hero 转场 |
 | Onboarding | 4 步功能完整 | 视觉未按品牌瞬间打磨 |
@@ -107,8 +109,10 @@
 
 ### Phase 4 — 创作 + Onboarding + Settings/付费墙
 
-**4.1 CreateView 大卡片入口**
-- 大尺寸全宽创作卡片（拼豆图纸 + 宠物卡片占位，§5.4），每张配示例效果图 + `displayMedium` 标题；宠物卡片入口按「待设计稿定案」留占位并诚实标注。
+**4.1 CreateView 照片驱动入口**
+- 只展示当前已可用的创作项目；未实现的宠物卡片不显示占位入口。
+- 拼豆项目使用真实照片缩略图、作品标题、简短说明和明确的 Pro 状态，采用细分隔列表而不是功能宫格。
+- 后续新增项目必须先在 `UI-DESIGN.md` 冻结能力、文案和示例视觉，再加入页面。
 
 **4.2 拼豆三件套工作室化**
 - 上半屏实时预览 + 下半屏参数控制（§5.4）；参数变化实时渲染 + spring。
@@ -123,7 +127,7 @@
 - 关于页注明字体来源与 OFL 许可（UI-DESIGN.md §2.1 合规要求）。
 
 **4.5 付费墙（P5，§5.5）**
-- 情感化标题「让这份回忆继续成长」（非「升级 Pro」）；年费方案视觉突出（描边/更大，`numberStat`）；底部诚实续订条款。
+- 当前创作动作导向标题（非空泛的「升级 Pro」）；年费方案视觉突出（描边/更大，`numberStat`）；底部诚实续订条款。
 - StoreKit 2：`Product`/`Transaction`/`EntitlementTask` 接线 + StoreKit Testing 本地验证（DEVELOPMENT.md §4.4）。
 
 **验收**：模拟器 4 Tab 全功能可用；拼豆工作室布局与揭示动画；付费墙 StoreKit Testing 通过；深色 + Dynamic Type。
@@ -184,11 +188,11 @@ cd MiLensKit && swift test
 | Phase 2 | 2.4 表单/弹窗视觉统一 | ✅ PetEditView / AddPetSheet / 彩蛋弹窗底色与胶囊 CTA 已落地 |
 | Phase 3 | 3.1 HomeViewModel + 测试 | ✅ 纯逻辑（MiLensKit Home/ 32 用例）+ App 编排已落地 |
 | Phase 3 | 3.2 hero 视觉 + 回忆 + CTA | 🔄 首轮已落地；待模拟器尺寸/深色/Dynamic Type 走查 |
-| Phase 4 | 4.1 Create 大卡片入口 | ✅ 大卡片列表 + 拼豆入口（真实照片像素化示意）+ 宠物卡片诚实占位 + 选照片流程搬入 BeadPhotoPickerView |
+| Phase 4 | 4.1 Create 照片驱动入口 | ✅ 拼豆真实照片入口 + 细分隔列表；移除宠物卡片占位与旧大卡片叙事 |
 | Phase 4 | 4.2 拼豆工作室化 | ✅ 上预览下参数 + 防抖实时重渲染 + 模糊→清晰揭示 + .success 触感 + 全屏导出三按钮（含 A4 PDF）；build/test 被并发 WIP 阻塞待复验 |
 | Phase 4 | 4.3 Onboarding 打磨 | ✅ 四步视觉统一（安静步骤指示器/ActionPrimary 胶囊/品牌瞬间收敛为 3 处记忆标记点/文楷每屏一个）+ 修复 CTA 对比度缺陷；全量 511 用例 0 失败 |
 | Phase 4 | 4.4 Settings 功能实现 | ✅ 六分区（Pro/隐私/通知/外观/支持/关于）+ SettingsLogic 纯函数 + 15 用例 + xcstrings 76 key 已落地 |
-| Phase 4 | 4.5 付费墙 | ✅ 情感化标题 + 年度突出 + StoreKit 2 接线（含 Transaction 监听/恢复）+ 28 用例 + Products.storekit 重写为规范 v3；scheme 关联与购买链路走查待人工 |
+| Phase 4 | 4.5 付费墙 | ✅ 当前动作导向标题 + 年度突出 + StoreKit 2 接线（含 Transaction 监听/恢复）+ 28 用例 + Products.storekit 重写为规范 v3；scheme 关联与购买链路走查待人工 |
 
 ### 本轮验证记录（2026-08-09，Phase 2 宠物档案传记化）
 

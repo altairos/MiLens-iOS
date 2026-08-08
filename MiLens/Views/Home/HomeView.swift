@@ -15,7 +15,7 @@ struct HomeView: View {
                 content(viewModel)
             } else {
                 ProgressView()
-                    .tint(.milensPrimary)
+                    .tint(.milensActionPrimary)
             }
         }
         .background(Color.milensBackground)
@@ -34,7 +34,7 @@ struct HomeView: View {
     private func content(_ model: HomeViewModel) -> some View {
         if model.isLoading {
             ProgressView()
-                .tint(.milensPrimary)
+                .tint(.milensActionPrimary)
         } else if let error = model.loadError {
             HomeRecoverableState(message: error) {
                 model.load()
@@ -57,6 +57,8 @@ struct HomeView: View {
 
     private func greetingHeader(_ model: HomeViewModel) -> some View {
         VStack(alignment: .leading, spacing: Spacing.xs) {
+            ArchiveMarker(label: "今天")
+                .padding(.bottom, Spacing.sm)
             Text(model.greeting)
                 .font(.displayLarge)
                 .foregroundStyle(Color.milensTextPrimary)
@@ -90,15 +92,10 @@ struct HomeView: View {
 
     private func memorySection(_ model: HomeViewModel) -> some View {
         VStack(alignment: .leading, spacing: Spacing.md) {
-            HStack(alignment: .firstTextBaseline) {
-                Text("留住的日子")
-                    .font(.titleStandard)
-                    .foregroundStyle(Color.milensTextPrimary)
-                Spacer()
-                Text(model.memoryItems.isEmpty ? "还没有更早的照片" : "向左看看")
-                    .font(.bodySecondary)
-                    .foregroundStyle(Color.milensTextTertiary)
-            }
+            ArchiveSectionHeader(
+                title: "留住的日子",
+                supporting: model.memoryItems.isEmpty ? "还没有更早的照片" : "向左看看"
+            )
 
             if model.memoryItems.isEmpty {
                 Text("再多保存一些日子，这里会替你留下回看的入口。")
@@ -124,9 +121,9 @@ struct HomeView: View {
     }
 
     private var createAction: some View {
-        Button {
+        ArchivePrimaryButton(action: {
             selectedTabRaw = AppTab.create.rawValue
-        } label: {
+        }) {
             HStack(spacing: Spacing.md) {
                 Image(systemName: "sparkles")
                     .font(.system(size: Sizing.iconMd, weight: .semibold))
@@ -136,13 +133,7 @@ struct HomeView: View {
                 Image(systemName: "arrow.up.right")
                     .font(.system(size: Sizing.iconSm, weight: .semibold))
             }
-            .foregroundStyle(Color.milensTextOnActionPrimary)
-            .frame(minHeight: Sizing.touchTarget)
-            .padding(.horizontal, Spacing.lg)
-            .background(Color.milensActionPrimary)
-            .clipShape(Capsule())
         }
-        .buttonStyle(.plain)
         .padding(.horizontal, Spacing.pagePad)
         .padding(.top, Spacing.xxl)
         .accessibilityLabel("为它创作，打开相册")
@@ -175,32 +166,22 @@ private struct MemoryCard: View {
     let item: HomeViewModel.MemoryItem
 
     var body: some View {
-        HStack(spacing: Spacing.md) {
+        VStack(alignment: .leading, spacing: Spacing.sm) {
             ThumbnailImage(path: item.photo.thumbnailPath.isEmpty ? item.photo.uri : item.photo.thumbnailPath)
-                .frame(width: 88, height: 88)
+                .frame(width: 112, height: 112)
                 .clipped()
                 .clipShape(RoundedRectangle(cornerRadius: Radius.medium, style: .continuous))
 
-            VStack(alignment: .leading, spacing: Spacing.xs) {
-                Text(item.entry.title)
-                    .font(.titleStandard)
-                    .foregroundStyle(Color.milensTextPrimary)
-                    .lineLimit(2)
-                Text(item.entry.subtitle.isEmpty ? "查看这段回忆" : item.entry.subtitle)
-                    .font(.bodySecondary)
-                    .foregroundStyle(Color.milensTextSecondary)
-                    .lineLimit(2)
-            }
-            .frame(width: 132, alignment: .leading)
+            Text(item.entry.title)
+                .font(.bodyPrimary.weight(.semibold))
+                .foregroundStyle(Color.milensTextPrimary)
+                .lineLimit(2)
+            Text(item.entry.subtitle.isEmpty ? "查看这段回忆" : item.entry.subtitle)
+                .font(.caption)
+                .foregroundStyle(Color.milensTextSecondary)
+                .lineLimit(2)
         }
-        .padding(Spacing.sm)
-        .background(Color.milensCard)
-        .overlay {
-            RoundedRectangle(cornerRadius: Radius.large, style: .continuous)
-                .stroke(Color.milensBorder, lineWidth: 0.5)
-        }
-        .clipShape(RoundedRectangle(cornerRadius: Radius.large, style: .continuous))
-        .frame(width: 252, height: 104)
+        .frame(width: 112, alignment: .leading)
     }
 }
 
@@ -209,7 +190,7 @@ private struct HomeEmptyState: View {
         VStack(spacing: Spacing.lg) {
             Image(systemName: "photo.badge.plus")
                 .font(.system(size: 44, weight: .light))
-                .foregroundStyle(Color.milensPrimary)
+                .foregroundStyle(Color.milensActionPrimary)
             Text("先留下一张照片")
                 .font(.displayMedium)
                 .foregroundStyle(Color.milensTextPrimary)
@@ -224,7 +205,7 @@ private struct HomeEmptyState: View {
                     .frame(minWidth: 128, minHeight: Sizing.touchTarget)
                     .padding(.horizontal, Spacing.lg)
                     .background(Color.milensActionPrimary)
-                    .clipShape(Capsule())
+                    .clipShape(RoundedRectangle(cornerRadius: Radius.medium, style: .continuous))
             }
             .buttonStyle(.plain)
         }

@@ -1,7 +1,7 @@
-//  创作（Tab 3）—— 大卡片入口（UI-DESIGN.md §6.6）。
-//  「拼豆图纸」大卡片 → 选照片（BeadPhotoPickerView）→ 拼豆工作室；
-//  「宠物卡片」功能未实现（PLAN.md P4 遗留，依赖 AI 方案定案），
-//  按计划 §8 留禁用态占位并诚实标注，不做成看似可用的假入口。
+//  CreateView —— 创作（Tab 3）。
+//
+//  创作页只呈现当前真正可用的项目；未实现能力不再以占位卡片占据页面。
+//  页面语言是「照片 → 作品」的档案式入口，而不是功能宫格。
 
 import SwiftUI
 import os
@@ -20,11 +20,9 @@ struct CreateView: View {
         Group {
             if isLoading {
                 ProgressView()
-                    .tint(Color.milensPrimary)
-            } else if photos.isEmpty {
-                emptyState
+                    .tint(Color.milensActionPrimary)
             } else {
-                cardList
+                content
             }
         }
         .background(Color.milensBackground)
@@ -36,39 +34,55 @@ struct CreateView: View {
         }
     }
 
-    // MARK: - 大卡片列表
-
-    private var cardList: some View {
+    private var content: some View {
         ScrollView {
-            VStack(alignment: .leading, spacing: Spacing.lg) {
-                Text("选一张照片，把它变成可以动手做的作品。")
+            VStack(alignment: .leading, spacing: 0) {
+                ArchiveMarker(label: "创作")
+                    .padding(.top, Spacing.sm)
+
+                Text("让照片继续有去处。")
+                    .font(.displayMedium)
+                    .foregroundStyle(Color.milensTextPrimary)
+                    .padding(.top, Spacing.lg)
+
+                Text("从已经保存的照片开始，做一份真正属于它的作品。")
                     .font(.bodySecondary)
                     .foregroundStyle(Color.milensTextSecondary)
-                    .padding(.top, Spacing.xs)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .padding(.top, Spacing.sm)
 
-                beadEntryCard
-                petCardPlaceholder
+                ArchiveSectionHeader(
+                    title: "可以开始的作品",
+                    supporting: photos.isEmpty ? nil : "选择一张照片"
+                )
+                .padding(.top, Spacing.xxl)
+
+                if photos.isEmpty {
+                    emptyState
+                } else {
+                    beadEntry
+                }
             }
+            .frame(maxWidth: 760, alignment: .leading)
+            .frame(maxWidth: .infinity, alignment: .leading)
             .padding(.horizontal, Spacing.pagePad)
             .padding(.bottom, Spacing.xxl)
         }
         .scrollIndicators(.hidden)
     }
 
-    /// 拼豆图纸入口：真实照片像素化示意 + displayMedium 标题。
-    /// Pro 门控：已解锁 → 进入选照片；未解锁 → 拦截并弹出付费墙（卡片带 Pro 徽标）。
-    private var beadEntryCard: some View {
+    private var beadEntry: some View {
         Group {
             if entitlement.isPro {
                 NavigationLink(value: Route.beadPhotoPicker) {
-                    beadCardContent
+                    beadProjectRow
                 }
                 .buttonStyle(.plain)
             } else {
                 Button {
                     showPaywall = true
                 } label: {
-                    beadCardContent
+                    beadProjectRow
                 }
                 .buttonStyle(.plain)
             }
@@ -76,24 +90,23 @@ struct CreateView: View {
         .accessibilityLabel("拼豆图纸，选择照片开始")
     }
 
-    private var beadCardContent: some View {
-        VStack(alignment: .leading, spacing: 0) {
-            BeadExampleVisual(path: photos.first.map {
-                $0.thumbnailPath.isEmpty ? $0.uri : $0.thumbnailPath
-            } ?? "")
-            .frame(maxWidth: .infinity)
-            .frame(height: 180)
-            .clipped()
+    private var beadProjectRow: some View {
+        VStack(spacing: 0) {
+            HStack(spacing: Spacing.lg) {
+                BeadExampleVisual(path: photos.first.map {
+                    $0.thumbnailPath.isEmpty ? $0.uri : $0.thumbnailPath
+                } ?? "")
+                .frame(width: 104, height: 104)
+                .clipShape(RoundedRectangle(cornerRadius: Radius.medium, style: .continuous))
 
-            HStack(alignment: .center, spacing: Spacing.md) {
-                VStack(alignment: .leading, spacing: Spacing.xs) {
+                VStack(alignment: .leading, spacing: Spacing.sm) {
                     HStack(spacing: Spacing.sm) {
                         Text("拼豆图纸")
-                            .font(.displayMedium)
+                            .font(.titleStandard)
                             .foregroundStyle(Color.milensTextPrimary)
                         if !entitlement.isPro {
                             Text("Pro")
-                                .font(.caption)
+                                .font(.caption.weight(.semibold))
                                 .foregroundStyle(Color.milensActionPrimary)
                                 .padding(.horizontal, Spacing.sm)
                                 .padding(.vertical, Spacing.xs)
@@ -101,72 +114,49 @@ struct CreateView: View {
                                 .clipShape(Capsule())
                         }
                     }
-                    Text("把照片变成一格一格的拼豆图案，附配色方案与材料清单")
+
+                    Text("把一张照片变成可动手完成的图案，附配色方案与材料清单。")
                         .font(.bodySecondary)
                         .foregroundStyle(Color.milensTextSecondary)
                         .fixedSize(horizontal: false, vertical: true)
                 }
-                Spacer(minLength: 0)
-                Image(systemName: "arrow.right")
+
+                Spacer(minLength: Spacing.sm)
+
+                Image(systemName: "chevron.right")
                     .font(.system(size: Sizing.iconSm, weight: .semibold))
-                    .foregroundStyle(Color.milensTextOnActionPrimary)
-                    .frame(width: 32, height: 32)
-                    .background(Color.milensActionPrimary)
-                    .clipShape(Circle())
+                    .foregroundStyle(Color.milensTextTertiary)
+                    .frame(width: Sizing.touchTarget, height: Sizing.touchTarget)
             }
-            .padding(Spacing.lg)
-        }
-        .background(Color.milensCard)
-        .overlay {
-            RoundedRectangle(cornerRadius: Radius.large, style: .continuous)
-                .stroke(Color.milensBorder, lineWidth: 0.5)
-        }
-        .clipShape(RoundedRectangle(cornerRadius: Radius.large, style: .continuous))
-    }
+            .padding(.vertical, Spacing.lg)
 
-    /// 宠物卡片占位：功能未实现，禁用态 + 诚实标注（不用品牌色、不可点击）。
-    private var petCardPlaceholder: some View {
-        VStack(alignment: .leading, spacing: Spacing.md) {
-            HStack(spacing: Spacing.sm) {
-                Text("宠物卡片")
-                    .font(.displayMedium)
-                    .foregroundStyle(Color.milensTextPrimary)
-                Text("待设计稿定案")
-                    .font(.caption)
-                    .foregroundStyle(Color.milensTextSecondary)
-                    .padding(.horizontal, Spacing.sm)
-                    .padding(.vertical, Spacing.xs)
-                    .background(Color.milensGrouped)
-                    .clipShape(Capsule())
-            }
-            Text("把它的照片做成一张可以保存和分享的档案卡片。这张卡片的样子还在设计中，定稿前不会开放入口。")
-                .font(.bodySecondary)
-                .foregroundStyle(Color.milensTextSecondary)
-                .fixedSize(horizontal: false, vertical: true)
+            ArchiveDivider()
         }
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(Spacing.lg)
-        .background(Color.milensCard)
-        .overlay {
-            RoundedRectangle(cornerRadius: Radius.large, style: .continuous)
-                .stroke(Color.milensBorder, lineWidth: 0.5)
-        }
-        .clipShape(RoundedRectangle(cornerRadius: Radius.large, style: .continuous))
-        .accessibilityElement(children: .combine)
-        .accessibilityLabel("宠物卡片，待设计稿定案，暂不可用")
     }
-
-    // MARK: - 空态
 
     private var emptyState: some View {
-        ContentUnavailableView(
-            "还没有照片",
-            systemImage: "photo.on.rectangle.angled",
-            description: Text("先到相册导入照片，再回来生成拼豆图纸")
-        )
-    }
+        VStack(alignment: .leading, spacing: Spacing.md) {
+            Text("先保存一张照片")
+                .font(.bodyPrimary.weight(.semibold))
+                .foregroundStyle(Color.milensTextPrimary)
+            Text("从相册导入照片后，就可以从这里开始创作。")
+                .font(.bodySecondary)
+                .foregroundStyle(Color.milensTextSecondary)
 
-    // MARK: - 数据
+            NavigationLink(value: Route.gallery) {
+                HStack(spacing: Spacing.sm) {
+                    Text("去相册添加")
+                        .font(.buttonLabel)
+                    Image(systemName: "arrow.up.right")
+                        .font(.system(size: Sizing.iconSm, weight: .semibold))
+                }
+                .foregroundStyle(Color.milensActionPrimary)
+                .frame(minHeight: Sizing.touchTarget)
+            }
+            .buttonStyle(.plain)
+        }
+        .padding(.top, Spacing.lg)
+    }
 
     @MainActor
     private func loadPhotos() async {
@@ -182,8 +172,7 @@ struct CreateView: View {
 
 // MARK: - 拼豆示意视觉
 
-/// 用第一张真实照片做像素化处理，作为「原图 → 拼豆」的示例视觉；
-/// 加载失败时回退为中性表面（不伪造品牌插画）。
+/// 使用第一张真实照片作为「原图 → 拼豆」的入口预览；失败时保持中性表面。
 private struct BeadExampleVisual: View {
     let path: String
     @State private var image: UIImage?
@@ -197,7 +186,7 @@ private struct BeadExampleVisual: View {
                     .aspectRatio(contentMode: .fill)
             } else {
                 Image(systemName: "circle.grid.3x3.fill")
-                    .font(.system(size: 32, weight: .light))
+                    .font(.system(size: 28, weight: .light))
                     .foregroundStyle(Color.milensTextTertiary)
             }
         }
@@ -221,5 +210,11 @@ private struct BeadExampleVisual: View {
                   let outCG = CIContext().createCGImage(output, from: ciImage.extent) else { return nil }
             return UIImage(cgImage: outCG)
         }.value
+    }
+}
+
+#Preview {
+    NavigationStack {
+        CreateView()
     }
 }

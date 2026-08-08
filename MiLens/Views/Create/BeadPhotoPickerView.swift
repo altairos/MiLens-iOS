@@ -1,4 +1,4 @@
-//  BeadPhotoPickerView —— 拼豆流程的选照片页（CreateView 大卡片入口进入）。
+//  BeadPhotoPickerView —— 拼豆流程的选照片页（CreateView 作品列表入口进入）。
 //  照片网格能力沿用原 CreateView：点击照片进入拼豆工作室（BeadPatternView）。
 
 import SwiftUI

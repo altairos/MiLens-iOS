@@ -67,10 +67,12 @@ struct ArchivePrimaryButton<Label: View>: View {
 }
 
 struct ArchiveDivider: View {
+    @Environment(\.displayScale) private var displayScale
+
     var body: some View {
         Rectangle()
             .fill(Color.milensSeparator)
-            .frame(height: 1 / UIScreen.main.scale)
+            .frame(height: 1 / displayScale)
     }
 }
 

@@ -1,6 +1,6 @@
 //  PaywallView —— 付费墙（UI Rework 4.5，视觉按 UI-DESIGN.md §6.10）。
 //
-//  - 情感化标题「让这份回忆继续成长」（UI-Rework 计划 §4.5 定稿），文楷 displayMedium。
+//  - 标题围绕当前创作动作，文楷只承担一次情感表达。
 //  - 年费方案视觉突出：更大卡片 + 1.5pt ActionPrimary 描边 + numberStat 价格。
 //  - 价格/试用天数全部来自 StoreKit Product 投影（StoreProductInfo），代码无硬编码金额（P0-4）。
 //  - 底部诚实续订条款（随选中方案变化：试用/订阅/买断三种形态）+ 恢复购买 +
@@ -21,7 +21,7 @@ struct PaywallView: View {
                 content(model)
             } else {
                 ProgressView()
-                    .tint(.milensPrimary)
+                    .tint(.milensActionPrimary)
             }
         }
         .background(Color.milensBackground)
@@ -50,7 +50,7 @@ struct PaywallView: View {
         switch model.phase {
         case .loading:
             ProgressView()
-                .tint(.milensPrimary)
+                .tint(.milensActionPrimary)
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
         case .failed:
             PaywallLoadFailedState {
@@ -100,17 +100,7 @@ struct PaywallView: View {
 
     private var header: some View {
         VStack(alignment: .leading, spacing: Spacing.md) {
-            HStack(spacing: Spacing.sm) {
-                Circle()
-                    .fill(Color.milensPrimary)
-                    .frame(width: 6, height: 6)
-                Rectangle()
-                    .fill(Color.milensBorder)
-                    .frame(width: 24, height: 1)
-                Text("MiLens Pro")
-                    .font(.caption)
-                    .foregroundStyle(Color.milensTextSecondary)
-            }
+            ArchiveMarker(label: "创作解锁")
             Text(String(localized: "paywall.title"))
                 .font(.displayMedium)
                 .foregroundStyle(Color.milensTextPrimary)
@@ -183,7 +173,7 @@ struct PaywallView: View {
                     .foregroundStyle(Color.milensTextOnActionPrimary)
                     .frame(maxWidth: .infinity, minHeight: 50)
                     .background(Color.milensActionPrimary)
-                    .clipShape(Capsule())
+                    .clipShape(RoundedRectangle(cornerRadius: Radius.medium, style: .continuous))
                 }
                 .buttonStyle(.plain)
                 .disabled(PaywallLogic.ctaKind(for: model.selectedProduct) == .unavailable || model.isPurchasing)
@@ -240,7 +230,7 @@ struct PaywallView: View {
     // MARK: 底部（恢复购买 + 法务链接）
 
     private func footer(_ model: PaywallViewModel) -> some View {
-        HStack(spacing: Spacing.xxl) {
+        VStack(spacing: Spacing.md) {
             Button(String(localized: "paywall.restore")) {
                 Task { await model.restore() }
             }

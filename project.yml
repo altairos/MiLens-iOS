@@ -92,3 +92,5 @@ schemes:
       targets:
         - MiLensTests
       gatherCoverageData: true
+      # StoreKit Testing 配置文件（Products.storekit），在 Mac 上 Xcode Scheme Editor 确认引用
+      # 本地测试时：Edit Scheme → Run/Test → Options → StoreKit Configuration

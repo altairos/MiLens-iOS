@@ -1,0 +1,144 @@
+{
+  "identifier" : "4A2F1B8C-9D3E-4F7A-B6C5-1E2D3F4A5B6C",
+  "type" : "subscriptions",
+  "version" : 3,
+  "storeKitErrors" : [
+    {
+      "current" : null,
+      "enabled" : false,
+      "name" : "Load Products"
+    },
+    {
+      "current" : null,
+      "enabled" : false,
+      "name" : "Purchase"
+    },
+    {
+      "current" : null,
+      "enabled" : false,
+      "name" : "Verification"
+    },
+    {
+      "current" : null,
+      "enabled" : false,
+      "name" : "App Store Sync"
+    },
+    {
+      "current" : null,
+      "enabled" : false,
+      "name" : "Storefront"
+    },
+    {
+      "current" : null,
+      "enabled" : false,
+      "name" : "Subscription Status"
+    },
+    {
+      "current" : null,
+      "enabled" : false,
+      "name" : "Refund Request"
+    },
+    {
+      "current" : null,
+      "enabled" : false,
+      "name" : "Offer Redeem"
+    }
+  ],
+  "subscriptionGroups" : [
+    {
+      "id" : "group-001",
+      "localizations" : [
+        {
+          "description" : "MiLens Pro 会员订阅",
+          "displayName" : "MiLens Pro",
+          "locale" : "zh_Hans"
+        },
+        {
+          "description" : "MiLens Pro Subscription",
+          "displayName" : "MiLens Pro",
+          "locale" : "en_US"
+        }
+      ],
+      "name" : "MiLens Pro",
+      "subscriptions" : [
+        {
+          "adHocOffers" : [],
+          "codeOffers" : [],
+          "familySharable" : true,
+          "groupNumber" : 1,
+          "internalGroupID" : "sub-monthly-001",
+          "introductoryOffer" : {
+            "internalOfferID" : "intro-7day-trial",
+            "paymentMode" : "free",
+            "subscriptionPeriod" : {
+              "numberOfUnits" : 7,
+              "unit" : "day"
+            }
+          },
+          "localizations" : [
+            {
+              "description" : "每月自动续费。免费试用 7 天，试用期内可随时取消。",
+              "displayName" : "MiLens Pro 月度订阅",
+              "locale" : "zh_Hans"
+            },
+            {
+              "description" : "Auto-renewing monthly subscription. 7-day free trial, cancel anytime.",
+              "displayName" : "MiLens Pro Monthly",
+              "locale" : "en_US"
+            }
+          ],
+          "productID" : "com.milens.pro.monthly",
+          "recurringSubscriptionPeriod" : {
+            "numberOfUnits" : 1,
+            "unit" : "month"
+          },
+          "referenceName" : "MiLens Pro Monthly Subscription",
+          "subscriptionPeriod" : {
+            "numberOfUnits" : 1,
+            "unit" : "month"
+          },
+          "winbackOffers" : []
+        },
+        {
+          "adHocOffers" : [],
+          "codeOffers" : [],
+          "familySharable" : true,
+          "groupNumber" : 2,
+          "internalGroupID" : "sub-yearly-001",
+          "introductoryOffer" : {
+            "internalOfferID" : "intro-7day-trial-yearly",
+            "paymentMode" : "free",
+            "subscriptionPeriod" : {
+              "numberOfUnits" : 7,
+              "unit" : "day"
+            }
+          },
+          "localizations" : [
+            {
+              "description" : "每年自动续费。免费试用 7 天，约合每月 8 元，比月度节省 55%。",
+              "displayName" : "MiLens Pro 年度订阅",
+              "locale" : "zh_Hans"
+            },
+            {
+              "description" : "Auto-renewing annual subscription. 7-day free trial, save 55% vs monthly.",
+              "displayName" : "MiLens Pro Annual",
+              "locale" : "en_US"
+            }
+          ],
+          "productID" : "com.milens.pro.yearly",
+          "recurringSubscriptionPeriod" : {
+            "numberOfUnits" : 1,
+            "unit" : "year"
+          },
+          "referenceName" : "MiLens Pro Annual Subscription",
+          "subscriptionPeriod" : {
+            "numberOfUnits" : 1,
+            "unit" : "year"
+          },
+          "winbackOffers" : []
+        }
+      ]
+    }
+  ],
+  "products" : []
+}

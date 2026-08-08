@@ -19,9 +19,9 @@ final class TaskLoggerTests: XCTestCase {
         XCTAssertTrue(id1 > 0)
         XCTAssertTrue(id2 > id1)
         XCTAssertTrue(id3 > id2)
-        TaskLogger.complete(id1, "done1")
-        TaskLogger.complete(id2, "done2")
-        TaskLogger.complete(id3, "done3")
+        TaskLogger.complete(id1, summary: "done1")
+        TaskLogger.complete(id2, summary: "done2")
+        TaskLogger.complete(id3, summary: "done3")
     }
 
     func testBeginTaskWithNoLabelStillCreatesActiveTask() {
@@ -49,7 +49,7 @@ final class TaskLoggerTests: XCTestCase {
         TaskLogger.stage(taskId, "match")
         TaskLogger.stage(taskId, "quality")
         XCTAssertTrue(TaskLogger.isActive(taskId))
-        TaskLogger.complete(taskId, "matched=5")
+        TaskLogger.complete(taskId, summary: "matched=5")
         XCTAssertFalse(TaskLogger.isActive(taskId))
     }
 
@@ -64,13 +64,13 @@ final class TaskLoggerTests: XCTestCase {
         let taskId = TaskLogger.beginTask(.import_, label: "batch")
         TaskLogger.progress(taskId, current: 10, total: 100)
         TaskLogger.progress(taskId, current: 50, total: 100)
-        TaskLogger.complete(taskId, "imported=100")
+        TaskLogger.complete(taskId, summary: "imported=100")
     }
 
     func testProgressWithTotalZeroOnlyRecordsCurrent() {
         let taskId = TaskLogger.beginTask(.bead)
         TaskLogger.progress(taskId, current: 5, total: 0)
-        TaskLogger.complete(taskId, "ok")
+        TaskLogger.complete(taskId, summary: "ok")
     }
 
     // MARK: - complete / cancel / fail
@@ -78,13 +78,13 @@ final class TaskLoggerTests: XCTestCase {
     func testCompleteRemovesTaskFromActiveSet() {
         let taskId = TaskLogger.beginTask(.backup, label: "port=8080")
         XCTAssertTrue(TaskLogger.isActive(taskId))
-        TaskLogger.complete(taskId, "sent=12")
+        TaskLogger.complete(taskId, summary: "sent=12")
         XCTAssertFalse(TaskLogger.isActive(taskId))
     }
 
     func testCancelIsEquivalentToCompleteCanceled() {
         let taskId = TaskLogger.beginTask(.scan)
-        TaskLogger.cancel(taskId, "user-canceled")
+        TaskLogger.cancel(taskId, summary: "user-canceled")
         XCTAssertFalse(TaskLogger.isActive(taskId))
     }
 
@@ -109,15 +109,15 @@ final class TaskLoggerTests: XCTestCase {
 
     func testCompleteOnAlreadyCompletedTaskIdIsIdempotent() {
         let taskId = TaskLogger.beginTask(.export)
-        TaskLogger.complete(taskId, "done=10")
+        TaskLogger.complete(taskId, summary: "done=10")
         XCTAssertFalse(TaskLogger.isActive(taskId))
         // 重复 complete 不应抛错
-        TaskLogger.complete(taskId, "repeat")
+        TaskLogger.complete(taskId, summary: "repeat")
         TaskLogger.complete(taskId)
     }
 
     func testCancelOnUnknownTaskIdIsSilentlyIgnored() {
-        TaskLogger.cancel(99999, "nope")
+        TaskLogger.cancel(99999, summary: "nope")
     }
 
     func testProgressOnUnknownTaskIdIsSilentlyIgnored() {
@@ -130,13 +130,13 @@ final class TaskLoggerTests: XCTestCase {
         let taskId = TaskLogger.beginTask(.scan, label: "content://media/external/images/123")
         XCTAssertTrue(taskId > 0)
         TaskLogger.stage(taskId, "detect", detail: "file:///data/storage/el2/abc")
-        TaskLogger.complete(taskId, "ok")
+        TaskLogger.complete(taskId, summary: "ok")
     }
 
     func testStageDetailContainingPathIsSanitized() {
         let taskId = TaskLogger.beginTask(.backup)
         TaskLogger.stage(taskId, "zipping", detail: "path=/data/storage/el2/123/photos")
-        TaskLogger.complete(taskId, "sent=5")
+        TaskLogger.complete(taskId, summary: "sent=5")
     }
 
     // MARK: - 五种 TaskKind
@@ -148,11 +148,11 @@ final class TaskLoggerTests: XCTestCase {
         let backup = TaskLogger.beginTask(.backup)
         let exp = TaskLogger.beginTask(.export)
         XCTAssertTrue(scan > 0 && imp > 0 && bead > 0 && backup > 0 && exp > 0)
-        TaskLogger.complete(scan, "s")
-        TaskLogger.complete(imp, "i")
-        TaskLogger.complete(bead, "b")
-        TaskLogger.complete(backup, "k")
-        TaskLogger.complete(exp, "e")
+        TaskLogger.complete(scan, summary: "s")
+        TaskLogger.complete(imp, summary: "i")
+        TaskLogger.complete(bead, summary: "b")
+        TaskLogger.complete(backup, summary: "k")
+        TaskLogger.complete(exp, summary: "e")
     }
 
     // MARK: - getRecentSummaries
@@ -166,7 +166,7 @@ final class TaskLoggerTests: XCTestCase {
         let taskId = TaskLogger.beginTask(.scan, label: "full")
         TaskLogger.stage(taskId, "detect")
         TaskLogger.stage(taskId, "match")
-        TaskLogger.complete(taskId, "matched=5")
+        TaskLogger.complete(taskId, summary: "matched=5")
         let arr = TaskLogger.getRecentSummaries()
         XCTAssertEqual(arr.count, 1)
         XCTAssertEqual(arr[0].kind, .scan)
@@ -188,7 +188,7 @@ final class TaskLoggerTests: XCTestCase {
 
     func testGetRecentSummariesRecordsCanceledTaskOutcome() {
         let taskId = TaskLogger.beginTask(.backup)
-        TaskLogger.cancel(taskId, "user-canceled")
+        TaskLogger.cancel(taskId, summary: "user-canceled")
         let arr = TaskLogger.getRecentSummaries()
         XCTAssertEqual(arr.count, 1)
         XCTAssertEqual(arr[0].outcome, .canceled)
@@ -236,7 +236,7 @@ final class TaskLoggerTests: XCTestCase {
     func testGetRecentSummariesDoesNotContainLabelDetailPrivacy() {
         let taskId = TaskLogger.beginTask(.scan, label: "content://media/secret/123")
         TaskLogger.stage(taskId, "detect", detail: "file:///data/storage/el2/secret/photo.jpg")
-        TaskLogger.complete(taskId, "matched=5")
+        TaskLogger.complete(taskId, summary: "matched=5")
         let arr = TaskLogger.getRecentSummaries()
         // 摘要只包含 kind/outcome/category/elapsedMs/stageCount，不含 label/detail
         XCTAssertEqual(arr.count, 1)

@@ -1,12 +1,14 @@
 # MiLens iOS 设计说明
 
-最后核对：2026-08-08（P0 收口，范围定案 [ADR-0008](docs/adr/0008-v1-scope-decision.md)）
+最后核对：2026-08-08（范围定案 [ADR-0008](docs/adr/0008-v1-scope-decision.md)，UI Rework v2.0）
 
 > 本文描述目标 iOS 架构。源 HarmonyOS 架构见 `e:\HarmonyProjects\MiPhoto2\DESIGN.md`，迁移映射见 [MIGRATION_ASSESSMENT.md](MIGRATION_ASSESSMENT.md)，约束见 [AGENTS.md](AGENTS.md)。**视觉与 UI 设计规范见 [UI-DESIGN.md](UI-DESIGN.md)**（色彩/字体/间距/动效/页面视觉的唯一事实来源）。
 
 ## 1. 产品定位与范围
 
 MiLens（咪Lens）iOS 版是宠物家庭的数字生命档案。基于 `docs/MiLens_iOS_V1.0_页面原型与交互流程设计稿.md`，V1.0 聚焦：发现宠物照片 → 建立档案 → 日常回忆 → 创作变现。
+
+页面原型是早期叙事材料；当前 UI 执行规格以 [UI-DESIGN.md](UI-DESIGN.md) v2.0 为准。现有 SwiftUI 页面与 v1 token 不代表视觉完成度。
 
 V1.0 范围：首页（今日/回忆/提醒）、宠物档案、创作（拼豆图纸 + 宠物卡片）、**完整图片编辑器**、扫描增强（质量评分 + 重复分组）、我的（订阅/主题/隐私）；适配 iPhone + iPad。范围详见 [ADR-0008](docs/adr/0008-v1-scope-decision.md)。
 V1.0 不含：手表、健康管理、社区、云账号、商城、家庭局域网备份、AI 写真/回忆视频（详见评估报告 §5、[ADR-0008](docs/adr/0008-v1-scope-decision.md)）。

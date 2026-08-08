@@ -5,6 +5,15 @@
 import SwiftUI
 
 extension Color {
+    // MARK: - Editorial palette（内联视觉稿）
+
+    /// 奶油纸张底色、深棕黑文字和铜橙强调色。
+    static let milensPaper = Color(red: 0.955, green: 0.934, blue: 0.895)
+    static let milensInk = Color(red: 0.105, green: 0.085, blue: 0.072)
+    static let milensCopper = Color(red: 0.690, green: 0.255, blue: 0.145)
+    static let milensStudioBackground = Color(red: 0.085, green: 0.070, blue: 0.062)
+    static let milensStudioSurface = Color(red: 0.135, green: 0.115, blue: 0.100)
+
     // MARK: - Surface 表面
 
     /// 页面背景（浅：暖白 #FAF8F5 / 深：暖黑 #161311）

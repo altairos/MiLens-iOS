@@ -15,6 +15,7 @@ struct BeadPatternView: View {
     @Environment(\.visionService) private var vision
     @Environment(\.clipInferenceService) private var clipService
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.dismiss) private var dismiss
 
     @State private var vm: BeadViewModel?
     @State private var showOriginalImage = false
@@ -34,18 +35,9 @@ struct BeadPatternView: View {
                     .tint(Color.milensPrimary)
             }
         }
-        .background(Color.milensBackground)
-        .navigationTitle("拼豆工作室")
-        .navigationBarTitleDisplayMode(.inline)
-        .toolbar {
-            if let vm, vm.pattern != nil {
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button("查看原图") {
-                        showOriginalImage = true
-                    }
-                }
-            }
-        }
+        .background(Color.milensStudioBackground)
+        .toolbar(.hidden, for: .navigationBar)
+        .environment(\.colorScheme, .dark)
         .sheet(isPresented: $showOriginalImage) {
             originalImageView
         }
@@ -80,6 +72,7 @@ struct BeadPatternView: View {
 
     private func studio(_ vm: BeadViewModel) -> some View {
         VStack(spacing: 0) {
+            studioHeader(vm)
             previewArea(vm)
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
             Rectangle()
@@ -115,11 +108,46 @@ struct BeadPatternView: View {
         }
     }
 
+    private func studioHeader(_ vm: BeadViewModel) -> some View {
+        HStack {
+            Button {
+                dismiss()
+            } label: {
+                Image(systemName: "chevron.left")
+                    .font(.system(size: Sizing.iconMd, weight: .medium))
+                    .frame(width: Sizing.touchTarget, height: Sizing.touchTarget)
+            }
+
+            Spacer()
+
+            Text("拼豆工作室")
+                .font(.editorialSection)
+
+            Spacer()
+
+            Button {
+                showOriginalImage = true
+            } label: {
+                Image(systemName: "arrowshape.turn.up.left")
+                    .font(.system(size: Sizing.iconMd, weight: .medium))
+                    .frame(width: Sizing.touchTarget, height: Sizing.touchTarget)
+            }
+            .disabled(vm.photoURI.isEmpty)
+        }
+        .foregroundStyle(Color.milensTextPrimary)
+        .padding(.horizontal, Spacing.lg)
+        .overlay(alignment: .bottom) {
+            Rectangle()
+                .fill(Color.milensBorder)
+                .frame(height: 1)
+        }
+    }
+
     // MARK: - 上半屏：实时预览
 
     private func previewArea(_ vm: BeadViewModel) -> some View {
         ZStack {
-            Color.milensGrouped
+            Color.milensStudioSurface
 
             if vm.pattern != nil, let image = vm.previewImage {
                 Image(uiImage: image)

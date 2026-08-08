@@ -18,6 +18,7 @@ struct GalleryView: View {
     @State private var viewModel: GalleryViewModel?
     @State private var navigationPath = NavigationPath()
     @State private var pendingDeleteID: UUID?
+    @State private var isManageMode = false
     @Namespace private var photoHeroNamespace
 
     private let columns = [GridItem(.adaptive(minimum: 100), spacing: 2)]
@@ -47,29 +48,8 @@ struct GalleryView: View {
                 viewModel = vm
             }
         }
-        .navigationTitle("相册")
-        .navigationBarTitleDisplayMode(.large)
-        .toolbar {
-            ToolbarItem(placement: .topBarTrailing) {
-                if let vm = viewModel, !vm.photos.isEmpty {
-                    Button {
-                        vm.startScan()
-                    } label: {
-                        Image(systemName: "magnifyingglass")
-                    }
-                    .disabled(vm.isScanning)
-                }
-            }
-            ToolbarItem(placement: .topBarLeading) {
-                if let vm = viewModel, !vm.photos.isEmpty {
-                    Button {
-                        vm.toggleMultiSelect()
-                    } label: {
-                        Image(systemName: vm.isMultiSelectMode ? "checkmark.circle.fill" : "checkmark.circle")
-                    }
-                }
-            }
-        }
+        .navigationTitle("")
+        .toolbar(.hidden, for: .navigationBar)
         .alert("删除这张照片？", isPresented: Binding(
             get: { pendingDeleteID != nil },
             set: { if !$0 { pendingDeleteID = nil } }
@@ -152,6 +132,7 @@ struct GalleryView: View {
     private func photoGrid(_ vm: GalleryViewModel) -> some View {
         ScrollView {
             VStack(alignment: .leading, spacing: Spacing.xl) {
+                galleryHeader(vm)
                 filterChips(vm)
                 let visiblePhotos = vm.filteredPhotos
                 let photoByID = Dictionary(uniqueKeysWithValues: vm.photos.map { ($0.id, $0) })
@@ -163,7 +144,7 @@ struct GalleryView: View {
                     VStack(alignment: .leading, spacing: Spacing.md) {
                         if !section.title.isEmpty {
                             Text(section.title)
-                                .font(.displayMedium)
+                                .font(.editorialSection)
                                 .foregroundStyle(Color.milensTextPrimary)
                                 .padding(.horizontal, Spacing.pagePad)
                                 .accessibilityAddTraits(.isHeader)
@@ -207,12 +188,85 @@ struct GalleryView: View {
         }
     }
 
+    private func galleryHeader(_ vm: GalleryViewModel) -> some View {
+        VStack(alignment: .leading, spacing: Spacing.sm) {
+            HStack(alignment: .bottom) {
+                VStack(alignment: .leading, spacing: Spacing.xs) {
+                    Text("照片里的日子")
+                        .font(.caption.weight(.semibold))
+                        .foregroundStyle(Color.milensTextSecondary)
+                    Text("相册")
+                        .font(.editorialSection)
+                        .foregroundStyle(Color.milensTextPrimary)
+                }
+                Spacer()
+                Button("选择") {
+                    isManageMode.toggle()
+                    if vm.isMultiSelectMode != isManageMode {
+                        vm.toggleMultiSelect()
+                    }
+                }
+                .font(.bodyPrimary)
+                .foregroundStyle(Color.milensCopper)
+            }
+
+            HStack(spacing: Spacing.lg) {
+                Button {
+                    isManageMode = false
+                    if vm.isMultiSelectMode { vm.toggleMultiSelect() }
+                } label: {
+                    Text("精选")
+                        .font(.bodySecondary.weight(.semibold))
+                        .foregroundStyle(isManageMode ? Color.milensTextSecondary : Color.milensTextPrimary)
+                        .padding(.horizontal, Spacing.md)
+                        .padding(.vertical, Spacing.sm)
+                        .background(isManageMode ? Color.clear : Color.milensGrouped)
+                        .clipShape(RoundedRectangle(cornerRadius: Radius.small, style: .continuous))
+                }
+                .buttonStyle(.plain)
+
+                Button {
+                    isManageMode = true
+                    if !vm.isMultiSelectMode { vm.toggleMultiSelect() }
+                } label: {
+                    Text("管理")
+                        .font(.bodySecondary.weight(.semibold))
+                        .foregroundStyle(isManageMode ? Color.milensTextPrimary : Color.milensTextSecondary)
+                        .padding(.horizontal, Spacing.md)
+                        .padding(.vertical, Spacing.sm)
+                        .background(isManageMode ? Color.milensGrouped : Color.clear)
+                        .clipShape(RoundedRectangle(cornerRadius: Radius.small, style: .continuous))
+                }
+                .buttonStyle(.plain)
+
+                Spacer()
+
+                Button {
+                    vm.startScan()
+                } label: {
+                    Image(systemName: "magnifyingglass")
+                        .foregroundStyle(Color.milensCopper)
+                        .frame(width: Sizing.touchTarget, height: Sizing.touchTarget)
+                }
+                .buttonStyle(.plain)
+                .disabled(vm.isScanning)
+            }
+            .overlay(alignment: .bottom) {
+                Rectangle()
+                    .fill(Color.milensBorder)
+                    .frame(height: 1)
+            }
+        }
+        .padding(.horizontal, Spacing.pagePad)
+        .padding(.top, Spacing.lg)
+    }
+
     @ViewBuilder
     private func filterChips(_ vm: GalleryViewModel) -> some View {
         let pets = vm.pets.map { GalleryFilterPet(id: $0.id, name: $0.name) }
         let chips = GalleryFilterLogic.buildChips(pets: pets, selectedPetID: vm.selectedFilter.petID)
         ScrollView(.horizontal) {
-            HStack(spacing: Spacing.sm) {
+            HStack(spacing: Spacing.lg) {
                 ForEach(chips) { chip in
                     Button {
                         withAnimation(.easeInOut(duration: Motion.durationFast)) {
@@ -220,15 +274,16 @@ struct GalleryView: View {
                         }
                     } label: {
                         Text(chip.title)
-                            .font(.bodySecondary.weight(.semibold))
-                            .foregroundStyle(chip.isSelected ? Color.milensTextOnActionPrimary : Color.milensTextSecondary)
-                            .padding(.horizontal, Spacing.lg)
-                            .frame(minHeight: Sizing.touchTarget)
-                            .background(chip.isSelected ? Color.milensActionPrimary : Color.milensCard)
-                            .overlay {
-                                Capsule().stroke(Color.milensBorder, lineWidth: chip.isSelected ? 0 : 0.5)
+                            .font(.bodySecondary.weight(chip.isSelected ? .semibold : .regular))
+                            .foregroundStyle(chip.isSelected ? Color.milensTextPrimary : Color.milensTextSecondary)
+                            .padding(.vertical, Spacing.sm)
+                            .overlay(alignment: .bottom) {
+                                if chip.isSelected {
+                                    Rectangle()
+                                        .fill(Color.milensCopper)
+                                        .frame(height: 2)
+                                }
                             }
-                            .clipShape(Capsule())
                     }
                     .buttonStyle(.plain)
                     .accessibilityAddTraits(chip.isSelected ? .isSelected : [])

@@ -31,8 +31,9 @@ struct PetProfileView: View {
                         VStack(spacing: 0) {
                             heroSection(pet, height: proxy.size.height * 0.4)
                             VStack(spacing: Spacing.xxl) {
-                                tagRow(pet)
+                                profileHeader(pet)
                                 statsRow(pet)
+                                storySection(pet)
                                 if !photos.isEmpty {
                                     photosSection
                                 }
@@ -52,7 +53,7 @@ struct PetProfileView: View {
                 loadFailedView
             }
         }
-        .background(Color.milensBackground)
+        .background(Color.milensPaper)
         .navigationTitle(pet?.name ?? "档案")
         .navigationBarTitleDisplayMode(.inline)
         // 出血肖像延伸到导航栏下方；滚出肖像后系统会恢复导航栏底色（iOS 17 行为）
@@ -84,36 +85,48 @@ struct PetProfileView: View {
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
 
-            // 底部渐变：透明 → 页面背景色，名字浮在渐变上保持对比
-            LinearGradient(
-                colors: [Color.milensBackground.opacity(0), Color.milensBackground],
-                startPoint: .center,
-                endPoint: .bottom
-            )
-
-            Text(pet.name)
-                .font(.displayLarge)
-                .foregroundStyle(Color.milensTextPrimary)
-                .padding(.horizontal, Spacing.pagePad)
-                .padding(.bottom, Spacing.sm)
-                .accessibilityAddTraits(.isHeader)
+            VStack {
+                HStack {
+                    Text("肖像 1 / 4")
+                    Spacer()
+                    Text("编辑")
+                }
+                .font(.caption.weight(.medium))
+                .foregroundStyle(.white.opacity(0.92))
+                .padding(.horizontal, Spacing.xxl)
+                .padding(.top, Spacing.xxl)
+                Spacer()
+            }
         }
         .frame(maxWidth: .infinity)
         .frame(height: height)
         .ignoresSafeArea(edges: .top)
     }
 
+    private func profileHeader(_ pet: Pet) -> some View {
+        HStack(alignment: .top, spacing: Spacing.lg) {
+            Text(pet.name)
+                .font(.editorialSection)
+                .foregroundStyle(Color.milensTextPrimary)
+                .accessibilityAddTraits(.isHeader)
+
+            Spacer(minLength: Spacing.sm)
+
+            VStack(alignment: .trailing, spacing: Spacing.xs) {
+                Text("\(PetDisplayLogic.speciesDisplayName(pet.species)) · \(pet.birthday != nil ? PetDisplayLogic.ageText(from: pet.birthday) : "—")")
+                    .font(.bodySecondary)
+                    .foregroundStyle(Color.milensTextSecondary)
+                Text("来到家 \(PetDisplayLogic.daysTogether(from: pet.adoptionDay)) 天")
+                    .font(.bodySecondary)
+                    .foregroundStyle(Color.milensTextSecondary)
+            }
+        }
+    }
+
     // MARK: - 标签行
 
     private func tagRow(_ pet: Pet) -> some View {
-        HStack(spacing: Spacing.sm) {
-            tag(PetDisplayLogic.speciesDisplayName(pet.species))
-            if pet.birthday != nil {
-                tag(PetDisplayLogic.ageText(from: pet.birthday))
-            }
-            tag(PetDisplayLogic.genderDisplayName(pet.gender))
-            Spacer()
-        }
+        EmptyView()
     }
 
     // MARK: - 统计行
@@ -130,13 +143,17 @@ struct PetProfileView: View {
                 label: "年龄"
             )
         }
-        .padding(Spacing.lg)
-        .background(Color.milensCard)
-        .overlay {
-            RoundedRectangle(cornerRadius: Radius.large, style: .continuous)
-                .stroke(Color.milensBorder, lineWidth: 0.5)
+        .padding(.vertical, Spacing.md)
+        .overlay(alignment: .top) {
+            Rectangle()
+                .fill(Color.milensBorder)
+                .frame(height: 1)
         }
-        .clipShape(RoundedRectangle(cornerRadius: Radius.large, style: .continuous))
+        .overlay(alignment: .bottom) {
+            Rectangle()
+                .fill(Color.milensBorder)
+                .frame(height: 1)
+        }
     }
 
     private func statItem(value: String, label: String) -> some View {
@@ -180,6 +197,48 @@ struct PetProfileView: View {
                     Text("查看全部 \(photos.count) 张")
                         .font(.bodySecondary)
                         .foregroundStyle(Color.milensPrimary)
+                }
+            }
+        }
+    }
+
+    private func storySection(_ pet: Pet) -> some View {
+        VStack(alignment: .leading, spacing: Spacing.md) {
+            HStack(alignment: .firstTextBaseline) {
+                Text("它的故事")
+                    .font(.editorialSection)
+                    .foregroundStyle(Color.milensTextPrimary)
+                Spacer()
+                Text("\(Calendar.current.component(.year, from: pet.createdAt))—现在")
+                    .font(.caption)
+                    .foregroundStyle(Color.milensTextSecondary)
+            }
+
+            if parsedNotes.isEmpty {
+                Text("这些照片，构成了它来到你身边后的全部档案。")
+                    .font(.bodyPrimary)
+                    .foregroundStyle(Color.milensTextSecondary)
+            } else {
+                ForEach(Array(parsedNotes.prefix(3).enumerated()), id: \.offset) { index, note in
+                    HStack(alignment: .top, spacing: Spacing.md) {
+                        Text("\(Calendar.current.component(.year, from: pet.createdAt) + index)")
+                            .font(.editorialNumber)
+                            .foregroundStyle(Color.milensCopper)
+                            .frame(width: 64, alignment: .leading)
+                        Rectangle()
+                            .fill(Color.milensBorder)
+                            .frame(width: 1)
+                        VStack(alignment: .leading, spacing: Spacing.xs) {
+                            Text(index == 0 ? "来到家" : "一段记忆")
+                                .font(.bodyPrimary.weight(.semibold))
+                                .foregroundStyle(Color.milensTextPrimary)
+                            Text(note)
+                                .font(.bodySecondary)
+                                .foregroundStyle(Color.milensTextSecondary)
+                        }
+                        Spacer(minLength: 0)
+                    }
+                    .padding(.vertical, Spacing.sm)
                 }
             }
         }

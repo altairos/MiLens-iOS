@@ -1,12 +1,13 @@
-//  HomeView —— Quiet Archive 首页。
-//  页面只保留一条主叙事：问候 → 一张照片 → 一段回忆 → 一个明确动作。
+//  HomeView —— 编辑式首页。
+//
+//  参考视觉稿：整张记忆 Hero + 暗部大标题 + 竖排日期 + 一条编辑式回忆记录。
+//  首页不再把问候、照片和动作拆成普通卡片堆叠。
 
 import SwiftUI
 
 struct HomeView: View {
     @Environment(\.photoRepository) private var photoRepository
     @Environment(\.petRepository) private var petRepository
-    @AppStorage("selectedTab") private var selectedTabRaw: Int = AppTab.home.rawValue
     @State private var viewModel: HomeViewModel?
 
     var body: some View {
@@ -15,10 +16,11 @@ struct HomeView: View {
                 content(viewModel)
             } else {
                 ProgressView()
-                    .tint(.milensActionPrimary)
+                    .tint(Color.milensActionPrimary)
             }
         }
-        .background(Color.milensBackground)
+        .background(Color.milensPaper)
+        .toolbar(.hidden, for: .navigationBar)
         .onAppear {
             guard viewModel == nil else { return }
             let model = HomeViewModel(
@@ -34,165 +36,192 @@ struct HomeView: View {
     private func content(_ model: HomeViewModel) -> some View {
         if model.isLoading {
             ProgressView()
-                .tint(.milensActionPrimary)
+                .tint(Color.milensActionPrimary)
         } else if let error = model.loadError {
-            HomeRecoverableState(message: error) {
-                model.load()
-            }
+            HomeRecoverableState(message: error) { model.load() }
         } else if model.photos.isEmpty {
             HomeEmptyState()
         } else {
             ScrollView {
-                VStack(alignment: .leading, spacing: 0) {
-                    greetingHeader(model)
-                    heroSection(model)
-                    memorySection(model)
-                    createAction
+                VStack(spacing: 0) {
+                    if let photo = model.heroPhoto {
+                        NavigationLink(value: Route.photoView(photoID: photo.id)) {
+                            MagazineHero(photo: photo, model: model)
+                        }
+                        .buttonStyle(.plain)
+                        .accessibilityLabel("打开照片，\(model.heroCaption)")
+                    }
+
+                    if let memory = model.memoryItems.first {
+                        NavigationLink(value: Route.photoView(photoID: memory.photo.id)) {
+                            MemoryEditorialRow(item: memory)
+                        }
+                        .buttonStyle(.plain)
+                        .padding(.horizontal, Spacing.pagePad)
+                        .padding(.top, Spacing.xxl)
+                    }
                 }
                 .padding(.bottom, Spacing.xxl)
             }
             .scrollIndicators(.hidden)
         }
     }
-
-    private func greetingHeader(_ model: HomeViewModel) -> some View {
-        VStack(alignment: .leading, spacing: Spacing.xs) {
-            ArchiveMarker(label: "今天")
-                .padding(.bottom, Spacing.sm)
-            Text(model.greeting)
-                .font(.displayLarge)
-                .foregroundStyle(Color.milensTextPrimary)
-                .accessibilityAddTraits(.isHeader)
-            Text("和它一起的每一天")
-                .font(.bodySecondary)
-                .foregroundStyle(Color.milensTextSecondary)
-        }
-        .padding(.horizontal, Spacing.pagePad)
-        .padding(.top, Spacing.lg)
-        .padding(.bottom, Spacing.xl)
-    }
-
-    private func heroSection(_ model: HomeViewModel) -> some View {
-        let photo = model.heroPhoto
-        return VStack(alignment: .leading, spacing: Spacing.md) {
-            if let photo {
-                NavigationLink(value: Route.photoView(photoID: photo.id)) {
-                    HomeHeroImage(photo: photo)
-                }
-                .buttonStyle(.plain)
-                .accessibilityLabel("打开照片，\(model.heroCaption)")
-
-                Text(model.heroCaption)
-                    .font(.bodySecondary)
-                    .foregroundStyle(Color.milensTextSecondary)
-                    .padding(.horizontal, Spacing.pagePad)
-            }
-        }
-    }
-
-    private func memorySection(_ model: HomeViewModel) -> some View {
-        VStack(alignment: .leading, spacing: Spacing.md) {
-            ArchiveSectionHeader(
-                title: "留住的日子",
-                supporting: model.memoryItems.isEmpty ? "还没有更早的照片" : "向左看看"
-            )
-
-            if model.memoryItems.isEmpty {
-                Text("再多保存一些日子，这里会替你留下回看的入口。")
-                    .font(.bodyPrimary)
-                    .foregroundStyle(Color.milensTextSecondary)
-                    .padding(.vertical, Spacing.md)
-            } else {
-                ScrollView(.horizontal) {
-                    HStack(spacing: Spacing.md) {
-                        ForEach(model.memoryItems) { item in
-                            NavigationLink(value: Route.photoView(photoID: item.photo.id)) {
-                                MemoryCard(item: item)
-                            }
-                            .buttonStyle(.plain)
-                        }
-                    }
-                }
-                .scrollIndicators(.hidden)
-            }
-        }
-        .padding(.horizontal, Spacing.pagePad)
-        .padding(.top, Spacing.xxl)
-    }
-
-    private var createAction: some View {
-        ArchivePrimaryButton(action: {
-            selectedTabRaw = AppTab.create.rawValue
-        }) {
-            HStack(spacing: Spacing.md) {
-                Image(systemName: "sparkles")
-                    .font(.system(size: Sizing.iconMd, weight: .semibold))
-                Text("为它创作")
-                    .font(.buttonLabel)
-                Spacer()
-                Image(systemName: "arrow.up.right")
-                    .font(.system(size: Sizing.iconSm, weight: .semibold))
-            }
-        }
-        .padding(.horizontal, Spacing.pagePad)
-        .padding(.top, Spacing.xxl)
-        .accessibilityLabel("为它创作，打开相册")
-    }
 }
 
-private struct HomeHeroImage: View {
+private struct MagazineHero: View {
     let photo: Photo
+    let model: HomeViewModel
 
     var body: some View {
-        ZStack(alignment: .bottomLeading) {
-            ThumbnailImage(path: photo.thumbnailPath.isEmpty ? photo.uri : photo.thumbnailPath)
-                .frame(maxWidth: .infinity)
-                .aspectRatio(4 / 5, contentMode: .fit)
-                .clipped()
-                .overlay {
-                    LinearGradient(
-                        colors: [.clear, .black.opacity(0.18)],
-                        startPoint: .center,
-                        endPoint: .bottom
-                    )
+        GeometryReader { proxy in
+            ZStack(alignment: .topLeading) {
+                ThumbnailImage(path: photo.thumbnailPath.isEmpty ? photo.uri : photo.thumbnailPath)
+                    .frame(width: proxy.size.width, height: proxy.size.height)
+                    .clipped()
+
+                LinearGradient(
+                    colors: [
+                        Color.black.opacity(0.12),
+                        Color.black.opacity(0.08),
+                        Color.black.opacity(0.74)
+                    ],
+                    startPoint: .top,
+                    endPoint: .bottom
+                )
+
+                VStack(alignment: .leading, spacing: 0) {
+                    Text("MiLens")
+                        .font(.displayLargeEN)
+                        .foregroundStyle(.white)
+                    Text("和它一起的每一天")
+                        .font(.bodySecondary)
+                        .foregroundStyle(.white.opacity(0.92))
+
+                    Spacer()
+
+                    Text("第 \(model.photos.count.formatted()) 张")
+                        .font(.caption.weight(.medium))
+                        .foregroundStyle(.white.opacity(0.9))
+                        .padding(.bottom, Spacing.sm)
+
+                    Text("今晚，留一会儿给\n它")
+                        .font(.editorialHero)
+                        .foregroundStyle(.white)
+                        .fixedSize(horizontal: false, vertical: true)
+
+                    Text(heroCaption)
+                        .font(.bodySecondary.weight(.medium))
+                        .foregroundStyle(.white.opacity(0.92))
+                        .padding(.top, Spacing.md)
                 }
+                .padding(.horizontal, Spacing.xxl)
+                .padding(.top, Spacing.xxl)
+                .padding(.bottom, Spacing.xxl)
+
+                Text(heroDate)
+                    .font(.caption.weight(.medium))
+                    .foregroundStyle(.white.opacity(0.88))
+                    .tracking(4)
+                    .rotationEffect(.degrees(90))
+                    .position(x: proxy.size.width - 30, y: proxy.size.height * 0.28)
+            }
         }
-        .background(Color.milensGrouped)
-        .clipShape(RoundedRectangle(cornerRadius: Radius.large, style: .continuous))
+        .frame(height: 520)
+        .clipped()
     }
+
+    private var heroCaption: String {
+        if let pet = photo.pet?.name {
+            return "\(pet) · \(photoTime)"
+        }
+        return "\(model.heroCaption) · \(photoTime)"
+    }
+
+    private var photoTime: String {
+        guard let date = photo.takenAt else { return "今天" }
+        return Self.timeFormatter.string(from: date)
+    }
+
+    private var heroDate: String {
+        guard let date = photo.takenAt else { return "今天" }
+        return Self.dateFormatter.string(from: date)
+    }
+
+    private static let timeFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.locale = Locale(identifier: "zh_CN")
+        formatter.dateFormat = "今天 HH:mm"
+        return formatter
+    }()
+
+    private static let dateFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.locale = Locale(identifier: "en_US_POSIX")
+        formatter.dateFormat = "MM · dd · yyyy"
+        return formatter
+    }()
 }
 
-private struct MemoryCard: View {
+private struct MemoryEditorialRow: View {
     let item: HomeViewModel.MemoryItem
 
     var body: some View {
-        VStack(alignment: .leading, spacing: Spacing.sm) {
-            ThumbnailImage(path: item.photo.thumbnailPath.isEmpty ? item.photo.uri : item.photo.thumbnailPath)
-                .frame(width: 112, height: 112)
-                .clipped()
-                .clipShape(RoundedRectangle(cornerRadius: Radius.medium, style: .continuous))
+        HStack(spacing: Spacing.lg) {
+            Text(monthNumber)
+                .font(.editorialNumber)
+                .foregroundStyle(Color.milensCopper)
+                .frame(width: 48, alignment: .leading)
 
-            Text(item.entry.title)
-                .font(.bodyPrimary.weight(.semibold))
-                .foregroundStyle(Color.milensTextPrimary)
-                .lineLimit(2)
-            Text(item.entry.subtitle.isEmpty ? "查看这段回忆" : item.entry.subtitle)
-                .font(.caption)
-                .foregroundStyle(Color.milensTextSecondary)
-                .lineLimit(2)
+            Rectangle()
+                .fill(Color.milensBorder)
+                .frame(width: 1, height: 76)
+
+            VStack(alignment: .leading, spacing: Spacing.xs) {
+                Text(item.entry.subtitle.isEmpty ? "最近回忆" : item.entry.subtitle)
+                    .font(.caption)
+                    .foregroundStyle(Color.milensTextSecondary)
+                Text(item.entry.title)
+                    .font(.editorialSection)
+                    .foregroundStyle(Color.milensTextPrimary)
+                    .lineLimit(2)
+                Text("查看这段回忆")
+                    .font(.bodySecondary)
+                    .foregroundStyle(Color.milensTextSecondary)
+            }
+
+            Spacer(minLength: Spacing.sm)
+
+            ThumbnailImage(path: item.photo.thumbnailPath.isEmpty ? item.photo.uri : item.photo.thumbnailPath)
+                .frame(width: 72, height: 96)
+                .aspectRatio(contentMode: .fill)
+                .clipped()
+
+            Image(systemName: "chevron.right")
+                .font(.system(size: Sizing.iconSm, weight: .semibold))
+                .foregroundStyle(Color.milensCopper)
         }
-        .frame(width: 112, alignment: .leading)
+        .padding(.vertical, Spacing.md)
+        .overlay(alignment: .bottom) {
+            Rectangle()
+                .fill(Color.milensSeparator)
+                .frame(height: 1)
+        }
+    }
+
+    private var monthNumber: String {
+        let parts = item.entry.title.split(separator: "月")
+        return parts.first.map { String($0).prefix(2) }.map(String.init) ?? "01"
     }
 }
 
 private struct HomeEmptyState: View {
     var body: some View {
         VStack(spacing: Spacing.lg) {
-            Image(systemName: "photo.badge.plus")
-                .font(.system(size: 44, weight: .light))
-                .foregroundStyle(Color.milensActionPrimary)
+            Text("MiLens")
+                .font(.displayLargeEN)
+                .foregroundStyle(Color.milensTextPrimary)
             Text("先留下一张照片")
-                .font(.displayMedium)
+                .font(.editorialSection)
                 .foregroundStyle(Color.milensTextPrimary)
             Text("从相册里选几张和它有关的照片，\n我们会把每一天整理好。")
                 .font(.bodyPrimary)
@@ -202,14 +231,14 @@ private struct HomeEmptyState: View {
                 Text("添加照片")
                     .font(.buttonLabel)
                     .foregroundStyle(Color.milensTextOnActionPrimary)
-                    .frame(minWidth: 128, minHeight: Sizing.touchTarget)
-                    .padding(.horizontal, Spacing.lg)
+                    .frame(maxWidth: .infinity, minHeight: 50)
                     .background(Color.milensActionPrimary)
                     .clipShape(RoundedRectangle(cornerRadius: Radius.medium, style: .continuous))
             }
             .buttonStyle(.plain)
         }
         .padding(.horizontal, Spacing.pagePad)
+        .frame(maxWidth: 420)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 }
@@ -220,9 +249,9 @@ private struct HomeRecoverableState: View {
 
     var body: some View {
         VStack(spacing: Spacing.lg) {
-            Image(systemName: "arrow.clockwise.circle")
-                .font(.system(size: 40, weight: .light))
-                .foregroundStyle(Color.milensTextSecondary)
+            Text("MiLens")
+                .font(.displayLargeEN)
+                .foregroundStyle(Color.milensTextPrimary)
             Text(message)
                 .font(.bodyPrimary)
                 .foregroundStyle(Color.milensTextSecondary)

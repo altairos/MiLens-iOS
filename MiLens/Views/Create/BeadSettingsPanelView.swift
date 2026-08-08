@@ -44,13 +44,53 @@ struct BeadSettingsPanelView: View {
         return false
     }
 
+    @State private var selectedRailItem = "尺寸"
+
     var body: some View {
         ScrollView {
-            settingsCard
-                .padding(.horizontal, Spacing.lg)
-                .padding(.vertical, Spacing.md)
+            VStack(spacing: 0) {
+                parameterRail
+                settingsCard
+                    .padding(.horizontal, Spacing.lg)
+                    .padding(.vertical, Spacing.md)
+            }
         }
-        .background(Color.milensBackground)
+        .background(Color.milensStudioBackground)
+    }
+
+    private var parameterRail: some View {
+        HStack(spacing: 0) {
+            railItem(value: "48", title: "尺寸", key: "尺寸")
+            railItem(value: "24", title: "色板", key: "色板")
+            railItem(value: "Ⅱ", title: "细节", key: "细节")
+            railItem(value: "◎", title: "预览", key: "预览")
+        }
+        .padding(.horizontal, Spacing.lg)
+        .padding(.top, Spacing.sm)
+        .padding(.bottom, Spacing.md)
+        .overlay(alignment: .bottom) {
+            Rectangle()
+                .fill(Color.milensBorder)
+                .frame(height: 1)
+        }
+    }
+
+    private func railItem(value: String, title: String, key: String) -> some View {
+        Button {
+            selectedRailItem = key
+        } label: {
+            VStack(spacing: Spacing.xs) {
+                Text(value)
+                    .font(.editorialNumber)
+                    .foregroundStyle(selectedRailItem == key ? Color.milensCopper : Color.milensTextSecondary)
+                Text(title)
+                    .font(.caption)
+                    .foregroundStyle(selectedRailItem == key ? Color.milensTextPrimary : Color.milensTextSecondary)
+            }
+            .frame(maxWidth: .infinity, minHeight: 64)
+            .background(selectedRailItem == key ? Color.milensStudioSurface : Color.clear)
+        }
+        .buttonStyle(.plain)
     }
 
     // MARK: - 设置卡片
@@ -134,7 +174,7 @@ struct BeadSettingsPanelView: View {
                     .frame(maxWidth: .infinity)
                     .frame(height: 50)
                     .background(Color.milensActionPrimary)
-                    .clipShape(Capsule())
+                    .clipShape(RoundedRectangle(cornerRadius: Radius.small, style: .continuous))
             }
             .disabled(isGenerating)
             .padding(.top, 16)
@@ -147,8 +187,7 @@ struct BeadSettingsPanelView: View {
                 .padding(.top, 8)
         }
         .padding(Spacing.lg)
-        .background(Color.milensCard)
-        .clipShape(RoundedRectangle(cornerRadius: Radius.large, style: .continuous))
+        .background(Color.milensStudioBackground)
         // 参数切换 spring（UI-DESIGN.md §7：弹簧只用于直接操控的控件）
         .animation(.spring(duration: Motion.durationFast, bounce: 0.2), value: vm.settings)
         .animation(.spring(duration: Motion.durationFast, bounce: 0.2), value: vm.showAdvancedSettings)

@@ -21,6 +21,13 @@ extension Font {
     /// 区块标题（「它的故事」「一年前的今天」）。`.title2` 级别。
     static let displayMedium = Font.custom("LXGWWenKai-Regular", size: 24, relativeTo: .title2)
 
+    /// 参考视觉稿首页 Hero 的杂志式大标题。
+    static let editorialHero = Font.custom("LXGWWenKai-Regular", size: 40, relativeTo: .largeTitle)
+    /// 编辑式分节标题、宠物名字和档案故事标题。
+    static let editorialSection = Font.custom("LXGWWenKai-Regular", size: 28, relativeTo: .title2)
+    /// 编辑式月份/统计数字。
+    static let editorialNumber = Font.custom("LXGWWenKai-Regular", size: 34, relativeTo: .title)
+
     // MARK: - Display 英文（Fraunces，纯英文大标题专用）
 
     /// 英文大标题（品牌名「MiLens」、英文标语）。`.largeTitle` 级别，Bold。

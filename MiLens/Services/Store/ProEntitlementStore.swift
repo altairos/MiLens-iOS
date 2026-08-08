@@ -48,7 +48,9 @@ final class ProEntitlementStore {
         Self.activeUpdates[id] = nil
     }
 
-    /// 显式校准一次权益（购买/恢复成功、页面出现时调用）。
+    /// 显式校准一次权益（购买/恢复成功、根视图启动与页面出现时调用）。
+    /// 冷启动必须由 RootTabView 首次出现触发：Transaction.updates 不保证推送当前权益，
+    /// 否则已购用户首次进入创作门控前状态仍是初始 .inactive。
     func refresh() async {
         status = await store.currentProStatus()
     }

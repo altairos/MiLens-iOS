@@ -1,6 +1,8 @@
 //  RootTabView —— 应用主导航根视图。
 //  - 4 Tab（首页/宠物/创作/我的），选中项持久化到 UserDefaults（对应源端 @StorageLink('mainTabIndex')）。
 //  - scenePhase 生命周期编排在此（对应源端 EntryAbility，P1.2+ 接入资源清理/任务取消）。
+//  - 首次出现时校准 Pro 权益（refresh）：Transaction.updates 不保证冷启动推送当前权益，
+//    避免已购用户首次进入创作/拼豆入口时被误导向付费墙（P2 启动时序修复）。
 
 import SwiftUI
 
@@ -36,6 +38,11 @@ struct RootTabView: View {
         .sensoryFeedback(.selection, trigger: selectedTabRaw)
         .onChange(of: scenePhase) { _, newPhase in
             handleScenePhase(newPhase)
+        }
+        .task {
+            // 启动权益校准：显式查询 currentProStatus（Transaction.updates 冷启动不保证推送），
+            // 保证首次进入任何 Tab（含创作门控与拼豆路由）前权益已恢复真实状态。
+            await entitlement.refresh()
         }
     }
 

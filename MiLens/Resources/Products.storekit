@@ -1,6 +1,6 @@
 {
   "identifier" : "4A2F1B8C-9D3E-4F7A-B6C5-1E2D3F4A5B6C",
-  "type" : "subscriptions",
+  "type" : "mixed",
   "version" : 3,
   "storeKitErrors" : [
     {
@@ -133,6 +133,36 @@
           "referenceName" : "MiLens Pro Annual Subscription",
           "subscriptionPeriod" : {
             "numberOfUnits" : 1,
+            "unit" : "year"
+          },
+          "winbackOffers" : []
+        },
+        {
+          "adHocOffers" : [],
+          "codeOffers" : [],
+          "familySharable" : true,
+          "groupNumber" : 3,
+          "internalGroupID" : "sub-lifetime-001",
+          "localizations" : [
+            {
+              "description" : "一次购买，永久解锁 MiLens Pro 全部功能，无后续费用。",
+              "displayName" : "MiLens Pro 永久版",
+              "locale" : "zh_Hans"
+            },
+            {
+              "description" : "One-time purchase, unlock all MiLens Pro features permanently.",
+              "displayName" : "MiLens Pro Lifetime",
+              "locale" : "en_US"
+            }
+          ],
+          "productID" : "com.milens.pro.lifetime",
+          "recurringSubscriptionPeriod" : {
+            "numberOfUnits" : 999,
+            "unit" : "year"
+          },
+          "referenceName" : "MiLens Pro Lifetime Subscription",
+          "subscriptionPeriod" : {
+            "numberOfUnits" : 999,
             "unit" : "year"
           },
           "winbackOffers" : []

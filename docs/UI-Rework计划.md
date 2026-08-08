@@ -48,6 +48,7 @@
 - 按日期分组：每天一个小标题（「8月7日 · 周三」），`displayMedium` 衬线。
 - 日期来源：优先 `Photo` 的 EXIF 日期（`PhotoMetadataLogic` 已有解析），无 EXIF 回退 uri/文件时间；**不改 schema**（现有字段够用）。
 - 分组逻辑入纯函数 + XCTest（参照 `TimelineLogic` 模式），View 只渲染。
+- ✅ 纯逻辑已落地：`MiLensKit/Sources/MiLensKit/Gallery/GallerySectionLogic.swift`（`GallerySectionLogic.groupPhotos`，组间日期倒序对齐源端 `taken_at DESC`、组内拍摄时间倒序、无日期照片归入末尾空标题组；`miLensUTCCalendar` 为 Home/Gallery 共享固定 UTC 日历）；`GallerySectionLogicTests` 12 用例，MiLensKit 全量 566 用例 WSL2 全绿。View 渲染 + 分页追加后重新分组留 Mac。
 
 **1.2 GalleryView 筛选 chip**
 - 顶部悬浮胶囊（全部 / 各宠物），选中态品牌色填充（`AccentColor`），切换 `spring` 动画 + `.soft` 触感（UI-DESIGN.md §4）。
@@ -171,7 +172,7 @@ cd MiLensKit && swift test
 
 | 阶段 | 任务 | 状态 |
 |---|---|---|
-| Phase 1 | 1.1 Gallery 日期分组 | ⬜ |
+| Phase 1 | 1.1 Gallery 日期分组 | 🔄 纯逻辑 ✅（`GallerySectionLogic` 12 用例，MiLensKit 566 全绿）／View 渲染 + 分页重分组留 Mac |
 | Phase 1 | 1.2 Gallery 筛选 chip | ⬜ |
 | Phase 1 | 1.3 Gallery context menu | ⬜ |
 | Phase 1 | 1.4 PhotoView 下滑关闭 + hero | ⬜ |

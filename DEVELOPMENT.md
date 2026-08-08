@@ -1,6 +1,6 @@
 # MiLens iOS 开发说明
 
-最后核对：2026-08-08（P2 进行中，CLIP/Vision/CoreML 真实实现落地）
+最后核对：2026-08-09（P2 实现完成；真机与性能验收待做，清单见 docs/P2-待办清单.md）
 
 > 环境、命令、开发约定、可复现验证快照。架构见 [DESIGN.md](DESIGN.md)，计划见 [PLAN.md](PLAN.md)，约束见 [AGENTS.md](AGENTS.md)。
 
@@ -290,8 +290,8 @@ UI 文案与 Info.plist 权限说明用 Apple String Catalog（`.xcstrings`）�
 - 2026-08-09：**P1 核心可靠性收口——本机 Mac 模拟器全套验证通过**——①模型交付：`tools/fetch-models.sh` 三条路径实跑验证（幂等跳过 / 下载+SHA256 校验+解包 / 篡改 sha256 拒绝退出非零），`project.yml` excludes 实验模型（`xcodegen generate` 重新生成工程编译通过）；②后台执行器 + 两阶段扫描重构：ScanServiceTests 15/15、QualityScorer 相关全绿；③MediaLifecycleService 4 场景单测通过；④SwiftData 启动恢复：编译通过，测试环境 in-memory 快速路径保持；⑤通知真调度：NotifyServiceTests 10/10、NotifyCheckLogicTests 2/2；⑥CI：app job 移除 PR 限制 + 模型下载/缓存步骤。**全套 App 测试 400/400 通过、0 失败**（23 项模拟器跳过已恢复：ScanService/ImportService/QualityScorer 30/30）。模型 Release 创建后 PR 即可全绿。
 
 - 2026-08-08：**P2 纯决策 + Service + View 层落地**——翻译源端 6 个纯决策模块（`GalleryPageState`/`ScanFlowLogic`/`ScanControlMath`/`ImportFlowLogic`/`PhotoMetadataLogic`/`PhotoViewGestureMath`）为 Swift 纯函数/struct + ~84 用例 XCTest（逐条对应源端黄金规格）；`ScanService`（Photos 全库扫描 + `VisionService` 检测 + `Task.cancel` 取消）+ `ImportService`（复制沙盒 → 入库）+ ~15 用例（in-memory SwiftData + mock 平台服务）；`GalleryViewModel`（@Observable）+ `GalleryView`（LazyVGrid 分页 + 扫描进度 + 完成弹窗）+ `PhotoViewView`（大图 + 手势）+ `HomeView`（相册/扫描入口）。
-- 2026-08-08：**P2 CI 验证通过**（run [31204194663](https://github.com/altairos/MiLens-iOS/actions/runs/31204194663)）——MiLensKit (Linux) 120 passed/1 skipped/0 failed + MiLens App (macOS) 134 passed/15 skipped/0 failed。修复 5 处编译错误（`StylizedDraftGenerator` 参数标签、`PhotoLibraryAccess` 花括号、主题 token API 名称、`BeadPresetResolver` min/max 遮蔽、`MagnifyGesture.Value.magnification`）+ 1 处测试参数顺序。ScanServiceTests/ImportServiceTests（15 用例）因模拟器 SwiftData 集成崩溃临时跳过，待真机调试。**真机验证待办清单见 [P2-真机验证备忘](docs/P2-真机验证备忘.md)**。
-- 2026-08-08：**P2 扫描增强（质量评分 + 重复分组）**——纯逻辑三模块（`QualityScoringLogic` 质量公式 / `PerceptualHashLogic` 哈希运算 / `DuplicateGroupingLogic` Union-Find 分组）+ 9 用例 XCTest（翻译源端 `MorePureLogic` + `QualityScorer` 黄金规格 + iOS 边界）；`ImageAnalyzer` 协议 + `CoreImageAnalyzer` 实现（Core Graphics Laplacian 方差 + 8×8 均值哈希）+ mock；`QualityScorer` 编排服务（`computeAllQualityScores` + `findDuplicates` + `runPostScanAnalysis`）+ 8 用例（SwiftData 集成跳过待 Mac 真机）；`Photo` schema 加 `phash`/`sharpness`/`qualityScore`/`duplicateOf`/`isBest` 字段，`PhotoRepository` 加 4 方法；`GalleryViewModel` 扫描/导入后 fire-and-forget 触发。**CI 验证待推送**。
+- 2026-08-08：**P2 CI 验证通过**（历史 run [31204194663](https://github.com/altairos/MiLens-iOS/actions/runs/31204194663)）——该次运行曾有 SwiftData 集成测试跳过；后续已在本机恢复并验证，当前状态以 2026-08-09 的 400/400、0 skipped 为准。**真机与性能待办见 [P2-待办清单](docs/P2-待办清单.md)**。
+- 2026-08-08：**P2 扫描增强（质量评分 + 重复分组）**——纯逻辑三模块、`CoreImageAnalyzer`、`QualityScorer` 编排服务与 `Photo` 质量字段全部落地；此前的 SwiftData 集成测试跳过已恢复。当前仍需真实照片集校准清晰度/pHash 阈值，见 [P2-待办清单](docs/P2-待办清单.md)。
 - 2026-08-08：**CLIP/Vision/CoreML 真实实现落地**——`IOSVisionService`（VNClassifyImageRequest + VNGenerateForegroundInstanceMask）+ `CoreMLInferenceEngine`（MLModel + MLMultiArray）+ `ClipInferenceService`（推理编排）+ `AiInferenceLogic`/`ClipPreprocess`/`PetTextEmbeddings` 纯逻辑。**本地验证通过**：`xcodebuild build` BUILD SUCCEEDED + `xcodebuild test` AiInferenceLogicTests 17 用例 + ClipPreprocessTests 11 用例全绿（28 passed, 0 failed）。编译修复 7 处错误（ClassificationResult 重名冲突 → ClipClassificationResult、Optional multiArrayConstraint 解包、MLModel.prediction async、compactMap 类型推断、Data.copyBytes 歧义、MLMultiArray 无 withUnsafeMutableBytes → memcpy、VNClassificationObservation 无 label → identifier）。**推理质量/精度/资源待真机验证**——详细清单见 [P2-真机验证备忘](docs/P2-真机验证备忘.md) §2.2。
 
 ---

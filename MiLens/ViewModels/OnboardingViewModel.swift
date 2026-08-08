@@ -143,7 +143,9 @@ final class OnboardingViewModel {
             self.scanCompleted = !result.canceled
             self.isScanning = false
             self.scanProgressText = ""
-            if !result.canceled {
+            // 只有真正完整完成（未取消且无错误）才保存增量游标——
+            // 中途失败时保存会导致下次增量扫描跳过本次未扫到的照片（与 GalleryViewModel 一致）。
+            if result.completedSuccessfully {
                 self.cursorStore.saveLastSuccessfulScan(scanStart)
                 if !result.unassignedPetUris.isEmpty {
                     self.scanError = ""

@@ -120,6 +120,8 @@ final class AppDependencies {
 
     /// 重建本地数据：销毁默认持久化存储（含 -wal/-shm 伴生文件）。
     /// 仅清除 MiLens 本地记录；系统相册原图不受影响。
+    /// 注意：重建后重新启动会执行孤儿审计，Documents/MiPhotos 下无 DB 记录的照片副本
+    /// （导入/编辑产物）会被一并删除——恢复界面文案已明确提示（DatabaseRecoveryView）。
     static func destroyPersistentStore() throws {
         let storeURL = ModelConfiguration().url
         let fm = FileManager.default

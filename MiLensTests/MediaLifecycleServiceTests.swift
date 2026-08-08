@@ -106,6 +106,28 @@ final class MediaLifecycleServiceTests: XCTestCase {
         }
     }
 
+    func testSaveEditedPhotoKeepsOldFileWhenReferenceQueryFails() async throws {
+        let (_, _, _, fs, container) = makeService()
+        let oldPath = "\(sandboxDir)/old.jpg"
+        let photo = Photo(uri: oldPath, width: 100, height: 100)
+        let realRepo = SwiftDataPhotoRepository(context: container.mainContext)
+        try realRepo.insertPhoto(photo)
+        fs.preset(Data([0xAA]), at: oldPath)
+        // 引用查询失败注入：getPhotoByURI 抛错——必须保守保留旧文件，不得按“未引用”删除
+        let failingRepo = FailingPhotoRepository(wrapped: realRepo, failOnGetByURI: true)
+        let petRepo = SwiftDataPetRepository(context: container.mainContext)
+        let service = MediaLifecycleService(
+            photoRepo: failingRepo, petRepo: petRepo,
+            fileStorage: fs, sandboxDir: sandboxDir)
+        let newPath = "\(sandboxDir)/MiLens_Edit_3.jpg"
+
+        _ = try await service.saveEditedPhoto(
+            photo, data: Data([0xBB]), to: newPath, width: 200, height: 150)
+
+        XCTAssertTrue(fs.fileExists(at: newPath), "新文件必须写入")
+        XCTAssertTrue(fs.fileExists(at: oldPath), "引用查询失败时必须保守保留旧文件")
+    }
+
     // MARK: - 删除联动
 
     func testDeletePhotoRemovesRecordAndFileAndRefreshesCount() async throws {
@@ -160,23 +182,28 @@ final class MediaLifecycleServiceTests: XCTestCase {
     }
 }
 
-/// 包装仓储：按需在 insertPhoto / updatePhoto 抛错（模拟 DB 故障）。
+/// 包装仓储：按需在 insertPhoto / updatePhoto / getPhotoByURI 抛错（模拟 DB 故障）。
 @MainActor
 private final class FailingPhotoRepository: PhotoRepositoryProtocol {
     private let wrapped: any PhotoRepositoryProtocol
     private let failOnInsert: Bool
     private let failOnUpdate: Bool
+    private let failOnGetByURI: Bool
 
-    init(wrapped: any PhotoRepositoryProtocol, failOnInsert: Bool = false, failOnUpdate: Bool = false) {
+    init(wrapped: any PhotoRepositoryProtocol, failOnInsert: Bool = false, failOnUpdate: Bool = false, failOnGetByURI: Bool = false) {
         self.wrapped = wrapped
         self.failOnInsert = failOnInsert
         self.failOnUpdate = failOnUpdate
+        self.failOnGetByURI = failOnGetByURI
     }
 
     private enum FailingError: Error { case simulatedDBFailure }
 
     func getPhoto(id: UUID) throws -> Photo? { try wrapped.getPhoto(id: id) }
-    func getPhotoByURI(_ uri: String) throws -> Photo? { try wrapped.getPhotoByURI(uri) }
+    func getPhotoByURI(_ uri: String) throws -> Photo? {
+        if failOnGetByURI { throw FailingError.simulatedDBFailure }
+        return try wrapped.getPhotoByURI(uri)
+    }
     func getPhotoByOriginalURI(_ originalURI: String) throws -> Photo? { try wrapped.getPhotoByOriginalURI(originalURI) }
     func getAllOriginalURIs() throws -> Set<String> { try wrapped.getAllOriginalURIs() }
     func getAllPhotoURIs() throws -> Set<String> { try wrapped.getAllPhotoURIs() }

@@ -1,6 +1,8 @@
 //  DatabaseRecoveryView —— 启动恢复界面（P1 启动可靠性）。
 //  ModelContainer 创建失败时展示：可读错误信息 + 重试 + 导出诊断 +
-//  「重建本地数据」（红色，二次确认——仅清除 MiLens 本地记录，不动系统相册原图）。
+//  「重建本地数据」（红色，二次确认——清除 MiLens 记录；DB 清空后启动孤儿审计
+//  会连带删除沙盒 Documents/MiPhotos 中的照片副本（导入/编辑产物），
+//  界面文案须明确提示此点；系统相册原图不受影响）。
 //  对应源端暂无（HarmonyOS 启动失败无恢复 UI，iOS 首发补充）。
 
 import SwiftUI
@@ -23,7 +25,7 @@ struct DatabaseRecoveryView: View {
                 .foregroundStyle(Color.milensTextSecondary)
             Text("本地数据无法加载")
                 .font(.displayMedium)
-            Text("打开本地相册记录时出现问题。您可以重试，或重建本地数据（仅清除 MiLens 记录，系统相册中的原图不受影响）。")
+            Text("打开本地相册记录时出现问题。您可以重试，或重建本地数据：清除 MiLens 记录，同时也会删除沙盒中已保存的照片副本（导入/编辑产物）。系统相册中的原图不受影响。")
                 .font(.bodySecondary)
                 .foregroundStyle(Color.milensTextSecondary)
                 .multilineTextAlignment(.center)
@@ -68,7 +70,7 @@ struct DatabaseRecoveryView: View {
             Button("取消", role: .cancel) {}
             Button("重建", role: .destructive) { onRebuild() }
         } message: {
-            Text("将清除 MiLens 中的相册记录与宠物档案，且无法恢复。系统相册中的原图不会被删除。")
+            Text("将清除 MiLens 中的相册记录、宠物档案及沙盒中已保存的照片副本（导入/编辑产物），且无法恢复。系统相册中的原图不会被删除。")
         }
         .alert("诊断已导出", isPresented: Binding(
             get: { diagnosticsPath != nil },

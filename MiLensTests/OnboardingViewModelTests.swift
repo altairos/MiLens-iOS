@@ -12,17 +12,21 @@ final class OnboardingViewModelTests: XCTestCase {
     private func makeVM(
         assets: [PhotoAssetMetadata] = [],
         detections: [DetectionBox] = [],
-        authStatus: PhotoLibraryAuthorizationStatus = .authorized
+        authStatus: PhotoLibraryAuthorizationStatus = .authorized,
+        cursorStore: MockScanCursorStore = MockScanCursorStore(),
+        photoCountError: Error? = nil
     ) -> (OnboardingViewModel, InMemoryPetRepository, MockPhotoLibraryAccess) {
         let photoRepo = InMemoryPhotoRepository()
         let petRepo = InMemoryPetRepository()
         let photoLibrary = MockPhotoLibraryAccess(assets: assets)
         photoLibrary.authorizationStatusValue = authStatus
+        photoLibrary.photoCountError = photoCountError
         let vision = MockVisionService(detections: detections)
         let vm = OnboardingViewModel(
             photoRepo: photoRepo, petRepo: petRepo,
             photoLibrary: photoLibrary, vision: vision,
-            onFinish: {}
+            onFinish: {},
+            cursorStore: cursorStore
         )
         return (vm, petRepo, photoLibrary)
     }
@@ -140,6 +144,30 @@ final class OnboardingViewModelTests: XCTestCase {
         XCTAssertTrue(vm.scanCompleted)
     }
 
+    func testScanSuccessSavesCursor() async {
+        let cursor = MockScanCursorStore()
+        let (vm, _, _) = makeVM(assets: [asset("a")], cursorStore: cursor)
+        vm.step = .scan
+        vm.onStepAppear()
+        await waitUntil { !vm.isScanning }
+        XCTAssertTrue(vm.scanCompleted)
+        XCTAssertNotNil(cursor.lastSuccessfulScan, "完整完成后必须保存增量游标基准")
+    }
+
+    func testScanFailureDoesNotSaveCursor() async {
+        let cursor = MockScanCursorStore()
+        // 扫描中途失败（photoCount 抛错）：不得保存游标，否则下次增量扫描会跳过未处理照片
+        let (vm, _, _) = makeVM(
+            assets: [asset("a")],
+            cursorStore: cursor,
+            photoCountError: MockOnboardingScanError.countFailure
+        )
+        vm.step = .scan
+        vm.onStepAppear()
+        await waitUntil { !vm.isScanning }
+        XCTAssertNil(cursor.lastSuccessfulScan, "扫描失败不得保存增量游标")
+    }
+
     // MARK: - 建档
 
     func testAddFirstPetRejectsBlankName() {
@@ -184,6 +212,11 @@ final class OnboardingViewModelTests: XCTestCase {
         vm.finish()
         XCTAssertEqual(finishCount, 1)
     }
+}
+
+/// Onboarding 扫描失败注入用错误（ScanServiceTests 的 MockScanError 为 private，此处独立定义）。
+private enum MockOnboardingScanError: Error {
+    case countFailure
 }
 
 // MARK: - 纯内存 mock（不依赖 SwiftData，Onboarding 只用到窄接口）

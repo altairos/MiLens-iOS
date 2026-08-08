@@ -88,7 +88,14 @@ final class MediaLifecycleService {
         }
         // 成功：清理旧版本文件（路径唯一由 hash/时间戳生成；仍防御性检查引用）
         if oldURI != newPath, fileStorage.fileExists(at: oldURI) {
-            let stillReferenced = (try? photoRepo.getPhotoByURI(oldURI)) != nil
+            // 引用查询失败时保守保留旧文件（不删）——避免误删仍被引用的媒体
+            let stillReferenced: Bool
+            do {
+                stillReferenced = try photoRepo.getPhotoByURI(oldURI) != nil
+            } catch {
+                logger.error("saveEditedPhoto: 旧文件引用查询失败（\(oldURI)），保守保留")
+                stillReferenced = true
+            }
             if !stillReferenced {
                 try? await fileStorage.removeItem(at: oldURI)
             }

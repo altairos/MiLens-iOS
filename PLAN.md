@@ -1,6 +1,6 @@
 # MiLens iOS 迁移计划
 
-最后核对：2026-08-08（UI Rework v2.0 规格完成；首页首轮已落地，完整视觉仍按 UI-Rework 计划推进）
+最后核对：2026-08-09（P0/P1 可靠性收口完成；P2 实现完成，剩真机与性能验收，见 [P2-待办清单](docs/P2-待办清单.md)）
 
 > 里程碑与任务清单。架构见 [DESIGN.md](DESIGN.md)，映射与范围见 [MIGRATION_ASSESSMENT.md](MIGRATION_ASSESSMENT.md)，约束见 [AGENTS.md](AGENTS.md)。
 
@@ -10,9 +10,9 @@
 |---|---|---|---|
 | **P0** | Harness 与规划 | 文档骨架、约束、目录结构、XcodeGen 声明、范围对齐 | ✅ 已完成 |
 | **P1** | 地基 + 算法核心 | Xcode 工程可编译、SwiftData schema、拼豆 Swift 核心（黄金规格通过）、AI 路线定案 | ✅ 已完成（含 2026-08-09 可靠性收口） |
-| **P2** | 相册 MVP | 扫描发现（+质量评分/重复分组）+ 手动导入 + 相册网格 + 大图查看 | 🔄 进行中 |
-| **P3** | 宠物档案 | 档案 CRUD + 成长时间线 + 纪念提醒 | 🔄 进行中（纯逻辑+VM+View+提醒 ✅，剩照片分类） |
-| **P4** | 创作入口 + 编辑器 | 拼豆图纸完整流程 + 完整图片编辑器（裁切/滤镜/标注） | 🔄 进行中（拼豆图纸 App 层 ✅ + 编辑器 Phase 1-3 ✅；剩宠物卡片生成） |
+| **P2** | 相册 MVP | 扫描发现（+质量评分/重复分组）+ 手动导入 + 相册网格 + 大图查看 | 🟡 实现完成，真机/性能验收待做 |
+| **P3** | 宠物档案 | 档案 CRUD + 成长时间线 + 纪念提醒 | 🟡 实现完成，剩照片分类 |
+| **P4** | 创作入口 + 编辑器 | 拼豆图纸完整流程 + 完整图片编辑器（裁切/滤镜/标注） | 🟡 主流程完成，剩宠物卡片生成与真机验收 |
 | **P5** | 首页/我的 + 商业化 | 首页回忆/提醒、设置、StoreKit 订阅、App Store 提审 | ⬜ |
 
 ---
@@ -145,15 +145,16 @@ P1 核心可靠性与性能六项修复全部落地（实现记录见状态摘�
 - [x] P0 修复：去重字段改 `Photo.originalURI`（Photos localIdentifier，`@Attribute(.unique)` 约束）+ 仓储 `getPhotoByOriginalURI`/`getAllOriginalURIs` + ScanService/ImportService 按 originalURI 去重（含批次内重复 identifier）
 - [x] P0 修复：`ScanCursorStore`（UserDefaults）持久化上次成功扫描时刻，增量扫描不再用 `Date()` 截止；dateAdded 以 creationDate 近似并诚实标注（iOS 无公开「加入相册时间」API）
 - [x] P0 修复：CLIP Phase 2 精筛接入扫描（`ClipInference` 协议 + 失败降级），App Store 文案去除「按宠物分别归类」不实描述
-- [x] P0 修复：**SwiftData 测试进程崩溃根因修复**（ModelContainer 悬垂）——`container.mainContext` 不持有 container，测试 helper 局部 container 返回后释放，repo fetch 触发 SwiftData 内部 SIGTRAP（此前 XCTSkipIf 掩盖，CI/本地间歇崩溃）。修复：测试 helper 返回并持有 container（ImportServiceTests/ScanServiceTests/QualityScorerTests 全部调用点）；`RepositoryEnvironment` fallback 改 static 缓存容器。恢复 QualityScorerTests 运行（移除 XCTSkipIf）。全套 389 用例通过
+- [x] P0 修复：**SwiftData 测试进程崩溃根因修复**（ModelContainer 悬垂）——`container.mainContext` 不持有 container，测试 helper 局部 container 返回后释放，repo fetch 触发 SwiftData 内部 SIGTRAP（此前 XCTSkipIf 掩盖，CI/本地间歇崩溃）。修复：测试 helper 返回并持有 container（ImportServiceTests/ScanServiceTests/QualityScorerTests 全部调用点）；`RepositoryEnvironment` fallback 改 static 缓存容器。恢复 QualityScorerTests 运行（移除 XCTSkipIf）。本机完整 XCTest 400/400 通过
 - [ ] 真机验证：Photos 权限 + Vision/Core ML 推理 + 分页性能 + PhotoView 下滑手势（需 Mac + iPhone，详见 [P2-真机验证备忘](docs/P2-真机验证备忘.md)）
+- [ ] P1 可靠性遗留：引导扫描游标、数据库重建后的沙盒媒体语义、编辑旧文件清理失败策略（详见 [P2-待办清单](docs/P2-待办清单.md)）
 
 ### 验收标准
 
-- 首次启动完整走通：授权 → 扫描发现宠物 → 建档 → 相册可见 ✅
+- 首次启动流程已实现：授权 → 扫描发现宠物 → 建档 → 相册可见；真机授权与真实照片走查待做 🟡
 - 相册支持分页、筛选、多选、大图查看 ✅
 - 扫描可取消，不提交过期结果 ✅
-- CI 编译 + 测试全绿 ✅（run [31209138041](https://github.com/altairos/MiLens-iOS/actions/runs/31209138041)：154 passed, 23 skipped, 0 failed）
+- CI/本机编译 + 测试全绿 ✅（本机 2026-08-09：400 passed, 0 skipped, 0 failed；CI 仍需下一次 PR 运行确认模型 Release 下载链路）
 - 真机验证（待 Mac + iPhone）—— 待办清单见 [P2-真机验证备忘](docs/P2-真机验证备忘.md)
 
 ---

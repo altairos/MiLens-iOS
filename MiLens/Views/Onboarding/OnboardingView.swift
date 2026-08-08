@@ -82,8 +82,8 @@ struct OnboardingView: View {
             .tint(Color.milensPrimary)
             .disabled(!canAdvance)
 
-            // 扫描步骤的辅助跳过入口
-            if viewModel.step == .scan, viewModel.isScanning {
+            // 扫描步骤的辅助跳过入口：扫描中或扫描失败（未完成）时可用
+            if viewModel.step == .scan, viewModel.isScanning || !viewModel.scanCompleted {
                 Button("跳过扫描") {
                     viewModel.skipScan()
                 }

@@ -117,6 +117,7 @@ final class OnboardingViewModelTests: XCTestCase {
         await waitUntil { !vm.isScanning }
         XCTAssertTrue(vm.scanCompleted)
         XCTAssertEqual(vm.scanFoundCount, 3)
+        XCTAssertTrue(vm.scanError.isEmpty, "成功后不应残留错误")
         XCTAssertTrue(vm.canAdvance, "扫描完成后可前进")
     }
 
@@ -154,9 +155,9 @@ final class OnboardingViewModelTests: XCTestCase {
         XCTAssertNotNil(cursor.lastSuccessfulScan, "完整完成后必须保存增量游标基准")
     }
 
-    func testScanFailureDoesNotSaveCursor() async {
+    func testScanFailureShowsErrorAndDoesNotComplete() async {
         let cursor = MockScanCursorStore()
-        // 扫描中途失败（photoCount 抛错）：不得保存游标，否则下次增量扫描会跳过未处理照片
+        // 扫描中途失败（photoCount 抛错）：不得显示为完成、错误必须可见、不得保存游标
         let (vm, _, _) = makeVM(
             assets: [asset("a")],
             cursorStore: cursor,
@@ -165,7 +166,19 @@ final class OnboardingViewModelTests: XCTestCase {
         vm.step = .scan
         vm.onStepAppear()
         await waitUntil { !vm.isScanning }
+        XCTAssertFalse(vm.scanCompleted, "失败不得显示为扫描完成")
+        XCTAssertEqual(vm.scanError, "读取照片数量失败", "失败原因必须写入 scanError 供界面展示")
         XCTAssertNil(cursor.lastSuccessfulScan, "扫描失败不得保存增量游标")
+
+        // 失败后可通过跳过继续（scanCompleted 置位，错误保留供扫描页展示）
+        vm.skipScan()
+        XCTAssertTrue(vm.scanCompleted)
+        XCTAssertEqual(vm.scanError, "读取照片数量失败")
+
+        // 离开扫描步骤时清空错误，不残留到建档页
+        vm.goToNextStep()
+        XCTAssertEqual(vm.step, .createPet)
+        XCTAssertTrue(vm.scanError.isEmpty, "扫描错误不得残留到建档页")
     }
 
     // MARK: - 建档

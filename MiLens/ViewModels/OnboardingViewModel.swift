@@ -86,6 +86,10 @@ final class OnboardingViewModel {
 
     func goToNextStep() {
         guard canAdvance else { return }
+        if step == .scan {
+            // 离开扫描步骤时清空扫描错误，避免残留到建档页（扫描失败/跳过场景）
+            scanError = ""
+        }
         step = Step(rawValue: step.rawValue + 1) ?? .createPet
     }
 
@@ -140,16 +144,15 @@ final class OnboardingViewModel {
                 self.scanFoundCount = progress.petPhotosFound
             }
             self.scanFoundCount = result.unassignedPetUris.count
-            self.scanCompleted = !result.canceled
+            // 只有真正完整完成（未取消且无错误）才视为完成并保存增量游标——
+            // 中途失败：不显示“扫描完成”，错误写入 scanError 供界面展示，
+            // 且下次增量扫描不会跳过本次未扫到的照片（与 GalleryViewModel 一致）。
+            self.scanCompleted = result.completedSuccessfully
+            self.scanError = result.error ?? ""
             self.isScanning = false
             self.scanProgressText = ""
-            // 只有真正完整完成（未取消且无错误）才保存增量游标——
-            // 中途失败时保存会导致下次增量扫描跳过本次未扫到的照片（与 GalleryViewModel 一致）。
             if result.completedSuccessfully {
                 self.cursorStore.saveLastSuccessfulScan(scanStart)
-                if !result.unassignedPetUris.isEmpty {
-                    self.scanError = ""
-                }
             }
         }
     }

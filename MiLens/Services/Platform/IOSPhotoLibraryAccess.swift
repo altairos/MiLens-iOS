@@ -60,7 +60,7 @@ final class IOSPhotoLibraryAccess: PhotoLibraryAccess {
                 dateAdded: asset.creationDate,
                 pixelWidth: asset.pixelWidth,
                 pixelHeight: asset.pixelHeight,
-                fileSize: Int64(asset.fileSize),
+                fileSize: fileSize(of: asset),
                 displayName: asset.value(forKey: "filename") as? String ?? ""
             )
             visited += 1
@@ -87,9 +87,17 @@ final class IOSPhotoLibraryAccess: PhotoLibraryAccess {
             dateAdded: asset.creationDate,
             pixelWidth: asset.pixelWidth,
             pixelHeight: asset.pixelHeight,
-            fileSize: Int64(asset.fileSize),
+            fileSize: fileSize(of: asset),
             displayName: asset.value(forKey: "filename") as? String ?? ""
         )
+    }
+
+    /// PHAsset 文件大小（字节）。PHAssetResource 无公开 fileSize 属性，经 KVC 读取；
+    /// 取不到返回 0（仅辅助展示/去重，ImportService 会以实际数据大小兜底）。
+    private func fileSize(of asset: PHAsset) -> Int64 {
+        guard let resource = PHAssetResource.assetResources(for: asset).first,
+              let size = resource.value(forKey: "fileSize") as? NSNumber else { return 0 }
+        return size.int64Value
     }
 
     // MARK: - 图片数据加载

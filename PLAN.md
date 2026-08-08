@@ -129,12 +129,12 @@
 - [x] `PhotoViewView`：大图查看 + 手势（PhotoViewGestureMath 纯函数驱动）
 - [x] `HomeView`：相册入口 + 扫描入口（NavigationLink → Gallery）
 - [x] RootTabView 路由串联（navigationDestination for Route）
-- [ ] 引导流程：首次启动 → 权限说明 → 扫描 → 建档（待 P3 完善建档部分）
+- [x] 引导流程：首次启动 → 权限说明 → 扫描 → 建档（`OnboardingView` + 4 步骤 + `OnboardingViewModel`，13 用例测试；真机授权弹窗待 P2 真机验证）
 - [ ] 真机验证：Photos 权限 + Vision/Core ML 推理 + 分页性能（需 Mac + iPhone，详见 [P2-真机验证备忘](docs/P2-真机验证备忘.md)）
 
 ### 验收标准
 
-- 首次启动完整走通：授权 → 扫描发现宠物 → 建档 → 相册可见（建档 P3；扫描+导入+相册 ✅）
+- 首次启动完整走通：授权 → 扫描发现宠物 → 建档 → 相册可见 ✅
 - 相册支持分页、筛选、多选、大图查看 ✅
 - 扫描可取消，不提交过期结果 ✅
 - CI 编译 + 测试全绿 ✅（run [31209138041](https://github.com/altairos/MiLens-iOS/actions/runs/31209138041)：154 passed, 23 skipped, 0 failed）

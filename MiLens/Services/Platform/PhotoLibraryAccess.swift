@@ -1,9 +1,19 @@
 //  PhotoLibraryAccess —— 系统照片库访问协议（对应源端 IMediaAccess）。
 //  把 Photos 框架的直接调用隔离在此协议后面，
-//  使 ScanService / ImportService 可以通过 mock 覆盖扫描与导入路径。
+//  使 ScanService / ImportService / Onboarding 可以通过 mock 覆盖扫描与导入路径。
 //  DESIGN.md §9 平台适配层。
 
 import Foundation
+
+/// 照片库授权状态（对应源端 PermissionHelper 的权限状态枚举）。
+enum PhotoLibraryAuthorizationStatus: Equatable, Sendable {
+    case notDetermined
+    case denied
+    case restricted
+    /// 仅限选中的照片（iOS 14+ PHAuthorizationStatus.limited）
+    case limited
+    case authorized
+}
 
 /// 从系统照片库提取的纯数据结构（对应源端 PhotoAssetData，不含系统 API 依赖）。
 struct PhotoAssetMetadata: Equatable, Sendable {
@@ -52,6 +62,14 @@ protocol PhotoLibraryAccess {
     ///   - maxDimension: 最大边长（像素）。0 = 原始尺寸（导入用），>0 = 缩放（AI 检测用）。
     /// - Returns: 编码后的图片数据（JPEG/PNG），供 VisionService/CoreML 解码。
     func loadImageData(forIdentifier identifier: String, maxDimension: Int) async throws -> Data
+
+    // ── 授权（对应源端 PermissionHelper，Onboarding 权限步骤用）──
+
+    /// 当前授权状态。
+    func authorizationStatus() async -> PhotoLibraryAuthorizationStatus
+
+    /// 请求授权（系统弹窗）。
+    func requestAuthorization() async -> PhotoLibraryAuthorizationStatus
 }
 
 // MARK: - Mock（对应源端 FakeMediaAccess）
@@ -61,6 +79,10 @@ final class MockPhotoLibraryAccess: PhotoLibraryAccess {
     private let assets: [PhotoAssetMetadata]
     /// 预设的图片数据（按 identifier 查找；未预设时返回占位 Data）
     private let imageDataOverrides: [String: Data]
+    /// 可配置的授权状态（默认 authorized，保持既有测试不破坏）
+    var authorizationStatusValue: PhotoLibraryAuthorizationStatus = .authorized
+    /// requestAuthorization 调用后生效的状态（默认与当前状态一致）
+    var requestedResult: PhotoLibraryAuthorizationStatus? = nil
 
     init(assets: [PhotoAssetMetadata] = [], imageDataOverrides: [String: Data] = [:]) {
         self.assets = assets
@@ -88,5 +110,14 @@ final class MockPhotoLibraryAccess: PhotoLibraryAccess {
         if let data = imageDataOverrides[identifier] { return data }
         // 未预设时返回非空占位数据，使检测管线可运行
         return Data([0xFF, 0xD8, 0xFF]) // JPEG SOI 标记
+    }
+
+    func authorizationStatus() async -> PhotoLibraryAuthorizationStatus {
+        authorizationStatusValue
+    }
+
+    func requestAuthorization() async -> PhotoLibraryAuthorizationStatus {
+        if let requestedResult { return requestedResult }
+        return authorizationStatusValue
     }
 }

@@ -209,6 +209,7 @@ private final class InMemoryPhotoRepository: PhotoRepositoryProtocol {
     func getAllPhotoURIs() throws -> Set<String> { [] }
     func getPhotosPage(offset: Int, limit: Int) throws -> [Photo] { [] }
     func getPhotosByPet(_ pet: Pet) throws -> [Photo] { [] }
+    func getAnniversaryPhotos(month: Int, day: Int, excludeYear: Int?) throws -> [Photo] { [] }
     func insertPhoto(_ photo: Photo) throws {}
     func deletePhoto(_ photo: Photo) throws {}
     func assignPhoto(_ photo: Photo, to pet: Pet?) throws {}

@@ -46,6 +46,7 @@ MiLens/                         # App target（@main、Views、App 入口）
 │   ├── Scanning/               # 扫描/导入（PhotoScanner→ScanService）
 │   ├── AI/                     # AI 推理/匹配（AiService→PetRecognitionService 等）
 │   ├── Export/                 # 导出/分享
+│   ├── Notifications/          # 纪念/时光机提醒（NotifyService，对应源端 NotifyScheduler/TimeMachineService）
 │   └── Platform/               # 平台适配 protocol + impl + mock（对应源端 adapters/）
 ├── Persistence/                # SwiftData @Model + Repository（对应源端 database/+repository/）
 ├── Theme/                      # Asset Catalog + 设计 token 扩展（对应源端 theme/）
@@ -156,6 +157,7 @@ SwiftData 从 V1.0 干净 schema 起步（不复刻源端 16 版历史迁移）�
 | `PhotoLibraryAccess` | Photos / PhotosUI | `IMediaAccess` |
 | `FileStorage` | FileManager | `IFileService` |
 | `VisionService` | Vision（分类/主体分割） | `IVisionKit` |
+| `NotificationPosting` | UserNotifications（UNUserNotificationCenter） | `NotifyScheduler`/`WorkScheduler` 的通知发布面 |
 | `InferenceEngine` | Core ML（CLIP + RTMPose `.mlmodelc`） | `IModelRunner`（定案见 [ADR-0007](docs/adr/0007-ios-ai-inference-route.md)） |
 
 真实实现与 mock 分离，业务/ViewModel 只依赖协议，测试注入 mock（对应源端 `FakeMediaAccess` 等）。

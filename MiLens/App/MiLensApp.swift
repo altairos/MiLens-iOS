@@ -19,6 +19,8 @@ struct MiLensApp: App {
     private let clipService: ClipInferenceService?
     private let photoLibrary: any PhotoLibraryAccess
     private let onboardingViewModel: OnboardingViewModel
+    /// 纪念提醒服务（测试环境不注入——避免测试进程触发通知授权）
+    private let notifyService: NotifyService?
     /// 测试环境（XCTest host 加载 @main App）跳过引导直接进主界面
     private let isTesting: Bool
 
@@ -46,6 +48,12 @@ struct MiLensApp: App {
         self.clipService = isTesting ? nil : ClipInferenceService.create()
         // 照片库适配器：真实 Photos 框架实现（授权 + 流式遍历）。
         self.photoLibrary = IOSPhotoLibraryAccess()
+        // 纪念提醒：每日检查（纪念日 + 时光机）。测试环境不构造，避免触发通知授权。
+        self.notifyService = isTesting ? nil : NotifyService(
+            photoRepo: self.photoRepo,
+            petRepo: self.petRepo,
+            poster: IOSNotificationCenter()
+        )
         // 首次启动引导状态机（onFinish 置位持久化标记，触发 @AppStorage 切换主界面）。
         self.onboardingViewModel = OnboardingViewModel(
             photoRepo: self.photoRepo,
@@ -73,6 +81,7 @@ struct MiLensApp: App {
             .environment(\.visionService, vision)
             .environment(\.clipInferenceService, clipService)
             .environment(\.photoLibraryAccess, photoLibrary)
+            .environment(\.notifyService, notifyService)
         }
     }
 }

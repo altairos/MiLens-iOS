@@ -7,6 +7,7 @@ import SwiftUI
 struct RootTabView: View {
     @AppStorage("selectedTab") private var selectedTabRaw: Int = AppTab.home.rawValue
     @Environment(\.scenePhase) private var scenePhase
+    @Environment(\.notifyService) private var notifyService
 
     var body: some View {
         TabView(selection: Binding(
@@ -66,7 +67,12 @@ struct RootTabView: View {
 
     private func handleScenePhase(_ phase: ScenePhase) {
         switch phase {
-        case .active, .inactive, .background:
+        case .active:
+            // 纪念提醒每日检查（对应源端 EntryAbility onPageShow 的 scheduleDailyEventCheck）
+            if let notifyService {
+                Task { await notifyService.runDailyCheck() }
+            }
+        case .inactive, .background:
             break
         @unknown default:
             break

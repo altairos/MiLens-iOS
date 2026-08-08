@@ -78,3 +78,17 @@ extension EnvironmentValues {
         set { self[ClipInferenceServiceKey.self] = newValue }
     }
 }
+
+// MARK: - NotifyService（纪念提醒每日检查，测试环境不注入为 nil）
+
+private struct NotifyServiceKey: EnvironmentKey {
+    @MainActor
+    static var defaultValue: NotifyService? { nil }
+}
+
+extension EnvironmentValues {
+    var notifyService: NotifyService? {
+        get { self[NotifyServiceKey.self] }
+        set { self[NotifyServiceKey.self] = newValue }
+    }
+}

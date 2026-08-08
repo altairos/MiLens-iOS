@@ -23,6 +23,12 @@ protocol PhotoRepositoryProtocol {
     func getPhotosPage(offset: Int, limit: Int) throws -> [Photo]
     /// 某宠物的全部照片（对应源端 getPhotosByPetId）。
     func getPhotosByPet(_ pet: Pet) throws -> [Photo]
+    /// 指定月日拍摄、参与纪念事件的照片（对应源端 getAnniversaryEvents）。
+    /// - Parameters:
+    ///   - month: 1–12
+    ///   - day: 1–31
+    ///   - excludeYear: 排除指定年份的照片（时光机用，nil = 不排除）
+    func getAnniversaryPhotos(month: Int, day: Int, excludeYear: Int?) throws -> [Photo]
     /// 用户主动导入——唯一入库路径（DESIGN.md §7 硬约束）。
     func insertPhoto(_ photo: Photo) throws
     func deletePhoto(_ photo: Photo) throws
@@ -83,6 +89,30 @@ final class SwiftDataPhotoRepository: PhotoRepositoryProtocol {
     func getPhotosByPet(_ pet: Pet) throws -> [Photo] {
         // 用已加载的关系排序，避免可选关系 predicate 的不确定性。
         return pet.photos.sorted { ($0.takenAt ?? .distantPast) > ($1.takenAt ?? .distantPast) }
+    }
+
+    /// 指定月日拍摄、参与纪念事件的照片（对应源端 `getAnniversaryEvents`）。
+    /// 过滤语义：eventNotify = true、note 非空、拍摄日期 MM-DD 匹配、可选排除年份；
+    /// 按拍摄时间倒序。
+    func getAnniversaryPhotos(month: Int, day: Int, excludeYear: Int?) throws -> [Photo] {
+        var descriptor = FetchDescriptor<Photo>(
+            predicate: #Predicate { $0.eventNotify },
+            sortBy: [SortDescriptor(\.takenAt, order: .reverse)]
+        )
+        // SwiftData 谓词无法表达月日匹配，先取 eventNotify 子集再内存过滤
+        // （与 getDuplicateCandidates 同模式，量级可控）。
+        let photos = try context.fetch(descriptor)
+        return photos.filter { photo in
+            guard !photo.note.isEmpty,
+                  NotifyCheckLogic.matchesMonthDay(photo.takenAt, month: month, day: day) else {
+                return false
+            }
+            if let excludeYear,
+               NotifyCheckLogic.isInYear(photo.takenAt, year: excludeYear) {
+                return false
+            }
+            return true
+        }
     }
 
     func insertPhoto(_ photo: Photo) throws {

@@ -11,7 +11,7 @@
 | **P0** | Harness 与规划 | 文档骨架、约束、目录结构、XcodeGen 声明、范围对齐 | ✅ 已完成 |
 | **P1** | 地基 + 算法核心 | Xcode 工程可编译、SwiftData schema、拼豆 Swift 核心（黄金规格通过）、AI 路线定案 | ⬜ |
 | **P2** | 相册 MVP | 扫描发现（+质量评分/重复分组）+ 手动导入 + 相册网格 + 大图查看 | 🔄 进行中 |
-| **P3** | 宠物档案 | 档案 CRUD + 成长时间线 + 纪念提醒 | 🔄 进行中（纯逻辑+VM+View ✅） |
+| **P3** | 宠物档案 | 档案 CRUD + 成长时间线 + 纪念提醒 | 🔄 进行中（纯逻辑+VM+View+提醒 ✅，剩照片分类） |
 | **P4** | 创作入口 + 编辑器 | 拼豆图纸完整流程 + 完整图片编辑器（裁切/滤镜/标注） | ⬜ |
 | **P5** | 首页/我的 + 商业化 | 首页回忆/提醒、设置、StoreKit 订阅、App Store 提审 | ⬜ |
 
@@ -163,14 +163,14 @@
 - [x] `AddPetSheet` 复用组件（建档表单：名称/物种/性别/生日/领养日）
 - [x] `PetDisplayLogic` 纯函数（年龄/物种名/性别名/相处天数格式化）+ 15 用例 XCTest（翻译源端 DateUtils.test + Pet getSpeciesName/getGenderName）
 - [x] Route 枚举扩展 `.timeline` + RootTabView 路由串联
-- [ ] 纪念提醒：`UNUserNotificationCenter`（生日/领养日）
+- [x] 纪念提醒：`UNUserNotificationCenter`（生日/领养日）→ `NotifyService` 每日检查编排（纪念日同日事件 + 时光机随机一张 + 每日去重 + 撤销），平台层 `NotificationPosting` 协议隔离，15 用例全绿
 - [ ] 档案内照片分类（全部/幼年/玩耍/睡觉等，按设计稿）
 
 ### 验收标准
 
 - 宠物档案 CRUD 完整
 - 时间线按事件聚合展示
-- 纪念提醒可调度且可撤销
+- 纪念提醒可调度且可撤销 ✅（NotifyService + 15 用例；347 passed, 23 skipped, 0 failed）
 
 ---
 

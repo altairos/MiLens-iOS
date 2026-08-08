@@ -60,10 +60,9 @@ final class BeadViewModel {
         self.exportService = exportService
     }
 
-    deinit {
-        generationTask?.cancel()
-        toastDismissTask?.cancel()
-    }
+    // 无 deinit 取消：generationTask/toastDismissTask 均以 [weak self] 捕获，
+    // VM 释放后任务自然结束；长任务内部有 Task.checkCancellation 可取消。
+    // （deinit 为 nonisolated，无法引用 @MainActor 隔离的 Task 属性。）
 
     // MARK: - 源图加载
 
@@ -174,11 +173,11 @@ final class BeadViewModel {
             let result = try await Task.detached(priority: .userInitiated) {
                 try Task.checkCancellation()
                 if isAuto {
-                    return try generateBeadPatternAutoAsync(
+                    return try await generateBeadPatternAutoAsync(
                         srcPixels: workingPixels, srcW: workingW, srcH: workingH,
                         baseOptions: options, subject: subject)
                 }
-                return try generateBeadPatternAsync(
+                return try await generateBeadPatternAsync(
                     srcPixels: workingPixels, srcW: workingW, srcH: workingH,
                     options: options, subject: subject)
             }.value
@@ -238,8 +237,10 @@ final class BeadViewModel {
     // MARK: - 风格预设
 
     /// 应用风格预设（对应源端 applyStylePreset）。
-    func applyStylePreset(_ key: String) {
-        settings = MiLensKit.applyStylePreset(key)
+    /// 注意：方法名避开 MiLensKit 顶层函数 applyStylePreset——实例方法会遮蔽
+    /// 模块顶层函数导致递归；且 `MiLensKit.` 限定符被同名 `enum MiLensKit` 抢占。
+    func applyPreset(_ key: String) {
+        settings = applyStylePreset(key)
     }
 
     // MARK: - 导出 / 分享（对应源端 exportPattern / sharePattern）
@@ -324,7 +325,10 @@ final class BeadViewModel {
         guard !photoURI.isEmpty else { return nil }
         do {
             let data = try loadSourceData()
-            return ClipInferenceService.decodeToRGBA(data, maxDimension: thumbMaxDimension)
+            guard let rgba = ClipInferenceService.decodeToRGBA(data, maxDimension: thumbMaxDimension) else {
+                return nil
+            }
+            return (pixels: rgba.pixels, w: rgba.width, h: rgba.height)
         } catch {
             return nil
         }
@@ -350,10 +354,10 @@ final class BeadViewModel {
         var mask = [UInt8](repeating: 0, count: imgW * imgH)
         let bytes = [UInt8](seg.mask)
         for y in 0..<seg.bboxHeight {
-            let dstY = seg.bboxY + y
+            let dstY = Int(seg.bboxY) + y
             guard dstY >= 0, dstY < imgH else { continue }
             for x in 0..<seg.bboxWidth {
-                let dstX = seg.bboxX + x
+                let dstX = Int(seg.bboxX) + x
                 guard dstX >= 0, dstX < imgW else { continue }
                 mask[dstY * imgW + dstX] = bytes[y * seg.bboxWidth + x]
             }

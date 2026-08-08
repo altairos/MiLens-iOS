@@ -168,7 +168,7 @@ struct BeadSettingsPanelView: View {
     private func styleOption(_ option: StyleOptionData) -> some View {
         let selected = vm.settings.styleKey == option.key
         return Button {
-            vm.applyStylePreset(option.key)
+            vm.applyPreset(option.key)
         } label: {
             HStack {
                 VStack(alignment: .leading, spacing: 3) {

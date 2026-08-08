@@ -19,7 +19,7 @@ struct BeadExportService {
         let buffer = renderA4Export(pattern: pattern, photoPixels: photoPixels,
                                     photoW: photoW, photoH: photoH, exportOpts: exportOpts)
         let a4 = getA4Size()
-        guard let cgImage = makeCGImage(rgba: buffer, width: a4.width, height: a4.height) else {
+        guard let cgImage = Self.makeCGImage(rgba: buffer, width: a4.width, height: a4.height) else {
             return nil
         }
         return UIImage(cgImage: cgImage).pngData()

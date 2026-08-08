@@ -54,10 +54,18 @@ struct PhotoViewView: View {
         .toolbarColorScheme(.dark, for: .navigationBar)
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
-                NavigationLink(value: Route.editor(photoID: photoID)) {
-                    Image(systemName: "slider.horizontal.3")
+                HStack(spacing: 16) {
+                    NavigationLink(value: Route.editor(photoID: photoID)) {
+                        Image(systemName: "slider.horizontal.3")
+                    }
+                    .accessibilityLabel("编辑")
+                    if let photo {
+                        NavigationLink(value: Route.beadPattern(photoID: photo.id)) {
+                            Image(systemName: "square.grid.3x3.fill")
+                        }
+                        .accessibilityLabel("生成拼豆图纸")
+                    }
                 }
-                .accessibilityLabel("编辑")
             }
         }
         .task {

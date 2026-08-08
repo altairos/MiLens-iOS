@@ -56,10 +56,8 @@ struct RootTabView: View {
             EditorView(photoID: photoID)
         case .petProfile(let petID):
             PetProfileView(petID: petID)
-        case .beadPattern:
-            // P4 实现
-            PlaceholderTabView(systemImage: "square.grid.3x3.fill",
-                               title: "拼豆图纸", subtitle: "P4 待实现")
+        case .beadPattern(let photoID):
+            BeadPatternView(photoID: photoID)
         case .petEdit(let petID):
             PetEditView(petID: petID)
         case .timeline:

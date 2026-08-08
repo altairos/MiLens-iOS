@@ -186,7 +186,7 @@ cd MiLensKit && swift test
 | Phase 3 | 3.2 hero 视觉 + 回忆 + CTA | 🔄 首轮已落地；待模拟器尺寸/深色/Dynamic Type 走查 |
 | Phase 4 | 4.1 Create 大卡片入口 | ✅ 大卡片列表 + 拼豆入口（真实照片像素化示意）+ 宠物卡片诚实占位 + 选照片流程搬入 BeadPhotoPickerView |
 | Phase 4 | 4.2 拼豆工作室化 | ✅ 上预览下参数 + 防抖实时重渲染 + 模糊→清晰揭示 + .success 触感 + 全屏导出三按钮（含 A4 PDF）；build/test 被并发 WIP 阻塞待复验 |
-| Phase 4 | 4.3 Onboarding 打磨 | ⬜ |
+| Phase 4 | 4.3 Onboarding 打磨 | ✅ 四步视觉统一（安静步骤指示器/ActionPrimary 胶囊/品牌瞬间收敛为 3 处记忆标记点/文楷每屏一个）+ 修复 CTA 对比度缺陷；全量 511 用例 0 失败 |
 | Phase 4 | 4.4 Settings 功能实现 | ✅ 六分区（Pro/隐私/通知/外观/支持/关于）+ SettingsLogic 纯函数 + 15 用例 + xcstrings 76 key 已落地 |
 | Phase 4 | 4.5 付费墙 | ✅ 情感化标题 + 年度突出 + StoreKit 2 接线（含 Transaction 监听/恢复）+ 28 用例 + Products.storekit 重写为规范 v3；scheme 关联与购买链路走查待人工 |
 
@@ -208,6 +208,14 @@ cd MiLensKit && swift test
 - StoreKit 端到端购买链路：未验证——本机模拟器 StoreKit 测试守护进程环境错误（SKInternalErrorDomain Code=3），且 scheme 关联 .storekit 需 Xcode GUI 人工勾选；留人工走查 + 沙盒验证。
 - 遗留：功能门控未接线（权益矩阵未冻结，ProStatus 已可从 Environment 读取）；服务条款用 Apple 标准 EULA 链接；隐私政策 miovelle.cn/privacy 待托管。
 - swift-format lint：未执行（本机未安装）；深色/Dynamic Type/尺寸走查与真机验收留阶段收尾。
+
+### 本轮验证记录（2026-08-09，Phase 4.3 Onboarding 打磨）
+
+- 改动（仅 5 个 Onboarding 视图，VM/测试零触碰）：容器改短线步骤指示器 + 非对称淡入位移过渡 + ActionPrimary 胶囊主按钮（消除旧 BrandCoral 托白字 2.40:1 对比度问题）；欢迎步改记忆标记 wordmark + 文楷 Hero「把它的一生，留在这里」+ 价值文案诚实口径（移除「认识每一只宠物」）；权限步补第三条「由你决定导入什么」；扫描步状态图标中性化 + 发现数记忆标记；建档步修复「开始注册/开始使用」深底深字对比度缺陷 + 输入框底色/描边 token 化。
+- 品牌纪律：四步珊瑚仅剩 3 处 6pt 记忆标记点；文楷每屏恰好一个标题。
+- `xcodebuild build`：BUILD SUCCEEDED；`xcodebuild test` 全量：**TEST SUCCEEDED，511 用例 0 失败**（ImportServiceTests 2 例 signal trap 本轮未复现）。
+- `git diff --check`：通过；swift-format lint：未执行（本机未安装）。
+- 深色/Dynamic Type/尺寸走查未执行，留阶段收尾统一走查。
 
 ### 全量复验记录（2026-08-09，4.1/4.2 补闭环）
 

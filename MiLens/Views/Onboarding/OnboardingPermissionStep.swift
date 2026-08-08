@@ -1,6 +1,7 @@
-//  OnboardingPermissionStep —— 首次启动 Step 2 权限说明页
-//  （对应 iOS 设计稿「二、首次启动流程 Step 2」）。
-//  强调隐私：照片不会离开设备、AI 分析在本地完成。请求照片库权限。
+//  OnboardingPermissionStep —— 首次启动 Step 2 权限说明页（UI-DESIGN.md §6.1）。
+//  本地处理三条短说明建立信任：照片不离开设备 / 分析在本机完成 / 由你决定导入什么。
+//  说明图标中性细线；卡片 = milensCard + 0.5pt 描边（边框优先于阴影，§5.2）；
+//  文楷标题每屏唯一；权限系统弹窗只在点击容器主按钮「继续」后出现（流程不变）。
 
 import SwiftUI
 
@@ -9,22 +10,19 @@ struct OnboardingPermissionStep: View {
 
     var body: some View {
         VStack(spacing: Spacing.xxl) {
-            Spacer(minLength: 40)
+            Spacer(minLength: Spacing.xxl)
 
-            // 图标 + 标题
+            // 图标 + 标题（本屏唯一文楷）
             VStack(spacing: Spacing.md) {
-                ZStack {
-                    Circle()
-                        .fill(Color.milensAccentSoft)
-                        .frame(width: 96, height: 96)
-                    Image(systemName: "lock.shield.fill")
-                        .font(.system(size: 40))
-                        .foregroundStyle(Color.milensPrimary)
-                }
+                Image(systemName: "lock.shield")
+                    .font(.system(size: 40, weight: .light))
+                    .foregroundStyle(Color.milensTextSecondary)
                 Text("隐私优先")
                     .font(.displayMedium)
+                    .foregroundStyle(Color.milensTextPrimary)
+                    .accessibilityAddTraits(.isHeader)
                 Text("你的照片只属于你")
-                    .font(.bodyPrimary)
+                    .font(.bodySecondary)
                     .foregroundStyle(Color.milensTextSecondary)
             }
 
@@ -34,13 +32,21 @@ struct OnboardingPermissionStep: View {
                            subtitle: "所有照片仅在本机处理，不会上传到云端")
                 Divider()
                     .overlay(Color.milensSeparator)
-                privacyRow(icon: "cpu.fill", title: "AI 分析在本地完成",
+                privacyRow(icon: "cpu", title: "AI 分析在本地完成",
                            subtitle: "宠物识别与照片整理均由设备端 AI 完成")
+                Divider()
+                    .overlay(Color.milensSeparator)
+                privacyRow(icon: "checkmark.circle", title: "由你决定导入什么",
+                           subtitle: "扫描只筛选候选照片，确认后才会导入档案")
             }
             .padding(Spacing.xl)
             .background(Color.milensCard)
-            .clipShape(RoundedRectangle(cornerRadius: Radius.large))
-            .padding(.horizontal, Spacing.xxl)
+            .overlay {
+                RoundedRectangle(cornerRadius: Radius.large, style: .continuous)
+                    .stroke(Color.milensBorder, lineWidth: 0.5)
+            }
+            .clipShape(RoundedRectangle(cornerRadius: Radius.large, style: .continuous))
+            .padding(.horizontal, Spacing.pagePad)
 
             Spacer()
 
@@ -66,9 +72,9 @@ struct OnboardingPermissionStep: View {
         HStack(alignment: .top, spacing: Spacing.md) {
             Image(systemName: icon)
                 .font(.title3)
-                .foregroundStyle(Color.milensPrimary)
+                .foregroundStyle(Color.milensTextSecondary)
                 .frame(width: 32)
-            VStack(alignment: .leading, spacing: 2) {
+            VStack(alignment: .leading, spacing: Spacing.xs) {
                 Text(title)
                     .font(.bodyPrimary)
                     .foregroundStyle(Color.milensTextPrimary)
@@ -95,6 +101,7 @@ struct OnboardingPermissionStep: View {
                 .font(.caption)
                 .foregroundStyle(Color.milensTextTertiary)
                 .multilineTextAlignment(.center)
+                .padding(.horizontal, Spacing.pagePad)
         }
     }
 }

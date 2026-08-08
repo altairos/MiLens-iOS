@@ -1,9 +1,10 @@
-//  OnboardingCreatePetStep —— 首次启动 Step 4 建档页
-//  （对应 iOS 设计稿「二、首次启动流程 Step 4」）。
-//  情绪峰值：扫描发现照片数 + 名字输入；创建动作由容器主按钮触发
+//  OnboardingCreatePetStep —— 首次启动 Step 4 建档页（UI-DESIGN.md §6.1）。
+//  情绪峰值：记忆标记 + 扫描发现照片数 + 名字输入；创建动作由容器主按钮触发
 //  （OnboardingViewModel.createFirstPet，PetProfileLogic 校验语义）。
 //  建档成功后切换到特征注册引导卡片（PhotosPicker 8–15 张 → PetMatcher 注册，
 //  自动归属前置条件；「稍后再说」可跳过）。
+//  视觉：图标中性细线；文楷标题每屏唯一；输入框底色 SurfaceGrouped + 0.5pt 描边；
+//  主操作为 ActionPrimary 胶囊（文字走 TextOnActionPrimary 保证对比度，§3.1）。
 
 import SwiftUI
 import PhotosUI
@@ -33,29 +34,33 @@ struct OnboardingCreatePetStep: View {
 
     private var createPetForm: some View {
         VStack(spacing: Spacing.xxl) {
-            Spacer(minLength: 40)
+            Spacer(minLength: Spacing.xxl)
 
-            // 情绪峰值区（设计稿 Step 4：我们找到了小橘 / 照片：842 张）
+            // 情绪峰值区（本屏唯一文楷；计数用记忆标记 + 圆体数字）
             VStack(spacing: Spacing.md) {
-                ZStack {
-                    Circle()
-                        .fill(Color.milensAccentSoft)
-                        .frame(width: 96, height: 96)
-                    Image(systemName: "pawprint.fill")
-                        .font(.system(size: 44))
-                        .foregroundStyle(Color.milensPrimary)
-                }
+                Image(systemName: "pawprint")
+                    .font(.system(size: 40, weight: .light))
+                    .foregroundStyle(Color.milensTextSecondary)
                 if viewModel.scanFoundCount > 0 {
                     Text("我们找到了它")
                         .font(.displayMedium)
-                    Text("照片：\(viewModel.scanFoundCount) 张")
-                        .font(.numberStat)
-                        .foregroundStyle(Color.milensTextSecondary)
+                        .foregroundStyle(Color.milensTextPrimary)
+                        .accessibilityAddTraits(.isHeader)
+                    HStack(spacing: Spacing.sm) {
+                        Circle()
+                            .fill(Color.milensPrimary)
+                            .frame(width: 6, height: 6)
+                        Text("照片：\(viewModel.scanFoundCount) 张")
+                            .font(.numberStat)
+                            .foregroundStyle(Color.milensTextPrimary)
+                    }
                 } else {
                     Text("为它创建第一份档案")
                         .font(.displayMedium)
+                        .foregroundStyle(Color.milensTextPrimary)
+                        .accessibilityAddTraits(.isHeader)
                     Text("随时可以在相册页扫描并导入更多照片")
-                        .font(.bodyPrimary)
+                        .font(.bodySecondary)
                         .foregroundStyle(Color.milensTextSecondary)
                 }
             }
@@ -63,18 +68,22 @@ struct OnboardingCreatePetStep: View {
             // 名字输入
             VStack(alignment: .leading, spacing: Spacing.sm) {
                 Text("它叫什么名字？")
-                    .font(.bodyPrimary)
+                    .font(.bodySecondary)
                     .foregroundStyle(Color.milensTextSecondary)
                 TextField("输入宠物名字", text: $viewModel.petName)
                     .font(.bodyPrimary)
                     .padding(.horizontal, Spacing.lg)
                     .padding(.vertical, Spacing.md)
-                    .background(Color.milensCard)
-                    .clipShape(RoundedRectangle(cornerRadius: Radius.medium))
+                    .background(Color.milensGrouped)
+                    .overlay {
+                        RoundedRectangle(cornerRadius: Radius.medium, style: .continuous)
+                            .stroke(Color.milensBorder, lineWidth: 0.5)
+                    }
+                    .clipShape(RoundedRectangle(cornerRadius: Radius.medium, style: .continuous))
                     .submitLabel(.done)
                     .onSubmit { viewModel.submitCreatePet() }
             }
-            .padding(.horizontal, Spacing.xxl)
+            .padding(.horizontal, Spacing.pagePad)
 
             // 校验错误
             if !viewModel.scanError.isEmpty {
@@ -85,28 +94,25 @@ struct OnboardingCreatePetStep: View {
 
             Spacer()
         }
-        .padding(.horizontal, Spacing.xxl)
+        .padding(.horizontal, Spacing.pagePad)
     }
 
     // MARK: - 特征注册引导卡片
 
     private var featureRegistrationCard: some View {
         VStack(spacing: Spacing.xxl) {
-            Spacer(minLength: 40)
+            Spacer(minLength: Spacing.xxl)
 
             VStack(spacing: Spacing.md) {
-                ZStack {
-                    Circle()
-                        .fill(Color.milensAccentSoft)
-                        .frame(width: 96, height: 96)
-                    Image(systemName: "face.smiling")
-                        .font(.system(size: 44))
-                        .foregroundStyle(Color.milensPrimary)
-                }
+                Image(systemName: "camera.viewfinder")
+                    .font(.system(size: 40, weight: .light))
+                    .foregroundStyle(Color.milensTextSecondary)
                 Text("档案已创建")
                     .font(.displayMedium)
+                    .foregroundStyle(Color.milensTextPrimary)
+                    .accessibilityAddTraits(.isHeader)
                 Text("选择 8–15 张不同角度的照片，注册「\(viewModel.petName)」的视觉特征。\n以后导入的新照片将自动归入此档案。")
-                    .font(.bodyPrimary)
+                    .font(.bodySecondary)
                     .foregroundStyle(Color.milensTextSecondary)
                     .multilineTextAlignment(.center)
             }
@@ -116,10 +122,11 @@ struct OnboardingCreatePetStep: View {
             if viewModel.featureRegistered {
                 Label("已注册视觉特征", systemImage: "checkmark.circle.fill")
                     .font(.bodyPrimary)
-                    .foregroundStyle(Color.milensPrimary)
+                    .foregroundStyle(Color.milensSuccess)
             } else if viewModel.isRegisteringFeatures {
                 HStack(spacing: Spacing.md) {
                     ProgressView()
+                        .tint(Color.milensTextSecondary)
                     Text("正在提取特征 \(viewModel.featureRegistrationProgress)/\(selectedFeatureItems.count)")
                         .font(.bodyPrimary)
                 }
@@ -131,9 +138,14 @@ struct OnboardingCreatePetStep: View {
                 ) {
                     Label("选择照片注册", systemImage: "photo.on.rectangle")
                         .font(.bodyPrimary)
+                        .foregroundStyle(Color.milensTextPrimary)
                         .frame(maxWidth: .infinity, minHeight: Sizing.touchTarget)
-                        .background(Color.milensCard)
-                        .clipShape(RoundedRectangle(cornerRadius: Radius.medium))
+                        .background(Color.milensGrouped)
+                        .overlay {
+                            RoundedRectangle(cornerRadius: Radius.medium, style: .continuous)
+                                .stroke(Color.milensBorder, lineWidth: 0.5)
+                        }
+                        .clipShape(RoundedRectangle(cornerRadius: Radius.medium, style: .continuous))
                 }
 
                 if !selectedFeatureItems.isEmpty {
@@ -145,12 +157,14 @@ struct OnboardingCreatePetStep: View {
                     } label: {
                         Text("开始注册")
                             .font(.buttonLabel)
-                            .frame(maxWidth: .infinity, minHeight: Sizing.touchTarget)
+                            .foregroundStyle(Color.milensTextOnActionPrimary)
+                            .frame(maxWidth: .infinity, minHeight: 50)
                             .background(Color.milensActionPrimary)
                             .clipShape(Capsule())
                     }
                     .buttonStyle(.plain)
                     .disabled(selectedFeatureItems.count < PetFormConstants.minRegistrationPhotos)
+                    .opacity(selectedFeatureItems.count < PetFormConstants.minRegistrationPhotos ? 0.5 : 1)
                 }
             }
 
@@ -166,7 +180,8 @@ struct OnboardingCreatePetStep: View {
                 } label: {
                     Text("开始使用")
                         .font(.buttonLabel)
-                        .frame(maxWidth: .infinity, minHeight: Sizing.touchTarget)
+                        .foregroundStyle(Color.milensTextOnActionPrimary)
+                        .frame(maxWidth: .infinity, minHeight: 50)
                         .background(Color.milensActionPrimary)
                         .clipShape(Capsule())
                 }
@@ -177,17 +192,21 @@ struct OnboardingCreatePetStep: View {
                 }
                 .font(.caption)
                 .foregroundStyle(Color.milensTextSecondary)
+                .frame(minHeight: Sizing.touchTarget)
+                .contentShape(Rectangle())
             } else {
                 Button("稍后再说") {
                     viewModel.skipFeatureRegistration()
                 }
                 .font(.caption)
                 .foregroundStyle(Color.milensTextSecondary)
+                .frame(minHeight: Sizing.touchTarget)
+                .contentShape(Rectangle())
             }
 
             Spacer()
         }
-        .padding(.horizontal, Spacing.xxl)
+        .padding(.horizontal, Spacing.pagePad)
     }
 
     /// 加载选中的照片数据后触发注册（加载失败的照片自动跳过）。

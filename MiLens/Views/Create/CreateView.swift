@@ -61,6 +61,7 @@ struct CreateView: View {
                     emptyState
                 } else {
                     beadEntry
+                    petCardEntry
                 }
             }
             .frame(maxWidth: 760, alignment: .leading)
@@ -116,6 +117,49 @@ struct CreateView: View {
                     }
 
                     Text("把一张照片变成可动手完成的图案，附配色方案与材料清单。")
+                        .font(.bodySecondary)
+                        .foregroundStyle(Color.milensTextSecondary)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+
+                Spacer(minLength: Spacing.sm)
+
+                Image(systemName: "chevron.right")
+                    .font(.system(size: Sizing.iconSm, weight: .semibold))
+                    .foregroundStyle(Color.milensTextTertiary)
+                    .frame(width: Sizing.touchTarget, height: Sizing.touchTarget)
+            }
+            .padding(.vertical, Spacing.lg)
+
+            ArchiveDivider()
+        }
+    }
+
+    // MARK: - 宠物卡片入口（P4，暂不 Pro 门控）
+
+    private var petCardEntry: some View {
+        NavigationLink(value: Route.petCardPhotoPicker) {
+            petCardProjectRow
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel("宠物卡片，选择照片开始")
+    }
+
+    private var petCardProjectRow: some View {
+        VStack(spacing: 0) {
+            HStack(spacing: Spacing.lg) {
+                PetCardExampleVisual(path: photos.first.map {
+                    $0.thumbnailPath.isEmpty ? $0.uri : $0.thumbnailPath
+                } ?? "")
+                .frame(width: 104, height: 130)
+                .clipShape(RoundedRectangle(cornerRadius: Radius.medium, style: .continuous))
+
+                VStack(alignment: .leading, spacing: Spacing.sm) {
+                    Text("宠物卡片")
+                        .font(.titleStandard)
+                        .foregroundStyle(Color.milensTextPrimary)
+
+                    Text("把一张照片做成竖版纪念卡，带上名字与领养纪念日。")
                         .font(.bodySecondary)
                         .foregroundStyle(Color.milensTextSecondary)
                         .fixedSize(horizontal: false, vertical: true)
@@ -210,6 +254,48 @@ private struct BeadExampleVisual: View {
                   let outCG = CIContext().createCGImage(output, from: ciImage.extent) else { return nil }
             return UIImage(cgImage: outCG)
         }.value
+    }
+}
+
+// MARK: - 宠物卡片示意视觉
+
+/// 使用第一张真实照片渲染「卡片效果」预览（照片 + 底部渐变 + 爪印），
+/// 失败时保持中性表面（与 BeadExampleVisual 同一模式）。
+private struct PetCardExampleVisual: View {
+    let path: String
+    @State private var image: UIImage?
+
+    var body: some View {
+        ZStack(alignment: .bottomLeading) {
+            Color.milensGrouped
+            if let image {
+                Image(uiImage: image)
+                    .resizable()
+                    .aspectRatio(contentMode: .fill)
+            } else {
+                Image(systemName: "photo.artframe")
+                    .font(.system(size: 28, weight: .light))
+                    .foregroundStyle(Color.milensTextTertiary)
+            }
+            LinearGradient(
+                colors: [Color.black.opacity(0.55), Color.black.opacity(0.0)],
+                startPoint: .bottom, endPoint: .top
+            )
+            .frame(height: 56)
+            .frame(maxHeight: .infinity, alignment: .bottom)
+
+            Text("\u{1F43E}")
+                .font(.system(size: 18))
+                .padding(.leading, Spacing.md)
+                .padding(.bottom, Spacing.sm)
+        }
+        .task(id: path) {
+            guard image == nil, !path.isEmpty else { return }
+            image = await Task.detached(priority: .utility) {
+                UIImage(contentsOfFile: path)
+            }.value
+        }
+        .accessibilityHidden(true)
     }
 }
 

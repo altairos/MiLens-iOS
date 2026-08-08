@@ -29,6 +29,8 @@ protocol PhotoRepositoryProtocol {
     func getPhotosPage(offset: Int, limit: Int) throws -> [Photo]
     /// 某宠物的全部照片（对应源端 getPhotosByPetId）。
     func getPhotosByPet(_ pet: Pet) throws -> [Photo]
+    /// 未分配宠物的照片（档案「待整理」分类来源，UI-DESIGN.md §6.4；按拍摄时间倒序）。
+    func getUnassignedPhotos(limit: Int) throws -> [Photo]
     /// 指定月日拍摄、参与纪念事件的照片（对应源端 getAnniversaryEvents）。
     /// - Parameters:
     ///   - month: 1–12
@@ -110,6 +112,15 @@ final class SwiftDataPhotoRepository: PhotoRepositoryProtocol {
     func getPhotosByPet(_ pet: Pet) throws -> [Photo] {
         // 用已加载的关系排序，避免可选关系 predicate 的不确定性。
         return pet.photos.sorted { ($0.takenAt ?? .distantPast) > ($1.takenAt ?? .distantPast) }
+    }
+
+    func getUnassignedPhotos(limit: Int) throws -> [Photo] {
+        var descriptor = FetchDescriptor<Photo>(
+            predicate: #Predicate { $0.pet == nil },
+            sortBy: [SortDescriptor(\.takenAt, order: .reverse)]
+        )
+        descriptor.fetchLimit = max(0, limit)
+        return try context.fetch(descriptor)
     }
 
     /// 指定月日拍摄、参与纪念事件的照片（对应源端 `getAnniversaryEvents`）。

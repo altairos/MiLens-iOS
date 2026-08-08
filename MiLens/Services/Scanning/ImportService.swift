@@ -143,7 +143,7 @@ final class ImportService {
                     width: metadata?.pixelWidth ?? 0,
                     height: metadata?.pixelHeight ?? 0,
                     fileSize: metadata?.fileSize ?? Int64(imageData.count),
-                    category: "pet_photo",
+                    category: PhotoCategory.petPhoto.rawValue,
                     subCategory: "other"
                 )
 

@@ -76,6 +76,40 @@ struct ArchiveDivider: View {
     }
 }
 
+/// 分段筛选胶囊（档案照片分类 / 时间线宠物筛选共用）。
+/// 选中态用 ActionPrimary 实心底，未选中为卡片描边；可选计数徽标。
+struct FilterChip: View {
+    let title: String
+    let isSelected: Bool
+    var count: Int?
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            HStack(spacing: Spacing.xs) {
+                Text(title)
+                    .font(.bodySecondary.weight(.semibold))
+                if let count {
+                    Text("\(count)")
+                        .font(.caption)
+                        .foregroundStyle(isSelected ? Color.milensTextOnActionPrimary.opacity(0.8) : Color.milensTextTertiary)
+                }
+            }
+            .foregroundStyle(isSelected ? Color.milensTextOnActionPrimary : Color.milensTextSecondary)
+            .padding(.horizontal, Spacing.lg)
+            .frame(minHeight: Sizing.touchTarget)
+            .background(isSelected ? Color.milensActionPrimary : Color.milensCard)
+            .overlay {
+                Capsule().stroke(Color.milensBorder, lineWidth: isSelected ? 0 : 0.5)
+            }
+            .clipShape(Capsule())
+        }
+        .buttonStyle(.plain)
+        .animation(.easeInOut(duration: Motion.durationFast), value: isSelected)
+        .accessibilityAddTraits(isSelected ? .isSelected : [])
+    }
+}
+
 #Preview {
     VStack(alignment: .leading, spacing: 24) {
         ArchiveMarker(label: "记忆标记")

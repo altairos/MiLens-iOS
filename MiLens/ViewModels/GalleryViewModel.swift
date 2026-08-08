@@ -35,6 +35,8 @@ final class GalleryViewModel {
     var scanCompleteMessage = ""
     /// 本次扫描是否失败（未完整遍历）。决定完成弹窗的标题/图标与游标保存。
     var scanFailed = false
+    /// 照片权限被拒（denied/restricted/未授权）：完成弹窗显示「去设置」引导。
+    var permissionDenied = false
     var unassignedPetUris: [String] = []
     /// 预匹配到已注册宠物的照片 identifier（只读预判，尚未入库；
     /// 与 unassignedPetUris 一并提供导入入口，导入时真正归属写入）。
@@ -227,6 +229,7 @@ final class GalleryViewModel {
         isScanning = true
         showScanCompleteDialog = false
         scanFailed = false
+        permissionDenied = false
         unassignedPetUris = []
         matchedPetUris = []
 
@@ -242,6 +245,18 @@ final class GalleryViewModel {
 
         scanTask = Task { [weak self] in
             guard let self else { return }
+            // 权限前置（对应源端 PhotoScanner.checkAndRequestPermission）：
+            // notDetermined → 系统弹窗请求；denied/restricted → 弹窗引导去设置；
+            // authorized/limited → 继续扫描（limited = 仅限选中的照片，可扫描可见部分）。
+            guard await ensurePhotoPermission() else {
+                self.isScanning = false
+                self.scanProgressText = ""
+                self.permissionDenied = true
+                self.scanFailed = true
+                self.scanCompleteMessage = "需要照片访问权限才能扫描相册。\n可在「设置 → 隐私 → 照片」中开启。"
+                self.showScanCompleteDialog = true
+                return
+            }
             let result = await service.scanAlbum(afterTimestamp: afterTimestamp) { progress in
                 self.scanProgressText = GalleryPageState.resolveScanProgressLabel(
                     GalleryScanSnapshot(
@@ -275,6 +290,20 @@ final class GalleryViewModel {
                 self.loadInitial()
                 self.triggerQualityAnalysis()
             }
+        }
+    }
+
+    /// 扫描前权限前置检查（对应源端 PhotoScanner.checkAndRequestPermission）。
+    /// notDetermined 时触发系统授权弹窗；denied/restricted 直接返回 false（由调用方引导去设置）。
+    private func ensurePhotoPermission() async -> Bool {
+        switch await photoLibrary.authorizationStatus() {
+        case .authorized, .limited:
+            return true
+        case .notDetermined:
+            let status = await photoLibrary.requestAuthorization()
+            return status == .authorized || status == .limited
+        case .denied, .restricted:
+            return false
         }
     }
 

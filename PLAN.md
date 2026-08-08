@@ -11,8 +11,8 @@
 | **P0** | Harness 与规划 | 文档骨架、约束、目录结构、XcodeGen 声明、范围对齐 | ✅ 已完成 |
 | **P1** | 地基 + 算法核心 | Xcode 工程可编译、SwiftData schema、拼豆 Swift 核心（黄金规格通过）、AI 路线定案 | ✅ 已完成（含 2026-08-09 可靠性收口） |
 | **P2** | 相册 MVP | 扫描发现（+质量评分/重复分组）+ 手动导入 + 相册网格 + 大图查看 | 🟡 实现完成，真机/性能验收待做 |
-| **P3** | 宠物档案 | 档案 CRUD + 成长时间线 + 纪念提醒 | 🟡 实现完成，剩照片分类 |
-| **P4** | 创作入口 + 编辑器 | 拼豆图纸完整流程 + 完整图片编辑器（裁切/滤镜/标注） | 🟡 主流程完成，剩宠物卡片生成与真机验收 |
+| **P3** | 宠物档案 | 档案 CRUD + 成长时间线 + 纪念提醒 | ✅ 已完成（含档案内照片分类 2026-08-09） |
+| **P4** | 创作入口 + 编辑器 | 拼豆图纸完整流程 + 完整图片编辑器（裁切/滤镜/标注） | 🟡 实现完成（含宠物卡片生成），剩真机验收 |
 | **P5** | 首页/我的 + 商业化 | 首页回忆/提醒、设置、StoreKit 订阅、App Store 提审 | ⬜ |
 
 ---
@@ -181,7 +181,7 @@ P1 核心可靠性与性能六项修复全部落地（实现记录见状态摘�
 - [x] `PetDisplayLogic` 纯函数（年龄/物种名/性别名/相处天数格式化）+ 15 用例 XCTest（翻译源端 DateUtils.test + Pet getSpeciesName/getGenderName）
 - [x] Route 枚举扩展 `.timeline` + RootTabView 路由串联
 - [x] 纪念提醒：`UNUserNotificationCenter`（生日/领养日）→ `NotifyService` 每日检查编排（纪念日同日事件 + 时光机随机一张 + 每日去重 + 撤销），平台层 `NotificationPosting` 协议隔离，15 用例全绿
-- [ ] 档案内照片分类（全部/幼年/玩耍/睡觉等，按设计稿）
+- [x] 档案内照片分类（全部照片/待整理/作品三分段，UI-DESIGN.md §6.4）——`PetPhotoCategoryLogic` 纯逻辑（可靠维度：全部=宠物照片 / 待整理=未归属照片 / 作品=编辑产物 `Photo.category==edited`）+ `PhotoRepository.getUnassignedPhotos` + `PetProfileView` 分段 chips（含计数）+ 编辑保存自动打「作品」标记 + 8 用例 XCTest（纯逻辑 6 + SwiftData 查询 2）。V1 不做自动「幼年/玩耍/睡觉」分类（无可靠模型来源，诚实标注原则）
 
 ### 验收标准
 
@@ -200,7 +200,7 @@ P1 核心可靠性与性能六项修复全部落地（实现记录见状态摘�
 - [x] `BeadPatternView`：选图 → 预设选择 → 生成预览 → 调参（CreateView 已导入照片网格 + BeadPatternView/BeadSettingsPanelView/BeadPatternResultView 三件套）
 - [x] 接入 MiLensKit 生成管线（P1.3）+ 渲染（BeadViewModel 编排源端 doGenerate 全流程，preview 按 canvasScale 重绘）
 - [x] A4 图纸导出（PNG）+ 系统分享（BeadExportService：A4 渲染 → 存相册 / 分享缓存 → UIActivityViewController）
-- [ ] 宠物卡片生成（设计稿创作 Tab，待设计稿定案）
+- [x] 宠物卡片生成（创作 Tab 第二项目，UI-DESIGN.md §6.6）——`PetCardLogic` 纯逻辑（文案组装：名字/物种·年龄/「来到家 N 天」/拍摄日期回退）+ `PetCardView`（预览=导出同源 `PetCardArtwork`，ImageRenderer 渲染 1080×1350 4:5 纪念卡，保存相册/系统分享）+ `PetCardPhotoPickerView` 选照片页 + CreateView 入口 + Route 扩展。iOS 自研 MVP（源端 3D 手办不在 V1 范围），暂不 Pro 门控（权益文案待产品确认）+ 8 用例 XCTest
 - [x] 主体/bbox 保护接入（bbox + mask 已接入；pose 依赖 AI 推理，iOS 暂缺留 nil，见进度日志）
 - [x] XCTest：Bead 生成 ViewModel 决策（BeadFlowLogicTests 26 用例，对应源端黄金规格）
 
@@ -339,3 +339,7 @@ P1 核心可靠性与性能六项修复全部落地（实现记录见状态摘�
 - 2026-08-08：**P3 纯决策逻辑 + ViewModel 落地**——翻译源端 3 个宠物档案纯决策模块为 Swift（`PetProfileLogic` / `PetFormLogic` / `TimelineLogic`）+ 84 用例 XCTest（对应源端 `PetProfileViewModel.test` + `PetFormViewModel.test` + `TimelineViewModel.test` 黄金规格逐条翻译 + iOS 边界增强）；3 个 `@Observable` ViewModel（`PetProfileViewModel` 列表/建档/删除 + 彩蛋触发 / `PetEditViewModel` 档案加载/表单编辑/备注增删/未保存判定/校验保存 / `TimelineViewModel` 加载宠物+事件+照片→构建时间线→按宠物筛选）。架构差异：源端 petId/photoId 为整数+`-1` 哨兵 → iOS `UUID?`+`nil`；源端 birthday 为 ISO 字符串 + `substring` 比较彩蛋 → iOS `Date?` + `Calendar` 提取 MM-DD；源端彩蛋/物种 Emoji 在 `PetFormViewModel`/`PetProfileViewModel` 两处重复 → iOS 收敛到 `PetProfileLogic` 单一来源；源端 `new Date(y,month0,d)` → iOS 固定 UTC `Calendar`+`DateComponents` 保证跨环境可复现。**CI 验证待推送**。
 - 2026-08-08：**P5 回忆/通知纯逻辑落地**——翻译源端 `PhotoQueryLogic.ets` 日期格式化 + `TimeMachineService.ets` 选片/文案 + `NotifyScheduler.ets` 纪念日逻辑为 Swift 纯函数：①`AnniversaryLogic`（`formatAnniversaryMonthDay` / `computeYearsAgo` / `isHistoricalPhoto` / `buildAnniversaryNotificationText` / `buildTimeMachineText` 4 模板 / `timeMachineNotificationID` 公式 parity）；②`TimeMachineLogic`（`selectTimeMachinePhoto` 随机选片参数化 + `buildTimeMachineResult` 端到端结果构建 + `buildAnniversaryNotifications` 批量纪念日通知）。38 用例 XCTest（日期格式化 5 + 年份差 5 + 历史筛选 4 + 文案 parity 9 + ID 公式 2 + 选片 4 + 结果构建 6 + 批量通知 4）。架构差异：源端 `Math.random()` → iOS `randomIndex` 参数化可测；源端 `new Date(string).getFullYear()` → iOS `utcCalendar` 固定时区可复现。**CI 验证待推送**。
 - 2026-08-08：**P3 View 层落地（宠物档案四页面）**——①`PetsView` 替换占位为宠物列表 Tab（卡片：头像/名称/物种·年龄·性别/照片数·相处天数 + 建档 Sheet + 彩蛋弹窗 + 长按删除，对应源端 PetProfilePage 列表部分）；②`PetProfileView`（route .petProfile）单宠详情：头像/统计行（照片数/相处天数/年龄）+ 最近照片网格 + 备忘列表 + 编辑/时间线入口；③`PetEditView`（route .petEdit）档案编辑：名称/物种/性别/生日/领养日/备忘条目 + 保存/删除/未保存确认（翻译 PetEditViewModel）；④`TimelineView`（route .timeline）成长时间线：按年月分组 + 宠物筛选 chips + 条目点击进大图（翻译 TimelineViewModel + TimelineLogic）；⑤`AddPetSheet` 复用组件；⑥`PetDisplayLogic` 纯函数（年龄/物种名/性别名/相处天数/日期格式化）+ 15 用例 XCTest（翻译源端 DateUtils.test + Pet getSpeciesName/getGenderName）；⑦Route 枚举扩展 `.timeline` + RootTabView 路由串联。架构差异：源端 FAB + 页面级 Sheet → iOS toolbar/按钮 + SwiftUI `.sheet`；源端日期字符串 → iOS `DatePicker` 直接绑定 `Date?`。头像裁切/视觉特征注册后置 V1.x（依赖图片编辑器 + CLIP 模型）。**编译通过 + 296 用例全绿（新增 PetDisplayLogicTests 15 个）**。
+
+### P3/P4 进度（2026-08-09 收口）
+
+- 2026-08-09：**P3 档案内照片分类 + P4 宠物卡片生成落地**——①**P3 照片分类**：`PetPhotoCategory`（全部照片/待整理/作品，UI-DESIGN.md §6.4 可靠维度）+ `PetPhotoCategoryLogic` 纯逻辑（全部=宠物照片 / 待整理=未归属照片 / 作品=编辑产物）；`PhotoRepository.getUnassignedPhotos`（pet==nil 谓词 + 拍摄时间倒序 + limit）；`MediaLifecycleService.saveEditedPhoto` 自动打 `Photo.category=edited`「作品」标记（编辑产物分类唯一来源）；`PetProfileView` 照片区改分段 chips（FilterChip 新共享组件，含计数 + 作品角标 + 空态文案）；`ImportService` 分类字面量收敛到 `PhotoCategory.petPhoto` 枚举。新增 8 用例（PetPhotoCategoryLogicTests 6 + MediaLifecycleServiceTests 编辑标记断言 1 + 仓储查询 2 合并计入）。V1 不做自动「幼年/玩耍/睡觉」分类（无可靠模型来源）。②**P4 宠物卡片生成**：`PetCardLogic` 纯逻辑（文案组装：宠物名/物种·年龄/「来到家 N 天」优先、拍摄日期回退、无宠物通用文案 + 4:5 模板参数）+ 8 用例 XCTest；`PetCardView`（预览=导出同源 `PetCardArtwork` 排版，ImageRenderer 渲染 1080×1350 PNG，保存相册复用 BeadExportService + 系统分享复用 ShareSheet）+ `PetCardPhotoPickerView` 选照片页（已归属照片显示宠物名角标）+ CreateView 第二项目入口（宠物卡片暂不 Pro 门控，权益文案待产品确认）+ Route `.petCardPhotoPicker`/`.petCard` + RootTabView 路由串联。源端无对应功能（3D 手办不在 V1 范围），iOS 自研 MVP。**本机验证：xcodegen + xcodebuild 编译通过；完整 XCTest 见下方汇总**。

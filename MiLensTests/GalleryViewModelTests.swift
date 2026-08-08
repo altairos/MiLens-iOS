@@ -75,6 +75,40 @@ final class GalleryViewModelTests: XCTestCase {
         XCTAssertEqual(cursorStore.lastSuccessfulScan, baseline, "失败扫描不得覆盖历史游标")
     }
 
+    // MARK: - 权限前置（对应源端 checkAndRequestPermission）
+
+    func testScanDeniedWithoutPermissionShowsGuideAndSkipsScan() async {
+        // 权限被拒（denied）时不得直接跑扫描：弹窗引导去设置，且不保存增量游标
+        let library = MockPhotoLibraryAccess(assets: [])
+        library.authorizationStatusValue = .denied
+        let cursorStore = MockScanCursorStore()
+        let vm = makeVM(library: library, cursorStore: cursorStore)
+
+        vm.startScan(scanNewOnly: true)
+        await waitForScanToFinish(vm)
+
+        XCTAssertTrue(vm.permissionDenied, "权限被拒应进入引导分支")
+        XCTAssertTrue(vm.scanFailed)
+        XCTAssertTrue(vm.showScanCompleteDialog, "被拒也弹窗展示引导信息")
+        XCTAssertTrue(cursorStore.savedTimestamps.isEmpty, "未授权不得保存游标")
+    }
+
+    func testScanRequestsAuthorizationWhenNotDetermined() async {
+        // 从未授权（notDetermined）：先弹系统授权，授权后继续扫描并保存游标
+        let library = MockPhotoLibraryAccess(assets: [])
+        library.authorizationStatusValue = .notDetermined
+        library.requestedResult = .authorized
+        let cursorStore = MockScanCursorStore()
+        let vm = makeVM(library: library, cursorStore: cursorStore)
+
+        vm.startScan(scanNewOnly: true)
+        await waitForScanToFinish(vm)
+
+        XCTAssertFalse(vm.permissionDenied, "弹窗授权后应继续扫描")
+        XCTAssertFalse(vm.scanFailed)
+        XCTAssertEqual(cursorStore.savedTimestamps.count, 1, "授权后完整完成的扫描应保存游标")
+    }
+
     // MARK: - 删除（走媒体生命周期服务）
 
     func testDeletePhotoGoesThroughMediaLifecycle() async {

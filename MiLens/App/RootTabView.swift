@@ -80,6 +80,11 @@ struct RootTabView: View {
             } else {
                 PaywallView()
             }
+        case .petCardPhotoPicker:
+            // 宠物卡片暂为免费能力（Pro 权益文案仅含拼豆+编辑器，待产品确认后门控）
+            PetCardPhotoPickerView()
+        case .petCard(let photoID):
+            PetCardView(photoID: photoID)
         case .petEdit(let petID):
             PetEditView(petID: petID)
         case .timeline:

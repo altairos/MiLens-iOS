@@ -17,6 +17,8 @@ struct PetProfileView: View {
 
     @State private var pet: Pet?
     @State private var photos: [Photo] = []
+    @State private var unassignedPhotos: [Photo] = []
+    @State private var selectedCategory: PetPhotoCategory = .all
     @State private var isLoading = true
 
     private let photoColumns = [GridItem(.adaptive(minimum: 100), spacing: 2)]
@@ -34,7 +36,7 @@ struct PetProfileView: View {
                                 profileHeader(pet)
                                 statsRow(pet)
                                 storySection(pet)
-                                if !photos.isEmpty {
+                                if hasPhotoContent {
                                     photosSection
                                 }
                                 if !parsedNotes.isEmpty {
@@ -176,30 +178,95 @@ struct PetProfileView: View {
 
     // MARK: - 照片网格
 
+    /// 任一分类有照片即展示照片区（全部/作品为空时，待整理可能仍有内容）。
+    private var hasPhotoContent: Bool {
+        !photos.isEmpty || !unassignedPhotos.isEmpty
+    }
+
     private var photosSection: some View {
         VStack(alignment: .leading, spacing: Spacing.md) {
-            Text("最近照片")
-                .font(.titleStandard)
-                .foregroundStyle(Color.milensTextPrimary)
-            LazyVGrid(columns: photoColumns, spacing: 2) {
-                ForEach(photos.prefix(9), id: \.id) { photo in
-                    NavigationLink(value: Route.photoView(photoID: photo.id)) {
-                        ThumbnailImage(path: photo.thumbnailPath.isEmpty ? photo.uri : photo.thumbnailPath)
-                            .aspectRatio(1, contentMode: .fill)
-                            .clipped()
-                            .clipShape(RoundedRectangle(cornerRadius: 4))
-                    }
-                    .buttonStyle(.plain)
+            HStack(alignment: .firstTextBaseline, spacing: Spacing.md) {
+                Text("照片")
+                    .font(.titleStandard)
+                    .foregroundStyle(Color.milensTextPrimary)
+                Spacer()
+                if selectedCategory == .unassigned {
+                    Text("尚未归属宠物的照片")
+                        .font(.caption)
+                        .foregroundStyle(Color.milensTextTertiary)
+                        .multilineTextAlignment(.trailing)
                 }
             }
-            if photos.count > 9 {
-                NavigationLink(value: Route.gallery) {
-                    Text("查看全部 \(photos.count) 张")
-                        .font(.bodySecondary)
-                        .foregroundStyle(Color.milensPrimary)
+
+            // 分类分段：全部照片 / 待整理 / 作品（UI-DESIGN.md §6.4，可靠维度）
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: Spacing.sm) {
+                    ForEach(PetPhotoCategory.profileOrder) { category in
+                        FilterChip(
+                            title: category.title,
+                            isSelected: selectedCategory == category,
+                            count: PetPhotoCategoryLogic.count(
+                                petPhotos: photos, unassigned: unassignedPhotos, category: category)
+                        ) {
+                            selectedCategory = category
+                        }
+                    }
+                }
+                .padding(.vertical, Spacing.xs)
+            }
+
+            let shown = PetPhotoCategoryLogic.filter(
+                petPhotos: photos, unassigned: unassignedPhotos, category: selectedCategory)
+            if shown.isEmpty {
+                emptyCategoryView
+            } else {
+                LazyVGrid(columns: photoColumns, spacing: 2) {
+                    ForEach(shown.prefix(9), id: \.id) { photo in
+                        NavigationLink(value: Route.photoView(photoID: photo.id)) {
+                            ThumbnailImage(path: photo.thumbnailPath.isEmpty ? photo.uri : photo.thumbnailPath)
+                                .aspectRatio(1, contentMode: .fill)
+                                .clipped()
+                                .clipShape(RoundedRectangle(cornerRadius: 4))
+                        }
+                        .buttonStyle(.plain)
+                        .overlay(alignment: .topTrailing) {
+                            if PetPhotoCategoryLogic.isEditedPhoto(photo) {
+                                Image(systemName: "paintbrush.pointed.fill")
+                                    .font(.system(size: 10))
+                                    .foregroundStyle(.white)
+                                    .padding(4)
+                                    .background(Color.milensActionPrimary.opacity(0.85))
+                                    .clipShape(Circle())
+                                    .padding(4)
+                            }
+                        }
+                    }
+                }
+                if shown.count > 9 {
+                    NavigationLink(value: Route.gallery) {
+                        Text("查看全部 \(shown.count) 张")
+                            .font(.bodySecondary)
+                            .foregroundStyle(Color.milensPrimary)
+                    }
                 }
             }
         }
+    }
+
+    private var emptyCategoryView: some View {
+        VStack(spacing: Spacing.xs) {
+            Text(selectedCategory == .all ? "还没有照片" : "这个分类还没有照片")
+                .font(.bodyPrimary)
+                .foregroundStyle(Color.milensTextSecondary)
+            Text(selectedCategory == .unassigned
+                 ? "在相册中导入或扫描照片后，尚未归属宠物的照片会出现在这里。"
+                 : "在图片编辑器中保存过的照片，会出现在这里。")
+                .font(.bodySecondary)
+                .foregroundStyle(Color.milensTextTertiary)
+                .multilineTextAlignment(.center)
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, Spacing.xl)
     }
 
     private func storySection(_ pet: Pet) -> some View {
@@ -347,6 +414,13 @@ struct PetProfileView: View {
                     photos = []
                     logger.error("load: 读取宠物照片失败（\(error.localizedDescription)）")
                 }
+            }
+            // 待整理分类：未归属宠物的照片（失败时置空，不阻断档案展示）
+            do {
+                unassignedPhotos = try photoRepo.getUnassignedPhotos(limit: 200)
+            } catch {
+                unassignedPhotos = []
+                logger.error("load: 读取未归属照片失败（\(error.localizedDescription)）")
             }
         } catch {
             pet = nil

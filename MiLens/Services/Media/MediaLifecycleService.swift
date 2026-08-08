@@ -79,6 +79,8 @@ final class MediaLifecycleService {
             photo.fileSize = Int64(data.count)
             photo.width = width
             photo.height = height
+            // 作品标记：档案「作品」分类的唯一可靠来源（UI-DESIGN.md §6.4）
+            photo.category = PhotoCategory.edited.rawValue
             try photoRepo.updatePhoto(photo)
         } catch {
             // 记录更新失败 → 恢复内存旧值 + 回滚新文件，记录保持指向旧文件

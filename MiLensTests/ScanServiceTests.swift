@@ -478,6 +478,7 @@ private final class FailingPhotoRepository: PhotoRepositoryProtocol {
     func getPhotoByOriginalURI(_ originalURI: String) throws -> Photo? { nil }
     func getPhotosPage(offset: Int, limit: Int) throws -> [Photo] { [] }
     func getPhotosByPet(_ pet: Pet) throws -> [Photo] { [] }
+    func getUnassignedPhotos(limit: Int) throws -> [Photo] { [] }
     func getAnniversaryPhotos(month: Int, day: Int, excludeYear: Int?) throws -> [Photo] { [] }
     func insertPhoto(_ photo: Photo) throws {}
     func deletePhoto(_ photo: Photo) throws {}

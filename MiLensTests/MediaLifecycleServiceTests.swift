@@ -78,6 +78,8 @@ final class MediaLifecycleServiceTests: XCTestCase {
         XCTAssertEqual(photo.width, 200)
         XCTAssertEqual(photo.height, 150)
         XCTAssertEqual(photo.fileSize, 1)
+        XCTAssertEqual(photo.category, PhotoCategory.edited.rawValue,
+                       "编辑保存必须打「作品」标记（档案分类唯一来源）")
     }
 
     func testSaveEditedPhotoRollsBackNewFileWhenDBFails() async throws {
@@ -209,6 +211,7 @@ private final class FailingPhotoRepository: PhotoRepositoryProtocol {
     func getAllPhotoURIs() throws -> Set<String> { try wrapped.getAllPhotoURIs() }
     func getPhotosPage(offset: Int, limit: Int) throws -> [Photo] { try wrapped.getPhotosPage(offset: offset, limit: limit) }
     func getPhotosByPet(_ pet: Pet) throws -> [Photo] { try wrapped.getPhotosByPet(pet) }
+    func getUnassignedPhotos(limit: Int) throws -> [Photo] { try wrapped.getUnassignedPhotos(limit: limit) }
     func getAnniversaryPhotos(month: Int, day: Int, excludeYear: Int?) throws -> [Photo] { try wrapped.getAnniversaryPhotos(month: month, day: day, excludeYear: excludeYear) }
     func insertPhoto(_ photo: Photo) throws {
         if failOnInsert { throw FailingError.simulatedDBFailure }

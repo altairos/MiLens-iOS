@@ -32,6 +32,11 @@ final class InMemoryPhotoRepository: PhotoRepositoryProtocol {
     func getPhotosByPet(_ pet: Pet) throws -> [Photo] {
         photos.filter { $0.pet?.id == pet.id }
     }
+    func getUnassignedPhotos(limit: Int) throws -> [Photo] {
+        Array(photos.filter { $0.pet == nil }
+            .sorted { ($0.takenAt ?? .distantPast) > ($1.takenAt ?? .distantPast) }
+            .prefix(max(0, limit)))
+    }
     func getAnniversaryPhotos(month: Int, day: Int, excludeYear: Int?) throws -> [Photo] {
         photos
             .filter { $0.eventNotify && !$0.note.isEmpty }

@@ -3,6 +3,7 @@
 //  内容区渲染分支由 GalleryPageState.resolveContentKind 决定。
 
 import SwiftUI
+import UIKit
 import MiLensKit
 
 struct GalleryView: View {
@@ -75,15 +76,30 @@ struct GalleryView: View {
         let kind = GalleryPageState.resolveContentKind(
             display: vm.displaySnapshot, filter: vm.filterSnapshot
         )
-        switch kind {
-        case .loading:
-            ProgressView()
-        case .emptyDefault:
-            emptyDefaultView(vm)
-        case .emptyFiltered:
-            emptyFilteredView
-        case .content:
-            photoGrid(vm)
+        Group {
+            switch kind {
+            case .loading:
+                ProgressView()
+            case .emptyDefault:
+                emptyDefaultView(vm)
+            case .emptyFiltered:
+                emptyFilteredView
+            case .content:
+                photoGrid(vm)
+            }
+        }
+        // 进度条与完成弹窗挂载在内容区外层：空状态/筛选空态下扫描也有反馈
+        // （此前仅 photoGrid 分支可见，空状态点「开始扫描」看起来毫无反应）。
+        .overlay(alignment: .top) {
+            if vm.isScanning {
+                scanProgressBar(vm)
+            }
+        }
+        .sheet(isPresented: Binding(
+            get: { vm.showScanCompleteDialog },
+            set: { vm.showScanCompleteDialog = $0 }
+        )) {
+            ScanCompleteSheet(viewModel: vm)
         }
     }
 
@@ -174,17 +190,6 @@ struct GalleryView: View {
             }
             .padding(.top, Spacing.sm)
             .padding(.bottom, Spacing.xxl)
-        }
-        .overlay(alignment: .top) {
-            if vm.isScanning {
-                scanProgressBar(vm)
-            }
-        }
-        .sheet(isPresented: Binding(
-            get: { vm.showScanCompleteDialog },
-            set: { vm.showScanCompleteDialog = $0 }
-        )) {
-            ScanCompleteSheet(viewModel: vm)
         }
     }
 
@@ -444,6 +449,7 @@ struct ThumbnailImage: View {
 
 private struct ScanCompleteSheet: View {
     let viewModel: GalleryViewModel
+    @Environment(\.openURL) private var openURL
 
     var body: some View {
         NavigationStack {
@@ -475,6 +481,18 @@ private struct ScanCompleteSheet: View {
                     .buttonStyle(.borderedProminent)
                     .tint(Color.milensPrimary)
                     .disabled(viewModel.isImporting)
+                }
+
+                // 权限被拒时提供系统设置引导（「设置 → 隐私 → 照片」）
+                if viewModel.permissionDenied {
+                    Button("去设置") {
+                        if let url = URL(string: UIApplication.openSettingsURLString) {
+                            openURL(url)
+                        }
+                    }
+                    .font(.bodyPrimary)
+                    .buttonStyle(.borderedProminent)
+                    .tint(Color.milensPrimary)
                 }
 
                 Button("完成") {

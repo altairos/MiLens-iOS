@@ -1,0 +1,95 @@
+//  PetCardLogicTests —— 宠物卡片文案与模板参数测试（P4）。
+//  对应 UI-DESIGN.md §6.6 创作首页「宠物卡片」项目（iOS 自研，源端无对应功能）。
+
+import XCTest
+@testable import MiLens
+
+final class PetCardLogicTests: XCTestCase {
+
+    private let fixedNow = Date(timeIntervalSince1970: 1_752_000_000) // 2025-07-16 UTC 附近
+    private let calendar = PetDateCalendar.gregorian
+
+    private func makePet(
+        name: String = "咪咪",
+        species: Species = .cat,
+        birthday: Date? = nil,
+        adoptionDay: Date? = nil
+    ) -> Pet {
+        Pet(name: name, species: species, birthday: birthday, adoptionDay: adoptionDay)
+    }
+
+    // MARK: - 有宠物
+
+    func testContentWithPetAndAdoptionDayUsesAnniversaryLine() {
+        // 领养日 100 天前 → 日期行优先「来到家 100 天」而非拍摄日期
+        let adoption = fixedNow.addingTimeInterval(-100 * 86_400)
+        let pet = makePet(adoptionDay: adoption)
+        let content = PetCardLogic.content(
+            pet: pet, takenAt: fixedNow, now: fixedNow, calendar: calendar)
+
+        XCTAssertEqual(content.title, "咪咪")
+        XCTAssertEqual(content.emoji, "\u{1F431}")
+        XCTAssertEqual(content.subtitle, "喵星人", "年龄未知时副标题只显示物种")
+        XCTAssertEqual(content.dateLine, "来到家 100 天")
+    }
+
+    func testContentSubtitleIncludesAgeWhenBirthdayKnown() {
+        // 生日 3 年 2 个月前的稳定日期（UTC 固定日历，跨时区可复现）
+        let birthday = calendar.date(
+            from: DateComponents(year: 2022, month: 5, day: 16))!
+        let pet = makePet(birthday: birthday)
+        let content = PetCardLogic.content(
+            pet: pet, takenAt: nil, now: fixedNow, calendar: calendar)
+
+        XCTAssertEqual(content.subtitle, "喵星人 · 3岁2个月")
+    }
+
+    func testContentWithoutAdoptionDayFallsBackToTakenDate() {
+        let pet = makePet()
+        let content = PetCardLogic.content(
+            pet: pet, takenAt: fixedNow, now: fixedNow, calendar: calendar)
+
+        XCTAssertEqual(content.dateLine, PetDisplayLogic.dateText(fixedNow, calendar: calendar))
+    }
+
+    func testContentDogEmoji() {
+        let pet = makePet(species: .dog)
+        let content = PetCardLogic.content(
+            pet: pet, takenAt: nil, now: fixedNow, calendar: calendar)
+
+        XCTAssertEqual(content.emoji, "\u{1F436}")
+        XCTAssertEqual(content.subtitle, "汪星人", "年龄未知时副标题只显示物种")
+    }
+
+    // MARK: - 无宠物回退
+
+    func testContentWithoutPetUsesFallbackCopy() {
+        let content = PetCardLogic.content(
+            pet: nil, takenAt: fixedNow, now: fixedNow, calendar: calendar)
+
+        XCTAssertEqual(content.title, "这一天")
+        XCTAssertEqual(content.emoji, "\u{1F43E}")
+        XCTAssertEqual(content.subtitle, "值得记住的一天")
+        XCTAssertEqual(content.dateLine, PetDisplayLogic.dateText(fixedNow, calendar: calendar))
+    }
+
+    func testContentWithoutPetAndNoTakenDateKeepsEmptyDateLine() {
+        let content = PetCardLogic.content(
+            pet: nil, takenAt: nil, now: fixedNow, calendar: calendar)
+        XCTAssertEqual(content.dateLine, "")
+    }
+
+    // MARK: - 模板参数
+
+    func testExportSizeIs4x5Portrait() {
+        let size = PetCardLogic.exportSize
+        XCTAssertEqual(size.width, 1080)
+        XCTAssertEqual(size.height, 1350)
+        XCTAssertEqual(Double(size.width) / Double(size.height), 4.0 / 5.0, accuracy: 0.001)
+    }
+
+    func testGradientRatioWithinSafeRange() {
+        XCTAssertGreaterThan(PetCardLogic.gradientHeightRatio, 0.3)
+        XCTAssertLessThan(PetCardLogic.gradientHeightRatio, 0.6)
+    }
+}

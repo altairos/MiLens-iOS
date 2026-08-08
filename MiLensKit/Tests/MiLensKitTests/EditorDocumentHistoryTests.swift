@@ -51,6 +51,29 @@ final class EditorDocumentTests: XCTestCase {
         XCTAssertFalse(doc.remove("nonexistent"))
     }
 
+    func testUpdateLayerModifiesProperties() {
+        let doc = EditorDocument()
+        var text = createTextLayer(text: "你好", x: 10, y: 20)
+        doc.add(&text)
+
+        let updated = doc.updateLayer(text.id) { layer in
+            layer.text = "更新后"
+            layer.fontSize = 48
+            layer.x = 99
+        }
+        XCTAssertTrue(updated)
+        let result = doc.findLayer(text.id)
+        XCTAssertEqual(result?.text, "更新后")
+        XCTAssertEqual(result?.fontSize, 48)
+        XCTAssertEqual(result?.x, 99)
+        XCTAssertEqual(result?.zIndex, 0, "zIndex 保持不变")
+    }
+
+    func testUpdateLayerNonexistentReturnsFalse() {
+        let doc = EditorDocument()
+        XCTAssertFalse(doc.updateLayer("ghost") { $0.text = "x" })
+    }
+
     func testSelectAndClear() {
         let doc = EditorDocument()
         var l1 = createImageLayer(type: .photo, width: 100, height: 200)

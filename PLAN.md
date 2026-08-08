@@ -12,7 +12,7 @@
 | **P1** | 地基 + 算法核心 | Xcode 工程可编译、SwiftData schema、拼豆 Swift 核心（黄金规格通过）、AI 路线定案 | ⬜ |
 | **P2** | 相册 MVP | 扫描发现（+质量评分/重复分组）+ 手动导入 + 相册网格 + 大图查看 | 🔄 进行中 |
 | **P3** | 宠物档案 | 档案 CRUD + 成长时间线 + 纪念提醒 | 🔄 进行中（纯逻辑+VM+View+提醒 ✅，剩照片分类） |
-| **P4** | 创作入口 + 编辑器 | 拼豆图纸完整流程 + 完整图片编辑器（裁切/滤镜/标注） | ⬜ |
+| **P4** | 创作入口 + 编辑器 | 拼豆图纸完整流程 + 完整图片编辑器（裁切/滤镜/标注） | 🔄 进行中（编辑器 Phase 1-3 ✅；拼豆图纸并行推进中） |
 | **P5** | 首页/我的 + 商业化 | 首页回忆/提醒、设置、StoreKit 订阅、App Store 提审 | ⬜ |
 
 ---
@@ -218,18 +218,18 @@
 
 **Phase 3：App 层 Controller + View（需 Mac）**
 
-- [ ] 编辑器骨架：`Views/Editor/` + `EditorViewModel` + 撤销/重做绑定
-- [ ] 裁切/旋转/翻转 UI + 手势（EditorCropMath / LayerGeometry / CropOverlay 驱动）
-- [ ] 滤镜面板（CIFilter + EditorColorAdjust 因子）
-- [ ] 标注/马赛克/文字（翻译源端 `editor/` 标注能力）
-- [ ] 编辑产物回写沙盒（沿用 DESIGN.md §7 唯一入库路径）
-- [ ] XCTest：编辑器 ViewModel 决策
+- [x] 编辑器骨架：`Views/Editor/` + `EditorViewModel` + 撤销/重做绑定
+- [x] 裁切/旋转/翻转 UI + 手势（EditorCropMath / LayerGeometry / CropOverlay 驱动）
+- [x] 滤镜面板（CIFilter + EditorColorAdjust 因子）
+- [x] 文字 + 抠图（调研确认源端 `editor/` 无马赛克/标注差异；抠图走 Vision 真实语义分割，失败即 error 无降级）
+- [x] 编辑产物回写沙盒（沿用 DESIGN.md §7 唯一入库路径）
+- [x] XCTest：编辑器 ViewModel 决策
 
 ### 验收标准
 
-- 从相册选图到拼豆图纸导出完整走通
+- 从相册选图到拼豆图纸导出完整走通（拼豆图纸并行推进中）
 - 行为与源端 BeadPatternPage 一致（对照源端用例）
-- 图片编辑器裁切/滤镜/标注可用，产物正确入库
+- 图片编辑器裁切/滤镜/文字/抠图可用，产物正确入库（Phase 3 完成：编辑产物走 `Documents/MiPhotos` + Photo 就地更新）
 
 ---
 
@@ -302,7 +302,8 @@
 - 2026-08-08：**P1.3 拼豆算法核心完成**——最后一个大模块 `BeadPatternService.swift` 主入口落地（514 行）：同步 `generateBeadPattern` / 异步 `generateBeadPatternAsync`（Task.checkCancellation 取消）/ 自动模式 `generateBeadPatternAuto` + 异步版（色数 × 风格矩阵 + TriScore 选优）。架构差异：源端 Native C++ + ArkTS fallback 双路径 → iOS 纯 Swift 单路径；源端 TaskPool + jobId 取消表 → async/await + Task.cancel()。扩展 `BeadPattern` 结构体（补 protectMask/faceRoi/diagnostics/triScore/autoColorHint 字段）+ 新增 `getColorLimitBySize`。XCTest 16 用例（翻译源端 6 个可靠性用例 + 新增输入校验/auto/异步取消）。
 - 2026-08-08：**P4 图片编辑器 Phase 1-2 落地**——源端 `editor/` 纯逻辑+文档+历史翻译到 MiLensKit（8 文件 / ~1180 行）：Phase 1 纯逻辑 6 模块（ColorAdjust/SharpnessKernel/CropMath/LayerModels/LayerGeometry/ExifPolicy）；Phase 2 文档+序列化+历史（EditorDocument 含 JSON 序列化，EditorHistory 泛型撤销/重做+手势合并）。XCTest 53 用例。架构差异：源端 CSS Canvas filter → iOS CIFilter 结构化因子；源端 PixelMap 运行时资源 → App ViewModel 持有 CGImage；源端 LayerSerializer PixelMap 恢复回调 → iOS JSONEncoder/Decoder 无回调。本地 swift build 待 WSL2 恢复后验证。
 - 2026-08-08：**P4 图片编辑器 Phase 2.5 ViewModel 纯逻辑落地**——源端 `viewmodels/Editor*ViewModel.ets` 7 个纯逻辑文件翻译到 MiLensKit（7 文件 / ~825 行）：EditorToolLogic（工具切换/宽高比/裁剪比例/工具组双层状态 263 行→273 行）、EditorCropOverlay（裁剪框覆盖层遮罩/九宫格/角手柄/clamp 137 行→140 行）、EditorCanvasLogic（画布状态查询 36 行→49 行）、EditorAdjustLogic（调色面板/滑块手势合并/锐化异步卷积决策 159 行→144 行）、EditorCutoutLogic（抠图四态机/竞态守卫/结果验收 166 行→151 行）、EditorSaveLogic（保存/返回/格式决策 115 行→106 行）、EditorTextToolLogic（文字工具决策 76 行→62 行）。XCTest ~152 用例（对应源端 7 个黄金规格测试逐条翻译）。架构差异：源端 EditorToolMode/Group 字符串联合类型 → iOS String enum；源端 EditorCanvasViewModel 重复定义 `EditorTool` → iOS 统一到 `EditorToolMode`；源端 `guard` 参数名（JS 合法）→ iOS `guard_`（Swift 关键字）；源端 timestamp 为 number → iOS Int64；源端 resolveSaveFileNameHint/WithDecision 两函数 → iOS 函数重载。
-- 待办：P4 编辑器 Phase 3 App 层 Controller + View（需 Mac）；CLIP/RTMPose Core ML 推理质量真机验证（实现已完成，见 [P2-真机验证备忘](docs/P2-真机验证备忘.md) §2.2）；`IOSPhotoLibraryAccess` 真实实现（当前仍为 mock）。
+- 2026-08-08：**P4 图片编辑器 Phase 3 完成**——App 层 Controller + View 全部落地（`Views/Editor/` 5 文件 + `ViewModels/Editor/EditorViewModel` + `Services/Editor/` 保存/图像处理）：骨架（Route.editor + 撤销/重做 + 返回确认）、裁切面板（比例 chips + 确认=像素级重置历史）、旋转/翻转（像素级 vs 属性级）、调色面板（5 滑杆，锐化仅 end/click 触发卷积，`renderedSharpness` 记录上次渲染强度）、文字（添加/选中编辑/删除/撤销重做）、抠图（Vision 真实语义分割，失败即 error 无降级）、编辑产物回写 `Documents/MiPhotos` + Photo 就地更新（thumbnailPath 置空回退 uri）。iOS 差异：像素级操作（裁切确认/旋转 90°/抠图应用）不可撤销；CIFilter 用名称式 API（iOS 17 兼容）；字体 token 是 `extension Font`（无 Typography）。EditorViewModelTests 24 用例全绿；全量 371 tests / 0 failures。架构差异：源端 Canvas 滤镜/异步卷积 → iOS CIFilter 同步渲染（决策层已把锐化收敛为 end/click 单次卷积）。
+- 待办：P4 拼豆图纸（用户并行推进中）；CLIP/RTMPose Core ML 推理质量真机验证（实现已完成，见 [P2-真机验证备忘](docs/P2-真机验证备忘.md) §2.2）；`IOSPhotoLibraryAccess` 真实实现（当前仍为 mock）。
 
 ### P2 进度
 

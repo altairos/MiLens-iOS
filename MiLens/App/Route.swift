@@ -7,6 +7,7 @@ import Foundation
 enum Route: Hashable {
     case gallery          // 相册网格（从首页/宠物档案进入）
     case photoView(photoID: UUID)  // 大图查看
+    case editor(photoID: UUID)     // 图片编辑器（从大图查看进入）
     case petProfile(petID: UUID)
     case beadPattern(photoID: UUID)
     case petEdit(petID: UUID)

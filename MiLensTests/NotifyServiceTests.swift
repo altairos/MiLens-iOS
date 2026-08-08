@@ -193,6 +193,7 @@ private final class InMemoryPhotoRepository: PhotoRepositoryProtocol {
     }
     func insertPhoto(_ photo: Photo) throws { photos.append(photo) }
     func deletePhoto(_ photo: Photo) throws { photos.removeAll { $0.id == photo.id } }
+    func updatePhoto(_ photo: Photo) throws {}
     func assignPhoto(_ photo: Photo, to pet: Pet?) throws { photo.pet = pet }
     func setFavorite(_ photo: Photo, favorite: Bool) throws { photo.isFavorite = favorite }
     func updateNote(_ photo: Photo, note: String) throws { photo.note = note }

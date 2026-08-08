@@ -32,6 +32,8 @@ protocol PhotoRepositoryProtocol {
     /// 用户主动导入——唯一入库路径（DESIGN.md §7 硬约束）。
     func insertPhoto(_ photo: Photo) throws
     func deletePhoto(_ photo: Photo) throws
+    /// 持久化已修改的照片属性（编辑回写用——uri/尺寸/文件大小等已就地更新）。
+    func updatePhoto(_ photo: Photo) throws
     /// 分配/取消归属（对应源端 assignPhotoToPet）。
     func assignPhoto(_ photo: Photo, to pet: Pet?) throws
     func setFavorite(_ photo: Photo, favorite: Bool) throws
@@ -122,6 +124,10 @@ final class SwiftDataPhotoRepository: PhotoRepositoryProtocol {
 
     func deletePhoto(_ photo: Photo) throws {
         context.delete(photo)
+        try context.save()
+    }
+
+    func updatePhoto(_ photo: Photo) throws {
         try context.save()
     }
 

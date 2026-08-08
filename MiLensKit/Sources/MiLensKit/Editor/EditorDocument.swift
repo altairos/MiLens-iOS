@@ -161,6 +161,18 @@ public final class EditorDocument {
         if layers.contains(where: { $0.id == id }) { activeLayerId = id }
     }
 
+    /// 就地更新图层属性（按 id 替换副本，保持 zIndex/顺序不变）。
+    /// 对应源端 LayerManager 的图层属性更新语义（updateText/moveLayer 等）。
+    /// - Returns: 更新成功 true（图层存在时）。
+    @discardableResult
+    public func updateLayer(_ id: String, _ transform: (inout EditorLayer) -> Void) -> Bool {
+        guard let idx = layers.firstIndex(where: { $0.id == id }) else { return false }
+        var updated = layers[idx]
+        transform(&updated)
+        layers[idx] = updated
+        return true
+    }
+
     // MARK: - 层级操作
 
     /// 向上移一层。

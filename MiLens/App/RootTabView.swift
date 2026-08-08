@@ -52,6 +52,8 @@ struct RootTabView: View {
             GalleryView()
         case .photoView(let photoID):
             PhotoViewView(photoID: photoID)
+        case .editor(let photoID):
+            EditorView(photoID: photoID)
         case .petProfile(let petID):
             PetProfileView(petID: petID)
         case .beadPattern:

@@ -52,6 +52,14 @@ struct PhotoViewView: View {
         .navigationBarTitleDisplayMode(.inline)
         .toolbarBackground(.hidden, for: .navigationBar)
         .toolbarColorScheme(.dark, for: .navigationBar)
+        .toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+                NavigationLink(value: Route.editor(photoID: photoID)) {
+                    Image(systemName: "slider.horizontal.3")
+                }
+                .accessibilityLabel("编辑")
+            }
+        }
         .task {
             await loadData()
         }

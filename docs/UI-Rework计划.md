@@ -53,6 +53,7 @@
 **1.2 GalleryView 筛选 chip**
 - 顶部悬浮胶囊（全部 / 各宠物），选中态品牌色填充（`AccentColor`），切换 `spring` 动画 + `.soft` 触感（UI-DESIGN.md §4）。
 - 沿用现有 `GalleryFilter` + `GalleryViewModel.filterSnapshot`，不动业务状态机。
+- ✅ 纯逻辑已落地：`MiLensKit/Sources/MiLensKit/Gallery/GalleryFilterLogic.swift`（`buildChips` 生成「全部 + 各宠物」chip 与互斥选中态，对齐 App 层 `GalleryFilter.petID`（nil = 全部）零映射；`filterPhotos` 按宠物过滤照片，与 `groupPhotos` 链式使用）；`GalleryPhoto` 投影补充 `petID` 字段（对齐 `HomeHeroPhoto` 模式）；`GalleryFilterLogicTests` 12 用例，MiLensKit 全量 578 用例 WSL2 全绿。设计稿无「无归属」chip（源端有 -2 选项），未实现。chip 渲染 + 触感 + VM 桥接留 Mac。
 
 **1.3 GalleryView context menu**
 - 长按照片：收藏 / 创作拼豆 / 设为档案头像 / 删除（§5.2）。收藏与删除走现有 Repository/ViewModel 方法；「设为头像」若无对应 VM 方法，先接 Pets 的头像更新路径（`Pet.avatarPath`），无现成方法则本阶段只做收藏/拼豆/删除三项并注明。
@@ -173,7 +174,7 @@ cd MiLensKit && swift test
 | 阶段 | 任务 | 状态 |
 |---|---|---|
 | Phase 1 | 1.1 Gallery 日期分组 | 🔄 纯逻辑 ✅（`GallerySectionLogic` 12 用例，MiLensKit 566 全绿）／View 渲染 + 分页重分组留 Mac |
-| Phase 1 | 1.2 Gallery 筛选 chip | ⬜ |
+| Phase 1 | 1.2 Gallery 筛选 chip | 🔄 纯逻辑 ✅（`GalleryFilterLogic` 12 用例，MiLensKit 578 全绿）／chip 渲染 + 触感 + VM 桥接留 Mac |
 | Phase 1 | 1.3 Gallery context menu | ⬜ |
 | Phase 1 | 1.4 PhotoView 下滑关闭 + hero | ⬜ |
 | Phase 1 | 1.5 RootTab 动效触感 | ⬜ |

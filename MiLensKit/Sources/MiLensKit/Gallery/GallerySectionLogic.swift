@@ -18,15 +18,18 @@ import Foundation
 
 // MARK: - 投影类型
 
-/// 相册分组用的照片投影。
+/// 相册分组用的照片投影（筛选 → 分组链式复用）。
 public struct GalleryPhoto: Equatable, Sendable {
     public let id: UUID
     /// 拍摄时间；nil 的照片归入「未标注日期」组。
     public let takenAt: Date?
+    /// 归属宠物 ID；nil 表示未关联宠物。
+    public let petID: UUID?
 
-    public init(id: UUID = UUID(), takenAt: Date? = nil) {
+    public init(id: UUID = UUID(), takenAt: Date? = nil, petID: UUID? = nil) {
         self.id = id
         self.takenAt = takenAt
+        self.petID = petID
     }
 }
 

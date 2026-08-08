@@ -176,8 +176,8 @@ cd MiLensKit && swift test
 | Phase 1 | 1.1 Gallery 日期分组 | ✅ 纯逻辑 + View 渲染 + 分页重分组已落地 |
 | Phase 1 | 1.2 Gallery 筛选 chip | ✅ 纯逻辑 + chip 渲染 + VM 桥接已落地 |
 | Phase 1 | 1.3 Gallery context menu | ✅ 收藏 / 创作拼豆 / 移除 + 删除二次确认已落地 |
-| Phase 1 | 1.4 PhotoView 下滑关闭 + hero | ⬜ |
-| Phase 1 | 1.5 RootTab 动效触感 | ⬜ |
+| Phase 1 | 1.4 PhotoView 下滑关闭 + hero | 🔄 下滑关闭、背景淡出与轻触感已落地；matchedGeometry hero 转场待接入 |
+| Phase 1 | 1.5 RootTab 动效触感 | ✅ 原生 TabView + 淡入动画 + selection 触感已落地 |
 | Phase 2 | 2.1 Pets 卡片打磨 | ⬜ |
 | Phase 2 | 2.2 PetProfile 传记式 | ⬜ |
 | Phase 2 | 2.3 Timeline 节点化 | ⬜ |

@@ -20,7 +20,8 @@ public typealias BeadViewMode = String
 public let BEAD_GRID_BOLD_INTERVAL = 5
 
 /// 完整拼豆图纸数据结构。对应源端 `BeadPattern`。
-public struct BeadPattern {
+/// Sendable：全部属性均为值类型/Sendable，供跨 actor 生成/导出边界传递。
+public struct BeadPattern: Sendable {
     public var width: Int
     public var height: Int
     public var indices: [UInt16]
@@ -62,7 +63,7 @@ public struct BeadPattern {
 }
 
 /// 绘图选项。对应源端 `BeadDrawOptions`。
-public struct BeadDrawOptions {
+public struct BeadDrawOptions: Sendable {
     public var circularCrop: Bool?
     public var borderColor: String?
 
@@ -73,7 +74,7 @@ public struct BeadDrawOptions {
 }
 
 /// 导出选项。对应源端 `BeadExportOpts`。
-public struct BeadExportOpts {
+public struct BeadExportOpts: Sendable {
     public var circularCrop: Bool?
     public var borderColor: String?
 

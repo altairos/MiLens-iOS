@@ -18,7 +18,8 @@ public let DEFAULT_STYLIZED_DRAFT_OPTIONS = StylizedDraftOptions()
 // MARK: - 生成选项 / 预设
 
 /// 用户侧完整生成参数。对应源端 `BeadGenerateOptions`。
-public struct BeadGenerateOptions {
+/// Sendable：全部属性均为值类型/Sendable，供跨 actor 生成边界传递。
+public struct BeadGenerateOptions: Sendable {
     public var targetWidth: Int
     public var targetHeight: Int
     public var maxColors: Int

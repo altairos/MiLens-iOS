@@ -52,6 +52,16 @@ struct PhotoViewView: View {
         .navigationBarTitleDisplayMode(.inline)
         .toolbarBackground(.hidden, for: .navigationBar)
         .toolbarColorScheme(.dark, for: .navigationBar)
+        .toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+                if let photo {
+                    NavigationLink(value: Route.beadPattern(photoID: photo.id)) {
+                        Image(systemName: "square.grid.3x3.fill")
+                    }
+                    .accessibilityLabel("生成拼豆图纸")
+                }
+            }
+        }
         .task {
             await loadData()
         }

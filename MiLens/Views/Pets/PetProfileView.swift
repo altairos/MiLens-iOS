@@ -55,10 +55,7 @@ struct PetProfileView: View {
             }
         }
         .background(Color.milensPaper)
-        .navigationTitle(pet?.name ?? "档案")
-        .navigationBarTitleDisplayMode(.inline)
-        // 出血肖像延伸到导航栏下方；滚出肖像后系统会恢复导航栏底色（iOS 17 行为）
-        .toolbarBackground(.hidden, for: .navigationBar)
+        .toolbar(.hidden, for: .navigationBar)
         .task { await load() }
     }
 
@@ -225,7 +222,7 @@ struct PetProfileView: View {
                             ThumbnailImage(path: photo.thumbnailPath.isEmpty ? photo.uri : photo.thumbnailPath)
                                 .aspectRatio(1, contentMode: .fill)
                                 .clipped()
-                                .clipShape(RoundedRectangle(cornerRadius: 4))
+                                .clipShape(Rectangle())
                         }
                         .buttonStyle(.plain)
                         .overlay(alignment: .topTrailing) {
@@ -335,12 +332,12 @@ struct PetProfileView: View {
             }
         }
         .padding(Spacing.lg)
-        .background(Color.milensCard)
-        .overlay {
-            RoundedRectangle(cornerRadius: Radius.large, style: .continuous)
-                .stroke(Color.milensBorder, lineWidth: 0.5)
+        .background(Color.milensPaper)
+        .overlay(alignment: .top) {
+            Rectangle()
+                .fill(Color.milensBorder)
+                .frame(height: 1)
         }
-        .clipShape(RoundedRectangle(cornerRadius: Radius.large, style: .continuous))
     }
 
     // MARK: - 操作按钮

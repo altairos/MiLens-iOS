@@ -154,7 +154,10 @@ struct BeadPatternView: View {
                     .interpolation(.none)
                     .scaledToFit()
                     .blur(radius: isRevealing ? 18 : 0)
-                    .padding(Spacing.md)
+                    .padding(Spacing.lg)
+                    .background(Color.milensPaper)
+                    .padding(.horizontal, Spacing.xl)
+                    .shadow(color: .black.opacity(0.22), radius: 18, y: 10)
             } else {
                 // 首次生成前：预览显示原图，并说明生成后这里会实时更新
                 VStack(spacing: Spacing.sm) {

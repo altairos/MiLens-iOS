@@ -122,7 +122,7 @@ private struct MagazineHero: View {
                     .position(x: proxy.size.width - 30, y: proxy.size.height * 0.28)
             }
         }
-        .frame(height: 520)
+        .frame(height: 600)
         .clipped()
     }
 
@@ -205,8 +205,8 @@ private struct MemoryEditorialRow: View {
     }
 
     private var monthNumber: String {
-        let parts = item.entry.title.split(separator: "月")
-        return parts.first.map { String($0).prefix(2) }.map(String.init) ?? "01"
+        guard let date = item.photo.takenAt else { return "01" }
+        return String(format: "%02d", Calendar.current.component(.month, from: date))
     }
 }
 

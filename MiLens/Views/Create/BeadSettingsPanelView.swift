@@ -45,17 +45,38 @@ struct BeadSettingsPanelView: View {
     }
 
     @State private var selectedRailItem = "尺寸"
+    @State private var showingParameterSheet = false
 
     var body: some View {
         ScrollView {
             VStack(spacing: 0) {
                 parameterRail
-                settingsCard
-                    .padding(.horizontal, Spacing.lg)
-                    .padding(.vertical, Spacing.md)
+                Spacer(minLength: Spacing.xxl)
+                compactAction
+                    .padding(.horizontal, Spacing.xl)
+                    .padding(.bottom, Spacing.xxl)
             }
+            .frame(maxWidth: .infinity, minHeight: 250, alignment: .bottom)
         }
         .background(Color.milensStudioBackground)
+        .sheet(isPresented: $showingParameterSheet) {
+            NavigationStack {
+                ScrollView {
+                    settingsCard
+                        .padding(.horizontal, Spacing.lg)
+                        .padding(.vertical, Spacing.md)
+                }
+                .background(Color.milensStudioBackground)
+                .navigationTitle("调整参数")
+                .navigationBarTitleDisplayMode(.inline)
+                .toolbar {
+                    ToolbarItem(placement: .topBarTrailing) {
+                        Button("完成") { showingParameterSheet = false }
+                    }
+                }
+            }
+            .environment(\.colorScheme, .dark)
+        }
     }
 
     private var parameterRail: some View {
@@ -78,6 +99,9 @@ struct BeadSettingsPanelView: View {
     private func railItem(value: String, title: String, key: String) -> some View {
         Button {
             selectedRailItem = key
+            if key != "预览" {
+                showingParameterSheet = true
+            }
         } label: {
             VStack(spacing: Spacing.xs) {
                 Text(value)
@@ -91,6 +115,27 @@ struct BeadSettingsPanelView: View {
             .background(selectedRailItem == key ? Color.milensStudioSurface : Color.clear)
         }
         .buttonStyle(.plain)
+    }
+
+    private var compactAction: some View {
+        VStack(spacing: Spacing.md) {
+            Button {
+                if vm.pattern != nil {
+                    onExport()
+                } else {
+                    vm.generate()
+                }
+            } label: {
+                Text(primaryButtonTitle)
+                    .font(.buttonLabel)
+                    .foregroundStyle(Color.milensInk)
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 56)
+                    .background(Color.milensCopper)
+                    .clipShape(Rectangle())
+            }
+            .disabled(isGenerating)
+        }
     }
 
     // MARK: - 设置卡片
@@ -195,7 +240,7 @@ struct BeadSettingsPanelView: View {
 
     private var primaryButtonTitle: String {
         if isGenerating { return "正在生成..." }
-        return vm.pattern != nil ? "查看图纸与导出" : "生成拼豆图纸"
+        return vm.pattern != nil ? "导出图纸" : "生成拼豆图纸"
     }
 
     // MARK: - 风格选项

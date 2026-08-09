@@ -25,6 +25,7 @@ struct GalleryView: View {
                 ProgressView()
             }
         }
+        .background(Color.milensPaper)
         .onAppear {
             if viewModel == nil {
                 let vm = factory.makeGalleryViewModel()
@@ -376,13 +377,13 @@ private struct PhotoThumbnailCell: View {
                 ThumbnailImage(path: photo.thumbnailPath.isEmpty ? photo.uri : photo.thumbnailPath)
                     .aspectRatio(1, contentMode: .fill)
                     .clipped()
-                    .clipShape(RoundedRectangle(cornerRadius: 4))
+                    .clipShape(Rectangle())
                     .matchedGeometryEffect(id: heroID, in: heroNamespace)
             } else {
                 ThumbnailImage(path: photo.thumbnailPath.isEmpty ? photo.uri : photo.thumbnailPath)
                     .aspectRatio(1, contentMode: .fill)
                     .clipped()
-                    .clipShape(RoundedRectangle(cornerRadius: 4))
+                    .clipShape(Rectangle())
             }
             if isMultiSelect {
                 Image(systemName: isSelected ? "checkmark.circle.fill" : "circle")

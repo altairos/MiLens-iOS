@@ -6,9 +6,32 @@ enum CommercialRules {
     static let proPetLimit = 20
     static let freeBeadGenerationsPerDay = 5
     static let freeTimelineDays = 365
+    static let timelinePreviewDays = 14
 
     static func petLimit(isPro: Bool) -> Int {
         isPro ? proPetLimit : freePetLimit
+    }
+}
+
+protocol TimelineAccessStore: AnyObject {
+    func firstAccessDate(now: Date) -> Date
+}
+
+/// 记录用户首次真正打开时间线的日期；不以安装日计时，避免用户尚未形成数据就被扣体验时间。
+final class UserDefaultsTimelineAccessStore: TimelineAccessStore {
+    private let defaults: UserDefaults
+    private let key = "commercial.timeline.firstAccessDate"
+
+    init(defaults: UserDefaults = .standard) {
+        self.defaults = defaults
+    }
+
+    func firstAccessDate(now: Date = Date()) -> Date {
+        if let existing = defaults.object(forKey: key) as? Date {
+            return existing
+        }
+        defaults.set(now, forKey: key)
+        return now
     }
 }
 
@@ -45,14 +68,38 @@ final class UserDefaultsBeadGenerationQuotaStore: BeadGenerationQuotaStore {
 }
 
 enum TimelineAccessLogic {
+    static func previewDaysRemaining(
+        now: Date,
+        firstAccessDate: Date,
+        calendar: Calendar = PetDateCalendar.gregorian
+    ) -> Int {
+        let start = calendar.startOfDay(for: firstAccessDate)
+        let today = calendar.startOfDay(for: now)
+        let elapsed = max(0, calendar.dateComponents([.day], from: start, to: today).day ?? 0)
+        return max(0, CommercialRules.timelinePreviewDays - elapsed)
+    }
+
+    static func isInFullHistoryPreview(
+        now: Date,
+        firstAccessDate: Date,
+        calendar: Calendar = PetDateCalendar.gregorian
+    ) -> Bool {
+        previewDaysRemaining(now: now, firstAccessDate: firstAccessDate, calendar: calendar) > 0
+    }
+
     static func visibleEntries(
         _ entries: [TimelineEntry],
         now: Date,
         isPro: Bool,
+        firstAccessDate: Date? = nil,
         calendar: Calendar = PetDateCalendar.gregorian
     ) -> [TimelineEntry] {
-        guard !isPro,
-              let cutoff = calendar.date(byAdding: .day, value: -CommercialRules.freeTimelineDays, to: now)
+        if isPro { return entries }
+        if let firstAccessDate,
+           isInFullHistoryPreview(now: now, firstAccessDate: firstAccessDate, calendar: calendar) {
+            return entries
+        }
+        guard let cutoff = calendar.date(byAdding: .day, value: -CommercialRules.freeTimelineDays, to: now)
         else { return entries }
         return entries.filter { entry in
             guard let date = entry.date else { return true }
@@ -64,8 +111,9 @@ enum TimelineAccessLogic {
         _ entries: [TimelineEntry],
         now: Date,
         isPro: Bool,
+        firstAccessDate: Date? = nil,
         calendar: Calendar = PetDateCalendar.gregorian
     ) -> Bool {
-        visibleEntries(entries, now: now, isPro: isPro, calendar: calendar).count < entries.count
+        visibleEntries(entries, now: now, isPro: isPro, firstAccessDate: firstAccessDate, calendar: calendar).count < entries.count
     }
 }

@@ -40,7 +40,8 @@ final class BeadViewModel {
 
     private let photoRepo: any PhotoRepositoryProtocol
     private let vision: any VisionService
-    private let clipService: ClipInferenceService?
+    private let clipService: (any ClipInference)?
+    private let poseService: (any PoseInference)?
     private let exportService: BeadExportService
     private var isPro: Bool
     private let quotaStore: any BeadGenerationQuotaStore
@@ -57,13 +58,15 @@ final class BeadViewModel {
 
     init(photoRepo: any PhotoRepositoryProtocol,
          vision: any VisionService,
-         clipService: ClipInferenceService?,
+         clipService: (any ClipInference)?,
+         poseService: (any PoseInference)? = nil,
          exportService: BeadExportService = BeadExportService(),
          isPro: Bool = false,
          quotaStore: any BeadGenerationQuotaStore = UserDefaultsBeadGenerationQuotaStore()) {
         self.photoRepo = photoRepo
         self.vision = vision
         self.clipService = clipService
+        self.poseService = poseService
         self.exportService = exportService
         self.isPro = isPro
         self.quotaStore = quotaStore
@@ -174,6 +177,21 @@ final class BeadViewModel {
                             cropSize: cropParams.cropSize)
                         adjusted.mask = croppedMask
                         subject = adjusted
+                        // RTMPose 五官关键点：随抠图分支检测（对应源端 cutoutResult.pose →
+                        // adjustPoseForCrop）；模型缺失/失败时静默跳过，不影响生成。
+                        if let poseService {
+                            do {
+                                if let pose = try await poseService.detectPose(
+                                    pixels: pixels, width: w, height: h, bbox: bbox) {
+                                    subject.pose = adjustPoseForCrop(
+                                        pose, sourceWidth: w, sourceHeight: h,
+                                        cropX: cropParams.cropX, cropY: cropParams.cropY,
+                                        cropSize: cropParams.cropSize)
+                                }
+                            } catch {
+                                logger.warning("pose 检测失败，跳过（\(error.localizedDescription)）")
+                            }
+                        }
                         workingW = cropParams.cropSize
                         workingH = cropParams.cropSize
                     }

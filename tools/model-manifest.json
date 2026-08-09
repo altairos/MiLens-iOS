@@ -18,7 +18,7 @@
       "path": "MiLens/Resources/Models/RTMPoseTPetFace_fp16.mlpackage",
       "size_bytes": 6291456,
       "purpose": "production",
-      "loaded_by": "\u6682\u65e0\u53ef\u52a0\u8f7d\u4ee3\u7801\uff08\u7528\u6237\u786e\u8ba4\u4fdd\u7559\uff0c\u4f9b V1.x \u5173\u952e\u70b9\u68c0\u6d4b\uff1b\u4e0d\u65b0\u589e\u52a0\u8f7d\u4ee3\u7801\uff09"
+      "loaded_by": "PoseInferenceService.create（BeadViewModel 抠图分支 pose 检测，两阶段 coarse-to-fine，模型缺失返回 nil 降级）"
     }
   ]
 }

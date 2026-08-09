@@ -22,16 +22,21 @@ final class MediaLifecycleService {
     private let fileStorage: any FileStorage
     /// 沙盒照片目录路径（Documents/MiPhotos，与 ImportService 同目录）
     private let sandboxDir: String
+    /// 编辑产物目录路径（Documents/MiPhotos/Edits）——编辑成品允许备份，
+    /// 与排除备份的导入副本分区（DESIGN.md §7）；孤儿审计需覆盖两个目录。
+    private let editsDir: String
     private let logger = Logger(subsystem: "com.milens.app", category: "MediaLifecycle")
 
     init(photoRepo: any PhotoRepositoryProtocol,
          petRepo: any PetRepositoryProtocol,
          fileStorage: any FileStorage,
-         sandboxDir: String) {
+         sandboxDir: String,
+         editsDir: String? = nil) {
         self.photoRepo = photoRepo
         self.petRepo = petRepo
         self.fileStorage = fileStorage
         self.sandboxDir = sandboxDir
+        self.editsDir = editsDir ?? sandboxDir + "/" + ScanConfig.editsDirName
     }
 
     // MARK: - 导入事务段
@@ -197,8 +202,9 @@ final class MediaLifecycleService {
             return
         }
         // FileStorage/Logger 均 Sendable，可在后台任务中显式捕获；不触碰 self 的 MainActor 状态。
-        await Task.detached(priority: .utility) { [fileStorage, sandboxDir, logger] in
-            let files = fileStorage.listFiles(in: sandboxDir)
+        await Task.detached(priority: .utility) { [fileStorage, sandboxDir, editsDir, logger] in
+            // 导入副本与编辑产物分目录存储，审计需覆盖两者（DB 记录可能指向任一目录）
+            let files = fileStorage.listFiles(in: sandboxDir) + fileStorage.listFiles(in: editsDir)
             var orphanCount = 0
             for path in files where !knownPaths.contains(path) {
                 do {

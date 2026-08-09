@@ -16,4 +16,21 @@ final class CommercialRulesTests: XCTestCase {
         XCTAssertTrue(TimelineAccessLogic.hasLockedHistory([old, recent], now: now, isPro: false))
         XCTAssertEqual(TimelineAccessLogic.visibleEntries([old, recent], now: now, isPro: true).count, 2)
     }
+
+    func testTimelinePreviewShowsAllHistoryForFourteenDays() {
+        let now = Date(timeIntervalSince1970: 1_735_689_600)
+        let firstAccess = now.addingTimeInterval(-13 * 86_400)
+        let old = TimelineEntry(id: "old", type: .photoNote, date: now.addingTimeInterval(-400 * 86_400), title: "", subtitle: "", petID: nil, petName: "", photoID: nil, photoURI: "", thumbnailPath: "")
+
+        XCTAssertTrue(TimelineAccessLogic.isInFullHistoryPreview(now: now, firstAccessDate: firstAccess))
+        XCTAssertEqual(TimelineAccessLogic.visibleEntries([old], now: now, isPro: false, firstAccessDate: firstAccess).count, 1)
+        XCTAssertEqual(TimelineAccessLogic.previewDaysRemaining(now: now, firstAccessDate: firstAccess), 1)
+    }
+
+    func testTimelinePreviewExpiresOnDayFourteen() {
+        let now = Date(timeIntervalSince1970: 1_735_689_600)
+        let firstAccess = now.addingTimeInterval(-14 * 86_400)
+        XCTAssertFalse(TimelineAccessLogic.isInFullHistoryPreview(now: now, firstAccessDate: firstAccess))
+        XCTAssertEqual(TimelineAccessLogic.previewDaysRemaining(now: now, firstAccessDate: firstAccess), 0)
+    }
 }

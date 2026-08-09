@@ -4,9 +4,11 @@
 //  .environment(\.fileStorage) 注入（DESIGN.md §9 平台适配层）。
 //  写文件前自动创建父目录，保证 ImportService / EditorSaveService 不依赖调用方建目录。
 //
-//  备份策略（V1.0）：Documents 下全部是「可重建的媒体副本」（导入/编辑产物，
-//  原图在系统相册可重新导入），按 Apple 指引对可重建的大媒体排除 iCloud/iTunes
-//  备份，避免「照片不会离开设备」承诺与默认备份冲突（DESIGN.md §7）。
+//  备份策略（V1.0）：按目录区分可重建性——
+//  - Documents/MiPhotos/ 下的导入副本（原图在系统相册可重新导入）按 Apple 指引
+//    排除 iCloud/iTunes 备份，避免「照片不会离开设备」承诺与默认备份冲突；
+//  - Documents/MiPhotos/Edits/ 下的编辑成品（系统相册中没有编辑后版本，
+//    删除后不可重建）允许备份，保证设备恢复后编辑产物不丢失（DESIGN.md §7）。
 
 import Foundation
 import os
@@ -88,11 +90,15 @@ final class IOSFileStorage: FileStorage, @unchecked Sendable {
         )
     }
 
-    /// 对沙盒 Documents 下的媒体副本设置排除备份（isExcludedFromBackup）。
+    /// 对沙盒「可重建的导入副本」设置排除备份（isExcludedFromBackup）。
+    /// 仅作用于 Documents/MiPhotos/ 下、非 Edits 子目录的媒体（编辑成品允许备份）；
     /// 目录属性不向新建文件传播，因此写入时逐文件设置；失败仅记日志不阻断写入
     /// （备份排除是优化项，不应让文件操作失败）。
     private func applyBackupExclusionIfNeeded(at path: String) {
-        guard path.contains("/Documents/") else { return }
+        guard path.contains("/Documents/\(ScanConfig.sandboxDirName)/"),
+              !path.contains("/\(ScanConfig.sandboxDirName)/\(ScanConfig.editsDirName)/") else {
+            return
+        }
         var url = URL(fileURLWithPath: path)
         var values = URLResourceValues()
         values.isExcludedFromBackup = true

@@ -5,7 +5,7 @@
 import SwiftUI
 
 struct PetsView: View {
-    @Environment(\.petRepository) private var petRepo
+    @Environment(\.viewModelFactory) private var factory
     @Environment(\.notifyService) private var notifyService
     @Environment(\.proEntitlement) private var entitlement
 
@@ -22,7 +22,8 @@ struct PetsView: View {
         }
         .onAppear {
             if viewModel == nil {
-                let vm = PetProfileViewModel(petRepo: petRepo, isPro: entitlement.isPro)
+                // 分层收敛：VM 由工厂组装（View 不再直连 petRepo）
+                let vm = factory.makePetProfileViewModel(isPro: entitlement.isPro)
                 vm.loadPets()
                 viewModel = vm
             }

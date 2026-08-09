@@ -28,20 +28,36 @@ final class ProEntitlementStore {
     /// 订阅任务注册表（actor 隔离）：@Observable 宏不允许 nonisolated 可变存储属性，
     /// deinit（非隔离）无法直接访问实例任务句柄；注册表按实例 ID 管理任务生命周期。
     /// actor 隔离消除 init（MainActor）与 deinit（任意线程）对静态字典的数据竞争。
-    private actor ListenerRegistry {
+    /// 取消墓碑（cancelledIDs）：cancel 先于 register 到达 actor 时，晚到的注册会被
+    /// 立即取消且不写入注册表——消除「已结束任务被重新写入」的残留（评审阻塞项）；
+    /// 墓碑由随后到达的 register 消费，不长期增长。
+    /// internal：供测试断言乱序/立即释放路径的注册表状态。
+    actor ListenerRegistry {
         private var tasks: [ObjectIdentifier: Task<Void, Never>] = [:]
+        private var cancelledIDs: Set<ObjectIdentifier> = []
 
         func register(_ id: ObjectIdentifier, _ task: Task<Void, Never>) {
+            if cancelledIDs.remove(id) != nil {
+                // 取消墓碑：deinit/任务结束的清理先于注册到达 → 新注册立即取消，不残留
+                task.cancel()
+                return
+            }
             tasks[id] = task
         }
 
         func cancel(_ id: ObjectIdentifier) {
-            tasks[id]?.cancel()
-            tasks[id] = nil
+            if let task = tasks.removeValue(forKey: id) {
+                task.cancel()
+            }
+            cancelledIDs.insert(id)
         }
+
+        /// 当前注册任务数（测试断言注册表无残留）。
+        var activeCount: Int { tasks.count }
     }
 
-    private static let registry = ListenerRegistry()
+    /// internal：ProEntitlementStoreTests 断言注册表生命周期。
+    static let registry = ListenerRegistry()
 
     init(store: any StoreService) {
         self.store = store

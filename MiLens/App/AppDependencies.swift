@@ -18,6 +18,7 @@ final class AppDependencies {
     let photoRepo: any PhotoRepositoryProtocol
     let vision: any VisionService
     let clipService: ClipInferenceService?
+    let poseService: PoseInferenceService?
     let photoLibrary: any PhotoLibraryAccess
     let fileStorage: any FileStorage
     let scanCursorStore: any ScanCursorStore
@@ -35,6 +36,7 @@ final class AppDependencies {
          photoRepo: any PhotoRepositoryProtocol,
          vision: any VisionService,
          clipService: ClipInferenceService?,
+         poseService: PoseInferenceService?,
          photoLibrary: any PhotoLibraryAccess,
          fileStorage: any FileStorage,
          scanCursorStore: any ScanCursorStore,
@@ -49,6 +51,7 @@ final class AppDependencies {
         self.photoRepo = photoRepo
         self.vision = vision
         self.clipService = clipService
+        self.poseService = poseService
         self.photoLibrary = photoLibrary
         self.fileStorage = fileStorage
         self.scanCursorStore = scanCursorStore
@@ -80,6 +83,8 @@ final class AppDependencies {
         // ClipInferenceService 在测试环境跳过（避免加载 ~80MB CLIP 模型拖慢单测）。
         let vision: any VisionService = IOSVisionService()
         let clipService = isTesting ? nil : ClipInferenceService.create()
+        // RTMPose 宠物脸关键点：测试环境跳过（避免加载模型拖慢单测）；模型缺失时 nil 降级。
+        let poseService = isTesting ? nil : PoseInferenceService.create()
         // 照片库适配器：真实 Photos 框架实现（授权 + 流式遍历）。
         let photoLibrary: any PhotoLibraryAccess = IOSPhotoLibraryAccess()
         // 文件存储：真实 FileManager 实现（导入/编辑产物写入沙盒，重启后仍存在）。
@@ -127,6 +132,7 @@ final class AppDependencies {
             vision: vision,
             fileStorage: fileStorage,
             clipService: clipService,
+            poseService: poseService,
             cursorStore: scanCursorStore,
             mediaLifecycle: mediaLifecycle
         )
@@ -137,6 +143,7 @@ final class AppDependencies {
             photoRepo: photoRepo,
             vision: vision,
             clipService: clipService,
+            poseService: poseService,
             photoLibrary: photoLibrary,
             fileStorage: fileStorage,
             scanCursorStore: scanCursorStore,
@@ -151,8 +158,9 @@ final class AppDependencies {
 
     /// 重建本地数据：销毁默认持久化存储（含 -wal/-shm 伴生文件）。
     /// 仅清除 MiLens 本地记录；系统相册原图不受影响。
-    /// 注意：重建后重新启动会执行孤儿审计，Documents/MiPhotos 下无 DB 记录的照片副本
-    /// （导入/编辑产物）会被一并删除——恢复界面文案已明确提示（DatabaseRecoveryView）。
+    /// 注意：重建后重新启动会执行孤儿审计，Documents/MiPhotos（含 Edits 编辑产物
+    /// 子目录）下无 DB 记录的照片副本（导入/编辑产物）会被一并删除——
+    /// 恢复界面文案已明确提示（DatabaseRecoveryView）。
     static func destroyPersistentStore() throws {
         let storeURL = ModelConfiguration().url
         let fm = FileManager.default

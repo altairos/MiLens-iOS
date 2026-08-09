@@ -10,13 +10,13 @@ import os
 private let logger = Logger(subsystem: "com.milens.app", category: "TimelineView")
 
 struct TimelineView: View {
-    @Environment(\.petRepository) private var petRepo
-    @Environment(\.photoRepository) private var photoRepo
+    @Environment(\.viewModelFactory) private var factory
     @Environment(\.proEntitlement) private var entitlement
 
     @State private var viewModel: TimelineViewModel?
     @State private var pets: [Pet] = []
     @State private var showPaywall = false
+    private let timelineAccessStore: any TimelineAccessStore = UserDefaultsTimelineAccessStore()
 
     var body: some View {
         Group {
@@ -33,15 +33,18 @@ struct TimelineView: View {
             NavigationStack { PaywallView() }
         }
         .onChange(of: entitlement.isPro) { _, isPro in
-            viewModel?.load(isPro: isPro)
+            let firstAccessDate = timelineAccessStore.firstAccessDate(now: Date())
+            viewModel?.load(isPro: isPro, firstAccessDate: firstAccessDate)
         }
         .task {
             if viewModel == nil {
-                let vm = TimelineViewModel(petRepo: petRepo, photoRepo: photoRepo)
-                vm.load(isPro: entitlement.isPro)
+                // 分层收敛：VM 与数据查询均经工厂（View 不再直连 petRepo/photoRepo）
+                let vm = factory.makeTimelineViewModel()
+                let firstAccessDate = timelineAccessStore.firstAccessDate(now: Date())
+                vm.load(isPro: entitlement.isPro, firstAccessDate: firstAccessDate)
                 viewModel = vm
                 do {
-                    pets = try petRepo.getAllPets()
+                    pets = try factory.allPets()
                 } catch {
                     logger.error("加载宠物筛选列表失败（\(error.localizedDescription)）")
                     pets = []
@@ -87,7 +90,10 @@ struct TimelineView: View {
     private func timelineList(_ vm: TimelineViewModel) -> some View {
         ScrollView {
             VStack(spacing: 0) {
-                if vm.hasLockedHistory && !entitlement.isPro {
+                if vm.shouldShowPreviewReminder && !entitlement.isPro {
+                    previewReminderBanner(vm)
+                        .padding(.bottom, Spacing.md)
+                } else if vm.hasLockedHistory && !entitlement.isPro {
                     lockedHistoryBanner
                         .padding(.bottom, Spacing.md)
                 }
@@ -139,6 +145,25 @@ struct TimelineView: View {
                 Button("升级 MiLens Pro，查看完整成长时间线") {
                     showPaywall = true
                 }
+                    .font(.caption)
+                    .foregroundStyle(Color.milensActionPrimary)
+            }
+            Spacer()
+        }
+        .padding(Spacing.md)
+        .background(Color.milensAccentSoft)
+        .clipShape(RoundedRectangle(cornerRadius: Radius.medium, style: .continuous))
+    }
+
+    private func previewReminderBanner(_ vm: TimelineViewModel) -> some View {
+        HStack(alignment: .top, spacing: Spacing.md) {
+            Image(systemName: "clock.badge.checkmark")
+                .foregroundStyle(Color.milensActionPrimary)
+            VStack(alignment: .leading, spacing: Spacing.xs) {
+                Text("完整时间线体验还剩 (vm.previewDaysRemaining) 天")
+                    .font(.bodyPrimary.weight(.semibold))
+                    .foregroundStyle(Color.milensTextPrimary)
+                Button("现在解锁，继续保存全部故事") { showPaywall = true }
                     .font(.caption)
                     .foregroundStyle(Color.milensActionPrimary)
             }

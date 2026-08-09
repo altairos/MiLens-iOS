@@ -62,6 +62,7 @@ struct MiLensApp: App {
                 .environment(\.photoRepository, dependencies.photoRepo)
                 .environment(\.visionService, dependencies.vision)
                 .environment(\.clipInferenceService, dependencies.clipService)
+                .environment(\.poseInferenceService, dependencies.poseService)
                 .environment(\.photoLibraryAccess, dependencies.photoLibrary)
                 .environment(\.fileStorage, dependencies.fileStorage)
                 .environment(\.scanCursorStore, dependencies.scanCursorStore)

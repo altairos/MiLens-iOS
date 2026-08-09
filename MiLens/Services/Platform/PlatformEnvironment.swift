@@ -94,6 +94,19 @@ extension EnvironmentValues {
     }
 }
 
+// MARK: - PoseInferenceService（RTMPose 宠物脸关键点，模型缺失时为 nil）
+
+private struct PoseInferenceServiceKey: EnvironmentKey {
+    static var defaultValue: PoseInferenceService? { nil }
+}
+
+extension EnvironmentValues {
+    var poseInferenceService: PoseInferenceService? {
+        get { self[PoseInferenceServiceKey.self] }
+        set { self[PoseInferenceServiceKey.self] = newValue }
+    }
+}
+
 // MARK: - NotifyService（纪念提醒调度，测试环境不注入为 nil）
 
 private struct NotifyServiceKey: EnvironmentKey {

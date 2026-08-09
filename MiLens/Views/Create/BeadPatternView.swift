@@ -11,9 +11,7 @@ import MiLensKit
 struct BeadPatternView: View {
     let photoID: UUID
 
-    @Environment(\.photoRepository) private var photoRepo
-    @Environment(\.visionService) private var vision
-    @Environment(\.clipInferenceService) private var clipService
+    @Environment(\.viewModelFactory) private var factory
     @Environment(\.proEntitlement) private var entitlement
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(\.dismiss) private var dismiss
@@ -58,12 +56,8 @@ struct BeadPatternView: View {
         }
         .task {
             if vm == nil {
-                let vm = BeadViewModel(
-                    photoRepo: photoRepo,
-                    vision: vision,
-                    clipService: clipService,
-                    isPro: entitlement.isPro
-                )
+                // 分层收敛：VM 由工厂组装（View 不再直连 Repository/推理服务）
+                let vm = factory.makeBeadViewModel(isPro: entitlement.isPro)
                 await vm.load(photoID: photoID)
                 self.vm = vm
             }

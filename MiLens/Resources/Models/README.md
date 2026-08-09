@@ -11,7 +11,7 @@
 |---|---|---|---|---|
 | `pet_text_embeddings.f32` | 40 KB | ✅ | ✅ | CLIP text encoder 预计算向量（10 pet + 10 non-pet × 512 维 × float32） |
 | `CLIPVisionEncoder_int8.mlpackage` | ~84 MB（INT8） | ❌（gitignore） | ✅ **生产模型** | CLIP ViT-B/32 vision encoder，输出 512 维 L2-normalized embedding；`CoreMLInferenceEngine` 默认加载此模型 |
-| `RTMPoseTPetFace_fp16.mlpackage` | ~6 MB（FP16） | ❌（gitignore） | ✅ **生产模型** | RTMPose-t 宠物脸 5 关键点，SimCC 输出；已随包交付，暂无可加载代码（供 V1.x 使用） |
+| `RTMPoseTPetFace_fp16.mlpackage` | ~6 MB（FP16） | ❌（gitignore） | ✅ **生产模型** | RTMPose-t 宠物脸 5 关键点，SimCC 输出；`PoseInferenceService.create` 默认加载（BeadViewModel 抠图分支 pose 检测） |
 | `CLIPVisionEncoder_fp16.mlpackage` | ~85 MB（FP16） | ❌（gitignore） | ❌ 实验模型 | 未随 Release 交付，仅本机转换/调试用 |
 | `RTMPoseTPetFace_int8.mlpackage` | ~3 MB（INT8） | ❌（gitignore） | ❌ 实验模型 | 未随 Release 交付，仅本机转换/调试用 |
 

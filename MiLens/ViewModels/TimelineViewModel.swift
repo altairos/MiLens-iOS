@@ -18,10 +18,16 @@ final class TimelineViewModel {
     var selectedPetID: UUID? = nil
     var isLoading = false
     private(set) var hasLockedHistory = false
+    private(set) var isInFullHistoryPreview = false
+    private(set) var previewDaysRemaining = 0
+    var shouldShowPreviewReminder: Bool {
+        isInFullHistoryPreview && previewDaysRemaining <= 4 && hasHistoricalEntries
+    }
 
     // MARK: - 内部缓存
 
     private var allEntries: [TimelineEntry] = []
+    private var hasHistoricalEntries = false
 
     private let petRepo: any PetRepositoryProtocol
     private let photoRepo: any PhotoRepositoryProtocol
@@ -33,7 +39,7 @@ final class TimelineViewModel {
 
     // MARK: - 加载
 
-    func load(now: Date = Date(), isPro: Bool = false) {
+    func load(now: Date = Date(), isPro: Bool = false, firstAccessDate: Date? = nil) {
         isLoading = true
         let pets: [Pet]
         do {
@@ -70,8 +76,20 @@ final class TimelineViewModel {
             photoEvents: timelinePhotos, now: now
         )
         let entries = TimelineLogic.buildTimelineEntries(input)
-        hasLockedHistory = TimelineAccessLogic.hasLockedHistory(entries, now: now, isPro: isPro)
-        allEntries = TimelineAccessLogic.visibleEntries(entries, now: now, isPro: isPro)
+        hasHistoricalEntries = TimelineAccessLogic.hasLockedHistory(entries, now: now, isPro: false)
+        if let firstAccessDate {
+            previewDaysRemaining = TimelineAccessLogic.previewDaysRemaining(now: now, firstAccessDate: firstAccessDate)
+            isInFullHistoryPreview = TimelineAccessLogic.isInFullHistoryPreview(now: now, firstAccessDate: firstAccessDate)
+        } else {
+            previewDaysRemaining = 0
+            isInFullHistoryPreview = false
+        }
+        hasLockedHistory = TimelineAccessLogic.hasLockedHistory(
+            entries, now: now, isPro: isPro, firstAccessDate: firstAccessDate
+        )
+        allEntries = TimelineAccessLogic.visibleEntries(
+            entries, now: now, isPro: isPro, firstAccessDate: firstAccessDate
+        )
         rebuildMonths()
         isLoading = false
     }

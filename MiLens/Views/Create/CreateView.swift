@@ -9,7 +9,7 @@ import os
 private let logger = Logger(subsystem: "com.milens.app", category: "Create")
 
 struct CreateView: View {
-    @Environment(\.photoRepository) private var photoRepo
+    @Environment(\.viewModelFactory) private var factory
     @Environment(\.proEntitlement) private var entitlement
 
     @State private var photos: [Photo] = []
@@ -201,7 +201,8 @@ struct CreateView: View {
     private func loadPhotos() async {
         defer { isLoading = false }
         do {
-            photos = try photoRepo.getPhotosPage(offset: 0, limit: 200)
+            // 分层收敛：轻量数据查询经工厂（View 不再直连 photoRepo）
+            photos = try factory.photoList(limit: 200)
         } catch {
             logger.error("loadPhotos: 读取照片列表失败（\(error.localizedDescription)）")
             photos = []

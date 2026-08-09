@@ -353,7 +353,8 @@ final class EditorViewModelTests: XCTestCase {
         XCTAssertEqual(processor.renderExportCalls, 1)
         XCTAssertNil(vm.errorMessage)
         XCTAssertNotNil(repo.updatedPhoto)
-        XCTAssertTrue(photo.uri.hasPrefix(sandboxDir + "/MiLens_Edit_"))
+        // 编辑产物写入 Edits 子目录（允许备份，与排除备份的导入副本分区）
+        XCTAssertTrue(photo.uri.hasPrefix(sandboxDir + "/Edits/MiLens_Edit_"))
         XCTAssertTrue(storage.fileExists(at: photo.uri))
         XCTAssertEqual(photo.thumbnailPath, "") // 缩略图回退 uri
         XCTAssertEqual(photo.width, 400)

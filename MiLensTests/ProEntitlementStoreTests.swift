@@ -58,4 +58,66 @@ final class ProEntitlementStoreTests: XCTestCase {
 
         XCTAssertEqual(entitlement.status, .active(productID: MiLensProducts.yearly))
     }
+
+    // MARK: - 注册表生命周期竞态（评审阻塞项）
+
+    private func waitRegistryCount(_ expected: Int, timeout: TimeInterval = 2) async -> Bool {
+        let deadline = Date().addingTimeInterval(timeout)
+        while await ProEntitlementStore.registry.activeCount != expected {
+            if Date() > deadline { return false }
+            try? await Task.sleep(nanoseconds: 10_000_000)
+        }
+        return true
+    }
+
+    /// 正常路径：注册后取消 → 任务取消且注册表清空。
+    func testCancelRemovesRegisteredTask() async {
+        let store = MockStoreService(proStatus: .inactive)
+        var entitlement: ProEntitlementStore? = ProEntitlementStore(store: store)
+        let id = ObjectIdentifier(entitlement!)
+
+        XCTAssertTrue(await waitRegistryCount(1), "注册任务应写入注册表")
+
+        await ProEntitlementStore.registry.cancel(id)
+        let count = await ProEntitlementStore.registry.activeCount
+        XCTAssertEqual(count, 0, "取消后注册表不应残留任务")
+        entitlement = nil
+    }
+
+    /// 乱序：cancel 先于 register 到达 actor → 晚到的注册被立即取消且不写入注册表
+    /// （此前会把已结束的任务重新写入，形成残留——评审阻塞项）。
+    func testCancelBeforeRegisterCancelsLateRegistration() async {
+        let id = ObjectIdentifier(NSObject())
+        let task = Task {}
+
+        await ProEntitlementStore.registry.cancel(id)      // deinit 的清理先到达
+        await ProEntitlementStore.registry.register(id, task)  // init 的注册后到达
+
+        XCTAssertTrue(task.isCancelled, "晚到的注册必须被取消墓碑立即取消")
+        let count = await ProEntitlementStore.registry.activeCount
+        XCTAssertEqual(count, 0, "注册表不应残留已取消的任务")
+    }
+
+    /// 立即释放（deinit 触发清理）：无论 register/cancel 乱序如何，注册表最终清空。
+    func testImmediateReleaseCleansRegistry() async {
+        let store = MockStoreService(proStatus: .inactive)
+        var entitlement: ProEntitlementStore? = ProEntitlementStore(store: store)
+        _ = ObjectIdentifier(entitlement!)
+
+        entitlement = nil  // 触发 deinit → 异步 cancel
+
+        XCTAssertTrue(await waitRegistryCount(0, timeout: 2),
+                      "立即释放后注册表应清空（无保活环、无残留）")
+    }
+
+    /// 流立即结束：监听任务退出时清理注册表，不残留条目。
+    func testStreamImmediateEndCleansRegistry() async {
+        let store = MockStoreService(proStatus: .inactive)
+        store.finishUpdates()  // 流立即结束（for await 立即返回）
+        let entitlement = ProEntitlementStore(store: store)
+        _ = entitlement
+
+        XCTAssertTrue(await waitRegistryCount(0, timeout: 2),
+                      "流结束后注册表应清空")
+    }
 }

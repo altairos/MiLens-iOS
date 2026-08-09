@@ -97,7 +97,7 @@ View ──> @Observable ViewModel ──> Service（用例）
 
 ViewModel 通过 `@Environment` 接收依赖协议，不引用具体实现或全局单例（沿用源端 P1.7/P1.9 DI 门禁精神）。
 
-**分层收敛（ViewModelFactory）**：View 不直接通过 `@Environment` 持有 Repository/Service 来拼装 ViewModel（2026-08-09 前 GalleryView 持有 8 个依赖、EditorView 自带 in-memory 兜底逻辑、`sandboxDir` 拼装散落多处）。现改为：页面只依赖 `\.viewModelFactory`，由工厂组装 VM（`sandboxDir` 拼装、编辑器 in-memory 兜底均收进工厂）；无 VM 的轻量页面（选照片/单照查看/档案详情）经工厂的 `photoList(limit:)`/`photo(id:)`/`pet(id:)`/`photosByPet(_:)`/`unassignedPhotos(limit:)` 查询，View 层不再出现 Repository 类型。`GalleryViewModel`/`HomeViewModel`/`EditorViewModel`/`PetEditViewModel` 的构造点全部收敛到工厂；VM 内部按既有规则通过窄协议声明依赖不变。
+**分层收敛（ViewModelFactory）**：View 不直接通过 `@Environment` 持有 Repository/Service 来拼装 ViewModel（2026-08-09 前 GalleryView 持有 8 个依赖、EditorView 自带 in-memory 兜底逻辑、`sandboxDir` 拼装散落多处）。现改为：页面只依赖 `\.viewModelFactory`，由工厂组装 VM（`sandboxDir`/`editsDir` 拼装、编辑器 in-memory 兜底均收进工厂）；无 VM 的轻量页面（选照片/单照查看/档案详情）经工厂的 `photoList(limit:)`/`photo(id:)`/`pet(id:)`/`photosByPet(_:)`/`unassignedPhotos(limit:)`/`allPets()` 查询，View 层不再出现 Repository 类型。`GalleryViewModel`/`HomeViewModel`/`EditorViewModel`/`PetEditViewModel`/`BeadViewModel`/`PetProfileViewModel`/`TimelineViewModel` 的构造点全部收敛到工厂（2026-08-09 评审阻塞项：BeadPattern/Pets/Timeline/Create 四处 View 直连 Repository 已一并收敛）；VM 内部按既有规则通过窄协议声明依赖不变。非 Repository 的应用级状态（`\.proEntitlement` 权益、`\.notifyService` 提醒调度）仍由页面直接经环境值读取，与 Settings/Paywall 等页面一致。
 
 ## 5. 状态管理
 
@@ -149,7 +149,10 @@ SwiftData 从 V1.0 干净 schema 起步（不复刻源端 16 版历史迁移）�
 
 **保存事务封装**：仓储层所有写路径统一经 `ModelContext.saveOrRollback()` 提交（[ModelContext+Transaction.swift](MiLens/Persistence/ModelContext+Transaction.swift)）——`context.save()` 失败不会自动回滚，失败的 insert/update/delete 会残留在 pending changes 中污染同一上下文的后续保存（如唯一约束冲突后下一次 save 继续失败，导入/编辑链路被卡死）；`saveOrRollback` 失败即 `rollback()` 并重抛，保证上下文回到调用前干净状态。编辑保存失败时 `MediaLifecycleService.saveEditedPhoto` 同时恢复记录全部旧属性（含 `category`，与「完整回滚」注释一致）。
 
-**媒体备份策略**：`Documents/MiPhotos` 下的媒体副本（导入/编辑产物）均为可重建数据——原图在系统相册可重新导入——按 Apple 指引对可重建的大媒体排除 iCloud/iTunes 备份（`IOSFileStorage` 写入/建目录时设置 `isExcludedFromBackup`，目录属性不向新文件传播故逐文件设置），避免「照片不会离开设备」承诺与默认备份冲突。失败仅记日志不阻断写入（备份排除是优化项）。
+**媒体备份策略**：`Documents/MiPhotos` 下按可重建性分区（`IOSFileStorage` 写入/建目录时设置 `isExcludedFromBackup`，目录属性不向新文件传播故逐文件设置；失败仅记日志不阻断写入，备份排除是优化项）：
+- `Documents/MiPhotos/`（导入副本）：原图在系统相册可重新导入，可重建 —— 排除 iCloud/iTunes 备份（按 Apple 指引，避免「照片不会离开设备」承诺与默认备份冲突）。
+- `Documents/MiPhotos/Edits/`（编辑产物，`ScanConfig.editsDirName`）：编辑成品只存沙盒且**不**同步回系统相册、无重建步骤（DB 只覆盖 URI），不可重建 —— **允许备份**。`EditorSaveService` 保存到 Edits 子目录（2026-08-09 评审阻塞项修复：此前全部排除备份，设备恢复后会出现「DB 记录仍在、图片文件缺失」）。
+`MediaLifecycleService.auditOrphans` 与 `AppDependencies.destroyPersistentStore` 提示文案均覆盖两个目录。
 
 **像素计算移出主线程**：CPU 密集段（JPEG 解码、Laplacian、pHash、VNRequest、CLIP 预处理、O(n²) 重复分组）统一经 `AnalysisExecutor`（actor，utility 优先级，受限并发 `maxConcurrent = 2`，内部 in-flight 计数 + continuation 队列）执行，只把 Sendable 结果回 MainActor 写库/更新 UI。`ScanService` 两阶段：阶段 1（MainActor 轻量）过滤已导入/过旧照片收集候选；阶段 2 候选分批（每批 `maxConcurrent` 个）后台分析，进度回调次数保持按照片数。扫描阶段对已注册宠物做只读预匹配（复用 CLIP 同一次推理的 embedding + 14 维颜色签名，`matchedCount`/`matchedUris` 真实反映归属判定），真正归属写入仍在导入时（`ImportService` → `assignPhoto`）——扫描不写库的硬约束不变。
 

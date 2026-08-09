@@ -247,7 +247,7 @@ python tools/prepare_text_embeddings.py \
 | 产物 | 体积（估算） | 进 App Bundle | 说明 |
 |---|---|---|---|
 | `CLIPVisionEncoder_int8.mlpackage` | ~84 MB | ✅ **生产模型** | 输入 224×224 RGB，输出 512 维 L2-normalized embedding；`CoreMLInferenceEngine` 默认加载名 |
-| `RTMPoseTPetFace_fp16.mlpackage` | ~6 MB | ✅ **生产模型** | 输入 192×192 NCHW，输出 simcc_x [1,5,384] + simcc_y [1,5,384]；已随包交付，暂无可加载代码（供 V1.x） |
+| `RTMPoseTPetFace_fp16.mlpackage` | ~6 MB | ✅ **生产模型** | 输入 192×192 NCHW，输出 simcc_x [1,5,384] + simcc_y [1,5,384]；`PoseInferenceService.create` 默认加载（BeadViewModel 抠图分支 pose 检测，2026-08-09） |
 | `CLIPVisionEncoder_fp16.mlpackage` | ~85 MB | ❌ excludes | 实验模型（仅本机转换/调试） |
 | `RTMPoseTPetFace_int8.mlpackage` | ~3 MB | ❌ excludes | 实验模型（仅本机转换/调试） |
 | `pet_text_embeddings.f32` | 0.04 MB | ✅ | 直接复用源端二进制文件 |
@@ -318,6 +318,10 @@ UI 文案与 Info.plist 权限说明用 Apple String Catalog（`.xcstrings`）�
 - 2026-08-08：**P2 CI 验证通过**（历史 run [31204194663](https://github.com/altairos/MiLens-iOS/actions/runs/31204194663)）——该次运行曾有 SwiftData 集成测试跳过；后续已在本机恢复并验证，当前状态以 2026-08-09 的 400/400、0 skipped 为准。**真机与性能待办见 [P2-待办清单](docs/P2-待办清单.md)**。
 - 2026-08-08：**P2 扫描增强（质量评分 + 重复分组）**——纯逻辑三模块、`CoreImageAnalyzer`、`QualityScorer` 编排服务与 `Photo` 质量字段全部落地；此前的 SwiftData 集成测试跳过已恢复。当前仍需真实照片集校准清晰度/pHash 阈值，见 [P2-待办清单](docs/P2-待办清单.md)。
 - 2026-08-08：**CLIP/Vision/CoreML 真实实现落地**——`IOSVisionService`（VNClassifyImageRequest + VNGenerateForegroundInstanceMask）+ `CoreMLInferenceEngine`（MLModel + MLMultiArray）+ `ClipInferenceService`（推理编排）+ `AiInferenceLogic`/`ClipPreprocess`/`PetTextEmbeddings` 纯逻辑。**本地验证通过**：`xcodebuild build` BUILD SUCCEEDED + `xcodebuild test` AiInferenceLogicTests 17 用例 + ClipPreprocessTests 11 用例全绿（28 passed, 0 failed）。编译修复 7 处错误（ClassificationResult 重名冲突 → ClipClassificationResult、Optional multiArrayConstraint 解包、MLModel.prediction async、compactMap 类型推断、Data.copyBytes 歧义、MLMultiArray 无 withUnsafeMutableBytes → memcpy、VNClassificationObservation 无 label → identifier）。**推理质量/精度/资源待真机验证**——详细清单见 [P2-真机验证备忘](docs/P2-真机验证备忘.md) §2.2。
+
+### P4
+
+- 2026-08-09：**RTMPose 加载链路补全（P4 拼豆 pose 保护）**——①`MiLensKit/PoseSimccDecoder`：翻译源端 `PoseInferenceMath.ets`（RGBA 平台变体：`preparePoseInput` 双线性裁切 + ImageNet NCHW 归一化 / `decodePoseOutputs` SimCC argmax + one-vs-rest softmax / `deriveFaceBoxFromPose` 脸框推导 / `hasStableFaceAnchors`），9 用例 XCTest；②App 层 `PoseInferenceService`：模型加载 + 输入契约验证 + 两阶段 coarse-to-fine 编排 + 按名输出绑定（不依赖数组顺序），7 用例 XCTest（mock 引擎注入，与 ClipInferenceService 测试纪律一致）；③`BeadViewModel` 抠图分支接入 pose 检测（失败静默跳过）→ `adjustPoseForCrop` 写入 `subject.pose`；④DI 链：`AppDependencies` → `\.poseInferenceService` EnvironmentKey → `BeadPatternView`。**WSL2 验证通过**：MiLensKit 编译零警告 + PoseSimccDecoderTests 9/9 全绿；App 层编译/测试依赖 iOS SDK，本机无法执行，待 CI（未执行）。模型 manifest 与文档同步更新（`model-manifest.json` loaded_by / Models README / PLAN / P2-真机验证备忘 §2.2.6）。
 
 ---
 

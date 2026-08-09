@@ -22,6 +22,9 @@ struct ImportProgress: Sendable {
 enum ScanConfig {
     /// 沙盒照片子目录名（对应源端 filesDir/MiPhotos）
     static let sandboxDirName = "MiPhotos"
+    /// 编辑产物子目录名（Documents/MiPhotos/Edits）——与导入副本分区存储：
+    /// 编辑成品不可从系统相册重建，允许备份；导入副本可重建，排除备份（IOSFileStorage）。
+    static let editsDirName = "Edits"
     /// AI 检测输入尺寸（像素，对应源端 AI_CONSTANTS.DETECT_INPUT_SIZE）
     static let detectInputSize = 256
     /// 沙盒副本最大边长（对应源端缩放到 1024px JPEG）

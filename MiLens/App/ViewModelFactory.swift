@@ -23,6 +23,7 @@ final class ViewModelFactory {
     private let vision: any VisionService
     private let fileStorage: any FileStorage
     private let clipService: (any ClipInference)?
+    private let poseService: (any PoseInference)?
     private let cursorStore: any ScanCursorStore
     private let mediaLifecycle: MediaLifecycleService?
 
@@ -33,6 +34,7 @@ final class ViewModelFactory {
          vision: any VisionService,
          fileStorage: any FileStorage,
          clipService: (any ClipInference)?,
+         poseService: (any PoseInference)?,
          cursorStore: any ScanCursorStore,
          mediaLifecycle: MediaLifecycleService?) {
         self.container = container
@@ -42,6 +44,7 @@ final class ViewModelFactory {
         self.vision = vision
         self.fileStorage = fileStorage
         self.clipService = clipService
+        self.poseService = poseService
         self.cursorStore = cursorStore
         self.mediaLifecycle = mediaLifecycle
     }
@@ -52,6 +55,12 @@ final class ViewModelFactory {
         URL.documentsDirectory
             .appendingPathComponent(ScanConfig.sandboxDirName)
             .path
+    }
+
+    /// 编辑产物目录（Documents/MiPhotos/Edits）——编辑成品允许备份，
+    /// 与排除备份的导入副本分区（DESIGN.md §7）。
+    var editsDir: String {
+        sandboxDir + "/" + ScanConfig.editsDirName
     }
 
     // MARK: - ViewModel 构造
@@ -78,6 +87,27 @@ final class ViewModelFactory {
         PetEditViewModel(petRepo: petRepo, clipService: clipService)
     }
 
+    /// 拼豆工作室 ViewModel（评审收敛：View 不再直连 photoRepo/vision/clip/pose 服务）。
+    func makeBeadViewModel(isPro: Bool) -> BeadViewModel {
+        BeadViewModel(
+            photoRepo: photoRepo,
+            vision: vision,
+            clipService: clipService,
+            poseService: poseService,
+            isPro: isPro
+        )
+    }
+
+    /// 宠物档案列表 ViewModel（评审收敛：View 不再直连 petRepo）。
+    func makePetProfileViewModel(isPro: Bool) -> PetProfileViewModel {
+        PetProfileViewModel(petRepo: petRepo, isPro: isPro)
+    }
+
+    /// 成长时间线 ViewModel（评审收敛：View 不再直连 petRepo/photoRepo）。
+    func makeTimelineViewModel() -> TimelineViewModel {
+        TimelineViewModel(petRepo: petRepo, photoRepo: photoRepo)
+    }
+
     /// 编辑器 ViewModel：环境缺失（Preview/异常路径）时用 in-memory 容器兜底；
     /// 兜底也失败则返回 nil，调用方保持黑屏而不崩溃（语义与原 EditorView.fallbackLifecycle 一致）。
     func makeEditorViewModel(photoID: UUID) -> EditorViewModel? {
@@ -94,7 +124,8 @@ final class ViewModelFactory {
             imageProcessor: CoreImageEditorProcessing(),
             saveService: EditorSaveService(
                 mediaLifecycle: lifecycle,
-                sandboxDir: sandboxDir
+                sandboxDir: sandboxDir,
+                editsDir: editsDir
             )
         )
     }
@@ -119,6 +150,11 @@ final class ViewModelFactory {
 
     func unassignedPhotos(limit: Int) throws -> [Photo] {
         try photoRepo.getUnassignedPhotos(limit: limit)
+    }
+
+    /// 全部宠物（时间线筛选等轻量列表的唯一数据入口）。
+    func allPets() throws -> [Pet] {
+        try petRepo.getAllPets()
     }
 
     // MARK: - 编辑器兜底（环境未注入 MediaLifecycleService 时）
@@ -154,6 +190,7 @@ private struct ViewModelFactoryKey: EnvironmentKey {
             vision: MockVisionService(),
             fileStorage: MockFileStorage(),
             clipService: nil,
+            poseService: nil,
             cursorStore: UserDefaultsScanCursorStore(),
             mediaLifecycle: nil
         )

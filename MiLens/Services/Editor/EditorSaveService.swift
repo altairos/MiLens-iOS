@@ -13,13 +13,16 @@ import MiLensKit
 final class EditorSaveService {
 
     private let mediaLifecycle: MediaLifecycleService
-    /// 沙盒照片目录路径（Documents/MiPhotos，与 ImportService 同目录）
-    private let sandboxDir: String
+    /// 编辑产物目录路径（Documents/MiPhotos/Edits）——编辑成品不可从系统相册重建，
+    /// 允许备份；与排除备份的导入副本分区（DESIGN.md §7）。
+    private let editsDir: String
 
     init(mediaLifecycle: MediaLifecycleService,
-         sandboxDir: String) {
+         sandboxDir: String,
+         editsDir: String? = nil) {
         self.mediaLifecycle = mediaLifecycle
-        self.sandboxDir = sandboxDir
+        // sandboxDir 仅用于派生默认 editsDir（与导入副本分区存储）
+        self.editsDir = editsDir ?? sandboxDir + "/" + ScanConfig.editsDirName
     }
 
     /// 保存编辑产物并更新照片记录。
@@ -40,7 +43,7 @@ final class EditorSaveService {
         timestamp: Int64 = Int64(Date().timeIntervalSince1970 * 1000)
     ) async throws -> String {
         let fileName = resolveSaveFileNameHint(timestamp: timestamp, decision: decision)
-        let path = "\(sandboxDir)/\(fileName)"
+        let path = "\(editsDir)/\(fileName)"
         // 事务段：写新文件 → 更新记录 → 清理旧版本文件（失败回滚）
         return try await mediaLifecycle.saveEditedPhoto(
             photo, data: data, to: path, width: width, height: height)

@@ -45,6 +45,11 @@ final class MockStoreService: StoreService {
         statusContinuation.yield(status)
     }
 
+    /// 结束权益流（模拟 Transaction.updates 终止）——测试流立即结束的清理路径。
+    func finishUpdates() {
+        statusContinuation.finish()
+    }
+
     func loadProducts() async throws -> [StoreProductInfo] {
         loadCallCount += 1
         if let loadError { throw loadError }

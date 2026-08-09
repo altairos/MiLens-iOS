@@ -231,6 +231,8 @@ def cmd_import(args: argparse.Namespace) -> int:
 
 # 匹配 String(localized: "...") 与 NSLocalizedString("...")
 _KEY_RE = re.compile(r'(?:String\(localized:|NSLocalizedString\()\s*"((?:\\.|[^"\\])*)"')
+# 任意字符串字面量（Text("...") 等非 String(localized:) 引用）
+_LITERAL_RE = re.compile(r'"((?:\\.|[^"\\])*)"')
 
 
 def extract_code_keys(source_root: Path) -> set[str]:
@@ -243,6 +245,23 @@ def extract_code_keys(source_root: Path) -> set[str]:
             continue
         keys.update(_KEY_RE.findall(text))
     return keys
+
+
+def extract_literal_texts(source_root: Path) -> set[str]:
+    """扫描 Swift 源码中的字符串字面量（Text/Button 直接文案等）。
+
+    这些文案未走 String(localized:) API，但对应 String Catalog 的 manual key
+    （key 以中文文案而非键名形式存在）会被字面量直接引用——check 需要把它们
+    视为已引用，避免把仍在使用的文案误报为多余 key。
+    """
+    texts: set[str] = set()
+    for swift in source_root.rglob("*.swift"):
+        try:
+            text = swift.read_text(encoding="utf-8")
+        except (OSError, UnicodeDecodeError):
+            continue
+        texts.update(_LITERAL_RE.findall(text))
+    return texts
 
 
 def parse_known_regions(project_yml: Path) -> list[str]:
@@ -261,6 +280,7 @@ def cmd_check(args: argparse.Namespace) -> int:
     project_yml = Path(args.project_yml) if args.project_yml else None
     source_root = Path(args.source_root) if args.source_root else None
     code_keys = extract_code_keys(source_root) if source_root else set()
+    code_literals = extract_literal_texts(source_root) if source_root else set()
     known = parse_known_regions(project_yml) if project_yml else []
     last_source = ""
 
@@ -293,7 +313,14 @@ def cmd_check(args: argparse.Namespace) -> int:
         if source_root and path.stem == "Localizable":
             xc_keys = set(strings.keys())
             missing = code_keys - xc_keys
-            extra = xc_keys - code_keys
+            # 多余 key 排除字面量引用：key 以中文文案形式存在时，代码常以
+            # Text("...") 直接字面量引用（未走 String(localized:) API）；
+            # 比较前把 JSON 解码的 \n 还原为源码 \n 文本、\" 还原为 \\\"。
+            extra = set()
+            for key in xc_keys - code_keys:
+                source_form = key.replace("\n", "\\n").replace('"', '\\"')
+                if source_form not in code_literals:
+                    extra.add(key)
             if missing:
                 print(f"  [缺 key] 代码引用但 String Catalog 缺少：{sorted(missing)}")
                 problems += len(missing)

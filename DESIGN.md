@@ -1,6 +1,6 @@
 # MiLens iOS 设计说明
 
-最后核对：2026-08-09（P1 核心可靠性收口：后台执行器 / 媒体生命周期 / 通知真调度 / 启动恢复）
+最后核对：2026-08-09（P1 核心可靠性收口 + 严格并发编译验证通过 + 并发遗留收口；1198+ XCTest 全绿）
 
 > 本文描述目标 iOS 架构。源 HarmonyOS 架构见 `e:\HarmonyProjects\MiPhoto2\DESIGN.md`，迁移映射见 [MIGRATION_ASSESSMENT.md](MIGRATION_ASSESSMENT.md)，约束见 [AGENTS.md](AGENTS.md)。**视觉与 UI 设计规范见 [UI-DESIGN.md](UI-DESIGN.md)**（色彩/字体/间距/动效/页面视觉的唯一事实来源）。
 
@@ -195,12 +195,12 @@ SwiftData 从 V1.0 干净 schema 起步（不复刻源端 16 版历史迁移）�
 - 页面 ViewModel 一律 `@MainActor`；跨隔离边界（`Task.detached`、`async let`、协议值传递）只发送 `Sendable` 值，CPU 密集计算以捕获值的方式传入 detached 闭包，不捕获非 Sendable 的 `self`/View struct。
 - 平台适配层与 mock 的 `@unchecked Sendable` 声明必须附理由注释（内部锁保护 / 只在 MainActor 调用方访问等），禁止无说明地抑制检查。
 - 长监听任务（如 `ProEntitlementStore` 的订阅流）用 actor 隔离的注册表 + `[weak self]`，不留「静态容器 → Task → self」保活环。
-- 已知遗留（跟踪见 PLAN.md）：`BeadViewModel` 4 处 `Task.detached` 在 @MainActor VM 内调用实例方法，待该文件改动完成后收敛；`HomeView` 2 处 `static let DateFormatter` 在 Swift 5.9 complete 下不触发诊断（SE-0412 于 5.10 生效），列为 Swift 6 语言模式迁移前置项。
+- 并发遗留收口：`BeadViewModel` 4 处 `Task.detached`（生成/导出/分享/PDF）已收敛——均以捕获 `Sendable` 局部值（`renderer`/`pattern`/`photoData`/`opts`）的方式传参，调用全局生成/渲染函数，不捕获非 Sendable 的 `self`，complete 编译通过。仅剩 `HomeView` 2 处 `static let DateFormatter` 在 Swift 5.9 complete 下不触发诊断（SE-0412 于 5.10 生效），列为 Swift 6 语言模式迁移前置项（跟踪见 PLAN.md）。
 
 ## 10. 已知限制
 
 - AI 推理框架已定案：方案 A 全转换（CLIP + RTMPose → Core ML，INT8 量化）+ Vision 原生分割。详见 [ADR-0007](docs/adr/0007-ios-ai-inference-route.md)。
-- 质量评分（Laplacian 方差清晰度）+ 重复分组（pHash 视觉哈希）**已实现**（P2，[ADR-0008](docs/adr/0008-v1-scope-decision.md)）；CLIP embedding 相似度增强待 Core ML 模型就绪；完整图片编辑器待 P4。
+- 质量评分（Laplacian 方差清晰度）+ 重复分组（pHash 视觉哈希）**已实现**（P2，[ADR-0008](docs/adr/0008-v1-scope-decision.md)）；完整图片编辑器**已实现**（P4，裁切/旋转/翻转/调色/锐化/文字/抠图）。CLIP embedding 相似度增强、RTMPose 精度需 iPhone 真机验证（模型已转换，推理质量待实测）。
 - 家庭局域网备份后置 V1.x；AI 写真/回忆视频 V1.0 不做（无源端参照，需独立产品+技术方案），仅 V1.x 重新评估。
 - SwiftData schema 从零设计，与源端数据无直接迁移路径（两平台数据不互通）。
-- 当前在 Windows 搭建文档/harness，编译与真机验证需 Mac + Xcode。
+- 编译与单元测试已在本机 macOS 验证通过（严格并发 `complete` 下 BUILD SUCCEEDED，MiLensKit 594 + App 604 + UI 2 全绿）；真机调试、模拟器 UI 人工验证、Instruments 性能分析仍需 Mac + iPhone 真机。

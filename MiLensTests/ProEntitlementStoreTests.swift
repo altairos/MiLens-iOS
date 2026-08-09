@@ -47,12 +47,21 @@ final class ProEntitlementStoreTests: XCTestCase {
     }
 
     /// 流推送仍生效（购买/恢复/Transaction.updates 路径不受启动 refresh 影响）。
+    ///
+    /// 注入独立 ListenerRegistry（不复用 .shared）：串行测试间前序 entitlement
+    /// 释放后对象内存可能复用，ObjectIdentifier 会与后序实例重叠；前序 deinit 的
+    /// 异步 cancel 经 actor 到达后会把该 ID 写入取消墓碑，后序 init 的 register
+    /// 误命中墓碑导致流消费 Task 被立即取消、status 永不更新（flaky 根因）。
+    /// 独立 registry 隔离 ObjectIdentifier 空间，消除交叉污染；deadline 轮询
+    /// （同 waitRegistryCount 模式）给并行负载下充足的调度预算。
     func testStreamPushStillUpdatesStatus() async {
+        let registry = ProEntitlementStore.ListenerRegistry()
         let store = MockStoreService(proStatus: .inactive)
-        let entitlement = ProEntitlementStore(store: store)
+        let entitlement = ProEntitlementStore(store: store, registry: registry)
 
         store.pushStatus(.active(productID: MiLensProducts.yearly))
-        for _ in 0..<100 where !entitlement.isPro {
+        let deadline = Date().addingTimeInterval(2)
+        while !entitlement.isPro, Date() <= deadline {
             try? await Task.sleep(nanoseconds: 10_000_000)
         }
 

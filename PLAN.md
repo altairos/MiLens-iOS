@@ -155,7 +155,7 @@ P1 核心可靠性与性能六项修复全部落地（实现记录见状态摘�
 - 首次启动流程已实现：授权 → 扫描发现宠物 → 建档 → 相册可见；真机授权与真实照片走查待做 🟡
 - 相册支持分页、筛选、多选、大图查看 ✅
 - 扫描可取消，不提交过期结果 ✅
-- CI/本机编译 + 测试全绿 ✅（本机 2026-08-09：400 passed, 0 skipped, 0 failed；CI 仍需下一次 PR 运行确认模型 Release 下载链路）
+- CI/本机编译 + 测试全绿 ✅（本机 2026-08-09 最新：严格并发 `complete` 下 BUILD SUCCEEDED；App 604 passed / 0 failed、MiLensKit 594 / 0 failed、UI 2 冒烟、本地化 144+3 key 校验通过；CI 仍需下一次 PR 运行确认模型 Release 下载链路）
 - 真机验证（待 Mac + iPhone）—— 待办清单见 [P2-真机验证备忘](docs/P2-真机验证备忘.md)
 
 ---
@@ -368,3 +368,7 @@ P1 核心可靠性与性能六项修复全部落地（实现记录见状态摘�
 - 2026-08-08：**首页逻辑层落地**——`HomeViewModel` + `HomeHeroLogic`（选片/今日判定/文案）+ `HomeMemoryLogic`（往日回忆选片）+ `HomeGreetingLogic`（时段问候）纯逻辑与测试（git d6e9ec5，MiLensKit 支持 macOS 平台 e2c00c3 同期）。
 
 - 2026-08-09：**上架流水线代码落地（release 作业）**——`.github/workflows/ci.yml` 新增 `release` 作业：`workflow_dispatch` 手动触发（inputs：`version`=MARKETING_VERSION / `buildNumber`=CURRENT_PROJECT_VERSION / `upload`=是否上传 ASC），`needs [kit, app]` 质量门禁；流程 = xcodegen → `fetch-models.sh`（模型缓存复用）→ `.p8` 写入 `~/private_keys` → `xcodebuild archive`（`-authenticationKey*` API Key 自动签名 + `-allowProvisioningUpdates`，无需钥匙串）→ `-exportArchive`（app-store ExportOptions，uploadSymbols）→ `xcrun altool --upload-app`（iOS 不需要 notarytool 公证）→ artifact 留存 IPA + xcarchive。Secrets 约定：`ASC_API_KEY`/`ASC_API_KEY_ID`/`ASC_API_ISSUER_ID`/`ASC_TEAM_ID`，`.p8` 生成与配置说明见 [DEVELOPMENT.md](DEVELOPMENT.md) §2.2。**未实测**：本月 CI 额度用完，需配置 Secrets 后手动触发（建议先 `upload=false` 验证签名 IPA，再正式上传）。
+
+- 2026-08-09：**本机 macOS 全量验证（当前最新基准）**——`xcodegen generate` + `xcodebuild build`（`SWIFT_STRICT_CONCURRENCY=complete`）**BUILD SUCCEEDED**；MiLensKit `swift test` **594/594 全绿**；MiLens App `xcodebuild test` **604/604 全绿、0 失败**（含修复 `ProEntitlementStoreTests.testStreamPushStillUpdatesStatus` flaky——独立 `ListenerRegistry` 隔离 `ObjectIdentifier` 复用致取消墓碑误杀）；MiLensUITests 2 冒烟用例；`localization.py check` 全绿（Localizable 144 + InfoPlist 3）。顶层文档同步刷新（README 阶段/路径、DESIGN §10、DEVELOPMENT 环境与验证快照）。
+
+- 2026-08-09：**并发遗留收口确认（审计复核）**——P5 严格并发条目预留的 `BeadViewModel` 4 处 `Task.detached` 遗留经审计核实**已收敛**：4 处 detached（生成/导出/分享/PDF）均已改为以捕获 `Sendable` 局部值（`renderer`/`pattern`/`photoData`/`opts`）的方式传参，闭包内调用全局生成/渲染函数（`generateBeadPatternAsync`/`generateBeadPatternAutoAsync`/`BeadExportService.render*`），不捕获非 Sendable 的 `self`。验证：`SWIFT_STRICT_CONCURRENCY=complete` 下 `xcodebuild` BUILD SUCCEEDED。文档同步：DESIGN.md §9.1 与 DEVELOPMENT.md §4.2 的「已知遗留」描述已更新为「并发遗留收口」，仅剩 `HomeView` 2 处 `static let DateFormatter` 作为 Swift 6 语言模式迁移前置项。

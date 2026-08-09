@@ -1,6 +1,6 @@
 # MiLens iOS 开发说明
 
-最后核对：2026-08-09（P2 实现完成；真机与性能验收待做，清单见 docs/P2-待办清单.md）
+最后核对：2026-08-09（P0–P5 实现完成；本机 macOS 编译 + 1198+ XCTest 全绿；真机与性能验收待做，清单见 docs/P2-待办清单.md）
 
 > 环境、命令、开发约定、可复现验证快照。架构见 [DESIGN.md](DESIGN.md)，计划见 [PLAN.md](PLAN.md)，约束见 [AGENTS.md](AGENTS.md)。
 
@@ -15,7 +15,7 @@
 | XcodeGen | 2.40+（项目文件生成） |
 | Cocoapods / SPM | 优先 SPM；`MiLensKit` 为本地 Swift Package |
 
-> **无 Mac 也能开发的分层方案**：iOS App（SwiftUI/SwiftData/Photos/Vision）绑定 iOS SDK + Xcode，**无法在 Windows/Linux 上编译**。但本项目结构天然分层，本地可覆盖最高频的算法迭代，App 层走云端 CI：
+> **多机协作的分层方案**：iOS App（SwiftUI/SwiftData/Photos/Vision）绑定 iOS SDK + Xcode。但本项目结构天然分层，本地可覆盖最高频的算法迭代，App 层可走云端 CI（当前主开发环境为 macOS，本节同时保留 Windows/WSL2 与云端方案供多机协作）：
 >
 > | 层 | 编译位置 | 命令 | 说明 |
 > |---|---|---|---|
@@ -29,12 +29,12 @@
 
 ### 2.1 本地：MiLensKit 纯算法包（Mac 或 WSL2 Ubuntu-24.04，最高频）
 
-**Mac 直接跑（推荐）**：包已声明 `.macOS(.v13)`，全量 522 用例可在 macOS 上独立验证，无需 iOS 模拟器：
+**Mac 直接跑（推荐）**：包已声明 `.macOS(.v13)`，全量 594 用例可在 macOS 上独立验证，无需 iOS 模拟器：
 
 ```bash
 cd MiLensKit
 swift build              # 编译拼豆包
-swift test               # 全量 XCTest（522 用例）
+swift test               # 全量 XCTest（594 用例）
 ```
 
 > 注意：macOS 上 Quickdraw（经 XCTest→AppKit 传递导入）与包内 `RGBColor` 同名，
@@ -178,7 +178,7 @@ tools/check-coverage.sh build/TestResult.xcresult
 - 页面 ViewModel 一律 `@MainActor`；跨隔离边界只发送 `Sendable` 值，`Task.detached` 以捕获值传参，不捕获非 Sendable 的 `self`/View struct。
 - 平台适配层/mock 的 `@unchecked Sendable` 必须附理由注释；禁止新增无说明的 `@unchecked Sendable`/`nonisolated(unsafe)`。
 - 页面 ViewModel 统一经 `ViewModelFactory`（`\.viewModelFactory`）构造，View 不直接持有 Repository/Service（分层收敛，详见 DESIGN.md §4.1）。
-- 已知遗留：`BeadViewModel` 4 处 `Task.detached` 待该文件改动完成后收敛；`HomeView` 2 处 `static let DateFormatter` 为 Swift 6 语言模式迁移前置项（跟踪见 PLAN.md P5 进度）。
+- 并发遗留收口：`BeadViewModel` 4 处 `Task.detached` 已收敛（以捕获 `Sendable` 局部值方式传参，不捕获 `self`，complete 编译通过）；仅剩 `HomeView` 2 处 `static let DateFormatter` 为 Swift 6 语言模式迁移前置项（跟踪见 PLAN.md P5 进度）。
 
 ### 4.3 AI 模型转换工具链
 
@@ -309,6 +309,8 @@ UI 文案与 Info.plist 权限说明用 Apple String Catalog（`.xcstrings`）�
 - 2026-08-08：**AI 模型转换工具链落地**——新增 3 个 Python 脚本 + `tools/requirements-models.txt`：①`tools/convert_clip_coreml.py`（CLIP ViT-B/32 vision encoder → Core ML `.mlpackage`，只导 image_features 512 维，支持 INT8/FP16 量化，精度校验 cosine >0.999）；②`tools/convert_rtmpose_coreml.py`（RTMPose-t ONNX → Core ML，SimCC 输出，精度校验 <2px）；③`tools/prepare_text_embeddings.py`（text embeddings f32 格式校验 + Swift 加载代码生成）。三个脚本 `py_compile` 全绿；`prepare_text_embeddings.py --verify-only` 对源端 `pet_text_embeddings.f32`（40960 bytes = 20×512×4）实跑通过，L2 范数全部正常。转换+量化实跑需 macOS（coremltools 依赖）。
 
 ### P2
+
+- 2026-08-09：**本机 macOS 全量验证（当前最新基准）**——`xcodegen generate` + `xcodebuild build`（`SWIFT_STRICT_CONCURRENCY=complete`）**BUILD SUCCEEDED**；MiLensKit `swift test` **594/594 全绿**；MiLens App `xcodebuild test` **604/604 全绿、0 失败**（含修复 `ProEntitlementStoreTests.testStreamPushStillUpdatesStatus` flaky——独立 `ListenerRegistry` 隔离 `ObjectIdentifier` 复用）；MiLensUITests 2 冒烟用例；`localization.py check` 全绿（Localizable 144 + InfoPlist 3）。下方历史快照（400/400、585/585 等）为阶段性记录，当前状态以本条为准。
 
 - 2026-08-09：**审计收口 M2-M4 + L1-L5 本地验证（WSL2 Ubuntu-24.04 + Swift 6.1.3）**——`MiLensKit` 开启 `-strict-concurrency=complete` 后 `swift build` **零警告**，`swift test --parallel` 全绿（585/585，EXIT=0，含 L4 domain 判定 4 用例 + L5 脱敏 3 用例）；App 层 6 个改动文件（`MiLensApp`/`MediaLifecycleService`/`ScanService`/`ImportService`/`IOSPhotoLibraryAccess`/`MediaLifecycleServiceTests`）`swiftc -parse` 全过；App 编译/App 层测试依赖 iOS SDK，本机无法执行，待 CI（未执行）。
 

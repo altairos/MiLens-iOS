@@ -160,7 +160,7 @@ struct TimelineView: View {
             Image(systemName: "clock.badge.checkmark")
                 .foregroundStyle(Color.milensActionPrimary)
             VStack(alignment: .leading, spacing: Spacing.xs) {
-                Text("完整时间线体验还剩 (vm.previewDaysRemaining) 天")
+                Text("完整时间线体验还剩 \(vm.previewDaysRemaining) 天")
                     .font(.bodyPrimary.weight(.semibold))
                     .foregroundStyle(Color.milensTextPrimary)
                 Button("现在解锁，继续保存全部故事") { showPaywall = true }

@@ -20,7 +20,7 @@ V1 采用单一二元权益 `ProEntitlementStore.isPro`，但免费用户可以�
 
 ## 未来计划权益
 
-高级创作模板与高清导出属于 V1.0 计划能力，不得伪装成当前已经交付的功能。付费墙可以标注“计划加入，Pro 用户上线后自动解锁”；App Store 元数据只宣传当前可用能力，待功能上线后再补充正式商店文案。
+高级创作模板与高清导出属于 V1.0 计划能力，不得伪装成当前已经交付的功能。付费墙和 App Store 元数据可以提前宣传近期计划能力，但必须明确标注“计划加入/预计上线”，不得让用户误以为当前版本已经提供；功能上线后再同步更新为正式权益文案。
 
 ## 实现映射
 
@@ -30,4 +30,4 @@ V1 采用单一二元权益 `ProEntitlementStore.isPro`，但免费用户可以�
 - `MiLens/ViewModels/BeadViewModel.swift`：每日 5 次成功生成配额。
 - `MiLens/ViewModels/TimelineViewModel.swift`、`TimelineAccessLogic`：365 天时间线窗口。
 - `MiLensTests/CommercialRulesTests.swift`、`MiLensKit/Tests/MiLensKitTests/BeadFlowLogicTests.swift`：商业规则回归测试。
-- `docs/AppStore-metadata.md`：商店和审核文案；未实现权益必须标注为未来计划。
+- `docs/AppStore-metadata.md`：商店和审核文案；未实现权益必须标注为未来计划，不得写成当前已交付能力。

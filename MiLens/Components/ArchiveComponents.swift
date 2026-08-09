@@ -51,18 +51,28 @@ struct ArchiveSectionHeader: View {
 
 struct ArchivePrimaryButton<Label: View>: View {
     let action: () -> Void
+    /// 加载态：显示进度指示器并禁用交互，保留按钮宽高（UI-DESIGN.md §5.3.1：加载时保留宽度并显示进度）。
+    var isLoading: Bool = false
     @ViewBuilder let label: () -> Label
 
     var body: some View {
         Button(action: action) {
-            label()
-                .foregroundStyle(Color.milensTextOnActionPrimary)
-                .frame(maxWidth: .infinity, minHeight: 50)
-                .padding(.horizontal, Spacing.lg)
-                .background(Color.milensActionPrimary)
-                .clipShape(RoundedRectangle(cornerRadius: Radius.medium, style: .continuous))
+            Group {
+                if isLoading {
+                    ProgressView()
+                        .tint(Color.milensTextOnActionPrimary)
+                } else {
+                    label()
+                }
+            }
+            .foregroundStyle(Color.milensTextOnActionPrimary)
+            .frame(maxWidth: .infinity, minHeight: 50)
+            .padding(.horizontal, Spacing.lg)
+            .background(Color.milensActionPrimary)
+            .clipShape(RoundedRectangle(cornerRadius: Radius.medium, style: .continuous))
         }
         .buttonStyle(.plain)
+        .disabled(isLoading)
     }
 }
 
@@ -83,6 +93,7 @@ struct FilterChip: View {
     let isSelected: Bool
     var count: Int?
     let action: () -> Void
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     var body: some View {
         Button(action: action) {
@@ -105,7 +116,7 @@ struct FilterChip: View {
             .clipShape(Capsule())
         }
         .buttonStyle(.plain)
-        .animation(.easeInOut(duration: Motion.durationFast), value: isSelected)
+        .animation(reduceMotion ? nil : .easeInOut(duration: Motion.durationFast), value: isSelected)
         .accessibilityAddTraits(isSelected ? .isSelected : [])
     }
 }
@@ -116,6 +127,10 @@ struct FilterChip: View {
         ArchiveSectionHeader(title: "它的故事", supporting: "向左看看")
         ArchivePrimaryButton(action: {}) {
             Text("继续")
+                .font(.buttonLabel)
+        }
+        ArchivePrimaryButton(action: {}, isLoading: true) {
+            Text("提交")
                 .font(.buttonLabel)
         }
     }

@@ -48,6 +48,15 @@ enum Sizing {
     static let tabBarHeight: CGFloat = 56
 }
 
+/// 内容最大可读宽度（UI-DESIGN.md §5.1：正文 680 / 表单 620）。
+/// 用于 Modal 表单限宽与长文居中，避免在 iPad/regular 宽度下全屏铺开（§8）。
+enum ReadingWidth {
+    /// 正文最大可读宽度。
+    static let body: CGFloat = 680
+    /// 设置/表单最大宽度。
+    static let form: CGFloat = 620
+}
+
 /// 动效时长 token（UI-DESIGN.md §4）
 enum Motion {
     /// 即时反馈：点击态、chip 切换
@@ -84,5 +93,39 @@ extension View {
     /// 应用 UI-DESIGN.md 定义的阴影 token。
     func elevation(_ spec: ShadowSpec) -> some View {
         shadow(color: spec.color, radius: spec.radius, x: spec.x, y: spec.y)
+    }
+
+    /// 限制 Modal/表单内容最大宽度并居中（UI-DESIGN.md §8：Modal 表单不全屏铺开）。
+    ///
+    /// 仅在 regular 水平 size class（iPad、iPhone 横屏大尺寸）生效；compact 环境
+    /// 原样返回，不影响 iPhone 竖屏全宽布局。背景色用于填充限宽后两侧的留白，
+    /// 避免露出系统 sheet 默认底色造成色差。
+    ///
+    /// - Parameters:
+    ///   - maxWidth: 内容最大宽度（默认 `ReadingWidth.form` = 620）。
+    ///   - background: 限宽区背景色（默认 `Color.milensBackground`）。
+    func modalContentWidth(
+        _ maxWidth: CGFloat = ReadingWidth.form,
+        background: Color = .milensBackground
+    ) -> some View {
+        modifier(ModalContentWidthModifier(maxWidth: maxWidth, background: background))
+    }
+}
+
+/// `modalContentWidth` 的实现：regular 宽度下限宽居中并铺背景。
+private struct ModalContentWidthModifier: ViewModifier {
+    let maxWidth: CGFloat
+    let background: Color
+    @Environment(\.horizontalSizeClass) private var hSizeClass
+
+    func body(content: Content) -> some View {
+        if hSizeClass == .regular {
+            content
+                .frame(maxWidth: maxWidth)
+                .frame(maxWidth: .infinity)
+                .background(background)
+        } else {
+            content
+        }
     }
 }

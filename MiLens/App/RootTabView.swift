@@ -34,8 +34,6 @@ struct RootTabView: View {
             }
         }
         .tint(.milensActionPrimary)
-        .animation(.easeInOut(duration: Motion.durationNormal), value: selectedTabRaw)
-        .sensoryFeedback(.selection, trigger: selectedTabRaw)
         .onChange(of: scenePhase) { _, newPhase in
             handleScenePhase(newPhase)
         }

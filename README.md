@@ -39,7 +39,7 @@ open MiLens.xcodeproj
 - **拼豆算法 Swift 重写**：源端 C++/ArkTS 纯逻辑翻译，XCTest 守护（源端 225 用例 + parity）
 - **AI 推理（已定案）**：方案 A 全转换（CLIP + RTMPose → Core ML，INT8 量化）+ Vision 原生分割，详见 [ADR-0007](docs/adr/0007-ios-ai-inference-route.md)
 - **V1.0 范围**：完整图片编辑器 + 质量评分 + 重复分组进 V1.0；备份/AI 写真后置，详见 [ADR-0008](docs/adr/0008-v1-scope-decision.md)
-- **Pro 权益**：免费版 1 宠物档案/每日 5 次拼豆/最近一年时间线；详见 [ADR-0009](docs/adr/0009-pro-entitlement-rules.md)
+- **Pro 权益**：免费版 1 宠物档案/50 张照片/每日 5 次拼豆/最近一年时间线/导出带水印；Pro 版 20 档案/不限照片/完整历史/无水印；详见 [ADR-0009](docs/adr/0009-pro-entitlement-rules.md) + [ADR-0010](docs/adr/0010-commercialization-and-emotion-triggers.md)
 
 ## 工程结构
 

@@ -10,6 +10,8 @@ struct BeadPatternResultView: View {
     @Environment(\.proEntitlement) private var entitlement
     @State private var shareItem: ShareItem?
     @State private var showPaywall = false
+    /// ADR-0010 分享预览面板状态。
+    @State private var sharePreview: (image: UIImage, url: URL)?
 
     var body: some View {
         VStack(spacing: 0) {
@@ -39,6 +41,17 @@ struct BeadPatternResultView: View {
         .sheet(item: $shareItem) { item in
             ShareSheet(items: [item.url])
         }
+        // ADR-0010 分享预览面板
+        .sheet(item: Binding<SharePreviewData?>(
+            get: { sharePreview.map { SharePreviewData(image: $0.image, url: $0.url) } },
+            set: { if $0 == nil { sharePreview = nil } }
+        )) { data in
+            SharePreviewSheet(
+                previewImage: data.image,
+                shareURL: data.url,
+                onDismiss: { sharePreview = nil }
+            )
+        }
         // Pro 门控：未解锁时导出（保存相册/分享/PDF）拦截到付费墙
         .sheet(isPresented: $showPaywall) {
             NavigationStack { PaywallView() }
@@ -65,7 +78,7 @@ struct BeadPatternResultView: View {
             if let hint = pattern.autoColorHint {
                 Text(hint)
                     .font(.caption2)
-                    .foregroundStyle(Color.milensPrimary)
+                    .foregroundStyle(Color.milensActionPrimary)
                     .frame(maxWidth: .infinity)
                     .padding(.bottom, 4)
             }
@@ -90,10 +103,10 @@ struct BeadPatternResultView: View {
         } label: {
             Text(label)
                 .font(.caption)
-                .foregroundStyle(selected ? Color.milensTextOnAccent : Color.milensTextSecondary)
+                .foregroundStyle(selected ? Color.milensTextOnActionPrimary : Color.milensTextSecondary)
                 .padding(.horizontal, 10)
                 .padding(.vertical, 5)
-                .background(selected ? Color.milensPrimary : Color.milensGrouped)
+                .background(selected ? Color.milensActionPrimary : Color.milensGrouped)
                 .clipShape(Capsule())
         }
         .buttonStyle(.plain)
@@ -132,7 +145,7 @@ struct BeadPatternResultView: View {
             } label: {
                 Text("−").font(.title3)
                     .frame(width: 40, height: 36)
-                    .foregroundStyle(Color.milensPrimary)
+                    .foregroundStyle(Color.milensActionPrimary)
             }
             Text("\(Int((vm.canvasScale * 100).rounded()))%")
                 .font(.caption)
@@ -143,7 +156,7 @@ struct BeadPatternResultView: View {
             } label: {
                 Text("+").font(.title3)
                     .frame(width: 40, height: 36)
-                    .foregroundStyle(Color.milensPrimary)
+                    .foregroundStyle(Color.milensActionPrimary)
             }
         }
         .frame(maxWidth: .infinity)
@@ -209,7 +222,10 @@ struct BeadPatternResultView: View {
 
     private func share() {
         Task { @MainActor in
-            if let url = await vm.prepareShareFile() {
+            guard let url = await vm.prepareShareFile() else { return }
+            if let preview = vm.previewImage {
+                sharePreview = (image: preview, url: url)
+            } else {
                 shareItem = ShareItem(url: url)
             }
         }
@@ -236,7 +252,7 @@ struct BeadPatternResultView: View {
                 VStack(spacing: 0) {
                     ForEach(beadMaterialRows(pattern)) { row in
                         HStack(spacing: 8) {
-                            RoundedRectangle(cornerRadius: 4)
+                            RoundedRectangle(cornerRadius: 4) // ui-token:ok 业务动态色（拼豆调色板 RGB 数据）
                                 .fill(Color(red: Double(row.rgb.r) / 255,
                                             green: Double(row.rgb.g) / 255,
                                             blue: Double(row.rgb.b) / 255))

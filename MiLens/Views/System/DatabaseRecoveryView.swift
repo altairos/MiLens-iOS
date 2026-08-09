@@ -47,7 +47,7 @@ struct DatabaseRecoveryView: View {
                         .frame(maxWidth: .infinity)
                 }
                 .buttonStyle(.borderedProminent)
-                .tint(Color.milensPrimary)
+                .tint(Color.milensActionPrimary)
 
                 Button {
                     switch Self.exportDiagnostics(error: errorDescription) {

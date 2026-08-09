@@ -11,6 +11,7 @@ struct PetsView: View {
 
     @State private var viewModel: PetProfileViewModel?
     @State private var showAddSheet = false
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     var body: some View {
         Group {
@@ -42,7 +43,7 @@ struct PetsView: View {
                     .transition(.opacity)
             }
         }
-        .animation(.easeInOut(duration: Motion.durationSlow), value: viewModel?.showEasterEgg)
+        .animation(reduceMotion ? nil : .easeInOut(duration: Motion.durationSlow), value: viewModel?.showEasterEgg)
         .background(Color.milensBackground)
     }
 
@@ -198,7 +199,7 @@ private struct PetCard: View {
         HStack(spacing: Spacing.xs) {
             Text("\(pet.photoCount) 张照片")
                 .font(.caption)
-                .foregroundStyle(Color.milensPrimary)
+                .foregroundStyle(Color.milensActionPrimary)
             if pet.adoptionDay != nil {
                 dot
                 Text("相处 \(PetDisplayLogic.daysTogether(from: pet.adoptionDay)) 天")

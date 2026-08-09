@@ -7,9 +7,27 @@ enum CommercialRules {
     static let freeBeadGenerationsPerDay = 5
     static let freeTimelineDays = 365
     static let timelinePreviewDays = 14
+    /// 免费版照片保存上限（ADR-0010）。Pro 不限——用 Int.max 表示无限制。
+    static let freePhotoLimit = 50
+    static let proPhotoLimit = Int.max
 
     static func petLimit(isPro: Bool) -> Int {
         isPro ? proPetLimit : freePetLimit
+    }
+
+    /// 照片保存上限。Pro 返回 Int.max（调用方用 `== .max` 或 `< 实际值` 判断）。
+    static func photoLimit(isPro: Bool) -> Int {
+        isPro ? proPhotoLimit : freePhotoLimit
+    }
+
+    /// 导入配额检查：在已有 currentCount 张照片的基础上，本次尝试导入 requestCount 张。
+    /// - Returns: 允许导入的数量（Pro 不限；免费版取 min(剩余配额, 请求数)）
+    static func allowedImportCount(
+        currentCount: Int, requestCount: Int, isPro: Bool
+    ) -> Int {
+        guard !isPro else { return requestCount }
+        let remaining = max(0, freePhotoLimit - currentCount)
+        return min(remaining, requestCount)
     }
 }
 

@@ -242,6 +242,90 @@ cd MiLensKit && swift test
 - `cd MiLensKit && swift test`：578 个测试通过。
 - iOS `xcodebuild test`：未完成测试汇总；测试进程在模拟器建立连接前被系统以 signal kill 终止（`Early unexpected exit`），不是首页编译错误。需在 Xcode/真机环境复核。
 
+### Phase R — 设计验收门禁系统化收尾（2026-08-09 启动）
+
+> Phase 1–4 功能实现基本完成后的收尾阶段，目标是把各页从「实现完成」推进到通过 [UI-DESIGN.md](../UI-DESIGN.md) §11 设计验收门禁。按横切维度（深色/字号/尺寸/组件状态/动效/文案）分批，每批产出问题清单 → View 层修复（不动 ViewModel 业务状态）→ `xcodebuild build/test` 全绿 → 回写本节。lint 守护工具 `tools/check-ui-tokens.py` 贯穿全程防回退。
+
+| 批次 | 维度 | 状态 |
+|---|---|---|
+| A | Token 纪律基线（硬编码色值 + token 值校准 + lint 守护） | ✅ 已完成（2026-08-09）|
+| B | 深色模式 + 高对比（P0-3 对比度系统修复） | 🔄 代码层完成，视觉走查留统一走查 |
+| C | Dynamic Type + 无障碍（Reduce Motion / 材质降级） | 🔄 代码层完成，字号/VoiceOver 走查留统一 |
+| D | 尺寸适配（iPhone SE / Pro Max / iPad Sidebar+Detail，§5.1 / §8） | 🔄 代码层完成（Modal 限宽），结构性重构留模拟器 |
+| E | 组件状态完整性（StateView 五态 / 组件状态，§5.3 / §11） | 🔄 代码层完成（StateView 组件 + 状态补齐），各页统一迁移留后续 |
+| F | 动效与触感对齐（Tab 系统行为 / haptic 纪律，§7） | ✅ 审计通过（核心在 C/D 完成，无新增改动） |
+| G | 文案与能力诚实性复核（§4.2 / §1.1） | ✅ 已完成（AI 口径修正 + 占位/泛化扫描通过） |
+| H | 真机验收（需 Mac + iPhone） | ⬜ 待执行 |
+
+#### 批次 A — Token 纪律基线 ✅（2026-08-09）
+
+- **颜色硬门禁违规清零**：修复 4 处系统语义色当视觉色——`GalleryView` 缩略图占位底 `Color(.systemGray5)`→`milensGrouped`、扫描失败图标 `Color.orange`→`milensWarning`；`EditorToolPanels` 删除按钮/抠图错误态 `.red`→`milensDanger`。编辑器固定黑底照片画布上的 white 叠加属合理场景（参考系统 Photos 编辑器），保留。
+- **功能色 token 值校准到 v2 高对比规范**：核实 Asset Catalog 实际值发现三色仍为旧 v1 值（审计 P0-3 对比度问题的延续）——`Success` `#4CAF7D/#5BBF8A`→`#2F7D57/#72C998`、`Warning` `#E8A33D/#E8B454`→`#9A5B00/#F0B85A`（Light 对比度 2.09:1→6.46:1）、`Danger` `#D9534F/#E06863`→`#B33A36/#EF7D76`；`Color+Theme.swift` 注释同步。
+- **lint 守护工具落地**：`tools/check-ui-tokens.py`——检测颜色硬门禁违规（ERROR，CI 可强制）与硬编码字号/white 叠加（INFO，渐进收敛）；业务动态色（拼豆调色板 `Color(red:)`）行尾 `// ui-token:ok` 豁免。当前 **120 文件 0 ERROR / 64 INFO**。
+- **验证**：`xcodebuild … build CODE_SIGNING_ALLOWED=NO`：**BUILD SUCCEEDED**；`xcodebuild … test CODE_SIGNING_ALLOWED=NO`：**TEST SUCCEEDED**（含 MiLensUITests 2 冒烟，无回归）；`python3 tools/check-ui-tokens.py`：0 ERROR（64 INFO 渐进项）。
+- **遗留**：64 INFO（SF Symbol 图标尺寸 `.font(.system(size:))` 与照片/黑底画布 white 叠加）属渐进项，不阻断门禁，后续批次按场景复核。
+
+#### 批次 B — 深色模式 + 高对比双外观 🔄（2026-08-09，代码层完成）
+
+- **P0-3 对比度系统性修复**（审计 P0-3 「BrandCoral 白字 2.40:1」的代码层收尾）：确立全 App 统一原则——**所有交互强调（按钮背景 / tint / 选中态 / 强调文字）用 `milensActionPrimary`（浅 #BC4727 白字 5.22:1 / 深 #E8845F 暖黑字 7.08:1）；`BrandCoral`(`milensPrimary`) 仅留给纯装饰（记忆标记圆点、收藏心情感标记、成功图标品牌瞬间、编辑器黑底工具选中 8.7:1）**。修复 6 文件：
+  - 自行实现按钮的页面改 `milensPrimary`→`milensActionPrimary` + 配对文字 `milensTextOnAccent`/`.white`→`milensTextOnActionPrimary`：`BeadSettingsPanelView`（选中 chip / badge / 描边 / 对勾 / 高级设置开关，含 `.tint`）、`BeadPatternResultView`（模式 chip / 缩放 ± / hint）、`EditorView`（保存按钮）、`EditorToolPanels`（3 个主按钮：添加文字 / 抠图 / EditorPanelButtonStyle）、`GalleryView`（3 个 `.borderedProminent` tint + 多选勾）、`PetsView`（照片数强调文字）。
+  - **合理保留** `milensPrimary`：`ArchiveMarker` 6pt 珊瑚圆点（记忆标记，§2.1）、`GalleryView` 收藏心（情感标记）+ 成功图标（品牌瞬间）、`EditorToolPanels` 黑底画布工具选中/裁剪比例/色板描边（非文字，黑底上 8.7:1）、Slider/Toggle tint（交互控件，后续可按品牌瞬间收敛）。
+  - **已确认达标**：`ArchiveComponents`（`ArchivePrimaryButton` / `FilterChip`）本就正确使用 v2 token，Home/Onboarding/Settings/Paywall 经这些组件已达标；本次补齐未走共享组件的页面。
+- **深色 black 背景审查**：所有 `Color.black` / `.background(.black)` 均为沉浸式场景（编辑器画布 / 大图查看 / 彩蛋遮罩 / 照片叠字渐变），页面背景统一 `milensBackground`，无深色模式背景违规。
+- **验证**：`xcodebuild … build`：**BUILD SUCCEEDED**；`check-ui-tokens.py`：0 ERROR（INFO 降至 61，white 叠加随按钮文字改 TextOnActionPrimary 减少）。
+- **遗留**：深色/高对比逐页视觉走查（模拟器三态切换）+ 材质模糊 `ultraThinMaterial`（GalleryView:345）的 Reduce Transparency 降级归入批次 C/H 统一走查；照片叠字渐变强度需真机验证。
+
+#### 批次 C — Dynamic Type + 无障碍 🔄（2026-08-09，代码层完成）
+
+- **Reduce Motion 系统适配**（UI-DESIGN §7 「Reduce Motion 时禁用视差/粒子/模糊揭示/大范围缩放」）：为 5 个含「非直接操控状态动画」的视图补 `@Environment(\.accessibilityReduceMotion)` 守卫，开启时返回 nil（即时更新）：`GalleryView`（筛选 chip 切换）、`BeadSettingsPanelView`（参数 spring + 高级设置展开，修正原注释误标「直接操控」）、`TimelineView`（宠物筛选 chip）、`ArchiveComponents.FilterChip`（选中态）、`PetsView`（彩蛋弹窗）。已适配的基线确认：`BeadPatternView`（拼豆揭示）、`OnboardingView`（步骤过渡）本就守卫。
+- **保留无守卫（合理）**：`PhotoViewView` 手势 spring（捏合/下滑关闭）属§7 允许的「直接操控」；`RootTabView` Tab 切换动画归批次 F（审计意见：Tab 回归系统行为）。
+- **材质模糊 Reduce Transparency 降级**：`GalleryView` 扫描进度条唯一一处 `.ultraThinMaterial` 加 `@Environment(\.accessibilityReduceTransparency)` 守卫，开启时降级为实色 `milensElevated`（AnyShapeStyle 统一 Color/Material 类型）。
+- **VoiceOver / 触控区 / Dynamic Type 基线确认**（PLAN.md M4 已落地）：`FilterChip`/`ArchivePrimaryButton` 用 `Sizing.touchTarget`(44)/minHeight(50)；相册缩略图、时间线代表照片、宠物头像已有 `accessibilityElement(children:.ignore)` + 组合 label。字号截断需模拟器最大辅助字号走查，归批次 H。
+- **验证**：`xcodebuild … build`：**BUILD SUCCEEDED**。
+
+#### 批次 D — 尺寸适配 🔄（2026-08-09，代码层完成，结构性重构留模拟器）
+
+- **Modal 表单限宽（§8「Modal 表单限制最大宽度，不全屏铺开」）**：新增 `ReadingWidth` token（body 680 / form 620，§5.1）+ `modalContentWidth()` 修饰符（`Theme.swift`）——仅 regular 水平 size class（iPad / iPhone 横屏大尺寸）生效，compact 原样返回，符合 §8「以 size class 与实际宽度决策，不按设备型号判断」。应用到：`AddPetSheet`（建档表单）、`BeadSettingsPanelView` 参数 Sheet（studio 背景版本）；`PaywallView` 原硬编码 620 → `ReadingWidth.form` token 化（行为不变）。
+- **iPad 结构性重构评估（§8 Sidebar+Detail / Canvas+Inspector）**：核心问题是 `RootTabView` 用 `TabView`，iPad 上为「放大的 iPhone」（审计 P1-5）。完整重构（宠物/设置→Sidebar+Detail，相册→可变列网格，拼豆/编辑器→Canvas+Inspector）属结构性大改，强依赖模拟器视觉验证，盲改风险高于收益。**归入批次 H（真机/模拟器验收）统一推进**。
+- **相册网格列数**：现用 `GridItem(.adaptive(minimum: 100))` 已是宽度自适应（iPhone compact 自动 3 列 ✓，符合 §5.1），但 iPad 横屏（1180pt 内容宽）会给 ~11 列，超出 §6.3「iPad 4–6 列」。minimum 提升值或内容限宽需模拟器视觉确认，归批次 H。
+- **验证**：`xcodebuild … build`：**BUILD SUCCEEDED**（EXIT=0）；`xcodebuild … test`：**EXIT=0**（纯 UI 改动无回归）。
+
+#### 批次 E — 组件状态完整性 🔄（2026-08-09，代码层完成）
+
+- **批次 B 遗漏扫描与修复**（交互强调 `milensPrimary` 全量复核）：grep 17 处 `milensPrimary` 用法，修复 5 处遗漏违规——①`DatabaseRecoveryView` 重试主按钮 borderedProminent tint（白字配珊瑚底 2.40:1，批次 B 核心问题类型）→ `milensActionPrimary`；②`PetProfileView` 返回按钮 tint + ③「查看全部 N 张」链接 foregroundStyle → `milensActionPrimary`；④`PetEditView` 添加事件 `plus.circle.fill` 按钮 → `milensActionPrimary`；⑤`PetEditView`「已注册视觉特征」成功标注 → `milensSuccess`（语义化，配 checkmark.circle.fill 绿勾符合系统惯例）。**合理保留**：编辑器黑底工具 tint（8.7:1）、收藏心/记忆标记小圆点（装饰）、深色背景 ProgressView spinner（品牌指示色，非文字）。
+- **ArchivePrimaryButton 补 Loading 状态**（§5.3.1「加载时保留宽度并显示进度」）：新增 `isLoading` 参数，开启时以 `milensTextOnActionPrimary` tint 的 ProgressView 替换 label、保留按钮宽高、禁用交互；带默认值不破坏现有调用，#Preview 增加加载态演示。
+- **新增 StateView 组件**（§5.3.9 十个核心组件第 9 项，此前缺失）：统一承载 Empty / Error / Permission Denied / Offline-Resource Missing 四态（Loading 用 ProgressView）——图标 + displayMedium 标题 + 说明 + ActionPrimary 主动作 + 可选次动作，确保每态有可恢复路径（§11）。迁移 `PetProfileView.loadFailedView` 作为示范（错误态罕见路径，视觉朝状态页标准提升）；其余页面状态实现已功能完整，统一迁移留后续。
+- **状态齐全度盘点**（§11）：Loading（各页 ProgressView ✓）、Empty（Gallery/Pets/Timeline ✓）、Error（Paywall/PetProfile/DatabaseRecovery ✓）、Permission Denied（Onboarding/Gallery ✓）、Offline/Resource Missing（DatabaseRecovery 重建 ✓）——五态覆盖达标。
+- **验证**：`xcodebuild … build`：**BUILD SUCCEEDED**（EXIT=0）；`xcodebuild … test`：**EXIT=0**（无回归）。
+
+#### 批次 F — 动效与触感对齐 ✅（2026-08-09，审计通过，无新增改动）
+
+- **Tab 系统行为**（§7.1「Tab 切换使用系统行为，不叠加自定义位移动画或触感」）：已在批次 D 顺手完成——移除 `RootTabView` 的 `.animation(.easeInOut, value: selectedTabRaw)` + `.sensoryFeedback(.selection, trigger: selectedTabRaw)`，回归系统 Tab。
+- **haptic 纪律审计**（§7.4-5）：全量扫描 5 处触感，全部合规——①`PaywallView` 产品选择 `.selection`（§7.4 选择轻触感 ✓）+ 购买成功 `.success`（§7.5 完成后触发 ✓）；②`BeadPatternView` 生成成功 `.success`；③`BeadPatternResultView` 导出成功 `.success`；④`PhotoViewView` 下滑关闭 `UIImpactFeedbackGenerator(.light)`（手势直接操控 ✓）。**无扫描循环 / 滚动 / Tab 切换触感违规**。
+- **动画 token 纪律**（§7 三档：即时 120–160ms / 局部 200–260ms / Hero 320–420ms）：11 处动画审计——10 处走 `Motion` token（durationFast 150ms / durationNormal 250ms / durationSlow 400ms）且含 `reduceMotion` 守卫；`PhotoViewView:50` 双击缩放 `.spring(duration: 0.3)` 属§7 允许的「直接操控弹簧」，0.3s 为手势物理参数（非状态转场 token），保留以免影响手感。
+- **Reduce Motion**（§7.6）：已在批次 C 系统适配（5 视图守卫），本批次确认 `BeadPatternView` 揭示动画（handlePhaseChange）本就含 `guard !reduceMotion else return` 守卫 ✓。
+- **遗留**：§7.2「照片打开优先 zoom transition / matched geometry」当前为普通 `NavigationStack` push，hero 转场属视觉增强，需模拟器验证不破坏导航状态，归批次 H。
+
+#### 批次 G — 文案与能力诚实性复核 ✅（2026-08-09）
+
+- **§1.1 AI 能力诚实口径**：全量扫描用户可见文案，修复 1 处违规——`OnboardingPermissionStep` 隐私说明 subtitle「宠物识别与照片整理均由设备端 AI 完成」→「在本机分析照片，找出可能含宠物的内容」。原文案「宠物识别」暗示可靠的宠物识别能力，违反 §1.1「必须描述为帮助发现可能含宠物的照片，不得表达为认识每一只宠物」；改后符合 §4.2「诚实具体」+ 审计 P0-1「候选发现」口径。
+- **抱图文案保留**：`cutoutStatusText`（MiLensKit 纯函数）用「识别主体」描述抱图（前景分割），属准确的主体识别描述，不违反 §1.1（主体识别 ≠ 宠物个体识别承诺），保留全局一致。
+- **未实现能力占位**（§6.6「不显示灰色入口、不写敬请期待」）：全量扫描「敬请/即将/期待/占位」——`CreateView` 已按 v2 移除未实现能力占位（注释明示）；`PlaceholderTabView` 仅在 #Preview 使用，主流程四个 Tab 均有真实视图，属遗留无害。
+- **泛化模板**（§4.2 不用「暂无数据/网络开小差/主人」）：全量扫描确认无泛化文案，各空态/错误态文案具体可操作（Gallery「还没有照片/扫描系统相册」、Pets「还没有伙伴档案」、DatabaseRecovery「本地数据无法加载」等）。
+- **验证**：`xcodebuild … build`：**BUILD SUCCEEDED**（EXIT=0）。
+
+#### 批次 H — 真机/模拟器验收待办清单 ⬜（代码层已就绪，需 Mac + iPhone）
+
+本清单汇总各批次「代码层完成、视觉/交互留验证」的遗留项，供真机或模拟器验收时逐项核对：
+
+- **深色/高对比逐页走查**（批次 B 遗留）：模拟器 Light / Dark / Increase Contrast 三态切换，逐页核对对比度与双外观。重点：按钮文字（ActionPrimary 白字/暖黑字）、功能色（Success/Warning/Danger v2 值）、编辑器黑底工具。
+- **Dynamic Type 最大字号截断**（批次 C 遗留）：模拟器辅助功能最大字号，走查首页 Hero、宠物卡片信息行、付费墙产品卡、设置表单是否截断/断版。
+- **iPad 结构性重构**（批次 D-2，P1-5）：①`RootTabView` 在 regular size class 切 `NavigationSplitView`——宠物/设置→Sidebar+Detail；②相册可变列网格 `GridItem(.adaptive(minimum:))` minimum 调参（iPad 横屏 1180pt 现 ~11 列，需控制在 §6.3「4–6 列」）；③拼豆/编辑器→Canvas+Inspector。需模拟器反复验证布局。
+- **照片 zoom transition / hero 转场**（批次 F 遗留）：§7.2 当前为普通 NavigationStack push，评估 matchedGeometry/zoom transition，验证不破坏导航状态。
+- **VoiceOver 完整走查**：各页导航顺序、装饰图隐藏于 VoiceOver、PhotoTile 五元素顺序（宠物/日期/收藏/重复/选择）、新 `StateView` 组件可达性。
+- **真机性能与触感**：大图库（5000+）滚动/内存、扫描/导入/拼豆生成流畅度、IAP 购买/恢复流程、haptic 反馈。
+- **截图制作**（PLAN.md 遗留）：iPhone 6.7"/6.5" + iPad 12.9" 截图，内容按 §6 关键页面规格。
+
 ## 8. 风险与注意事项
 
 - **CI 额度用完**：验证完全依赖 Mac 本地；推送 GitHub 仅备份/合流，不视为验证。

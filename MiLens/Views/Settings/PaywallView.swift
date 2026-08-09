@@ -75,7 +75,7 @@ struct PaywallView: View {
             .padding(.horizontal, Spacing.pagePad)
             .padding(.top, Spacing.lg)
             .padding(.bottom, Spacing.xxl)
-            .frame(maxWidth: 620)   // 表单最大可读宽度（UI-DESIGN.md §5.1）
+            .frame(maxWidth: ReadingWidth.form)   // 表单最大可读宽度（UI-DESIGN.md §5.1）
             .frame(maxWidth: .infinity)
         }
         .scrollIndicators(.hidden)

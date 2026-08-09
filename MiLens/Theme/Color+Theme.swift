@@ -51,11 +51,11 @@ extension Color {
 
     // MARK: - Functional 功能色
 
-    /// 成功（浅：#4CAF7D / 深：#5BBF8A）
+    /// 成功（浅：#2F7D57 / 深：#72C998）
     static let milensSuccess = Color("Success")
-    /// 警告（浅：#E8A33D / 深：#E8B454）
+    /// 警告（浅：#9A5B00 / 深：#F0B85A）
     static let milensWarning = Color("Warning")
-    /// 删除/错误（浅：#D9534F / 深：#E06863）
+    /// 删除/错误（浅：#B33A36 / 深：#EF7D76）
     static let milensDanger = Color("Danger")
 
     // MARK: - Pet 宠物主题

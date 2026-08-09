@@ -16,7 +16,12 @@ struct TimelineView: View {
     @State private var viewModel: TimelineViewModel?
     @State private var pets: [Pet] = []
     @State private var showPaywall = false
+    /// ADR-0010 §5：时间线导出分享状态。
+    @State private var sharePreview: (image: UIImage, url: URL)?
+    @State private var isExporting = false
+    @State private var exportError: String?
     private let timelineAccessStore: any TimelineAccessStore = UserDefaultsTimelineAccessStore()
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     var body: some View {
         Group {
@@ -29,8 +34,37 @@ struct TimelineView: View {
         .navigationTitle("成长时间线")
         .navigationBarTitleDisplayMode(.large)
         .background(Color.milensBackground)
+        .toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+                Button {
+                    handleExportShare()
+                } label: {
+                    Label("分享", systemImage: "square.and.arrow.up")
+                }
+                .disabled(isExporting || viewModel?.months.isEmpty != false)
+            }
+        }
         .sheet(isPresented: $showPaywall) {
             NavigationStack { PaywallView() }
+        }
+        // ADR-0010 §5：导出分享预览面板
+        .sheet(item: Binding<SharePreviewData?>(
+            get: { sharePreview.map { SharePreviewData(image: $0.image, url: $0.url) } },
+            set: { if $0 == nil { sharePreview = nil } }
+        )) { data in
+            SharePreviewSheet(
+                previewImage: data.image,
+                shareURL: data.url,
+                onDismiss: { sharePreview = nil }
+            )
+        }
+        .alert("导出失败", isPresented: Binding(
+            get: { exportError != nil },
+            set: { if !$0 { exportError = nil } }
+        )) {
+            Button("好", role: .cancel) {}
+        } message: {
+            Text(exportError ?? "")
         }
         .onChange(of: entitlement.isPro) { _, isPro in
             let firstAccessDate = timelineAccessStore.firstAccessDate(now: Date())
@@ -51,6 +85,54 @@ struct TimelineView: View {
                 }
             }
         }
+    }
+
+    // MARK: - 导出分享（ADR-0010 §5）
+
+    private func handleExportShare() {
+        guard let vm = viewModel else { return }
+        // Pro 门控：免费用户弹付费墙
+        guard entitlement.isPro else {
+            showPaywall = true
+            return
+        }
+        let filterTitle = currentFilterTitle(vm)
+        guard let exportData = TimelineExportLogic.buildExportData(
+            months: vm.months,
+            filterTitle: filterTitle,
+            includeWatermark: false
+        ) else { return }
+
+        isExporting = true
+        let canvas = TimelineExportCanvas(data: exportData)
+        let renderer = ImageRenderer(content: canvas)
+        renderer.scale = 1
+
+        guard let image = renderer.uiImage,
+              let pngData = image.pngData() else {
+            exportError = "时间线渲染失败，请重试"
+            isExporting = false
+            return
+        }
+
+        do {
+            let url = try BeadExportService().writeShareCache(
+                data: pngData, filename: "timeline_export.png"
+            )
+            sharePreview = (image: image, url: url)
+        } catch {
+            exportError = "导出失败：\(error.localizedDescription)"
+        }
+        isExporting = false
+    }
+
+    /// 当前筛选标题（导出长图头部用）。
+    private func currentFilterTitle(_ vm: TimelineViewModel) -> String {
+        if let petID = vm.selectedPetID,
+           let pet = pets.first(where: { $0.id == petID }) {
+            return "\(PetProfileLogic.speciesEmoji(pet.species)) \(pet.name)"
+        }
+        return "全部宠物"
     }
 
     // MARK: - 内容区
@@ -209,7 +291,7 @@ struct TimelineView: View {
                 .clipShape(Capsule())
         }
         .buttonStyle(.plain)
-        .animation(.easeInOut(duration: Motion.durationFast), value: isSelected)
+        .animation(reduceMotion ? nil : .easeInOut(duration: Motion.durationFast), value: isSelected)
         .accessibilityAddTraits(isSelected ? .isSelected : [])
     }
 

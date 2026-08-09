@@ -11,6 +11,7 @@ struct BeadSettingsPanelView: View {
     @Bindable var vm: BeadViewModel
     /// 打开导出全屏预览（仅 pattern != nil 时由主按钮触发）。
     let onExport: () -> Void
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     /// 风格选项数据（对应源端 StyleOption 列表）。
     private struct StyleOptionData: Identifiable {
@@ -76,6 +77,8 @@ struct BeadSettingsPanelView: View {
                 }
             }
             .environment(\.colorScheme, .dark)
+            // iPad/regular 宽度下参数表单限宽居中（UI-DESIGN.md §8）
+            .modalContentWidth(background: .milensStudioBackground)
         }
     }
 
@@ -149,7 +152,7 @@ struct BeadSettingsPanelView: View {
                 Spacer()
                 Text("推荐：拼豆插画")
                     .font(.caption2)
-                    .foregroundStyle(Color.milensPrimary)
+                    .foregroundStyle(Color.milensActionPrimary)
             }
             .padding(.bottom, Spacing.md)
 
@@ -192,11 +195,11 @@ struct BeadSettingsPanelView: View {
                 HStack {
                     Text(vm.showAdvancedSettings ? "收起高级设置" : "高级设置")
                         .font(.subheadline)
-                        .foregroundStyle(Color.milensPrimary)
+                        .foregroundStyle(Color.milensActionPrimary)
                     Spacer()
                     Image(systemName: vm.showAdvancedSettings ? "chevron.up" : "chevron.down")
                         .font(.caption.weight(.semibold))
-                        .foregroundStyle(Color.milensPrimary)
+                        .foregroundStyle(Color.milensActionPrimary)
                 }
                 .padding(.vertical, 8)
             }
@@ -233,9 +236,9 @@ struct BeadSettingsPanelView: View {
         }
         .padding(Spacing.lg)
         .background(Color.milensStudioBackground)
-        // 参数切换 spring（UI-DESIGN.md §7：弹簧只用于直接操控的控件）
-        .animation(.spring(duration: Motion.durationFast, bounce: 0.2), value: vm.settings)
-        .animation(.spring(duration: Motion.durationFast, bounce: 0.2), value: vm.showAdvancedSettings)
+        // 参数切换 spring（UI-DESIGN.md §7：Reduce Motion 下即时更新）
+        .animation(reduceMotion ? nil : .spring(duration: Motion.durationFast, bounce: 0.2), value: vm.settings)
+        .animation(reduceMotion ? nil : .spring(duration: Motion.durationFast, bounce: 0.2), value: vm.showAdvancedSettings)
     }
 
     private var primaryButtonTitle: String {
@@ -255,14 +258,14 @@ struct BeadSettingsPanelView: View {
                     HStack(spacing: 8) {
                         Text(option.title)
                             .font(.subheadline.weight(.medium))
-                            .foregroundStyle(selected ? Color.milensPrimary : Color.milensTextPrimary)
+                            .foregroundStyle(selected ? Color.milensActionPrimary : Color.milensTextPrimary)
                         if !option.badge.isEmpty {
                             Text(option.badge)
                                 .font(.caption2)
-                                .foregroundStyle(Color.milensTextOnAccent)
+                                .foregroundStyle(Color.milensTextOnActionPrimary)
                                 .padding(.horizontal, 6)
                                 .padding(.vertical, 2)
-                                .background(Color.milensPrimary)
+                                .background(Color.milensActionPrimary)
                                 .clipShape(Capsule())
                         }
                     }
@@ -273,13 +276,13 @@ struct BeadSettingsPanelView: View {
                 Spacer()
                 Text(selected ? "✓" : "")
                     .font(.headline)
-                    .foregroundStyle(Color.milensPrimary)
+                    .foregroundStyle(Color.milensActionPrimary)
             }
             .padding(12)
             .background(selected ? Color.milensAccentSoft : Color.milensGrouped)
             .overlay(
                 RoundedRectangle(cornerRadius: 12)
-                    .stroke(selected ? Color.milensPrimary : Color.milensBorder,
+                    .stroke(selected ? Color.milensActionPrimary : Color.milensBorder,
                             lineWidth: selected ? 1.5 : 0.5)
             )
             .clipShape(RoundedRectangle(cornerRadius: 12))
@@ -298,10 +301,10 @@ struct BeadSettingsPanelView: View {
         } label: {
             Text(label)
                 .font(.caption)
-                .foregroundStyle(selected ? Color.milensTextOnAccent : Color.milensTextSecondary)
+                .foregroundStyle(selected ? Color.milensTextOnActionPrimary : Color.milensTextSecondary)
                 .padding(.horizontal, 12)
                 .padding(.vertical, 6)
-                .background(selected ? Color.milensPrimary : Color.milensGrouped)
+                .background(selected ? Color.milensActionPrimary : Color.milensGrouped)
                 .clipShape(Capsule())
         }
         .buttonStyle(.plain)
@@ -347,10 +350,10 @@ struct BeadSettingsPanelView: View {
                     Spacer()
                     Text(abstractionLevelLabel(vm.settings.abstractLevel))
                         .font(.caption2)
-                        .foregroundStyle(Color.milensPrimary)
+                        .foregroundStyle(Color.milensActionPrimary)
                 }
                 Slider(value: $vm.settings.abstractLevel, in: 0...1, step: 0.1)
-                    .tint(Color.milensPrimary)
+                    .tint(Color.milensActionPrimary)
             }
             .padding(.top, 12)
         }
@@ -368,10 +371,10 @@ struct BeadSettingsPanelView: View {
         } label: {
             Text(label)
                 .font(.caption2)
-                .foregroundStyle(selected ? Color.milensTextOnAccent : Color.milensTextSecondary)
+                .foregroundStyle(selected ? Color.milensTextOnActionPrimary : Color.milensTextSecondary)
                 .padding(.horizontal, 9)
                 .padding(.vertical, 6)
-                .background(selected ? Color.milensPrimary : Color.milensGrouped)
+                .background(selected ? Color.milensActionPrimary : Color.milensGrouped)
                 .clipShape(Capsule())
         }
         .buttonStyle(.plain)
@@ -390,10 +393,10 @@ struct BeadSettingsPanelView: View {
         } label: {
             Text(label)
                 .font(.caption2)
-                .foregroundStyle(selected ? Color.milensTextOnAccent : Color.milensTextSecondary)
+                .foregroundStyle(selected ? Color.milensTextOnActionPrimary : Color.milensTextSecondary)
                 .padding(.horizontal, 14)
                 .padding(.vertical, 6)
-                .background(selected ? Color.milensPrimary : Color.milensGrouped)
+                .background(selected ? Color.milensActionPrimary : Color.milensGrouped)
                 .clipShape(Capsule())
         }
         .buttonStyle(.plain)
@@ -405,13 +408,13 @@ struct BeadSettingsPanelView: View {
         } label: {
             Text(label)
                 .font(.caption2)
-                .foregroundStyle(isOn ? Color.milensPrimary : Color.milensTextSecondary)
+                .foregroundStyle(isOn ? Color.milensActionPrimary : Color.milensTextSecondary)
                 .padding(.horizontal, 12)
                 .padding(.vertical, 6)
                 .background(isOn ? Color.milensAccentSoft : Color.milensGrouped)
                 .overlay(
                     RoundedRectangle(cornerRadius: 12)
-                        .stroke(isOn ? Color.milensPrimary : Color.milensBorder,
+                        .stroke(isOn ? Color.milensActionPrimary : Color.milensBorder,
                                 lineWidth: isOn ? 1 : 0.5)
                 )
                 .clipShape(RoundedRectangle(cornerRadius: 12))

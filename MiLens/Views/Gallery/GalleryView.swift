@@ -8,12 +8,15 @@ import MiLensKit
 
 struct GalleryView: View {
     @Environment(\.viewModelFactory) private var factory
+    @Environment(\.proEntitlement) private var entitlement
 
     @State private var viewModel: GalleryViewModel?
     @State private var navigationPath = NavigationPath()
     @State private var pendingDeleteID: UUID?
     @State private var isManageMode = false
     @Namespace private var photoHeroNamespace
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
 
     private let columns = [GridItem(.adaptive(minimum: 100), spacing: 2)]
 
@@ -29,9 +32,19 @@ struct GalleryView: View {
         .onAppear {
             if viewModel == nil {
                 let vm = factory.makeGalleryViewModel()
+                vm.isPro = entitlement.isPro
                 vm.loadInitial()
                 viewModel = vm
             }
+        }
+        .onChange(of: entitlement.isPro) { _, isPro in
+            viewModel?.isPro = isPro
+        }
+        .sheet(isPresented: Binding(
+            get: { viewModel?.showQuotaPaywall ?? false },
+            set: { viewModel?.showQuotaPaywall = $0 }
+        )) {
+            NavigationStack { PaywallView() }
         }
         .navigationTitle("")
         .toolbar(.hidden, for: .navigationBar)
@@ -108,7 +121,7 @@ struct GalleryView: View {
                     .padding(.vertical, 12)
             }
             .buttonStyle(.borderedProminent)
-            .tint(Color.milensPrimary)
+            .tint(Color.milensActionPrimary)
             .disabled(vm.isScanning)
         }
         .padding()
@@ -258,7 +271,7 @@ struct GalleryView: View {
             HStack(spacing: Spacing.lg) {
                 ForEach(chips) { chip in
                     Button {
-                        withAnimation(.easeInOut(duration: Motion.durationFast)) {
+                        withAnimation(reduceMotion ? nil : .easeInOut(duration: Motion.durationFast)) {
                             vm.selectPet(chip.petID)
                         }
                     } label: {
@@ -342,7 +355,7 @@ struct GalleryView: View {
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 8)
-        .background(.ultraThinMaterial)
+        .background(reduceTransparency ? AnyShapeStyle(Color.milensElevated) : AnyShapeStyle(.ultraThinMaterial))
         .clipShape(RoundedRectangle(cornerRadius: Radius.medium))
         .padding()
     }
@@ -387,7 +400,7 @@ private struct PhotoThumbnailCell: View {
             }
             if isMultiSelect {
                 Image(systemName: isSelected ? "checkmark.circle.fill" : "circle")
-                    .foregroundStyle(isSelected ? Color.milensPrimary : .white)
+                    .foregroundStyle(isSelected ? Color.milensActionPrimary : .white)
                     .padding(4)
             }
             if photo.isFavorite {
@@ -430,7 +443,7 @@ struct ThumbnailImage: View {
                     .resizable()
             } else {
                 Rectangle()
-                    .fill(Color(.systemGray5))
+                    .fill(Color.milensGrouped)
                     .overlay(ProgressView().scaleEffect(0.5))
             }
         }
@@ -458,7 +471,7 @@ private struct ScanCompleteSheet: View {
             VStack(spacing: 20) {
                 Image(systemName: viewModel.scanFailed ? "exclamationmark.triangle.fill" : "checkmark.seal.fill")
                     .font(.system(size: 48))
-                    .foregroundStyle(viewModel.scanFailed ? Color.orange : Color.milensPrimary)
+                    .foregroundStyle(viewModel.scanFailed ? Color.milensWarning : Color.milensPrimary)
 
                 Text(viewModel.scanFailed ? "扫描未完成" : "扫描完成")
                     .font(.displayMedium)
@@ -481,7 +494,7 @@ private struct ScanCompleteSheet: View {
                             .padding(.vertical, 12)
                     }
                     .buttonStyle(.borderedProminent)
-                    .tint(Color.milensPrimary)
+                    .tint(Color.milensActionPrimary)
                     .disabled(viewModel.isImporting)
                 }
 
@@ -494,7 +507,7 @@ private struct ScanCompleteSheet: View {
                     }
                     .font(.bodyPrimary)
                     .buttonStyle(.borderedProminent)
-                    .tint(Color.milensPrimary)
+                    .tint(Color.milensActionPrimary)
                 }
 
                 Button("完成") {

@@ -106,10 +106,10 @@ struct EditorView: View {
             } label: {
                 Text("保存")
                     .font(Font.bodyPrimary.weight(.semibold))
-                    .foregroundStyle(.white)
+                    .foregroundStyle(Color.milensTextOnActionPrimary)
                     .padding(.horizontal, Spacing.lg)
                     .padding(.vertical, Spacing.xs)
-                    .background(vm.isSaving ? Color.white.opacity(0.15) : Color.milensPrimary)
+                    .background(vm.isSaving ? Color.white.opacity(0.15) : Color.milensActionPrimary)
                     .clipShape(Capsule())
             }
             .disabled(vm.isSaving || vm.isPhotoLoading)

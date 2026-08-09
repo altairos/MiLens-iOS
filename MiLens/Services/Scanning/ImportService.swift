@@ -27,6 +27,19 @@ struct ImportResult: Equatable, Sendable {
     let matched: Int
     /// 单张导入失败的数量（加载/复制/入库失败；H4 可观测性）。
     let failed: Int
+    /// 因免费版配额上限被拦截的数量（ADR-0010）。
+    /// > 0 表示有照片因配额未导入，调用方应引导付费墙。
+    let quotaBlocked: Int
+
+    init(imported: Int, matched: Int, failed: Int, quotaBlocked: Int = 0) {
+        self.imported = imported
+        self.matched = matched
+        self.failed = failed
+        self.quotaBlocked = quotaBlocked
+    }
+
+    /// 是否因配额被拦截（需调用方引导付费）。
+    var hitQuota: Bool { quotaBlocked > 0 }
 }
 
 /// 导入服务（@MainActor——PhotoRepository/PetRepository 均为 @MainActor 隔离）。
@@ -45,6 +58,8 @@ final class ImportService {
     /// 沙盒照片目录路径（Documents/MiPhotos）
     private let sandboxDir: String
     private let executor: AnalysisExecutor
+    /// Pro 权益状态（ADR-0010 照片配额检查）。
+    private var isPro: Bool
 
     /// 当前是否正在导入
     private(set) var isImporting = false
@@ -56,7 +71,8 @@ final class ImportService {
          sandboxDir: String,
          petRepo: any PetRepositoryProtocol,
          clipService: (any ClipInference)? = nil,
-         executor: AnalysisExecutor = AnalysisExecutor()) {
+         executor: AnalysisExecutor = AnalysisExecutor(),
+         isPro: Bool = false) {
         self.photoLibrary = photoLibrary
         self.fileStorage = fileStorage
         self.photoRepo = photoRepo
@@ -64,9 +80,15 @@ final class ImportService {
         self.mediaLifecycle = mediaLifecycle
         self.sandboxDir = sandboxDir
         self.executor = executor
+        self.isPro = isPro
         self.matcher = clipService.map {
             PetMatcher(petRepo: petRepo, clipService: $0, executor: executor)
         }
+    }
+
+    /// 更新 Pro 权益状态（设置页/购买回调后同步）。
+    func updateProStatus(_ isPro: Bool) {
+        self.isPro = isPro
     }
 
     /// 导入选中的照片到应用沙盒并入库，随后自动归属到已注册宠物（如有匹配）。
@@ -119,6 +141,17 @@ final class ImportService {
         // 同一批次内已处理的 identifier（输入列表可能含重复）
         var seenInBatch: Set<String> = []
 
+        // ADR-0010 照片配额检查：免费版上限 50 张。
+        // 已导入数 + 本次去重后的有效请求数 vs 免费上限，超出部分被拦截。
+        let currentCount = (try? photoRepo.countAllPhotos()) ?? 0
+        let uniqueRequested = identifiers.filter { !existingOriginalURIs.contains($0) }.count
+        let allowed = CommercialRules.allowedImportCount(
+            currentCount: currentCount, requestCount: uniqueRequested, isPro: isPro)
+        let quotaBlocked = uniqueRequested - allowed
+        if quotaBlocked > 0 {
+            logger.info("importPhotos: 配额拦截——已存 \(currentCount)，请求 \(uniqueRequested)，允许 \(allowed)，拦截 \(quotaBlocked)")
+        }
+
         var imported = 0
         var matched = 0
         var failed = 0
@@ -139,6 +172,7 @@ final class ImportService {
             do {
                 try await mediaLifecycle.commitImportBatch(photos: photos, paths: paths)
                 imported += photos.count
+                // quotaRemaining 已在加入 pending 时即时递减，此处不再扣减（避免双重扣减）
                 // 自动归属（对应源端 importPhotos 中 matchFromEmbedding → assignPhotoToPet）：
                 // 仅对成功入库的照片执行；提取/匹配失败不影响导入
                 for (index, photo) in photos.enumerated() {
@@ -160,6 +194,9 @@ final class ImportService {
             }
         }
 
+        // 配额计数器：达到允许上限后停止入库（仅免费版生效，Pro 时 allowed == uniqueRequested）。
+        var quotaRemaining = allowed
+
         for (index, identifier) in identifiers.prefix(ScanConfig.maxImportBatch).enumerated() {
             if Task.isCancelled { break }
 
@@ -172,6 +209,12 @@ final class ImportService {
 
             // 跳过已导入（originalURI 去重）
             if existingOriginalURIs.contains(identifier) {
+                onProgress?(ImportProgress(current: index + 1, total: total))
+                continue
+            }
+
+            // ADR-0010 配额耗尽：后续不再入库，但仍更新进度。
+            if quotaRemaining <= 0 {
                 onProgress?(ImportProgress(current: index + 1, total: total))
                 continue
             }
@@ -209,6 +252,9 @@ final class ImportService {
                 // 写沙盒副本文件；入库延后到攒批 flush（L2 批量事务）
                 try await fileStorage.write(imageData, to: sandboxPath)
                 pending.append((data: imageData, path: sandboxPath, photo: photo))
+                // ADR-0010：配额即时扣减（在加入 pending 时递减，而非 flush 时），
+                // 避免 32 张攒批窗口内配额检查形同虚设。
+                quotaRemaining -= 1
                 if pending.count >= ScanConfig.importFlushBatchSize {
                     await flushPending()
                 }
@@ -227,9 +273,9 @@ final class ImportService {
         await flushPending()
 
         taskOutcome = Task.isCancelled ? .canceled : .success
-        taskSummary = "requested=\(identifiers.count) imported=\(imported) failed=\(failed) matched=\(matched)"
-        logger.info("importPhotos: imported=\(imported), failed=\(failed), matched=\(matched)")
-        return ImportResult(imported: imported, matched: matched, failed: failed)
+        taskSummary = "requested=\(identifiers.count) imported=\(imported) failed=\(failed) matched=\(matched) quotaBlocked=\(quotaBlocked)"
+        logger.info("importPhotos: imported=\(imported), failed=\(failed), matched=\(matched), quotaBlocked=\(quotaBlocked)")
+        return ImportResult(imported: imported, matched: matched, failed: failed, quotaBlocked: quotaBlocked)
     }
 
     /// 自动归属判定：提取 embedding + 颜色签名 → PetMatcher 匹配。

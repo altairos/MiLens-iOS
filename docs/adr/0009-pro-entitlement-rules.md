@@ -3,6 +3,7 @@
 - 状态：已采纳
 - 日期：2026-08-09
 - 范围：付费墙、路由门控、设置页、App Store 元数据与测试
+- 续接：[ADR-0010](0010-commercialization-and-emotion-triggers.md) 扩展本规则的照片配额、水印与导出门控
 
 ## 决策
 

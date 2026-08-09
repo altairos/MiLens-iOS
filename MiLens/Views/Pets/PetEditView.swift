@@ -191,7 +191,7 @@ struct PetEditView: View {
             if vm.featureRegistered {
                 Label("已注册视觉特征", systemImage: "checkmark.circle.fill")
                     .font(.bodyPrimary)
-                    .foregroundStyle(Color.milensPrimary)
+                    .foregroundStyle(Color.milensSuccess)
             }
 
             if vm.isRegisteringFeatures {
@@ -342,7 +342,7 @@ struct PetEditView: View {
                     addNote(vm)
                 } label: {
                     Image(systemName: "plus.circle.fill")
-                        .foregroundStyle(Color.milensPrimary)
+                        .foregroundStyle(Color.milensActionPrimary)
                 }
                 .disabled(newNoteItem.trimmingCharacters(in: .whitespaces).isEmpty)
             }

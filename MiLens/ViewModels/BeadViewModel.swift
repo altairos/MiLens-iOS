@@ -311,7 +311,8 @@ final class BeadViewModel {
                                          photoPixels: photoData?.pixels,
                                          photoW: photoData?.w ?? 0,
                                          photoH: photoData?.h ?? 0,
-                                         exportOpts: opts)
+                                         exportOpts: opts,
+                                         includeWatermark: !self.isPro)
                 }.value
                 guard let png else { throw BeadRunError.exportRenderFailed }
                 try await self.exportService.saveToPhotoLibrary(pngData: png)
@@ -332,13 +333,15 @@ final class BeadViewModel {
         guard let pattern else { return nil }
         let photoData = await loadPhotoPixels()
         let opts = beadExportOptions(styleKey: settings.styleKey, pattern: pattern)
+        let watermark = !isPro
         let renderer = exportService
         let png: Data? = await Task.detached(priority: .userInitiated) {
             renderer.renderA4PNG(pattern: pattern,
                                  photoPixels: photoData?.pixels,
                                  photoW: photoData?.w ?? 0,
                                  photoH: photoData?.h ?? 0,
-                                 exportOpts: opts)
+                                 exportOpts: opts,
+                                 includeWatermark: watermark)
         }.value
         guard let png else { return nil }
         do {

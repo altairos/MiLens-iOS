@@ -33,7 +33,7 @@ struct OnboardingPermissionStep: View {
                 Divider()
                     .overlay(Color.milensSeparator)
                 privacyRow(icon: "cpu", title: "AI 分析在本地完成",
-                           subtitle: "宠物识别与照片整理均由设备端 AI 完成")
+                           subtitle: "在本机分析照片，找出可能含宠物的内容")
                 Divider()
                     .overlay(Color.milensSeparator)
                 privacyRow(icon: "checkmark.circle", title: "由你决定导入什么",

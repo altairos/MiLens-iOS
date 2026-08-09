@@ -7,6 +7,40 @@ final class CommercialRulesTests: XCTestCase {
         XCTAssertEqual(CommercialRules.petLimit(isPro: true), 20)
     }
 
+    // MARK: - ADR-0010 照片配额
+
+    func testPhotoLimits() {
+        XCTAssertEqual(CommercialRules.photoLimit(isPro: false), 50)
+        XCTAssertEqual(CommercialRules.photoLimit(isPro: true), Int.max)
+    }
+
+    func testAllowedImportCountFreeUserUnderLimit() {
+        // 已 30 张，请求 15 张，免费剩余 20 → 允许 15
+        XCTAssertEqual(CommercialRules.allowedImportCount(currentCount: 30, requestCount: 15, isPro: false), 15)
+    }
+
+    func testAllowedImportCountFreeUserAtLimit() {
+        // 已 50 张（满），请求 10 张 → 允许 0
+        XCTAssertEqual(CommercialRules.allowedImportCount(currentCount: 50, requestCount: 10, isPro: false), 0)
+    }
+
+    func testAllowedImportCountFreeUserOverLimit() {
+        // 已 45 张，请求 20 张，剩余 5 → 允许 5（拦截 15）
+        XCTAssertEqual(CommercialRules.allowedImportCount(currentCount: 45, requestCount: 20, isPro: false), 5)
+    }
+
+    func testAllowedImportCountProUserUnlimited() {
+        // Pro 不限：请求多少允许多少
+        XCTAssertEqual(CommercialRules.allowedImportCount(currentCount: 999, requestCount: 100, isPro: true), 100)
+    }
+
+    func testAllowedImportCountEdgeCases() {
+        // 空 App：已 0 张，请求 50 → 允许 50（刚好上限）
+        XCTAssertEqual(CommercialRules.allowedImportCount(currentCount: 0, requestCount: 50, isPro: false), 50)
+        // 已 0 张，请求 51 → 允许 50（拦截 1）
+        XCTAssertEqual(CommercialRules.allowedImportCount(currentCount: 0, requestCount: 51, isPro: false), 50)
+    }
+
     func testFreeTimelineKeepsOnlyLastYearAndReportsLockedHistory() {
         let now = Date(timeIntervalSince1970: 1_735_689_600) // 2025-01-01 UTC
         let recent = TimelineEntry(id: "recent", type: .photoNote, date: now.addingTimeInterval(-30 * 86_400), title: "", subtitle: "", petID: nil, petName: "", photoID: nil, photoURI: "", thumbnailPath: "")

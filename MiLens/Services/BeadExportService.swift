@@ -13,11 +13,14 @@ struct BeadExportService {
     /// 渲染 A4 高清图纸为 PNG Data（对应源端 exportPattern 的 renderA4Export → PNG 编码）。
     /// - Parameters:
     ///   - photoPixels: 原图 RGBA 缩略像素（源端 loadPhotoPixels，最大边 560），可空。
+    ///   - includeWatermark: ADR-0010 免费版水印开关（true = 带醒目品牌）。
     func renderA4PNG(pattern: BeadPattern,
                      photoPixels: [UInt8]?, photoW: Int, photoH: Int,
-                     exportOpts: BeadExportOpts?) -> Data? {
+                     exportOpts: BeadExportOpts?,
+                     includeWatermark: Bool = false) -> Data? {
         let buffer = renderA4Export(pattern: pattern, photoPixels: photoPixels,
-                                    photoW: photoW, photoH: photoH, exportOpts: exportOpts)
+                                    photoW: photoW, photoH: photoH, exportOpts: exportOpts,
+                                    includeWatermark: includeWatermark)
         let a4 = getA4Size()
         guard let cgImage = Self.makeCGImage(rgba: buffer, width: a4.width, height: a4.height) else {
             return nil
@@ -29,9 +32,11 @@ struct BeadExportService {
     /// 2480×3508 @300DPI 位图嵌入 595.2×841.8pt 的 A4 页面）。
     func renderA4PDF(pattern: BeadPattern,
                      photoPixels: [UInt8]?, photoW: Int, photoH: Int,
-                     exportOpts: BeadExportOpts?) -> Data? {
+                     exportOpts: BeadExportOpts?,
+                     includeWatermark: Bool = false) -> Data? {
         let buffer = renderA4Export(pattern: pattern, photoPixels: photoPixels,
-                                    photoW: photoW, photoH: photoH, exportOpts: exportOpts)
+                                    photoW: photoW, photoH: photoH, exportOpts: exportOpts,
+                                    includeWatermark: includeWatermark)
         let a4 = getA4Size()
         guard let cgImage = Self.makeCGImage(rgba: buffer, width: a4.width, height: a4.height) else {
             return nil

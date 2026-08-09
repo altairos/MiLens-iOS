@@ -63,6 +63,8 @@ struct AddPetSheet: View {
                 .padding(.vertical, Spacing.sm)
             }
         }
+        // iPad/regular 宽度下表单限宽居中（UI-DESIGN.md §8：Modal 表单不全屏铺开）
+        .modalContentWidth()
     }
 
     // MARK: - 表单分区

@@ -190,6 +190,72 @@
         }
       }
     },
+    "paywall.benefit.photoStorage" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "不限量保存宠物照片"
+          }
+        }
+      }
+    },
+    "paywall.benefit.watermarkFree" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "导出作品无水印"
+          }
+        }
+      }
+    },
+    "paywall.benefit.cardTemplates" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "多套精美卡片模板"
+          }
+        }
+      }
+    },
+    "paywall.benefit.timelineExport" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "成长时间线导出分享"
+          }
+        }
+      }
+    },
+    "paywall.benefit.offlineBackup" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "照片离线备份与恢复"
+          }
+        }
+      }
+    },
+    "paywall.benefit.albumModes" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "复古相簿翻页浏览模式"
+          }
+        }
+      }
+    },
     "paywall.close" : {
       "extractionState" : "manual",
       "localizations" : {

@@ -45,6 +45,10 @@ final class GalleryViewModel {
     // MARK: - 导入
 
     var isImporting = false
+    /// ADR-0010 照片配额不足时触发付费墙。
+    var showQuotaPaywall = false
+    /// Pro 权益状态（GalleryView 经 Environment 同步）。
+    var isPro = false
 
     // MARK: - 多选
 
@@ -332,12 +336,17 @@ final class GalleryViewModel {
                 photoLibrary: self.photoLibrary, fileStorage: self.fileStorage,
                 photoRepo: self.photoRepo, mediaLifecycle: self.mediaLifecycle,
                 sandboxDir: self.sandboxDir, petRepo: self.petRepo,
-                clipService: self.clipService
+                clipService: self.clipService,
+                isPro: self.isPro
             )
             let result = await service.importPhotos(identifiers: identifiers)
             self.isImporting = false
             self.loadInitial()
             self.triggerQualityAnalysis()
+            // ADR-0010 配额拦截：有照片因免费上限未导入 → 弹付费墙。
+            if result.hitQuota {
+                self.showQuotaPaywall = true
+            }
             // 自动归属结果提示（复用扫描完成弹窗）；有失败时同样提示，避免静默丢照片（H4）
             if result.imported > 0 || result.failed > 0 {
                 self.scanCompleteMessage = ImportFlowLogic.resolveImportSummary(

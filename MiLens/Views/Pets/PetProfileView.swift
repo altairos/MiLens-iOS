@@ -242,7 +242,7 @@ struct PetProfileView: View {
                     NavigationLink(value: Route.gallery) {
                         Text("查看全部 \(shown.count) 张")
                             .font(.bodySecondary)
-                            .foregroundStyle(Color.milensPrimary)
+                            .foregroundStyle(Color.milensActionPrimary)
                     }
                 }
             }
@@ -370,17 +370,13 @@ struct PetProfileView: View {
     // MARK: - 加载失败
 
     private var loadFailedView: some View {
-        VStack(spacing: Spacing.md) {
-            Image(systemName: "exclamationmark.triangle")
-                .font(.system(size: 40))
-                .foregroundStyle(Color.milensTextSecondary)
-            Text("档案加载失败")
-                .font(.bodyPrimary)
-                .foregroundStyle(Color.milensTextSecondary)
-            Button("返回") { dismiss() }
-                .tint(Color.milensPrimary)
-        }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        // 复用统一状态组件（UI-DESIGN.md §5.3.9）：图标 + 标题 + 明确退出路径。
+        StateView(
+            icon: "exclamationmark.triangle",
+            title: "档案加载失败",
+            primaryActionTitle: "返回",
+            primaryAction: { dismiss() }
+        )
     }
 
     // MARK: - 辅助

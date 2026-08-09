@@ -372,3 +372,15 @@ P1 核心可靠性与性能六项修复全部落地（实现记录见状态摘�
 - 2026-08-09：**本机 macOS 全量验证（当前最新基准）**——`xcodegen generate` + `xcodebuild build`（`SWIFT_STRICT_CONCURRENCY=complete`）**BUILD SUCCEEDED**；MiLensKit `swift test` **594/594 全绿**；MiLens App `xcodebuild test` **604/604 全绿、0 失败**（含修复 `ProEntitlementStoreTests.testStreamPushStillUpdatesStatus` flaky——独立 `ListenerRegistry` 隔离 `ObjectIdentifier` 复用致取消墓碑误杀）；MiLensUITests 2 冒烟用例；`localization.py check` 全绿（Localizable 144 + InfoPlist 3）。顶层文档同步刷新（README 阶段/路径、DESIGN §10、DEVELOPMENT 环境与验证快照）。
 
 - 2026-08-09：**并发遗留收口确认（审计复核）**——P5 严格并发条目预留的 `BeadViewModel` 4 处 `Task.detached` 遗留经审计核实**已收敛**：4 处 detached（生成/导出/分享/PDF）均已改为以捕获 `Sendable` 局部值（`renderer`/`pattern`/`photoData`/`opts`）的方式传参，闭包内调用全局生成/渲染函数（`generateBeadPatternAsync`/`generateBeadPatternAutoAsync`/`BeadExportService.render*`），不捕获非 Sendable 的 `self`。验证：`SWIFT_STRICT_CONCURRENCY=complete` 下 `xcodebuild` BUILD SUCCEEDED。文档同步：DESIGN.md §9.1 与 DEVELOPMENT.md §4.2 的「已知遗留」描述已更新为「并发遗留收口」，仅剩 `HomeView` 2 处 `static let DateFormatter` 作为 Swift 6 语言模式迁移前置项。
+
+### P5 进度（ADR-0010 商业化强化）
+
+- 2026-08-10：**商业化强化与情感触点规划落地（ADR-0010）**——产出 [ADR-0010](docs/adr/0010-commercialization-and-emotion-triggers.md)，系统性扩展权益矩阵、定价、水印、分享、情感触点、编辑器装饰、离线备份、相簿模式、实体打印 9 大模块。
+
+  **已实现（P0 全部）**：①**照片导入配额**（免费 50 张 / Pro 不限）：`CommercialRules.swift` 新增配额常量 + `allowedImportCount` 纯函数；`ImportService` 导入前配额检查 + `quotaBlocked` 计数；`GalleryViewModel` 配额拦截弹付费墙；`GalleryView` 注入 Pro 状态 + 同步；6 个边界用例。②**导出水印**（免费带水印 / Pro 无水印）：MiLensKit `BeadExportService.renderA4Export` 增 `includeWatermark` 参数（A4 页脚 ASCII 位图字体，水印文本 `Made with MiLens | milens.app`）；App `BeadExportService` 贯穿 PNG/PDF；`BeadViewModel` 导出传 `!isPro`；`PetCardArtwork` 底部渐变区水印条件渲染。③**买断定价** ¥298→¥168：`Products.storekit` displayPrice 同步。④**分享增强**：新建 `SharePreviewSheet`（引导式分享预览面板，平台图标横排 + 「更多平台」→ 系统 ShareSheet），接入 `BeadPatternResultView` + `PetCardView`。
+
+  **已实现（P0-e/f）**：⑤**宠物卡片多模板**：MiLensKit `PetCardTemplate` 枚举（经典免费 / 拍立得 / 杂志 / 极简 Pro）+ `isUsable(isPro:)` / `resolve(_:isPro:)` 门控；`PetCardArtwork` 重构为 4 个独立排版分支；`PetCardView` 底部模板选择器（水平滚动 + 缩略图 + Pro 锁标）+ `@AppStorage` 持久化。⑥**时间线导出分享**（Pro 专属）：`TimelineExportLogic` 纯函数（从 months 构建导出数据）+ `TimelineExportCanvas`（1080px 离屏渲染视图，头部 + 按月分组 + 时间线节点）+ `TimelineView` 导航栏「分享」按钮 + Pro 门控。
+
+  **接口预留（数据模型锁定）**：⑦**编辑器装饰**：MiLensKit `DecorationCatalog`（边框/贴纸资源目录 + Pro 门控元数据，复用已有 `EditorLayerType.frame/.sticker`）。⑧**实体打印**：`MiLens/Services/Print/PrintService.swift`（协议 + `PrintProductType`/`PrintProductSpec`/`PrintQuote`/`PrintOrder` 数据模型 + `UnavailablePrintService` 占位）。⑨**离线备份**：`MiLens/Services/Backup/BackupService.swift`（协议 + `BackupManifest`/`BackupMetadata`/`PetSnapshot`/`PhotoSnapshot` 数据模型 + ZIP 打包格式定义 + `UnavailableBackupService` 占位；方案选定 A（ZIP + ShareSheet）核心 + B（iTunes File Sharing）补充，排除 C（系统相册丢元数据）和 D（iCloud 违背不联网约束））。⑩**相簿浏览模式**：MiLensKit `GalleryMode` 枚举（网格免费 / 剪贴簿 / 拍立得散页 / 杂志 Pro）。
+
+  **Pro 权益扩展**：`ProFeature` 新增 `.photoStorage` / `.watermarkFreeExport` / `.cardTemplates` / `.timelineExport` / `.offlineBackup` / `.albumModes` 6 个权益项 + 对应本地化字符串。

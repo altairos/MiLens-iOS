@@ -302,10 +302,10 @@ struct EditorTextPanelView: View {
 
             Button("添加到图片") { textVM.add() }
                 .font(Font.caption)
-                .foregroundStyle(.white)
+                .foregroundStyle(Color.milensTextOnActionPrimary)
                 .padding(.horizontal, Spacing.xl)
                 .padding(.vertical, Spacing.sm)
-                .background(canAdd(textVM) ? Color.milensPrimary : Color.white.opacity(0.15))
+                .background(canAdd(textVM) ? Color.milensActionPrimary : Color.white.opacity(0.15))
                 .clipShape(Capsule())
                 .disabled(!canAdd(textVM))
         }
@@ -343,7 +343,7 @@ struct EditorTextPanelView: View {
                     textVM.deleteActiveLayer()
                 } label: {
                     Image(systemName: "trash")
-                        .foregroundStyle(.red)
+                        .foregroundStyle(Color.milensDanger)
                 }
                 .accessibilityLabel("删除文字")
             }
@@ -396,7 +396,7 @@ struct EditorCutoutPanelView: View {
             VStack(alignment: .leading, spacing: Spacing.xs) {
                 Text(statusText)
                     .font(Font.caption)
-                    .foregroundStyle(viewModel.cutoutVM.phase == .error ? .red : .white.opacity(0.85))
+                    .foregroundStyle(viewModel.cutoutVM.phase == .error ? Color.milensDanger : .white.opacity(0.85))
                 if viewModel.cutoutVM.phase == .applied {
                     Text("保存后将以 PNG 格式保留透明背景")
                         .font(Font.caption2)
@@ -408,10 +408,10 @@ struct EditorCutoutPanelView: View {
                 Task { await viewModel.cutoutVM.start() }
             }
             .font(Font.caption)
-            .foregroundStyle(.white)
+            .foregroundStyle(Color.milensTextOnActionPrimary)
             .padding(.horizontal, Spacing.xl)
             .padding(.vertical, Spacing.sm)
-            .background(viewModel.cutoutVM.phase == .processing ? Color.white.opacity(0.15) : Color.milensPrimary)
+            .background(viewModel.cutoutVM.phase == .processing ? Color.white.opacity(0.15) : Color.milensActionPrimary)
             .clipShape(Capsule())
             .disabled(viewModel.cutoutVM.phase == .processing)
         }
@@ -444,10 +444,10 @@ private struct EditorPanelButtonStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
             .font(Font.caption)
-            .foregroundStyle(role == .primary ? .white : .white.opacity(0.85))
+            .foregroundStyle(role == .primary ? Color.milensTextOnActionPrimary : .white.opacity(0.85))
             .padding(.horizontal, Spacing.xl)
             .padding(.vertical, Spacing.sm)
-            .background(role == .primary ? Color.milensPrimary : Color.white.opacity(0.15))
+            .background(role == .primary ? Color.milensActionPrimary : Color.white.opacity(0.15))
             .clipShape(Capsule())
             .opacity(configuration.isPressed ? 0.7 : 1)
     }

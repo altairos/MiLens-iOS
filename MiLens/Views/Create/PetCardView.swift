@@ -14,7 +14,7 @@ private let logger = Logger(subsystem: "com.milens.app", category: "PetCard")
 struct PetCardView: View {
     let photoID: UUID
 
-    @Environment(\.photoRepository) private var photoRepo
+    @Environment(\.viewModelFactory) private var factory
 
     @State private var photo: Photo?
     @State private var image: UIImage?
@@ -161,7 +161,7 @@ struct PetCardView: View {
     private func load() async {
         defer { isLoading = false }
         do {
-            guard let photo = try photoRepo.getPhoto(id: photoID) else { return }
+            guard let photo = try factory.photo(id: photoID) else { return }
             self.photo = photo
             let path = photo.thumbnailPath.isEmpty ? photo.uri : photo.thumbnailPath
             let loaded = await Task.detached(priority: .utility) {

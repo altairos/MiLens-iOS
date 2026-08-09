@@ -19,7 +19,7 @@ struct PhotoViewView: View {
         self.heroID = heroID
     }
 
-    @Environment(\.photoRepository) private var photoRepo
+    @Environment(\.viewModelFactory) private var factory
     @Environment(\.dismiss) private var dismiss
 
     @State private var photo: Photo?
@@ -192,7 +192,7 @@ struct PhotoViewView: View {
     @MainActor
     private func loadData() async {
         do {
-            photo = try photoRepo.getPhoto(id: photoID)
+            photo = try factory.photo(id: photoID)
         } catch {
             photo = nil
             logger.error("loadData: 读取照片记录失败（\(self.photoID)，\(error.localizedDescription)）")

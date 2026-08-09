@@ -21,9 +21,15 @@ final class PetProfileViewModel {
     // MARK: - 依赖
 
     private let petRepo: any PetRepositoryProtocol
+    private var isPro: Bool
 
-    init(petRepo: any PetRepositoryProtocol) {
+    init(petRepo: any PetRepositoryProtocol, isPro: Bool = false) {
         self.petRepo = petRepo
+        self.isPro = isPro
+    }
+
+    func updateEntitlement(isPro: Bool) {
+        self.isPro = isPro
     }
 
     // MARK: - 列表加载
@@ -52,7 +58,10 @@ final class PetProfileViewModel {
             return false
         }
         // 数量上限校验
-        if let countError = PetProfileLogic.checkPetCountLimit(currentCount: pets.count) {
+        if let countError = PetProfileLogic.checkPetCountLimit(
+            currentCount: pets.count,
+            maxPets: CommercialRules.petLimit(isPro: isPro)
+        ) {
             addError = countError
             return false
         }

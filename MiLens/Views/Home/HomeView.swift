@@ -6,8 +6,7 @@
 import SwiftUI
 
 struct HomeView: View {
-    @Environment(\.photoRepository) private var photoRepository
-    @Environment(\.petRepository) private var petRepository
+    @Environment(\.viewModelFactory) private var factory
     @State private var viewModel: HomeViewModel?
 
     var body: some View {
@@ -23,10 +22,7 @@ struct HomeView: View {
         .toolbar(.hidden, for: .navigationBar)
         .onAppear {
             guard viewModel == nil else { return }
-            let model = HomeViewModel(
-                photoRepository: photoRepository,
-                petRepository: petRepository
-            )
+            let model = factory.makeHomeViewModel()
             model.load()
             viewModel = model
         }

@@ -7,7 +7,7 @@ import os
 private let logger = Logger(subsystem: "com.milens.app", category: "Create")
 
 struct BeadPhotoPickerView: View {
-    @Environment(\.photoRepository) private var photoRepo
+    @Environment(\.viewModelFactory) private var factory
 
     @State private var photos: [Photo] = []
     @State private var isLoading = true
@@ -74,7 +74,7 @@ struct BeadPhotoPickerView: View {
     private func loadPhotos() async {
         defer { isLoading = false }
         do {
-            photos = try photoRepo.getPhotosPage(offset: 0, limit: 200)
+            photos = try factory.photoList(limit: 200)
         } catch {
             logger.error("loadPhotos: 读取照片列表失败（\(error.localizedDescription)）")
             photos = []

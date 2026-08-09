@@ -14,7 +14,6 @@ struct CreateView: View {
 
     @State private var photos: [Photo] = []
     @State private var isLoading = true
-    @State private var showPaywall = false
 
     var body: some View {
         Group {
@@ -29,9 +28,6 @@ struct CreateView: View {
         .navigationTitle(String(localized: "tab.create"))
         .navigationBarTitleDisplayMode(.large)
         .task { await loadPhotos() }
-        .sheet(isPresented: $showPaywall) {
-            NavigationStack { PaywallView() }
-        }
     }
 
     private var content: some View {
@@ -74,19 +70,10 @@ struct CreateView: View {
 
     private var beadEntry: some View {
         Group {
-            if entitlement.isPro {
-                NavigationLink(value: Route.beadPhotoPicker) {
+            NavigationLink(value: Route.beadPhotoPicker) {
                     beadProjectRow
-                }
-                .buttonStyle(.plain)
-            } else {
-                Button {
-                    showPaywall = true
-                } label: {
-                    beadProjectRow
-                }
-                .buttonStyle(.plain)
             }
+            .buttonStyle(.plain)
         }
         .accessibilityLabel("拼豆图纸，选择照片开始")
     }
@@ -105,8 +92,16 @@ struct CreateView: View {
                         Text("拼豆图纸")
                             .font(.titleStandard)
                             .foregroundStyle(Color.milensTextPrimary)
-                        if !entitlement.isPro {
-                            Text("Pro")
+                        if entitlement.isPro {
+                            Text("不限次数")
+                                .font(.caption.weight(.semibold))
+                                .foregroundStyle(Color.milensSuccess)
+                                .padding(.horizontal, Spacing.sm)
+                                .padding(.vertical, Spacing.xs)
+                                .background(Color.milensSuccess.opacity(0.12))
+                                .clipShape(Capsule())
+                        } else {
+                            Text("每日 5 次")
                                 .font(.caption.weight(.semibold))
                                 .foregroundStyle(Color.milensActionPrimary)
                                 .padding(.horizontal, Spacing.sm)

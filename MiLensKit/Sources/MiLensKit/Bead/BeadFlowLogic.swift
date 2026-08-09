@@ -156,6 +156,7 @@ public func canStartBeadExport(isExporting: Bool, hasPattern: Bool) -> Bool {
 /// 用户提示消息。对应源端 showToast 的文案。
 public enum BeadToastMessage: Equatable {
     case missingSource
+    case generationLimitReached
     case generationFailed
     case exportSuccess
     case exportFailed
@@ -164,6 +165,7 @@ public enum BeadToastMessage: Equatable {
 public func beadToastText(_ message: BeadToastMessage) -> String {
     switch message {
     case .missingSource: return "未找到来源照片，请返回后重新进入"
+    case .generationLimitReached: return "今日免费生成次数已用完，升级 MiLens Pro 可不限次数生成"
     case .generationFailed: return "生成失败，请重试或关闭智能抠图"
     case .exportSuccess: return "✅ 高清图纸已保存到相册"
     case .exportFailed: return "❌ 导出失败，请重试"

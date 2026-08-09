@@ -27,6 +27,8 @@ final class AppDependencies {
     let storeService: any StoreService
     /// 应用级权益状态（proStatusUpdates 唯一消费者，功能门控统一判定源）
     let proEntitlement: ProEntitlementStore
+    /// 页面 ViewModel 组合工厂（分层收敛：View 不再直连 Repository/Service）
+    let viewModelFactory: ViewModelFactory
 
     init(container: ModelContainer,
          petRepo: any PetRepositoryProtocol,
@@ -40,7 +42,8 @@ final class AppDependencies {
          notifyService: NotifyService?,
          onboardingViewModel: OnboardingViewModel,
          storeService: any StoreService,
-         proEntitlement: ProEntitlementStore) {
+         proEntitlement: ProEntitlementStore,
+         viewModelFactory: ViewModelFactory) {
         self.container = container
         self.petRepo = petRepo
         self.photoRepo = photoRepo
@@ -54,6 +57,7 @@ final class AppDependencies {
         self.onboardingViewModel = onboardingViewModel
         self.storeService = storeService
         self.proEntitlement = proEntitlement
+        self.viewModelFactory = viewModelFactory
     }
 
     /// 构造完整依赖图。失败时抛出——调用方进入可诊断恢复界面。
@@ -113,6 +117,19 @@ final class AppDependencies {
         let storeService: any StoreService = isTesting ? MockStoreService() : StoreKit2StoreService()
         // 应用级权益：唯一流消费者，页面/ViewModel 经它读权益（P2 广播语义收口）。
         let proEntitlement = ProEntitlementStore(store: storeService)
+        // 页面 ViewModel 组合工厂（分层收敛）：View 经 @Environment(\.viewModelFactory)
+        // 取 VM/数据，不再直连 Repository 或拼装 sandboxDir 等基础设施细节。
+        let viewModelFactory = ViewModelFactory(
+            container: container,
+            photoRepo: photoRepo,
+            petRepo: petRepo,
+            photoLibrary: photoLibrary,
+            vision: vision,
+            fileStorage: fileStorage,
+            clipService: clipService,
+            cursorStore: scanCursorStore,
+            mediaLifecycle: mediaLifecycle
+        )
 
         return AppDependencies(
             container: container,
@@ -127,7 +144,8 @@ final class AppDependencies {
             notifyService: notifyService,
             onboardingViewModel: onboardingViewModel,
             storeService: storeService,
-            proEntitlement: proEntitlement
+            proEntitlement: proEntitlement,
+            viewModelFactory: viewModelFactory
         )
     }
 

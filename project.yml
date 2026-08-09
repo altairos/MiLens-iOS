@@ -19,6 +19,10 @@ options:
 settings:
   base:
     SWIFT_VERSION: "5.9"
+    # 严格并发：complete 模式（Swift 5 语言模式下的完整并发诊断）。
+    # 平台适配层/mock 经 @unchecked Sendable 显式声明（均附理由注释）；页面 ViewModel
+    # 全部 @MainActor。首次开启需经 macOS CI 编译验证，遗留错误清单见 PLAN.md。
+    SWIFT_STRICT_CONCURRENCY: "complete"
     MARKETING_VERSION: "1.0"
     CURRENT_PROJECT_VERSION: "1"
     ENABLE_USER_SCRIPT_SANDBOXING: "YES"

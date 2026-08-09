@@ -17,6 +17,7 @@ final class TimelineViewModel {
     var months: [TimelineMonth] = []
     var selectedPetID: UUID? = nil
     var isLoading = false
+    private(set) var hasLockedHistory = false
 
     // MARK: - 内部缓存
 
@@ -32,7 +33,7 @@ final class TimelineViewModel {
 
     // MARK: - 加载
 
-    func load(now: Date = Date()) {
+    func load(now: Date = Date(), isPro: Bool = false) {
         isLoading = true
         let pets: [Pet]
         do {
@@ -68,7 +69,9 @@ final class TimelineViewModel {
             pets: timelinePets, petEvents: timelineEvents,
             photoEvents: timelinePhotos, now: now
         )
-        allEntries = TimelineLogic.buildTimelineEntries(input)
+        let entries = TimelineLogic.buildTimelineEntries(input)
+        hasLockedHistory = TimelineAccessLogic.hasLockedHistory(entries, now: now, isPro: isPro)
+        allEntries = TimelineAccessLogic.visibleEntries(entries, now: now, isPro: isPro)
         rebuildMonths()
         isLoading = false
     }

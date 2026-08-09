@@ -7,6 +7,7 @@ import SwiftUI
 struct PetsView: View {
     @Environment(\.petRepository) private var petRepo
     @Environment(\.notifyService) private var notifyService
+    @Environment(\.proEntitlement) private var entitlement
 
     @State private var viewModel: PetProfileViewModel?
     @State private var showAddSheet = false
@@ -21,10 +22,13 @@ struct PetsView: View {
         }
         .onAppear {
             if viewModel == nil {
-                let vm = PetProfileViewModel(petRepo: petRepo)
+                let vm = PetProfileViewModel(petRepo: petRepo, isPro: entitlement.isPro)
                 vm.loadPets()
                 viewModel = vm
             }
+        }
+        .onChange(of: entitlement.isPro) { _, isPro in
+            viewModel?.updateEntitlement(isPro: isPro)
         }
         .sheet(isPresented: $showAddSheet) {
             if let vm = viewModel {

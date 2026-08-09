@@ -153,12 +153,11 @@ struct BeadPatternResultView: View {
         .padding(.top, 8)
     }
 
-    // MARK: - 导出（保存相册 / 分享 / A4 PDF，Pro 门控）
+    // MARK: - 导出（基础 PNG 保存/分享免费，A4 PDF 作为 Pro/计划权益）
 
     private var actionButtons: some View {
         HStack(spacing: Spacing.sm) {
             Button {
-                guard entitlement.isPro else { showPaywall = true; return }
                 vm.export()
             } label: {
                 Text(vm.isExporting ? "导出中..." : "保存相册")
@@ -192,7 +191,7 @@ struct BeadPatternResultView: View {
             Button {
                 exportPDF()
             } label: {
-                Text("A4 PDF")
+                Text("Pro · A4 PDF")
                     .font(.bodySecondary.weight(.medium))
                     .foregroundStyle(Color.milensActionPrimary)
                     .frame(maxWidth: .infinity)
@@ -209,7 +208,6 @@ struct BeadPatternResultView: View {
     }
 
     private func share() {
-        guard entitlement.isPro else { showPaywall = true; return }
         Task { @MainActor in
             if let url = await vm.prepareShareFile() {
                 shareItem = ShareItem(url: url)

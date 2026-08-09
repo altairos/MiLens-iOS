@@ -227,4 +227,25 @@ final class PetEditViewModel {
         featureTask = nil
         isRegisteringFeatures = false
     }
+
+    // MARK: - 页面数据操作（分层收敛：View 不再直连 Repository）
+
+    /// AI 特征注册是否可用（CLIP 模型就绪判定；替代 View 直接读 clipService）。
+    var isFeatureRegistrationAvailable: Bool {
+        clipService != nil
+    }
+
+    /// 读取当前档案的最新记录（保存后提醒重调度 / 删除前快照）。
+    func latestPet() throws -> Pet? {
+        guard let petID else { return nil }
+        return try petRepo.getPet(id: petID)
+    }
+
+    /// 删除当前档案。返回被删除的记录（调用方用于撤销纪念提醒）；档案不存在返回 nil。
+    func deletePet() throws -> Pet? {
+        guard let petID else { return nil }
+        guard let pet = try petRepo.getPet(id: petID) else { return nil }
+        try petRepo.deletePet(pet)
+        return pet
+    }
 }

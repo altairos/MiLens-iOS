@@ -12,9 +12,8 @@ private let logger = Logger(subsystem: "com.milens.app", category: "PetEditView"
 struct PetEditView: View {
     let petID: UUID
 
-    @Environment(\.petRepository) private var petRepo
+    @Environment(\.viewModelFactory) private var factory
     @Environment(\.notifyService) private var notifyService
-    @Environment(\.clipInferenceService) private var clipService
     @Environment(\.dismiss) private var dismiss
 
     @State private var viewModel: PetEditViewModel?
@@ -67,7 +66,7 @@ struct PetEditView: View {
         }
         .task {
             if viewModel == nil {
-                let vm = PetEditViewModel(petRepo: petRepo, clipService: clipService)
+                let vm = factory.makePetEditViewModel()
                 vm.loadPet(id: petID)
                 viewModel = vm
             }
@@ -215,9 +214,9 @@ struct PetEditView: View {
                           systemImage: "photo.on.rectangle")
                         .frame(maxWidth: .infinity)
                 }
-                .disabled(clipService == nil)
+                .disabled(!vm.isFeatureRegistrationAvailable)
 
-                if clipService == nil {
+                if !vm.isFeatureRegistrationAvailable {
                     Text("AI 模型未就绪，暂不能注册视觉特征")
                         .font(.caption)
                         .foregroundStyle(Color.milensTextSecondary)
@@ -369,7 +368,7 @@ struct PetEditView: View {
             // 生日/领养日可能变更：局部重调度该宠物的纪念提醒
             if let notifyService {
                 do {
-                    if let pet = try petRepo.getPet(id: petID) {
+                    if let pet = try vm.latestPet() {
                         Task { await notifyService.updateReminders(for: pet) }
                     }
                 } catch {
@@ -381,23 +380,15 @@ struct PetEditView: View {
     }
 
     private func deletePet() {
-        let pet: Pet?
         do {
-            pet = try petRepo.getPet(id: petID)
+            if let pet = try viewModel?.deletePet() {
+                // 撤销该宠物的纪念提醒
+                if let notifyService {
+                    Task { await notifyService.removeReminders(for: pet) }
+                }
+            }
         } catch {
-            pet = nil
-            logger.error("deletePet: 读取档案失败（\(self.petID)，\(error.localizedDescription)）")
-        }
-        if let pet {
-            do {
-                try petRepo.deletePet(pet)
-            } catch {
-                logger.error("deletePet: 删除档案失败（\(self.petID)，\(error.localizedDescription)）")
-            }
-            // 撤销该宠物的纪念提醒
-            if let notifyService {
-                Task { await notifyService.removeReminders(for: pet) }
-            }
+            logger.error("deletePet: 删除档案失败（\(self.petID)，\(error.localizedDescription)）")
         }
         dismiss()
     }

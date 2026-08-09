@@ -12,8 +12,9 @@ import SwiftData
 /// 环境 fallback 的共享 in-memory 容器。
 /// 必须 static 缓存：mainContext 不持有 container，每次 defaultValue 新建容器
 /// 会在返回后释放，repo 的 fetch 触发 SwiftData 内部 SIGTRAP（悬垂引用，已在测试中复现）。
+/// internal：ViewModelFactory 的 Preview 默认值复用同一容器。
 @MainActor
-private enum FallbackContainer {
+enum FallbackContainer {
     static let shared: ModelContainer = {
         let schema = Schema(versionedSchema: SchemaV1.self)
         let config = ModelConfiguration(isStoredInMemoryOnly: true)

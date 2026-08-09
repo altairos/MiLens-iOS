@@ -17,11 +17,7 @@ enum Route: Hashable {
     case timeline         // 成长时间线（全部宠物）
 
     var requiresPro: Bool {
-        switch self {
-        case .editor, .beadPhotoPicker, .beadPattern:
-            true
-        default:
-            false
-        }
+        // 当前 V1 的创作入口均可体验；未来模板等细粒度权益在功能层门控。
+        false
     }
 }

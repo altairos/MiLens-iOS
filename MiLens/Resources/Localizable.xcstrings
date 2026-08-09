@@ -245,7 +245,7 @@
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "完整图片编辑器：裁切、调色、抠图与文字工具"
+            "value" : "高级创作模板（V1.0 计划）"
           }
         }
       }
@@ -256,7 +256,7 @@
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "完整拼豆工作室：多种风格、配色方案与 A4 图纸导出"
+            "value" : "高清导出（V1.0 计划）"
           }
         }
       }
@@ -268,6 +268,50 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "支持家庭共享（由 Apple StoreKit 提供）"
+          }
+        }
+      }
+    },
+    "paywall.benefit.profiles" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "最多管理 20 个宠物档案"
+          }
+        }
+      }
+    },
+    "paywall.benefit.beadQuota" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "拼豆图纸不限次数生成"
+          }
+        }
+      }
+    },
+    "paywall.benefit.timeline" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "查看完整成长时间线（含一年前的故事）"
+          }
+        }
+      }
+    },
+    "paywall.future.body" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "V1.0 计划加入高级模板与高清导出，Pro 用户上线后自动解锁。"
           }
         }
       }

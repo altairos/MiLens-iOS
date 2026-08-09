@@ -10,12 +10,12 @@
       "internalID" : "9C4E21A7",
       "localizations" : [
         {
-          "description" : "一次购买，永久解锁完整拼豆工作室与图片编辑器，无后续费用。",
+          "description" : "一次购买，永久解锁 20 个宠物档案、不限拼豆生成与完整成长历史，无后续费用。",
           "displayName" : "MiLens Pro 永久版",
           "locale" : "zh_Hans"
         },
         {
-          "description" : "One-time purchase, permanently unlock the bead studio and complete photo editor.",
+          "description" : "One-time purchase, permanently unlock 20 pet profiles, unlimited bead generation, and full timeline history.",
           "displayName" : "MiLens Pro Lifetime",
           "locale" : "en_US"
         }

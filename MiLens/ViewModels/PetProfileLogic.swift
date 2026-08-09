@@ -17,7 +17,7 @@ enum PetProfileConstants {
     /// 开发者生日（MM-DD），用于彩蛋判定（对应源端 EASTER_EGG_BIRTHDAY）
     static let easterEggBirthdayMMdd = "07-03"
     /// 宠物数量上限（对应源端 checkPetCountLimit 默认阈值）
-    static let maxPets = 20
+    static let maxPets = CommercialRules.proPetLimit
 }
 
 // MARK: - 纯决策函数

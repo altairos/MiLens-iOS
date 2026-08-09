@@ -173,6 +173,13 @@ tools/check-coverage.sh build/TestResult.xcresult
 - 避免强制解包 `!`（`@IBOutlet` 等 IBOutlet 除外，本项目以 SwiftUI 为主基本不用）。
 - 访问控制：`MiLensKit` 内部类型默认 `internal`，仅导出面标 `public`。
 
+**严格并发（2026-08-09 起 `SWIFT_STRICT_CONCURRENCY=complete`）**：
+
+- 页面 ViewModel 一律 `@MainActor`；跨隔离边界只发送 `Sendable` 值，`Task.detached` 以捕获值传参，不捕获非 Sendable 的 `self`/View struct。
+- 平台适配层/mock 的 `@unchecked Sendable` 必须附理由注释；禁止新增无说明的 `@unchecked Sendable`/`nonisolated(unsafe)`。
+- 页面 ViewModel 统一经 `ViewModelFactory`（`\.viewModelFactory`）构造，View 不直接持有 Repository/Service（分层收敛，详见 DESIGN.md §4.1）。
+- 已知遗留：`BeadViewModel` 4 处 `Task.detached` 待该文件改动完成后收敛；`HomeView` 2 处 `static let DateFormatter` 为 Swift 6 语言模式迁移前置项（跟踪见 PLAN.md P5 进度）。
+
 ### 4.3 AI 模型转换工具链
 
 将源端 CLIP / RTMPose 模型转换为 iOS Core ML 格式（`.mlpackage`）。方案详见 [ADR-0007](docs/adr/0007-ios-ai-inference-route.md)。

@@ -42,6 +42,8 @@ final class BeadViewModel {
     private let vision: any VisionService
     private let clipService: ClipInferenceService?
     private let exportService: BeadExportService
+    private var isPro: Bool
+    private let quotaStore: any BeadGenerationQuotaStore
 
     private var generationTask: Task<Void, Never>?
     private var toastDismissTask: Task<Void, Never>?
@@ -56,11 +58,19 @@ final class BeadViewModel {
     init(photoRepo: any PhotoRepositoryProtocol,
          vision: any VisionService,
          clipService: ClipInferenceService?,
-         exportService: BeadExportService = BeadExportService()) {
+         exportService: BeadExportService = BeadExportService(),
+         isPro: Bool = false,
+         quotaStore: any BeadGenerationQuotaStore = UserDefaultsBeadGenerationQuotaStore()) {
         self.photoRepo = photoRepo
         self.vision = vision
         self.clipService = clipService
         self.exportService = exportService
+        self.isPro = isPro
+        self.quotaStore = quotaStore
+    }
+
+    func updateEntitlement(isPro: Bool) {
+        self.isPro = isPro
     }
 
     // 无 deinit 取消：generationTask/toastDismissTask 均以 [weak self] 捕获，
@@ -90,6 +100,10 @@ final class BeadViewModel {
 
     func generate() {
         guard canStartBeadGeneration(phase) else { return }
+        if !isPro && quotaStore.usedToday >= CommercialRules.freeBeadGenerationsPerDay {
+            showToast(.generationLimitReached)
+            return
+        }
         guard !photoURI.isEmpty else {
             showToast(.missingSource)
             return
@@ -197,6 +211,9 @@ final class BeadViewModel {
             try Task.checkCancellation()
 
             pattern = result
+            if !isPro {
+                quotaStore.recordSuccessfulGeneration()
+            }
             cellSize = computeCellSize(patternWidth: result.width)
             canvasScale = 1.0
             phase = .success

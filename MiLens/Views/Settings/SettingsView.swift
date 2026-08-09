@@ -154,6 +154,13 @@ struct SettingsView: View {
                 title: String(localized: "paywall.benefit.family"),
                 tint: .milensTextSecondary
             )
+            Text(String(localized: "paywall.future.body"))
+                .font(.caption)
+                .foregroundStyle(Color.milensTextSecondary)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.leading, 56)
+                .padding(.top, Spacing.sm)
+                .padding(.bottom, Spacing.md)
         }
     }
 

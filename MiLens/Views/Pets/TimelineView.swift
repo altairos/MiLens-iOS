@@ -12,9 +12,11 @@ private let logger = Logger(subsystem: "com.milens.app", category: "TimelineView
 struct TimelineView: View {
     @Environment(\.petRepository) private var petRepo
     @Environment(\.photoRepository) private var photoRepo
+    @Environment(\.proEntitlement) private var entitlement
 
     @State private var viewModel: TimelineViewModel?
     @State private var pets: [Pet] = []
+    @State private var showPaywall = false
 
     var body: some View {
         Group {
@@ -27,10 +29,16 @@ struct TimelineView: View {
         .navigationTitle("成长时间线")
         .navigationBarTitleDisplayMode(.large)
         .background(Color.milensBackground)
+        .sheet(isPresented: $showPaywall) {
+            NavigationStack { PaywallView() }
+        }
+        .onChange(of: entitlement.isPro) { _, isPro in
+            viewModel?.load(isPro: isPro)
+        }
         .task {
             if viewModel == nil {
                 let vm = TimelineViewModel(petRepo: petRepo, photoRepo: photoRepo)
-                vm.load()
+                vm.load(isPro: entitlement.isPro)
                 viewModel = vm
                 do {
                     pets = try petRepo.getAllPets()
@@ -48,6 +56,8 @@ struct TimelineView: View {
     private func content(_ vm: TimelineViewModel) -> some View {
         if vm.isLoading {
             ProgressView()
+        } else if vm.months.isEmpty && vm.hasLockedHistory && !entitlement.isPro {
+            lockedHistoryEmptyState
         } else if vm.months.isEmpty {
             emptyState
         } else {
@@ -77,6 +87,10 @@ struct TimelineView: View {
     private func timelineList(_ vm: TimelineViewModel) -> some View {
         ScrollView {
             VStack(spacing: 0) {
+                if vm.hasLockedHistory && !entitlement.isPro {
+                    lockedHistoryBanner
+                        .padding(.bottom, Spacing.md)
+                }
                 // 筛选器
                 if !pets.isEmpty {
                     petFilter(vm)
@@ -92,6 +106,47 @@ struct TimelineView: View {
             .padding(.vertical, Spacing.sm)
         }
         .scrollIndicators(.hidden)
+    }
+
+    private var lockedHistoryEmptyState: some View {
+        VStack(spacing: Spacing.lg) {
+            Image(systemName: "lock.fill")
+                .font(.system(size: 40, weight: .light))
+                .foregroundStyle(Color.milensActionPrimary)
+            Text("你的早期故事还在这里")
+                .font(.displayMedium)
+                .foregroundStyle(Color.milensTextPrimary)
+            Text("升级 MiLens Pro，查看一年前的成长记录。")
+                .font(.bodyPrimary)
+                .foregroundStyle(Color.milensTextSecondary)
+                .multilineTextAlignment(.center)
+            Button("查看 Pro 权益") { showPaywall = true }
+                .buttonStyle(.borderedProminent)
+                .tint(Color.milensActionPrimary)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .padding(.horizontal, Spacing.pagePad)
+    }
+
+    private var lockedHistoryBanner: some View {
+        HStack(alignment: .top, spacing: Spacing.md) {
+            Image(systemName: "lock.fill")
+                .foregroundStyle(Color.milensActionPrimary)
+            VStack(alignment: .leading, spacing: Spacing.xs) {
+                Text("一年前的故事，仍然替你保存着")
+                    .font(.bodyPrimary.weight(.semibold))
+                    .foregroundStyle(Color.milensTextPrimary)
+                Button("升级 MiLens Pro，查看完整成长时间线") {
+                    showPaywall = true
+                }
+                    .font(.caption)
+                    .foregroundStyle(Color.milensActionPrimary)
+            }
+            Spacer()
+        }
+        .padding(Spacing.md)
+        .background(Color.milensAccentSoft)
+        .clipShape(RoundedRectangle(cornerRadius: Radius.medium, style: .continuous))
     }
 
     // MARK: - 宠物筛选

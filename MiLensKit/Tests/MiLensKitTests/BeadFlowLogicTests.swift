@@ -239,6 +239,7 @@ final class BeadFlowLogicTests: XCTestCase {
 
     func testToastTexts() {
         XCTAssertEqual(beadToastText(.missingSource), "未找到来源照片，请返回后重新进入")
+        XCTAssertEqual(beadToastText(.generationLimitReached), "今日免费生成次数已用完，升级 MiLens Pro 可不限次数生成")
         XCTAssertEqual(beadToastText(.generationFailed), "生成失败，请重试或关闭智能抠图")
         XCTAssertEqual(beadToastText(.exportSuccess), "✅ 高清图纸已保存到相册")
         XCTAssertEqual(beadToastText(.exportFailed), "❌ 导出失败，请重试")

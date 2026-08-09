@@ -11,8 +11,7 @@ private let logger = Logger(subsystem: "com.milens.app", category: "PetProfile")
 struct PetProfileView: View {
     let petID: UUID
 
-    @Environment(\.petRepository) private var petRepo
-    @Environment(\.photoRepository) private var photoRepo
+    @Environment(\.viewModelFactory) private var factory
     @Environment(\.dismiss) private var dismiss
 
     @State private var pet: Pet?
@@ -406,10 +405,10 @@ struct PetProfileView: View {
         isLoading = true
         defer { isLoading = false }
         do {
-            pet = try petRepo.getPet(id: petID)
+            pet = try factory.pet(id: petID)
             if let pet {
                 do {
-                    photos = try photoRepo.getPhotosByPet(pet)
+                    photos = try factory.photosByPet(pet)
                 } catch {
                     photos = []
                     logger.error("load: 读取宠物照片失败（\(error.localizedDescription)）")
@@ -417,7 +416,7 @@ struct PetProfileView: View {
             }
             // 待整理分类：未归属宠物的照片（失败时置空，不阻断档案展示）
             do {
-                unassignedPhotos = try photoRepo.getUnassignedPhotos(limit: 200)
+                unassignedPhotos = try factory.unassignedPhotos(limit: 200)
             } catch {
                 unassignedPhotos = []
                 logger.error("load: 读取未归属照片失败（\(error.localizedDescription)）")

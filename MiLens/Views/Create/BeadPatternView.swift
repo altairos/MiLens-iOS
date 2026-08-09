@@ -14,6 +14,7 @@ struct BeadPatternView: View {
     @Environment(\.photoRepository) private var photoRepo
     @Environment(\.visionService) private var vision
     @Environment(\.clipInferenceService) private var clipService
+    @Environment(\.proEntitlement) private var entitlement
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(\.dismiss) private var dismiss
 
@@ -60,7 +61,8 @@ struct BeadPatternView: View {
                 let vm = BeadViewModel(
                     photoRepo: photoRepo,
                     vision: vision,
-                    clipService: clipService
+                    clipService: clipService,
+                    isPro: entitlement.isPro
                 )
                 await vm.load(photoID: photoID)
                 self.vm = vm
@@ -99,6 +101,9 @@ struct BeadPatternView: View {
         // 避免进入页面即开始重计算）。
         .onChange(of: vm.settings) { _, _ in
             scheduleRegenerate(vm)
+        }
+        .onChange(of: entitlement.isPro) { _, isPro in
+            vm.updateEntitlement(isPro: isPro)
         }
         .onChange(of: vm.phase) { old, new in
             handlePhaseChange(from: old, to: new)

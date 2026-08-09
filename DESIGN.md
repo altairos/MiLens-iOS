@@ -93,9 +93,11 @@ View ──> @Observable ViewModel ──> Service（用例）
 
 - **应用级**：`ModelContainer`、Repository、长生命周期 Service —— 在 `MiLensApp.init` 构造，通过 `.environment(...)` 注入。
 - **任务级**：扫描/导出任务 —— Service 返回 `Task` 句柄，调用方在完成/取消时 `cancel()`（对应源端 `ScanSession`/`ExportSession`）。
-- **页面级**：`@State` ViewModel —— 视图拥有，销毁时随视图回收。
+- **页面级**：`@State` ViewModel —— 视图拥有，销毁时随视图回收；**统一经 `ViewModelFactory` 构造**（`MiLens/App/ViewModelFactory.swift`，随组合根注入 `\.viewModelFactory`）。
 
 ViewModel 通过 `@Environment` 接收依赖协议，不引用具体实现或全局单例（沿用源端 P1.7/P1.9 DI 门禁精神）。
+
+**分层收敛（ViewModelFactory）**：View 不直接通过 `@Environment` 持有 Repository/Service 来拼装 ViewModel（2026-08-09 前 GalleryView 持有 8 个依赖、EditorView 自带 in-memory 兜底逻辑、`sandboxDir` 拼装散落多处）。现改为：页面只依赖 `\.viewModelFactory`，由工厂组装 VM（`sandboxDir` 拼装、编辑器 in-memory 兜底均收进工厂）；无 VM 的轻量页面（选照片/单照查看/档案详情）经工厂的 `photoList(limit:)`/`photo(id:)`/`pet(id:)`/`photosByPet(_:)`/`unassignedPhotos(limit:)` 查询，View 层不再出现 Repository 类型。`GalleryViewModel`/`HomeViewModel`/`EditorViewModel`/`PetEditViewModel` 的构造点全部收敛到工厂；VM 内部按既有规则通过窄协议声明依赖不变。
 
 ## 5. 状态管理
 
@@ -182,6 +184,15 @@ SwiftData 从 V1.0 干净 schema 起步（不复刻源端 16 版历史迁移）�
 真实实现与 mock 分离，业务/ViewModel 只依赖协议，测试注入 mock（对应源端 `FakeMediaAccess` 等）。
 
 **通知调度语义**：`NotificationPosting` 提供 `schedule(title:body:identifier:dateComponents:repeats:)`（`UNCalendarNotificationTrigger` 真调度）而非一次性 post。`NotifyService.rescheduleAllReminders()` 幂等（先 `removeAllNotifications` 再全量调度）：Pet 生日/领养日 → 年度重复通知（月日组件 + 09:00，identifier `anniversary-<petID>-<kind>`）；时光机历史同日照片非空 → 每日 09:00（identifier `tm-daily`，内容由 `TimeMachineLogic` 调度时选定）。设置页「纪念提醒」开关（`@AppStorage`，默认关闭）是唯一授权入口：打开 → `requestAuthorization()` 成功才重调度，拒绝回弹；关闭 → 撤销全部。宠物编辑/删除走 `updateReminders`/`removeReminders` 局部更新。
+
+### 9.1 并发纪律（SWIFT_STRICT_CONCURRENCY=complete）
+
+2026-08-09 起 `project.yml` 开启 `SWIFT_STRICT_CONCURRENCY=complete`（Swift 5 语言模式下的完整并发诊断），后续新增代码按 complete 标准编写：
+
+- 页面 ViewModel 一律 `@MainActor`；跨隔离边界（`Task.detached`、`async let`、协议值传递）只发送 `Sendable` 值，CPU 密集计算以捕获值的方式传入 detached 闭包，不捕获非 Sendable 的 `self`/View struct。
+- 平台适配层与 mock 的 `@unchecked Sendable` 声明必须附理由注释（内部锁保护 / 只在 MainActor 调用方访问等），禁止无说明地抑制检查。
+- 长监听任务（如 `ProEntitlementStore` 的订阅流）用 actor 隔离的注册表 + `[weak self]`，不留「静态容器 → Task → self」保活环。
+- 已知遗留（跟踪见 PLAN.md）：`BeadViewModel` 4 处 `Task.detached` 在 @MainActor VM 内调用实例方法，待该文件改动完成后收敛；`HomeView` 2 处 `static let DateFormatter` 在 Swift 5.9 complete 下不触发诊断（SE-0412 于 5.10 生效），列为 Swift 6 语言模式迁移前置项。
 
 ## 10. 已知限制
 

@@ -7,14 +7,7 @@ import UIKit
 import MiLensKit
 
 struct GalleryView: View {
-    @Environment(\.photoRepository) private var photoRepo
-    @Environment(\.petRepository) private var petRepo
-    @Environment(\.photoLibraryAccess) private var photoLibrary
-    @Environment(\.visionService) private var vision
-    @Environment(\.fileStorage) private var fileStorage
-    @Environment(\.clipInferenceService) private var clipInferenceService
-    @Environment(\.scanCursorStore) private var scanCursorStore
-    @Environment(\.mediaLifecycleService) private var mediaLifecycleService
+    @Environment(\.viewModelFactory) private var factory
 
     @State private var viewModel: GalleryViewModel?
     @State private var navigationPath = NavigationPath()
@@ -34,17 +27,7 @@ struct GalleryView: View {
         }
         .onAppear {
             if viewModel == nil {
-                // URL.documentsDirectory（iOS 16+）等价于 urls(for: .documentDirectory).first
-                let docs = URL.documentsDirectory
-                let dir = docs.appendingPathComponent(ScanConfig.sandboxDirName).path
-                let vm = GalleryViewModel(
-                    photoRepo: photoRepo, petRepo: petRepo,
-                    photoLibrary: photoLibrary, vision: vision,
-                    fileStorage: fileStorage, sandboxDir: dir,
-                    clipService: clipInferenceService,
-                    cursorStore: scanCursorStore,
-                    mediaLifecycle: mediaLifecycleService
-                )
+                let vm = factory.makeGalleryViewModel()
                 vm.loadInitial()
                 viewModel = vm
             }
@@ -452,9 +435,11 @@ struct ThumbnailImage: View {
         }
         .task {
             guard image == nil else { return }
-            // 本地文件加载——在后台线程解码
+            // 本地文件加载——在后台线程解码；捕获 path 值（String, Sendable），
+            // 避免把非 Sendable 的 self（View struct）送入 detached 隔离区（严格并发）。
+            let path = self.path
             let loaded = await Task.detached(priority: .utility) {
-                UIImage(contentsOfFile: self.path)
+                UIImage(contentsOfFile: path)
             }.value
             await MainActor.run { self.image = loaded }
         }

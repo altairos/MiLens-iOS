@@ -1,4 +1,4 @@
-# ADR-0009：V1 MiLens Pro 权益规则
+# ADR-0009：V1 MiLens Pro 情感付费规则
 
 - 状态：已采纳
 - 日期：2026-08-09
@@ -6,24 +6,28 @@
 
 ## 决策
 
-V1 采用单一二元权益：`ProEntitlementStore.isPro`。Pro 只解锁以下两项能力：
+V1 采用单一二元权益 `ProEntitlementStore.isPro`，但免费用户可以完整体验核心情感链路：
 
-1. 完整拼豆工作室：多种风格、配色方案，以及 A4 图纸导出/分享。
-2. 完整图片编辑器：裁切、调色、抠图与文字工具。
+| 能力 | 免费版 | MiLens Pro |
+|---|---|---|
+| 宠物档案 | 1 个 | 最多 20 个 |
+| 拼豆图纸生成 | 每个本地自然日 5 次 | 不限次数 |
+| 基础图片编辑器 | 无限使用 | 无限使用 |
+| 成长时间线 | 最近 365 天 | 全部历史 |
+| 宠物卡片 | 免费 | 免费 |
 
-以下能力保持免费：宠物档案（沿用现有技术上限 20 个）、相册整理/扫描/质量评分/重复分组、成长时间线，以及宠物卡片创建和导出。
+拼豆配额只在生成成功后扣除；失败、取消和进入编辑器不扣次数。时间线旧数据永不删除，免费用户只看到最近一年，并在列表中看到 Pro 解锁提示。
 
-家庭共享是 StoreKit 产品配置提供的分发能力，不作为 App 内独立功能或额外门控；对外文案只能表述为 Apple 提供的家庭共享支持。
+## 未来计划权益
 
-## 不承诺的权益
-
-当前实现没有 Pro 专属的宠物数量上限、模板目录或独立“高清导出”档位，因此不再对外承诺“无限宠物档案”“高级创作模板”或模糊的“全部功能”。新增权益必须先更新本 ADR、`ProFeature`、门控测试和 App Store 元数据。
+高级创作模板与高清导出属于 V1.0 计划能力，不得伪装成当前已经交付的功能。付费墙可以标注“计划加入，Pro 用户上线后自动解锁”；App Store 元数据只宣传当前可用能力，待功能上线后再补充正式商店文案。
 
 ## 实现映射
 
-- `MiLens/Services/Store/ProFeature.swift`：Pro 功能清单与共享文案键。
-- `MiLens/App/Route.swift`：路由是否需要 Pro 的纯规则。
-- `MiLens/App/RootTabView.swift`：统一路由门控。
-- `MiLens/Views/Settings/PaywallView.swift`、`SettingsView.swift`：同一功能清单的展示。
-- `MiLensTests/RouteTests.swift`：免费/Pro 路由回归测试。
-- `docs/AppStore-metadata.md`：审核和商店文案的运营稿。
+- `MiLens/Services/Store/CommercialRules.swift`：配额、上限和时间线窗口。
+- `MiLens/Services/Store/ProFeature.swift`：付费墙/设置页当前 Pro 功能清单。
+- `MiLens/ViewModels/PetProfileViewModel.swift`：1/20 宠物档案上限。
+- `MiLens/ViewModels/BeadViewModel.swift`：每日 5 次成功生成配额。
+- `MiLens/ViewModels/TimelineViewModel.swift`、`TimelineAccessLogic`：365 天时间线窗口。
+- `MiLensTests/CommercialRulesTests.swift`、`MiLensKit/Tests/MiLensKitTests/BeadFlowLogicTests.swift`：商业规则回归测试。
+- `docs/AppStore-metadata.md`：商店和审核文案；未实现权益必须标注为未来计划。

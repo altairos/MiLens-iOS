@@ -2,10 +2,10 @@ import XCTest
 @testable import MiLens
 
 final class RouteTests: XCTestCase {
-    func testProRoutesAreGated() {
-        XCTAssertTrue(Route.editor(photoID: UUID()).requiresPro)
-        XCTAssertTrue(Route.beadPhotoPicker.requiresPro)
-        XCTAssertTrue(Route.beadPattern(photoID: UUID()).requiresPro)
+    func testCurrentRoutesRemainFreeToExplore() {
+        XCTAssertFalse(Route.editor(photoID: UUID()).requiresPro)
+        XCTAssertFalse(Route.beadPhotoPicker.requiresPro)
+        XCTAssertFalse(Route.beadPattern(photoID: UUID()).requiresPro)
     }
 
     func testFreeRoutesAreNotGated() {
@@ -18,10 +18,10 @@ final class RouteTests: XCTestCase {
     }
 
     func testProFeatureCatalogContainsOnlyImplementedV1Features() {
-        XCTAssertEqual(ProFeature.allCases, [.beadStudio, .photoEditor])
+        XCTAssertEqual(ProFeature.allCases, [.petProfiles, .beadGeneration, .timeline])
         XCTAssertEqual(
             ProFeature.allCases.map(\.localizationKey),
-            ["paywall.benefit.export", "paywall.benefit.create"]
+            ["paywall.benefit.profiles", "paywall.benefit.beadQuota", "paywall.benefit.timeline"]
         )
     }
 }

@@ -119,6 +119,9 @@ struct PaywallView: View {
                 benefitRow(text: String(localized: String.LocalizationValue(feature.localizationKey)))
             }
             benefitRow(text: String(localized: "paywall.benefit.family"))
+            Text(String(localized: "paywall.future.body"))
+                .font(.caption)
+                .foregroundStyle(Color.milensTextSecondary)
         }
     }
 

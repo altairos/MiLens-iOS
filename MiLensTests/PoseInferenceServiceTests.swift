@@ -20,12 +20,12 @@ final class PoseInferenceServiceTests: XCTestCase {
         /// 每次 predict 按序弹出一个输出组。
         var outputsQueue: [[Data]] = []
         private(set) var recordedInputs: [Data] = []
-        private(set) var inputInfos: [TensorInfo]
-        private(set) var outputInfos: [TensorInfo]
+        private let inputInfoList: [TensorInfo]
+        private let outputInfoList: [TensorInfo]
 
         init(inputInfos: [TensorInfo], outputInfos: [TensorInfo]) {
-            self.inputInfos = inputInfos
-            self.outputInfos = outputInfos
+            self.inputInfoList = inputInfos
+            self.outputInfoList = outputInfos
         }
 
         func load(from path: String) async throws { isLoaded = true }
@@ -35,6 +35,9 @@ final class PoseInferenceServiceTests: XCTestCase {
             guard !outputsQueue.isEmpty else { return [] }
             return outputsQueue.removeFirst()
         }
+
+        func inputInfos() -> [TensorInfo] { inputInfoList }
+        func outputInfos() -> [TensorInfo] { outputInfoList }
 
         func release() { isLoaded = false }
     }
@@ -84,9 +87,9 @@ final class PoseInferenceServiceTests: XCTestCase {
         ]
     }
 
-    /// 粗推理关键点 0 的归一化 x 坐标（峰值 96，crop 240 居中）：
-    /// sourceX = -24 + 48·240/192 = 6 → 6/192 = 0.03125。
-    private let coarseKeypoint0X = 0.03125
+    /// 粗推理关键点 0 的归一化 x 坐标（峰值 96，整图 bbox → cropSize=240 居中）：
+    /// sourceX = -24 + 48·240/192 = 36 → 36/192 = 0.1875。
+    private let coarseKeypoint0X = 0.1875
 
     // MARK: - 契约与降级
 
@@ -156,8 +159,9 @@ final class PoseInferenceServiceTests: XCTestCase {
         let result = try await service.detectPose(pixels: pixelBuffer(), width: inputSize, height: inputSize, bbox: nil)
         XCTAssertNotNil(result)
         XCTAssertEqual(engine.recordedInputs.count, 2, "稳定锚点应触发两次推理（粗 + 细化）")
-        // 细化 keypoint0：sourceX = -3.75 + 80·37.5/192 = 11.875 → 11.875/192 ≈ 0.0618
-        XCTAssertEqual(result!.keypoints[0].x, 0.0618, accuracy: 0.01, "应返回细化结果")
+        // 细化 keypoint0：faceBox(16,12,60) → cropSize=75、cropX=8.5
+        // sourceX = 8.5 + 80·75/192 = 39.75 → 39.75/192 ≈ 0.207
+        XCTAssertEqual(result!.keypoints[0].x, 0.20703125, accuracy: 0.001, "应返回细化结果")
         // 两次推理输入均为 192×192×3 float32（NCHW 预处理契约）
         for input in engine.recordedInputs {
             XCTAssertEqual(input.count, inputSize * inputSize * 3 * 4)
@@ -176,11 +180,17 @@ final class PoseInferenceServiceTests: XCTestCase {
 
     // MARK: - 输出绑定
 
-    /// 输出按张量名绑定而非数组顺序（输出数组 y 在前也能正确配对）。
+    /// 输出按张量名绑定而非数组顺序：info 列表乱序（simcc_y 在前）时，
+    /// 数据仍按引擎契约与 info 位置对齐返回，实现须按名字归类（不依赖 x 在第 0 位）。
     func testBindsOutputsByNameRegardlessOfOrder() async throws {
-        let engine = PoseMockEngine(inputInfos: imagesInputInfo(), outputInfos: simccInfos())
+        let engine = PoseMockEngine(
+            inputInfos: imagesInputInfo(),
+            outputInfos: [
+                TensorInfo(name: "simcc_y", shape: [1, numKeypoints, simccLength], dataType: .float32),
+                TensorInfo(name: "simcc_x", shape: [1, numKeypoints, simccLength], dataType: .float32)
+            ])
         let coarse = outputs(peaks: stableCoarsePeaks)
-        // 乱序：simcc_y 在前，simcc_x 在后（info 列表保持原顺序）
+        // 数据与 info 位置对齐（引擎契约 outputs[i] ↔ outputInfos[i]），但 simcc_x 不在第 0 位
         engine.outputsQueue = [[coarse[1], coarse[0]]]
         let service = PoseInferenceService(engine: engine)
         let result = try await service.detectPose(pixels: pixelBuffer(), width: inputSize, height: inputSize, bbox: nil)

@@ -32,7 +32,7 @@ final class AppTabTests: XCTestCase {
 
 /// P1.1：路由枚举 Route 纯逻辑测试（DESIGN.md §6）。
 /// 覆盖 NavigationStack 类型安全导航所需的 Hashable/Equatable 行为。
-final class RouteTests: XCTestCase {
+final class RouteEqualityTests: XCTestCase {
     func testSamePhotoViewAreEqual() {
         let id = UUID()
         XCTAssertEqual(Route.photoView(photoID: id), Route.photoView(photoID: id))

@@ -276,7 +276,8 @@ struct EditorTextPanelView: View {
 
     /// 添加模式（对应源端文本添加工具 UI）。
     private func textAddPanel(textVM: EditorTextPanelVM) -> some View {
-        VStack(spacing: Spacing.sm) {
+        @Bindable var textVM = textVM
+        return VStack(spacing: Spacing.sm) {
             TextField("输入文字", text: $textVM.textInput)
                 .font(.body)
                 .foregroundStyle(.white)

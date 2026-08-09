@@ -7,10 +7,16 @@ import SwiftData
 @MainActor
 final class PetRepositoryTests: XCTestCase {
 
+    /// 保活已创建的容器：ModelContext 不持有 ModelContainer（RepositoryEnvironment 同款教训），
+    /// 调用方若只取 repo 而丢弃 container（如 `let (repo, _)`），save/fetch 会触发
+    /// SwiftData 内部 SIGTRAP。数组持有到测试类生命周期结束，内存可忽略。
+    private var keepAlive: [ModelContainer] = []
+
     private func makeRepo() -> (SwiftDataPetRepository, ModelContainer) {
         let schema = Schema(versionedSchema: SchemaV1.self)
         let config = ModelConfiguration(isStoredInMemoryOnly: true)
         let container = try! ModelContainer(for: schema, configurations: [config])
+        keepAlive.append(container)
         let repo = SwiftDataPetRepository(context: container.mainContext)
         return (repo, container)
     }

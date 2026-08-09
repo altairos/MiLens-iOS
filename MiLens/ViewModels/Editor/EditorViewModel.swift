@@ -50,10 +50,36 @@ final class EditorViewModel {
 
     /// 文档与历史协作对象（子 VM 共享）。
     let document = EditorDocumentController()
-    let cropVM: EditorCropPanelVM
-    let adjustVM: EditorAdjustPanelVM
-    let textVM: EditorTextPanelVM
-    let cutoutVM: EditorCutoutPanelVM
+    /// 工具子 VM（M2 拆分）。init 阶段 self 尚未完整初始化无法直接传 owner，
+    /// 故延迟到首次访问时创建并注入（语义与 init 创建一致）。
+    private var cropVMStorage: EditorCropPanelVM?
+    private var adjustVMStorage: EditorAdjustPanelVM?
+    private var textVMStorage: EditorTextPanelVM?
+    private var cutoutVMStorage: EditorCutoutPanelVM?
+    var cropVM: EditorCropPanelVM {
+        if let vm = cropVMStorage { return vm }
+        let vm = EditorCropPanelVM(owner: self)
+        cropVMStorage = vm
+        return vm
+    }
+    var adjustVM: EditorAdjustPanelVM {
+        if let vm = adjustVMStorage { return vm }
+        let vm = EditorAdjustPanelVM(owner: self)
+        adjustVMStorage = vm
+        return vm
+    }
+    var textVM: EditorTextPanelVM {
+        if let vm = textVMStorage { return vm }
+        let vm = EditorTextPanelVM(owner: self)
+        textVMStorage = vm
+        return vm
+    }
+    var cutoutVM: EditorCutoutPanelVM {
+        if let vm = cutoutVMStorage { return vm }
+        let vm = EditorCutoutPanelVM(owner: self)
+        cutoutVMStorage = vm
+        return vm
+    }
 
     // MARK: - 照片状态
 
@@ -114,10 +140,7 @@ final class EditorViewModel {
         self.visionService = visionService
         self.imageProcessor = imageProcessor
         self.saveService = saveService
-        cropVM = EditorCropPanelVM(owner: self)
-        adjustVM = EditorAdjustPanelVM(owner: self)
-        textVM = EditorTextPanelVM(owner: self)
-        cutoutVM = EditorCutoutPanelVM(owner: self)
+        // 工具子 VM 在首次访问时创建（见 cropVM 等注释）
     }
 
     // MARK: - 加载
@@ -346,14 +369,14 @@ final class EditorViewModel {
     // MARK: - 撤销 / 重做
 
     func undo() {
-        document.restoreHistory()
+        document.undoHistory()
         syncState()
         // 撤销/重做后显示图必须重算（undo 恢复 sharpness=0 → 回到未锐化底图）。
         refreshPhotoImage()
     }
 
     func redo() {
-        document.restoreHistory()
+        document.redoHistory()
         syncState()
         refreshPhotoImage()
     }

@@ -37,8 +37,14 @@ final class EditorDocumentController {
         history.initialize(document.serialize() ?? "[]")
     }
 
-    func restoreHistory() {
-        if let json = history.current { document.restore(json) }
+    /// 撤销：弹出 undo 栈顶快照恢复（对应源端 history.undo）。
+    func undoHistory() {
+        if let entry = history.undo() { document.restore(entry.snapshot) }
+    }
+
+    /// 重做：弹出 redo 栈顶快照恢复（对应源端 history.redo）。
+    func redoHistory() {
+        if let entry = history.redo() { document.restore(entry.snapshot) }
     }
 
     func beginGesture() { history.beginGesture() }

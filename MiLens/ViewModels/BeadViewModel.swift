@@ -183,7 +183,7 @@ final class BeadViewModel {
                             do {
                                 if let pose = try await poseService.detectPose(
                                     pixels: pixels, width: w, height: h, bbox: bbox) {
-                                    subject.pose = adjustPoseForCrop(
+                                    subject?.pose = adjustPoseForCrop(
                                         pose, sourceWidth: w, sourceHeight: h,
                                         cropX: cropParams.cropX, cropY: cropParams.cropY,
                                         cropSize: cropParams.cropSize)

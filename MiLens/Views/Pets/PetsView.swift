@@ -172,7 +172,7 @@ private struct PetCard: View {
         // M4：头像为装饰性图形，合并为单一无障碍元素（名称由卡片内 Text 读出）。
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(pet.avatarPath.isEmpty
-            ? "\(PetProfileLogic.speciesDisplayName(pet.species))头像"
+            ? "\(PetDisplayLogic.speciesDisplayName(pet.species))头像"
             : "\(pet.name)的头像照片")
     }
 

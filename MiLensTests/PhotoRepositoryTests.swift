@@ -7,10 +7,16 @@ import SwiftData
 @MainActor
 final class PhotoRepositoryTests: XCTestCase {
 
+    /// 保活已创建的容器：ModelContext 不持有 ModelContainer（RepositoryEnvironment 同款教训），
+    /// 调用方若只取 repo 而丢弃 container（如 `let (repo, _)`），save/fetch 会触发
+    /// SwiftData 内部 SIGTRAP。数组持有到测试类生命周期结束，内存可忽略。
+    private var keepAlive: [ModelContainer] = []
+
     private func makeRepo() -> (SwiftDataPhotoRepository, ModelContainer) {
         let schema = Schema(versionedSchema: SchemaV1.self)
         let config = ModelConfiguration(isStoredInMemoryOnly: true)
         let container = try! ModelContainer(for: schema, configurations: [config])
+        keepAlive.append(container)
         let repo = SwiftDataPhotoRepository(context: container.mainContext)
         return (repo, container)
     }
@@ -182,6 +188,9 @@ final class PhotoRepositoryTests: XCTestCase {
     // MARK: - 保存事务（saveOrRollback）
 
     /// 磁盘容器：唯一约束仅在磁盘 store 生效（in-memory store 不校验 @Attribute(.unique)）。
+    /// 注意：目录不在此删除——container 被 keepAlive 保活到测试类结束，
+    /// 提前 removeItem 会触发 sqlite「vnode unlinked while in use」；
+    /// 目录位于模拟器 tmp（UUID 命名），由系统自动清理。
     private func makeDiskRepo() throws -> (SwiftDataPhotoRepository, ModelContainer, URL) {
         let dir = FileManager.default.temporaryDirectory
             .appendingPathComponent("PhotoRepositoryTests-\(UUID().uuidString)")
@@ -189,14 +198,15 @@ final class PhotoRepositoryTests: XCTestCase {
         let schema = Schema(versionedSchema: SchemaV1.self)
         let config = ModelConfiguration(url: dir.appendingPathComponent("test.sqlite"))
         let container = try ModelContainer(for: schema, configurations: [config])
+        keepAlive.append(container)
         return (SwiftDataPhotoRepository(context: container.mainContext), container, dir)
     }
 
-    /// 回归（评审 P）：唯一约束冲突后必须回滚 pending changes——
+    /// 回归（评审 P）：originalURI 冲突必须拒绝入库并保持上下文干净——
+    /// SwiftData unique 冲突是 upsert（静默覆盖），Repository 显式拦截抛错（insertPhoto 注释）。
     /// 失败对象不残留，同一上下文的下一批导入可继续成功。
     func testUniqueConflictRollsBackSoNextInsertSucceeds() throws {
-        let (repo, _, dir) = try makeDiskRepo()
-        defer { try? FileManager.default.removeItem(at: dir) }
+        let (repo, _, _) = try makeDiskRepo()
 
         // 先入库占用 originalURI "dup"
         try repo.insertPhoto(Photo(uri: "first", originalURI: "dup"))
@@ -213,9 +223,9 @@ final class PhotoRepositoryTests: XCTestCase {
     }
 
     /// 批量导入含冲突条目：整批失败并回滚，下一批可继续成功（评审 P 回归）。
+    /// SwiftData unique 冲突是 upsert（静默覆盖），Repository 显式拦截抛错（insertPhotos 注释）。
     func testUniqueConflictInBatchRollsBackAndNextBatchSucceeds() throws {
-        let (repo, _, dir) = try makeDiskRepo()
-        defer { try? FileManager.default.removeItem(at: dir) }
+        let (repo, _, _) = try makeDiskRepo()
 
         try repo.insertPhoto(Photo(uri: "base", originalURI: "dup"))
         let batch = [

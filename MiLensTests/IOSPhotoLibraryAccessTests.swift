@@ -174,7 +174,8 @@ final class IOSPhotoLibraryAccessTests: XCTestCase {
         let payload = Data([0x89, 0x50, 0x4E, 0x47])
 
         let task = Task { try await access.loadOriginalData(PHAsset()) }
-        XCTAssertTrue(await waitUntil { manager.dataHandler != nil })
+        let ready = await waitUntil { manager.dataHandler != nil }
+        XCTAssertTrue(ready)
         manager.dataHandler?(payload, [:])
 
         let result = try await task.value
@@ -186,7 +187,8 @@ final class IOSPhotoLibraryAccessTests: XCTestCase {
         let access = IOSPhotoLibraryAccess(manager: manager)
 
         let task = Task { try await access.loadOriginalData(PHAsset()) }
-        XCTAssertTrue(await waitUntil { manager.dataHandler != nil })
+        let ready = await waitUntil { manager.dataHandler != nil }
+        XCTAssertTrue(ready)
         manager.dataHandler?(nil, [PHImageCancelledKey: true])
 
         do {
@@ -206,7 +208,8 @@ final class IOSPhotoLibraryAccessTests: XCTestCase {
         let payload = Data([1, 2, 3])
 
         let task = Task { try await access.loadOriginalData(PHAsset()) }
-        XCTAssertTrue(await waitUntil { manager.dataHandler != nil })
+        let ready = await waitUntil { manager.dataHandler != nil }
+        XCTAssertTrue(ready)
         manager.dataHandler?(Data([9]), [PHImageResultIsDegradedKey: true])
         // 短暂让出后任务不应已完成（degraded 帧被忽略）
         try? await Task.sleep(nanoseconds: 50_000_000)
@@ -223,7 +226,8 @@ final class IOSPhotoLibraryAccessTests: XCTestCase {
         let access = IOSPhotoLibraryAccess(manager: manager)
 
         let task = Task { try await access.loadOriginalData(PHAsset()) }
-        XCTAssertTrue(await waitUntil { manager.dataHandler != nil })
+        let ready = await waitUntil { manager.dataHandler != nil }
+        XCTAssertTrue(ready)
         let issued = manager.issuedIDs
         XCTAssertFalse(issued.isEmpty)
 
@@ -247,7 +251,8 @@ final class IOSPhotoLibraryAccessTests: XCTestCase {
         let source = makeImage(width: 8, height: 8)
 
         let task = Task { try await access.loadScaledImage(PHAsset(), maxDimension: 16) }
-        XCTAssertTrue(await waitUntil { manager.imageHandler != nil })
+        let ready = await waitUntil { manager.imageHandler != nil }
+        XCTAssertTrue(ready)
         manager.imageHandler?(source, [PHImageResultIsDegradedKey: true])
         manager.imageHandler?(source, [:])
 
@@ -262,7 +267,8 @@ final class IOSPhotoLibraryAccessTests: XCTestCase {
         let access = IOSPhotoLibraryAccess(manager: manager)
 
         let task = Task { try await access.loadScaledImage(PHAsset(), maxDimension: 16) }
-        XCTAssertTrue(await waitUntil { manager.imageHandler != nil })
+        let ready = await waitUntil { manager.imageHandler != nil }
+        XCTAssertTrue(ready)
         manager.imageHandler?(nil, [PHImageErrorKey: FakeError()])
 
         do {

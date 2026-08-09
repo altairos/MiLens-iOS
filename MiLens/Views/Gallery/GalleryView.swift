@@ -405,7 +405,7 @@ private struct PhotoThumbnailCell: View {
 
     private var accessibilityText: String {
         var text = "照片"
-        if let takenAt {
+        if let takenAt = photo.takenAt {
             let comps = Calendar.current.dateComponents([.month, .day], from: takenAt)
             if let month = comps.month, let day = comps.day {
                 text += "，\(month)月\(day)日"

@@ -59,3 +59,32 @@ extension EnvironmentValues {
         set { self[PhotoRepositoryKey.self] = newValue }
     }
 }
+
+// MARK: - ViewModelFactory（分层收敛：View 只依赖工厂，见 App/ViewModelFactory.swift）
+
+private struct ViewModelFactoryKey: EnvironmentKey {
+    /// 默认工厂（Preview/测试 host）：in-memory 容器 + mock 平台适配，
+    /// 与 RepositoryEnvironment/PlatformEnvironment 的既有默认值语义一致。
+    @MainActor
+    static var defaultValue: ViewModelFactory {
+        ViewModelFactory(
+            container: FallbackContainer.shared,
+            photoRepo: SwiftDataPhotoRepository(context: FallbackContainer.shared.mainContext),
+            petRepo: SwiftDataPetRepository(context: FallbackContainer.shared.mainContext),
+            photoLibrary: MockPhotoLibraryAccess(),
+            vision: MockVisionService(),
+            fileStorage: MockFileStorage(),
+            clipService: nil,
+            poseService: nil,
+            cursorStore: UserDefaultsScanCursorStore(),
+            mediaLifecycle: nil
+        )
+    }
+}
+
+extension EnvironmentValues {
+    var viewModelFactory: ViewModelFactory {
+        get { self[ViewModelFactoryKey.self] }
+        set { self[ViewModelFactoryKey.self] = newValue }
+    }
+}

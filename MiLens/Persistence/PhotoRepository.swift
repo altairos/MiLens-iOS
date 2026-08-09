@@ -14,6 +14,19 @@ struct DuplicateMarkGroup: Equatable, Sendable {
     let duplicateIDs: [UUID]
 }
 
+/// 照片仓储错误。
+enum PhotoRepositoryError: LocalizedError {
+    /// originalURI 已存在（导入唯一入库路径的防御性检查，见 insertPhoto 注释）。
+    case duplicateOriginalURI(String)
+
+    var errorDescription: String? {
+        switch self {
+        case .duplicateOriginalURI(let uri):
+            return "已存在相同原图 URI 的照片记录：\(uri)"
+        }
+    }
+}
+
 /// 照片仓储协议（@MainActor —— SwiftData ModelContext 隔离）。
 @MainActor
 protocol PhotoRepositoryProtocol {
@@ -161,13 +174,34 @@ final class SwiftDataPhotoRepository: PhotoRepositoryProtocol {
     }
 
     func insertPhoto(_ photo: Photo) throws {
+        // SwiftData @Attribute(.unique) 冲突是 upsert（静默覆盖）而非抛错——
+        // 扫描/导入虽已在调用方查重，这里仍是唯一入库路径的最后防线：
+        // 显式拦截已存在的 originalURI，避免已入库记录被静默覆盖丢失（评审 P 回归）。
+        if try photoExists(originalURI: photo.originalURI) {
+            throw PhotoRepositoryError.duplicateOriginalURI(photo.originalURI)
+        }
         context.insert(photo)
         try context.saveOrRollback()
     }
 
     func insertPhotos(_ photos: [Photo]) throws {
-        for photo in photos { context.insert(photo) }
+        for photo in photos {
+            // 逐个检查（含本批已 insert 的 pending 对象）：发现冲突整批回滚，不留残留
+            if try photoExists(originalURI: photo.originalURI) {
+                context.rollback()
+                throw PhotoRepositoryError.duplicateOriginalURI(photo.originalURI)
+            }
+            context.insert(photo)
+        }
         try context.saveOrRollback()
+    }
+
+    /// originalURI 是否已入库（插入前防御检查；unique 索引按列查询，开销可忽略）。
+    private func photoExists(originalURI: String) throws -> Bool {
+        let descriptor = FetchDescriptor<Photo>(
+            predicate: #Predicate { $0.originalURI == originalURI }
+        )
+        return try context.fetchCount(descriptor) > 0
     }
 
     func deletePhoto(_ photo: Photo) throws {

@@ -157,6 +157,12 @@ final class IOSPhotoLibraryAccess: PhotoLibraryAccess, @unchecked Sendable {
         let box = RequestIDBox()
         return try await withTaskCancellationHandler {
             try await withCheckedThrowingContinuation { continuation in
+                // 先登记取消恢复：任务取消时主动 resume continuation（CancellationError），
+                // 不依赖 PHImageManager 必然回调；与结果回调共用 beginResume() 单次恢复权，
+                // 谁先到都不影响正确性（防二次 resume 崩溃）。
+                box.registerCancelResume {
+                    Self.resumeCancellation(box, continuation)
+                }
                 box.set(
                     manager.requestImageDataAndOrientation(
                         for: asset, options: nil
@@ -165,7 +171,7 @@ final class IOSPhotoLibraryAccess: PhotoLibraryAccess, @unchecked Sendable {
                             value: data,
                             info: info,
                             // 回调可能不在原 Task 上下文执行，isCancelled 仅作额外检查；
-                            // 取消语义由 RequestIDBox 取消墓碑保证（评审阻塞项）。
+                            // 取消语义由 RequestIDBox 取消墓碑 + 取消恢复保证（评审阻塞项）。
                             isCancelled: Task.isCancelled,
                             fallbackError: PhotoLibraryError.imageDataUnavailable(asset.localIdentifier)
                         )
@@ -191,8 +197,14 @@ final class IOSPhotoLibraryAccess: PhotoLibraryAccess, @unchecked Sendable {
         let targetSize = CGSize(width: maxDimension, height: maxDimension)
 
         let box = RequestIDBox()
-        let image = try await withTaskCancellationHandler {
+        let image: UIImage = try await withTaskCancellationHandler {
             try await withCheckedThrowingContinuation { continuation in
+                // 先登记取消恢复：任务取消时主动 resume continuation（CancellationError），
+                // 不依赖 PHImageManager 必然回调；与结果回调共用 beginResume() 单次恢复权，
+                // 谁先到都不影响正确性（防二次 resume 崩溃）。
+                box.registerCancelResume {
+                    Self.resumeCancellation(box, continuation)
+                }
                 box.set(
                     manager.requestImage(
                         for: asset, targetSize: targetSize, contentMode: .aspectFit, options: options
@@ -215,6 +227,17 @@ final class IOSPhotoLibraryAccess: PhotoLibraryAccess, @unchecked Sendable {
             throw PhotoLibraryError.imageDataUnavailable(asset.localIdentifier)
         }
         return jpeg
+    }
+
+    /// 取消恢复：任务取消时把 continuation resume 为 CancellationError。
+    /// 与结果回调共用 beginResume() 单次恢复权，二者谁先到都只恢复一次（防二次 resume）。
+    /// static：不捕获 self，闭包保持值捕获（Sendable 干净）。
+    private static func resumeCancellation<Value>(
+        _ box: RequestIDBox,
+        _ continuation: CheckedContinuation<Value, Error>
+    ) {
+        guard box.beginResume() else { return }
+        continuation.resume(throwing: CancellationError())
     }
 
     /// continuation 单次恢复：degraded 中间帧不消费恢复权（继续等最终帧），
@@ -267,12 +290,15 @@ enum ImageRequestOutcome<Value> {
 /// 请求 ID 传递盒：onCancel 可能先于 request 发起执行（此时无 ID 可取消），
 /// 由「取消墓碑」兜底——set 时若取消已到达则**立即取消新 ID**，不留不可取消的请求
 /// （评审阻塞项）；id/isCancelled/resumed 的读写以 NSLock 保护（单段临界区，无嵌套）。
+/// 取消时还须主动恢复 continuation（系统/测试 fake 不保证回调），否则任务永久挂起。
 /// internal 供取消竞态单测。
 final class RequestIDBox: @unchecked Sendable {
     private let lock = NSLock()
     private var id: PHImageRequestID = PHInvalidImageRequestID
     private var isCancelled = false
     private var resumed = false
+    /// 取消时执行的 continuation 恢复闭包（由调用方拿到 continuation 后注册）。
+    private var onCancelResume: (() -> Void)?
 
     /// 登记新请求 ID；若取消已先到达，立即取消该 ID 并返回 true（测试可断言）。
     @discardableResult
@@ -289,14 +315,37 @@ final class RequestIDBox: @unchecked Sendable {
         return cancelled
     }
 
-    /// 取消当前请求并记录取消墓碑（后续 set 的新 ID 会被立即取消）。
+    /// 登记取消时的 continuation 恢复动作。
+    /// 若取消已先到（墓碑已置位），立即执行该动作（保证 continuation 必被恢复，
+    /// 不依赖 PHImageManager 回调，否则 fake/极端时序下任务永久挂起）。
+    func registerCancelResume(_ action: @escaping () -> Void) {
+        lock.lock()
+        let alreadyCancelled = isCancelled
+        if !alreadyCancelled {
+            onCancelResume = action
+        }
+        lock.unlock()
+        if alreadyCancelled {
+            action()
+        }
+    }
+
+    /// 取消当前请求并记录取消墓碑（后续 set 的新 ID 会被立即取消）；
+    /// 同时执行取消恢复——不依赖 PHImageManager 必然回调 PHImageCancelledKey
+    /// （真实系统在极端时序、fake manager 不回调时都会导致任务永久挂起）。
     func cancel(manager: any PHImageRequesting) {
         lock.lock()
         isCancelled = true
         let current = id
+        let resume = onCancelResume
+        onCancelResume = nil
         lock.unlock()
-        guard current != PHInvalidImageRequestID else { return }
-        manager.cancelImageRequest(current)
+        if current != PHInvalidImageRequestID {
+            manager.cancelImageRequest(current)
+        }
+        // 先取消系统请求（停止 iCloud 下载等），再恢复 continuation；
+        // resumeIfNeeded 经 beginResume() 与结果回调互斥，二者谁先到均安全。
+        resume?()
     }
 
     /// continuation 单次恢复判定（锁保护，多回调/多线程安全）。

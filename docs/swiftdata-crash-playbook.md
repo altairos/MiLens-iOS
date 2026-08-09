@@ -3,6 +3,9 @@
 本手册记录 iOS 26.5 + SwiftData 已踩过的确定性崩溃类型与定位路径。
 **跨机器协作参考**：不依赖任何 AI 会话上下文，只依赖仓库本身。
 
+Swift 并发（`async/await` / `Continuation` / `Task` 取消）陷阱见并列的
+[swift-concurrency-playbook.md](swift-concurrency-playbook.md)。
+
 ---
 
 ## 原则：先确认是不是"既有问题"

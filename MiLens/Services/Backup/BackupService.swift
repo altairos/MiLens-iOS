@@ -4,8 +4,8 @@
 //  通过 ShareSheet 导出到 Files/iCloud Drive/AirDrop，完全离线。
 //  V1 仅预留接口，不实现实际打包逻辑。
 //
-//  隐私原则：照片不离开设备。ShareSheet 本身不联网，
-//  用户自行决定存储位置。
+//  隐私原则：App 不主动上传照片。ShareSheet 由用户自行决定存储位置，
+//  编辑产物可能随用户启用的系统备份保存。
 
 import Foundation
 

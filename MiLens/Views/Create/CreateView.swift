@@ -231,7 +231,9 @@ private struct BeadExampleVisual: View {
             }
         }
         .task(id: path) {
-            guard image == nil, !path.isEmpty else { return }
+            // 路径变化时清除旧图，避免照片编辑后 URI 改变仍显示旧缩略图。
+            guard !path.isEmpty else { return }
+            image = nil
             image = await Self.loadPixelated(path: path)
         }
         .accessibilityHidden(true)
@@ -286,7 +288,9 @@ private struct PetCardExampleVisual: View {
                 .padding(.bottom, Spacing.sm)
         }
         .task(id: path) {
-            guard image == nil, !path.isEmpty else { return }
+            // 路径变化时清除旧图，避免照片编辑后 URI 改变仍显示旧缩略图。
+            guard !path.isEmpty else { return }
+            image = nil
             image = await Task.detached(priority: .utility) {
                 UIImage(contentsOfFile: path)
             }.value

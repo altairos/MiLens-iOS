@@ -72,10 +72,11 @@ apt-get install -y --no-install-recommends \
 
 ### 2.2 云端：App 全量编译 + 上架（GitHub Actions）
 
-仓库 https://github.com/altairos/MiLens-iOS（私有）。推送即触发 `.github/workflows/ci.yml`（PR 与 main/master push 均运行两个作业）：
+仓库 https://github.com/altairos/MiLens-iOS（私有）。推送即触发 `.github/workflows/ci.yml`（PR 与 main/master push 均运行三个作业）：
 
 1. `MiLensKit (Linux)`——ubuntu-24.04 上 `swift build/test`，约 50s。
-2. `MiLens App (macOS)`——macos-15 runner 上 `tools/fetch-models.sh`（从 Release 下载生产模型 + SHA256 校验，`actions/cache` 缓存 `MiLens/Resources/Models`，命中则幂等跳过）→ **再** `xcodegen generate`（顺序约束：XcodeGen 生成工程时模型必须已存在，否则 `.mlpackage` 不会进入 Resources Build Phase，正式包会静默降级到 Vision）→ `xcodebuild build` → **产物断言**（`tools/assert-built-models.sh` 校验 `.app` 内含编译后 `.mlmodelc`，防静默降级）→ `xcodebuild test`（含覆盖率，`-resultBundlePath build/TestResult.xcresult`）→ **覆盖率门禁**（`tools/check-coverage.sh --selftest` 固定 fixture 自测 + 解析 xcresult，按 MiLens/MiLensKit 目标与基线比较，任一指标不达标即失败；基线为占位值，首次实测后校准，见脚本头注释），约 4-5 分钟（依赖 MiLensKit 作业通过）。
+2. `Lint (UI tokens + i18n)`——ubuntu-24.04 上 `check-ui-tokens.py`（色值硬门禁）+ `localization.py check`（key 完整性），约 10s。
+3. `MiLens App (macOS)`——macos-15 runner 上 `tools/fetch-models.sh`（从 Release 下载生产模型 + SHA256 校验，`actions/cache` 缓存 `MiLens/Resources/Models`，命中则幂等跳过）→ **再** `xcodegen generate`（顺序约束：XcodeGen 生成工程时模型必须已存在，否则 `.mlpackage` 不会进入 Resources Build Phase，正式包会静默降级到 Vision）→ `xcodebuild build` → **产物断言**（`tools/assert-built-models.sh` 校验 `.app` 内含编译后 `.mlmodelc`，防静默降级）→ `xcodebuild test`（含覆盖率，`-resultBundlePath build/TestResult.xcresult`）→ **覆盖率门禁**（`tools/check-coverage.sh --selftest` 固定 fixture 自测 + 解析 xcresult，按 MiLens/MiLensKit 目标与基线比较，任一指标不达标即失败；基线为占位值，首次实测后校准，见脚本头注释），约 4-5 分钟（依赖 MiLensKit + Lint 作业通过）。
 
 查看：`gh run list --repo altairos/MiLens-iOS` 或 https://github.com/altairos/MiLens-iOS/actions。
 
@@ -91,7 +92,7 @@ macos-15 runner
   └─ xcrun altool upload                  ← release 作业（已实现，苹果官方上传，免费）
 ```
 
-`release` 作业（`.github/workflows/ci.yml`）由 `workflow_dispatch` 手动触发，质量门禁为 kit + app 作业全绿后才运行。触发时填写：`version`（MARKETING_VERSION）、`buildNumber`（CURRENT_PROJECT_VERSION，须大于 App Store Connect 已有值）、`upload`（false = 仅生成签名 IPA 供人工验证，不上传）。
+`release` 作业（`.github/workflows/ci.yml`）由 `workflow_dispatch` 手动触发，质量门禁为 kit + lint + app 作业全绿后才运行。触发时填写：`version`（MARKETING_VERSION）、`buildNumber`（CURRENT_PROJECT_VERSION，须大于 App Store Connect 已有值）、`upload`（false = 仅生成签名 IPA 供人工验证，不上传）。
 
 **Secrets 配置**（仓库 Settings → Secrets and variables → Actions，一次性）：
 
@@ -310,7 +311,9 @@ UI 文案与 Info.plist 权限说明用 Apple String Catalog（`.xcstrings`）�
 
 ### P2
 
-- 2026-08-09：**本机 macOS 全量验证（当前最新基准）**——`xcodegen generate` + `xcodebuild build`（`SWIFT_STRICT_CONCURRENCY=complete`）**BUILD SUCCEEDED**；MiLensKit `swift test` **594/594 全绿**；MiLens App `xcodebuild test` **604/604 全绿、0 失败**（含修复 `ProEntitlementStoreTests.testStreamPushStillUpdatesStatus` flaky——独立 `ListenerRegistry` 隔离 `ObjectIdentifier` 复用）；MiLensUITests 2 冒烟用例；`localization.py check` 全绿（Localizable 144 + InfoPlist 3）。下方历史快照（400/400、585/585 等）为阶段性记录，当前状态以本条为准。
+- 2026-08-09：**本机 macOS 全量验证（高优先级修复前基准）**——`xcodegen generate` + `xcodebuild build`（`SWIFT_STRICT_CONCURRENCY=complete`）**BUILD SUCCEEDED**；MiLensKit `swift test` **594/594 全绿**；MiLens App `xcodebuild test` **604/604 全绿、0 失败**（含修复 `ProEntitlementStoreTests.testStreamPushStillUpdatesStatus` flaky——独立 `ListenerRegistry` 隔离 `ObjectIdentifier` 复用）；MiLensUITests 2 冒烟用例；`localization.py check` 全绿（Localizable 150 + InfoPlist 3）。该快照早于 2026-08-10 高优先级修复，不能替代当前 HEAD 的 macOS 验证。
+
+- 2026-08-10：**高优先级缺陷修复（本地验证）**——5 项代码修复 + 1 项门禁修复 + 测试补充，均在 Windows 本地验证（App 编译/App 层测试依赖 iOS SDK，未执行）：①**ImportService 配额去重缺陷**：旧逻辑 `uniqueRequested` 只排除数据库已有项、未去重本次输入，导致免费用户传入重复 ID 被误算为超额导入弹出付费墙。改为先生成「有序去重→排除已有→限制批量」的候选列表再计算配额，批次截断不再错误归因为配额拦截。新增 3 个配额边界测试。②**ProEntitlementStore 墓碑误杀**：`cancel()` 无论是否找到任务都写入 `cancelledIDs`，对象释放后 `ObjectIdentifier` 可能复用导致新监听被误取消。改为 UUID 令牌（全局唯一不可复用）+ 条件墓碑（仅在 cancel 先于 register 的竞态时创建）。测试从 `ObjectIdentifier` 改为 `UUID`，新增墓碑不复杀用例。③**BeadViewModel 并发规则**：`export()` 的 `Task.detached` 闭包内读取 `self.isPro`（MainActor 隔离），改为在主 Actor 提前计算 `includeWatermark` 布尔值再捕获进闭包。④**GalleryView/CreateView 缩略图陈旧**：`ThumbnailImage` 使用不带 ID 的 `.task`，照片编辑后 URI 改变不重启加载；Create 页 `.task(id: path)` 因 `guard image == nil` 拒绝重载。统一改为 `.task(id: path)` + 路径变化时清除旧图。⑤**SharePreviewSheet 字面色**：3 处 `Color(red:)` 品牌色硬门禁违规，提取为 `Color.milensBrandWechat` / `milensBrandRedNote` token（Theme 目录豁免）。`check-ui-tokens.py` 0 ERROR、`localization.py check` 150+3 全绿。
 
 - 2026-08-09：**审计收口 M2-M4 + L1-L5 本地验证（WSL2 Ubuntu-24.04 + Swift 6.1.3）**——`MiLensKit` 开启 `-strict-concurrency=complete` 后 `swift build` **零警告**，`swift test --parallel` 全绿（585/585，EXIT=0，含 L4 domain 判定 4 用例 + L5 脱敏 3 用例）；App 层 6 个改动文件（`MiLensApp`/`MediaLifecycleService`/`ScanService`/`ImportService`/`IOSPhotoLibraryAccess`/`MediaLifecycleServiceTests`）`swiftc -parse` 全过；App 编译/App 层测试依赖 iOS SDK，本机无法执行，待 CI（未执行）。
 

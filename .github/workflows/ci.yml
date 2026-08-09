@@ -58,11 +58,26 @@ jobs:
       - name: Test
         run: swift test --parallel
 
+  # ── Lint：UI token 纪律 + 本地化校验（Python 脚本，Linux 快速运行）──
+  lint:
+    name: Lint (UI tokens + i18n)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+      - name: Check UI token discipline
+        run: python tools/check-ui-tokens.py
+      - name: Check localization
+        run: python tools/localization.py check MiLens/Resources/Localizable.xcstrings MiLens/Resources/InfoPlist.xcstrings --project-yml project.yml --source-root MiLens
+
   # ── MiLens App：macOS runner 上 xcodegen + xcodebuild（PR 与 main/master push 均运行）──
   app:
     name: MiLens App (macOS)
     runs-on: macos-15
-    needs: kit
+    needs: [kit, lint]
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4

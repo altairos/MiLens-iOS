@@ -592,7 +592,7 @@
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "照片不离开设备"
+            "value" : "照片不主动上传"
           }
         }
       }
@@ -603,7 +603,7 @@
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "所有照片与分析数据只保存在你的 iPhone 上。"
+            "value" : "App 不会主动上传照片；编辑产物可能随用户启用的系统备份保存。"
           }
         }
       }

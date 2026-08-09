@@ -71,4 +71,11 @@ extension Color {
     static let milensSeparator = Color("Separator")
     /// 卡片描边/输入框边（浅：#E5DFD8 / 深：#383129）
     static let milensBorder = Color("Border")
+
+    // MARK: - Brand 社交平台品牌色（仅用于分享引导行平台图标着色）
+
+    /// 微信/朋友圈品牌绿（#11B5A0 近似）
+    static let milensBrandWechat = Color(red: 0.07, green: 0.60, blue: 0.52)
+    /// 小红书品牌红（#F2446B 近似）
+    static let milensBrandRedNote = Color(red: 0.95, green: 0.27, blue: 0.42)
 }

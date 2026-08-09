@@ -57,10 +57,10 @@ struct SharePreviewSheet: View {
 
             // 平台引导行
             HStack(spacing: Spacing.xl) {
-                platformButton(icon: "message.fill", label: "微信", tint: Color(red: 0.07, green: 0.60, blue: 0.52))
-                platformButton(icon: "person.2.fill", label: "朋友圈", tint: Color(red: 0.07, green: 0.60, blue: 0.52))
-                platformButton(icon: "book.fill", label: "小红书", tint: Color(red: 0.95, green: 0.27, blue: 0.42))
-                platformButton(icon: "music.note", label: "抖音", tint: Color.black)
+                platformButton(icon: "message.fill", label: "微信", tint: .milensBrandWechat)
+                platformButton(icon: "person.2.fill", label: "朋友圈", tint: .milensBrandWechat)
+                platformButton(icon: "book.fill", label: "小红书", tint: .milensBrandRedNote)
+                platformButton(icon: "music.note", label: "抖音", tint: .black)
             }
             .padding(.horizontal, Spacing.pagePad)
             .padding(.bottom, Spacing.lg)

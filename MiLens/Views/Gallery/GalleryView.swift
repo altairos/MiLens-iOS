@@ -447,15 +447,18 @@ struct ThumbnailImage: View {
                     .overlay(ProgressView().scaleEffect(0.5))
             }
         }
-        .task {
-            guard image == nil else { return }
+        .task(id: path) {
+            // 按路径重启任务：照片编辑后 URI 改变但模型 ID 不变时，
+            // .task(id: path) 确保加载任务重启；路径变化时清除旧图强制重载。
+            guard !path.isEmpty else { return }
+            image = nil
             // 本地文件加载——在后台线程解码；捕获 path 值（String, Sendable），
             // 避免把非 Sendable 的 self（View struct）送入 detached 隔离区（严格并发）。
-            let path = self.path
+            let targetPath = path
             let loaded = await Task.detached(priority: .utility) {
-                UIImage(contentsOfFile: path)
+                UIImage(contentsOfFile: targetPath)
             }.value
-            await MainActor.run { self.image = loaded }
+            self.image = loaded
         }
     }
 }

@@ -48,12 +48,9 @@ final class ProEntitlementStoreTests: XCTestCase {
 
     /// 流推送仍生效（购买/恢复/Transaction.updates 路径不受启动 refresh 影响）。
     ///
-    /// 注入独立 ListenerRegistry（不复用 .shared）：串行测试间前序 entitlement
-    /// 释放后对象内存可能复用，ObjectIdentifier 会与后序实例重叠；前序 deinit 的
-    /// 异步 cancel 经 actor 到达后会把该 ID 写入取消墓碑，后序 init 的 register
-    /// 误命中墓碑导致流消费 Task 被立即取消、status 永不更新（flaky 根因）。
-    /// 独立 registry 隔离 ObjectIdentifier 空间，消除交叉污染；deadline 轮询
-    /// （同 waitRegistryCount 模式）给并行负载下充足的调度预算。
+    /// 注入独立 ListenerRegistry（不复用 .shared）：串行/并行测试间注册表状态隔离，
+    /// 避免宿主 App 与并行测试类的计数相互干扰。deadline 轮询给并行负载下
+    /// 充足的调度预算。
     func testStreamPushStillUpdatesStatus() async {
         let registry = ProEntitlementStore.ListenerRegistry()
         let store = MockStoreService(proStatus: .inactive)
@@ -83,27 +80,44 @@ final class ProEntitlementStoreTests: XCTestCase {
         return true
     }
 
-    /// 正常路径：注册后取消 → 任务取消且注册表清空。
+    /// 正常路径：注册后取消 → 任务取消且注册表清空，不残留墓碑。
     func testCancelRemovesRegisteredTask() async {
         let registry = ProEntitlementStore.ListenerRegistry()
-        let store = MockStoreService(proStatus: .inactive)
-        var entitlement: ProEntitlementStore? = ProEntitlementStore(store: store, registry: registry)
-        let id = ObjectIdentifier(entitlement!)
+        let id = UUID()
+        let task = Task {}
+        await registry.register(id, task)
 
-        let registered = await waitRegistryCount(1, registry: registry)
-        XCTAssertTrue(registered, "注册任务应写入注册表")
+        let count1 = await registry.activeCount
+        XCTAssertEqual(count1, 1, "注册任务应写入注册表")
 
         await registry.cancel(id)
+        let count2 = await registry.activeCount
+        XCTAssertEqual(count2, 0, "取消后注册表不应残留任务")
+    }
+
+    /// 正常取消（cancel 在 register 之后）不创建墓碑——后续相同令牌的注册不被误杀。
+    /// 这是 UUID 令牌 + 条件墓碑的核心保证：cancel 找到任务时直接取消，
+    /// 只有 cancel 先于 register 的竞态才创建一次性墓碑。
+    func testCancelAfterRegisterLeavesNoTombstone() async {
+        let registry = ProEntitlementStore.ListenerRegistry()
+        let id = UUID()
+        let task1 = Task {}
+        await registry.register(id, task1)
+        await registry.cancel(id)
+
+        // 取消后用相同令牌重新注册不应被墓碑误杀
+        let task2 = Task {}
+        await registry.register(id, task2)
+        XCTAssertFalse(task2.isCancelled, "正常取消后的重新注册不应被墓碑误杀")
         let count = await registry.activeCount
-        XCTAssertEqual(count, 0, "取消后注册表不应残留任务")
-        entitlement = nil
+        XCTAssertEqual(count, 1)
     }
 
     /// 乱序：cancel 先于 register 到达 actor → 晚到的注册被立即取消且不写入注册表
     /// （此前会把已结束的任务重新写入，形成残留——评审阻塞项）。
     func testCancelBeforeRegisterCancelsLateRegistration() async {
         let registry = ProEntitlementStore.ListenerRegistry()
-        let id = ObjectIdentifier(NSObject())
+        let id = UUID()
         let task = Task {}
 
         await registry.cancel(id)      // deinit 的清理先到达
@@ -119,7 +133,6 @@ final class ProEntitlementStoreTests: XCTestCase {
         let registry = ProEntitlementStore.ListenerRegistry()
         let store = MockStoreService(proStatus: .inactive)
         var entitlement: ProEntitlementStore? = ProEntitlementStore(store: store, registry: registry)
-        _ = ObjectIdentifier(entitlement!)
 
         entitlement = nil  // 触发 deinit → 异步 cancel
 

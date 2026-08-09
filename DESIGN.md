@@ -150,7 +150,7 @@ SwiftData 从 V1.0 干净 schema 起步（不复刻源端 16 版历史迁移）�
 **保存事务封装**：仓储层所有写路径统一经 `ModelContext.saveOrRollback()` 提交（[ModelContext+Transaction.swift](MiLens/Persistence/ModelContext+Transaction.swift)）——`context.save()` 失败不会自动回滚，失败的 insert/update/delete 会残留在 pending changes 中污染同一上下文的后续保存（如唯一约束冲突后下一次 save 继续失败，导入/编辑链路被卡死）；`saveOrRollback` 失败即 `rollback()` 并重抛，保证上下文回到调用前干净状态。编辑保存失败时 `MediaLifecycleService.saveEditedPhoto` 同时恢复记录全部旧属性（含 `category`，与「完整回滚」注释一致）。
 
 **媒体备份策略**：`Documents/MiPhotos` 下按可重建性分区（`IOSFileStorage` 写入/建目录时设置 `isExcludedFromBackup`，目录属性不向新文件传播故逐文件设置；失败仅记日志不阻断写入，备份排除是优化项）：
-- `Documents/MiPhotos/`（导入副本）：原图在系统相册可重新导入，可重建 —— 排除 iCloud/iTunes 备份（按 Apple 指引，避免「照片不会离开设备」承诺与默认备份冲突）。
+- `Documents/MiPhotos/`（导入副本）：原图在系统相册可重新导入，可重建 —— 排除 iCloud/iTunes 备份。App 不会主动上传照片；编辑产物可能随用户启用的系统备份保存。
 - `Documents/MiPhotos/Edits/`（编辑产物，`ScanConfig.editsDirName`）：编辑成品只存沙盒且**不**同步回系统相册、无重建步骤（DB 只覆盖 URI），不可重建 —— **允许备份**。`EditorSaveService` 保存到 Edits 子目录（2026-08-09 评审阻塞项修复：此前全部排除备份，设备恢复后会出现「DB 记录仍在、图片文件缺失」）。
 `MediaLifecycleService.auditOrphans` 与 `AppDependencies.destroyPersistentStore` 提示文案均覆盖两个目录。
 

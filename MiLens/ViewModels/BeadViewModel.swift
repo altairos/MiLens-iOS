@@ -305,6 +305,9 @@ final class BeadViewModel {
             do {
                 let photoData = await self.loadPhotoPixels()
                 let opts = beadExportOptions(styleKey: self.settings.styleKey, pattern: pattern)
+                // 在 MainActor 上提前计算水印布尔值，只把值类型捕获进 detached 闭包，
+                // 不在 detached 中读取 MainActor 隔离的 self.isPro（严格并发规则）。
+                let includeWatermark = !self.isPro
                 let renderer = self.exportService
                 let png: Data? = await Task.detached(priority: .userInitiated) {
                     renderer.renderA4PNG(pattern: pattern,
@@ -312,7 +315,7 @@ final class BeadViewModel {
                                          photoW: photoData?.w ?? 0,
                                          photoH: photoData?.h ?? 0,
                                          exportOpts: opts,
-                                         includeWatermark: !self.isPro)
+                                         includeWatermark: includeWatermark)
                 }.value
                 guard let png else { throw BeadRunError.exportRenderFailed }
                 try await self.exportService.saveToPhotoLibrary(pngData: png)

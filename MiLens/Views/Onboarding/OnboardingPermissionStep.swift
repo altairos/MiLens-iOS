@@ -1,5 +1,5 @@
 //  OnboardingPermissionStep —— 首次启动 Step 2 权限说明页（UI-DESIGN.md §6.1）。
-//  本地处理三条短说明建立信任：照片不离开设备 / 分析在本机完成 / 由你决定导入什么。
+//  本地处理三条短说明建立信任：不主动上传照片 / 分析在本机完成 / 由你决定导入什么。
 //  说明图标中性细线；卡片 = milensCard + 0.5pt 描边（边框优先于阴影，§5.2）；
 //  文楷标题每屏唯一；权限系统弹窗只在点击容器主按钮「继续」后出现（流程不变）。
 
@@ -28,8 +28,8 @@ struct OnboardingPermissionStep: View {
 
             // 隐私说明卡片
             VStack(alignment: .leading, spacing: Spacing.lg) {
-                privacyRow(icon: "iphone.gen3", title: "照片不会离开设备",
-                           subtitle: "所有照片仅在本机处理，不会上传到云端")
+                privacyRow(icon: "iphone.gen3", title: "照片不主动上传",
+                           subtitle: "App 不会主动上传照片；编辑产物可能随用户启用的系统备份保存")
                 Divider()
                     .overlay(Color.milensSeparator)
                 privacyRow(icon: "cpu", title: "AI 分析在本地完成",

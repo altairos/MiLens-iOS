@@ -104,6 +104,53 @@ final class ImportServiceTests: XCTestCase {
         XCTAssertEqual(photos.count, 2)
     }
 
+    // MARK: - 配额（ADR-0010）：重复 identifier 不误算为超额导入
+
+    /// 免费用户已有 49 张，传入两次同一个新 ID（实际唯一 1 张）。
+    /// 修复前：uniqueRequested=2（未去重输入），allowed=1，quotaBlocked=1（误拦）。
+    /// 修复后：candidates=1（有序去重），allowed=1，quotaBlocked=0（正确）。
+    func testDuplicateIdentifierDoesNotInflateQuotaBlock() async {
+        let existingIDs = (0..<49).map { "existing_\($0)" }
+        let assets = existingIDs.map { asset($0) } + [asset("new1")]
+        let (service, photoRepo, _, container) = makeService(assets: assets)
+        // 预导入 49 张（免费版上限 50）
+        _ = await service.importPhotos(identifiers: existingIDs)
+
+        // 传入同一个新 ID 两次 → 只导入 1 张，无配额拦截
+        let result = await service.importPhotos(identifiers: ["new1", "new1"])
+        XCTAssertEqual(result.imported, 1)
+        XCTAssertEqual(result.quotaBlocked, 0, "重复 identifier 不应误算为配额拦截")
+
+        let photos = try! photoRepo.getPhotosPage(offset: 0, limit: 100)
+        XCTAssertEqual(photos.count, 50)
+    }
+
+    /// 60 张全新唯一照片，免费版配额 50 张仍有剩余（0 已有）。
+    /// maxImportBatch=50 截断后 50 张在配额内 → quotaBlocked=0。
+    /// 修复前：uniqueRequested=60，allowed=50，quotaBlocked=10（把截断误算为配额拦截）。
+    func testBatchTruncationNotAttributedToQuota() async {
+        let assets = (0..<60).map { asset("photo_\($0)") }
+        let (service, photoRepo, _, container) = makeService(assets: assets)
+        let identifiers = (0..<60).map { "photo_\($0)" }
+
+        let result = await service.importPhotos(identifiers: identifiers)
+        XCTAssertEqual(result.imported, ScanConfig.maxImportBatch)
+        XCTAssertEqual(result.quotaBlocked, 0, "批次截断不应误算为配额拦截")
+    }
+
+    /// 免费用户已有 49 张，传入 3 张不同的新 ID → 导入 1 张，拦截 2 张。
+    func testQuotaBlockedForGenuinelyOverLimit() async {
+        let existingIDs = (0..<49).map { "existing_\($0)" }
+        let assets = existingIDs.map { asset($0) }
+            + [asset("new1"), asset("new2"), asset("new3")]
+        let (service, photoRepo, _, container) = makeService(assets: assets)
+        _ = await service.importPhotos(identifiers: existingIDs)
+
+        let result = await service.importPhotos(identifiers: ["new1", "new2", "new3"])
+        XCTAssertEqual(result.imported, 1)
+        XCTAssertEqual(result.quotaBlocked, 2, "真正超出配额的应被拦截")
+    }
+
     // MARK: - 空输入
 
     func testImportEmptyIdentifiersReturnsZero() async {

@@ -138,24 +138,34 @@ final class ImportService {
             logger.error("importPhotos: 读取既有 originalURI 失败（\(error.localizedDescription)），本次去重失效")
             existingOriginalURIs = []
         }
-        // 同一批次内已处理的 identifier（输入列表可能含重复）
+        // 候选列表：有序去重（保留输入顺序）→ 排除已导入 → 限制批量上限。
+        // 先确定"真正会处理的 identifier"再计算配额，避免重复 identifier 或
+        // 已有项被误算为配额超额（修复缺陷：免费用户已有 49 张时传入两次同一个
+        // 新 ID 会被算成请求 2 张、拦截 1 张，但实际只有一张唯一照片）。
+        var candidates: [String] = []
         var seenInBatch: Set<String> = []
+        for identifier in identifiers {
+            guard seenInBatch.insert(identifier).inserted else { continue }
+            guard !existingOriginalURIs.contains(identifier) else { continue }
+            candidates.append(identifier)
+        }
+        let batchCandidates = Array(candidates.prefix(ScanConfig.maxImportBatch))
 
         // ADR-0010 照片配额检查：免费版上限 50 张。
-        // 已导入数 + 本次去重后的有效请求数 vs 免费上限，超出部分被拦截。
+        // 基于候选列表（已去重/排除已有/限制批量）计算，而非完整输入——
+        // 批次截断不会错误归因为配额拦截。
         let currentCount = (try? photoRepo.countAllPhotos()) ?? 0
-        let uniqueRequested = identifiers.filter { !existingOriginalURIs.contains($0) }.count
         let allowed = CommercialRules.allowedImportCount(
-            currentCount: currentCount, requestCount: uniqueRequested, isPro: isPro)
-        let quotaBlocked = uniqueRequested - allowed
+            currentCount: currentCount, requestCount: batchCandidates.count, isPro: isPro)
+        let quotaBlocked = batchCandidates.count - allowed
         if quotaBlocked > 0 {
-            logger.info("importPhotos: 配额拦截——已存 \(currentCount)，请求 \(uniqueRequested)，允许 \(allowed)，拦截 \(quotaBlocked)")
+            logger.info("importPhotos: 配额拦截——已存 \(currentCount)，候选 \(batchCandidates.count)，允许 \(allowed)，拦截 \(quotaBlocked)")
         }
 
         var imported = 0
         var matched = 0
         var failed = 0
-        let total = min(identifiers.count, ScanConfig.maxImportBatch)
+        let total = batchCandidates.count
 
         // L2 分批提交：逐张加载/写文件，攒够一批统一入库（替代逐张 save）。
         // 事务边界：批量入库失败回滚本批已写文件（MediaLifecycleService.commitImportBatch）；
@@ -194,24 +204,12 @@ final class ImportService {
             }
         }
 
-        // 配额计数器：达到允许上限后停止入库（仅免费版生效，Pro 时 allowed == uniqueRequested）。
+        // 配额计数器：达到允许上限后停止入库（仅免费版生效，Pro 时 allowed == batchCandidates.count）。
         var quotaRemaining = allowed
 
-        for (index, identifier) in identifiers.prefix(ScanConfig.maxImportBatch).enumerated() {
+        // candidates 已有序去重、排除已导入、限制批量上限，循环内只需配额检查。
+        for (index, identifier) in batchCandidates.enumerated() {
             if Task.isCancelled { break }
-
-            // 同一批次内重复 identifier：跳过
-            if seenInBatch.contains(identifier) {
-                onProgress?(ImportProgress(current: index + 1, total: total))
-                continue
-            }
-            seenInBatch.insert(identifier)
-
-            // 跳过已导入（originalURI 去重）
-            if existingOriginalURIs.contains(identifier) {
-                onProgress?(ImportProgress(current: index + 1, total: total))
-                continue
-            }
 
             // ADR-0010 配额耗尽：后续不再入库，但仍更新进度。
             if quotaRemaining <= 0 {

@@ -26,6 +26,7 @@ final class InMemoryPhotoRepository: PhotoRepositoryProtocol {
     func getPhotoByOriginalURI(_ originalURI: String) throws -> Photo? { photos.first { $0.originalURI == originalURI } }
     func getAllOriginalURIs() throws -> Set<String> { Set(photos.map(\.originalURI)) }
     func getAllPhotoURIs() throws -> Set<String> { Set(photos.map(\.uri)) }
+    func countAllPhotos() throws -> Int { photos.count }
     func getPhotosPage(offset: Int, limit: Int) throws -> [Photo] {
         Array(photos.sorted { ($0.takenAt ?? .distantPast) > ($1.takenAt ?? .distantPast) }.dropFirst(offset).prefix(limit))
     }
@@ -48,6 +49,7 @@ final class InMemoryPhotoRepository: PhotoRepositoryProtocol {
             .sorted { ($0.takenAt ?? .distantPast) > ($1.takenAt ?? .distantPast) }
     }
     func insertPhoto(_ photo: Photo) throws { photos.append(photo) }
+    func insertPhotos(_ photos: [Photo]) throws { self.photos.append(contentsOf: photos) }
     func deletePhoto(_ photo: Photo) throws { photos.removeAll { $0.id == photo.id } }
     func updatePhoto(_ photo: Photo) throws { updatedPhoto = photo }
     func assignPhoto(_ photo: Photo, to pet: Pet?) throws { photo.pet = pet }

@@ -1,6 +1,6 @@
 # MiLens iOS 迁移计划
 
-最后核对：2026-08-09（P0/P1 可靠性收口完成；P2 实现完成，剩真机与性能验收，见 [P2-待办清单](docs/P2-待办清单.md)）
+最后核对：2026-08-09（P0–P4 状态全量同步；P5 首页/设置/订阅/付费墙/元数据已实现 + 上架流水线代码落地待实测；剩性能基准、截图、iPad/深色检查与真机验收，见 [P2-待办清单](docs/P2-待办清单.md)）
 
 > 里程碑与任务清单。架构见 [DESIGN.md](DESIGN.md)，映射与范围见 [MIGRATION_ASSESSMENT.md](MIGRATION_ASSESSMENT.md)，约束见 [AGENTS.md](AGENTS.md)。
 
@@ -13,7 +13,7 @@
 | **P2** | 相册 MVP | 扫描发现（+质量评分/重复分组）+ 手动导入 + 相册网格 + 大图查看 | 🟡 实现完成，真机/性能验收待做 |
 | **P3** | 宠物档案 | 档案 CRUD + 成长时间线 + 纪念提醒 | ✅ 已完成（含档案内照片分类 2026-08-09） |
 | **P4** | 创作入口 + 编辑器 | 拼豆图纸完整流程 + 完整图片编辑器（裁切/滤镜/标注） | 🟡 实现完成（含宠物卡片生成），剩真机验收 |
-| **P5** | 首页/我的 + 商业化 | 首页回忆/提醒、设置、StoreKit 订阅、App Store 提审 | ⬜ |
+| **P5** | 首页/我的 + 商业化 | 首页回忆/提醒、设置、StoreKit 订阅、App Store 提审 | 🟡 首页/设置/订阅/付费墙/元数据已实现，剩性能基准、截图与上架实测 |
 
 ---
 
@@ -49,7 +49,7 @@
 - [x] 在 Mac 上 `xcodegen generate` 生成 `.xcodeproj`，编译空 App 启动（P0 已在 CI 验证 BUILD SUCCEEDED）
 - [x] `MiLensApp`（`@main`）组合根 + `scenePhase` 生命周期骨架；`ModelContainer` 待 P1.2 SwiftData `@Model` 接入
 - [x] TabView 壳（首页/宠物/创作/我的）+ 路由枚举 `Route` + `AppTab`（`@AppStorage` 持久化选中项）
-- [x] v1 主题 token 已代码化；[UI Rework v2.0](UI-DESIGN.md) 已重新审计并修订动作色、字体边界、响应式和组件规格，现有 Asset Catalog/Theme 仍待按 v2 迁移
+- [x] v1 主题 token 已代码化；[UI Rework v2.0](UI-DESIGN.md) 已重新审计并修订动作色、字体边界、响应式和组件规格。**v2 迁移已落地（2026-08-09）**：v2 token（`ActionPrimary`/`AccentSoft`/`Border` 等）已代码化进 `Color+Theme.swift`，首页/创作/设置/引导页均按 v2 重构（git bea5b2f/bf23ce2/f85e22f），操作层用系统字体、文楷仅作稀缺情感标题
 - [x] 本地化 String Catalog（`Localizable.xcstrings` + `InfoPlist.xcstrings`，源语言简中，结构支持任意语言；`String(localized:)` API）；`tools/localization.py` 导出/导入/校验工具；App Icon / 占位图待源端资源整理后补
 
 ### P1.2 数据层
@@ -134,8 +134,9 @@ P1 核心可靠性与性能六项修复全部落地（实现记录见状态摘�
 - [x] `ImportService`：用户主动导入 → 复制沙盒 → 缩略图 → 入库（DESIGN.md §7 唯一入库路径）
 - [x] ScanService/ImportService 测试（~15 用例，in-memory SwiftData + mock）
 - [x] 扫描增强（[ADR-0008](docs/adr/0008-v1-scope-decision.md) 扩范围）：质量评分（翻译源端 QualityScorer → `Photo.qualityScore` / `sharpness`）
-- [x] 扫描增强：重复分组（pHash 视觉哈希 → `Photo.duplicateOf` / `isBest`；CLIP embedding 相似度待 Core ML 模型就绪后增强）
-- [x] `GalleryViewModel`（@Observable）：分页 + 筛选 + 扫描/导入编排 + 多选
+- [x] 扫描增强：重复分组（pHash 视觉哈希 → `Photo.duplicateOf` / `isBest`）
+- [x] 扫描增强：多宠物自动归属——`PetMatcher`（注册 8–15 张照片特征 → CLIP embedding 聚合 PMF1 blob + 14 维颜色签名；`matchFromEmbedding` top1 ≥ 阈值 + top2 margin + 颜色距离三重判定）+ `PetFeatureCodec`/`ColorSignatureMath`/`PetMatcherScoring` 配套，CLIP 失败降级手工特征（阈值放宽 0.85，仅匹配不作分类），像素计算经 `AnalysisExecutor` 后台执行（git 3a4aca6）
+- [x] `GalleryViewModel`（@Observable）：分页 + 筛选 + 扫描/导入编排 + 多选（含按日分组 `GallerySectionLogic`、宠物筛选 `GalleryFilterLogic`、上下文菜单，git 4f62f65/86088ea/843bdf1）
 - [x] `GalleryView`：LazyVGrid 虚拟化 + 分页加载 + 扫描入口 + 完成弹窗
 - [x] `PhotoViewView`：大图查看 + 手势（PhotoViewGestureMath 纯函数驱动）
 - [x] `HomeView`：相册入口 + 扫描入口（NavigationLink → Gallery）
@@ -147,7 +148,7 @@ P1 核心可靠性与性能六项修复全部落地（实现记录见状态摘�
 - [x] P0 修复：CLIP Phase 2 精筛接入扫描（`ClipInference` 协议 + 失败降级），App Store 文案去除「按宠物分别归类」不实描述
 - [x] P0 修复：**SwiftData 测试进程崩溃根因修复**（ModelContainer 悬垂）——`container.mainContext` 不持有 container，测试 helper 局部 container 返回后释放，repo fetch 触发 SwiftData 内部 SIGTRAP（此前 XCTSkipIf 掩盖，CI/本地间歇崩溃）。修复：测试 helper 返回并持有 container（ImportServiceTests/ScanServiceTests/QualityScorerTests 全部调用点）；`RepositoryEnvironment` fallback 改 static 缓存容器。恢复 QualityScorerTests 运行（移除 XCTSkipIf）。本机完整 XCTest 400/400 通过
 - [ ] 真机验证：Photos 权限 + Vision/Core ML 推理 + 分页性能 + PhotoView 下滑手势（需 Mac + iPhone，详见 [P2-真机验证备忘](docs/P2-真机验证备忘.md)）
-- [ ] P1 可靠性遗留：引导扫描游标、数据库重建后的沙盒媒体语义、编辑旧文件清理失败策略（详见 [P2-待办清单](docs/P2-待办清单.md)）
+- [x] P1 可靠性遗留 3 项收口：引导扫描游标（OnboardingViewModel 仅 `completedSuccessfully` 保存）、数据库重建后的沙盒媒体语义（恢复界面文案明确清除范围）、编辑旧文件清理失败策略（引用查询失败保守保留）——实现与单测已落地，详见 [P2-待办清单](docs/P2-待办清单.md)
 
 ### 验收标准
 
@@ -254,11 +255,11 @@ P1 核心可靠性与性能六项修复全部落地（实现记录见状态摘�
 
 ### 任务
 
-- [ ] `HomeView`：今日照片/历史回忆/成长提醒/快速创作入口（设计稿 Tab 1；进行中：今日/历史回忆/空态首轮已落地，成长提醒待补，创作 CTA 已切换至创作 Tab）
+- [x] `HomeView`：杂志式首页（设计稿 Tab 1）——hero 大图 + 「往日回忆」+ 空态已按 v2 编辑式布局落地（`HomeViewModel` + `HomeHeroLogic`/`HomeMemoryLogic`/`HomeGreetingLogic` 纯逻辑 + HomeLogicTests，git d6e9ec5/f85e22f）；**成长提醒区块待补**，创作 CTA 已切换至创作 Tab
 - [x] 回忆逻辑纯决策：「一年前的今天」（翻译 `TimeMachineService` + `NotifyScheduler` + `PhotoQueryLogic` 日期逻辑 → `AnniversaryLogic` + `TimeMachineLogic`，38 用例 XCTest）
-- [ ] `SettingsView`：主题/隐私设置/帮助/关于（设计稿 Tab 4）
-- [ ] StoreKit 2 订阅：MiLens Pro 产品配置 + `Transaction` 监听 + 付费墙 UI（设计稿付费墙）
-- [ ] App Store 截图/描述/ASO 关键词（设计稿 §5-6）
+- [x] `SettingsView`：主题/隐私设置/帮助/关于（设计稿 Tab 4）——`SettingsView` + `SettingsLogic`/`SettingsViewModel`（设置项/Pro 权益展示/通知开关）+ `AboutView`/`HelpView`/`PrivacyInfoView`（git bea5b2f）
+- [x] StoreKit 2 订阅：MiLens Pro 产品配置（`Products.storekit`：月 ¥18 / 年 ¥98 / 永久 ¥298）+ `StoreKit2StoreService`（`Transaction` 监听）+ `ProEntitlementStore`（应用级权益唯一消费方）+ 付费墙 UI `PaywallView` + `PaywallLogic`/`PaywallViewModel`（git 61abdeb/a22ddba/078482e/310222c）——StoreKit Testing + 权益/付费墙逻辑均有 XCTest；StoreKit Testing 与真机购买验证待 Mac
+- [x] App Store 截图/描述/ASO 关键词——文案已定稿（[docs/AppStore-metadata.md](docs/AppStore-metadata.md)：描述/关键词/订阅产品/审核备注/隐私问卷，2026-08-08）；**截图制作待 Mac**
 - [ ] 性能基准：大图库（5000+）滚动/内存
 - [ ] iPhone/iPad 适配（[ADR-0008](docs/adr/0008-v1-scope-decision.md)：iPad 为 V1.0 目标）+ 深色模式 + Dynamic Type 检查
 
@@ -266,8 +267,8 @@ P1 核心可靠性与性能六项修复全部落地（实现记录见状态摘�
 
 编译/签名/上传全部在 GitHub Actions macOS runner 完成，无需本机 Mac：
 
-- [ ] 在 `.github/workflows/ci.yml` 新增 `release` 作业（手动触发 `workflow_dispatch`）：`xcodebuild archive` → `xcodebuild -exportArchive`（签名）→ `xcrun altool/notarytool` 上传 App Store Connect
-- [ ] 证书/描述文件用 **App Store Connect API Key（.p8）** 注入 GitHub Secret（不用钥匙串）
+- [x] 在 `.github/workflows/ci.yml` 新增 `release` 作业（手动触发 `workflow_dispatch`）：`xcodebuild archive` → `xcodebuild -exportArchive`（签名）→ `xcrun altool` 上传 App Store Connect——已实现（2026-08-09，含 version/buildNumber/upload 输入与 `needs [kit, app]` 门禁；待 Secrets 配置后实测）
+- [x] 证书/描述文件用 **App Store Connect API Key（.p8）** 注入 GitHub Secret（不用钥匙串）——Secrets 约定已落地（`ASC_API_KEY`/`ASC_API_KEY_ID`/`ASC_API_ISSUER_ID`/`ASC_TEAM_ID`），`.p8` 生成与配置见 [DEVELOPMENT.md](../DEVELOPMENT.md) §2.2
 - [ ] App Store Connect 填写元数据/截图/隐私政策（网页端）
 - [ ] 提交审核
 
@@ -322,9 +323,17 @@ P1 核心可靠性与性能六项修复全部落地（实现记录见状态摘�
 - 2026-08-08：**P4 图片编辑器 Phase 2.5 ViewModel 纯逻辑落地**——源端 `viewmodels/Editor*ViewModel.ets` 7 个纯逻辑文件翻译到 MiLensKit（7 文件 / ~825 行）：EditorToolLogic（工具切换/宽高比/裁剪比例/工具组双层状态 263 行→273 行）、EditorCropOverlay（裁剪框覆盖层遮罩/九宫格/角手柄/clamp 137 行→140 行）、EditorCanvasLogic（画布状态查询 36 行→49 行）、EditorAdjustLogic（调色面板/滑块手势合并/锐化异步卷积决策 159 行→144 行）、EditorCutoutLogic（抠图四态机/竞态守卫/结果验收 166 行→151 行）、EditorSaveLogic（保存/返回/格式决策 115 行→106 行）、EditorTextToolLogic（文字工具决策 76 行→62 行）。XCTest ~152 用例（对应源端 7 个黄金规格测试逐条翻译）。架构差异：源端 EditorToolMode/Group 字符串联合类型 → iOS String enum；源端 EditorCanvasViewModel 重复定义 `EditorTool` → iOS 统一到 `EditorToolMode`；源端 `guard` 参数名（JS 合法）→ iOS `guard_`（Swift 关键字）；源端 timestamp 为 number → iOS Int64；源端 resolveSaveFileNameHint/WithDecision 两函数 → iOS 函数重载。
 - 2026-08-08：**P4 拼豆图纸 App 层落地**——分层推进：①MiLensKit `BeadFlowLogic`（生成编排/结果展示/导出决策纯逻辑）+ 26 用例 XCTest（对应源端 BeadFlowLogicTests 黄金规格）；Sendable 补齐（`BeadPattern`/`BeadDrawOptions`/`BeadExportOpts`/`BeadGenerateOptions`）；②App 层 `BeadViewModel`（@Observable 编排源端 doGenerate：解码 2048 上限 → `detectPets` 归一化 bbox 转像素 → CLIP 语义缓存 → 可选抠图（iOS mask bbox 局部坐标平铺全图 + `cropMaskToSquare` + `adjustSubjectForCrop`）→ `resolveBeadGeneration` + `applySemanticPaletteSteering` → detached Task 生成 + 取消；`refreshPreview` 按 canvasScale 重绘（上限 2560 控内存）；`export`/`prepareShareFile` detached 渲染）；③三件套视图 `BeadPatternView`（三态切换 + toast + 查看原图）/ `BeadSettingsPanelView`（5 风格/4 尺寸/摘要/高级设置折叠）/ `BeadPatternResultView`（统计行/彩色与字母模式切换/缩放/保存/分享/材料清单，`ShareItem` 包装 URL 供 `sheet(item:)`）；④入口接线：CreateView 已导入照片网格 + PhotoViewView toolbar 拼豆入口 + RootTabView `beadPattern` 路由。架构差异：iOS `DetectionBox` 归一化 → 像素换算；`SegmentationResult.mask` bbox 局部 → 全图平铺；iOS 无 pose（`subject.pose` 留 nil）；源端 PNG 字节序经 `makeImage` 统一处理。**验证**：MiLensKit 520 用例 WSL2 全绿（含 Sendable 改动）；swift-format lint 8 个 App 层文件 0 error；App 层语义编译待 CI（需 Mac，本地 Windows 无法编译 UIKit）。
 - 2026-08-08：**P4 图片编辑器 Phase 3 完成**——App 层 Controller + View 全部落地（`Views/Editor/` 5 文件 + `ViewModels/Editor/EditorViewModel` + `Services/Editor/` 保存/图像处理）：骨架（Route.editor + 撤销/重做 + 返回确认）、裁切面板（比例 chips + 确认=像素级重置历史）、旋转/翻转（像素级 vs 属性级）、调色面板（5 滑杆，锐化仅 end/click 触发卷积，`renderedSharpness` 记录上次渲染强度）、文字（添加/选中编辑/删除/撤销重做）、抠图（Vision 真实语义分割，失败即 error 无降级）、编辑产物回写 `Documents/MiPhotos` + Photo 就地更新（thumbnailPath 置空回退 uri）。iOS 差异：像素级操作（裁切确认/旋转 90°/抠图应用）不可撤销；CIFilter 用名称式 API（iOS 17 兼容）；字体 token 是 `extension Font`（无 Typography）。EditorViewModelTests 24 用例全绿；全量 371 tests / 0 failures。架构差异：源端 Canvas 滤镜/异步卷积 → iOS CIFilter 同步渲染（决策层已把锐化收敛为 end/click 单次卷积）。
-- 待办：P4 拼豆 App 层 CI 编译确认（推 GitHub 触发，合流后可在 Mac 直接验证）；宠物卡片生成（设计稿创作 Tab，待设计稿定案）；CLIP/RTMPose Core ML 推理质量真机验证（实现已完成，见 [P2-真机验证备忘](docs/P2-真机验证备忘.md) §2.2）；`IOSPhotoLibraryAccess` 真实实现（当前仍为 mock）。
+- 待办：CLIP/RTMPose Core ML 推理质量真机验证（实现已完成，见 [P2-真机验证备忘](docs/P2-真机验证备忘.md) §2.2）；App Store 上架准备（Secrets 配置 + release 实测 + 截图 + ASC 元数据录入）。
 
 ### P2 进度
+
+- 2026-08-09：**审计收口 M2-M4 + 低优先级 L1-L5 全部落地**——①**M2 编辑器 ViewModel 拆分**：`EditorViewModel` 573 行拆为编排层 + `EditorDocumentController`（文档状态/历史/owner 注入）+ 4 个面板 VM（`EditorCropPanelVM`/`EditorAdjustPanelVM`/`EditorTextPanelVM`/`EditorCutoutPanelVM`，各自 <200 行，600/800 守卫恢复），owner API 经 `EditorOwnerProtocol` 协议化，面板独立测试；②**M3 MiLensKit 严格并发**：`Package.swift` 开启 `-strict-concurrency=complete`（保持 Swift 5 语言模式），修复 6 处并发违规（`TaskLoggerState` 锁化 + `@unchecked Sendable`、`BEAD_EFFECT_PRESETS` 全局锁化、`_editorLayerIdCounter` 锁化、`ErrorCategoryEntry`/`ErrorLogLevel`/`TaskKind`/`TaskOutcome`/`BeadSizePresetValue`/`BeadColorPresetValue` 显式 `Sendable`），本地 Swift 6.1.3 零警告；③**M4 无障碍**：相册网格缩略图（照片+月日+已选择+已收藏组合文案）、时间线代表照片、宠物卡片头像补 `accessibilityElement(children: .ignore)` + `accessibilityLabel`；④**L1 隐私清单**：新增 `PrivacyInfo.xcprivacy`（NSPrivacyTracking=false；CollectedDataTypes=Photos/AppFunctionality 均 Linked=false/Tracking=false；AccessedAPITypes=UserDefaults CA92.1），project.yml 目录 glob 自动纳入；⑤**L2 导入分批提交**：`PhotoRepository.insertPhotos` 批量单次 save，`MediaLifecycleService.commitImportBatch`（入库失败回滚本批文件），`ImportService` 攒批 32 张 flush（尾批含取消中断不丢文件），自动归属仅对成功入库执行，+2 批量用例；⑥**L3 孤儿审计后台化**：启动延迟 3s + `auditOrphans` 文件遍历/删除移入 `Task.detached(priority: .utility)`（`FileStorage: Sendable` 可安全捕获），不占启动关键路径；⑦**L4 classifyError iOS NSError domain**：`ErrorInput` 增 `domain` 字段，`classifyError` 优先判定 `NSPOSIXErrorDomain`/`NSCocoaErrorDomain`（516/640/642 存储、3072 取消、4/260 文件、513/257 权限、134030-134099 数据库）/`PHPhotosErrorDomain`/`NSURLErrorDomain`/`SwiftDataErrorDomain`，未命中回落原 code/message 规则（向后兼容），`withCatch`/`withCatchSync` 透传 domain，+4 用例；⑧**L5 日志 localIdentifier 脱敏**：`AppErrorHandler.redactIdentifier`（前缀 10 + …）+ `sanitizeForLog` 新增第 10 条 `[PHID]` 规则（UUID/L 格式），`PhotoLibraryError.errorDescription` 与 `ScanService`/`ImportService` 共 6 处日志改为脱敏输出，+3 用例。**验证**：WSL2 Ubuntu-24.04 + Swift 6.1.3 `swift build` 零警告 + `swift test --parallel` 全绿（578 + 新增用例）；App 层 6 个改动文件 `swiftc -parse` 全过；App 编译/App 层测试待 CI（Windows 无 iOS SDK，未执行）。
+
+- 2026-08-09：**可观测性 + 规模治理收口（H1/H4/H3/M1/H2）**——①**H1 诊断链路接入**：`AppLogBackend`（Apple 平台 os.Logger / Linux 空实现，`#if canImport(os)`）+ `AppErrorHandler` debug/info/warn/error 全量接入后端（消息与错误明细先经 `sanitizeForLog` 脱敏），`ScanService`/`ImportService` 接入 `TaskLogger` 结构化任务日志（beginTask/stage/progress/complete/cancel/fail 全路径，失败带 ErrorInput）；②**H4 导入失败可观测性**：`ImportResult` 新增 `failed` 计数，`importPhotos` 单张失败累加 + `logger.error` 明细，`resolveImportSummary` 失败文案（`有 N 张照片导入失败`），弹窗条件改 `imported > 0 || failed > 0`；新增 `MockPhotoLibraryAccess.imageDataErrors` 失败注入 + 2 用例（部分失败/全失败）；③**H3 CI 覆盖率门禁**：`tools/check-coverage.sh`（bash + 内嵌 python3 解析 `xcrun xccov view --report --json`，按目标 MiLens/MiLensKit 匹配，line/function 取文件级均值、branch 精确汇总，基线环境变量可覆盖；默认 App 30/25/30、Kit 47/50/44 为占位值待首次实测校准）+ ci.yml 测试步骤 `-resultBundlePath` + 「Check coverage gate」步骤 + `TestResult.xcresult` artifact 上传（always）；④**M1 权限文案收敛**：`InfoPlist.xcstrings` 定为唯一事实来源（Xcode 15+ 自动注入），`project.yml` info.properties 与 `Info.plist` 移除重复的 CFBundleDisplayName/NSPhotoLibraryUsageDescription/NSPhotoLibraryAddUsageDescription，并清除自动提取的 CFBundleName 冗余条目；⑤**H2 Repository 全表加载分页化**：`PhotoRepository` 新增 `countAllPhotos`（`fetchCount`），`getAllOriginalURIs`/`getAllPhotoURIs`/`getDuplicateCandidates` 用 `propertiesToFetch` 只取所需列（避免整行物化），`GalleryViewModel.totalPhotoCount` 改用计数查询；mock/测试同步（InMemory/Failing 转发）+ 2 用例。**验证**：WSL2 Ubuntu-24.04 + Swift 6.1.3 `swift build` 零警告 + `swift test` 578/578 全绿（含 TaskLogger/AppErrorHandler 用例）。
+
+- 2026-08-09：**多宠物自动归属落地**——`PetMatcher`（对应源端 PetMatcher.ets）：`registerPetFeatures`（8–15 张照片 → CLIP embedding 聚合均值向量 + 代表性样本 + 14 维颜色签名，编码 PMF1 blob 存 `Pet.featureData`）+ `matchFromEmbedding`（top1 ≥ 阈值 + top2 margin + 颜色距离不冲突三重判定）+ `extractMatchColorSignature`（tiebreaker）；CLIP 失败降级手工特征 embedding（仅匹配不作分类，阈值放宽 0.85），像素计算经 `AnalysisExecutor` 后台执行。配套 `PetFeatureCodec`/`PetMatcherScoring`/`ColorSignatureMath` 纯逻辑 + 测试（git 3a4aca6）。引导建档与宠物编辑页接特征注册入口（`OnboardingViewModel.registerCreatedPetFeature`）。
+
+- 2026-08-09：**P2 可靠性遗留 3 项收口**——三项遗留经核实已在前期提交落地（ba434c4/b60749c/9cfdf20），本次同步待办清单与本文档状态：①引导扫描游标：`OnboardingViewModel.startScan` 收尾仅在 `ScanResult.completedSuccessfully` 时 `saveLastSuccessfulScan`（失败/取消/`skipScan` 均不推进增量基线），测试 `testScanSuccessSavesCursor` / `testScanFailureShowsErrorAndDoesNotComplete`；②「重建本地数据」沙盒副本语义定案：`DatabaseRecoveryView` 主文案与二次确认弹窗均明确「同时删除沙盒中已保存的照片副本（导入/编辑产物）」，`AppDependencies.destroyPersistentStore` 注释同步孤儿审计行为；③编辑清理保守策略：`MediaLifecycleService.saveEditedPhoto` 引用查询（`getPhotoByURI`）失败时 `stillReferenced = true` 保守保留旧文件，测试 `testSaveEditedPhotoKeepsOldFileWhenReferenceQueryFails`。
 
 - 2026-08-09：**P1 核心可靠性收口（六项全部落地）**——①**模型交付**：`tools/model-manifest.json` + `tools/fetch-models.sh`（GitHub Release 下载 + SHA256 校验 + 解包，幂等；`MILENS_MODEL_BASE_URL` 可覆盖做本地/镜像测试），生产模型 = CLIP int8（84MB）+ RTMPose fp16（6MB），`project.yml` excludes 两个实验模型（App ~87MB 而非 261MB），fetch-models.sh 三条路径实跑验证（幂等跳过 ✅ / 下载校验解包 ✅ / 篡改 sha256 拒绝 ✅，修复 macOS bash 3.2 在 UTF-8 locale 下 `$VAR`+全角标点解析缺陷）；②**后台执行器**：`AnalysisExecutor`（actor + utility 优先级 + 受限并发 2，in-flight 计数 + continuation 队列），`QualityScorer` 像素计算（解码/Laplacian/pHash）与 O(n²) 重复分组移入执行器，`ScanService` 两阶段重构（阶段 1 MainActor 轻量过滤收集候选，阶段 2 分批后台分析回 MainActor 汇总），测试注入串行执行器保证确定性；③**媒体生命周期**：`MediaLifecycleService` 接管导入/编辑/删除（DB 失败回滚文件、编辑成功清理旧文件、删除联动媒体 + 刷新 photoCount、启动孤儿审计），ImportService/EditorSaveService 委托 + MiLensApp 注入 + 4 场景单测；④**SwiftData 启动恢复**：SchemaV1 注释冻结（后续字段必须 SchemaV2 + MigrationStage），`MiLensApp` `try!` → `@State` 启动状态机 + `DatabaseRecoveryView`（可读错误/重试/导出诊断 Documents/Diagnostics/重建本地数据二次确认），依赖组装收口 `AppDependencies.make(isTesting:)`；⑤**通知真调度**：`NotificationPosting.post` → `schedule(dateComponents:repeats:)`（`UNCalendarNotificationTrigger`），`NotifyService.rescheduleAllReminders` 幂等（Pet 生日/领养日年度重复 + 时光机每日 09:00），设置开关默认关闭（授权放开关路径，拒绝回弹），RootTabView 移除自动授权，宠物编辑/删除接局部更新；⑥**CI**：app job 去掉 `if: pull_request` 限制（PR 也构建 + 测试 + 覆盖率），新增模型下载步骤 + `actions/cache` 缓存 `MiLens/Resources/Models`。**本机验证：全套 App 测试 400/400 通过 0 失败**（含 ScanService 15 / NotifyService 10 / MediaLifecycleService 4 / NotifyCheckLogic 2），23 项模拟器跳过已全部恢复（30/30 通过）。
 
@@ -343,3 +352,10 @@ P1 核心可靠性与性能六项修复全部落地（实现记录见状态摘�
 ### P3/P4 进度（2026-08-09 收口）
 
 - 2026-08-09：**P3 档案内照片分类 + P4 宠物卡片生成落地**——①**P3 照片分类**：`PetPhotoCategory`（全部照片/待整理/作品，UI-DESIGN.md §6.4 可靠维度）+ `PetPhotoCategoryLogic` 纯逻辑（全部=宠物照片 / 待整理=未归属照片 / 作品=编辑产物）；`PhotoRepository.getUnassignedPhotos`（pet==nil 谓词 + 拍摄时间倒序 + limit）；`MediaLifecycleService.saveEditedPhoto` 自动打 `Photo.category=edited`「作品」标记（编辑产物分类唯一来源）；`PetProfileView` 照片区改分段 chips（FilterChip 新共享组件，含计数 + 作品角标 + 空态文案）；`ImportService` 分类字面量收敛到 `PhotoCategory.petPhoto` 枚举。新增 8 用例（PetPhotoCategoryLogicTests 6 + MediaLifecycleServiceTests 编辑标记断言 1 + 仓储查询 2 合并计入）。V1 不做自动「幼年/玩耍/睡觉」分类（无可靠模型来源）。②**P4 宠物卡片生成**：`PetCardLogic` 纯逻辑（文案组装：宠物名/物种·年龄/「来到家 N 天」优先、拍摄日期回退、无宠物通用文案 + 4:5 模板参数）+ 8 用例 XCTest；`PetCardView`（预览=导出同源 `PetCardArtwork` 排版，ImageRenderer 渲染 1080×1350 PNG，保存相册复用 BeadExportService + 系统分享复用 ShareSheet）+ `PetCardPhotoPickerView` 选照片页（已归属照片显示宠物名角标）+ CreateView 第二项目入口（宠物卡片暂不 Pro 门控，权益文案待产品确认）+ Route `.petCardPhotoPicker`/`.petCard` + RootTabView 路由串联。源端无对应功能（3D 手办不在 V1 范围），iOS 自研 MVP。**本机验证：xcodegen + xcodebuild 编译通过；完整 XCTest 见下方汇总**。
+
+### P5 进度
+
+- 2026-08-09：**内购服务 + Pro 权益门控 + 首页/设置/引导 v2 UI 落地**——①**StoreKit 2 服务**：`StoreService` 协议 + `StoreKit2StoreService`（`Transaction.updates` 监听/购买/恢复）+ `MockStoreService`；`ProEntitlementStore`（应用级权益唯一消费方，RootTabView 冷启动 `refresh()` 校准，`deinit` 经静态注册表取消订阅 Task）+ `ProStatus`；`PaywallLogic`/`PaywallViewModel` + `PaywallView`（三档产品展示/购买/恢复）+ `StoreKitConfigurationTests`/`PaywallLogicTests`/`PaywallViewModelTests`/`ProEntitlementStoreTests`（git 078482e/310222c，产品文案 `Products.storekit`）。②**首页 v2 编辑式布局**：`HomeView`（hero 大图 + 往日回忆 + 空态，杂志式排版）+ 拼豆工作室视觉优化（git f85e22f）。③**UI v2 重构**：创作页/设置页组件（bea5b2f）+ 引导页视觉（bf23ce2）按 UI-DESIGN.md v2.0 迁移，v2 token 全部代码化（`Color+Theme.swift`）。④**App Store 元数据**：`docs/AppStore-metadata.md` 定稿（描述/关键词/订阅产品/审核备注/隐私问卷），隐私政策草稿 `docs/privacy-policy.html`（git 61abdeb/a22ddba/2d5cf9c）。
+- 2026-08-08：**首页逻辑层落地**——`HomeViewModel` + `HomeHeroLogic`（选片/今日判定/文案）+ `HomeMemoryLogic`（往日回忆选片）+ `HomeGreetingLogic`（时段问候）纯逻辑与测试（git d6e9ec5，MiLensKit 支持 macOS 平台 e2c00c3 同期）。
+
+- 2026-08-09：**上架流水线代码落地（release 作业）**——`.github/workflows/ci.yml` 新增 `release` 作业：`workflow_dispatch` 手动触发（inputs：`version`=MARKETING_VERSION / `buildNumber`=CURRENT_PROJECT_VERSION / `upload`=是否上传 ASC），`needs [kit, app]` 质量门禁；流程 = xcodegen → `fetch-models.sh`（模型缓存复用）→ `.p8` 写入 `~/private_keys` → `xcodebuild archive`（`-authenticationKey*` API Key 自动签名 + `-allowProvisioningUpdates`，无需钥匙串）→ `-exportArchive`（app-store ExportOptions，uploadSymbols）→ `xcrun altool --upload-app`（iOS 不需要 notarytool 公证）→ artifact 留存 IPA + xcarchive。Secrets 约定：`ASC_API_KEY`/`ASC_API_KEY_ID`/`ASC_API_ISSUER_ID`/`ASC_TEAM_ID`，`.p8` 生成与配置说明见 [DEVELOPMENT.md](DEVELOPMENT.md) §2.2。**未实测**：本月 CI 额度用完，需配置 Secrets 后手动触发（建议先 `upload=false` 验证签名 IPA，再正式上传）。

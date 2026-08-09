@@ -77,12 +77,17 @@ public struct EditorLayer: Identifiable, Equatable, Sendable {
 
 // MARK: - 工厂函数
 
-private var _editorLayerIdCounter = 0
+/// 图层 ID 序列号。并发安全：仅经 layerIdLock 访问（strict concurrency 下的显式声明）。
+private nonisolated(unsafe) var _editorLayerIdCounter = 0
+private let _editorLayerIdLock = NSLock()
 
 /// 生成唯一图层 ID。对应源端 `generateId`。
 public func generateEditorLayerId() -> String {
+    _editorLayerIdLock.lock()
     _editorLayerIdCounter += 1
-    return "layer_\(Int(Date().timeIntervalSince1970 * 1000))_\(_editorLayerIdCounter)"
+    let seq = _editorLayerIdCounter
+    _editorLayerIdLock.unlock()
+    return "layer_\(Int(Date().timeIntervalSince1970 * 1000))_\(seq)"
 }
 
 /// 创建图片图层。对应源端 `createImageLayer`。

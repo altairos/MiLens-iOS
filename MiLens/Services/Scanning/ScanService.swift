@@ -23,6 +23,7 @@
 
 import Foundation
 import os
+import MiLensKit
 
 /// 扫描服务（@MainActor——PhotoRepository/PetRepository 均为 @MainActor 隔离）。
 @MainActor
@@ -81,10 +82,26 @@ final class ScanService {
         isScanning = true
         defer { isScanning = false }
 
+        // H1 结构化任务日志：扫描全过程记录，供 DiagnosticsCollector 汇总与线上诊断
+        let taskId = TaskLogger.beginTask(.scan, label: afterTimestamp == nil ? "full" : "incremental")
+        var taskOutcome: TaskOutcome = .success
+        var taskSummary: String?
+        defer {
+            switch taskOutcome {
+            case .success: TaskLogger.complete(taskId, summary: taskSummary)
+            case .canceled: TaskLogger.cancel(taskId, summary: taskSummary)
+            case .failed: TaskLogger.fail(
+                taskId, err: ErrorInput(message: taskSummary), summary: taskSummary)
+            }
+        }
+        TaskLogger.stage(taskId, "collect-candidates")
+
         let existingOriginalURIs: Set<String>
         do {
             existingOriginalURIs = try photoRepo.getAllOriginalURIs()
         } catch {
+            taskOutcome = .failed
+            taskSummary = "读取已导入照片失败"
             return ScanResult(error: "读取已导入照片失败")
         }
 
@@ -92,6 +109,8 @@ final class ScanService {
         do {
             totalCount = try await photoLibrary.photoCount()
         } catch {
+            taskOutcome = .failed
+            taskSummary = "读取照片数量失败"
             return ScanResult(error: "读取照片数量失败")
         }
 
@@ -141,6 +160,8 @@ final class ScanService {
             // streamPhotos 抛错：保留已收集结果，但标记失败——
             // 未完整遍历全部照片，上层不得保存增量游标。
             // 用户取消（CancellationError）优先记为 canceled（error 为 nil）。
+            taskOutcome = Task.isCancelled ? .canceled : .failed
+            taskSummary = "阶段1收集中断"
             return ScanResult(
                 matchedCount: matchedCount,
                 unassignedPetUris: unassignedURIs,
@@ -152,6 +173,7 @@ final class ScanService {
         }
 
         // 阶段 2：候选分批（每批 maxConcurrent 个）经后台执行器分析，结果回 MainActor 汇总。
+        TaskLogger.stage(taskId, "analyze")
         let batchSize = executor.maxConcurrent
         var batchStart = 0
         while batchStart < candidates.count {
@@ -178,6 +200,7 @@ final class ScanService {
                     petPhotosFound: petPhotosFound, matchedCount: matchedCount,
                     currentIdentifier: identifier))
             }
+            TaskLogger.progress(taskId, current: processedCount, total: candidates.count)
 
             // 冷却（防止 CPU 过热，对应源端 COOLDOWN）；sleep 失败即任务被取消，结束扫描
             if processedCount % ScanConfig.cooldownBatchSize == 0 {
@@ -189,6 +212,9 @@ final class ScanService {
             }
         }
 
+        taskOutcome = Task.isCancelled ? .canceled : .success
+        taskSummary = "candidates=\(candidates.count) processed=\(processedCount) "
+            + "petPhotos=\(petPhotosFound) matched=\(matchedCount)"
         return ScanResult(
             matchedCount: matchedCount,
             unassignedPetUris: unassignedURIs,
@@ -236,14 +262,14 @@ final class ScanService {
                         maxDimension: ScanConfig.detectInputSize
                     )
                 } catch {
-                    self.logger.error("analyzeOne: 读取照片失败（\(identifier)，\(error.localizedDescription)）")
+                    self.logger.error("analyzeOne: 读取照片失败（\(AppErrorHandler.redactIdentifier(identifier))，\(error.localizedDescription)）")
                     return (false, [], nil)
                 }
                 let detections: [DetectionBox]
                 do {
                     detections = try await vision.detectPets(in: imageData)
                 } catch {
-                    self.logger.error("analyzeOne: 宠物预筛失败（\(identifier)，\(error.localizedDescription)）")
+                    self.logger.error("analyzeOne: 宠物预筛失败（\(AppErrorHandler.redactIdentifier(identifier))，\(error.localizedDescription)）")
                     detections = []
                 }
                 guard !detections.isEmpty else { return (false, [], nil) }
@@ -253,7 +279,7 @@ final class ScanService {
                 do {
                     result = try await clipService.detect(imageData: imageData)
                 } catch {
-                    self.logger.error("analyzeOne: CLIP 精筛失败（\(identifier)，\(error.localizedDescription)），降级为 Phase 1 结论")
+                    self.logger.error("analyzeOne: CLIP 精筛失败（\(AppErrorHandler.redactIdentifier(identifier))，\(error.localizedDescription)），降级为 Phase 1 结论")
                     return (true, [], nil)
                 }
                 guard result.isPet else { return (false, [], nil) }
@@ -265,7 +291,7 @@ final class ScanService {
                 return (true, result.embedding, colorSignature)
             }
         } catch {
-            self.logger.error("analyzeOne: 执行器异常（\(identifier)，\(error.localizedDescription)）")
+            self.logger.error("analyzeOne: 执行器异常（\(AppErrorHandler.redactIdentifier(identifier))，\(error.localizedDescription)）")
             return ScanAnalysisResult(isPet: false, matchedPetID: nil)
         }
         guard let extraction, extraction.isPet else {
@@ -281,7 +307,7 @@ final class ScanService {
                 kind: .clip
             ) {
                 matchedPetID = match.petID
-                logger.info("analyzeOne: 预匹配宠物（\(identifier)，score=\(String(format: "%.4f", match.score))）")
+                logger.info("analyzeOne: 预匹配宠物（\(AppErrorHandler.redactIdentifier(identifier))，score=\(String(format: "%.4f", match.score))）")
             }
         }
         return ScanAnalysisResult(isPet: true, matchedPetID: matchedPetID)

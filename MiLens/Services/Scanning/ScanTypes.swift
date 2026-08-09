@@ -32,4 +32,6 @@ enum ScanConfig {
     static let cooldownInterval: Duration = .milliseconds(50)
     /// 单次导入上限（对应源端 picker maxSelectNumber）
     static let maxImportBatch = 50
+    /// 批量入库攒批大小（L2：替代逐张 save，一次事务写入多张）
+    static let importFlushBatchSize = 32
 }

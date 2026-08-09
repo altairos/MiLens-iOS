@@ -7,7 +7,7 @@
 //  流程：加载原图 → 复制到沙盒（缩放 1024px JPEG）→ 创建 Photo 元数据 → 入库 →
 //  自动归属（PetMatcher：CLIP embedding + 颜色签名匹配已注册宠物 → assignPhoto，
 //  对应源端 importPhotos 中 matchFromEmbedding → assignPhotoToPet）。
-//  文件写入与入库的一致性由 MediaLifecycleService.commitImport 保证（DB 失败回滚文件）。
+//  文件写入与入库的一致性由 MediaLifecycleService.commitImportBatch 保证（批量入库失败回滚本批文件）。
 //  去重：以 originalURI（Photos localIdentifier）为键——uri 是沙盒副本路径不能作比较；
 //  同一批次内重复 identifier 只导入一次。
 //  文件名：UUID（与 Photo.id 一致）——短哈希可能碰撞覆盖已有文件，且无法确认
@@ -17,6 +17,7 @@
 
 import Foundation
 import os
+import MiLensKit
 
 /// 导入结果汇总。
 struct ImportResult: Equatable, Sendable {
@@ -24,6 +25,8 @@ struct ImportResult: Equatable, Sendable {
     let imported: Int
     /// 自动归属到已注册宠物的数量（≤ imported）。
     let matched: Int
+    /// 单张导入失败的数量（加载/复制/入库失败；H4 可观测性）。
+    let failed: Int
 }
 
 /// 导入服务（@MainActor——PhotoRepository/PetRepository 均为 @MainActor 隔离）。
@@ -70,21 +73,38 @@ final class ImportService {
     /// - Parameters:
     ///   - identifiers: 照片库 identifier 列表（来自扫描结果或 PHPicker）
     ///   - onProgress: 进度回调
-    /// - Returns: 导入结果（imported = 实际入库数，matched = 自动归属数）
+    /// - Returns: 导入结果（imported = 实际入库数，matched = 自动归属数，failed = 单张失败数）
     @discardableResult
     func importPhotos(
         identifiers: [String],
         onProgress: (@MainActor (ImportProgress) -> Void)? = nil
     ) async -> ImportResult {
-        guard !isImporting, !identifiers.isEmpty else { return ImportResult(imported: 0, matched: 0) }
+        guard !isImporting, !identifiers.isEmpty else { return ImportResult(imported: 0, matched: 0, failed: 0) }
         isImporting = true
         defer { isImporting = false }
+
+        // H1 结构化任务日志：导入全过程记录，供 DiagnosticsCollector 汇总与线上诊断
+        let taskId = TaskLogger.beginTask(.import_, label: "count=\(identifiers.count)")
+        var taskOutcome: TaskOutcome = .success
+        var taskSummary: String?
+        defer {
+            switch taskOutcome {
+            case .success: TaskLogger.complete(taskId, summary: taskSummary)
+            case .canceled: TaskLogger.cancel(taskId, summary: taskSummary)
+            case .failed: TaskLogger.fail(
+                taskId, err: ErrorInput(message: taskSummary), summary: taskSummary)
+            }
+        }
+        TaskLogger.stage(taskId, "prepare")
 
         // 确保沙盒目录存在（目录创建失败是环境级错误，直接终止本次导入）
         do {
             try await fileStorage.createDirectory(at: sandboxDir)
         } catch {
-            return ImportResult(imported: 0, matched: 0)
+            taskOutcome = .failed
+            taskSummary = "创建沙盒目录失败"
+            logger.error("importPhotos: 创建沙盒目录失败（\(error.localizedDescription)）")
+            return ImportResult(imported: 0, matched: 0, failed: 0)
         }
 
         // 去重集合：以 originalURI（Photos localIdentifier）为键；
@@ -101,7 +121,44 @@ final class ImportService {
 
         var imported = 0
         var matched = 0
+        var failed = 0
         let total = min(identifiers.count, ScanConfig.maxImportBatch)
+
+        // L2 分批提交：逐张加载/写文件，攒够一批统一入库（替代逐张 save）。
+        // 事务边界：批量入库失败回滚本批已写文件（MediaLifecycleService.commitImportBatch）；
+        // 单张加载/写文件失败仅影响该张，不影响其余。
+        var pending: [(data: Data, path: String, photo: Photo)] = []
+
+        /// 入库当前攒批并执行自动归属；批量入库失败计数回本批数量（文件已回滚）。
+        func flushPending() async {
+            guard !pending.isEmpty else { return }
+            let batch = pending
+            pending = []
+            let photos = batch.map { $0.photo }
+            let paths = batch.map { $0.path }
+            do {
+                try await mediaLifecycle.commitImportBatch(photos: photos, paths: paths)
+                imported += photos.count
+                // 自动归属（对应源端 importPhotos 中 matchFromEmbedding → assignPhotoToPet）：
+                // 仅对成功入库的照片执行；提取/匹配失败不影响导入
+                for (index, photo) in photos.enumerated() {
+                    if let matcher, let match = await resolveAutoMatch(matcher: matcher, imageData: batch[index].data) {
+                        do {
+                            if let pet = try petRepo.getPet(id: match.petID) {
+                                try photoRepo.assignPhoto(photo, to: pet)
+                                try petRepo.refreshPhotoCount(for: pet)
+                                matched += 1
+                            }
+                        } catch {
+                            logger.warning("importPhotos: 自动归属写入失败（\(error.localizedDescription)）")
+                        }
+                    }
+                }
+            } catch {
+                failed += photos.count
+                logger.error("importPhotos: 批量入库失败（\(error.localizedDescription)），本批 \(photos.count) 张文件已回滚")
+            }
+        }
 
         for (index, identifier) in identifiers.prefix(ScanConfig.maxImportBatch).enumerated() {
             if Task.isCancelled { break }
@@ -147,33 +204,30 @@ final class ImportService {
                     subCategory: "other"
                 )
 
-                // 写文件 + 入库（事务段：DB 失败回滚已写文件）
-                try await mediaLifecycle.commitImport(data: imageData, to: sandboxPath, photo: photo)
-                imported += 1
-
-                // 自动归属（对应源端 importPhotos 中 matchFromEmbedding → assignPhotoToPet）：
-                // 仅对成功入库的照片执行；提取/匹配失败不影响导入
-                if let matcher, let match = await resolveAutoMatch(matcher: matcher, imageData: imageData) {
-                    do {
-                        if let pet = try petRepo.getPet(id: match.petID) {
-                            try photoRepo.assignPhoto(photo, to: pet)
-                            try petRepo.refreshPhotoCount(for: pet)
-                            matched += 1
-                        }
-                    } catch {
-                        logger.warning("importPhotos: 自动归属写入失败（\(error.localizedDescription)）")
-                    }
+                // 写沙盒副本文件；入库延后到攒批 flush（L2 批量事务）
+                try await fileStorage.write(imageData, to: sandboxPath)
+                pending.append((data: imageData, path: sandboxPath, photo: photo))
+                if pending.count >= ScanConfig.importFlushBatchSize {
+                    await flushPending()
                 }
             } catch {
-                // 单张导入失败不阻止后续（commitImport 已回滚已写文件，不留孤儿）
+                // 单张导入失败不阻止后续（批量版：入库失败的整批已在 flush 内回滚文件）；
+                // H4：失败计数 + 日志保证可观测，避免静默丢照片
+                failed += 1
+                logger.error("importPhotos: 单张导入失败（\(AppErrorHandler.redactIdentifier(identifier))，\(error.localizedDescription)）")
                 continue
             }
 
             onProgress?(ImportProgress(current: index + 1, total: total))
+            TaskLogger.progress(taskId, current: index + 1, total: total)
         }
+        // 尾批入库（含取消中断：已写文件不丢弃，避免孤儿）
+        await flushPending()
 
-        logger.info("importPhotos: imported=\(imported), matched=\(matched)")
-        return ImportResult(imported: imported, matched: matched)
+        taskOutcome = Task.isCancelled ? .canceled : .success
+        taskSummary = "requested=\(identifiers.count) imported=\(imported) failed=\(failed) matched=\(matched)"
+        logger.info("importPhotos: imported=\(imported), failed=\(failed), matched=\(matched)")
+        return ImportResult(imported: imported, matched: matched, failed: failed)
     }
 
     /// 自动归属判定：提取 embedding + 颜色签名 → PetMatcher 匹配。

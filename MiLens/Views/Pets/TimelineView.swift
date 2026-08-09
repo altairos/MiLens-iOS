@@ -199,6 +199,8 @@ struct TimelineView: View {
                     .frame(width: 56, height: 56)
                     .clipped()
                     .clipShape(RoundedRectangle(cornerRadius: Radius.thumb, style: .continuous))
+                    // M4：时间线照片缩略图提供无障碍描述（标题文本已由下方 Text 读出）。
+                    .accessibilityLabel("代表照片")
             }
 
             VStack(alignment: .leading, spacing: Spacing.xs) {

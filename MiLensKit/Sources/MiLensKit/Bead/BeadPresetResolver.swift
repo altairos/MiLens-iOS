@@ -96,7 +96,10 @@ private func makeBuiltinEffectPresets() -> [BeadEffectPreset] {
 }
 
 /// 可变全局效果预设注册表。对应源端 `BEAD_EFFECT_PRESETS`。
-public var BEAD_EFFECT_PRESETS: [BeadEffectPreset] = makeBuiltinEffectPresets()
+/// 并发安全：写入（replacePresetRegistry / resetToBuiltIns）与查找（findPreset）经
+/// effectPresetsLock 串行化；测试直接读该全局（单线程）；nonisolated(unsafe) 为锁保护的显式声明。
+private let effectPresetsLock = NSLock()
+public nonisolated(unsafe) var BEAD_EFFECT_PRESETS: [BeadEffectPreset] = makeBuiltinEffectPresets()
 
 // MARK: - 验证辅助
 
@@ -338,6 +341,8 @@ private func normalizePresetId(_ presetId: String) -> BeadEffectPresetId {
 
 private func findPreset(_ presetId: String) -> BeadEffectPreset {
     let normalized = normalizePresetId(presetId)
+    effectPresetsLock.lock()
+    defer { effectPresetsLock.unlock() }
     for preset in BEAD_EFFECT_PRESETS {
         if preset.id == normalized { return preset }
     }
@@ -345,7 +350,9 @@ private func findPreset(_ presetId: String) -> BeadEffectPreset {
 }
 
 private func replacePresetRegistry(_ presets: [BeadEffectPreset]) {
+    effectPresetsLock.lock()
     BEAD_EFFECT_PRESETS = presets.map { copyEffect($0) }
+    effectPresetsLock.unlock()
 }
 
 // MARK: - 覆盖项应用
@@ -590,7 +597,9 @@ public enum BeadPresetResolver {
 
     /// 恢复内置预设注册表。
     public static func resetToBuiltIns() {
+        effectPresetsLock.lock()
         BEAD_EFFECT_PRESETS = makeBuiltinEffectPresets()
+        effectPresetsLock.unlock()
     }
 
     /// 获取效果预设。

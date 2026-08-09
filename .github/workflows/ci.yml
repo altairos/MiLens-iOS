@@ -1,6 +1,8 @@
 # MiLens iOS — 云端编译 / 测试 CI（GitHub Actions runner）
 # PR 与 main/master push 均运行 app 作业（构建 + 测试 + 覆盖率）；
 # 生产模型经 tools/fetch-models.sh 从 GitHub Release 下载（SHA256 校验）并缓存。
+# release 作业（手动触发 workflow_dispatch）云端签名 IPA + 上传 App Store Connect，
+# 免 Mac 一条龙；Secrets 与操作说明见 DEVELOPMENT.md §2.2。
 # 详见 DEVELOPMENT.md「双机/云端协作」。
 
 name: CI
@@ -10,6 +12,20 @@ on:
     branches: [main, master]
   pull_request:
   workflow_dispatch:
+    inputs:
+      version:
+        description: MARKETING_VERSION（App Store 显示版本号，如 1.0.1）
+        required: true
+        default: "1.0"
+      buildNumber:
+        description: CURRENT_PROJECT_VERSION（构建号，须大于 App Store Connect 上已有值）
+        required: true
+        default: "1"
+      upload:
+        description: 上传 App Store Connect（false = 仅生成签名 IPA 供人工验证）
+        required: false
+        default: true
+        type: boolean
 
 concurrency:
   group: ci-${{ github.ref }}
@@ -96,5 +112,133 @@ jobs:
             -destination "id=$DEVICE" \
             -configuration Debug \
             -enableCodeCoverage YES \
+            -resultBundlePath build/TestResult.xcresult \
             CODE_SIGNING_ALLOWED=NO \
             test
+      # H3 覆盖率门禁：解析 xcresult 与基线比较，任一指标不达标即失败
+      # （基线为占位值，首次实测后校准，见 tools/check-coverage.sh 头注释）
+      - name: Check coverage gate
+        run: tools/check-coverage.sh build/TestResult.xcresult
+
+      - name: Upload test result bundle
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: TestResult.xcresult
+          path: build/TestResult.xcresult
+          if-no-files-found: ignore
+
+  # ── Release：云端签名 IPA + 上传 App Store Connect（手动触发，免 Mac 一条龙）──
+  # 质量门禁：needs [kit, app] 全绿后本作业才运行。
+  # 前置：仓库 Secrets 配置 App Store Connect API Key（见 DEVELOPMENT.md §2.2）：
+  #   ASC_API_KEY        .p8 私钥文件内容（含 -----BEGIN PRIVATE KEY----- 两行）
+  #   ASC_API_KEY_ID     ASC「用户与访问 → 集成 → App Store Connect API」的 Key ID
+  #   ASC_API_ISSUER_ID  同页面的 Issuer ID（UUID）
+  #   ASC_TEAM_ID        Apple Developer Team ID（10 位字母数字）
+  release:
+    name: Release (macOS)
+    runs-on: macos-15
+    needs: [kit, app]
+    if: github.event_name == 'workflow_dispatch'
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Cache Homebrew packages
+        uses: actions/cache@v4
+        with:
+          path: ~/Library/Caches/Homebrew
+          key: brew-xcodegen-${{ runner.os }}
+      - name: Install XcodeGen
+        run: brew install xcodegen
+      - name: Generate Xcode project
+        run: xcodegen generate
+
+      - name: Cache AI models
+        uses: actions/cache@v4
+        with:
+          path: MiLens/Resources/Models
+          key: models-${{ runner.os }}-${{ hashFiles('tools/model-manifest.json') }}
+          restore-keys: models-${{ runner.os }}-
+      - name: Fetch production models (Release + SHA256)
+        run: tools/fetch-models.sh
+
+      # altool 读取 ~/private_keys/AuthKey_<KEY_ID>.p8；内容来自 Secret，不进工作区
+      - name: Write App Store Connect API Key
+        env:
+          ASC_API_KEY: ${{ secrets.ASC_API_KEY }}
+          ASC_API_KEY_ID: ${{ secrets.ASC_API_KEY_ID }}
+        run: |
+          mkdir -p "$HOME/private_keys"
+          printf '%s' "$ASC_API_KEY" > "$HOME/private_keys/AuthKey_${ASC_API_KEY_ID}.p8"
+          chmod 600 "$HOME/private_keys/AuthKey_${ASC_API_KEY_ID}.p8"
+
+      - name: Archive (App Store signing via API Key)
+        env:
+          ASC_API_KEY_ID: ${{ secrets.ASC_API_KEY_ID }}
+          ASC_API_ISSUER_ID: ${{ secrets.ASC_API_ISSUER_ID }}
+          ASC_TEAM_ID: ${{ secrets.ASC_TEAM_ID }}
+          VERSION: ${{ inputs.version }}
+          BUILD_NUMBER: ${{ inputs.buildNumber }}
+        run: |
+          # API Key 自动签名（-authenticationKey*），无需钥匙串；-allowProvisioningUpdates 自动下载描述文件
+          xcodebuild archive \
+            -project MiLens.xcodeproj \
+            -scheme MiLens \
+            -configuration Release \
+            -archivePath build/MiLens.xcarchive \
+            -allowProvisioningUpdates \
+            -authenticationKeyPath "$HOME/private_keys/AuthKey_${ASC_API_KEY_ID}.p8" \
+            -authenticationKeyID "$ASC_API_KEY_ID" \
+            -authenticationKeyIssuerID "$ASC_API_ISSUER_ID" \
+            DEVELOPMENT_TEAM="$ASC_TEAM_ID" \
+            MARKETING_VERSION="$VERSION" \
+            CURRENT_PROJECT_VERSION="$BUILD_NUMBER"
+
+      - name: Export IPA
+        env:
+          ASC_TEAM_ID: ${{ secrets.ASC_TEAM_ID }}
+        run: |
+          cat > "$RUNNER_TEMP/ExportOptions.plist" <<PLIST
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0">
+          <dict>
+              <key>method</key>
+              <string>app-store</string>
+              <key>teamID</key>
+              <string>${ASC_TEAM_ID}</string>
+              <key>signingStyle</key>
+              <string>automatic</string>
+              <key>uploadSymbols</key>
+              <true/>
+          </dict>
+          </plist>
+          PLIST
+          xcodebuild -exportArchive \
+            -archivePath build/MiLens.xcarchive \
+            -exportPath build/ipa \
+            -exportOptionsPlist "$RUNNER_TEMP/ExportOptions.plist"
+
+      - name: Upload IPA to App Store Connect
+        if: inputs.upload
+        env:
+          ASC_API_KEY_ID: ${{ secrets.ASC_API_KEY_ID }}
+          ASC_API_ISSUER_ID: ${{ secrets.ASC_API_ISSUER_ID }}
+        run: |
+          # iOS App 上传用 altool（notarytool 是 macOS 公证工具，本工程不需要）
+          xcrun altool --upload-app \
+            -f build/ipa/MiLens.ipa \
+            -t ios \
+            --apiKey "$ASC_API_KEY_ID" \
+            --apiIssuer "$ASC_API_ISSUER_ID" \
+            --verbose
+
+      - name: Upload artifacts (IPA + archive)
+        uses: actions/upload-artifact@v4
+        with:
+          name: MiLens-release
+          path: |
+            build/ipa/MiLens.ipa
+            build/MiLens.xcarchive
+          if-no-files-found: error

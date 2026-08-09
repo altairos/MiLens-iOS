@@ -108,7 +108,7 @@ struct EditorCanvasView: View {
 
     @ViewBuilder
     private func cropOverlayView(canvasRect: CGRect) -> some View {
-        if let cropRect = viewModel.cropRect {
+        if let cropRect = viewModel.cropVM.cropRect {
             let mask = computeCropOverlayMask(
                 canvasW: canvasRect.width, canvasH: canvasRect.height, rect: cropRect
             )
@@ -195,9 +195,9 @@ struct EditorCanvasView: View {
 
     /// 裁剪框拖动（起点 + translation，源端 cropCtrl.pan 语义）。
     private func cropDragChanged(_ value: DragGesture.Value) {
-        let start = cropDragStart ?? viewModel.cropRect ?? EditorCropRect(x: 0, y: 0, w: 0, h: 0)
+        let start = cropDragStart ?? viewModel.cropVM.cropRect ?? EditorCropRect(x: 0, y: 0, w: 0, h: 0)
         cropDragStart = start
-        viewModel.updateCropRect(EditorCropRect(
+        viewModel.cropVM.updateCropRect(EditorCropRect(
             x: start.x + value.translation.width,
             y: start.y + value.translation.height,
             w: start.w, h: start.h

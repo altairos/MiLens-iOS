@@ -75,7 +75,7 @@ apt-get install -y --no-install-recommends \
 仓库 https://github.com/altairos/MiLens-iOS（私有）。推送即触发 `.github/workflows/ci.yml`（PR 与 main/master push 均运行两个作业）：
 
 1. `MiLensKit (Linux)`——ubuntu-24.04 上 `swift build/test`，约 50s。
-2. `MiLens App (macOS)`——macos-15 runner 上 `xcodegen generate` → `tools/fetch-models.sh`（从 Release 下载生产模型 + SHA256 校验，`actions/cache` 缓存 `MiLens/Resources/Models`，命中则幂等跳过）→ `xcodebuild build/test`（含覆盖率），约 4-5 分钟（依赖 MiLensKit 作业通过）。
+2. `MiLens App (macOS)`——macos-15 runner 上 `xcodegen generate` → `tools/fetch-models.sh`（从 Release 下载生产模型 + SHA256 校验，`actions/cache` 缓存 `MiLens/Resources/Models`，命中则幂等跳过）→ `xcodebuild build/test`（含覆盖率，`-resultBundlePath build/TestResult.xcresult`）→ **覆盖率门禁**（`tools/check-coverage.sh` 解析 xcresult，按 MiLens/MiLensKit 目标与基线比较，任一指标不达标即失败；基线为占位值，首次实测后校准，见脚本头注释），约 4-5 分钟（依赖 MiLensKit 作业通过）。
 
 查看：`gh run list --repo altairos/MiLens-iOS` 或 https://github.com/altairos/MiLens-iOS/actions。
 
@@ -86,12 +86,23 @@ apt-get install -y --no-install-recommends \
 ```
 macos-15 runner
   ├─ xcodegen + xcodebuild build          ← 已验证
-  ├─ xcodebuild archive                   ← P5 待加
-  ├─ xcodebuild -exportArchive            ← P5 待加（签名，用 .p8 App Store Connect API Key）
-  └─ xcrun altool / notarytool upload     ← P5 待加（苹果官方上传，免费）
+  ├─ xcodebuild archive                   ← release 作业（已实现）
+  ├─ xcodebuild -exportArchive            ← release 作业（已实现，.p8 App Store Connect API Key 自动签名）
+  └─ xcrun altool upload                  ← release 作业（已实现，苹果官方上传，免费）
 ```
 
-证书/描述文件用 **App Store Connect API Key（.p8）** 注入 GitHub Secret，无需钥匙串。`appuploader`/「开心上架」等第三方工具适用于「IPA 已生成、只需在 Windows 本地重传」场景，对原生项目非必需（IPA 本身仍需 macOS runner 产出）。
+`release` 作业（`.github/workflows/ci.yml`）由 `workflow_dispatch` 手动触发，质量门禁为 kit + app 作业全绿后才运行。触发时填写：`version`（MARKETING_VERSION）、`buildNumber`（CURRENT_PROJECT_VERSION，须大于 App Store Connect 已有值）、`upload`（false = 仅生成签名 IPA 供人工验证，不上传）。
+
+**Secrets 配置**（仓库 Settings → Secrets and variables → Actions，一次性）：
+
+| Secret | 值 |
+|---|---|
+| `ASC_API_KEY` | App Store Connect API Key 的 `.p8` 私钥文件**内容**（含 `-----BEGIN PRIVATE KEY-----` 两行） |
+| `ASC_API_KEY_ID` | ASC「用户与访问 → 集成 → App Store Connect API」的 Key ID |
+| `ASC_API_ISSUER_ID` | 同页面的 Issuer ID（UUID） |
+| `ASC_TEAM_ID` | Apple Developer Team ID（10 位字母数字，archive/export 的 `DEVELOPMENT_TEAM`） |
+
+`.p8` 生成：App Store Connect → 用户与访问 → 集成 → App Store Connect API → 生成密钥（需 Account Holder 权限，仅显示一次，下载后立即存入 Secret，**不入库**）。签名走 `xcodebuild -authenticationKey*` 自动签名（无需钥匙串/证书私钥），上传走 `xcrun altool --upload-app`——iOS App 不需要 notarytool（那是 macOS 公证工具）。`appuploader`/「开心上架」等第三方工具适用于「IPA 已生成、只需在 Windows 本地重传」场景，对原生项目非必需（IPA 本身仍需 macOS runner 产出）。
 
 > **免费额度**：公开仓库 macOS runner 无限免费；私有仓库 macOS 分钟按 10× 计费（每月 2000 免费分钟 ≈ 200 macOS 分钟，足够每日多次编译）。当前仓库为私有，可随时切公开获得无限额度。
 
@@ -128,6 +139,11 @@ xcodebuild -project MiLens.xcodeproj \
 # 测试覆盖率
 xcodebuild ... test -enableCodeCoverage YES
 # 结果在 DerivedData/.../*.xcresult，用 xcrun xcresulttool 或 Xcode Report Navigator 查看
+
+# CI 覆盖率门禁（与 .github/workflows/ci.yml 同用法；基线可用环境变量覆盖）
+tools/check-coverage.sh build/TestResult.xcresult
+#   APP_LINE_MIN/APP_FUNCTION_MIN/APP_BRANCH_MIN   MiLens (App) 基线，默认 30/25/30
+#   KIT_LINE_MIN/KIT_FUNCTION_MIN/KIT_BRANCH_MIN   MiLensKit 基线，默认 47/50/44（占位）
 ```
 
 ## 3. 项目结构约定
@@ -286,6 +302,8 @@ UI 文案与 Info.plist 权限说明用 Apple String Catalog（`.xcstrings`）�
 - 2026-08-08：**AI 模型转换工具链落地**——新增 3 个 Python 脚本 + `tools/requirements-models.txt`：①`tools/convert_clip_coreml.py`（CLIP ViT-B/32 vision encoder → Core ML `.mlpackage`，只导 image_features 512 维，支持 INT8/FP16 量化，精度校验 cosine >0.999）；②`tools/convert_rtmpose_coreml.py`（RTMPose-t ONNX → Core ML，SimCC 输出，精度校验 <2px）；③`tools/prepare_text_embeddings.py`（text embeddings f32 格式校验 + Swift 加载代码生成）。三个脚本 `py_compile` 全绿；`prepare_text_embeddings.py --verify-only` 对源端 `pet_text_embeddings.f32`（40960 bytes = 20×512×4）实跑通过，L2 范数全部正常。转换+量化实跑需 macOS（coremltools 依赖）。
 
 ### P2
+
+- 2026-08-09：**审计收口 M2-M4 + L1-L5 本地验证（WSL2 Ubuntu-24.04 + Swift 6.1.3）**——`MiLensKit` 开启 `-strict-concurrency=complete` 后 `swift build` **零警告**，`swift test --parallel` 全绿（585/585，EXIT=0，含 L4 domain 判定 4 用例 + L5 脱敏 3 用例）；App 层 6 个改动文件（`MiLensApp`/`MediaLifecycleService`/`ScanService`/`ImportService`/`IOSPhotoLibraryAccess`/`MediaLifecycleServiceTests`）`swiftc -parse` 全过；App 编译/App 层测试依赖 iOS SDK，本机无法执行，待 CI（未执行）。
 
 - 2026-08-09：**P1 核心可靠性收口——本机 Mac 模拟器全套验证通过**——①模型交付：`tools/fetch-models.sh` 三条路径实跑验证（幂等跳过 / 下载+SHA256 校验+解包 / 篡改 sha256 拒绝退出非零），`project.yml` excludes 实验模型（`xcodegen generate` 重新生成工程编译通过）；②后台执行器 + 两阶段扫描重构：ScanServiceTests 15/15、QualityScorer 相关全绿；③MediaLifecycleService 4 场景单测通过；④SwiftData 启动恢复：编译通过，测试环境 in-memory 快速路径保持；⑤通知真调度：NotifyServiceTests 10/10、NotifyCheckLogicTests 2/2；⑥CI：app job 移除 PR 限制 + 模型下载/缓存步骤。**全套 App 测试 400/400 通过、0 失败**（23 项模拟器跳过已恢复：ScanService/ImportService/QualityScorer 30/30）。模型 Release 创建后 PR 即可全绿。
 

@@ -86,7 +86,7 @@ public struct BeadGenerateOptions: Sendable {
 }
 
 /// 生成管线可执行预设参数。对应源端 `BeadGenerationPreset`。
-public struct BeadGenerationPreset {
+public struct BeadGenerationPreset: Sendable {
     public var paletteId: String
     public var maxColors: Int
     public var mode: BeadMode
@@ -151,7 +151,7 @@ public struct BeadGenerationPreset {
 }
 
 /// 风格层规则。对应源端 `BeadStyleRules`。
-public struct BeadStyleRules {
+public struct BeadStyleRules: Sendable {
     public var outlineMode: BeadOutlineDrawMode?
     public var backgroundStyle: BeadBackgroundMode?
     public var eyeHighlightStrength: Double?
@@ -210,7 +210,7 @@ public struct BeadGenerationRecipe {
 }
 
 /// UI 展示的版本化效果预设。对应源端 `BeadEffectPreset`。
-public struct BeadEffectPreset {
+public struct BeadEffectPreset: Sendable {
     public var id: BeadEffectPresetId
     public var version: Int
     public var name: String
@@ -246,7 +246,7 @@ public struct ResolvedBeadGeneration {
 // MARK: - 尺寸预设
 
 /// 尺寸预设值。对应源端 `BeadSizePresetValue`（maxDim 为最大边格数）。
-public struct BeadSizePresetValue {
+public struct BeadSizePresetValue: Sendable {
     public var maxDim: Int
     public var label: String
 
@@ -267,7 +267,7 @@ public let BEAD_SIZE_PRESETS: [String: BeadSizePresetValue] = [
 // MARK: - 颜色数量预设
 
 /// 颜色数量预设值。对应源端 `BeadColorPresetValue`。
-public struct BeadColorPresetValue {
+public struct BeadColorPresetValue: Sendable {
     public var count: Int
     public var label: String
     public var description: String

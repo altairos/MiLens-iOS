@@ -473,6 +473,7 @@ private enum MockScanError: Error {
 private final class FailingPhotoRepository: PhotoRepositoryProtocol {
     func getAllOriginalURIs() throws -> Set<String> { throw MockScanError.repoFailure }
     func getAllPhotoURIs() throws -> Set<String> { [] }
+    func countAllPhotos() throws -> Int { 0 }
     func getPhoto(id: UUID) throws -> Photo? { nil }
     func getPhotoByURI(_ uri: String) throws -> Photo? { nil }
     func getPhotoByOriginalURI(_ originalURI: String) throws -> Photo? { nil }
@@ -481,6 +482,7 @@ private final class FailingPhotoRepository: PhotoRepositoryProtocol {
     func getUnassignedPhotos(limit: Int) throws -> [Photo] { [] }
     func getAnniversaryPhotos(month: Int, day: Int, excludeYear: Int?) throws -> [Photo] { [] }
     func insertPhoto(_ photo: Photo) throws {}
+    func insertPhotos(_ photos: [Photo]) throws {}
     func deletePhoto(_ photo: Photo) throws {}
     func updatePhoto(_ photo: Photo) throws {}
     func assignPhoto(_ photo: Photo, to pet: Pet?) throws {}

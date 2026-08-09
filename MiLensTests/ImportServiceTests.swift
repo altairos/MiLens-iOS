@@ -14,7 +14,8 @@ import UniformTypeIdentifiers
 final class ImportServiceTests: XCTestCase {
 
     private func makeService(
-        assets: [PhotoAssetMetadata] = []
+        assets: [PhotoAssetMetadata] = [],
+        library: MockPhotoLibraryAccess? = nil
     ) -> (ImportService, SwiftDataPhotoRepository, MockFileStorage, ModelContainer) {
         // container 必须返回并持有——mainContext 不持有 container，
         // 局部变量释放后 repo 的 fetch 触发 SwiftData 内部 SIGTRAP（悬垂引用）。
@@ -23,7 +24,7 @@ final class ImportServiceTests: XCTestCase {
         let container = try! ModelContainer(for: schema, configurations: [config])
         let photoRepo = SwiftDataPhotoRepository(context: container.mainContext)
         let petRepo = SwiftDataPetRepository(context: container.mainContext)
-        let photoLibrary = MockPhotoLibraryAccess(assets: assets)
+        let photoLibrary = library ?? MockPhotoLibraryAccess(assets: assets)
         let fileStorage = MockFileStorage()
         let mediaLifecycle = MediaLifecycleService(
             photoRepo: photoRepo, petRepo: petRepo,
@@ -237,6 +238,39 @@ final class ImportServiceTests: XCTestCase {
         XCTAssertEqual(result.matched, 0)
     }
 
+    // MARK: - 失败可观测（H4）
+
+    func testImportCountsPartialFailures() async {
+        // a 加载失败、b 正常 → imported=1, failed=1（部分失败不阻止后续）
+        let library = MockPhotoLibraryAccess(assets: [asset("a"), asset("b")])
+        library.imageDataErrors = ["a": ImportTestError.loadFailed]
+        let (service, photoRepo, _, container) = makeService(
+            assets: [asset("a"), asset("b")], library: library)
+
+        let result = await service.importPhotos(identifiers: ["a", "b"])
+        XCTAssertEqual(result.imported, 1)
+        XCTAssertEqual(result.failed, 1)
+
+        let photos = try! photoRepo.getPhotosPage(offset: 0, limit: 10)
+        XCTAssertEqual(photos.count, 1)
+        XCTAssertEqual(photos[0].originalURI, "b")
+    }
+
+    func testImportCountsAllFailures() async {
+        // 全部加载失败 → imported=0, failed=2（UI 应提示失败而非"没有新照片"）
+        let library = MockPhotoLibraryAccess(assets: [asset("a"), asset("b")])
+        library.imageDataErrors = ["a": ImportTestError.loadFailed, "b": ImportTestError.loadFailed]
+        let (service, _, _, container) = makeService(
+            assets: [asset("a"), asset("b")], library: library)
+
+        let result = await service.importPhotos(identifiers: ["a", "b"])
+        XCTAssertEqual(result.imported, 0)
+        XCTAssertEqual(result.failed, 2)
+        XCTAssertEqual(ImportFlowLogic.resolveImportSummary(
+            imported: result.imported, matched: result.matched, failed: result.failed),
+            "有 2 张照片导入失败")
+    }
+
     // MARK: - 自动归属辅助
 
     /// 构造带可选 CLIP mock 的导入服务（返回 petRepo 供注册特征）。
@@ -288,4 +322,5 @@ final class ImportServiceTests: XCTestCase {
 
 private enum ImportTestError: Error {
     case extractionFailed
+    case loadFailed
 }

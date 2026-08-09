@@ -26,6 +26,28 @@ final class AppErrorHandlerTests: XCTestCase {
                        "photos version updated: 42")
     }
 
+    // MARK: - 日志 localIdentifier 脱敏（L5）
+
+    func testSanitizeForLogRedactsPhotosLocalIdentifier() {
+        let id = "3A1B2C3D-4E5F-6A7B-8C9D-0E1F2A3B4C5D/L0/001"
+        let clean = AppErrorHandler.sanitizeForLog("load failed: \(id)")
+        XCTAssertFalse(clean.contains(id))
+        XCTAssertTrue(clean.contains("[PHID]"))
+    }
+
+    func testRedactIdentifierKeepsPrefixForDiagnosticCorrelation() {
+        let id = "3A1B2C3D-4E5F-6A7B-8C9D-0E1F2A3B4C5D/L0/001"
+        let redacted = AppErrorHandler.redactIdentifier(id)
+        XCTAssertTrue(redacted.hasPrefix("3A1B2C3D-"))
+        XCTAssertFalse(redacted.contains(id))
+        XCTAssertTrue(redacted.hasSuffix("…"))
+    }
+
+    func testRedactIdentifierLeavesShortStringsUntouched() {
+        XCTAssertEqual(AppErrorHandler.redactIdentifier("short"), "short")
+        XCTAssertEqual(AppErrorHandler.redactIdentifier(""), "")
+    }
+
     func testDebugInfoLogWithoutThrowing() {
         AppErrorHandler.debug("TestTag", "debug message")
         AppErrorHandler.info("TestTag", "info message")
@@ -185,6 +207,71 @@ final class AppErrorHandlerTests: XCTestCase {
         let noMessageResult = AppErrorHandler.classifyError(noMessage)
         XCTAssertEqual(noMessageResult.category, .unknown)
         XCTAssertEqual(noMessageResult.message, "")
+    }
+
+    // MARK: - classifyError（iOS NSError domain，L4）
+
+    func testClassifyErrorPrefersNSPOSIXDomainOverCode() {
+        // ENOSPC(28)：即使 message 含 "file" 也不应落 filesystem
+        let enospc = ErrorInput(code: 28, message: "write file failed", domain: "NSPOSIXErrorDomain")
+        let enospcResult = AppErrorHandler.classifyError(enospc)
+        XCTAssertEqual(enospcResult.category, .storage)
+        XCTAssertFalse(enospcResult.isRetryable)
+
+        let eacces = ErrorInput(code: 13, message: "write file failed", domain: "NSPOSIXErrorDomain")
+        XCTAssertEqual(AppErrorHandler.classifyError(eacces).category, .permission)
+
+        let enoent = ErrorInput(code: 2, message: "read failed", domain: "NSPOSIXErrorDomain")
+        XCTAssertEqual(AppErrorHandler.classifyError(enoent).category, .filesystem)
+    }
+
+    func testClassifyErrorRecognizesCocoaDomainCodes() {
+        // NSFileWriteOutOfSpaceError
+        let outOfSpace = ErrorInput(code: 516, message: "write failed", domain: "NSCocoaErrorDomain")
+        let spaceResult = AppErrorHandler.classifyError(outOfSpace)
+        XCTAssertEqual(spaceResult.category, .storage)
+
+        // NSUserCancelledError
+        let cancelled = ErrorInput(code: 3072, message: "user cancelled", domain: "NSCocoaErrorDomain")
+        XCTAssertEqual(AppErrorHandler.classifyError(cancelled).category, .cancel)
+
+        // NSFileNoSuchFileError
+        let noSuchFile = ErrorInput(code: 4, message: "remove failed", domain: "NSCocoaErrorDomain")
+        XCTAssertEqual(AppErrorHandler.classifyError(noSuchFile).category, .filesystem)
+
+        // NSFileWriteNoPermissionError
+        let noPerm = ErrorInput(code: 513, message: "write failed", domain: "NSCocoaErrorDomain")
+        XCTAssertEqual(AppErrorHandler.classifyError(noPerm).category, .permission)
+
+        // Core Data 持久化错误区间 → database 且可重试
+        let coreData = ErrorInput(code: 134040, message: "persistent store failure", domain: "NSCocoaErrorDomain")
+        let coreDataResult = AppErrorHandler.classifyError(coreData)
+        XCTAssertEqual(coreDataResult.category, .database)
+        XCTAssertTrue(coreDataResult.isRetryable)
+    }
+
+    func testClassifyErrorRecognizesPhotosAndURLErrorDomains() {
+        let photos = ErrorInput(code: -1, message: "resource unavailable", domain: "PHPhotosErrorDomain")
+        let photosResult = AppErrorHandler.classifyError(photos)
+        XCTAssertEqual(photosResult.category, .media)
+        XCTAssertTrue(photosResult.isRetryable)
+
+        let timeout = ErrorInput(code: -1001, message: "timed out", domain: "NSURLErrorDomain")
+        let timeoutResult = AppErrorHandler.classifyError(timeout)
+        XCTAssertEqual(timeoutResult.category, .network)
+        XCTAssertTrue(timeoutResult.isRetryable)
+
+        let offline = ErrorInput(code: -1009, message: "offline", domain: "NSURLErrorDomain")
+        XCTAssertFalse(AppErrorHandler.classifyError(offline).isRetryable)
+
+        let swiftData = ErrorInput(code: 1, message: "save failed", domain: "SwiftDataErrorDomain")
+        XCTAssertEqual(AppErrorHandler.classifyError(swiftData).category, .database)
+    }
+
+    func testClassifyErrorUnknownDomainFallsBackToMessageRules() {
+        // 未命中已知域 → 回落原有 code/message 判定
+        let unknownDomain = ErrorInput(code: 5, message: "database busy", domain: "CustomDomain")
+        XCTAssertEqual(AppErrorHandler.classifyError(unknownDomain).category, .database)
     }
 
     // MARK: - ErrorCodeMap

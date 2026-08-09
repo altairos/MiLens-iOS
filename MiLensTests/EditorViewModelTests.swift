@@ -108,7 +108,7 @@ final class EditorViewModelTests: XCTestCase {
         let vm = await makeLoadedVM()
         vm.selectTool(.crop)
         XCTAssertEqual(vm.tool, .crop)
-        XCTAssertNotNil(vm.cropRect)
+        XCTAssertNotNil(vm.cropVM.cropRect)
         // 再次点击同一工具 → 关闭
         vm.selectTool(.crop)
         XCTAssertEqual(vm.tool, .none)
@@ -133,8 +133,8 @@ final class EditorViewModelTests: XCTestCase {
     func testCropRatioSelectionUpdatesRect() async {
         let vm = await makeLoadedVM()
         vm.selectTool(.crop)
-        vm.selectCropRatio(1) // 1:1
-        XCTAssertEqual(vm.cropRect?.w ?? 0, vm.cropRect?.h ?? 1, accuracy: 0.001)
+        vm.cropVM.selectCropRatio(1) // 1:1
+        XCTAssertEqual(vm.cropVM.cropRect?.w ?? 0, vm.cropVM.cropRect?.h ?? 1, accuracy: 0.001)
     }
 
     func testConfirmCropIsPixelLevelAndResetsHistory() async {
@@ -143,21 +143,21 @@ final class EditorViewModelTests: XCTestCase {
         XCTAssertTrue(vm.canUndo)
 
         vm.selectTool(.crop)
-        vm.selectCropRatio(1) // 1:1 → 240×240（画布 400×300 的 80% 内适配）
-        vm.confirmCrop()
+        vm.cropVM.selectCropRatio(1) // 1:1 → 240×240（画布 400×300 的 80% 内适配）
+        vm.cropVM.confirmCrop()
 
         XCTAssertEqual(processor.cropCalls, 1)
         XCTAssertEqual(vm.photoAspectRatio, 1.0, accuracy: 0.001)
         XCTAssertFalse(vm.canUndo) // 像素级操作重置历史
-        XCTAssertNil(vm.cropRect)
+        XCTAssertNil(vm.cropVM.cropRect)
         XCTAssertEqual(vm.tool, .none)
     }
 
     func testCancelCropClearsOverlay() async {
         let vm = await makeLoadedVM()
         vm.selectTool(.crop)
-        vm.cancelCrop()
-        XCTAssertNil(vm.cropRect)
+        vm.cropVM.cancelCrop()
+        XCTAssertNil(vm.cropVM.cropRect)
         XCTAssertEqual(vm.tool, .none)
     }
 
@@ -200,56 +200,56 @@ final class EditorViewModelTests: XCTestCase {
         let vm = await makeLoadedVM()
         vm.selectTool(.adjust)
 
-        vm.onAdjustSliderChange(.brightness, value: 10, phase: .begin)
-        vm.onAdjustSliderChange(.brightness, value: 15, phase: .moving)
-        vm.onAdjustSliderChange(.brightness, value: 30, phase: .moving)
-        vm.onAdjustSliderChange(.brightness, value: 30, phase: .end)
+        vm.adjustVM.onSliderChange(.brightness, value: 10, phase: .begin)
+        vm.adjustVM.onSliderChange(.brightness, value: 15, phase: .moving)
+        vm.adjustVM.onSliderChange(.brightness, value: 30, phase: .moving)
+        vm.adjustVM.onSliderChange(.brightness, value: 30, phase: .end)
 
-        XCTAssertEqual(vm.adjustState.brightness, 30)
+        XCTAssertEqual(vm.adjustVM.state.brightness, 30)
         XCTAssertTrue(vm.canUndo)
 
         vm.undo()
-        XCTAssertEqual(vm.adjustState.brightness, 0) // 手势合并为一条历史
+        XCTAssertEqual(vm.adjustVM.state.brightness, 0) // 手势合并为一条历史
         vm.redo()
-        XCTAssertEqual(vm.adjustState.brightness, 30)
+        XCTAssertEqual(vm.adjustVM.state.brightness, 30)
     }
 
     func testSharpnessAppliesOnlyOnGestureEnd() async {
         let vm = await makeLoadedVM()
         vm.selectTool(.adjust)
 
-        vm.onAdjustSliderChange(.sharpness, value: 40, phase: .begin)
-        vm.onAdjustSliderChange(.sharpness, value: 60, phase: .moving)
+        vm.adjustVM.onSliderChange(.sharpness, value: 40, phase: .begin)
+        vm.adjustVM.onSliderChange(.sharpness, value: 60, phase: .moving)
         XCTAssertTrue(processor.sharpenCalls.isEmpty) // 拖动中不触发卷积
 
-        vm.onAdjustSliderChange(.sharpness, value: 60, phase: .end)
+        vm.adjustVM.onSliderChange(.sharpness, value: 60, phase: .end)
         XCTAssertEqual(processor.sharpenCalls, [60])
         XCTAssertTrue(vm.canUndo)
 
         // 撤销恢复 sharpness=0 → 不再锐化（releaseSharpenBase 语义）
         vm.undo()
-        XCTAssertEqual(vm.adjustState.sharpness, 0)
+        XCTAssertEqual(vm.adjustVM.state.sharpness, 0)
     }
 
     func testAdjustStateSyncsFromPhotoOnToolEntry() async {
         let vm = await makeLoadedVM()
         vm.selectTool(.adjust)
-        vm.onAdjustSliderChange(.temperature, value: 25, phase: .click)
+        vm.adjustVM.onSliderChange(.temperature, value: 25, phase: .click)
 
         vm.selectGroup(.decorate) // 离开调色
-        XCTAssertEqual(vm.adjustState.temperature, 25) // 面板保留
+        XCTAssertEqual(vm.adjustVM.state.temperature, 25) // 面板保留
         vm.selectTool(.adjust)
-        XCTAssertEqual(vm.adjustState.temperature, 25) // 从图层同步回来
+        XCTAssertEqual(vm.adjustVM.state.temperature, 25) // 从图层同步回来
     }
 
     func testResetAdjustmentsRestoresNeutral() async {
         let vm = await makeLoadedVM()
         vm.selectTool(.adjust)
-        vm.onAdjustSliderChange(.contrast, value: 50, phase: .click)
-        XCTAssertFalse(isAdjustNeutral(vm.adjustState))
+        vm.adjustVM.onSliderChange(.contrast, value: 50, phase: .click)
+        XCTAssertFalse(isAdjustNeutral(vm.adjustVM.state))
 
-        vm.resetAdjustments()
-        XCTAssertTrue(isAdjustNeutral(vm.adjustState))
+        vm.adjustVM.reset()
+        XCTAssertTrue(isAdjustNeutral(vm.adjustVM.state))
         XCTAssertTrue(vm.canUndo)
     }
 
@@ -257,10 +257,10 @@ final class EditorViewModelTests: XCTestCase {
 
     func testAddTextCreatesActiveLayer() async {
         let vm = await makeLoadedVM()
-        vm.textInput = "你好世界"
-        vm.textColor = "#FF0000"
-        vm.textStrokeEnabled = false
-        vm.addText()
+        vm.textVM.textInput = "你好世界"
+        vm.textVM.textColor = "#FF0000"
+        vm.textVM.textStrokeEnabled = false
+        vm.textVM.add()
 
         XCTAssertEqual(vm.layers.count, 2)
         let textLayer = vm.layers.last
@@ -269,31 +269,31 @@ final class EditorViewModelTests: XCTestCase {
         XCTAssertEqual(textLayer?.fontColor, "#FF0000")
         XCTAssertEqual(textLayer?.strokeWidth, 0) // 描边关闭
         XCTAssertEqual(vm.activeLayerID, textLayer?.id)
-        XCTAssertTrue(vm.showTextLayerEditPanel)
-        XCTAssertEqual(vm.textInput, "") // 添加后清空输入
+        XCTAssertTrue(vm.textVM.showEditPanel)
+        XCTAssertEqual(vm.textVM.textInput, "") // 添加后清空输入
     }
 
     func testAddTextRequiresNonEmptyInput() async {
         let vm = await makeLoadedVM()
-        vm.textInput = "   "
-        vm.addText()
+        vm.textVM.textInput = "   "
+        vm.textVM.add()
         XCTAssertEqual(vm.layers.count, 1)
     }
 
     func testUpdateAndDeleteActiveTextLayer() async {
         let vm = await makeLoadedVM()
-        vm.textInput = "喵"
-        vm.addText()
+        vm.textVM.textInput = "喵"
+        vm.textVM.add()
         let deletedID = vm.layers.last?.id
 
-        vm.updateActiveText(fontSize: 60, color: "#00FF00")
+        vm.textVM.updateActiveText(fontSize: 60, color: "#00FF00")
         let updated = vm.layers.last
         XCTAssertEqual(updated?.fontSize, 60)
         XCTAssertEqual(updated?.fontColor, "#00FF00")
-        XCTAssertEqual(vm.selectedTextFontSize, 60)
-        XCTAssertEqual(vm.selectedTextColor, "#00FF00")
+        XCTAssertEqual(vm.textVM.selectedTextFontSize, 60)
+        XCTAssertEqual(vm.textVM.selectedTextColor, "#00FF00")
 
-        vm.deleteActiveLayer()
+        vm.textVM.deleteActiveLayer()
         XCTAssertEqual(vm.layers.count, 1)
         // 删除后选区回退到照片层（源端 removeLayer 后 activeLayer 指向剩余末层）。
         XCTAssertNotNil(vm.activeLayerID)
@@ -303,8 +303,8 @@ final class EditorViewModelTests: XCTestCase {
 
     func testUndoRedoTextLayer() async {
         let vm = await makeLoadedVM()
-        vm.textInput = "喵"
-        vm.addText()
+        vm.textVM.textInput = "喵"
+        vm.textVM.add()
         XCTAssertEqual(vm.layers.count, 2)
 
         vm.undo()
@@ -320,9 +320,9 @@ final class EditorViewModelTests: XCTestCase {
         let vm = await makeLoadedVM()
         vision.presetSegmentation = fullMask(width: 400, height: 300)
 
-        await vm.startCutout()
+        await vm.cutoutVM.start()
 
-        XCTAssertEqual(vm.cutoutPhase, .applied)
+        XCTAssertEqual(vm.cutoutVM.phase, .applied)
         XCTAssertEqual(processor.cutoutCalls, 1)
         XCTAssertEqual(processor.encodeCalls, 1)
         XCTAssertTrue(vm.layers.first(where: { $0.type == .photo })?.hasAlpha ?? false)
@@ -334,10 +334,10 @@ final class EditorViewModelTests: XCTestCase {
         let vm = await makeLoadedVM()
         vision.presetSegmentation = nil // 模拟识别失败
 
-        await vm.startCutout()
+        await vm.cutoutVM.start()
 
-        XCTAssertEqual(vm.cutoutPhase, .error)
-        XCTAssertFalse(vm.cutoutIsFallback) // 诚实标注：无近似降级
+        XCTAssertEqual(vm.cutoutVM.phase, .error)
+        XCTAssertFalse(vm.cutoutVM.isFallback) // 诚实标注：无近似降级
         XCTAssertEqual(processor.cutoutCalls, 0)
     }
 

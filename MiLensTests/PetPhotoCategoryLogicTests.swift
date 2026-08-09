@@ -13,10 +13,11 @@ final class PetPhotoCategoryLogicTests: XCTestCase {
     private func makePhoto(
         id: UUID = UUID(),
         uri: String = "/documents/MiPhotos/a.jpg",
+        originalURI: String = "",
         category: String = PhotoCategory.unknown.rawValue,
         takenAt: Date? = nil
     ) -> Photo {
-        Photo(uri: uri, takenAt: takenAt, category: category)
+        Photo(uri: uri, originalURI: originalURI, takenAt: takenAt, category: category)
     }
 
     // MARK: - 纯逻辑筛选
@@ -117,5 +118,31 @@ final class PetPhotoCategoryLogicTests: XCTestCase {
 
         let result = try repo.getUnassignedPhotos(limit: 2)
         XCTAssertEqual(result.count, 2)
+    }
+
+    func testCountAllPhotos() throws {
+        // H2：总数走 fetchCount，不物化全表（GalleryViewModel.loadInitial 依赖）
+        let schema = Schema(versionedSchema: SchemaV1.self)
+        let config = ModelConfiguration(isStoredInMemoryOnly: true)
+        let container = try! ModelContainer(for: schema, configurations: [config])
+        let repo = SwiftDataPhotoRepository(context: container.mainContext)
+
+        XCTAssertEqual(try repo.countAllPhotos(), 0)
+        try repo.insertPhoto(makePhoto(uri: "/documents/MiPhotos/1.jpg"))
+        try repo.insertPhoto(makePhoto(uri: "/documents/MiPhotos/2.jpg"))
+        XCTAssertEqual(try repo.countAllPhotos(), 2)
+    }
+
+    func testGetAllOriginalURIsOnlyFetchesOriginalURI() throws {
+        // H2：去重集合只读 originalURI 列（propertiesToFetch），行为与全表等价
+        let schema = Schema(versionedSchema: SchemaV1.self)
+        let config = ModelConfiguration(isStoredInMemoryOnly: true)
+        let container = try! ModelContainer(for: schema, configurations: [config])
+        let repo = SwiftDataPhotoRepository(context: container.mainContext)
+
+        try repo.insertPhoto(makePhoto(uri: "/documents/MiPhotos/1.jpg", originalURI: "L0/001"))
+        try repo.insertPhoto(makePhoto(uri: "/documents/MiPhotos/2.jpg", originalURI: "L0/002"))
+        XCTAssertEqual(try repo.getAllOriginalURIs(), ["L0/001", "L0/002"])
+        XCTAssertEqual(try repo.getAllPhotoURIs(), ["/documents/MiPhotos/1.jpg", "/documents/MiPhotos/2.jpg"])
     }
 }

@@ -91,6 +91,8 @@ final class MockPhotoLibraryAccess: PhotoLibraryAccess, @unchecked Sendable {
     var streamError: Error?
     /// 失败注入：metadata(forIdentifier:) 抛错（导入失败清理路径测试用）
     var metadataError: Error?
+    /// 失败注入：loadImageData(forIdentifier:) 按 identifier 抛错（H4 导入失败计数测试用）
+    var imageDataErrors: [String: Error] = [:]
 
     init(assets: [PhotoAssetMetadata] = [], imageDataOverrides: [String: Data] = [:]) {
         self.assets = assets
@@ -118,6 +120,7 @@ final class MockPhotoLibraryAccess: PhotoLibraryAccess, @unchecked Sendable {
     }
 
     func loadImageData(forIdentifier identifier: String, maxDimension: Int) async throws -> Data {
+        if let error = imageDataErrors[identifier] { throw error }
         if let data = imageDataOverrides[identifier] { return data }
         // 未预设时返回非空占位数据，使检测管线可运行
         return Data([0xFF, 0xD8, 0xFF]) // JPEG SOI 标记

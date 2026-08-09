@@ -13,7 +13,7 @@ import Foundation
 // MARK: - 类型
 
 /// 任务种类。对应源端 `TaskKind`。
-public enum TaskKind: String {
+public enum TaskKind: String, Sendable {
     case scan
     case import_ = "import"  // Swift 关键字冲突，rawValue 对齐源端 "import"
     case bead
@@ -22,7 +22,7 @@ public enum TaskKind: String {
 }
 
 /// 任务结束状态。对应源端 `TaskOutcome`。
-public enum TaskOutcome: String {
+public enum TaskOutcome: String, Sendable {
     case success, canceled, failed
 }
 
@@ -52,7 +52,7 @@ public struct FinishedTaskSummary: Equatable {
 
 // MARK: - 内部状态
 
-private struct TaskRecord {
+private struct TaskRecord: Sendable {
     var kind: TaskKind
     var label: String
     var startMs: Int
@@ -64,19 +64,74 @@ private struct TaskRecord {
 private let INVALID_TASK_ID = 0
 private let MAX_RECENT_FINISHED = 50
 
-private final class TaskLoggerState {
-    var nextTaskId: Int = 1
-    var activeTasks: [Int: TaskRecord] = [:]
-    var recentFinished: [FinishedTaskSummary] = []
+private final class TaskLoggerState: @unchecked Sendable {
+    // 线程安全：TaskLogger 从任意队列调用（扫描/导入/拼豆/备份/导出），
+    // 所有状态访问经 lock 串行化；@unchecked Sendable 为锁保护的显式声明。
+    private let lock = NSLock()
+    private var nextTaskId: Int = 1
+    private var activeTasks: [Int: TaskRecord] = [:]
+    private var recentFinished: [FinishedTaskSummary] = []
     static let shared = TaskLoggerState()
-}
 
-// MARK: - 私有辅助
+    /// 分配 taskId 并登记新任务记录。
+    func begin(_ record: TaskRecord) -> Int {
+        lock.lock()
+        defer { lock.unlock() }
+        let taskId = nextTaskId
+        nextTaskId += 1
+        activeTasks[taskId] = record
+        return taskId
+    }
 
-private func pushRecentFinished(_ summary: FinishedTaskSummary) {
-    TaskLoggerState.shared.recentFinished.append(summary)
-    if TaskLoggerState.shared.recentFinished.count > MAX_RECENT_FINISHED {
-        TaskLoggerState.shared.recentFinished.removeFirst()
+    /// 读取任务记录副本；不存在返回 nil。
+    func active(_ taskId: Int) -> TaskRecord? {
+        lock.lock()
+        defer { lock.unlock() }
+        return activeTasks[taskId]
+    }
+
+    /// 任务记录原地更新（锁内完成读-改-写）；不存在返回 false。
+    @discardableResult
+    func updateActive(_ taskId: Int, _ mutate: (inout TaskRecord) -> Void) -> Bool {
+        lock.lock()
+        defer { lock.unlock() }
+        guard var record = activeTasks[taskId] else { return false }
+        mutate(&record)
+        activeTasks[taskId] = record
+        return true
+    }
+
+    /// 原子读删任务记录（complete/fail/cancel 用）。
+    func removeActive(_ taskId: Int) -> TaskRecord? {
+        lock.lock()
+        defer { lock.unlock() }
+        return activeTasks.removeValue(forKey: taskId)
+    }
+
+    /// 追加完成摘要，FIFO 上限 MAX_RECENT_FINISHED。
+    func appendFinished(_ summary: FinishedTaskSummary) {
+        lock.lock()
+        defer { lock.unlock() }
+        recentFinished.append(summary)
+        if recentFinished.count > MAX_RECENT_FINISHED {
+            recentFinished.removeFirst()
+        }
+    }
+
+    /// 已完成摘要副本（按完成顺序）。
+    func allFinished() -> [FinishedTaskSummary] {
+        lock.lock()
+        defer { lock.unlock() }
+        return recentFinished
+    }
+
+    /// 仅供测试重置内部状态。
+    func resetAll() {
+        lock.lock()
+        defer { lock.unlock() }
+        nextTaskId = 1
+        activeTasks.removeAll()
+        recentFinished.removeAll()
     }
 }
 
@@ -88,23 +143,23 @@ private func sanitizeValue(_ value: String) -> String {
     AppErrorHandler.sanitizeForLog(value)
 }
 
-// 日志后端：跨平台兼容，测试仅需验证状态机逻辑
+// 日志后端：统一经 AppLogBackend 输出（Apple 平台 os.Logger；Linux 空实现）。
+// 消息先经 sanitizeValue 脱敏，再交给后端。
 
 private func tlLogInfo(_ taskId: Int, _ message: String) {
-    // sanitizeValue 仍执行以验证脱敏链路不抛错
-    _ = sanitizeValue(message)
+    AppLogBackend.info("TaskLogger[\(taskId)] \(sanitizeValue(message))")
 }
 
 private func tlLogWarn(_ taskId: Int, _ message: String) {
-    _ = sanitizeValue(message)
+    AppLogBackend.warn("TaskLogger[\(taskId)] \(sanitizeValue(message))")
 }
 
 private func tlLogError(_ taskId: Int, _ message: String) {
-    _ = sanitizeValue(message)
+    AppLogBackend.error("TaskLogger[\(taskId)] \(sanitizeValue(message))")
 }
 
 private func finishTask(_ taskId: Int, outcome: TaskOutcome, summary: String? = nil, category: String? = nil) {
-    guard let record = TaskLoggerState.shared.activeTasks[taskId] else {
+    guard let record = TaskLoggerState.shared.removeActive(taskId) else {
         tlLogWarn(taskId, "complete ignored (unknown or already finished) outcome=\(outcome.rawValue)")
         return
     }
@@ -118,14 +173,12 @@ private func finishTask(_ taskId: Int, outcome: TaskOutcome, summary: String? = 
         tlLogInfo(taskId, line)
     }
 
-    pushRecentFinished(FinishedTaskSummary(
+    TaskLoggerState.shared.appendFinished(FinishedTaskSummary(
         kind: record.kind,
         outcome: outcome,
         category: category ?? TASK_CATEGORY_NONE,
         elapsedMs: elapsed,
         stageCount: record.stageCount))
-
-    TaskLoggerState.shared.activeTasks.removeValue(forKey: taskId)
 }
 
 // MARK: - TaskLogger
@@ -135,13 +188,11 @@ public enum TaskLogger {
 
     /// 开始一个新任务，返回递增的正整数 taskId。
     public static func beginTask(_ kind: TaskKind, label: String? = nil) -> Int {
-        let taskId = TaskLoggerState.shared.nextTaskId
-        TaskLoggerState.shared.nextTaskId += 1
         let safeLabel = label.map { sanitizeValue($0) } ?? ""
         let now = nowMs()
-        TaskLoggerState.shared.activeTasks[taskId] = TaskRecord(
+        let taskId = TaskLoggerState.shared.begin(TaskRecord(
             kind: kind, label: safeLabel, startMs: now,
-            lastStageMs: now, currentStage: "begin", stageCount: 0)
+            lastStageMs: now, currentStage: "begin", stageCount: 0))
         var msg = "BEGIN kind=\(kind.rawValue)"
         if !safeLabel.isEmpty { msg += " label=\(safeLabel)" }
         tlLogInfo(taskId, msg)
@@ -150,14 +201,17 @@ public enum TaskLogger {
 
     /// 切换到新的 stage。对未知 taskId 静默跳过。
     public static func stage(_ taskId: Int, _ stage: String, detail: String? = nil) {
-        guard var record = TaskLoggerState.shared.activeTasks[taskId] else { return }
-        let now = nowMs()
-        let stageElapsed = now - record.lastStageMs
-        record.stageCount += 1
-        let prevStage = record.currentStage
-        record.currentStage = stage
-        record.lastStageMs = now
-        TaskLoggerState.shared.activeTasks[taskId] = record
+        var stageElapsed = 0
+        var prevStage = ""
+        let updated = TaskLoggerState.shared.updateActive(taskId) { record in
+            let now = nowMs()
+            stageElapsed = now - record.lastStageMs
+            prevStage = record.currentStage
+            record.stageCount += 1
+            record.currentStage = stage
+            record.lastStageMs = now
+        }
+        guard updated else { return }
         var msg = "stage=\(sanitizeValue(stage)) (prev=\(sanitizeValue(prevStage)) \(stageElapsed)ms)"
         if let detail { msg += " detail=\(sanitizeValue(detail))" }
         tlLogInfo(taskId, msg)
@@ -165,7 +219,7 @@ public enum TaskLogger {
 
     /// 记录进度。total=0 时只记录 current。
     public static func progress(_ taskId: Int, current: Int, total: Int) {
-        guard let record = TaskLoggerState.shared.activeTasks[taskId] else { return }
+        guard let record = TaskLoggerState.shared.active(taskId) else { return }
         if total > 0 {
             tlLogInfo(taskId, "stage=\(sanitizeValue(record.currentStage)) progress=\(current)/\(total)")
         } else {
@@ -180,7 +234,7 @@ public enum TaskLogger {
 
     /// 任务失败：自动 classifyError 并把 category 写入 summary。
     public static func fail(_ taskId: Int, err: ErrorInput, summary: String? = nil) {
-        guard TaskLoggerState.shared.activeTasks[taskId] != nil else {
+        guard TaskLoggerState.shared.active(taskId) != nil else {
             tlLogWarn(taskId, "fail ignored (unknown or already finished)")
             return
         }
@@ -199,18 +253,16 @@ public enum TaskLogger {
     /// 任务是否仍在进行。
     public static func isActive(_ taskId: Int) -> Bool {
         if taskId == INVALID_TASK_ID { return false }
-        return TaskLoggerState.shared.activeTasks[taskId] != nil
+        return TaskLoggerState.shared.active(taskId) != nil
     }
 
     /// 返回最近已完成任务的摘要副本（按完成顺序，最多 50 条）。
     public static func getRecentSummaries() -> [FinishedTaskSummary] {
-        return TaskLoggerState.shared.recentFinished
+        return TaskLoggerState.shared.allFinished()
     }
 
     /// 仅供测试重置内部状态。
     public static func resetForTest() {
-        TaskLoggerState.shared.nextTaskId = 1
-        TaskLoggerState.shared.activeTasks.removeAll()
-        TaskLoggerState.shared.recentFinished.removeAll()
+        TaskLoggerState.shared.resetAll()
     }
 }

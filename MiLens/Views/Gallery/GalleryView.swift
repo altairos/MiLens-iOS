@@ -414,6 +414,22 @@ private struct PhotoThumbnailCell: View {
             }
         }
         .aspectRatio(1, contentMode: .fit)
+        // M4：缩略图为装饰性图形，合并为单一无障碍元素（日期 + 收藏/选择状态）。
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(accessibilityText)
+    }
+
+    private var accessibilityText: String {
+        var text = "照片"
+        if let takenAt {
+            let comps = Calendar.current.dateComponents([.month, .day], from: takenAt)
+            if let month = comps.month, let day = comps.day {
+                text += "，\(month)月\(day)日"
+            }
+        }
+        if isMultiSelect && isSelected { text += "，已选择" }
+        if photo.isFavorite { text += "，已收藏" }
+        return text
     }
 }
 

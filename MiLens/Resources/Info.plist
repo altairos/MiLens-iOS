@@ -4,8 +4,6 @@
 <dict>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
-	<key>CFBundleDisplayName</key>
-	<string>咪Lens</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -22,10 +20,6 @@
 	<string>$(CURRENT_PROJECT_VERSION)</string>
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
-	<key>NSPhotoLibraryAddUsageDescription</key>
-	<string>咪Lens 需要保存导出的拼豆图纸和照片到相册。</string>
-	<key>NSPhotoLibraryUsageDescription</key>
-	<string>咪Lens 需要访问相册来发现和整理你的宠物照片。所有分析在本地完成，照片不会离开设备。</string>
 	<key>UIAppFonts</key>
 	<array>
 		<string>LXGWWenKaiGB-Regular.ttf</string>

@@ -133,9 +133,9 @@ struct EditorCropPanelView: View {
                 .padding(.horizontal, Spacing.lg)
             }
             HStack(spacing: Spacing.md) {
-                Button("取消") { viewModel.cancelCrop() }
+                Button("取消") { viewModel.cropVM.cancelCrop() }
                     .buttonStyle(EditorPanelButtonStyle(role: .secondary))
-                Button("确认") { viewModel.confirmCrop() }
+                Button("确认") { viewModel.cropVM.confirmCrop() }
                     .buttonStyle(EditorPanelButtonStyle(role: .primary))
             }
             .padding(.horizontal, Spacing.lg)
@@ -146,27 +146,27 @@ struct EditorCropPanelView: View {
 
     private func ratioChip(index: Int, label: String) -> some View {
         Button {
-            viewModel.selectCropRatio(index)
+            viewModel.cropVM.selectCropRatio(index)
         } label: {
             Text(label)
                 .font(Font.caption)
                 .padding(.horizontal, Spacing.md)
                 .padding(.vertical, Spacing.xs)
                 .background(
-                    viewModel.cropRatioIndex == index
+                    viewModel.cropVM.cropRatioIndex == index
                         ? Color.milensPrimary.opacity(0.25)
                         : Color.white.opacity(0.12)
                 )
                 .clipShape(Capsule())
                 .overlay(
                     Capsule().stroke(
-                        viewModel.cropRatioIndex == index ? Color.milensPrimary : Color.clear,
+                        viewModel.cropVM.cropRatioIndex == index ? Color.milensPrimary : Color.clear,
                         lineWidth: 1
                     )
                 )
         }
         .buttonStyle(.plain)
-        .foregroundStyle(viewModel.cropRatioIndex == index ? Color.milensPrimary : Color.white)
+        .foregroundStyle(viewModel.cropVM.cropRatioIndex == index ? Color.milensPrimary : Color.white)
     }
 }
 
@@ -216,18 +216,19 @@ struct EditorAdjustPanelView: View {
     @Bindable var viewModel: EditorViewModel
 
     var body: some View {
+        @Bindable var adjustVM = viewModel.adjustVM
         VStack(spacing: Spacing.sm) {
-            adjustSlider(field: .brightness, label: "亮度", value: viewModel.adjustState.brightness, range: -100...100)
-            adjustSlider(field: .contrast, label: "对比度", value: viewModel.adjustState.contrast, range: -100...100)
-            adjustSlider(field: .saturation, label: "饱和度", value: viewModel.adjustState.saturation, range: -100...100)
-            adjustSlider(field: .temperature, label: "色温", value: viewModel.adjustState.temperature, range: -100...100)
-            adjustSlider(field: .sharpness, label: "锐化", value: viewModel.adjustState.sharpness, range: 0...100)
+            adjustSlider(field: .brightness, label: "亮度", value: adjustVM.state.brightness, range: -100...100)
+            adjustSlider(field: .contrast, label: "对比度", value: adjustVM.state.contrast, range: -100...100)
+            adjustSlider(field: .saturation, label: "饱和度", value: adjustVM.state.saturation, range: -100...100)
+            adjustSlider(field: .temperature, label: "色温", value: adjustVM.state.temperature, range: -100...100)
+            adjustSlider(field: .sharpness, label: "锐化", value: adjustVM.state.sharpness, range: 0...100)
 
-            Button("重置") { viewModel.resetAdjustments() }
+            Button("重置") { adjustVM.reset() }
                 .font(Font.caption)
                 .foregroundStyle(.white.opacity(0.85))
-                .disabled(isAdjustNeutral(viewModel.adjustState))
-                .opacity(isAdjustNeutral(viewModel.adjustState) ? 0.4 : 1)
+                .disabled(isAdjustNeutral(adjustVM.state))
+                .opacity(isAdjustNeutral(adjustVM.state) ? 0.4 : 1)
         }
         .padding(.horizontal, Spacing.lg)
         .padding(.vertical, Spacing.sm)
@@ -243,11 +244,11 @@ struct EditorAdjustPanelView: View {
             Slider(
                 value: Binding(
                     get: { value },
-                    set: { viewModel.onAdjustSliderChange(field, value: $0, phase: .moving) }
+                    set: { viewModel.adjustVM.onSliderChange(field, value: $0, phase: .moving) }
                 ),
                 in: range,
                 onEditingChanged: { editing in
-                    viewModel.onAdjustSliderChange(
+                    viewModel.adjustVM.onSliderChange(
                         field, value: value,
                         phase: editing ? .begin : .end
                     )
@@ -265,17 +266,18 @@ struct EditorTextPanelView: View {
     @Bindable var viewModel: EditorViewModel
 
     var body: some View {
-        if viewModel.showTextLayerEditPanel {
-            textLayerEditPanel
+        @Bindable var textVM = viewModel.textVM
+        if textVM.showEditPanel {
+            textLayerEditPanel(textVM: textVM)
         } else {
-            textAddPanel
+            textAddPanel(textVM: textVM)
         }
     }
 
     /// 添加模式（对应源端文本添加工具 UI）。
-    private var textAddPanel: some View {
+    private func textAddPanel(textVM: EditorTextPanelVM) -> some View {
         VStack(spacing: Spacing.sm) {
-            TextField("输入文字", text: $viewModel.textInput)
+            TextField("输入文字", text: $textVM.textInput)
                 .font(.body)
                 .foregroundStyle(.white)
                 .padding(.horizontal, Spacing.md)
@@ -287,24 +289,24 @@ struct EditorTextPanelView: View {
                 Text("字号")
                     .font(Font.caption)
                     .foregroundStyle(.white.opacity(0.85))
-                Slider(value: $viewModel.textFontSize, in: 12...96)
+                Slider(value: $textVM.textFontSize, in: 12...96)
                     .tint(.milensPrimary)
-                colorDots(selected: viewModel.textColor) { viewModel.textColor = $0 }
-                Toggle("描边", isOn: $viewModel.textStrokeEnabled)
+                colorDots(selected: textVM.textColor) { textVM.textColor = $0 }
+                Toggle("描边", isOn: $textVM.textStrokeEnabled)
                     .font(Font.caption)
                     .foregroundStyle(.white.opacity(0.85))
                     .toggleStyle(.button)
                     .tint(.milensPrimary)
             }
 
-            Button("添加到图片") { viewModel.addText() }
+            Button("添加到图片") { textVM.add() }
                 .font(Font.caption)
                 .foregroundStyle(.white)
                 .padding(.horizontal, Spacing.xl)
                 .padding(.vertical, Spacing.sm)
-                .background(canAdd ? Color.milensPrimary : Color.white.opacity(0.15))
+                .background(canAdd(textVM) ? Color.milensPrimary : Color.white.opacity(0.15))
                 .clipShape(Capsule())
-                .disabled(!canAdd)
+                .disabled(!canAdd(textVM))
         }
         .padding(.horizontal, Spacing.lg)
         .padding(.vertical, Spacing.sm)
@@ -312,7 +314,7 @@ struct EditorTextPanelView: View {
     }
 
     /// 选中文字图层编辑模式（字号/颜色，随手势合并入历史）。
-    private var textLayerEditPanel: some View {
+    private func textLayerEditPanel(textVM: EditorTextPanelVM) -> some View {
         VStack(spacing: Spacing.sm) {
             HStack(spacing: Spacing.md) {
                 Text("字号")
@@ -320,8 +322,8 @@ struct EditorTextPanelView: View {
                     .foregroundStyle(.white.opacity(0.85))
                 Slider(
                     value: Binding(
-                        get: { viewModel.selectedTextFontSize },
-                        set: { viewModel.updateActiveText(fontSize: $0, color: viewModel.selectedTextColor) }
+                        get: { textVM.selectedTextFontSize },
+                        set: { textVM.updateActiveText(fontSize: $0, color: textVM.selectedTextColor) }
                     ),
                     in: 12...96,
                     onEditingChanged: { editing in
@@ -333,11 +335,11 @@ struct EditorTextPanelView: View {
                     }
                 )
                 .tint(.milensPrimary)
-                colorDots(selected: viewModel.selectedTextColor) {
-                    viewModel.updateActiveText(fontSize: viewModel.selectedTextFontSize, color: $0)
+                colorDots(selected: textVM.selectedTextColor) {
+                    textVM.updateActiveText(fontSize: textVM.selectedTextFontSize, color: $0)
                 }
                 Button {
-                    viewModel.deleteActiveLayer()
+                    textVM.deleteActiveLayer()
                 } label: {
                     Image(systemName: "trash")
                         .foregroundStyle(.red)
@@ -350,8 +352,8 @@ struct EditorTextPanelView: View {
         .background(.black)
     }
 
-    private var canAdd: Bool {
-        canAddTextLayer(viewModel.textInput)
+    private func canAdd(_ textVM: EditorTextPanelVM) -> Bool {
+        canAddTextLayer(textVM.textInput)
     }
 
     /// 固定色板（V1.0；对应源端颜色选择器基础色）。
@@ -393,8 +395,8 @@ struct EditorCutoutPanelView: View {
             VStack(alignment: .leading, spacing: Spacing.xs) {
                 Text(statusText)
                     .font(Font.caption)
-                    .foregroundStyle(viewModel.cutoutPhase == .error ? .red : .white.opacity(0.85))
-                if viewModel.cutoutPhase == .applied {
+                    .foregroundStyle(viewModel.cutoutVM.phase == .error ? .red : .white.opacity(0.85))
+                if viewModel.cutoutVM.phase == .applied {
                     Text("保存后将以 PNG 格式保留透明背景")
                         .font(Font.caption2)
                         .foregroundStyle(.white.opacity(0.6))
@@ -402,15 +404,15 @@ struct EditorCutoutPanelView: View {
             }
             Spacer(minLength: 0)
             Button(actionLabel) {
-                Task { await viewModel.startCutout() }
+                Task { await viewModel.cutoutVM.start() }
             }
             .font(Font.caption)
             .foregroundStyle(.white)
             .padding(.horizontal, Spacing.xl)
             .padding(.vertical, Spacing.sm)
-            .background(viewModel.cutoutPhase == .processing ? Color.white.opacity(0.15) : Color.milensPrimary)
+            .background(viewModel.cutoutVM.phase == .processing ? Color.white.opacity(0.15) : Color.milensPrimary)
             .clipShape(Capsule())
-            .disabled(viewModel.cutoutPhase == .processing)
+            .disabled(viewModel.cutoutVM.phase == .processing)
         }
         .padding(.horizontal, Spacing.lg)
         .padding(.vertical, Spacing.sm)
@@ -418,11 +420,11 @@ struct EditorCutoutPanelView: View {
     }
 
     private var statusText: String {
-        viewModel.cutoutStatus.isEmpty ? cutoutStatusText(.idle) : viewModel.cutoutStatus
+        viewModel.cutoutVM.status.isEmpty ? cutoutStatusText(.idle) : viewModel.cutoutVM.status
     }
 
     private var actionLabel: String {
-        switch viewModel.cutoutPhase {
+        switch viewModel.cutoutVM.phase {
         case .processing: return "识别中…"
         case .applied: return "重新抠图"
         case .error: return "重试"

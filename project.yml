@@ -48,23 +48,21 @@ targets:
     info:
       path: MiLens/Resources/Info.plist
       properties:
-        CFBundleDisplayName: 咪Lens
         CFBundleShortVersionString: $(MARKETING_VERSION)
         CFBundleVersion: $(CURRENT_PROJECT_VERSION)
         UILaunchScreen:
           UIColorName: ""
         UIApplicationSceneManifest:
           UIApplicationSupportsMultipleScenes: false
-        # 照片库：发现/整理宠物照片（扫描与导入）
-        NSPhotoLibraryUsageDescription: "咪Lens 需要访问相册来发现和整理你的宠物照片。所有分析在本地完成，照片不会离开设备。"
-        # 照片库添加：保存导出的拼豆图纸
-        NSPhotoLibraryAddUsageDescription: "咪Lens 需要保存导出的拼豆图纸和照片到相册。"
         ITSAppUsesNonExemptEncryption: false
         # 自定义字体（霞鹜文楷 GB2312 子集 + Fraunces，均 SIL OFL）
         UIAppFonts:
           - LXGWWenKaiGB-Regular.ttf
           - Fraunces-Bold.ttf
           - Fraunces-Semibold.ttf
+        # M1 权限文案收敛：CFBundleDisplayName / NSPhotoLibraryUsageDescription /
+        # NSPhotoLibraryAddUsageDescription 的唯一事实来源是 InfoPlist.xcstrings
+        # （Xcode 15+ 构建时自动注入 Info.plist），此处不再重复维护。
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.milens.app

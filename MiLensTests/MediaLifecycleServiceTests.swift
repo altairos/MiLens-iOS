@@ -59,6 +59,47 @@ final class MediaLifecycleServiceTests: XCTestCase {
         }
     }
 
+    // MARK: - 导入事务段（批量，L2）
+
+    func testCommitImportBatchInsertsAllInOneTransaction() async throws {
+        let (service, photoRepo, _, fs, container) = makeService()
+        let photos = (1...3).map { Photo(uri: "\(sandboxDir)/b\($0).jpg", originalURI: "orig-\($0)") }
+        let paths = photos.map { $0.uri }
+        for (index, path) in paths.enumerated() {
+            fs.preset(Data([index == 0 ? 1 : 2]), at: path)
+        }
+
+        try await service.commitImportBatch(photos: photos, paths: paths)
+
+        for photo in photos {
+            XCTAssertNotNil(try photoRepo.getPhotoByOriginalURI(photo.originalURI), "批量入库后记录必须存在")
+        }
+        for path in paths {
+            XCTAssertTrue(fs.fileExists(at: path), "入库成功后文件必须保留")
+        }
+    }
+
+    func testCommitImportBatchRollsBackAllFilesWhenDBFails() async throws {
+        let (_, _, _, fs, container) = makeService()
+        let failingRepo = FailingPhotoRepository(wrapped: SwiftDataPhotoRepository(context: container.mainContext), failOnInsert: true)
+        let petRepo = SwiftDataPetRepository(context: container.mainContext)
+        let service = MediaLifecycleService(
+            photoRepo: failingRepo, petRepo: petRepo,
+            fileStorage: fs, sandboxDir: sandboxDir)
+        let photos = (1...3).map { Photo(uri: "\(sandboxDir)/c\($0).jpg", originalURI: "orig-\($0)") }
+        let paths = photos.map { $0.uri }
+
+        do {
+            try await service.commitImportBatch(photos: photos, paths: paths)
+            XCTFail("应当抛出 DB 错误")
+        } catch {
+            // 回滚：本批全部文件必须被删除
+            for path in paths {
+                XCTAssertFalse(fs.fileExists(at: path), "批量 DB 失败后本批孤儿文件必须全部回滚删除")
+            }
+        }
+    }
+
     // MARK: - 编辑保存事务段
 
     func testSaveEditedPhotoCleansUpOldFile() async throws {
@@ -209,6 +250,7 @@ private final class FailingPhotoRepository: PhotoRepositoryProtocol {
     func getPhotoByOriginalURI(_ originalURI: String) throws -> Photo? { try wrapped.getPhotoByOriginalURI(originalURI) }
     func getAllOriginalURIs() throws -> Set<String> { try wrapped.getAllOriginalURIs() }
     func getAllPhotoURIs() throws -> Set<String> { try wrapped.getAllPhotoURIs() }
+    func countAllPhotos() throws -> Int { try wrapped.countAllPhotos() }
     func getPhotosPage(offset: Int, limit: Int) throws -> [Photo] { try wrapped.getPhotosPage(offset: offset, limit: limit) }
     func getPhotosByPet(_ pet: Pet) throws -> [Photo] { try wrapped.getPhotosByPet(pet) }
     func getUnassignedPhotos(limit: Int) throws -> [Photo] { try wrapped.getUnassignedPhotos(limit: limit) }
@@ -216,6 +258,10 @@ private final class FailingPhotoRepository: PhotoRepositoryProtocol {
     func insertPhoto(_ photo: Photo) throws {
         if failOnInsert { throw FailingError.simulatedDBFailure }
         try wrapped.insertPhoto(photo)
+    }
+    func insertPhotos(_ photos: [Photo]) throws {
+        if failOnInsert { throw FailingError.simulatedDBFailure }
+        try wrapped.insertPhotos(photos)
     }
     func deletePhoto(_ photo: Photo) throws { try wrapped.deletePhoto(photo) }
     func updatePhoto(_ photo: Photo) throws {

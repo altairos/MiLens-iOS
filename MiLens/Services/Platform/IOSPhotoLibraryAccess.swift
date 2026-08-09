@@ -8,6 +8,7 @@
 import Foundation
 import Photos
 import UIKit
+import MiLensKit
 
 /// 照片库授权状态 → iOS 枚举映射（对应源端 PermissionHelper）。
 private extension PHAuthorizationStatus {
@@ -162,8 +163,9 @@ enum PhotoLibraryError: LocalizedError, Equatable {
 
     var errorDescription: String? {
         switch self {
-        case .assetNotFound(let id): return "未找到照片资产：\(id)"
-        case .imageDataUnavailable(let id): return "照片数据加载失败：\(id)"
+        // L5：描述中不落完整 localIdentifier（日志/用户可见面均只保留前缀）
+        case .assetNotFound(let id): return "未找到照片资产：\(AppErrorHandler.redactIdentifier(id))"
+        case .imageDataUnavailable(let id): return "照片数据加载失败：\(AppErrorHandler.redactIdentifier(id))"
         }
     }
 }

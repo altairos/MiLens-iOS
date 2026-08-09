@@ -56,6 +56,26 @@ final class MediaLifecycleService {
         }
     }
 
+    /// 导入事务段（批量，L2）：文件已写入的批次统一入库（一次 save 多张）。
+    /// 入库失败回滚本批全部已写文件（不留孤儿文件）。
+    /// - Parameters:
+    ///   - photos: 已写文件的 Photo 记录（uri 为各自沙盒路径）
+    ///   - paths: 与 photos 一一对应的已写文件路径（回滚用）
+    func commitImportBatch(photos: [Photo], paths: [String]) async throws {
+        do {
+            try photoRepo.insertPhotos(photos)
+        } catch {
+            for path in paths {
+                do {
+                    try await fileStorage.removeItem(at: path)
+                } catch {
+                    logger.error("commitImportBatch: 回滚删除失败（\(path)，\(error.localizedDescription)）")
+                }
+            }
+            throw error
+        }
+    }
+
     // MARK: - 编辑保存事务段
 
     /// 编辑保存事务段：写新文件 → 就地更新记录（uri/thumbnail/fileSize/尺寸）。
@@ -165,6 +185,7 @@ final class MediaLifecycleService {
     /// 启动时审计：扫描沙盒目录与 DB 对照。
     /// - 文件存在但 DB 无记录 → 删除（孤儿文件，上一次崩溃/回滚残留）。
     /// - DB 记录存在但文件缺失 → 记日志（不删 DB——记录是事实源，文件可恢复）。
+    /// 文件遍历与删除为 IO 密集操作，放低优先级后台执行（L3），不占启动关键路径。
     func auditOrphans() async {
         let knownPaths: Set<String>
         do {
@@ -173,19 +194,22 @@ final class MediaLifecycleService {
             logger.error("auditOrphans: 无法读取 DB 记录，跳过审计")
             return
         }
-        let files = fileStorage.listFiles(in: sandboxDir)
-        var orphanCount = 0
-        for path in files where !knownPaths.contains(path) {
-            do {
-                try await fileStorage.removeItem(at: path)
-            } catch {
-                logger.error("auditOrphans: 删除孤儿文件失败（\(path)，\(error.localizedDescription)）")
+        // FileStorage/Logger 均 Sendable，可在后台任务中显式捕获；不触碰 self 的 MainActor 状态。
+        await Task.detached(priority: .utility) { [fileStorage, sandboxDir, logger] in
+            let files = fileStorage.listFiles(in: sandboxDir)
+            var orphanCount = 0
+            for path in files where !knownPaths.contains(path) {
+                do {
+                    try await fileStorage.removeItem(at: path)
+                } catch {
+                    logger.error("auditOrphans: 删除孤儿文件失败（\(path)，\(error.localizedDescription)）")
+                }
+                orphanCount += 1
             }
-            orphanCount += 1
-        }
-        if orphanCount > 0 {
-            logger.warning("auditOrphans: 清理 \(orphanCount) 个孤儿文件")
-        }
+            if orphanCount > 0 {
+                logger.warning("auditOrphans: 清理 \(orphanCount) 个孤儿文件")
+            }
+        }.value
     }
 
     // MARK: - 照片计数刷新

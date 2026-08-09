@@ -65,7 +65,7 @@
 
 不要只报告 `BUILD SUCCEEDED`；还要检查 XCTest 汇总、覆盖率以及测试最终退出码。若未执行某项验证，要明确写「未执行」和原因。
 
-覆盖率基线待 P0 末建立后补入本节。
+覆盖率门禁已接入 CI（`tools/check-coverage.sh`，解析 `TestResult.xcresult` 与基线比较）：MiLens (App) 默认 30/25/30、MiLensKit 默认 47/50/44（lines/functions/branches %）。当前为对齐源端的占位值，首次 CI 实测后校准（见脚本头注释）；基线可用 `APP_*_MIN`/`KIT_*_MIN` 环境变量覆盖。
 
 ## 6. 文档维护
 

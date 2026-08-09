@@ -19,12 +19,19 @@ let package = Package(
     targets: [
         .target(
             name: "MiLensKit",
-            path: "Sources/MiLensKit"
+            path: "Sources/MiLensKit",
+            swiftSettings: [
+                // M3：严格并发检查（complete）；保持 Swift 5 语言模式，不引入 Swift 6 破坏性变更。
+                .unsafeFlags(["-strict-concurrency=complete"])
+            ]
         ),
         .testTarget(
             name: "MiLensKitTests",
             dependencies: ["MiLensKit"],
-            path: "Tests/MiLensKitTests"
+            path: "Tests/MiLensKitTests",
+            swiftSettings: [
+                .unsafeFlags(["-strict-concurrency=complete"])
+            ]
         )
     ]
 )

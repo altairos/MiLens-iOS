@@ -153,7 +153,7 @@ final class GalleryViewModel {
         isLoading = true
         currentLoadedCount = 0
         do {
-            totalPhotoCount = try photoRepo.getAllPhotoURIs().count
+            totalPhotoCount = try photoRepo.countAllPhotos()
             let page = try photoRepo.getPhotosPage(offset: 0, limit: pageSize)
             photos = page
             hasMorePhotos = page.count == pageSize
@@ -338,10 +338,10 @@ final class GalleryViewModel {
             self.isImporting = false
             self.loadInitial()
             self.triggerQualityAnalysis()
-            // 自动归属结果提示（复用扫描完成弹窗）
-            if result.imported > 0 {
+            // 自动归属结果提示（复用扫描完成弹窗）；有失败时同样提示，避免静默丢照片（H4）
+            if result.imported > 0 || result.failed > 0 {
                 self.scanCompleteMessage = ImportFlowLogic.resolveImportSummary(
-                    imported: result.imported, matched: result.matched)
+                    imported: result.imported, matched: result.matched, failed: result.failed)
                 self.showScanCompleteDialog = true
             }
         }

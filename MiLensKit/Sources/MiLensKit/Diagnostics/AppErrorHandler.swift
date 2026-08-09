@@ -59,25 +59,30 @@ public struct ClassifiedError {
 // MARK: - 错误输入
 
 /// 错误输入载体。对应源端 classifyError 接收的 `{ code, message }` 对象。
+/// iOS 侧补充 `domain`（NSError domain，L4）：HarmonyOS 无 domain 概念，
+/// 传 nil 时走原有 code/message 判定，完全向后兼容。
 public struct ErrorInput {
     public var code: Any?
     public var message: Any?
+    /// iOS NSError domain（如 NSCocoaErrorDomain / PHPhotosErrorDomain）。可选。
+    public var domain: String?
 
-    public init(code: Any? = nil, message: Any? = nil) {
+    public init(code: Any? = nil, message: Any? = nil, domain: String? = nil) {
         self.code = code
         self.message = message
+        self.domain = domain
     }
 }
 
 // MARK: - 分类条目
 
 /// 日志级别。对应源端 `ErrorCategoryEntry.level`。
-public enum ErrorLogLevel: String {
+public enum ErrorLogLevel: String, Sendable {
     case info, warn, error
 }
 
 /// 每个 category 对应的默认日志级别、用户文案与可重试标记。对应源端 `ErrorCategoryEntry`。
-public struct ErrorCategoryEntry {
+public struct ErrorCategoryEntry: Sendable {
     public var level: ErrorLogLevel
     public var defaultMessage: String
     public var retryable: Bool
@@ -136,10 +141,12 @@ public enum AppErrorHandler {
             (regex("(?i)\\bMozilla/"), "[UA]Mozilla/"),
             // 8. long base64 (>=64 chars) → [B64]
             (regex("\\b[A-Za-z0-9+/]{64,}={0,2}\\b"), "[B64]"),
+            // 9. Photos localIdentifier（UUID/L… 格式，L5）→ [PHID]
+            (regex("(?i)\\b[a-f0-9]{8}(-[a-f0-9]{4}){3}-[a-f0-9]{12}/L[^,\\s)]*"), "[PHID]"),
         ]
     }()
 
-    /// 移除日志中的敏感信息（凭据/URI/路径/IP/长 hex 密钥/UA/长 base64）。对应源端 `sanitizeForLog`。
+    /// 移除日志中的敏感信息（凭据/URI/路径/IP/长 hex 密钥/UA/长 base64/照片标识）。对应源端 `sanitizeForLog`。
     public static func sanitizeForLog(_ value: String) -> String {
         var result = value
         for (regex, template) in sanitizeRules {
@@ -149,22 +156,46 @@ public enum AppErrorHandler {
         return result
     }
 
+    /// 日志脱敏（L5）：系统照片库 localIdentifier 仅保留前缀，日志不落完整标识。
+    /// 保留前缀用于关联同一照片的多条错误日志（诊断可跟踪性），短标识原样返回。
+    public static func redactIdentifier(_ identifier: String) -> String {
+        guard identifier.count > 10 else { return identifier }
+        return String(identifier.prefix(10)) + "…"
+    }
+
     // MARK: 日志方法
+    // H1 诊断链路接入：输出到 AppLogBackend（Apple 平台 os.Logger，Linux 空实现）。
+    // 消息与错误明细均先经 sanitizeForLog 脱敏再输出。
 
     public static func debug(_ tag: String, _ msg: String) {
-        // 测试仅需验证不抛错；跨平台用 print
+        AppLogBackend.debug("[\\(tag)] \\(sanitizeForLog(msg))")
     }
 
     public static func info(_ tag: String, _ msg: String) {
-        // 同上
+        AppLogBackend.info("[\\(tag)] \\(sanitizeForLog(msg))")
     }
 
     public static func warn(_ tag: String, _ msg: String, _ err: ErrorInput? = nil) {
-        // 同上
+        AppLogBackend.warn("[\\(tag)] \\(sanitizeForLog(msg))\\(errSuffix(err))")
     }
 
     public static func error(_ tag: String, _ msg: String, _ err: ErrorInput? = nil) {
-        // 同上
+        AppLogBackend.error("[\\(tag)] \\(sanitizeForLog(msg))\\(errSuffix(err))")
+    }
+
+    /// 错误明细后缀（code/message 均脱敏）；err 为 nil 或全空时返回空串。
+    private static func errSuffix(_ err: ErrorInput?) -> String {
+        guard let err else { return "" }
+        var parts: [String] = []
+        // 直接读属性避免 if-let 绑定（Any? 绑定仅用于 String(describing:) 时
+        // 被 Swift 6.1 工具链误报 unused；语义不变）
+        if err.code != nil {
+            parts.append("code=\(sanitizeForLog(String(describing: err.code)))")
+        }
+        if err.message != nil {
+            parts.append("msg=\(sanitizeForLog(String(describing: err.message)))")
+        }
+        return parts.isEmpty ? "" : " (" + parts.joined(separator: " ") + ")"
     }
 
     // MARK: 安全执行包装器
@@ -179,7 +210,8 @@ public enum AppErrorHandler {
         do {
             return try await fn()
         } catch {
-            let input = ErrorInput(code: (error as? NSError)?.code, message: String(describing: error))
+            let nsError = error as NSError
+            let input = ErrorInput(code: nsError.code, message: String(describing: error), domain: nsError.domain)
             if level == .error {
                 AppErrorHandler.error(tag, "withCatch failed", input)
             } else {
@@ -199,7 +231,8 @@ public enum AppErrorHandler {
         do {
             return try fn()
         } catch {
-            let input = ErrorInput(code: (error as? NSError)?.code, message: String(describing: error))
+            let nsError = error as NSError
+            let input = ErrorInput(code: nsError.code, message: String(describing: error), domain: nsError.domain)
             if level == .error {
                 AppErrorHandler.error(tag, "withCatchSync failed", input)
             } else {
@@ -212,9 +245,71 @@ public enum AppErrorHandler {
     // MARK: 异常分类
 
     /// 对异常进行分类（10 类优先级判定）。对应源端 `classifyError`。
+    /// L4：优先使用 iOS NSError domain 判定（domain 比 code/message 更可靠），
+    /// domain 为 nil 或未命中已知域时回落原有 code/message 规则。
     public static func classifyError(_ input: ErrorInput) -> ClassifiedError {
         let codeNum = parseCode(input.code)
         let msgStr = parseMessage(input.message)
+
+        // 0. iOS NSError domain 优先判定（L4）
+        if let domain = input.domain {
+            switch domain {
+            case "NSPOSIXErrorDomain":
+                // Darwin errno：28=ENOSPC（磁盘满）、13=EACCES、2=ENOENT
+                if codeNum == 28 {
+                    return ClassifiedError(category: .storage, code: String(codeNum),
+                                           message: msgStr, isRetryable: false)
+                }
+                if codeNum == 13 {
+                    return ClassifiedError(category: .permission, code: String(codeNum),
+                                           message: msgStr, isRetryable: false)
+                }
+                if codeNum == 2 {
+                    return ClassifiedError(category: .filesystem, code: String(codeNum),
+                                           message: msgStr, isRetryable: false)
+                }
+            case "NSCocoaErrorDomain":
+                // 文件写空间不足 / 卷只读 → 存储
+                if codeNum == 516 || codeNum == 640 || codeNum == 642 {
+                    return ClassifiedError(category: .storage, code: String(codeNum),
+                                           message: msgStr, isRetryable: false)
+                }
+                // 用户取消（AppKit/UIKit 取消动作统一码）
+                if codeNum == 3072 {
+                    return ClassifiedError(category: .cancel, code: String(codeNum),
+                                           message: msgStr, isRetryable: false)
+                }
+                // 文件不存在（写 4 / 读 260）
+                if codeNum == 4 || codeNum == 260 {
+                    return ClassifiedError(category: .filesystem, code: String(codeNum),
+                                           message: msgStr, isRetryable: false)
+                }
+                // 无读写权限（写 513 / 读 257）
+                if codeNum == 513 || codeNum == 257 {
+                    return ClassifiedError(category: .permission, code: String(codeNum),
+                                           message: msgStr, isRetryable: false)
+                }
+                // Core Data 持久化错误区间
+                if codeNum >= 134030 && codeNum <= 134099 {
+                    return ClassifiedError(category: .database, code: String(codeNum),
+                                           message: msgStr, isRetryable: true)
+                }
+            case "PHPhotosErrorDomain":
+                // Photos framework：系统相册访问/资源变更
+                return ClassifiedError(category: .media, code: String(codeNum),
+                                       message: msgStr, isRetryable: true)
+            case "NSURLErrorDomain":
+                // 网络：超时/无法连接/连接丢失可重试，其余不可重试
+                return ClassifiedError(category: .network, code: String(codeNum),
+                                       message: msgStr,
+                                       isRetryable: codeNum == -1001 || codeNum == -1004 || codeNum == -1005)
+            case "SwiftDataErrorDomain":
+                return ClassifiedError(category: .database, code: String(codeNum),
+                                       message: msgStr, isRetryable: true)
+            default:
+                break
+            }
+        }
 
         // 1. 数据库错误 (SQLite error codes: 5~20, 26, 28)
         if (codeNum >= 5 && codeNum <= 20) || codeNum == 26 || codeNum == 28 {

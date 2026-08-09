@@ -25,6 +25,8 @@ protocol PhotoRepositoryProtocol {
     func getAllOriginalURIs() throws -> Set<String>
     /// 已入库的所有 URI（沙盒副本路径集合，兼容旧调用方）。
     func getAllPhotoURIs() throws -> Set<String>
+    /// 照片总数（H2：替代 getAllPhotoURIs().count 的全表计数）。
+    func countAllPhotos() throws -> Int
     /// 相册分页（按拍摄时间倒序，对应源端 getPhotosPage）。
     func getPhotosPage(offset: Int, limit: Int) throws -> [Photo]
     /// 某宠物的全部照片（对应源端 getPhotosByPetId）。
@@ -39,6 +41,8 @@ protocol PhotoRepositoryProtocol {
     func getAnniversaryPhotos(month: Int, day: Int, excludeYear: Int?) throws -> [Photo]
     /// 用户主动导入——唯一入库路径（DESIGN.md §7 硬约束）。
     func insertPhoto(_ photo: Photo) throws
+    /// 用户主动导入（批量）——一次事务写入多张（批量导入用，避免逐张 save）。
+    func insertPhotos(_ photos: [Photo]) throws
     func deletePhoto(_ photo: Photo) throws
     /// 持久化已修改的照片属性（编辑回写用——uri/尺寸/文件大小等已就地更新）。
     func updatePhoto(_ photo: Photo) throws
@@ -89,15 +93,24 @@ final class SwiftDataPhotoRepository: PhotoRepositoryProtocol {
     }
 
     func getAllOriginalURIs() throws -> Set<String> {
-        let descriptor = FetchDescriptor<Photo>()
+        // H2 分页化：只取 originalURI 一列，避免全表 Photo 整行 faulting（大图库 5000+）
+        var descriptor = FetchDescriptor<Photo>()
+        descriptor.propertiesToFetch = [\Photo.originalURI]
         let photos = try context.fetch(descriptor)
         return Set(photos.map(\.originalURI))
     }
 
     func getAllPhotoURIs() throws -> Set<String> {
-        let descriptor = FetchDescriptor<Photo>()
+        // H2 分页化：只取 uri 一列，避免全表 Photo 整行 faulting（孤儿审计/计数路径）
+        var descriptor = FetchDescriptor<Photo>()
+        descriptor.propertiesToFetch = [\Photo.uri]
         let photos = try context.fetch(descriptor)
         return Set(photos.map(\.uri))
+    }
+
+    func countAllPhotos() throws -> Int {
+        // fetchCount 只回行数，不物化任何对象（替代 getAllPhotoURIs().count）
+        try context.fetchCount(FetchDescriptor<Photo>())
     }
 
     func getPhotosPage(offset: Int, limit: Int) throws -> [Photo] {
@@ -152,6 +165,11 @@ final class SwiftDataPhotoRepository: PhotoRepositoryProtocol {
         try context.save()
     }
 
+    func insertPhotos(_ photos: [Photo]) throws {
+        for photo in photos { context.insert(photo) }
+        try context.save()
+    }
+
     func deletePhoto(_ photo: Photo) throws {
         context.delete(photo)
         try context.save()
@@ -188,10 +206,15 @@ final class SwiftDataPhotoRepository: PhotoRepositoryProtocol {
     }
 
     func getDuplicateCandidates() throws -> [Photo] {
-        let descriptor = FetchDescriptor<Photo>(
+        var descriptor = FetchDescriptor<Photo>(
             predicate: #Predicate { !$0.phash.isEmpty },
             sortBy: [SortDescriptor(\.createdAt)]
         )
+        // H2：只取分组算法所需的列（QualityScorer.findDuplicates 的投影字段）
+        descriptor.propertiesToFetch = [
+            \Photo.id, \Photo.phash, \Photo.qualityScore, \Photo.sharpness,
+            \Photo.width, \Photo.height, \Photo.fileSize,
+        ]
         return try context.fetch(descriptor)
     }
 

@@ -18,7 +18,7 @@ V1.0 不含：手表、健康管理、社区、云账号、商城、家庭局域
 | 维度 | 选型 | 说明 |
 |---|---|---|
 | 最低版本 | iOS 17.0 | SwiftData、`@Observable`、NavigationStack 全套、Vision 主体分割 |
-| 语言 | Swift 5.9+ | 宏、async/await、Sendable |
+| 语言 | Swift 5.9+ | 宏、async/await、Sendable；MiLensKit 开启 `-strict-concurrency=complete`（M3，锁保护全局用 `nonisolated(unsafe)` + NSLock，保持 Swift 5 语言模式） |
 | UI | SwiftUI | 为主，必要时 UIKit 互操作 |
 | 持久化 | SwiftData | `@Model` + `ModelContainer` + `VersionedSchema` 迁移 |
 | 状态管理 | `@Observable` 宏 | iOS 17 现代观察；跨视图共享走 `@Environment` |
@@ -143,7 +143,7 @@ SwiftData 从 V1.0 干净 schema 起步（不复刻源端 16 版历史迁移）�
 
 **增量扫描**：`ScanCursorStore`（UserDefaults）持久化上次成功扫描开始时刻作为游标，下次增量扫描以此为过滤基准（无游标 = 全量）。iOS 无公开「加入相册时间」API，以 `creationDate` 近似 `dateAdded`——老照片（早于游标）导入相册不会被增量发现，首次使用建议全量扫描。游标只在扫描**完整完成**（`ScanResult.completedSuccessfully`：未取消且无错误）时保存——仓储读取失败、计数失败或流式遍历中断时返回 `error` 状态，上层不保存游标，避免下次增量扫描跳过本次未扫到的照片。
 
-**文件-记录事务性**：`MediaLifecycleService` 统一治理导入/编辑/删除的文件-记录一致性——`commitImport`（DB 失败回滚已写文件）、`saveEditedPhoto`（失败删新文件，成功清理旧版本文件）、`deletePhoto`（删除联动媒体文件）、`auditOrphans`（启动孤儿审计）。DB 是事实源，媒体文件是派生资源。
+**文件-记录事务性**：`MediaLifecycleService` 统一治理导入/编辑/删除的文件-记录一致性——`commitImport`/`commitImportBatch`（DB 失败回滚已写文件；批量入库一次 save 多张，`ImportService` 攒批 32 张 flush，尾批含取消中断不丢文件）、`saveEditedPhoto`（失败删新文件，成功清理旧版本文件）、`deletePhoto`（删除联动媒体文件）、`auditOrphans`（启动后延迟 3s 以 utility 优先级后台执行孤儿审计，文件遍历/删除在 `Task.detached` 内，不占启动关键路径）。DB 是事实源，媒体文件是派生资源。
 
 **像素计算移出主线程**：CPU 密集段（JPEG 解码、Laplacian、pHash、VNRequest、CLIP 预处理、O(n²) 重复分组）统一经 `AnalysisExecutor`（actor，utility 优先级，受限并发 `maxConcurrent = 2`，内部 in-flight 计数 + continuation 队列）执行，只把 Sendable 结果回 MainActor 写库/更新 UI。`ScanService` 两阶段：阶段 1（MainActor 轻量）过滤已导入/过旧照片收集候选；阶段 2 候选分批（每批 `maxConcurrent` 个）后台分析，进度回调次数保持按照片数。扫描阶段对已注册宠物做只读预匹配（复用 CLIP 同一次推理的 embedding + 14 维颜色签名，`matchedCount`/`matchedUris` 真实反映归属判定），真正归属写入仍在导入时（`ImportService` → `assignPhoto`）——扫描不写库的硬约束不变。
 

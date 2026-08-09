@@ -71,8 +71,11 @@ struct MiLensApp: App {
                 .environment(\.proEntitlement, dependencies.proEntitlement)
                 .preferredColorScheme(preferredScheme)
                 .task {
-                    // 启动孤儿审计：清理上一次崩溃/回滚残留的媒体文件（仅生产环境）
+                    // 启动孤儿审计：清理上一次崩溃/回滚残留的媒体文件（仅生产环境）。
+                    // L3：延迟到首屏稳定后执行，不阻塞启动关键路径；IO 在 service 内部降级到 utility 优先级。
                     guard !isTesting else { return }
+                    try? await Task.sleep(for: .seconds(3))
+                    guard !Task.isCancelled else { return }
                     await dependencies.mediaLifecycle.auditOrphans()
                 }
         } else {

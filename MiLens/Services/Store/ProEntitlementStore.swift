@@ -25,27 +25,43 @@ final class ProEntitlementStore {
 
     private let store: any StoreService
 
-    /// 订阅任务注册表：@Observable 宏不允许 nonisolated 可变存储属性，deinit（非隔离）
-    /// 无法直接访问实例任务句柄；改用非隔离静态注册表按实例 ID 取消（Task 是 Sendable）。
-    private static nonisolated(unsafe) var activeUpdates: [ObjectIdentifier: Task<Void, Never>] = [:]
+    /// 订阅任务注册表（actor 隔离）：@Observable 宏不允许 nonisolated 可变存储属性，
+    /// deinit（非隔离）无法直接访问实例任务句柄；注册表按实例 ID 管理任务生命周期。
+    /// actor 隔离消除 init（MainActor）与 deinit（任意线程）对静态字典的数据竞争。
+    private actor ListenerRegistry {
+        private var tasks: [ObjectIdentifier: Task<Void, Never>] = [:]
+
+        func register(_ id: ObjectIdentifier, _ task: Task<Void, Never>) {
+            tasks[id] = task
+        }
+
+        func cancel(_ id: ObjectIdentifier) {
+            tasks[id]?.cancel()
+            tasks[id] = nil
+        }
+    }
+
+    private static let registry = ListenerRegistry()
 
     init(store: any StoreService) {
         self.store = store
         let id = ObjectIdentifier(self)
         let task = Task { [weak self] in
-            guard let self else { return }
+            // 每次迭代才短暂持有 self：任务不长期强引用实例，
+            // 实例释放后下一轮迭代 guard 失败退出——无「静态字典 → Task → self」保活环。
+            defer { Task { await Self.registry.cancel(id) } }
             for await status in store.proStatusUpdates {
                 guard !Task.isCancelled else { return }
+                guard let self else { return }
                 self.status = status
             }
         }
-        Self.activeUpdates[id] = task
+        Task { await Self.registry.register(id, task) }
     }
 
     deinit {
         let id = ObjectIdentifier(self)
-        Self.activeUpdates[id]?.cancel()
-        Self.activeUpdates[id] = nil
+        Task { await Self.registry.cancel(id) }
     }
 
     /// 显式校准一次权益（购买/恢复成功、根视图启动与页面出现时调用）。

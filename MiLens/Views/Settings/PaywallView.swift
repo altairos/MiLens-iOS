@@ -115,8 +115,9 @@ struct PaywallView: View {
 
     private var benefits: some View {
         VStack(alignment: .leading, spacing: Spacing.md) {
-            benefitRow(text: String(localized: "paywall.benefit.export"))
-            benefitRow(text: String(localized: "paywall.benefit.create"))
+            ForEach(ProFeature.allCases) { feature in
+                benefitRow(text: String(localized: String.LocalizationValue(feature.localizationKey)))
+            }
             benefitRow(text: String(localized: "paywall.benefit.family"))
         }
     }

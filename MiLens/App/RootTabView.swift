@@ -58,37 +58,21 @@ struct RootTabView: View {
 
     @ViewBuilder
     private func routeDestination(_ route: Route) -> some View {
-        switch route {
-        case .gallery:
-            GalleryView()
-        case .photoView(let photoID):
-            PhotoViewView(photoID: photoID)
-        case .editor(let photoID):
-            EditorView(photoID: photoID)
-        case .petProfile(let petID):
-            PetProfileView(petID: petID)
-        case .beadPhotoPicker:
-            // Pro 门控：未解锁时所有拼豆入口（相册/大图页）落到付费墙
-            if entitlement.isPro {
-                BeadPhotoPickerView()
-            } else {
-                PaywallView()
+        if route.requiresPro && !entitlement.isPro {
+            PaywallView()
+        } else {
+            switch route {
+            case .gallery: GalleryView()
+            case .photoView(let photoID): PhotoViewView(photoID: photoID)
+            case .editor(let photoID): EditorView(photoID: photoID)
+            case .petProfile(let petID): PetProfileView(petID: petID)
+            case .beadPhotoPicker: BeadPhotoPickerView()
+            case .beadPattern(let photoID): BeadPatternView(photoID: photoID)
+            case .petCardPhotoPicker: PetCardPhotoPickerView()
+            case .petCard(let photoID): PetCardView(photoID: photoID)
+            case .petEdit(let petID): PetEditView(petID: petID)
+            case .timeline: TimelineView()
             }
-        case .beadPattern(let photoID):
-            if entitlement.isPro {
-                BeadPatternView(photoID: photoID)
-            } else {
-                PaywallView()
-            }
-        case .petCardPhotoPicker:
-            // 宠物卡片暂为免费能力（Pro 权益文案仅含拼豆+编辑器，待产品确认后门控）
-            PetCardPhotoPickerView()
-        case .petCard(let photoID):
-            PetCardView(photoID: photoID)
-        case .petEdit(let petID):
-            PetEditView(petID: petID)
-        case .timeline:
-            TimelineView()
         }
     }
 

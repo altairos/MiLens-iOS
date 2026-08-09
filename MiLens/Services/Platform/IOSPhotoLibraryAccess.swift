@@ -63,8 +63,8 @@ final class IOSPhotoLibraryAccess: PhotoLibraryAccess, @unchecked Sendable {
                 dateAdded: asset.creationDate,
                 pixelWidth: asset.pixelWidth,
                 pixelHeight: asset.pixelHeight,
-                fileSize: fileSize(of: asset),
-                displayName: asset.value(forKey: "filename") as? String ?? ""
+                fileSize: 0,
+                displayName: displayName(of: asset)
             )
             visited += 1
             let shouldContinue = try await consumer(metadata)
@@ -91,18 +91,18 @@ final class IOSPhotoLibraryAccess: PhotoLibraryAccess, @unchecked Sendable {
             dateAdded: asset.creationDate,
             pixelWidth: asset.pixelWidth,
             pixelHeight: asset.pixelHeight,
-            fileSize: fileSize(of: asset),
-            displayName: asset.value(forKey: "filename") as? String ?? ""
+            fileSize: 0,
+            displayName: displayName(of: asset)
         )
     }
 
-    /// PHAsset 文件大小（字节）。PHAssetResource 无公开 fileSize 属性，经 KVC 读取；
-    /// 取不到返回 0（仅辅助展示/去重，ImportService 会以实际数据大小兜底）。
-    private func fileSize(of asset: PHAsset) -> Int64 {
-        guard let resource = PHAssetResource.assetResources(for: asset).first,
-              let size = resource.value(forKey: "fileSize") as? NSNumber else { return 0 }
-        return size.int64Value
+    /// 公开 API 读取文件名（PHAssetResource.originalFilename），不依赖 KVC 非公开字段。
+    private func displayName(of asset: PHAsset) -> String {
+        PHAssetResource.assetResources(for: asset).first?.originalFilename ?? ""
     }
+
+    // 注意：PHAssetResource 无公开 fileSize API，fileSize 字段恒为 0——
+    // 仅辅助展示/排序，ImportService 以实际导入数据大小兜底（诚实标注）。
 
     // MARK: - 图片数据加载
 
@@ -118,19 +118,50 @@ final class IOSPhotoLibraryAccess: PhotoLibraryAccess, @unchecked Sendable {
     }
 
     /// 原图数据（导入用）：requestImageDataAndOrientation 直接取编码数据。
+    /// 完整桥接：取消/错误经 info 键识别、continuation 只恢复一次、
+    /// 任务取消时 cancelImageRequest（iCloud 下载请求随之停止）。
     private func loadOriginalData(_ asset: PHAsset) async throws -> Data {
-        try await withCheckedThrowingContinuation { continuation in
-            PHImageManager.default().requestImageDataAndOrientation(for: asset, options: nil) { data, _, _, _ in
-                if let data {
-                    continuation.resume(returning: data)
-                } else {
-                    continuation.resume(throwing: PhotoLibraryError.imageDataUnavailable(asset.localIdentifier))
+        let box = RequestIDBox()
+        return try await withTaskCancellationHandler {
+            try await withCheckedThrowingContinuation { continuation in
+                var didResume = false
+                func resumeOnce(_ result: Result<Data, Error>) {
+                    guard !didResume else { return }
+                    didResume = true
+                    continuation.resume(with: result)
                 }
+                box.set(
+                    PHImageManager.default().requestImageDataAndOrientation(
+                        for: asset, options: nil
+                    ) { data, _, _, info in
+                        if Task.isCancelled {
+                            resumeOnce(.failure(CancellationError()))
+                            return
+                        }
+                        if let cancelled = info?[PHImageCancelledKey] as? Bool, cancelled {
+                            resumeOnce(.failure(CancellationError()))
+                            return
+                        }
+                        if let error = info?[PHImageErrorKey] as? Error {
+                            resumeOnce(.failure(error))
+                            return
+                        }
+                        if let data {
+                            resumeOnce(.success(data))
+                        } else {
+                            resumeOnce(.failure(PhotoLibraryError.imageDataUnavailable(asset.localIdentifier)))
+                        }
+                    }
+                )
             }
+        } onCancel: {
+            box.cancel()
         }
     }
 
     /// 缩放图数据（AI 检测用）：requestImage 生成缩略图后编码为 JPEG。
+    /// 完整桥接：忽略 degraded 中间帧（等最终高清）、取消/错误经 info 键识别、
+    /// continuation 只恢复一次、任务取消时 cancelImageRequest。
     private func loadScaledImage(_ asset: PHAsset, maxDimension: Int) async throws -> Data {
         let options = PHImageRequestOptions()
         options.isNetworkAccessAllowed = true
@@ -138,21 +169,72 @@ final class IOSPhotoLibraryAccess: PhotoLibraryAccess, @unchecked Sendable {
         options.resizeMode = .fast
         let targetSize = CGSize(width: maxDimension, height: maxDimension)
 
-        let image = try await withCheckedThrowingContinuation { continuation in
-            PHImageManager.default().requestImage(
-                for: asset, targetSize: targetSize, contentMode: .aspectFit, options: options
-            ) { image, _ in
-                if let image {
-                    continuation.resume(returning: image)
-                } else {
-                    continuation.resume(throwing: PhotoLibraryError.imageDataUnavailable(asset.localIdentifier))
+        let box = RequestIDBox()
+        let image = try await withTaskCancellationHandler {
+            try await withCheckedThrowingContinuation { continuation in
+                var didResume = false
+                func resumeOnce(_ result: Result<UIImage, Error>) {
+                    guard !didResume else { return }
+                    didResume = true
+                    continuation.resume(with: result)
                 }
+                box.set(
+                    PHImageManager.default().requestImage(
+                        for: asset, targetSize: targetSize, contentMode: .aspectFit, options: options
+                    ) { image, info in
+                        if Task.isCancelled {
+                            resumeOnce(.failure(CancellationError()))
+                            return
+                        }
+                        if let cancelled = info?[PHImageCancelledKey] as? Bool, cancelled {
+                            resumeOnce(.failure(CancellationError()))
+                            return
+                        }
+                        if let error = info?[PHImageErrorKey] as? Error {
+                            resumeOnce(.failure(error))
+                            return
+                        }
+                        guard let image else {
+                            resumeOnce(.failure(PhotoLibraryError.imageDataUnavailable(asset.localIdentifier)))
+                            return
+                        }
+                        // degraded 中间帧：忽略，等待最终高清帧
+                        if let degraded = info?[PHImageResultIsDegradedKey] as? Bool, degraded {
+                            return
+                        }
+                        resumeOnce(.success(image))
+                    }
+                )
             }
+        } onCancel: {
+            box.cancel()
         }
         guard let jpeg = image.jpegData(compressionQuality: 0.9) else {
             throw PhotoLibraryError.imageDataUnavailable(asset.localIdentifier)
         }
         return jpeg
+    }
+}
+
+/// 请求 ID 传递盒：onCancel 可能先于 requestImage 返回执行（此时无 ID 可取消），
+/// 由回调侧的 Task.isCancelled 检查兜底；同一请求回调在系统串行队列执行，
+/// id 的读写以 NSLock 保护（单段临界区，无嵌套）。
+private final class RequestIDBox: @unchecked Sendable {
+    private let lock = NSLock()
+    private var id: PHImageRequestID = PHInvalidImageRequestID
+
+    func set(_ newID: PHImageRequestID) {
+        lock.lock()
+        id = newID
+        lock.unlock()
+    }
+
+    func cancel() {
+        lock.lock()
+        let current = id
+        lock.unlock()
+        guard current != PHInvalidImageRequestID else { return }
+        PHImageManager.default().cancelImageRequest(current)
     }
 }
 

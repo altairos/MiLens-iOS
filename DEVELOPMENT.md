@@ -75,7 +75,7 @@ apt-get install -y --no-install-recommends \
 仓库 https://github.com/altairos/MiLens-iOS（私有）。推送即触发 `.github/workflows/ci.yml`（PR 与 main/master push 均运行两个作业）：
 
 1. `MiLensKit (Linux)`——ubuntu-24.04 上 `swift build/test`，约 50s。
-2. `MiLens App (macOS)`——macos-15 runner 上 `xcodegen generate` → `tools/fetch-models.sh`（从 Release 下载生产模型 + SHA256 校验，`actions/cache` 缓存 `MiLens/Resources/Models`，命中则幂等跳过）→ `xcodebuild build/test`（含覆盖率，`-resultBundlePath build/TestResult.xcresult`）→ **覆盖率门禁**（`tools/check-coverage.sh` 解析 xcresult，按 MiLens/MiLensKit 目标与基线比较，任一指标不达标即失败；基线为占位值，首次实测后校准，见脚本头注释），约 4-5 分钟（依赖 MiLensKit 作业通过）。
+2. `MiLens App (macOS)`——macos-15 runner 上 `tools/fetch-models.sh`（从 Release 下载生产模型 + SHA256 校验，`actions/cache` 缓存 `MiLens/Resources/Models`，命中则幂等跳过）→ **再** `xcodegen generate`（顺序约束：XcodeGen 生成工程时模型必须已存在，否则 `.mlpackage` 不会进入 Resources Build Phase，正式包会静默降级到 Vision）→ `xcodebuild build` → **产物断言**（`tools/assert-built-models.sh` 校验 `.app` 内含编译后 `.mlmodelc`，防静默降级）→ `xcodebuild test`（含覆盖率，`-resultBundlePath build/TestResult.xcresult`）→ **覆盖率门禁**（`tools/check-coverage.sh --selftest` 固定 fixture 自测 + 解析 xcresult，按 MiLens/MiLensKit 目标与基线比较，任一指标不达标即失败；基线为占位值，首次实测后校准，见脚本头注释），约 4-5 分钟（依赖 MiLensKit 作业通过）。
 
 查看：`gh run list --repo altairos/MiLens-iOS` 或 https://github.com/altairos/MiLens-iOS/actions。
 
@@ -283,7 +283,7 @@ UI 文案与 Info.plist 权限说明用 Apple String Catalog（`.xcstrings`）�
 4. 导入回写（各 `.xcstrings` 分别执行）：`python tools/localization.py import build/loc.xlsx MiLens/Resources/Localizable.xcstrings --lang en`。
 5. 校验：`python tools/localization.py check MiLens/Resources/Localizable.xcstrings MiLens/Resources/InfoPlist.xcstrings --project-yml project.yml --source-root MiLens`。
 
-> 依赖 `openpyxl`（`pip install -r tools/requirements.txt`）。工具支持任意语言，不限于英文；check 可接入 CI。
+> 依赖 `openpyxl`（`pip install -r tools/requirements.txt`）。工具支持任意语言，不限于英文；check 可接入 CI。脚本入口已内置 `stdout` UTF-8 重配置——Windows 默认 GBK 控制台无需 `PYTHONUTF8=1` 即可输出 `−` 等 Unicode 字符（2026-08-09 评审修复）。
 
 ## 5. 验证快照
 

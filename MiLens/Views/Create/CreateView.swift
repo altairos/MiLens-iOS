@@ -135,7 +135,7 @@ struct CreateView: View {
         }
     }
 
-    // MARK: - 宠物卡片入口（P4，暂不 Pro 门控）
+    // MARK: - 宠物卡片入口（P4，按 ADR-0009 保持免费）
 
     private var petCardEntry: some View {
         NavigationLink(value: Route.petCardPhotoPicker) {

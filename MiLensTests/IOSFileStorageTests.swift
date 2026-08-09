@@ -97,6 +97,36 @@ final class IOSFileStorageTests: XCTestCase {
         try await fs.createDirectory(at: path("dir"))
         XCTAssertTrue(fs.fileExists(at: path("dir")))
     }
+
+    // MARK: - 备份排除（Documents 下的媒体副本不进入 iCloud/iTunes 备份）
+
+    /// 写入 Documents 下的文件必须设置 isExcludedFromBackup（评审中优先级）。
+    /// 使用测试沙盒的真实 Documents 目录（临时子目录，结束后清理）。
+    func testDocumentsWriteExcludedFromBackup() async throws {
+        let fs = IOSFileStorage()
+        let dir = URL.documentsDirectory
+            .appendingPathComponent("IOSFileStorageBackupTest-\(UUID().uuidString)")
+        try FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: dir) }
+        let fileURL = dir.appendingPathComponent("a.jpg")
+
+        try await fs.write(Data("x".utf8), to: fileURL.path)
+
+        let values = try fileURL.resourceValues(forKeys: [.isExcludedFromBackupKey])
+        XCTAssertEqual(values.isExcludedFromBackup, true,
+                       "Documents 下的媒体副本必须排除备份（照片不离开设备的承诺）")
+    }
+
+    /// 非 Documents 路径（如临时目录）不受影响——排除逻辑只作用于媒体副本目录。
+    func testNonDocumentsWriteKeepsBackupEligible() async throws {
+        let fs = IOSFileStorage()
+        let fileURL = tempDir.appendingPathComponent("keep.txt")
+        try await fs.write(Data("x".utf8), to: fileURL.path)
+
+        let values = try fileURL.resourceValues(forKeys: [.isExcludedFromBackupKey])
+        XCTAssertNotEqual(values.isExcludedFromBackup, true,
+                          "非 Documents 路径不应被排除备份")
+    }
 }
 
 /// ScanCursorStore 测试——游标持久化（UserDefaults 隔离 suite）与 mock 行为。

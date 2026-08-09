@@ -73,8 +73,9 @@ jobs:
           key: brew-xcodegen-${{ runner.os }}
       - name: Install XcodeGen
         run: brew install xcodegen
-      - name: Generate Xcode project
-        run: xcodegen generate
+      # 顺序约束：必须先下载模型再 xcodegen generate——XcodeGen 生成工程时
+      # 若 .mlpackage 尚不存在，模型不会进入 Resources Build Phase，
+      # 正式包会静默降级到 Vision（构建后由 assert-built-models.sh 守护）。
       - name: Cache AI models
         uses: actions/cache@v4
         with:
@@ -83,6 +84,8 @@ jobs:
           restore-keys: models-${{ runner.os }}-
       - name: Fetch production models (Release + SHA256)
         run: tools/fetch-models.sh
+      - name: Generate Xcode project
+        run: xcodegen generate
       - name: Cache Swift Package dependencies
         uses: actions/cache@v4
         with:
@@ -98,8 +101,12 @@ jobs:
             -scheme MiLens \
             -destination 'generic/platform=iOS Simulator' \
             -configuration Debug \
+            -derivedDataPath build/DerivedData \
             CODE_SIGNING_ALLOWED=NO \
             build
+      # 构建产物模型断言：模型未进 Resources Build Phase 时此步失败（防静默降级）
+      - name: Assert production models in build product
+        run: tools/assert-built-models.sh build/DerivedData/Build/Products/Debug-iphonesimulator/MiLens.app
       - name: Test (simulator)
         run: |
           # 查找首个可用的 iPhone 模拟器（runner 上可用的设备名不固定）
@@ -111,12 +118,15 @@ jobs:
             -scheme MiLens \
             -destination "id=$DEVICE" \
             -configuration Debug \
+            -derivedDataPath build/DerivedData \
             -enableCodeCoverage YES \
             -resultBundlePath build/TestResult.xcresult \
             CODE_SIGNING_ALLOWED=NO \
             test
       # H3 覆盖率门禁：解析 xcresult 与基线比较，任一指标不达标即失败
       # （基线为占位值，首次实测后校准，见 tools/check-coverage.sh 头注释）
+      - name: Coverage script self-test
+        run: tools/check-coverage.sh --selftest
       - name: Check coverage gate
         run: tools/check-coverage.sh build/TestResult.xcresult
 
@@ -151,9 +161,8 @@ jobs:
           key: brew-xcodegen-${{ runner.os }}
       - name: Install XcodeGen
         run: brew install xcodegen
-      - name: Generate Xcode project
-        run: xcodegen generate
-
+      # 顺序约束：先下载模型再 xcodegen generate（见 app 作业注释）；
+      # archive 后由 assert-built-models.sh 校验产物。
       - name: Cache AI models
         uses: actions/cache@v4
         with:
@@ -162,6 +171,8 @@ jobs:
           restore-keys: models-${{ runner.os }}-
       - name: Fetch production models (Release + SHA256)
         run: tools/fetch-models.sh
+      - name: Generate Xcode project
+        run: xcodegen generate
 
       # altool 读取 ~/private_keys/AuthKey_<KEY_ID>.p8；内容来自 Secret，不进工作区
       - name: Write App Store Connect API Key
@@ -194,6 +205,10 @@ jobs:
             DEVELOPMENT_TEAM="$ASC_TEAM_ID" \
             MARKETING_VERSION="$VERSION" \
             CURRENT_PROJECT_VERSION="$BUILD_NUMBER"
+
+      # 归档产物模型断言：模型未进 Resources Build Phase 时此步失败（防静默降级）
+      - name: Assert production models in archive
+        run: tools/assert-built-models.sh build/MiLens.xcarchive/Products/Applications/MiLens.app
 
       - name: Export IPA
         env:

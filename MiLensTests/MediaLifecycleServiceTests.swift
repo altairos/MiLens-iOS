@@ -146,6 +146,8 @@ final class MediaLifecycleServiceTests: XCTestCase {
             XCTAssertFalse(fs.fileExists(at: newPath), "更新失败后新文件必须回滚删除")
             XCTAssertTrue(fs.fileExists(at: oldPath), "记录保持指向旧文件")
             XCTAssertEqual(photo.uri, oldPath)
+            XCTAssertEqual(photo.category, PhotoCategory.unknown.rawValue,
+                           "编辑失败后 category 必须恢复原值（完整回滚，评审 P）")
         }
     }
 

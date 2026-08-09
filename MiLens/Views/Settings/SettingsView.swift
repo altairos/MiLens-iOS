@@ -131,6 +131,29 @@ struct SettingsView: View {
                 }
                 .buttonStyle(.plain)
             }
+            proFeatureRows
+        }
+    }
+
+    private var proFeatureRows: some View {
+        VStack(spacing: 0) {
+            ArchiveDivider().padding(.leading, 56)
+            ForEach(ProFeature.allCases) { feature in
+                settingsLabelRow(
+                    icon: feature.systemImage,
+                    title: String(localized: String.LocalizationValue(feature.localizationKey)),
+                    tint: .milensTextSecondary
+                )
+                if feature != ProFeature.allCases.last {
+                    ArchiveDivider().padding(.leading, 56)
+                }
+            }
+            ArchiveDivider().padding(.leading, 56)
+            settingsLabelRow(
+                icon: "person.2",
+                title: String(localized: "paywall.benefit.family"),
+                tint: .milensTextSecondary
+            )
         }
     }
 

@@ -10,12 +10,12 @@
       "internalID" : "9C4E21A7",
       "localizations" : [
         {
-          "description" : "一次购买，永久解锁 MiLens Pro 全部功能，无后续费用。",
+          "description" : "一次购买，永久解锁完整拼豆工作室与图片编辑器，无后续费用。",
           "displayName" : "MiLens Pro 永久版",
           "locale" : "zh_Hans"
         },
         {
-          "description" : "One-time purchase, unlock all MiLens Pro features permanently.",
+          "description" : "One-time purchase, permanently unlock the bead studio and complete photo editor.",
           "displayName" : "MiLens Pro Lifetime",
           "locale" : "en_US"
         }

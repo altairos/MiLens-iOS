@@ -91,6 +91,7 @@ final class MediaLifecycleService {
         let oldFileSize = photo.fileSize
         let oldWidth = photo.width
         let oldHeight = photo.height
+        let oldCategory = photo.category
         try await fileStorage.write(data, to: newPath)
         do {
             // 就地更新记录（编辑覆盖原照片；thumbnailPath 置空 → 读取端回退 uri）
@@ -109,6 +110,7 @@ final class MediaLifecycleService {
             photo.fileSize = oldFileSize
             photo.width = oldWidth
             photo.height = oldHeight
+            photo.category = oldCategory
             do {
                 try await fileStorage.removeItem(at: newPath)
             } catch {

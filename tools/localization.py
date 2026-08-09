@@ -332,6 +332,16 @@ def cmd_check(args: argparse.Namespace) -> int:
 # --------------------------------------------------------------------------- #
 
 def main() -> None:
+    # Windows 默认控制台编码（GBK）无法输出 − 等 Unicode 字符，check 会抛
+    # UnicodeEncodeError（此前需 PYTHONUTF8=1 才通过）；统一重配置 stdout 为 UTF-8，
+    # 等价于设置 PYTHONUTF8=1，Windows/macOS/Linux 行为一致。
+    if sys.stdout is not None:
+        try:
+            sys.stdout.reconfigure(encoding="utf-8")
+        except (AttributeError, ValueError):
+            # 非 TextIOWrapper（如测试环境替换的流）或不可重配置时保持原样
+            pass
+
     p = argparse.ArgumentParser(
         description="MiLens 本地化（String Catalog）导出 / 导入 / 校验工具。",
         formatter_class=argparse.RawDescriptionHelpFormatter,

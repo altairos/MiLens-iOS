@@ -3,24 +3,11 @@
 <plist version="1.0">
 <dict>
 	<!-- L1 隐私清单：照片仅在本机处理（不上传、不跟踪、不关联用户身份），
-	     声明收集类型与 Required Reason API 访问原因。 -->
+	     不收集任何数据——按 Apple 定义，仅在设备上处理的数据不属于「收集」；
+	     购买由 Apple StoreKit 处理、崩溃日志由系统收集，均无需开发者披露。
+	     因此本清单不声明 NSPrivacyCollectedDataTypes。 -->
 	<key>NSPrivacyTracking</key>
 	<false/>
-	<key>NSPrivacyCollectedDataTypes</key>
-	<array>
-		<dict>
-			<key>NSPrivacyCollectedDataType</key>
-			<string>NSPrivacyCollectedDataTypePhotos</string>
-			<key>NSPrivacyCollectedDataTypeLinked</key>
-			<false/>
-			<key>NSPrivacyCollectedDataTypeTracking</key>
-			<false/>
-			<key>NSPrivacyCollectedDataTypePurposes</key>
-			<array>
-				<string>NSPrivacyCollectedDataTypePurposeAppFunctionality</string>
-			</array>
-		</dict>
-	</array>
 	<key>NSPrivacyAccessedAPITypes</key>
 	<array>
 		<dict>

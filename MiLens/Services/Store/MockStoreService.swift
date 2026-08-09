@@ -99,7 +99,7 @@ extension MockStoreService {
         StoreProductInfo(
             id: MiLensProducts.lifetime,
             displayName: "MiLens Pro 永久版",
-            descriptionText: "一次购买，永久解锁 MiLens Pro 全部功能，无后续费用。",
+            descriptionText: "一次购买，永久解锁完整拼豆工作室与图片编辑器，无后续费用。",
             displayPrice: "¥298.00",
             period: .lifetime,
             trialDays: nil

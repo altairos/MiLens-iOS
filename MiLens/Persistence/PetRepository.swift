@@ -43,29 +43,29 @@ final class SwiftDataPetRepository: PetRepositoryProtocol {
 
     func insertPet(_ pet: Pet) throws {
         context.insert(pet)
-        try context.save()
+        try context.saveOrRollback()
     }
 
     func updatePet(_ pet: Pet) throws {
         pet.updatedAt = Date()
-        try context.save()
+        try context.saveOrRollback()
     }
 
     func deletePet(_ pet: Pet) throws {
         context.delete(pet)
-        try context.save()
+        try context.saveOrRollback()
     }
 
     func refreshPhotoCount(for pet: Pet) throws {
         // 关系查询——直接计数 photos 数组（SwiftData 延迟加载关系）
         pet.photoCount = pet.photos.count
         pet.updatedAt = Date()
-        try context.save()
+        try context.saveOrRollback()
     }
 
     func updateFeatureData(_ pet: Pet, data: Data?) throws {
         pet.featureData = data
         pet.updatedAt = Date()
-        try context.save()
+        try context.saveOrRollback()
     }
 }

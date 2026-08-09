@@ -1,6 +1,6 @@
 # MiLens iOS 迁移计划
 
-最后核对：2026-08-09（P0–P4 状态全量同步；P5 首页/设置/订阅/付费墙/元数据已实现 + 上架流水线代码落地待实测；剩性能基准、截图、iPad/深色检查与真机验收，见 [P2-待办清单](docs/P2-待办清单.md)）
+最后核对：2026-08-09（P0–P4 状态全量同步；P5 首页/设置/订阅/付费墙/元数据已实现 + 上架流水线代码落地待实测；评审高优先级+中优先级修复全部落地，见状态摘要；剩性能基准、截图、iPad/深色检查与真机验收，见 [P2-待办清单](docs/P2-待办清单.md)）
 
 > 里程碑与任务清单。架构见 [DESIGN.md](DESIGN.md)，映射与范围见 [MIGRATION_ASSESSMENT.md](MIGRATION_ASSESSMENT.md)，约束见 [AGENTS.md](AGENTS.md)。
 
@@ -201,7 +201,7 @@ P1 核心可靠性与性能六项修复全部落地（实现记录见状态摘�
 - [x] `BeadPatternView`：选图 → 预设选择 → 生成预览 → 调参（CreateView 已导入照片网格 + BeadPatternView/BeadSettingsPanelView/BeadPatternResultView 三件套）
 - [x] 接入 MiLensKit 生成管线（P1.3）+ 渲染（BeadViewModel 编排源端 doGenerate 全流程，preview 按 canvasScale 重绘）
 - [x] A4 图纸导出（PNG）+ 系统分享（BeadExportService：A4 渲染 → 存相册 / 分享缓存 → UIActivityViewController）
-- [x] 宠物卡片生成（创作 Tab 第二项目，UI-DESIGN.md §6.6）——`PetCardLogic` 纯逻辑（文案组装：名字/物种·年龄/「来到家 N 天」/拍摄日期回退）+ `PetCardView`（预览=导出同源 `PetCardArtwork`，ImageRenderer 渲染 1080×1350 4:5 纪念卡，保存相册/系统分享）+ `PetCardPhotoPickerView` 选照片页 + CreateView 入口 + Route 扩展。iOS 自研 MVP（源端 3D 手办不在 V1 范围），暂不 Pro 门控（权益文案待产品确认）+ 8 用例 XCTest
+- [x] 宠物卡片生成（创作 Tab 第二项目，UI-DESIGN.md §6.6）——`PetCardLogic` 纯逻辑（文案组装：名字/物种·年龄/「来到家 N 天」/拍摄日期回退）+ `PetCardView`（预览=导出同源 `PetCardArtwork`，ImageRenderer 渲染 1080×1350 4:5 纪念卡，保存相册/系统分享）+ `PetCardPhotoPickerView` 选照片页 + CreateView 入口 + Route 扩展。iOS 自研 MVP（源端 3D 手办不在 V1 范围），按 ADR-0009 保持免费，Pro 仅门控拼豆工作室与完整图片编辑器 + 8 用例 XCTest
 - [x] 主体/bbox 保护接入（bbox + mask 已接入；pose 依赖 AI 推理，iOS 暂缺留 nil，见进度日志）
 - [x] XCTest：Bead 生成 ViewModel 决策（BeadFlowLogicTests 26 用例，对应源端黄金规格）
 
@@ -357,6 +357,9 @@ P1 核心可靠性与性能六项修复全部落地（实现记录见状态摘�
 
 ### P5 进度
 
+- 2026-08-09：**评审高优先级+中优先级修复全部落地（App Store 发布准备）**——①**App Icon**：`AppIcon.appiconset` 补齐 1024×1024 PNG（此前只有 Contents.json 声明，Archive/提审无法形成合格图标资产）；②**CI 模型顺序**：app/release 两作业均改为「缓存/下载模型 → 校验 → xcodegen generate」并新增 `tools/assert-built-models.sh` 构建产物断言（`xcodegen` 在模型存在前生成工程会导致 `.mlpackage` 不进 Resources Build Phase，正式包静默降级 Vision）；③**覆盖率门禁单位修复**：`check-coverage.sh` 此前拿 xccov 的 0…1 小数直接与 30/25/30 基线比较导致恒失败，改为乘 100 统一百分比并新增 `--selftest` 固定 fixture 自测（等于基线 PASS / 低于基线 FAIL 双向守护）；④**隐私声明与 Apple 定义对齐**：`PrivacyInfo.xcprivacy` 移除 `NSPrivacyCollectedDataTypes`（照片仅本机处理不算「收集」、StoreKit/崩溃日志由系统处理无需披露），`docs/AppStore-metadata.md` 问卷改为「不收集数据」，并确认无自建崩溃上报服务；⑤**SwiftData 事务封装**：新增 `ModelContext.saveOrRollback()`（save 失败即 rollback 清理 pending changes 并重抛），`PhotoRepository`/`PetRepository` 全部写路径接入，`MediaLifecycleService.saveEditedPhoto` 失败恢复完整旧属性（含 `category`），新增磁盘 store 唯一约束冲突回归测试（冲突后下一批导入继续成功）；⑥**Pro 权益保活环解除**：`ProEntitlementStore` 监听任务改 `[weak self]` + 每次迭代短暂持有，静态任务注册表 actor 化（`ListenerRegistry`，消除 deinit 数据竞争与「静态字典 → Task → self」保活环）；⑦**Photos 适配器完整桥接**：`IOSPhotoLibraryAccess` 去 KVC（文件名改 `PHAssetResource.originalFilename`），`requestImage`/`requestImageDataAndOrientation` 全量接入 degraded 忽略、cancelled/error 识别、continuation 单次恢复、`withTaskCancellationHandler` + `cancelImageRequest`（扫描取消后 iCloud 下载请求随之停止）；⑧**备份排除**：`IOSFileStorage` 对 `Documents/` 下媒体副本设置 `isExcludedFromBackup`（可重建大媒体排除 iCloud/iTunes 备份，逐文件设置不阻断写入）+ 2 用例；⑨**localization.py UTF-8**：入口内置 stdout 重配置，Windows GBK 控制台无需 `PYTHONUTF8=1` 即可输出 `−` 等字符（本机验证 exit 0）。**验证**：本机无法编译 iOS App（Windows 无 iOS SDK，App 层编译/测试待 CI）；`tools/check-coverage.sh`/`tools/fetch-models.sh`/`tools/assert-built-models.sh` 为 bash 脚本需 macOS runner 实测；SwiftData 回归测试（PhotoRepositoryTests/PetRepositoryTests/MediaLifecycleServiceTests 增补）与 RouteTests 待 CI 执行。
+
+- 2026-08-09：**Pro 权益规则收口（ADR-0009）**——确认宠物档案/整理/时间线/宠物卡片免费，Pro 仅包含完整拼豆工作室与完整图片编辑器；新增共享 `ProFeature` 清单、统一路由门控与设置页展示，移除 App Store/StoreKit 文案中的“无限宠物”“高级模板”等未实现承诺，新增 `RouteTests`。
 - 2026-08-09：**内购服务 + Pro 权益门控 + 首页/设置/引导 v2 UI 落地**——①**StoreKit 2 服务**：`StoreService` 协议 + `StoreKit2StoreService`（`Transaction.updates` 监听/购买/恢复）+ `MockStoreService`；`ProEntitlementStore`（应用级权益唯一消费方，RootTabView 冷启动 `refresh()` 校准，`deinit` 经静态注册表取消订阅 Task）+ `ProStatus`；`PaywallLogic`/`PaywallViewModel` + `PaywallView`（三档产品展示/购买/恢复）+ `StoreKitConfigurationTests`/`PaywallLogicTests`/`PaywallViewModelTests`/`ProEntitlementStoreTests`（git 078482e/310222c，产品文案 `Products.storekit`）。②**首页 v2 编辑式布局**：`HomeView`（hero 大图 + 往日回忆 + 空态，杂志式排版）+ 拼豆工作室视觉优化（git f85e22f）。③**UI v2 重构**：创作页/设置页组件（bea5b2f）+ 引导页视觉（bf23ce2）按 UI-DESIGN.md v2.0 迁移，v2 token 全部代码化（`Color+Theme.swift`）。④**App Store 元数据**：`docs/AppStore-metadata.md` 定稿（描述/关键词/订阅产品/审核备注/隐私问卷），隐私政策草稿 `docs/privacy-policy.html`（git 61abdeb/a22ddba/2d5cf9c）。
 - 2026-08-08：**首页逻辑层落地**——`HomeViewModel` + `HomeHeroLogic`（选片/今日判定/文案）+ `HomeMemoryLogic`（往日回忆选片）+ `HomeGreetingLogic`（时段问候）纯逻辑与测试（git d6e9ec5，MiLensKit 支持 macOS 平台 e2c00c3 同期）。
 

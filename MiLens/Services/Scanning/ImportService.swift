@@ -199,7 +199,9 @@ final class ImportService {
                     thumbnailPath: ScanControlMath.resolveThumbnailPath(sandboxPath),
                     width: metadata?.pixelWidth ?? 0,
                     height: metadata?.pixelHeight ?? 0,
-                    fileSize: metadata?.fileSize ?? Int64(imageData.count),
+                    // IOSPhotoLibraryAccess 无公开 fileSize API（恒为 0），
+                    // 这里以实际写入数据大小兜底（诚实标注）。
+                    fileSize: (metadata?.fileSize ?? 0) > 0 ? (metadata?.fileSize ?? 0) : Int64(imageData.count),
                     category: PhotoCategory.petPhoto.rawValue,
                     subCategory: "other"
                 )

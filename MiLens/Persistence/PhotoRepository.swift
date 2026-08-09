@@ -162,36 +162,36 @@ final class SwiftDataPhotoRepository: PhotoRepositoryProtocol {
 
     func insertPhoto(_ photo: Photo) throws {
         context.insert(photo)
-        try context.save()
+        try context.saveOrRollback()
     }
 
     func insertPhotos(_ photos: [Photo]) throws {
         for photo in photos { context.insert(photo) }
-        try context.save()
+        try context.saveOrRollback()
     }
 
     func deletePhoto(_ photo: Photo) throws {
         context.delete(photo)
-        try context.save()
+        try context.saveOrRollback()
     }
 
     func updatePhoto(_ photo: Photo) throws {
-        try context.save()
+        try context.saveOrRollback()
     }
 
     func assignPhoto(_ photo: Photo, to pet: Pet?) throws {
         photo.pet = pet
-        try context.save()
+        try context.saveOrRollback()
     }
 
     func setFavorite(_ photo: Photo, favorite: Bool) throws {
         photo.isFavorite = favorite
-        try context.save()
+        try context.saveOrRollback()
     }
 
     func updateNote(_ photo: Photo, note: String) throws {
         photo.note = note
-        try context.save()
+        try context.saveOrRollback()
     }
 
     // MARK: - 质量评分 / 重复分组
@@ -222,7 +222,7 @@ final class SwiftDataPhotoRepository: PhotoRepositoryProtocol {
         photo.sharpness = sharpness
         photo.qualityScore = qualityScore
         if !phash.isEmpty { photo.phash = phash }
-        try context.save()
+        try context.saveOrRollback()
     }
 
     func replaceDuplicateMarks(_ groups: [DuplicateMarkGroup]) throws {
@@ -245,6 +245,6 @@ final class SwiftDataPhotoRepository: PhotoRepositoryProtocol {
                 photo.isBest = false
             }
         }
-        try context.save()
+        try context.saveOrRollback()
     }
 }

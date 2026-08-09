@@ -15,4 +15,13 @@ enum Route: Hashable {
     case petCard(photoID: UUID)
     case petEdit(petID: UUID)
     case timeline         // 成长时间线（全部宠物）
+
+    var requiresPro: Bool {
+        switch self {
+        case .editor, .beadPhotoPicker, .beadPattern:
+            true
+        default:
+            false
+        }
+    }
 }

@@ -248,6 +248,15 @@ final class AppErrorHandlerTests: XCTestCase {
         let coreDataResult = AppErrorHandler.classifyError(coreData)
         XCTAssertEqual(coreDataResult.category, .database)
         XCTAssertTrue(coreDataResult.isRetryable)
+
+        // 区间下/上边界（134000 存储类型错误 / 134110 元数据不匹配）
+        let storeType = ErrorInput(code: 134000, message: "store type mismatch", domain: "NSCocoaErrorDomain")
+        XCTAssertEqual(AppErrorHandler.classifyError(storeType).category, .database)
+        let metadata = ErrorInput(code: 134110, message: "metadata mismatch", domain: "NSCocoaErrorDomain")
+        XCTAssertEqual(AppErrorHandler.classifyError(metadata).category, .database)
+        // 区间外（133999 / 134200）不误判
+        let below = ErrorInput(code: 133999, message: "save failed", domain: "NSCocoaErrorDomain")
+        XCTAssertNotEqual(AppErrorHandler.classifyError(below).category, .database)
     }
 
     func testClassifyErrorRecognizesPhotosAndURLErrorDomains() {

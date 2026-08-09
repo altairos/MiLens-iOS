@@ -289,8 +289,8 @@ public enum AppErrorHandler {
                     return ClassifiedError(category: .permission, code: String(codeNum),
                                            message: msgStr, isRetryable: false)
                 }
-                // Core Data 持久化错误区间
-                if codeNum >= 134030 && codeNum <= 134099 {
+                // Core Data 持久化错误区间（134000–134199：存储类型/保存/冲突/打开/版本哈希/元数据）
+                if codeNum >= 134000 && codeNum <= 134199 {
                     return ClassifiedError(category: .database, code: String(codeNum),
                                            message: msgStr, isRetryable: true)
                 }

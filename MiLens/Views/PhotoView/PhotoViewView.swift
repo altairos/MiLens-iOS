@@ -32,6 +32,7 @@ struct PhotoViewView: View {
     @State private var dismissScale: CGFloat = 1
     @State private var backgroundOpacity: CGFloat = 1
     @State private var isDismissing = false
+    @State private var showAssignment = false
 
     private let doubleTapScale: CGFloat = 2.5
 
@@ -77,8 +78,19 @@ struct PhotoViewView: View {
                             Image(systemName: "square.grid.3x3.fill")
                         }
                         .accessibilityLabel(String(localized: "a11y.bead.generate"))
+                        Button {
+                            showAssignment = true
+                        } label: {
+                            Image(systemName: "person.crop.circle.badge.plus")
+                        }
+                        .accessibilityLabel(String(localized: "a11y.photoView.assign"))
                     }
                 }
+            }
+        }
+        .sheet(isPresented: $showAssignment) {
+            if let photo {
+                PetAssignmentSheet(photos: [photo]) { }
             }
         }
         .task {

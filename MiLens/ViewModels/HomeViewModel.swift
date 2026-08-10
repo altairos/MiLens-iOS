@@ -89,7 +89,7 @@ final class HomeViewModel {
             photos = []
             pets = []
             memoryItems = []
-            loadError = "暂时无法读取照片，请稍后再试。"
+            loadError = String(localized: "home.loadError")
         }
 
         isLoading = false

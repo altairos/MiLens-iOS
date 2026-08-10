@@ -38,7 +38,7 @@ struct TimelineExportCanvas: View {
 
     private var exportHeader: some View {
         VStack(alignment: .leading, spacing: 16) {
-            Text("成长时间线")
+            Text(String(localized: "timeline.title"))
                 .font(.system(size: 20, weight: .medium))
                 .foregroundStyle(Color.milensTextSecondary)
 
@@ -53,7 +53,7 @@ struct TimelineExportCanvas: View {
                 Text("·")
                     .font(.system(size: 22))
                     .foregroundStyle(Color.milensTextTertiary)
-                Text("\(data.entryCount) 条记录")
+                Text(String(localized: "timeline.export.entryCount \(data.entryCount)"))
                     .font(.system(size: 22, weight: .regular, design: .rounded))
                     .foregroundStyle(Color.milensTextSecondary)
             }
@@ -67,11 +67,11 @@ struct TimelineExportCanvas: View {
             // 年月标题
             HStack(alignment: .firstTextBaseline, spacing: 12) {
                 if month.isYearStart {
-                    Text("\(String(month.year))年")
+                    Text(String(localized: "timeline.year \(month.year)"))
                         .font(.custom("LXGWWenKai-Regular", size: 36))
                         .foregroundStyle(Color.milensTextPrimary)
                 }
-                Text("\(month.month)月")
+                Text(String(localized: "timeline.month \(month.month)"))
                     .font(.custom("LXGWWenKai-Regular", size: 36))
                     .foregroundStyle(Color.milensTextPrimary)
             }
@@ -122,7 +122,7 @@ struct TimelineExportCanvas: View {
         HStack {
             Spacer()
             VStack(alignment: .trailing, spacing: 6) {
-                Text("由 MiLens 制作")
+                Text(String(localized: "timeline.export.watermark"))
                     .font(.system(size: 18, weight: .medium, design: .rounded))
                     .foregroundStyle(Color.milensTextTertiary)
                 Text("milens.app")

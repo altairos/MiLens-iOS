@@ -43,7 +43,7 @@ struct DatabaseRecoveryView: View {
 
             VStack(spacing: Spacing.md) {
                 Button(action: onRetry) {
-                    Label("重试", systemImage: "arrow.clockwise")
+                    Label(String(localized: "recovery.retry"), systemImage: "arrow.clockwise")
                         .frame(maxWidth: .infinity)
                 }
                 .buttonStyle(.borderedProminent)
@@ -59,7 +59,10 @@ struct DatabaseRecoveryView: View {
                         diagnosticsError = error.localizedDescription
                     }
                 } label: {
-                    Label(diagnosticsPath == nil ? "导出诊断信息" : "诊断已导出", systemImage: "square.and.arrow.up")
+                    Label(diagnosticsPath == nil
+                          ? String(localized: "recovery.exportDiagnostics")
+                          : String(localized: "recovery.diagnosticsExported"),
+                          systemImage: "square.and.arrow.up")
                         .frame(maxWidth: .infinity)
                 }
                 .buttonStyle(.bordered)
@@ -67,7 +70,7 @@ struct DatabaseRecoveryView: View {
                 Button(role: .destructive) {
                     showRebuildConfirm = true
                 } label: {
-                    Label("重建本地数据", systemImage: "trash")
+                    Label(String(localized: "recovery.rebuildData"), systemImage: "trash")
                         .frame(maxWidth: .infinity)
                 }
                 .buttonStyle(.bordered)
@@ -77,25 +80,25 @@ struct DatabaseRecoveryView: View {
         }
         .padding()
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .alert("重建本地数据？", isPresented: $showRebuildConfirm) {
-            Button("取消", role: .cancel) {}
-            Button("重建", role: .destructive) { onRebuild() }
+        .alert(String(localized: "recovery.rebuildConfirmTitle"), isPresented: $showRebuildConfirm) {
+            Button(String(localized: "common.cancel"), role: .cancel) {}
+            Button(String(localized: "recovery.rebuild"), role: .destructive) { onRebuild() }
         } message: {
             Text("将清除 MiLens 中的相册记录、宠物档案及沙盒中已保存的照片副本（导入/编辑产物），且无法恢复。系统相册中的原图不会被删除。")
         }
-        .alert("诊断已导出", isPresented: Binding(
+        .alert(String(localized: "recovery.diagnosticsExported"), isPresented: Binding(
             get: { diagnosticsPath != nil },
             set: { if !$0 { diagnosticsPath = nil } }
         )) {
-            Button("好", role: .cancel) {}
+            Button(String(localized: "common.ok"), role: .cancel) {}
         } message: {
             Text(diagnosticsPath ?? "")
         }
-        .alert("导出失败", isPresented: Binding(
+        .alert(String(localized: "recovery.exportFailed"), isPresented: Binding(
             get: { diagnosticsError != nil },
             set: { if !$0 { diagnosticsError = nil } }
         )) {
-            Button("好", role: .cancel) {}
+            Button(String(localized: "common.ok"), role: .cancel) {}
         } message: {
             Text(diagnosticsError ?? "")
         }
@@ -115,11 +118,11 @@ struct DatabaseRecoveryView: View {
         let formatter = DateFormatter()
         formatter.dateFormat = "yyyyMMdd-HHmmss"
         let file = dir.appendingPathComponent("startup-error-\(formatter.string(from: Date())).log")
-        let content = """
-        MiLens 启动失败诊断
-        时间：\(Date())
-        错误：\(error)
-        """
+        let content = [
+            String(localized: "recovery.diagHeader"),
+            String(localized: "recovery.diagTime \(Date())"),
+            String(localized: "recovery.diagError \(error)")
+        ].joined(separator: "\n")
         do {
             try content.write(to: file, atomically: true, encoding: .utf8)
         } catch {
@@ -137,8 +140,8 @@ private enum DiagnosticsExportError: LocalizedError {
 
     var errorDescription: String? {
         switch self {
-        case .createDirectory(let detail): return "创建诊断目录失败：\(detail)"
-        case .writeFile(let detail): return "写入诊断文件失败：\(detail)"
+        case .createDirectory(let detail): return String(localized: "recovery.diagCreateFailed \(detail)")
+        case .writeFile(let detail): return String(localized: "recovery.diagWriteFailed \(detail)")
         }
     }
 }

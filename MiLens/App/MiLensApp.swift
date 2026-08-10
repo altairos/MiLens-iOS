@@ -82,7 +82,7 @@ struct MiLensApp: App {
                 }
         } else {
             DatabaseRecoveryView(
-                errorDescription: startupError ?? "未知错误",
+                errorDescription: startupError ?? String(localized: "startup.unknownError"),
                 onRetry: retryLaunch,
                 onRebuild: rebuildLocalData
             )

@@ -52,7 +52,18 @@ final class InMemoryPhotoRepository: PhotoRepositoryProtocol {
     func insertPhotos(_ photos: [Photo]) throws { self.photos.append(contentsOf: photos) }
     func deletePhoto(_ photo: Photo) throws { photos.removeAll { $0.id == photo.id } }
     func updatePhoto(_ photo: Photo) throws { updatedPhoto = photo }
-    func assignPhoto(_ photo: Photo, to pet: Pet?) throws { photo.pet = pet }
+    func assignPhoto(_ photo: Photo, to pet: Pet?) throws {
+        // 维护双向关系（SwiftData @Model 自动维护，mock 需手动）
+        if let oldPet = photo.pet {
+            oldPet.photos.removeAll { $0.id == photo.id }
+        }
+        photo.pet = pet
+        if let pet {
+            if !pet.photos.contains(where: { $0.id == photo.id }) {
+                pet.photos.append(photo)
+            }
+        }
+    }
     func setFavorite(_ photo: Photo, favorite: Bool) throws { photo.isFavorite = favorite }
     func updateNote(_ photo: Photo, note: String) throws { photo.note = note }
     func getPendingQualityScorePhotos(limit: Int) throws -> [Photo] { [] }
@@ -75,6 +86,9 @@ final class InMemoryPetRepository: PetRepositoryProtocol {
     func insertPet(_ pet: Pet) throws { pets.append(pet) }
     func updatePet(_ pet: Pet) throws {}
     func deletePet(_ pet: Pet) throws { pets.removeAll { $0.id == pet.id } }
-    func refreshPhotoCount(for pet: Pet) throws {}
+    func refreshPhotoCount(for pet: Pet) throws {
+        // 与 SwiftDataPetRepository 一致：基于 photos 关系重新计数
+        pet.photoCount = pet.photos.count
+    }
     func updateFeatureData(_ pet: Pet, data: Data?) throws { pet.featureData = data }
 }

@@ -1,6 +1,6 @@
 # MiLens iOS 迁移计划
 
-最后核对：2026-08-09（P0–P4 状态全量同步；P5 首页/设置/订阅/付费墙/元数据已实现 + 上架流水线代码落地待实测；评审高优先级+中优先级修复全部落地；严格并发开启 + ViewModelFactory 分层收敛 + 评审阻塞修复（编辑产物备份分区 / Photos 取消桥接 / 权益注册表取消墓碑 / View 注入全收敛 / UI Test+measure / 本地化规范化）落地，见状态摘要；剩性能基准、截图、iPad/深色检查与真机验收，见 [P2-待办清单](docs/P2-待办清单.md)）
+最后核对：2026-08-10（P0–P4 状态全量同步；P5 首页/设置/订阅/付费墙/元数据已实现 + 上架流水线代码落地待实测；评审高优先级+中优先级修复全部落地；严格并发开启 + ViewModelFactory 分层收敛 + 评审阻塞修复（编辑产物备份分区 / Photos 取消桥接 / 权益注册表取消墓碑 / View 注入全收敛 / UI Test+measure / 本地化规范化）落地；本地化：工具链 plural + 动态文案 10 类收口 8 类（a11y/通知/宠物卡片/水印/分享/首页/启动错误/时间线导出），catalog 260+3 key，check 全绿，见状态摘要；剩性能基准、截图、iPad/深色检查与真机验收，见 [P2-待办清单](docs/P2-待办清单.md)）
 
 > 里程碑与任务清单。架构见 [DESIGN.md](DESIGN.md)，映射与范围见 [MIGRATION_ASSESSMENT.md](MIGRATION_ASSESSMENT.md)，约束见 [AGENTS.md](AGENTS.md)。
 
@@ -11,7 +11,7 @@
 | **P0** | Harness 与规划 | 文档骨架、约束、目录结构、XcodeGen 声明、范围对齐 | ✅ 已完成 |
 | **P1** | 地基 + 算法核心 | Xcode 工程可编译、SwiftData schema、拼豆 Swift 核心（黄金规格通过）、AI 路线定案 | ✅ 已完成（含 2026-08-09 可靠性收口） |
 | **P2** | 相册 MVP | 扫描发现（+质量评分/重复分组）+ 手动导入 + 相册网格 + 大图查看 | 🟡 实现完成，真机/性能验收待做 |
-| **P3** | 宠物档案 | 档案 CRUD + 成长时间线 + 纪念提醒 | ✅ 已完成（含档案内照片分类 2026-08-09） |
+| **P3** | 宠物档案 | 档案 CRUD + 成长时间线 + 纪念提醒 | 🟡 基础能力已完成；生命档案增强设计已冻结，待实现 |
 | **P4** | 创作入口 + 编辑器 | 拼豆图纸完整流程 + 完整图片编辑器（裁切/滤镜/标注） | 🟡 实现完成（含宠物卡片生成），剩真机验收 |
 | **P5** | 首页/我的 + 商业化 | 首页回忆/提醒、设置、StoreKit 订阅、App Store 提审 | 🟡 首页/设置/订阅/付费墙/元数据已实现，剩性能基准、截图与上架实测 |
 
@@ -162,6 +162,21 @@ P1 核心可靠性与性能六项修复全部落地（实现记录见状态摘�
 
 ## P3 — 宠物档案
 
+### P3.6 生命档案增强（设计已冻结，待实现）
+
+产品设计与页面目录原型已沉淀到 [docs/Life-Archive-Design.md](docs/Life-Archive-Design.md)，核心方向是把“宠物详情 + 照片列表 + 日期事件列表”升级为可确认、可补写、可回看的长期档案。
+
+- [ ] 扩展 `PetEvent`（复用现有 `title`）：增加用户记录正文、日期/日期范围、来源类型、置顶状态、代表照片/关联照片。
+- [ ] 从 `PetProfileView`、`TimelineView`、`PhotoViewView` 进入统一的“添加一条记忆”流程；沿用窄协议 ViewModel + Repository 注入。
+- [ ] 档案首页增加记录数、重要日子数、置顶记忆/档案起点和“继续记录”入口。
+- [ ] 时间线增加照片记忆组、用户记录、作品记录、内容类型筛选和来源标签；节点区分形状/内容结构，不只依赖颜色。
+- [ ] 支持用户命名的相处章节；未命名章节只显示日期范围，不自动臆测宠物生命阶段。
+- [ ] 照片详情支持加入已有记忆/新建记忆/补充备注；作品保存后回链来源照片或原始记忆。
+- [ ] 首页与纪念提醒进入年度回看，支持添加当前年份照片和一句话；不引入 AI 写真或回忆视频承诺。
+- [ ] 为上述决策逻辑补 XCTest：来源标签、置顶/档案起点、事件关联、日期范围分组、年度回看回链、删除/取消关联边界。
+
+验收基准见 [docs/Life-Archive-Design.md](docs/Life-Archive-Design.md) §6。当前 P3 已实现的 CRUD、基础时间线、提醒和照片分类仍有效，本节是下一阶段增量，不回退现有能力。
+
 ### 任务
 
 **纯决策逻辑 + ViewModel（可 WSL2/CI 编译测试）✅**
@@ -262,7 +277,7 @@ P1 核心可靠性与性能六项修复全部落地（实现记录见状态摘�
 - [x] App Store 截图/描述/ASO 关键词——文案已定稿（[docs/AppStore-metadata.md](docs/AppStore-metadata.md)：描述/关键词/订阅产品/审核备注/隐私问卷，2026-08-08）；**截图制作待 Mac**
 - [ ] 性能基准：大图库（5000+）滚动/内存
 - [ ] iPhone/iPad 适配（[ADR-0008](docs/adr/0008-v1-scope-decision.md)：iPad 为 V1.0 目标）+ 深色模式 + Dynamic Type 检查
-- [ ] **全球首发多语言（7 语言：zh-Hans/zh-Hant/ja/ko/en/fr/de）**——计划与各国市场注意要点见 [docs/Localization-Plan.md](docs/Localization-Plan.md)：knownRegions 追加 + Typography locale 字体回退 + 150+3 key × 6 语言翻译 + 术语表定稿 + 商店元数据/订阅描述/审核备注/隐私政策多语言 + 截图本地化；`localization.py check` 补每语言缺译断言并接入 CI
+- [ ] **全球首发多语言（7 语言：zh-Hans/zh-Hant/ja/ko/en/fr/de）**——计划与各国市场注意要点见 [docs/Localization-Plan.md](docs/Localization-Plan.md)：knownRegions 追加 + Typography locale 字体回退 + 260+3 key × 6 语言翻译（动态文案 10 类已收口 8 类，见 §3.6 收口进度；固定 locale 快照测试待补 #7.7b）+ 术语表定稿 + 商店元数据/订阅描述/审核备注/隐私政策多语言 + 截图本地化；`localization.py check` 补每语言缺译断言并接入 CI
 
 ### 上架（免 Mac 云端一条龙）
 
@@ -371,6 +386,8 @@ P1 核心可靠性与性能六项修复全部落地（实现记录见状态摘�
 - 2026-08-09：**上架流水线代码落地（release 作业）**——`.github/workflows/ci.yml` 新增 `release` 作业：`workflow_dispatch` 手动触发（inputs：`version`=MARKETING_VERSION / `buildNumber`=CURRENT_PROJECT_VERSION / `upload`=是否上传 ASC），`needs [kit, app]` 质量门禁；流程 = xcodegen → `fetch-models.sh`（模型缓存复用）→ `.p8` 写入 `~/private_keys` → `xcodebuild archive`（`-authenticationKey*` API Key 自动签名 + `-allowProvisioningUpdates`，无需钥匙串）→ `-exportArchive`（app-store ExportOptions，uploadSymbols）→ `xcrun altool --upload-app`（iOS 不需要 notarytool 公证）→ artifact 留存 IPA + xcarchive。Secrets 约定：`ASC_API_KEY`/`ASC_API_KEY_ID`/`ASC_API_ISSUER_ID`/`ASC_TEAM_ID`，`.p8` 生成与配置说明见 [DEVELOPMENT.md](DEVELOPMENT.md) §2.2。**未实测**：本月 CI 额度用完，需配置 Secrets 后手动触发（建议先 `upload=false` 验证签名 IPA，再正式上传）。
 
 - 2026-08-09：**本机 macOS 全量验证（高优先级修复前基准）**——`xcodegen generate` + `xcodebuild build`（`SWIFT_STRICT_CONCURRENCY=complete`）**BUILD SUCCEEDED**；MiLensKit `swift test` **594/594 全绿**；MiLens App `xcodebuild test` **604/604 全绿、0 失败**（含修复 `ProEntitlementStoreTests.testStreamPushStillUpdatesStatus` flaky——独立 `ListenerRegistry` 隔离 `ObjectIdentifier` 复用致取消墓碑误杀）；MiLensUITests 2 冒烟用例；`localization.py check` 全绿（Localizable 150 + InfoPlist 3）。该快照早于 2026-08-10 高优先级修复，不能替代当前 HEAD 的 macOS 验证。
+
+- 2026-08-10：**本地化动态文案收口**——工具链 plural 支持（export 拆行 / import 合并 / check 完整性，端到端测试通过）+ 动态文案 10 类收口 8 类（详见 [docs/Localization-Plan.md](docs/Localization-Plan.md) §3.6 收口进度与 DEVELOPMENT.md P2 快照）：a11y 22 处迁移 + 25 个 `a11y.*` key；通知 6 模板 / 宠物卡片 / 物种名 / 年龄（locale 注入）；时间线导出 / 水印 / 分享面板；首页（计数 plural / `Date.FormatStyle`）；启动错误与恢复界面、档案加载失败（`startup.*`/`recovery.*`/`pet.profile.loadFailed`/`common.*`）。`Localizable.xcstrings` 增至 **260 key**（zh-Hans translated）+ InfoPlist 3 key，`localization.py check` 全绿；固定 locale 快照测试待补（工作项 7.7b）；App 编译/测试依赖 iOS SDK，待 macOS CI（未执行）。
 
 - 2026-08-10：**高优先级缺陷修复**——5 项代码修复 + 测试补充（详见 DEVELOPMENT.md 验证快照）：①ImportService 重复照片误算配额→候选列表优先去重再算配额；②ProEntitlementStore 墓碑误杀→UUID 令牌 + 条件墓碑；③BeadViewModel `Task.detached` 读取 `self.isPro`→提前捕获 Bool；④GalleryView/CreateView 缩略图陈旧→`.task(id: path)` + 清除旧图；⑤SharePreviewSheet 3 处字面色→品牌色 token。`check-ui-tokens.py` / `localization.py check` 本地全绿；App 编译与测试待 macOS CI 验证（未执行）。
 

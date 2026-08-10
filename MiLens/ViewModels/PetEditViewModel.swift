@@ -62,13 +62,13 @@ final class PetEditViewModel {
         do {
             guard let found = try petRepo.getPet(id: id) else {
                 isLoading = false
-                errorMessage = "档案加载失败"
+                errorMessage = String(localized: "pet.profile.loadFailed")
                 return
             }
             pet = found
         } catch {
             isLoading = false
-            errorMessage = "档案加载失败"
+            errorMessage = String(localized: "pet.profile.loadFailed")
             logger.error("loadPet: 读取档案失败（\(id)，\(error.localizedDescription)）")
             return
         }
@@ -151,12 +151,12 @@ final class PetEditViewModel {
         let pet: Pet
         do {
             guard let found = try petRepo.getPet(id: petID) else {
-                errorMessage = "档案加载失败"
+                errorMessage = String(localized: "pet.profile.loadFailed")
                 return false
             }
             pet = found
         } catch {
-            errorMessage = "档案加载失败"
+            errorMessage = String(localized: "pet.profile.loadFailed")
             logger.error("save: 读取档案失败（\(self.petID?.uuidString ?? "nil")，\(error.localizedDescription)）")
             return false
         }

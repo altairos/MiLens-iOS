@@ -14,6 +14,8 @@ struct GalleryView: View {
     @State private var navigationPath = NavigationPath()
     @State private var pendingDeleteID: UUID?
     @State private var isManageMode = false
+    /// 手动归属 sheet 的照片列表（非空=显示 sheet；单张=contextMenu，多张=批量）
+    @State private var assignmentPhotos: [Photo] = []
     @Namespace private var photoHeroNamespace
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
@@ -63,6 +65,28 @@ struct GalleryView: View {
             }
         } message: {
             Text("只会从咪Lens 的整理记录中移除，不会删除系统相册原图。")
+        }
+        .safeAreaInset(edge: .bottom) {
+            if let vm = viewModel, vm.isMultiSelectMode {
+                GalleryBatchBar(
+                    selectedCount: vm.selectedPhotoIDs.count,
+                    onAssign: {
+                        assignmentPhotos = vm.photos.filter { vm.selectedPhotoIDs.contains($0.id) }
+                    }
+                )
+            }
+        }
+        .sheet(isPresented: Binding(
+            get: { !assignmentPhotos.isEmpty },
+            set: { if !$0 { assignmentPhotos.removeAll() } }
+        )) {
+            if !assignmentPhotos.isEmpty {
+                PetAssignmentSheet(photos: assignmentPhotos) {
+                    // 归属成功：清空多选选择并重新加载（筛选/归属变化）
+                    viewModel?.selectedPhotoIDs.removeAll()
+                    viewModel?.refreshAfterAssignment()
+                }
+            }
         }
     }
 
@@ -330,6 +354,11 @@ struct GalleryView: View {
                     } label: {
                         Label(photo.isFavorite ? "取消收藏" : "收藏", systemImage: photo.isFavorite ? "heart.slash" : "heart")
                     }
+                    Button {
+                        assignmentPhotos = [photo]
+                    } label: {
+                        Label(String(localized: "photo.assign.title"), systemImage: "person.crop.circle.badge.plus")
+                    }
                     NavigationLink(value: Route.beadPattern(photoID: photo.id)) {
                         Label("创作拼豆图纸", systemImage: "square.grid.3x3.topleft.filled")
                     }
@@ -523,6 +552,37 @@ private struct ScanCompleteSheet: View {
             .navigationBarHidden(true)
         }
         .presentationDetents([.medium])
+    }
+}
+
+// MARK: - 多选批量操作栏
+
+private struct GalleryBatchBar: View {
+    let selectedCount: Int
+    let onAssign: () -> Void
+
+    var body: some View {
+        HStack(spacing: Spacing.md) {
+            Text(String(localized: "photo.batch.selected \(selectedCount)"))
+                .font(.caption)
+                .foregroundStyle(Color.milensTextSecondary)
+            Spacer()
+            Button(action: onAssign) {
+                Label(String(localized: "photo.batch.assign"), systemImage: "person.crop.circle.badge.plus")
+                    .font(.bodySecondary.weight(.semibold))
+            }
+            .buttonStyle(.borderedProminent)
+            .tint(Color.milensActionPrimary)
+            .disabled(selectedCount == 0)
+        }
+        .padding(.horizontal, Spacing.pagePad)
+        .padding(.vertical, Spacing.sm)
+        .background(Color.milensElevated)
+        .overlay(alignment: .top) {
+            Rectangle()
+                .fill(Color.milensBorder)
+                .frame(height: 0.5)
+        }
     }
 }
 

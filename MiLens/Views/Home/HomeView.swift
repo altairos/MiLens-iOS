@@ -95,12 +95,12 @@ private struct MagazineHero: View {
 
                     Spacer()
 
-                    Text("第 \(model.photos.count.formatted()) 张")
+                    Text(String(localized: "home.photoCount \(model.photos.count)"))
                         .font(.caption.weight(.medium))
                         .foregroundStyle(.white.opacity(0.9))
                         .padding(.bottom, Spacing.sm)
 
-                    Text("今晚，留一会儿给\n它")
+                    Text(String(localized: "home.editorialTitle"))
                         .font(.editorialHero)
                         .foregroundStyle(.white)
                         .fixedSize(horizontal: false, vertical: true)
@@ -134,25 +134,23 @@ private struct MagazineHero: View {
     }
 
     private var photoTime: String {
-        guard let date = photo.takenAt else { return "今天" }
-        return Self.timeFormatter.string(from: date)
+        guard let date = photo.takenAt else { return String(localized: "home.today") }
+        // 「今天」前缀为本地化 key，时间部分跟随 locale（zh 24 小时制，en AM/PM）
+        return String(localized: "home.todayTime \(date.formatted(Self.timeStyle))")
     }
 
     private var heroDate: String {
-        guard let date = photo.takenAt else { return "今天" }
+        guard let date = photo.takenAt else { return String(localized: "home.today") }
         return Self.dateFormatter.string(from: date)
     }
 
-    private static let timeFormatter: DateFormatter = {
-        let formatter = DateFormatter()
-        formatter.locale = Locale(identifier: "zh_CN")
-        formatter.dateFormat = "今天 HH:mm"
-        return formatter
-    }()
+    private static let timeStyle = Date.FormatStyle(date: .omitted, time: .shortened)
 
     private static let dateFormatter: DateFormatter = {
         let formatter = DateFormatter()
-        formatter.locale = Locale(identifier: "en_US_POSIX")
+        // 杂志竖排日期为装饰性固定格式（纯数字 + 分隔符，无语言依赖），
+        // 故意不随 locale 变化；locale 跟随系统保证行为一致。
+        formatter.locale = .current
         formatter.dateFormat = "MM · dd · yyyy"
         return formatter
     }()
@@ -173,14 +171,14 @@ private struct MemoryEditorialRow: View {
                 .frame(width: 1, height: 76)
 
             VStack(alignment: .leading, spacing: Spacing.xs) {
-                Text(item.entry.subtitle.isEmpty ? "最近回忆" : item.entry.subtitle)
+                Text(item.entry.subtitle.isEmpty ? String(localized: "home.memoryTitle") : item.entry.subtitle)
                     .font(.caption)
                     .foregroundStyle(Color.milensTextSecondary)
                 Text(item.entry.title)
                     .font(.editorialSection)
                     .foregroundStyle(Color.milensTextPrimary)
                     .lineLimit(2)
-                Text("查看这段回忆")
+                Text(String(localized: "home.memoryOpen"))
                     .font(.bodySecondary)
                     .foregroundStyle(Color.milensTextSecondary)
             }
@@ -252,7 +250,7 @@ private struct HomeRecoverableState: View {
                 .font(.bodyPrimary)
                 .foregroundStyle(Color.milensTextSecondary)
                 .multilineTextAlignment(.center)
-            Button("再试一次", action: retry)
+            Button(String(localized: "home.retry"), action: retry)
                 .font(.buttonLabel)
                 .buttonStyle(.borderedProminent)
                 .tint(Color.milensActionPrimary)

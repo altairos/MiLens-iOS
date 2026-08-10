@@ -370,4 +370,9 @@ final class GalleryViewModel {
             selectedPhotoIDs.insert(id)
         }
     }
+
+    /// 手动归属/移出后重新加载（归属变更影响筛选结果与宠物计数缓存）。
+    func refreshAfterAssignment() {
+        loadInitial()
+    }
 }

@@ -293,6 +293,8 @@ UI 文案与 Info.plist 权限说明用 Apple String Catalog（`.xcstrings`）�
 
 > 依赖 `openpyxl`（`pip install -r tools/requirements.txt`）。工具支持任意语言，不限于英文；check 可接入 CI。脚本入口已内置 `stdout` UTF-8 重配置——Windows 默认 GBK 控制台无需 `PYTHONUTF8=1` 即可输出 `−` 等 Unicode 字符（2026-08-09 评审修复）。
 
+> **复数（plural）key 支持（2026-08-10）**：`export` 按变体拆行（`key[one]` / `key[other]` 行，variation 列标注），`import` 合并回写 `variations.plural`，`check` 校验缺变体与占位符漂移（en/de/fr 需 one/other，zh/ja/ko 单条 other）。GUI 与资产工作簿已同步。复数 key 以 `%lld` 结尾（如 `paywall.cta.trial %lld`），代码侧以插值调用（`String(localized: "paywall.cta.trial \(days)")`）。
+
 **桌面 GUI（可选）**：`python tools/localization-gui.py` 启动 tkinter 本地化工作台——语言进度总览（7 语种实时统计）、缺译清单（双击复制 key）、一键完整 check / 导出 / 导入 / 生成资产工作簿 / 打开工作簿；任务在后台线程执行不冻结界面。无显示环境可用 `python tools/localization-gui.py --self-check` 做结构自检。GUI 复用 `localization.py` 与 `localization-assets.py` 的全部逻辑，不引入额外依赖。
 
 > **全球首发多语言计划（7 语言：zh-Hans/zh-Hant/ja/ko/en/fr/de）见 [docs/Localization-Plan.md](docs/Localization-Plan.md)**——含各国市场注意要点（日本丁寧語/韩国 반려동물 红线/德语 Bügelperlen 术语与长度预算/法语阴阳性等）、术语表、ASO 策略、翻译批次与验收标准。首次接入新语言前先读该文档，并按其中 §10 工作项顺序执行。
@@ -314,6 +316,8 @@ UI 文案与 Info.plist 权限说明用 Apple String Catalog（`.xcstrings`）�
 - 2026-08-08：**AI 模型转换工具链落地**——新增 3 个 Python 脚本 + `tools/requirements-models.txt`：①`tools/convert_clip_coreml.py`（CLIP ViT-B/32 vision encoder → Core ML `.mlpackage`，只导 image_features 512 维，支持 INT8/FP16 量化，精度校验 cosine >0.999）；②`tools/convert_rtmpose_coreml.py`（RTMPose-t ONNX → Core ML，SimCC 输出，精度校验 <2px）；③`tools/prepare_text_embeddings.py`（text embeddings f32 格式校验 + Swift 加载代码生成）。三个脚本 `py_compile` 全绿；`prepare_text_embeddings.py --verify-only` 对源端 `pet_text_embeddings.f32`（40960 bytes = 20×512×4）实跑通过，L2 范数全部正常。转换+量化实跑需 macOS（coremltools 依赖）。
 
 ### P2
+
+- 2026-08-10：**本地化动态文案收口（Windows 本地验证）**——工具链 plural 支持（export 拆行 / import 合并 / check 完整性，端到端测试通过）+ 动态文案 10 类收口 8 类：a11y 22 处迁移 + 25 个 `a11y.*` key；通知 6 模板 / 宠物卡片 / 物种名 / 年龄（locale 注入）；时间线导出（`dateRangeText` locale 注入）、水印、分享面板（`timeline.*`/`share.*`）；首页（计数 plural / `Date.FormatStyle` / 回忆文案）；启动错误与恢复界面、档案加载失败（`startup.unknownError`/`recovery.*`/`pet.profile.loadFailed`/`common.*`）。`Localizable.xcstrings` 增至 **260 key**（zh-Hans translated）+ InfoPlist 3 key，`localization.py check` 全绿（无缺 key/多余 key/格式问题）；export 对 plural key 拆行验证通过。App 编译/测试依赖 iOS SDK，未执行，待 CI；固定 locale 快照测试待补（工作项 7.7b）。
 
 - 2026-08-09：**本机 macOS 全量验证（高优先级修复前基准）**——`xcodegen generate` + `xcodebuild build`（`SWIFT_STRICT_CONCURRENCY=complete`）**BUILD SUCCEEDED**；MiLensKit `swift test` **594/594 全绿**；MiLens App `xcodebuild test` **604/604 全绿、0 失败**（含修复 `ProEntitlementStoreTests.testStreamPushStillUpdatesStatus` flaky——独立 `ListenerRegistry` 隔离 `ObjectIdentifier` 复用）；MiLensUITests 2 冒烟用例；`localization.py check` 全绿（Localizable 150 + InfoPlist 3）。该快照早于 2026-08-10 高优先级修复，不能替代当前 HEAD 的 macOS 验证。
 

@@ -256,6 +256,17 @@
         }
       }
     },
+    "a11y.photoView.assign" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "归属到宠物"
+          }
+        }
+      }
+    },
     "a11y.photoView.edit" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -296,6 +307,39 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "字体与开源许可"
+          }
+        }
+      }
+    },
+    "common.back" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "返回"
+          }
+        }
+      }
+    },
+    "common.cancel" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "取消"
+          }
+        }
+      }
+    },
+    "common.ok" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "好"
           }
         }
       }
@@ -384,6 +428,101 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "导出的作品保存在哪里？"
+          }
+        }
+      }
+    },
+    "home.editorialTitle" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "今晚，留一会儿给\n它"
+          }
+        }
+      }
+    },
+    "home.loadError" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "暂时无法读取照片，请稍后再试。"
+          }
+        }
+      }
+    },
+    "home.memoryOpen" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "查看这段回忆"
+          }
+        }
+      }
+    },
+    "home.memoryTitle" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "最近回忆"
+          }
+        }
+      }
+    },
+    "home.photoCount %lld" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "variations" : {
+            "plural" : {
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "第 %lld 张"
+                }
+              },
+              "pluralRuleType" : "pluralRuleType"
+            }
+          }
+        }
+      }
+    },
+    "home.retry" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "再试一次"
+          }
+        }
+      }
+    },
+    "home.today" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "今天"
+          }
+        }
+      }
+    },
+    "home.todayTime %@" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "今天 %@"
           }
         }
       }
@@ -1194,6 +1333,17 @@
         }
       }
     },
+    "pet.profile.loadFailed" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "档案加载失败"
+          }
+        }
+      }
+    },
     "pet.profile.memoryTitle" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -1245,6 +1395,94 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "未知"
+          }
+        }
+      }
+    },
+    "photo.assign.batchTitle %lld" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "归属 %lld 张照片"
+          }
+        }
+      }
+    },
+    "photo.assign.empty" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "还没有宠物，先去创建一只"
+          }
+        }
+      }
+    },
+    "photo.assign.failed" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "归属失败"
+          }
+        }
+      }
+    },
+    "photo.assign.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "归属到宠物"
+          }
+        }
+      }
+    },
+    "photo.assign.unassign" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "移出归属"
+          }
+        }
+      }
+    },
+    "photo.assign.unassignHint" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "不归属任何宠物"
+          }
+        }
+      }
+    },
+    "photo.batch.assign" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "归属到宠物"
+          }
+        }
+      }
+    },
+    "photo.batch.selected %lld" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "已选 %lld 张"
           }
         }
       }
@@ -1366,6 +1604,138 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "数据存储"
+          }
+        }
+      }
+    },
+    "recovery.diagCreateFailed %@" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "创建诊断目录失败：%@"
+          }
+        }
+      }
+    },
+    "recovery.diagError %@" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "错误：%@"
+          }
+        }
+      }
+    },
+    "recovery.diagHeader" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "MiLens 启动失败诊断"
+          }
+        }
+      }
+    },
+    "recovery.diagTime %@" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "时间：%@"
+          }
+        }
+      }
+    },
+    "recovery.diagWriteFailed %@" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "写入诊断文件失败：%@"
+          }
+        }
+      }
+    },
+    "recovery.diagnosticsExported" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "诊断已导出"
+          }
+        }
+      }
+    },
+    "recovery.exportDiagnostics" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "导出诊断信息"
+          }
+        }
+      }
+    },
+    "recovery.exportFailed" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "导出失败"
+          }
+        }
+      }
+    },
+    "recovery.rebuild" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "重建"
+          }
+        }
+      }
+    },
+    "recovery.rebuildConfirmTitle" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "重建本地数据？"
+          }
+        }
+      }
+    },
+    "recovery.rebuildData" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "重建本地数据"
+          }
+        }
+      }
+    },
+    "recovery.retry" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "重试"
           }
         }
       }
@@ -1634,6 +2004,105 @@
         }
       }
     },
+    "share.platform.douyin" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "抖音"
+          }
+        }
+      }
+    },
+    "share.platform.moments" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "朋友圈"
+          }
+        }
+      }
+    },
+    "share.platform.rednote" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "小红书"
+          }
+        }
+      }
+    },
+    "share.platform.wechat" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "微信"
+          }
+        }
+      }
+    },
+    "share.sheet.morePlatforms" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "更多平台"
+          }
+        }
+      }
+    },
+    "share.sheet.subtitle" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "分享到社交平台，让更多人看到它"
+          }
+        }
+      }
+    },
+    "share.sheet.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "分享作品"
+          }
+        }
+      }
+    },
+    "share.sheet.watermarkHint" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "免费版导出带 MiLens 水印，升级 Pro 可去除"
+          }
+        }
+      }
+    },
+    "startup.unknownError" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "未知错误"
+          }
+        }
+      }
+    },
     "tab.create" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -1678,6 +2147,17 @@
         }
       }
     },
+    "timeline.allPets" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "全部宠物"
+          }
+        }
+      }
+    },
     "timeline.birthday.subtitle %lld" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -1696,6 +2176,243 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "%@%lld岁啦！🎂"
+          }
+        }
+      }
+    },
+    "timeline.export.dateRange %@ %@" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ — %@"
+          }
+        }
+      }
+    },
+    "timeline.export.entryCount %lld" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "variations" : {
+            "plural" : {
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld 条记录"
+                }
+              },
+              "pluralRuleType" : "pluralRuleType"
+            }
+          }
+        }
+      }
+    },
+    "timeline.export.watermark" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "由 MiLens 制作"
+          }
+        }
+      }
+    },
+    "timeline.exportFailed" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "导出失败"
+          }
+        }
+      }
+    },
+    "timeline.exportFailedDetail %@" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "导出失败：%@"
+          }
+        }
+      }
+    },
+    "timeline.filterAll" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "全部"
+          }
+        }
+      }
+    },
+    "timeline.lockedBannerCTA" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "升级 MiLens Pro，查看完整成长时间线"
+          }
+        }
+      }
+    },
+    "timeline.lockedBannerTitle" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "一年前的故事，仍然替你保存着"
+          }
+        }
+      }
+    },
+    "timeline.lockedEmptyBody" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "升级 MiLens Pro，查看一年前的成长记录。"
+          }
+        }
+      }
+    },
+    "timeline.lockedEmptyTitle" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "你的早期故事还在这里"
+          }
+        }
+      }
+    },
+    "timeline.month %lld" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "variations" : {
+            "plural" : {
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld月"
+                }
+              },
+              "pluralRuleType" : "pluralRuleType"
+            }
+          }
+        }
+      }
+    },
+    "timeline.previewDaysLeft %lld" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "variations" : {
+            "plural" : {
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "完整时间线体验还剩 %lld 天"
+                }
+              },
+              "pluralRuleType" : "pluralRuleType"
+            }
+          }
+        }
+      }
+    },
+    "timeline.previewUnlockCTA" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "现在解锁，继续保存全部故事"
+          }
+        }
+      }
+    },
+    "timeline.renderFailed" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "时间线渲染失败，请重试"
+          }
+        }
+      }
+    },
+    "timeline.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "成长时间线"
+          }
+        }
+      }
+    },
+    "timeline.type.adoption" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "纪念日"
+          }
+        }
+      }
+    },
+    "timeline.type.birthday" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "生日"
+          }
+        }
+      }
+    },
+    "timeline.viewProBenefits" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "查看 Pro 权益"
+          }
+        }
+      }
+    },
+    "timeline.year %lld" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "variations" : {
+            "plural" : {
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld年"
+                }
+              },
+              "pluralRuleType" : "pluralRuleType"
+            }
           }
         }
       }
@@ -1737,7 +2454,6 @@
     "未标注日期" : {},
     "本地数据无法加载" : {},
     "材料清单" : {},
-    "档案加载失败" : {},
     "档案已创建" : {},
     "概括度" : {},
     "没有符合条件的照片" : {},

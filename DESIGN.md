@@ -135,6 +135,8 @@ SwiftData 从 V1.0 干净 schema 起步（不复刻源端 16 版历史迁移）�
 - `Photo`（`@Model`）：uri、originalURI、thumbnailPath、phash、sharpness、qualityScore、duplicateOf、isBest、`@Relationship` to Pet（embeddingData 后置 V1.x）
 - `PetEvent`（`@Model`）：eventType、eventDate、`@Relationship` to Pet
 
+生命档案增强设计见 [docs/Life-Archive-Design.md](docs/Life-Archive-Design.md)：在不破坏现有生日/领养提醒语义的前提下，后续为 `PetEvent` 增加用户记录正文、来源类型、置顶/档案起点、日期范围和代表照片/关联照片能力；作品记录通过来源照片或原始记忆回链。schema 变更必须按现有 VersionedSchema/迁移规则执行，禁止直接把系统推导事件伪装成用户记录。
+
 变更须同步：`@Model` + `VersionedSchema`/`SchemaMigrationPlan` + Repository + 测试。
 
 **Schema 迁移策略**（正式决策）：产品尚未发布，V1 即首发基线（含 `originalURI` 唯一约束）；P0 修复前创建的开发库不支持自动升级（SwiftData 对「新增唯一约束」无 lightweight migration），首发前删除旧开发库重装。首发后任何 schema 变更必须递增版本号并追加 MigrationStage，禁止改动模型后保持版本号不变。详见 [SchemaVersion.swift](MiLens/Persistence/SchemaVersion.swift) 文件头。

@@ -37,11 +37,11 @@ struct SharePreviewSheet: View {
                 .padding(.top, Spacing.sm)
                 .padding(.bottom, Spacing.lg)
 
-            Text("分享作品")
+            Text(String(localized: "share.sheet.title"))
                 .font(.titleStandard)
                 .foregroundStyle(Color.milensTextPrimary)
 
-            Text("分享到社交平台，让更多人看到它")
+            Text(String(localized: "share.sheet.subtitle"))
                 .font(.bodySecondary)
                 .foregroundStyle(Color.milensTextSecondary)
                 .padding(.top, Spacing.xs)
@@ -55,12 +55,12 @@ struct SharePreviewSheet: View {
                 .shadow(color: .black.opacity(0.1), radius: 8, y: 4)
                 .padding(.vertical, Spacing.xl)
 
-            // 平台引导行
+            // 平台引导行（平台名为专有名词，仍走本地化 key 便于各语言市场适配）
             HStack(spacing: Spacing.xl) {
-                platformButton(icon: "message.fill", label: "微信", tint: .milensBrandWechat)
-                platformButton(icon: "person.2.fill", label: "朋友圈", tint: .milensBrandWechat)
-                platformButton(icon: "book.fill", label: "小红书", tint: .milensBrandRedNote)
-                platformButton(icon: "music.note", label: "抖音", tint: .black)
+                platformButton(icon: "message.fill", label: String(localized: "share.platform.wechat"), tint: .milensBrandWechat)
+                platformButton(icon: "person.2.fill", label: String(localized: "share.platform.moments"), tint: .milensBrandWechat)
+                platformButton(icon: "book.fill", label: String(localized: "share.platform.rednote"), tint: .milensBrandRedNote)
+                platformButton(icon: "music.note", label: String(localized: "share.platform.douyin"), tint: .black)
             }
             .padding(.horizontal, Spacing.pagePad)
             .padding(.bottom, Spacing.lg)
@@ -69,7 +69,7 @@ struct SharePreviewSheet: View {
             Button {
                 showSystemShare = true
             } label: {
-                Label("更多平台", systemImage: "square.and.arrow.up")
+                Label(String(localized: "share.sheet.morePlatforms"), systemImage: "square.and.arrow.up")
                     .font(.bodyPrimary)
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, Spacing.md)
@@ -79,7 +79,7 @@ struct SharePreviewSheet: View {
             .padding(.horizontal, Spacing.pagePad)
 
             // 水印提示（免费版）
-            Text("免费版导出带 MiLens 水印，升级 Pro 可去除")
+            Text(String(localized: "share.sheet.watermarkHint"))
                 .font(.caption)
                 .foregroundStyle(Color.milensTextTertiary)
                 .multilineTextAlignment(.center)

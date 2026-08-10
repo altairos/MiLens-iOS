@@ -157,6 +157,21 @@ final class ViewModelFactory {
         try petRepo.getAllPets()
     }
 
+    // MARK: - 写操作（手动归属/移出）
+
+    /// 将一组照片归属到指定宠物（nil = 移出归属），同步刷新受影响宠物的 photoCount 缓存。
+    /// 是用户手动纠正 AI 自动归属的唯一入口（对应 P0 手动归属 UI）。
+    /// - Parameters:
+    ///   - photos: 待归属的照片列表
+    ///   - pet: 目标宠物（nil = 移出归属，不归属任何宠物）
+    /// - Returns: 受影响（已刷新 photoCount）的宠物列表
+    @discardableResult
+    func assignPhotos(_ photos: [Photo], to pet: Pet?) throws -> [Pet] {
+        try PhotoAssignmentLogic.assign(
+            photos: photos, to: pet,
+            photoRepo: photoRepo, petRepo: petRepo)
+    }
+
     // MARK: - 编辑器兜底（环境未注入 MediaLifecycleService 时）
 
     private static func makeFallbackLifecycle(

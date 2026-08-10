@@ -31,7 +31,7 @@ struct TimelineView: View {
                 ProgressView()
             }
         }
-        .navigationTitle("成长时间线")
+        .navigationTitle(String(localized: "timeline.title"))
         .navigationBarTitleDisplayMode(.large)
         .background(Color.milensBackground)
         .toolbar {
@@ -58,11 +58,11 @@ struct TimelineView: View {
                 onDismiss: { sharePreview = nil }
             )
         }
-        .alert("导出失败", isPresented: Binding(
+        .alert(String(localized: "timeline.exportFailed"), isPresented: Binding(
             get: { exportError != nil },
             set: { if !$0 { exportError = nil } }
         )) {
-            Button("好", role: .cancel) {}
+            Button(String(localized: "common.ok"), role: .cancel) {}
         } message: {
             Text(exportError ?? "")
         }
@@ -110,7 +110,7 @@ struct TimelineView: View {
 
         guard let image = renderer.uiImage,
               let pngData = image.pngData() else {
-            exportError = "时间线渲染失败，请重试"
+            exportError = String(localized: "timeline.renderFailed")
             isExporting = false
             return
         }
@@ -121,7 +121,7 @@ struct TimelineView: View {
             )
             sharePreview = (image: image, url: url)
         } catch {
-            exportError = "导出失败：\(error.localizedDescription)"
+            exportError = String(localized: "timeline.exportFailedDetail \(error.localizedDescription)")
         }
         isExporting = false
     }
@@ -132,7 +132,7 @@ struct TimelineView: View {
            let pet = pets.first(where: { $0.id == petID }) {
             return "\(PetProfileLogic.speciesEmoji(pet.species)) \(pet.name)"
         }
-        return "全部宠物"
+        return String(localized: "timeline.allPets")
     }
 
     // MARK: - 内容区
@@ -201,14 +201,14 @@ struct TimelineView: View {
             Image(systemName: "lock.fill")
                 .font(.system(size: 40, weight: .light))
                 .foregroundStyle(Color.milensActionPrimary)
-            Text("你的早期故事还在这里")
+            Text(String(localized: "timeline.lockedEmptyTitle"))
                 .font(.displayMedium)
                 .foregroundStyle(Color.milensTextPrimary)
-            Text("升级 MiLens Pro，查看一年前的成长记录。")
+            Text(String(localized: "timeline.lockedEmptyBody"))
                 .font(.bodyPrimary)
                 .foregroundStyle(Color.milensTextSecondary)
                 .multilineTextAlignment(.center)
-            Button("查看 Pro 权益") { showPaywall = true }
+            Button(String(localized: "timeline.viewProBenefits")) { showPaywall = true }
                 .buttonStyle(.borderedProminent)
                 .tint(Color.milensActionPrimary)
         }
@@ -221,10 +221,10 @@ struct TimelineView: View {
             Image(systemName: "lock.fill")
                 .foregroundStyle(Color.milensActionPrimary)
             VStack(alignment: .leading, spacing: Spacing.xs) {
-                Text("一年前的故事，仍然替你保存着")
+                Text(String(localized: "timeline.lockedBannerTitle"))
                     .font(.bodyPrimary.weight(.semibold))
                     .foregroundStyle(Color.milensTextPrimary)
-                Button("升级 MiLens Pro，查看完整成长时间线") {
+                Button(String(localized: "timeline.lockedBannerCTA")) {
                     showPaywall = true
                 }
                     .font(.caption)
@@ -242,10 +242,10 @@ struct TimelineView: View {
             Image(systemName: "clock.badge.checkmark")
                 .foregroundStyle(Color.milensActionPrimary)
             VStack(alignment: .leading, spacing: Spacing.xs) {
-                Text("完整时间线体验还剩 \(vm.previewDaysRemaining) 天")
+                Text(String(localized: "timeline.previewDaysLeft \(vm.previewDaysRemaining)"))
                     .font(.bodyPrimary.weight(.semibold))
                     .foregroundStyle(Color.milensTextPrimary)
-                Button("现在解锁，继续保存全部故事") { showPaywall = true }
+                Button(String(localized: "timeline.previewUnlockCTA")) { showPaywall = true }
                     .font(.caption)
                     .foregroundStyle(Color.milensActionPrimary)
             }
@@ -261,7 +261,7 @@ struct TimelineView: View {
     private func petFilter(_ vm: TimelineViewModel) -> some View {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: Spacing.sm) {
-                filterChip(title: "全部", isSelected: vm.selectedPetID == nil) {
+                filterChip(title: String(localized: "timeline.filterAll"), isSelected: vm.selectedPetID == nil) {
                     vm.selectPet(nil)
                 }
                 ForEach(pets, id: \.id) { pet in
@@ -302,7 +302,7 @@ struct TimelineView: View {
             // 分组标题：年份大分节 + 月份，衬线 displayMedium（§6.5）
             HStack(alignment: .firstTextBaseline, spacing: Spacing.sm) {
                 if month.isYearStart {
-                    Text("\(String(month.year))年")
+                    Text(String(localized: "timeline.year \(month.year)"))
                         .font(.displayMedium)
                         .foregroundStyle(Color.milensTextPrimary)
                 }
@@ -328,9 +328,7 @@ struct TimelineView: View {
     }
 
     private func monthLabel(_ month: Int) -> String {
-        let names = ["", "1月", "2月", "3月", "4月", "5月", "6月",
-                     "7月", "8月", "9月", "10月", "11月", "12月"]
-        return (1...12).contains(month) ? names[month] : "\(month)月"
+        String(localized: "timeline.month \(month)")
     }
 
     // MARK: - 条目（节点）
@@ -421,8 +419,8 @@ struct TimelineView: View {
     /// 类型文字标签：节点不只靠颜色区分（§6.5）。
     private func typeLabel(_ type: TimelineEntryType) -> String? {
         switch type {
-        case .birthday: "生日"
-        case .adoption: "纪念日"
+        case .birthday: String(localized: "timeline.type.birthday")
+        case .adoption: String(localized: "timeline.type.adoption")
         case .photoNote: nil
         }
     }

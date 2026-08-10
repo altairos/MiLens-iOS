@@ -75,8 +75,8 @@ struct StateView: View {
 #Preview("错误状态") {
     StateView(
         icon: "exclamationmark.triangle",
-        title: "档案加载失败",
-        primaryActionTitle: "返回",
+        title: String(localized: "pet.profile.loadFailed"),
+        primaryActionTitle: String(localized: "common.back"),
         primaryAction: {}
     )
     .background(Color.milensBackground)

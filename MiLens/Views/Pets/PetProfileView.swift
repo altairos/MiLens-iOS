@@ -19,6 +19,8 @@ struct PetProfileView: View {
     @State private var unassignedPhotos: [Photo] = []
     @State private var selectedCategory: PetPhotoCategory = .all
     @State private var isLoading = true
+    /// 手动归属 sheet 的照片列表（非空=显示 sheet）
+    @State private var assignmentPhotos: [Photo] = []
 
     private let photoColumns = [GridItem(.adaptive(minimum: 100), spacing: 2)]
 
@@ -56,6 +58,17 @@ struct PetProfileView: View {
         }
         .background(Color.milensPaper)
         .toolbar(.hidden, for: .navigationBar)
+        .sheet(isPresented: Binding(
+            get: { !assignmentPhotos.isEmpty },
+            set: { if !$0 { assignmentPhotos.removeAll() } }
+        )) {
+            if !assignmentPhotos.isEmpty {
+                PetAssignmentSheet(photos: assignmentPhotos) {
+                    // 归属变更后重新加载（本宠物照片/待整理列表/计数均可能变化）
+                    Task { await load() }
+                }
+            }
+        }
         .task { await load() }
     }
 
@@ -236,6 +249,13 @@ struct PetProfileView: View {
                                     .padding(4)
                             }
                         }
+                        .contextMenu {
+                            Button {
+                                assignmentPhotos = [photo]
+                            } label: {
+                                Label(String(localized: "photo.assign.title"), systemImage: "person.crop.circle.badge.plus")
+                            }
+                        }
                     }
                 }
                 if shown.count > 9 {
@@ -373,8 +393,8 @@ struct PetProfileView: View {
         // 复用统一状态组件（UI-DESIGN.md §5.3.9）：图标 + 标题 + 明确退出路径。
         StateView(
             icon: "exclamationmark.triangle",
-            title: "档案加载失败",
-            primaryActionTitle: "返回",
+            title: String(localized: "pet.profile.loadFailed"),
+            primaryActionTitle: String(localized: "common.back"),
             primaryAction: { dismiss() }
         )
     }

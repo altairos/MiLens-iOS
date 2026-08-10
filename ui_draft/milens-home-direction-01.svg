@@ -1,0 +1,109 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1080" viewBox="0 0 1080 1080">
+  <defs>
+    <filter id="phoneShadow" x="-30%" y="-20%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="22" stdDeviation="28" flood-color="#160f0b" flood-opacity="0.20"/>
+    </filter>
+    <filter id="barShadow" x="-20%" y="-60%" width="140%" height="220%">
+      <feDropShadow dx="0" dy="-4" stdDeviation="10" flood-color="#160f0b" flood-opacity="0.07"/>
+    </filter>
+    <clipPath id="phoneClip"><rect x="120" y="75" width="402" height="874" rx="50"/></clipPath>
+    <clipPath id="heroClip"><rect x="140" y="246" width="362" height="452" rx="20"/></clipPath>
+    <clipPath id="memoryClip"><rect x="410" y="755" width="72" height="72" rx="10"/></clipPath>
+    <linearGradient id="photoFade" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="68%" stop-color="#000" stop-opacity="0"/>
+      <stop offset="100%" stop-color="#000" stop-opacity="0.26"/>
+    </linearGradient>
+    <linearGradient id="boardGlow" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#F7F1E8"/><stop offset="1" stop-color="#EAE0D3"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="1080" height="1080" fill="url(#boardGlow)"/>
+  <circle cx="890" cy="150" r="220" fill="#FD8663" opacity="0.06"/>
+  <circle cx="955" cy="1000" r="280" fill="#BC4727" opacity="0.04"/>
+
+  <g font-family="LXGW WenKai TC, serif" fill="#1F1B18">
+    <text x="620" y="210" font-size="18" font-weight="700" letter-spacing="2">MILENS · UI REWORK 01</text>
+    <text x="620" y="276" font-size="46">把照片变成一份</text>
+    <text x="620" y="334" font-size="46">值得珍藏的生命档案</text>
+  </g>
+  <g font-family="Noto Serif SC, serif" fill="#6B625B">
+    <text x="620" y="382" font-size="17">Quiet Archive / 首页内容态</text>
+    <text x="620" y="430" font-size="15">照片主导 · 时间为骨架 · 珊瑚只用于动作</text>
+  </g>
+  <g transform="translate(620,485)">
+    <circle cx="3" cy="3" r="4" fill="#FD8663"/>
+    <rect x="18" y="2.5" width="34" height="1" fill="#BC4727" opacity="0.45"/>
+    <text x="68" y="8" font-family="Noto Serif SC, serif" font-size="13" fill="#6B625B">记忆标记</text>
+  </g>
+  <g font-family="Noto Serif SC, serif" font-size="14" fill="#6B625B">
+    <text x="620" y="575">01  大标题始终放在照片外，保持阅读和裁切安全</text>
+    <text x="620" y="615">02  文楷负责情绪，宋体负责档案正文与时间</text>
+    <text x="620" y="655">03  无通用宠物插画，不用 Emoji 建立品牌</text>
+    <text x="620" y="695">04  只有一个高对比主动作，避免廉价促销感</text>
+  </g>
+  <g transform="translate(620,770)">
+    <rect x="0" y="0" width="74" height="74" rx="16" fill="#FAF8F5" stroke="#E5DFD8"/>
+    <rect x="96" y="0" width="74" height="74" rx="16" fill="#1F1B18"/>
+    <rect x="192" y="0" width="74" height="74" rx="16" fill="#BC4727"/>
+    <rect x="288" y="0" width="74" height="74" rx="16" fill="#FCE8DF"/>
+    <text x="0" y="100" font-family="Noto Serif SC, serif" font-size="11" fill="#776D65">画布</text>
+    <text x="96" y="100" font-family="Noto Serif SC, serif" font-size="11" fill="#776D65">暖黑</text>
+    <text x="192" y="100" font-family="Noto Serif SC, serif" font-size="11" fill="#776D65">动作</text>
+    <text x="288" y="100" font-family="Noto Serif SC, serif" font-size="11" fill="#776D65">轻强调</text>
+  </g>
+
+  <g filter="url(#phoneShadow)">
+    <rect x="120" y="75" width="402" height="874" rx="50" fill="#FAF8F5"/>
+  </g>
+  <g clip-path="url(#phoneClip)">
+    <rect x="120" y="75" width="402" height="874" fill="#FAF8F5"/>
+
+    <g font-family="SF Pro, sans-serif" fill="#1F1B18" font-size="14" font-weight="600">
+      <text x="150" y="108">9:41</text>
+      <text x="454" y="108">5G  ●●●</text>
+    </g>
+    <rect x="278" y="89" width="86" height="25" rx="13" fill="#1F1B18"/>
+
+    <g font-family="LXGW WenKai TC, serif" fill="#1F1B18">
+      <text x="140" y="153" font-size="23" font-weight="700">咪 Lens</text>
+      <text x="140" y="202" font-size="35">今晚，留一会儿给它</text>
+    </g>
+    <g font-family="Noto Serif SC, serif" fill="#6B625B">
+      <text x="140" y="177" font-size="12">2026年8月9日 · 周日</text>
+      <text x="140" y="226" font-size="14">今天的档案，从一张安静的照片开始。</text>
+    </g>
+    <circle cx="476" cy="153" r="4" fill="#FD8663"/>
+    <rect x="444" y="152.5" width="22" height="1" fill="#BC4727" opacity="0.46"/>
+
+    <image href="milens-hero-cat.png" x="140" y="246" width="362" height="452" preserveAspectRatio="xMidYMid slice" clip-path="url(#heroClip)"/>
+    <rect x="140" y="246" width="362" height="452" fill="url(#photoFade)" clip-path="url(#heroClip)"/>
+    <g font-family="Noto Serif SC, serif" fill="#FFFFFF">
+      <text x="160" y="666" font-size="13" font-weight="600">橘子 · 今天 17:42</text>
+    </g>
+    <circle cx="474" cy="670" r="8" fill="#FD8663"/>
+
+    <g transform="translate(140,724)">
+      <circle cx="4" cy="6" r="4" fill="#FD8663"/>
+      <rect x="18" y="5.5" width="27" height="1" fill="#BC4727" opacity="0.50"/>
+      <text x="58" y="12" font-family="Noto Serif SC, serif" font-size="12" fill="#6B625B">一年前的今天</text>
+      <text x="0" y="47" font-family="LXGW WenKai TC, serif" font-size="24" fill="#1F1B18">窗边的午后</text>
+      <text x="0" y="73" font-family="Noto Serif SC, serif" font-size="13" fill="#6B625B">2025年8月9日 · 3张照片</text>
+      <text x="268" y="16" font-family="LXGW WenKai TC, serif" font-size="14" font-weight="700" fill="#BC4727">打开回忆</text>
+    </g>
+    <image href="milens-hero-cat.png" x="410" y="755" width="72" height="72" preserveAspectRatio="xMaxYMid slice" clip-path="url(#memoryClip)"/>
+
+    <g filter="url(#barShadow)">
+      <rect x="120" y="855" width="402" height="94" fill="#FFFFFF" fill-opacity="0.96"/>
+    </g>
+    <line x1="120" y1="855" x2="522" y2="855" stroke="#ECE7E1"/>
+    <g font-family="LXGW WenKai TC, serif" text-anchor="middle">
+      <g fill="#BC4727"><circle cx="171" cy="878" r="9" fill="none" stroke="#BC4727" stroke-width="2"/><path d="M164 878l7-6 7 6v8h-14z" fill="none" stroke="#BC4727" stroke-width="2"/><text x="171" y="916" font-size="12" font-weight="700">首页</text></g>
+      <g fill="#776D65"><circle cx="271" cy="879" r="9" fill="none" stroke="#776D65" stroke-width="2"/><circle cx="265" cy="873" r="3"/><circle cx="277" cy="873" r="3"/><text x="271" y="916" font-size="12">宠物</text></g>
+      <g fill="#776D65"><rect x="362" y="870" width="18" height="18" rx="4" fill="none" stroke="#776D65" stroke-width="2"/><path d="M366 883l10-10" stroke="#776D65" stroke-width="2"/><text x="371" y="916" font-size="12">创作</text></g>
+      <g fill="#776D65"><circle cx="470" cy="874" r="5" fill="none" stroke="#776D65" stroke-width="2"/><path d="M460 889c2-8 18-8 20 0" fill="none" stroke="#776D65" stroke-width="2"/><text x="470" y="916" font-size="12">我的</text></g>
+    </g>
+    <rect x="258" y="936" width="126" height="5" rx="3" fill="#1F1B18"/>
+  </g>
+  <rect x="120.5" y="75.5" width="401" height="873" rx="49.5" fill="none" stroke="#1F1B18" stroke-opacity="0.12"/>
+</svg>

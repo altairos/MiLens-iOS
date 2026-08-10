@@ -14,19 +14,38 @@
 import SwiftUI
 
 extension Font {
-    // MARK: - Display 中文（霞鹜文楷 Regular）
+    // MARK: - 语言感知 display 字体
+
+    /// 是否使用霞鹜文楷作为 display 字体：仅简体中文（zh-Hans）。
+    /// 文楷子集仅覆盖 GB2312 简体字符，zh-Hant/ja/ko 使用会缺字（豆腐块），
+    /// 必须回退系统衬线字体；en/de/fr 等拉丁语言标题走 Fraunces（displayLargeEN 等）。
+    /// 见 docs/Localization-Plan.md §4.8 字体策略。
+    private static var usesWenKai: Bool {
+        let lang = Locale.current.language
+        return lang.languageCode?.identifier == "zh" && lang.script?.identifier == "Hans"
+    }
+
+    /// 简体中文用文楷；其他语言回退系统衬线（保留 display 编辑感，避免缺字）。
+    private static func displayFont(_ size: CGFloat, relativeTo style: Font.TextStyle) -> Font {
+        if usesWenKai {
+            return Font.custom("LXGWWenKai-Regular", size: size, relativeTo: style)
+        }
+        return Font.system(style, design: .serif)
+    }
+
+    // MARK: - Display 中文（简中用霞鹜文楷 Regular，其他语言系统衬线）
 
     /// 首页问候（「晚上好」）、档案名字。`.largeTitle` 级别。
-    static let displayLarge = Font.custom("LXGWWenKai-Regular", size: 34, relativeTo: .largeTitle)
+    static let displayLarge = displayFont(34, relativeTo: .largeTitle)
     /// 区块标题（「它的故事」「一年前的今天」）。`.title2` 级别。
-    static let displayMedium = Font.custom("LXGWWenKai-Regular", size: 24, relativeTo: .title2)
+    static let displayMedium = displayFont(24, relativeTo: .title2)
 
     /// 参考视觉稿首页 Hero 的杂志式大标题。
-    static let editorialHero = Font.custom("LXGWWenKai-Regular", size: 40, relativeTo: .largeTitle)
+    static let editorialHero = displayFont(40, relativeTo: .largeTitle)
     /// 编辑式分节标题、宠物名字和档案故事标题。
-    static let editorialSection = Font.custom("LXGWWenKai-Regular", size: 28, relativeTo: .title2)
+    static let editorialSection = displayFont(28, relativeTo: .title2)
     /// 编辑式月份/统计数字。
-    static let editorialNumber = Font.custom("LXGWWenKai-Regular", size: 34, relativeTo: .title)
+    static let editorialNumber = displayFont(34, relativeTo: .title)
 
     // MARK: - Display 英文（Fraunces，纯英文大标题专用）
 

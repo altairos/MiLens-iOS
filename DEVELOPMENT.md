@@ -293,6 +293,10 @@ UI 文案与 Info.plist 权限说明用 Apple String Catalog（`.xcstrings`）�
 
 > 依赖 `openpyxl`（`pip install -r tools/requirements.txt`）。工具支持任意语言，不限于英文；check 可接入 CI。脚本入口已内置 `stdout` UTF-8 重配置——Windows 默认 GBK 控制台无需 `PYTHONUTF8=1` 即可输出 `−` 等 Unicode 字符（2026-08-09 评审修复）。
 
+**桌面 GUI（可选）**：`python tools/localization-gui.py` 启动 tkinter 本地化工作台——语言进度总览（7 语种实时统计）、缺译清单（双击复制 key）、一键完整 check / 导出 / 导入 / 生成资产工作簿 / 打开工作簿；任务在后台线程执行不冻结界面。无显示环境可用 `python tools/localization-gui.py --self-check` 做结构自检。GUI 复用 `localization.py` 与 `localization-assets.py` 的全部逻辑，不引入额外依赖。
+
+> **全球首发多语言计划（7 语言：zh-Hans/zh-Hant/ja/ko/en/fr/de）见 [docs/Localization-Plan.md](docs/Localization-Plan.md)**——含各国市场注意要点（日本丁寧語/韩国 반려동물 红线/德语 Bügelperlen 术语与长度预算/法语阴阳性等）、术语表、ASO 策略、翻译批次与验收标准。首次接入新语言前先读该文档，并按其中 §10 工作项顺序执行。
+
 ## 5. 验证快照
 
 （每个阶段完成后在此记录可复现的验证命令 + 结果。）

@@ -195,7 +195,8 @@ struct PaywallView: View {
     private func ctaTitle(for model: PaywallViewModel) -> String {
         switch PaywallLogic.ctaKind(for: model.selectedProduct) {
         case .trial(let days):
-            return String(format: String(localized: "paywall.cta.trial"), days)
+            // 插值调用：匹配 String Catalog 复数 key（"paywall.cta.trial %lld"）
+            return String(localized: "paywall.cta.trial \(days)")
         case .subscribe:
             return String(
                 format: String(localized: "paywall.cta.subscribe.price"),
@@ -308,7 +309,7 @@ private struct PaywallProductCard: View {
                         }
                     }
                     if let trialDays = product.trialDays {
-                        Text(String(format: String(localized: "paywall.trial.hint"), trialDays))
+                        Text(String(localized: "paywall.trial.hint \(trialDays)"))
                             .font(.caption)
                             .foregroundStyle(Color.milensTextSecondary)
                     }

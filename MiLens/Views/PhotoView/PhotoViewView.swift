@@ -71,12 +71,12 @@ struct PhotoViewView: View {
                     NavigationLink(value: Route.editor(photoID: photoID)) {
                         Image(systemName: "slider.horizontal.3")
                     }
-                    .accessibilityLabel("编辑")
+                    .accessibilityLabel(String(localized: "a11y.photoView.edit"))
                     if let photo {
                         NavigationLink(value: Route.beadPattern(photoID: photo.id)) {
                             Image(systemName: "square.grid.3x3.fill")
                         }
-                        .accessibilityLabel("生成拼豆图纸")
+                        .accessibilityLabel(String(localized: "a11y.bead.generate"))
                     }
                 }
             }

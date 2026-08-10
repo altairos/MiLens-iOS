@@ -71,7 +71,7 @@ def sheet_from_xcstrings(wb: Workbook, path: Path) -> None:
     langs = [source] + [x for x in LANGS if x != source]
 
     ws = wb.create_sheet(title=path.stem)
-    header = ["key", "comment", "source_" + source]
+    header = ["key", "variation", "comment", "source_" + source]
     for lang in langs:
         if lang == source:
             continue
@@ -79,25 +79,50 @@ def sheet_from_xcstrings(wb: Workbook, path: Path) -> None:
         header.append(lang + "_state")
     ws.append(header)
 
+    var_order = {v: i for i, v in enumerate(loc.PLURAL_VARIATION_ORDER)}
     for key in sorted(obj.get("strings", {}).keys()):
         entry = obj["strings"][key]
         comment = entry.get("comment", "")
-        src_val, _ = loc.entry_value_state(entry, source)
-        row = [key, comment, src_val or key]  # 字面量 key 无显式译文，源文案=key 本身
+        # 变体并集（含源语言）：任一语言为复数条目时按变体拆行；
+        # 复数条目补齐语言要求变体（如 en/de/fr 的 one），即使当前尚无译文
+        variants: set[str] = set()
         for lang in langs:
-            if lang == source:
-                continue
-            value, state = loc.entry_value_state(entry, lang)
-            if lang == "en" and not value:
-                # en 初译（批次 0 起点）：仅回填空值，已有译文以 .xcstrings 为准
-                value = EN_TRANSLATIONS.get(key, "")
-                state = "needs_review" if value else ""
-            row.append(value)
-            row.append(state)
-        ws.append(row)
+            rows_lang = loc.entry_lang_rows(entry, lang)
+            variants.update(var for var, _, _ in rows_lang if var)
+        if variants:
+            for lang in langs:
+                variants.update(loc.plural_required_variations(lang))
+        if not variants:
+            src_val = loc.entry_lang_rows(entry, source)[0][1]
+            row = [key, "", comment, src_val or key]  # 字面量 key 无显式译文，源文案=key 本身
+            for lang in langs:
+                if lang == source:
+                    continue
+                value, state = loc.entry_lang_rows(entry, lang)[0][1:]
+                if lang == "en" and not value:
+                    value = EN_TRANSLATIONS.get(key, "")
+                    state = "needs_review" if value else ""
+                row.append(value)
+                row.append(state)
+            ws.append(row)
+            continue
+        by_src = {v: val for v, val, _ in loc.entry_lang_rows(entry, source)}
+        for var in sorted(variants, key=lambda v: var_order.get(v, 99)):
+            row = [key, var, comment, by_src.get(var, "")]
+            for lang in langs:
+                if lang == source:
+                    continue
+                by_lang = {v: (val, st) for v, val, st in loc.entry_lang_rows(entry, lang)}
+                value, state = by_lang.get(var, ("", ""))
+                if lang == "en" and not value:
+                    value = EN_PLURALS.get(key, {}).get(var, "")
+                    state = "needs_review" if value else ""
+                row.append(value)
+                row.append(state)
+            ws.append(row)
 
     style_header(ws, len(header))
-    autosize(ws, [46, 34, 46] + [46, 14] * (len(langs) - 1))
+    autosize(ws, [46, 10, 34, 46] + [46, 14] * (len(langs) - 1))
     for row in ws.iter_rows(min_row=2):
         for cell in row:
             if cell.column % 2 == 0 or cell.column == 1:
@@ -419,7 +444,6 @@ EN_TRANSLATIONS = {
     "paywall.close": "Close",
     "paywall.cta.lifetime.price": "Unlock Forever \u00b7 %@",
     "paywall.cta.subscribe.price": "Subscribe Now \u00b7 %@",
-    "paywall.cta.trial": "Free trial \u00b7 %d days",
     "paywall.cta.unavailable": "Unavailable",
     "paywall.future.body": "Advanced templates and HD export are planned for V1.0 and will unlock automatically for Pro users.",
     "paywall.link.privacy": "Privacy Policy",
@@ -441,7 +465,6 @@ EN_TRANSLATIONS = {
     "paywall.terms.subscription": "Renews automatically at %@. Cancel anytime in your App Store account settings; your current period remains valid after cancellation.",
     "paywall.terms.trial": "Free for %1$d days, then renews at %2$@. Cancel anytime in your App Store account settings; your current period remains valid after cancellation.",
     "paywall.title": "Turn this photo into a keepsake",
-    "paywall.trial.hint": "First %d days free",
     "privacy.commit.control": "You decide what gets imported",
     "privacy.commit.control.detail": "Scanning only finds candidate photos; you confirm which ones to import and which pet they belong to.",
     "privacy.commit.local": "Analysis happens on your device",
@@ -544,6 +567,89 @@ EN_TRANSLATIONS = {
     "颜色过渡": "Color Transition",
     "\U0001F382": "\U0001F382",
     "💡 放大图纸即可显示编号": "\U0001F4A1 Zoom into the pattern to reveal numbers",
+    # 通知模板（非复数）
+    "notify.anniversary.today %@": "Today's memory: %@",
+    "notify.anniversary.title": "Anniversary Memory",
+    "notify.defaultPetName": "Little One",
+    "notify.kind.birthday %@": "%@'s Birthday",
+    "notify.kind.adoption %@": "%@'s Adoption Anniversary",
+    # 宠物显示/卡片/时间线（非复数）
+    "pet.species.cat": "Cat",
+    "pet.species.dog": "Dog",
+    "pet.species.unknown": "Unknown",
+    "pet.gender.male": "Male",
+    "pet.gender.female": "Female",
+    "pet.gender.unknown": "Unknown",
+    "pet.age.unknown": "Unknown",
+    "pet.age.join": " ",
+    "pet.card.fallbackTitle": "This Day",
+    "pet.card.fallbackSubtitle": "A day to remember",
+    "pet.card.subtitle %@ %@": "%@ \u00b7 %@",
+    "pet.profile.speciesAge %@ %@": "%@ \u00b7 %@",
+    "pet.profile.daysLabel": "Days Together",
+    "pet.profile.daysHomeTitle": "Home Together",
+    "pet.profile.memoryTitle": "A Memory",
+    "timeline.birthday.title %@ %lld": "Happy Birthday, %@! \U0001F382 (#%lld)",
+    "timeline.birthday.subtitle %lld": "Birthday #%lld",
+}
+
+# 复数条目 en 初译（按变体；state=needs_review，审校后清空 state 列再 import；
+# key 含 %lld 后缀（String Catalog 复数 key 规范，与代码插值调用对应））
+EN_PLURALS = {
+    "paywall.cta.trial %lld": {
+        "one": "Free trial \u00b7 %d day",
+        "other": "Free trial \u00b7 %d days",
+    },
+    "paywall.trial.hint %lld": {
+        "one": "First %d day free",
+        "other": "First %d days free",
+    },
+    # 通知模板（含年份差 → 复数；one 变体写死单数，保留其余占位符）
+    "notify.anniversary.yearsAgo %lld %@": {
+        "one": "1 year ago today: %@",
+        "other": "%lld years ago today: %@",
+    },
+    "notify.timemachine.title %lld": {
+        "one": "Today, 1 year ago",
+        "other": "Today, %lld years ago",
+    },
+    "notify.timemachine.asking %lld %@": {
+        "one": "What was %@ doing 1 year ago today?",
+        "other": "What was %@ doing %lld years ago today?",
+    },
+    "notify.timemachine.companion %lld %@": {
+        "one": "%@ was by your side 1 year ago today",
+        "other": "%@ was by your side %lld years ago today",
+    },
+    "notify.timemachine.flight %lld": {
+        "one": "Time flies \u2014 1 year ago today",
+        "other": "Time flies \u2014 %lld years ago today",
+    },
+    "notify.timemachine.flightNote %lld %@": {
+        "one": "Time flies \u2014 1 year ago today, %@",
+        "other": "Time flies \u2014 %lld years ago today, %@",
+    },
+    "notify.timemachine.flashback %lld %@": {
+        "one": "Flashback! %@ looked like this 1 year ago",
+        "other": "Flashback! %@ looked like this %lld years ago",
+    },
+    # 宠物年龄/相处天数（复数）
+    "pet.age.years %lld": {
+        "one": "1 year",
+        "other": "%lld years",
+    },
+    "pet.age.months %lld": {
+        "one": "1 month",
+        "other": "%lld months",
+    },
+    "pet.card.daysHome %lld": {
+        "one": "Home for 1 day",
+        "other": "Home for %lld days",
+    },
+    "pet.daysTogether %lld": {
+        "one": "Together for 1 day",
+        "other": "Together for %lld days",
+    },
 }
 
 # --------------------------------------------------------------------------- #

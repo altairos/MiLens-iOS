@@ -111,10 +111,10 @@ struct PetProfileView: View {
             Spacer(minLength: Spacing.sm)
 
             VStack(alignment: .trailing, spacing: Spacing.xs) {
-                Text("\(PetDisplayLogic.speciesDisplayName(pet.species)) · \(pet.birthday != nil ? PetDisplayLogic.ageText(from: pet.birthday) : "—")")
+                Text(String(localized: "pet.profile.speciesAge \(PetDisplayLogic.speciesDisplayName(pet.species)) \(pet.birthday != nil ? PetDisplayLogic.ageText(from: pet.birthday) : "—")"))
                     .font(.bodySecondary)
                     .foregroundStyle(Color.milensTextSecondary)
-                Text("来到家 \(PetDisplayLogic.daysTogether(from: pet.adoptionDay)) 天")
+                Text(String(localized: "pet.card.daysHome \(PetDisplayLogic.daysTogether(from: pet.adoptionDay))"))
                     .font(.bodySecondary)
                     .foregroundStyle(Color.milensTextSecondary)
             }
@@ -133,7 +133,7 @@ struct PetProfileView: View {
         HStack(spacing: 0) {
             statItem(value: "\(pet.photoCount)", label: "照片")
             divider
-            statItem(value: "\(PetDisplayLogic.daysTogether(from: pet.adoptionDay))", label: "相处天数")
+            statItem(value: "\(PetDisplayLogic.daysTogether(from: pet.adoptionDay))", label: String(localized: "pet.profile.daysLabel"))
             divider
             statItem(
                 value: pet.birthday != nil
@@ -292,7 +292,7 @@ struct PetProfileView: View {
                             .fill(Color.milensBorder)
                             .frame(width: 1)
                         VStack(alignment: .leading, spacing: Spacing.xs) {
-                            Text(index == 0 ? "来到家" : "一段记忆")
+                            Text(index == 0 ? String(localized: "pet.profile.daysHomeTitle") : String(localized: "pet.profile.memoryTitle"))
                                 .font(.bodyPrimary.weight(.semibold))
                                 .foregroundStyle(Color.milensTextPrimary)
                             Text(note)

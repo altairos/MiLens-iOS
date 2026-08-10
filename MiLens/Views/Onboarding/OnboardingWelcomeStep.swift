@@ -59,7 +59,7 @@ struct OnboardingWelcomeStep: View {
                         .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
-                .accessibilityLabel("同意隐私政策")
+                .accessibilityLabel(String(localized: "a11y.onboarding.privacyAgree"))
                 .accessibilityAddTraits(viewModel.privacyAgreed ? .isSelected : [])
 
                 Text("我已阅读并同意")

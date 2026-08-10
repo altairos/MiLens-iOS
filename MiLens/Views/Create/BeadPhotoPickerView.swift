@@ -60,7 +60,7 @@ struct BeadPhotoPickerView: View {
                                 .clipShape(RoundedRectangle(cornerRadius: 4))
                         }
                         .buttonStyle(.plain)
-                        .accessibilityLabel("生成拼豆图纸")
+                        .accessibilityLabel(String(localized: "a11y.bead.generate"))
                     }
                 }
             }

@@ -85,14 +85,16 @@ func selectTimeMachinePhoto(_ photos: [TimeMachinePhoto], randomIndex: Int) -> T
 ///   - pets: 全部宠物列表（用于查 petID → name）
 ///   - now: 当前时间
 ///   - templateIndex: 文案模板索引（0–3 循环）
-///   - defaultPetName: 宠物名缺失时的默认值（源端为 "小宝贝"）
+///   - defaultPetName: 宠物名缺失时的默认值（nil 时用本地化默认名；源端为 "小宝贝"）
+///   - locale: 文案语言（默认当前环境；测试传固定 locale）
 /// - Returns: 通知数据（标题 + 正文 + ID + 照片ID）
 func buildTimeMachineResult(
     photo: TimeMachinePhoto,
     pets: [TimeMachinePet],
     now: Date,
     templateIndex: Int,
-    defaultPetName: String = "小宝贝"
+    defaultPetName: String? = nil,
+    locale: Locale = .current
 ) -> TimeMachineNotificationData {
     let calendar = utcCalendar
     let nowYear = calendar.component(.year, from: now)
@@ -104,17 +106,18 @@ func buildTimeMachineResult(
        let pet = pets.first(where: { $0.id == petID }) {
         petName = pet.name
     } else {
-        petName = defaultPetName
+        petName = defaultPetName ?? String(localized: "notify.defaultPetName", locale: locale)
     }
 
     let text = buildTimeMachineText(
-        petName: petName, yearsAgo: yearsAgo, note: photo.note, index: templateIndex)
+        petName: petName, yearsAgo: yearsAgo, note: photo.note, index: templateIndex, locale: locale)
 
     let month = calendar.component(.month, from: now)
     let day = calendar.component(.day, from: now)
 
     return TimeMachineNotificationData(
-        title: "\(yearsAgo)年前的今天",
+        // 复数 key（notify.timemachine.title %lld）：en/de/fr 需 one/other 变体
+        title: String(localized: "notify.timemachine.title \(yearsAgo)", locale: locale),
         body: text,
         identifier: timeMachineNotificationID(month: month, day: day),
         photoID: photo.id
@@ -138,10 +141,12 @@ struct AnniversaryNotificationData: Equatable, Sendable {
 /// - Parameters:
 ///   - photos: 同一天拍摄的照片列表
 ///   - now: 当前时间
+///   - locale: 文案语言（默认当前环境；测试传固定 locale）
 /// - Returns: 每张照片一个通知数据
 func buildAnniversaryNotifications(
     photos: [TimeMachinePhoto],
-    now: Date
+    now: Date,
+    locale: Locale = .current
 ) -> [AnniversaryNotificationData] {
     let calendar = utcCalendar
     let nowYear = calendar.component(.year, from: now)
@@ -149,10 +154,10 @@ func buildAnniversaryNotifications(
     return photos.map { photo in
         let photoYear = (photo.takenAt.map { calendar.component(.year, from: $0) }) ?? nowYear
         let yearsAgo = nowYear - photoYear
-        let text = buildAnniversaryNotificationText(yearsAgo: yearsAgo, note: photo.note)
+        let text = buildAnniversaryNotificationText(yearsAgo: yearsAgo, note: photo.note, locale: locale)
         // 源端用 photo.id（整数）做 notification id；iOS 用 UUID 做 identifier 字符串 hash
         return AnniversaryNotificationData(
-            title: "纪念日回忆",
+            title: String(localized: "notify.anniversary.title", locale: locale),
             body: text,
             identifier: photo.id.hashValue,
             photoID: photo.id

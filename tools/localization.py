@@ -2,9 +2,10 @@
 """MiLens 本地化（String Catalog）导出 / 导入 / 校验工具。
 
 支持任意语言的 String Catalog（.xcstrings）与 Excel（.xlsx）互转，
-便于外部翻译人员离线翻译后再回写。结构按 Apple String Catalog 规范
-组织，新增语言时无需改动本工具——只需在 project.yml 的 knownRegions
-追加语言代码，再用本工具导出该语言的空列即可。
+便于外部翻译人员离线翻译后再回写。结构按 Apple String Catalog 规范组织（含 variations/plural 复数条目：
+导出时每个复数变体占一行、variation 列标注变体名，导入时按 (key, variation)
+合并回 variations.plural），新增语言时无需改动本工具——只需在 project.yml
+的 knownRegions 追加语言代码，再用本工具导出该语言的空列即可。
 
 依赖：openpyxl（pip install -r tools/requirements.txt）。
 
@@ -93,12 +94,145 @@ def collect_languages(obj: dict) -> list[str]:
 
 
 def entry_value_state(entry: dict, lang: str) -> tuple[str, str]:
-    """返回 (value, state)；无 stringUnit 或无该语言时返回 ("", "")。"""
+    """返回 (value, state)；无 stringUnit 或无该语言时返回 ("", "")。
+
+    复数条目没有 stringUnit（值在 variations.plural），需用
+    entry_lang_status / entry_lang_rows 处理。
+    """
     loc = entry.get("localizations", {}).get(lang, {})
     unit = loc.get("stringUnit")
     if not unit:
         return "", ""
     return unit.get("value") or "", unit.get("state") or ""
+
+
+# 复数变体固定顺序（Apple CLDR 顺序）
+PLURAL_VARIATION_ORDER = ["zero", "one", "two", "few", "many", "other"]
+
+# 需要 one/other 双变体的语言（其余语言的复数形态翻译时合并为单条变体即可）
+PLURAL_DUAL_LANGS = {"en", "de", "fr"}
+
+# 格式占位符：%d、%@、%lld、%1$@、%.2f 等（%% 为转义字面百分号，不匹配；
+# 用非捕获组避免 findall 返回捕获组而非完整匹配）
+_PLACEHOLDER_RE = re.compile(r"%(?:\d+\$)?[-+0-9.]*[a-zA-Z@]+")
+
+
+def entry_plural(entry: dict, lang: str) -> dict | None:
+    """返回该语言的复数变体 {variation: (value, state)}；非复数条目返回 None。"""
+    plural = entry.get("localizations", {}).get(lang, {}).get("variations", {}).get("plural")
+    if not plural:
+        return None
+    out: dict[str, tuple[str, str]] = {}
+    for var, node in plural.items():
+        if var == "pluralRuleType":
+            continue
+        unit = node.get("stringUnit") if isinstance(node, dict) else None
+        out[var] = (unit.get("value") or "", unit.get("state") or "") if unit else ("", "")
+    return out or None
+
+
+def entry_lang_rows(entry: dict, lang: str) -> list[tuple[str, str, str]]:
+    """展开条目在该语言的取值行 [(variation, value, state)]。
+
+    普通字符串条目返回单行（variation 为空串）；复数条目每个变体一行。
+    """
+    plural = entry_plural(entry, lang)
+    if plural:
+        return [(var, val, st) for var, (val, st) in plural.items()]
+    value, state = entry_value_state(entry, lang)
+    return [("", value, state)]
+
+
+def entry_lang_status(entry: dict, lang: str) -> tuple[str, str]:
+    """聚合视图 (value, state)，供缺译检测与进度统计使用。
+
+    复数条目：value 为各变体值以换行连接；任一变体缺失/空值/state=="new"
+    时整体记为 "new"（视为缺译），否则取 needs_review/translated 中更保守者。
+    """
+    plural = entry_plural(entry, lang)
+    if not plural:
+        return entry_value_state(entry, lang)
+    values: list[str] = []
+    worst = "translated"
+    # 变体并集 = 语言要求变体 + 实际存在变体（缺 required 变体整体视为缺译）
+    seen: set[str] = set()
+    all_vars: list[str] = []
+    for var in list(plural_required_variations(lang)) + list(plural.keys()):
+        if var not in seen:
+            seen.add(var)
+            all_vars.append(var)
+    for var in all_vars:
+        value, state = plural.get(var, ("", ""))
+        if not value or state == "new":
+            worst = "new"
+        elif state == "needs_review" and worst != "new":
+            worst = "needs_review"
+        if value:
+            values.append(value)
+    return "\n".join(values), worst
+
+
+def plural_required_variations(lang: str) -> tuple[str, ...]:
+    """该语言要求的复数变体集合：en/de/fr 需 one+other，其余语言单条 other。"""
+    if lang in PLURAL_DUAL_LANGS:
+        return ("one", "other")
+    return ("other",)
+
+
+def plural_problems(path: Path, key: str, entry: dict, lang: str, source: str
+                    ) -> list[tuple[str, str, str]]:
+    """复数条目完整性问题 [(lang, key, note)]：缺变体 + 占位符漂移。"""
+    plural = entry_plural(entry, lang)
+    if plural is None:
+        return []
+    problems: list[tuple[str, str, str]] = []
+    for var in plural_required_variations(lang):
+        if var not in plural:
+            problems.append((lang, key, f"{path.stem}：复数缺变体「{var}」"))
+        else:
+            value, state = plural[var]
+            if not value or state == "new":
+                problems.append((lang, key, f"{path.stem}：复数变体「{var}」未完成（state={state!r}）"))
+    # 占位符漂移：主变体（other）必须完整保留源语言占位符（防漏 %d/%@）；
+    # 其余变体（如 one）允许按语言习惯写死单数形式（Apple 推荐“1 day”写法）
+    src_phs: set[str] = set()
+    src_plural = entry_plural(entry, source)
+    if src_plural is None:
+        src_value, _ = entry_value_state(entry, source)
+        src_phs = set(_PLACEHOLDER_RE.findall(src_value))
+    else:
+        for src_value, _ in src_plural.values():
+            src_phs |= set(_PLACEHOLDER_RE.findall(src_value))
+    if src_phs:
+        main_var = "other" if "other" in plural else next(iter(plural))
+        main_phs = set(_PLACEHOLDER_RE.findall(plural[main_var][0]))
+        if main_phs != src_phs:
+            problems.append((lang, key, f"{path.stem}：复数占位符与源语言不一致"
+                             f"（源 {sorted(src_phs)} vs 主变体「{main_var}」{sorted(main_phs)}）"))
+    return problems
+
+
+def missing_problems(obj: dict, path: Path, known: list[str]
+                     ) -> list[tuple[str, str, str]]:
+    """缺译 + 复数完整性问题清单 [(lang, key, note)]；check 与 GUI 共用同语义。"""
+    source = obj.get("sourceLanguage", "")
+    problems: list[tuple[str, str, str]] = []
+    for key in sorted(obj.get("strings", {}).keys()):
+        entry = obj["strings"][key]
+        for lang in known:
+            if lang == source:
+                continue
+            if entry_plural(entry, lang) is not None:
+                # 复数条目：变体级检查（缺变体 > 变体未完成 > 占位符漂移），取首条保持 1 对 1
+                detail = plural_problems(path, key, entry, lang, source)
+                if detail:
+                    problems.append(detail[0])
+                continue
+            value, state = entry_lang_status(entry, lang)
+            if not value or state == "new":
+                note = f"{path.stem}：未完成（state={state!r}）" if state else f"{path.stem}：无译文"
+                problems.append((lang, key, note))
+    return problems
 
 
 # --------------------------------------------------------------------------- #
@@ -127,7 +261,7 @@ def cmd_export(args: argparse.Namespace) -> int:
             langs = collect_languages(obj)
 
         ws = wb.create_sheet(title=path.stem)
-        header = ["key", "comment", "source_" + source if source else "source"]
+        header = ["key", "variation", "comment", "source_" + source if source else "source"]
         for lang in langs:
             if lang == source:
                 continue
@@ -136,16 +270,40 @@ def cmd_export(args: argparse.Namespace) -> int:
         ws.append(header)
 
         strings = obj.get("strings", {})
+        var_order = {v: i for i, v in enumerate(PLURAL_VARIATION_ORDER)}
         for key in sorted(strings.keys()):
             entry = strings[key]
-            row = [key, entry.get("comment", ""), entry_value_state(entry, source)[0]]
+            comment = entry.get("comment", "")
+            # 变体并集（含源语言）：任一语言为复数条目时按变体拆行；
+            # 复数条目补齐语言要求变体（如 en/de/fr 的 one），即使当前尚无译文
+            variants: set[str] = set()
             for lang in langs:
-                if lang == source:
-                    continue
-                value, state = entry_value_state(entry, lang)
-                row.append(value)
-                row.append(state)
-            ws.append(row)
+                rows_lang = entry_lang_rows(entry, lang)
+                variants.update(var for var, _, _ in rows_lang if var)
+            if variants:
+                for lang in langs:
+                    variants.update(plural_required_variations(lang))
+            if not variants:
+                row = [key, "", comment, entry_lang_rows(entry, source)[0][1]]
+                for lang in langs:
+                    if lang == source:
+                        continue
+                    value, state = entry_value_state(entry, lang)
+                    row.append(value)
+                    row.append(state)
+                ws.append(row)
+                continue
+            by_src = {v: val for v, val, _ in entry_lang_rows(entry, source)}
+            for var in sorted(variants, key=lambda v: var_order.get(v, 99)):
+                row = [key, var, comment, by_src.get(var, "")]
+                for lang in langs:
+                    if lang == source:
+                        continue
+                    by_lang = {v: (val, st) for v, val, st in entry_lang_rows(entry, lang)}
+                    val, st = by_lang.get(var, ("", ""))
+                    row.append(val)
+                    row.append(st)
+                ws.append(row)
 
     if not wb.sheetnames:  # 兜底：无输入文件时不留空工作簿
         wb.create_sheet("empty")
@@ -193,6 +351,7 @@ def cmd_import(args: argparse.Namespace) -> int:
     state_col = lang + "_state"
     state_idx = header.index(state_col) if state_col in header else None
     key_idx = header.index("key") if "key" in header else 0
+    var_idx = header.index("variation") if "variation" in header else None
     if val_idx is None:
         sys.exit(f"错误：表头中找不到语言列「{lang}」")
 
@@ -202,6 +361,8 @@ def cmd_import(args: argparse.Namespace) -> int:
         if not row or row[key_idx] in (None, ""):
             continue
         key = str(row[key_idx]).strip()
+        raw_var = row[var_idx] if var_idx is not None and len(row) > var_idx else None
+        var = str(raw_var).strip() if raw_var else ""
         raw = row[val_idx]
         value = str(raw).strip() if raw is not None else ""
         if not value:  # 空单元格跳过，不覆盖已有译文
@@ -216,9 +377,15 @@ def cmd_import(args: argparse.Namespace) -> int:
             added += 1
         else:
             updated += 1
-        entry.setdefault("localizations", {})[lang] = {
-            "stringUnit": {"state": state, "value": value}
-        }
+        loc_node = entry.setdefault("localizations", {}).setdefault(lang, {})
+        if var:  # 复数变体行：与 stringUnit 互斥，合并进 variations.plural
+            loc_node.pop("stringUnit", None)
+            plural = loc_node.setdefault("variations", {}).setdefault("plural", {})
+            plural["pluralRuleType"] = "pluralRuleType"
+            plural[var] = {"stringUnit": {"state": state, "value": value}}
+        else:  # 普通字符串行：替换为 stringUnit
+            loc_node.pop("variations", None)
+            loc_node["stringUnit"] = {"state": state, "value": value}
 
     save_xcstrings(xc_path, obj)
     print(f"已导入语言「{lang}」：更新 {updated} 条，新增 {added} 条 -> {xc_path}")
@@ -233,6 +400,45 @@ def cmd_import(args: argparse.Namespace) -> int:
 _KEY_RE = re.compile(r'(?:String\(localized:|NSLocalizedString\()\s*"((?:\\.|[^"\\])*)"')
 # 任意字符串字面量（Text("...") 等非 String(localized:) 引用）
 _LITERAL_RE = re.compile(r'"((?:\\.|[^"\\])*)"')
+
+
+def _replace_interpolations(key: str) -> str:
+    """把 Swift 插值（\\(...) 平衡括号闭合）替换为 %lld。
+
+    插值内部允许任意嵌套括号与三元表达式（如
+    \\(pet.birthday != nil ? PetDisplayLogic.ageText(from: pet.birthday) : "—")），
+    用深度计数找平衡右括号，不能用正则表达。
+    """
+    out: list[str] = []
+    i = 0
+    n = len(key)
+    while i < n:
+        if key[i] == "\\" and i + 1 < n and key[i + 1] == "(":
+            depth = 1
+            j = i + 2
+            while j < n and depth > 0:
+                if key[j] == "(":
+                    depth += 1
+                elif key[j] == ")":
+                    depth -= 1
+                j += 1
+            out.append("%lld")
+            i = j
+        else:
+            out.append(key[i])
+            i += 1
+    return "".join(out)
+
+
+def normalize_localized_key(key: str) -> str:
+    r"""归一化 key 用于代码↔目录比对：插值 \(x) 与格式占位符（%lld/%d/%@ 等）等价。
+
+    手动复数 key 在目录中带 %lld 后缀（如 "paywall.cta.trial %lld"），
+    代码侧以插值调用（"paywall.cta.trial \(days)"）；归一化后两者一致。
+    """
+    key = _replace_interpolations(key)
+    key = re.sub(r"%(?:\d+\$)?[-+0-9.]*[a-zA-Z@]+", "%lld", key)
+    return key
 
 
 def extract_code_keys(source_root: Path) -> set[str]:
@@ -311,35 +517,30 @@ def cmd_check(args: argparse.Namespace) -> int:
 
         # ③ 代码引用一致性（仅 Localizable.xcstrings）
         if source_root and path.stem == "Localizable":
-            xc_keys = set(strings.keys())
-            missing = code_keys - xc_keys
+            norm_literals = {normalize_localized_key(t) for t in code_literals}
+            norm_xc = {normalize_localized_key(k) for k in strings.keys()}
+            missing = sorted(k for k in code_keys if normalize_localized_key(k) not in norm_xc)
             # 多余 key 排除字面量引用：key 以中文文案形式存在时，代码常以
             # Text("...") 直接字面量引用（未走 String(localized:) API）；
-            # 比较前把 JSON 解码的 \n 还原为源码 \n 文本、\" 还原为 \\\"。
+            # 比较前把 JSON 解码的 \n 还原为源码 \n 文本、\" 还原为 \\\"，
+            # 并对插值/占位符做归一化（复数 key 的 %lld 与 \\(days) 等价）。
             extra = set()
-            for key in xc_keys - code_keys:
+            for key in strings.keys():
+                if key in code_keys:
+                    continue
                 source_form = key.replace("\n", "\\n").replace('"', '\\"')
-                if source_form not in code_literals:
+                if source_form not in code_literals and normalize_localized_key(source_form) not in norm_literals:
                     extra.add(key)
             if missing:
-                print(f"  [缺 key] 代码引用但 String Catalog 缺少：{sorted(missing)}")
+                print(f"  [缺 key] 代码引用但 String Catalog 缺少：{missing}")
                 problems += len(missing)
             if extra:
                 print(f"  [多余 key] String Catalog 有但代码未引用：{sorted(extra)}")
 
-        # ④ 缺译检测（knownRegions 声明的非源语言）
-        for key in sorted(strings.keys()):
-            locs = strings[key].get("localizations", {})
-            for lang in known:
-                if lang == source:
-                    continue
-                unit = locs.get(lang, {}).get("stringUnit")
-                if not unit:
-                    print(f"  [缺译] {key} @ {lang}: 无译文")
-                    problems += 1
-                elif unit.get("state") == "new" or not unit.get("value"):
-                    print(f"  [缺译] {key} @ {lang}: 未完成（state={unit.get('state')!r}）")
-                    problems += 1
+        # ④ 缺译检测 + 复数完整性（knownRegions 声明的非源语言）
+        for lang, key, note in missing_problems(obj, path, known):
+            print(f"  [缺译] {key} @ {lang}: {note}")
+            problems += 1
 
     if known and last_source:
         non_source = [r for r in known if r != last_source]

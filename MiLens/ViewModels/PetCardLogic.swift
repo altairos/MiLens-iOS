@@ -36,39 +36,45 @@ enum PetCardLogic {
     ///   - takenAt: 照片拍摄时间（决定日期行回退文案）。
     ///   - now: 当前时间（注入保证可测）。
     ///   - calendar: 日历（默认 current，与 PetDisplayLogic 一致）。
+    ///   - locale: 文案语言（默认当前环境；测试传固定 locale）。
     static func content(
-        pet: Pet?, takenAt: Date?, now: Date = Date(), calendar: Calendar = .current
+        pet: Pet?, takenAt: Date?, now: Date = Date(), calendar: Calendar = .current, locale: Locale = .current
     ) -> PetCardContent {
         guard let pet else {
             return PetCardContent(
-                title: "这一天",
+                title: String(localized: "pet.card.fallbackTitle", locale: locale),
                 emoji: "\u{1F43E}", // 🐾
-                subtitle: "值得记住的一天",
-                dateLine: dateLine(takenAt: takenAt, pet: nil, now: now, calendar: calendar)
+                subtitle: String(localized: "pet.card.fallbackSubtitle", locale: locale),
+                dateLine: dateLine(takenAt: takenAt, pet: nil, now: now, calendar: calendar, locale: locale)
             )
         }
         return PetCardContent(
             title: pet.name,
             emoji: PetProfileLogic.speciesEmoji(pet.species),
-            subtitle: subtitle(for: pet, now: now, calendar: calendar),
-            dateLine: dateLine(takenAt: takenAt, pet: pet, now: now, calendar: calendar)
+            subtitle: subtitle(for: pet, now: now, calendar: calendar, locale: locale),
+            dateLine: dateLine(takenAt: takenAt, pet: pet, now: now, calendar: calendar, locale: locale)
         )
     }
 
     /// 副标题：物种 · 年龄（年龄未知时只显示物种）。
-    static func subtitle(for pet: Pet, now: Date = Date(), calendar: Calendar = .current) -> String {
-        let species = PetDisplayLogic.speciesDisplayName(pet.species)
-        let age = PetDisplayLogic.ageText(from: pet.birthday, now: now, calendar: calendar)
-        return age == "未知" ? species : "\(species) · \(age)"
+    static func subtitle(
+        for pet: Pet, now: Date = Date(), calendar: Calendar = .current, locale: Locale = .current
+    ) -> String {
+        let species = PetDisplayLogic.speciesDisplayName(pet.species, locale: locale)
+        let age = PetDisplayLogic.ageText(from: pet.birthday, now: now, calendar: calendar, locale: locale)
+        return pet.birthday == nil
+            ? species
+            : String(localized: "pet.card.subtitle \(species) \(age)", locale: locale)
     }
 
     /// 日期行：有领养日 → 「来到家 N 天」（纪念语义优先）；否则拍摄日期。
     static func dateLine(
-        takenAt: Date?, pet: Pet?, now: Date = Date(), calendar: Calendar = .current
+        takenAt: Date?, pet: Pet?, now: Date = Date(), calendar: Calendar = .current, locale: Locale = .current
     ) -> String {
         if let pet, let adoptionDay = pet.adoptionDay {
             let days = PetDisplayLogic.daysTogether(from: adoptionDay, now: now)
-            return "来到家 \(days) 天"
+            // 复数 key（pet.card.daysHome %lld）：en 需 one/other 变体
+            return String(localized: "pet.card.daysHome \(days)", locale: locale)
         }
         return PetDisplayLogic.dateText(takenAt, calendar: calendar)
     }

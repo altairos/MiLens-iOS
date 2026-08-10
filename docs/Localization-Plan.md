@@ -22,7 +22,21 @@
 | 工具链驱动 | 全部走 `tools/localization.py`（export/import/check）+ CI 门禁，不手工改 `.xcstrings` |
 | 术语一致性 | 核心术语表（§8）先行定稿，7 语言对照，避免一义多译 |
 | 诚实标注 | "计划加入"的能力不得在任一语言中写成已交付（沿用 ADR-0009 规则） |
+
+### 1.3 发布分层与降级策略
+
+首发语言分为两个发布层级，避免把所有语言绑成一个不可降级的总门槛：
+
+| 层级 | 语言 | 发布要求 |
+|---|---|---|
+| P0 | zh-Hans、en、ja | App 内文案、商店元数据、截图、隐私政策和审核备注全部完成并验收 |
+| P1 | zh-Hant、ko、de、fr | 优先首发；若某一语言未达到发布门槛，必须明确选择延期该语言，或临时复用英文商店素材，不得让 App 内出现简中漏出 |
+
+- 开发阶段允许目标语言缺译时回退到源语言，正式发布包不允许出现未审校译文或 `needs_review` 状态。
+- 每种语言独立记录“翻译完成”“UI 验收完成”“商店资产完成”“隐私政策上线”四个状态；不能用总完成度代替单语言验收。
+- 语言延期时，App Store Connect、App 内语言列表、截图和隐私政策 URL 必须保持一致，避免商店宣称支持但 App 实际未完成。
 | 文化适配优先于直译 | 各国市场注意要点（§4）逐条落实，不满足于"读得通" |
+| 动态文案全覆盖 | 复数、日期/数字、无障碍、通知、错误、空状态、订阅失败等**运行时文案**与静态文案同权进入翻译管线（范围见 §3.6） |
 
 ---
 
@@ -54,7 +68,7 @@ python tools/localization.py export \
 python tools/localization.py import build/loc.xlsx \
     MiLens/Resources/Localizable.xcstrings --lang ja
 
-# 4. 校验（0 缺译 / 0 多余 key / 格式一致），CI 同款命令
+# 4. 校验（当前基础门禁：0 缺译；发布门禁目标：0 多余 key / 0 格式问题），CI 同款命令
 python tools/localization.py check \
     MiLens/Resources/Localizable.xcstrings \
     MiLens/Resources/InfoPlist.xcstrings \
@@ -67,11 +81,11 @@ python tools/localization.py check \
 
 | # | 资产 | 位置 | 说明 | 状态 |
 |---|---|---|---|---|
-| 1 | App UI 文案 | `Localizable.xcstrings`（~150 key）| 全部 `String(localized:)`，结构已支持任意语言 | 待翻译 |
+| 1 | App UI 文案 | `Localizable.xcstrings`（150 key）| 统一由 String Catalog 管理；代码使用 `String(localized:)` 或 SwiftUI `LocalizedStringKey` API，结构已支持任意语言 | 待翻译 |
 | 2 | 权限说明 + App 显示名 | `InfoPlist.xcstrings`（3 key）| 权限文案需按各国法规语感撰写，App 显示名按语言本地化 | 待翻译 |
-| 3 | App Store 元数据 | [AppStore-metadata.md](AppStore-metadata.md) | 名称/副标题/描述/关键词/推广文本/审核备注，每语言一份 | 待制作 |
+| 3 | App Store 元数据 | [AppStore-metadata.md](AppStore-metadata.md) | 名称/副标题/描述/关键词/推广文本/审核备注，每语言一份 | 中文草案，其他语言待制作 |
 | 4 | 订阅产品本地化 | App Store Connect | 订阅组 + 3 个产品的本地化描述（§3.4）| 待录入 |
-| 5 | 隐私政策网页 | `docs/privacy-policy.html` | 需提供多语言版本（建议按语言 URL 或 `?lang=`）| 待制作 |
+| 5 | 隐私政策网页 | `docs/privacy-policy.html` | 中文草稿已存在，需提供多语言版本并完成线上 URL 验收（建议按语言 URL 或 `?lang=`）| 中文草稿，部署待验收 |
 | 6 | 截图/预览素材 | App Store Connect | 每语言 3-5 张截图 + 文案覆盖层 | 待制作 |
 
 ### 3.1 App 显示名（CFBundleDisplayName）按语言建议
@@ -81,10 +95,10 @@ python tools/localization.py check \
 | zh-Hans | 咪Lens - 宠物照片整理与拼豆创作 | 现有 |
 | zh-Hant | 咪Lens - 寵物照片整理與拼豆創作 | 保留品牌，本地化用词 |
 | en | MiLens - Pet Photos & Bead Art | 简洁，突出双卖点 |
-| ja | 咪Lens - ペット写真整理とアイロンビーズ図案 | 品牌保留，用品类词 |
+| ja | MiLens - ペット写真整理とアイロンビーズ図案 | 品牌保留，用品类词 |
 | ko | MiLens - 반려동물 사진 정리와 비즈 도안 | 品牌保留 |
-| de | MiLens - Haustierfotos & Bügelperlen-Vorlagen | 用品类词 Bügelperlen |
-| fr | MiLens - Photos animaux & perles à repasser | 用品类词 |
+| de | MiLens - Haustierfotos | 控制在 30 字符内，用品类词放入副标题/关键词 |
+| fr | MiLens - Photos animaux | 控制在 30 字符内，用品类词放入副标题/关键词 |
 
 ### 3.2 副标题（App Store 30 字符限制，每语言）
 
@@ -92,13 +106,13 @@ python tools/localization.py check \
 |---|---|
 | zh-Hans | 拾回散落的每一张照片，记住你与爱宠共度的一生（现有）|
 | zh-Hant | 拾回散落的每一張照片，記住你與毛小孩共度的一生 |
-| en | Every pet photo, organized & turned into bead art |
+| en | Pet photos & bead patterns |
 | ja | ペットの写真を整理して、アイロンビーズの図案に |
 | ko | 반려동물 사진 정리와 비즈 도안 만들기 |
-| de | Haustierfotos sortieren & Bügelperlen-Vorlagen |
-| fr | Triez les photos d'animaux, créez des perles à repasser |
+| de | Haustierfotos & Bügelperlen |
+| fr | Photos d’animaux & perles |
 
-> 以上为方向性草案，定稿以 ASO 校验为准（§7）。
+> 以上为方向性草案，均按 30 字符上限做过初步压缩；定稿前仍需以 App Store Connect 实际校验和 ASO 复核为准（§7）。
 
 ### 3.3 描述/推广文本/审核备注
 
@@ -119,6 +133,31 @@ python tools/localization.py check \
 - 策略：`privacy-policy.html` 增加语言切换（同页 `?lang=ja` 或独立子页），至少提供 en/ja/de（审核常见语言）+ 全部首发语言；
 - 德语版需符合 GDPR 透明度习惯用语；日语版遵循日本個人情報保護法语境；
 - 托管在现有 GitHub Pages（miovelle.cn）即可，无额外成本。
+
+### 3.6 动态文案与运行时本地化覆盖范围（增补）
+
+> 静态文案（§3 六类资产）之外，还有一类**运行时才拼接/格式化产生**的用户可见文案。它们散落在纯逻辑层与视图层，是漏译高发区——不在 Excel 工作簿里出现、check 也不拦。本节把它们全部收口进翻译管线。
+
+| # | 类型 | 代码位置（现状盘点 2026-08-10）| 现状 | 处理方式 |
+|---|---|---|---|---|
+| 1 | **复数（Plural）** | `paywall.cta.trial`（免费试用 %d 天）、`paywall.trial.hint`（前 %d 天免费）| 2 个 %d 占位符；String Catalog 尚无 plural 结构 | 工具链升级支持 plural（工作项 #7.5）；en/de/fr 用 one/other，zh/ja/ko 无复数形态只填 other 单条 |
+| 2 | **日期 / 数字格式** | HomeView `Text("第 \(count.formatted()) 张")`；TimelineExportLogic `dateRangeText`（"2024-01 — 2026-08"）；PetDisplayLogic `ageText`（"3岁2个月"）| 显示路径存在硬编码格式串与中文拼接 | 一律 `Date.FormatStyle` / `Number.FormatStyle` + locale（§4.8 已定原则，落代码）；纯逻辑层返回结构化数据或注入 formatter；固定 locale 快照测试（复用 utcCalendar 确定性测试模式）|
+| 3 | **无障碍标签** | 22 处 `accessibilityLabel`（TimelineView/OnboardingView/EditorView/EditorToolPanels/GalleryView/HomeView 等），含插值（"第 \(step) 步，共 \(count) 步"、"颜色 \(hex)"）| 仅 `paywall.close` 走 `String(localized:)`，其余为硬编码中文；SwiftUI 会按字面量查 catalog，但 catalog 是否含对应 key 未核对 | 全部核对并迁移（工作项 #7.6）；插值标签用 format 键；VoiceOver 每语言抽查读屏（§9）|
+| 4 | **系统权限文案** | `InfoPlist.xcstrings`（NSPhotoLibraryAdd/Usage 2 key）+ `settings.notifications.denied.*`（3 key）| 已有 5 key | 按各国法规语感翻译（GDPR/PIPA/個資法，§4.8）；权限弹窗文案与实际行为一致性核对（审核要点）；通知权限弹窗为系统模板无需文案 |
+| 5 | **错误提示** | paywall 失败系列（已收口 7 key）；StateView `"档案加载失败"`；MiLensApp `"未知错误"` 启动错误 | 付费墙已收口，其余散落 | 三段式规范：发生了什么 / 原因 / 怎么办；错误码与内部标识脱敏（沿用 AppErrorHandler.redactIdentifier）；不直接展示 StoreKit/Vision 原始错误（工作项 #7.8 盘点收口）|
+| 6 | **通知内容** | AnniversaryLogic `buildAnniversaryNotificationText`/`buildTimeMachineText`（6 个模板，"N年前的今天"系列）；NotifyService `notificationNote`（"\(petName)的生日"）| 纯逻辑层硬编码中文 | 逻辑层用 `String(localized:)`（App target）或注入文案提供者；通知 title ≤ 1 行、body ≤ 2-3 行长预算；语气按市场规范（日区て形+絵文字适度、韩区 합니다体、德区正式礼貌，§4）；"N年前的今天"是插值+复数复合点 |
+| 7 | **空状态** | StateView 组件（title/action 参数由调用方传字面量）："还没有照片"、"还没有伙伴档案"、"还没有成长记录"、"没有符合条件的照片" 等 | 字面量 key 在 catalog，但全部调用点未盘点 | 系统性盘点每个空状态场景（相册/时间线/拼豆/宠物列表/搜索结果/通知权限）并核对 catalog 覆盖（工作项 #7.8）；规范：说明现状 + 行动指引（CTA）|
+| 8 | **订阅失败路径** | `paywall.purchase.failed/pending`、`paywall.restore.*`、`paywall.load.failed`（8 key）| 已收口 | StoreKit 错误分类映射表：用户取消（静默）/ 网络不可用 / 账单问题 / ask-to-buy 待处理 / 家长控制受限 / 系统错误——每类对应本地化文案，不直显系统英文错误；试用到期与续费失败提示文案 |
+| 9 | **宠物卡片 / 档案动态文案** | PetCardLogic（"这一天"、"值得记住的一天"、"来到家 N 天"）；PetDisplayLogic `speciesDisplayName`（"喵星人"等）与 `ageText` | 纯逻辑层硬编码中文 | 年龄文案复数化（en "3 yrs 2 mo"、ja "3歳2ヶ月"）；物种名市场适配（"喵星人"为中文网络语，ja 用 にゃんこ/ねこ、en 用 kitty/cat、ko 用 냥이/고양이）；宠物代词策略：英文统一单数 they（避免 he/she 性别假设），de/fr 用避免性别的句式（§4.3/§4.5）|
+| 10 | **导出水印与分享文案** | TimelineExportCanvas `Text("由 MiLens 制作")`（时间线水印）；SharePreviewSheet `"免费版导出带 MiLens 水印，升级 Pro 可去除"` | 硬编码中文 | 水印是品牌传播载体（其他用户看到后搜索下载），必须本地化（en "Made with MiLens" 等）；分享默认 caption 与导出文件名（"拼豆图纸_20260810"）的日期格式一并本地化 |
+
+**处理原则（动态文案专属）**
+
+- **纯逻辑层本地化策略**：App target 的 ViewModel/Service 可直接 `String(localized:)`（保持可测性——测试注入固定 `Locale`）；MiLensKit 纯逻辑不持有用户可见文案，需要时由调用方注入文案或返回结构化占位（保持包体平台无关）；
+- **复数语言差异**：zh/ja/ko 无复数形态（CLDR 仅 other），不创建 plural 结构；en one/other，de one/other，fr zero/one/other——翻译时按语言实际规则填；
+- **插值完整性**：`%d`/`%@`/`\n` 与 plural 参数由升级后的 `localization.py check` 守护（§6）；
+- **动态文案也进 Excel 工作簿**：工具链支持 plural 后，export 将 plural key 拆行导出（`key[one]` / `key[other]`），import 时合并回写，翻译人员在 Excel 中与静态文案同流程处理（工作项 #7.5）；
+- **固定 locale 快照测试**：日期/数字/复数/通知模板各语言用一个固定 locale（如 en_US / de_DE / ja_JP）断言输出快照，纳入现有纯逻辑测试（复用 utcCalendar 注入模式），避免只在模拟器人工发现。
 
 ---
 
@@ -276,7 +315,7 @@ python tools/localization.py check \
 **技术**
 - 日期/数字/日历：UI 展示一律走系统 locale（`Date.FormatStyle` / `Number.FormatStyle`），禁止硬编码格式串（现有 `utcCalendar` 纯逻辑仅用于测试确定性，展示路径不受影响）；
 - 时区：通知、纪念日全部按用户本地时区调度（现有实现已满足）；
-- **字体策略**：霞鹜文楷子集仅覆盖 GB2312 简体字符——**zh-Hant / ja / ko 不能使用文楷**（缺字）。需要在 `Typography.swift` 引入 locale 感知的 display 字体策略：zh-Hans 用文楷、en 用 Fraunces（已实现）、其余语言回退系统字体（ja 可评估 Hiragino Mincho 作为 display 候选）。**这是首发前必做的技术改造**；
+- **字体策略**：霞鹜文楷子集仅覆盖 GB2312 简体字符——**zh-Hant / ja / ko 不能使用文楷**（缺字）。`Typography.swift` 已落地 locale 感知的 display 字体策略：zh-Hans 用文楷，其他语言回退系统字体；en 的 Fraunces 仍用于纯英文标题。首发前剩余工作是逐语言模拟器走查，确认混排、缺字和 Dynamic Type 表现；
 - 长度预算：UI 按德语/法语最坏情况预留 30-40%，每语言在模拟器走查 Tab 标题、按钮、卡片、付费墙；
 - 换行规则：CJK 逐字换行 vs 西文断词，长文本测试；
 - 订阅价格：由 App Store Connect 价格层级按地区自动生效，App 内不硬编码金额文案（现有实现已满足）。
@@ -286,6 +325,15 @@ python tools/localization.py check \
 - 宠物照片审美差异：日韩偏好可爱系、欧美偏好纪实与自然光——**截图素材选择按市场调整**，不要一套截图换语言就上；
 - 法律合规：GDPR（欧盟/德法）、PIPA（韩国）、个保法（中国）、個資法（台湾）——在"不收集数据"的产品定位下合规负担很轻，但**隐私政策需按市场法律语境撰写**，不是机械翻译；
 - 宠物离世（彩虹桥）文化接受度：英语区/日本/台湾普遍正面，韩国需更谨慎措辞，中国大陆以温和表达为主。
+
+### 4.9 跨市场安全与事实核对
+
+- **功能承诺必须可追溯**："AI 自动找出宠物照片"、"所有分析在设备本地完成"、"照片不会离开设备"等表述，发布前逐条对照当前构建、Core ML/Vision 调用、StoreKit、崩溃日志和系统备份行为；不能把产品定位写成超出实现范围的法律或安全保证。
+- **隐私措辞要覆盖例外**：如果编辑产物可随用户启用的系统备份保存，相关语言的隐私政策、付费墙和商店描述不得使用绝对化的"任何数据都不会离开设备"。
+- **商标词单独管理**：`Perler`、`Hama` 等品牌词只能按 ASO 和法律审阅后的规则使用；通用 UI 术语优先使用 `bead pattern`、`Bügelperlen`、`アイロンビーズ` 等非品牌表达。
+- **市场研究结论标记来源**：搜索量、竞争度、用户偏好、付费意愿和节日机会标记为“已验证事实”“产品决策”或“待验证假设”，不要与系统限制、字符限制混写。
+- **敏感内容二次审阅**：宠物离世、彩虹桥、纪念日、通知推送和付费墙文案需由对应语言审校人确认语气，韩国等市场不得直接套用英语或中文表达。
+- **地区变体明确记录**：首发采用 `en-US`、`fr-FR`、台湾用语的 `zh-Hant` 等方案时，记录覆盖区域、已知词汇差异和暂不支持的变体，避免把语言代码误当成完整地区本地化。
 
 ---
 
@@ -319,11 +367,11 @@ python tools/localization.py import docs/localization/global-localization.xlsx M
 | `AppStore元数据` | 名称/副标题/描述/关键词/推广文本/审核备注 | 录入 ASC 时人工搬运 |
 | `订阅产品描述` | 3 产品 × 显示名/描述 | 同上 |
 | `隐私政策` | 章节级译文 | 同步到 `privacy-policy.html` |
-| `截图素材` | 5 张截图 × 画面说明/叠加文案 | 制作截图时人工搬运 |
+| `截图素材` | 每设备 3-5 张截图 × 画面说明/叠加文案 | 制作截图时人工搬运 |
 | `ASO关键词` | 每语言关键词 + 竞争度/长尾备注 | 录入 ASC 时人工搬运 |
 | `术语表` | §8 核心术语 × 7 语言 | 翻译时参照 |
 
-**state 列语义**（工具链原生约定）：初译由脚本以 `needs_review` 状态写入（当前 en 列 150 条已就位）；人工审校后**清空该语言 state 列**再 `import`，工具即按 `translated` 落库。数值/占位符/换行符在 Excel 中保持不变。
+**state 列语义**（工具链原生约定）：初译由脚本以 `needs_review` 状态写入（当前工作簿 en 列 150 条已就位，尚未回写到 `.xcstrings`）；人工审校后**清空该语言 state 列**再 `import`，工具即按 `translated` 落库。数值/占位符/换行符在 Excel 中保持不变。当前 `check` 会拦截缺失、空值和 `new`，但不会拦截 `needs_review`；发布门禁需补充这一规则。
 
 > 不想碰命令行时可用桌面 GUI：`python tools/localization-gui.py`（tkinter 工作台，见 DEVELOPMENT.md §4.5）——语言进度总览、缺译清单、一键导出/导入/check/生成工作簿；无显示环境用 `--self-check` 自检。
 
@@ -342,21 +390,40 @@ python tools/localization.py import docs/localization/global-localization.xlsx M
 - 付费墙、订阅说明、权限文案是**最高优先级质量对象**（直接关系转化与审核）；
 - 数值/占位符/换行符完整性由 `localization.py check` 守护，翻译时勿改动 `%`、`{placeholder}`、`\n`。
 
+### 5.5 翻译上下文与版本维护
+
+- Excel 中每条译文应附带页面/功能、控件类型、字符预算、语气、是否允许换行、占位符说明和截图上下文；只给 key 和源文案不足以保证准确翻译。
+- 术语表除推荐译法外，增加“禁用表达/风险”和“适用场景”列；按钮、通知、错误提示、付费墙和纪念文案不能默认共用同一语气。
+- 中文源文案新增或修改后，所有受影响译文自动标记为 `needs_review`；删除 key 前先检查代码、通知、网页和商店素材引用。
+- 每次导入记录源文案版本、译文审校人、审校日期和影响语言；版本发布时生成本地化变更清单。
+- 初译、自审、母语终审分开记录。开发者自审可作为初译完成，不替代日/韩/德/法等高风险语言的母语级终审。
+
 ---
 
 ## 6. 质量保证与门禁
 
 | 门禁 | 工具 | 触发时机 | 通过标准 |
 |---|---|---|---|
-| key 完整性 | `localization.py check` | CI Lint 作业 + 本地 | 0 缺 key / 0 多余 key / 0 格式问题（已接入）|
-| 缺译检测 | `localization.py check` | 同上 | 每语言 0 缺译（新增断言项）|
+| key 完整性 | `localization.py check` | CI Lint 作业 + 本地 | 代码缺 key 阻断；多余 key 与格式不一致当前仅告警，发布前需升级为阻断 |
+| 缺译检测 | `localization.py check` | 同上 | 当前已阻断缺失/空值/`new`；发布门禁还需阻断 `needs_review`，并输出每语言计数 |
+| 动态文案完整性 | `localization.py check`（plural 支持升级后）+ 固定 locale 快照测试 | 每语言导入后 | plural 键完整（en/de/fr one/other，zh/ja/ko 单条）；`%d`/`%@`/`\n` 占位符与代码引用一致（§3.6）|
 | 术语一致性 | 术语表人工走查 | 每语言翻译完成 | 核心术语逐条对照 §8 |
 | 长度/截断 | 模拟器截图走查 | 每语言导入后 | 无截断、无溢出、无重叠（de/fr 必查）|
 | 字体缺字 | 模拟器截图走查 | zh-Hant/ja/ko 导入后 | display 字体回退正确（§4.8 技术项）|
 | 商店文案一致性 | 人工核对 | 上架前 | 描述/截图/审核备注与实际功能一致（诚实原则）|
 | 隐私政策可访问 | 人工核对 | 上架前 | 各语言 URL 可访问、内容与 App 行为一致 |
 
-> CI 需新增：`localization.py check` 增加"每语言缺译计数"输出并在 Lint 作业断言（当前 check 已支持多语言，补充断言即可，工作项见 §10）。
+> CI 后续需增强：`localization.py check` 增加每语言缺译计数，并在发布门禁中阻断 `needs_review`、多余 key 和格式不一致；当前 CI 已接入基础缺译检查。
+
+### 6.1 自动化检查与伪本地化
+
+正式翻译前先用伪本地化暴露布局问题，真实翻译后再做语言验收：
+
+- 生成英文扩展约 30% 的伪本地化文本，检查 Tab、按钮、付费墙、卡片和错误弹窗是否截断、溢出或重叠；
+- 自动检查 key 完整性、占位符集合、换行符、plural 分支、`needs_review`、多余 key、格式规范化和源文案意外漏出；
+- 每种语言至少覆盖 iPhone 小/大尺寸、iPad、深色模式、Dynamic Type 最大字号和 VoiceOver；
+- 对长宠物名、长文件名、空状态、通知锁屏、分享预览和 StoreKit 失败路径做固定回归样例；
+- 记录每次模拟器走查的语言、设备、系统版本、页面、截图和问题编号，避免只保留“人工看过”的口头结论。
 
 ---
 
@@ -378,6 +445,17 @@ python tools/localization.py import docs/localization/global-localization.xlsx M
 - 首发后 2 周按搜索量数据调整一次，之后每月复查；
 - 每个市场至少 5 条关键词覆盖"品类词 + 场景词 + 长尾意图词"。
 
+### 7.1 商店元数据独立验收
+
+App Store 元数据与 App 内翻译分别验收，提交 ASC 前逐语言核对：
+
+- App 名、副标题、关键词、描述和推广文本的字符限制；
+- 关键词重复、品牌词、商标词和地区用词；
+- App 名、截图、付费墙、订阅产品描述中的权益、价格、试用期和自动续费说明一致；
+- 审核备注只描述当前构建已交付的能力，测试步骤、权限流程和购买流程与实际版本一致；
+- 截图中的功能、按钮和隐私承诺必须能在对应语言的当前构建中复现；
+- 每个语言/地区保留最终提交文本和 ASC 截图，便于后续复盘和快速修订。
+
 ---
 
 ## 8. 核心术语表（草案，翻译前定稿）
@@ -394,21 +472,40 @@ python tools/localization.py import docs/localization/global-localization.xlsx M
 | 时光机 | time machine | タイムマシン | 타임머신 | Zeitmaschine | machine à remonter le temps | 時光機 |
 | 照片不离开设备 | photos stay on device | 写真は端末から出ません | 모든 분석은 기기에서 처리됩니다 | Alle Fotos bleiben auf Ihrem Gerät | traitement 100 % local | 照片不會離開手機 |
 
+术语表定稿时同时补充以下字段：
+
+| 字段 | 用途 |
+|---|---|
+| 适用场景 | 区分按钮、标题、通知、付费墙、隐私政策和商店文案 |
+| 禁用表达/风险 | 记录商标误用、文化风险、过时称呼和容易误解的直译 |
+| 语气/语法要求 | 记录敬语、正式度、性别、复数、标点和地区差异 |
+| 审校状态 | 初译、开发者自审、母语终审、已锁定 |
+| 最后变更 | 记录变更日期、原因和受影响页面 |
+
 ---
 
 ## 9. 验收标准（首发前逐条打勾）
 
 - [ ] `project.yml` knownRegions 含 7 语言，CI 构建通过
-- [ ] 150+3 key × 6 语言全部翻译完成，`localization.py check` 0 缺译
-- [ ] Typography locale 感知字体回退落地（文楷仅 zh-Hans，ja/ko/zh-Hant 不缺字）
+- [ ] 每种语言分别记录翻译、UI 验收、商店资产、隐私政策上线四项状态；P0/P1 降级策略已明确
+- [ ] 150+3 key × 6 种非源语言全部翻译完成，`localization.py check` 0 缺译，且无 `needs_review`
+- [ ] Typography locale 感知字体回退已落地，并完成 7 语言模拟器走查（文楷仅 zh-Hans，ja/ko/zh-Hant 不缺字）
 - [ ] de/fr 长度专项走查：Tab/按钮/付费墙/卡片无截断溢出
 - [ ] 术语表定稿且全文一致（§8 清单）
 - [ ] App Store 元数据 7 语言录入（名称/副标题/描述/关键词/推广文本/审核备注）
+- [ ] 商店元数据独立完成字符限制、关键词/商标、权益价格、截图和审核备注一致性验收
 - [ ] 订阅产品 3 个 × 7 语言本地化描述录入
-- [ ] 截图 6 语言（或至少 en/ja/zh-Hans + 其余复用英文，后续补齐）文案覆盖层走查
+- [ ] 截图 7 语言（或至少 en/ja/zh-Hans + 其余复用英文，后续补齐）文案覆盖层走查
 - [ ] 隐私政策 7 语言可访问且与 App 行为一致
 - [ ] 审核备注：英文通用版 + ja/ko/zh-Hant 当地语言版
+- [ ] 动态文案 10 类覆盖清单（§3.6）逐类走查，无遗漏硬编码用户可见文案
+- [ ] 伪本地化扩展测试、长文本/Dynamic Type/深色模式/iPad/VoiceOver 回归完成并留存证据
+- [ ] plural 翻译完整（en/de/fr one/other，zh/ja/ko 单条），`localization.py check` plural 校验通过
+- [ ] accessibilityLabel 全部核对迁移完成，VoiceOver 每语言抽查（Tab/编辑器工具/拼豆操作路径）
+- [ ] 通知/水印/宠物卡片动态文案本地化完成，固定 locale 快照测试通过（en_US/de_DE/ja_JP 等）
 - [ ] 各国注意要点 §4 逐条落实
+- [ ] 功能承诺、隐私措辞、备份例外、商标词和市场假设完成事实核对；高风险语言完成母语级终审
+- [ ] 源文案版本、译文审校人/日期、变更影响和发布版本记录完整
 
 ---
 
@@ -423,11 +520,16 @@ python tools/localization.py import docs/localization/global-localization.xlsx M
 | 4 | en 全量审校 + 导入 + check | #3 | 1 天 |
 | 5 | ja + zh-Hant 翻译 | #4 | 1-2 天 |
 | 6 | ko + de + fr 翻译（de/fr 长度专项）| #4 | 1-2 天 |
-| 7 | `localization.py check` 补"每语言缺译"断言 + CI 接入 | #4 | 0.5 天 |
-| 8 | 模拟器截图走查 × 7 语言（长度/字体/截断）| #5 #6 | 1 天 |
-| 9 | 商店元数据 7 语言 + 订阅描述 + 审核备注 | #5 #6 | 1 天 |
+| 7 | `localization.py check` 增加每语言统计，并让发布门禁阻断 `needs_review`、多余 key、格式不一致 | #4 | 0.5-1 天 |
+| 7.5 | 工具链 plural 支持（export 拆行 `key[one]/[other]` / import 合并回写 / check 完整性 / GUI 与资产工作簿同步）| #7 | 1 天 |
+| 7.6 | accessibilityLabel 等 UI 字面量核对与迁移（22 处 → `String(localized:)` 或 catalog 补 key）| #7 | 0.5-1 天 |
+| 7.7 | 纯逻辑层动态文案本地化（通知 6 模板 / 宠物卡片 / 物种名 / 年龄 / 时间线导出标题 / 水印）+ 固定 locale 快照测试 | #7.6 | 1-1.5 天 |
+| 7.8 | 空状态与错误提示盘点收口（全部调用点核对、三段式规范、StoreKit 错误映射）| #7 | 0.5 天 |
+| 7.9 | 工作簿补充翻译上下文、禁用表达、审校人/日期和源文案版本字段 | #3 | 0.5 天 |
+| 8 | 伪本地化 + 模拟器走查 × 7 语言（长度/字体/截断/Dynamic Type/iPad/VoiceOver）| #5 #6 | 1-2 天 |
+| 9 | 商店元数据 7 语言 + 订阅描述 + 审核备注 + 独立一致性验收 | #5 #6 | 1-2 天 |
 | 10 | 截图素材本地化（文案覆盖层）| #9 | 1-2 天 |
-| 11 | 隐私政策多语言 + 部署 | #9 | 1 天 |
+| 11 | 隐私政策多语言 + 法律语境审阅 + 部署和 URL 验收 | #9 | 1-2 天 |
 | 12 | 首发后 2 周 ASO 复查 + 用户反馈迭代 | 上线 | 持续 |
 
-> 合计约 8-11 个工作日（开发者自主翻译，外包/并行可压缩；截图与 ASC 录入可在等待翻译期间并行）。
+> 合计约 13-18 个工作日（含 §3.6 动态文案、伪本地化、元数据独立验收和隐私政策部署；开发者自主翻译，外包/并行可压缩；截图与 ASC 录入可在等待翻译期间并行）。

@@ -124,7 +124,8 @@ enum TimelineLogic {
     /// 依次纳入：纪念事件 → 历年生日 → 幼宠参考照片提醒 → 照片事件，最后按日期升序排序。
     static func buildTimelineEntries(
         _ input: TimelineInput,
-        calendar: Calendar = PetDateCalendar.gregorian
+        calendar: Calendar = PetDateCalendar.gregorian,
+        locale: Locale = .current
     ) -> [TimelineEntry] {
         var entries: [TimelineEntry] = []
 
@@ -167,8 +168,8 @@ enum TimelineLogic {
                     id: "birthday_\(pet.id.uuidString)_age\(age)",
                     type: .birthday,
                     date: birthdayDate,
-                    title: "\(pet.name)\(age)岁啦！🎂",
-                    subtitle: "第\(age)个生日",
+                    title: String(localized: "timeline.birthday.title \(pet.name) \(age)", locale: locale),
+                    subtitle: String(localized: "timeline.birthday.subtitle \(age)", locale: locale),
                     petID: pet.id,
                     petName: pet.name,
                     photoID: nil,

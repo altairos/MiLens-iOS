@@ -107,7 +107,7 @@ def scan_statuses(xc_paths: list[Path] | None = None,
                 st.translated += len(strings)
                 continue
             for key in strings:
-                value, state = loc.entry_value_state(strings[key], lang)
+                value, state = loc.entry_lang_status(strings[key], lang)
                 st.total += 1
                 if not value or state == "new":
                     st.missing += 1
@@ -120,25 +120,16 @@ def scan_statuses(xc_paths: list[Path] | None = None,
 
 def missing_problems(xc_paths: list[Path] | None = None,
                      known: list[str] | None = None) -> list[tuple[str, str, str]]:
-    """返回 (lang, key, 说明) 缺译问题列表，与 `localization.py check` 缺译断言同语义。"""
+    """返回 (lang, key, 说明) 缺译问题列表，与 `localization.py check` 缺译断言同语义。
+
+    复用 localization.py 的 missing_problems：缺译 + 复数变体完整性 + 占位符漂移。
+    """
     xc_paths = xc_paths or XCSTRINGS
     known = known or loc.parse_known_regions(PROJECT_YML)
-    source = ""
     problems: list[tuple[str, str, str]] = []
     for path in xc_paths:
         obj = loc.load_xcstrings(path)
-        if not source:
-            source = obj.get("sourceLanguage", "")
-        for key in sorted(obj.get("strings", {}).keys()):
-            locs = obj["strings"][key].get("localizations", {})
-            for lang in known:
-                if lang == source:
-                    continue
-                unit = locs.get(lang, {}).get("stringUnit")
-                if not unit:
-                    problems.append((lang, key, f"{path.stem}：无译文"))
-                elif unit.get("state") == "new" or not unit.get("value"):
-                    problems.append((lang, key, f"{path.stem}：未完成（state={unit.get('state')!r}）"))
+        problems.extend(loc.missing_problems(obj, path, known))
     return problems
 
 

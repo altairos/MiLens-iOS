@@ -67,12 +67,14 @@ func isHistoricalPhoto(takenAt: Date?, now: Date) -> Bool {
 /// - Parameters:
 ///   - yearsAgo: 年份差（0 表示今年的照片）
 ///   - note: 照片备注
+///   - locale: 文案语言（默认当前环境；测试传固定 locale）
 /// - Returns: 通知正文
-func buildAnniversaryNotificationText(yearsAgo: Int, note: String) -> String {
+func buildAnniversaryNotificationText(yearsAgo: Int, note: String, locale: Locale = .current) -> String {
     if yearsAgo > 0 {
-        return "\(yearsAgo)年前的今天：\(note)"
+        // 复数 key（notify.anniversary.yearsAgo %lld %@）：en/de/fr 需 one/other 变体
+        return String(localized: "notify.anniversary.yearsAgo \(yearsAgo) \(note)", locale: locale)
     } else {
-        return "今天的回忆：\(note)"
+        return String(localized: "notify.anniversary.today \(note)", locale: locale)
     }
 }
 
@@ -88,15 +90,17 @@ func buildAnniversaryNotificationText(yearsAgo: Int, note: String) -> String {
 ///   - yearsAgo: 年份差
 ///   - note: 照片备注（可为空）
 ///   - index: 模板索引（0–3），模运算循环
+///   - locale: 文案语言（默认当前环境；测试传固定 locale）
 /// - Returns: 文案字符串
-func buildTimeMachineText(petName: String, yearsAgo: Int, note: String, index: Int) -> String {
+func buildTimeMachineText(petName: String, yearsAgo: Int, note: String, index: Int, locale: Locale = .current) -> String {
     let templates = [
-        "\(yearsAgo)年前的今天，\(petName)在做什么呢？",
-        "\(yearsAgo)年前的今天，\(petName)这样陪伴着你",
+        // 模板均含年份差 → 复数 key（notify.timemachine.* %lld %@）
+        String(localized: "notify.timemachine.asking \(yearsAgo) \(petName)", locale: locale),
+        String(localized: "notify.timemachine.companion \(yearsAgo) \(petName)", locale: locale),
         note.isEmpty
-            ? "时光飞逝，\(yearsAgo)年前的今天"
-            : "时光飞逝，\(yearsAgo)年前的今天，\(note)",
-        "回忆杀！\(yearsAgo)年前\(petName)还是这般模样",
+            ? String(localized: "notify.timemachine.flight \(yearsAgo)", locale: locale)
+            : String(localized: "notify.timemachine.flightNote \(yearsAgo) \(note)", locale: locale),
+        String(localized: "notify.timemachine.flashback \(yearsAgo) \(petName)", locale: locale),
     ]
     let safeIndex = ((index % templates.count) + templates.count) % templates.count
     return templates[safeIndex]

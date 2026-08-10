@@ -15,9 +15,9 @@ struct EditorDockView: View {
 
     var body: some View {
         HStack {
-            dockButton(group: .adjust, icon: "slider.horizontal.3", label: "调整")
-            dockButton(group: .smart, icon: "wand.and.stars", label: "智能")
-            dockButton(group: .decorate, icon: "textformat", label: "装饰")
+            dockButton(group: .adjust, icon: "slider.horizontal.3", label: String(localized: "a11y.editor.adjust"))
+            dockButton(group: .smart, icon: "wand.and.stars", label: String(localized: "a11y.editor.smart"))
+            dockButton(group: .decorate, icon: "textformat", label: String(localized: "a11y.editor.decorate"))
         }
         .padding(.vertical, Spacing.sm)
         .background(.black)
@@ -345,7 +345,7 @@ struct EditorTextPanelView: View {
                     Image(systemName: "trash")
                         .foregroundStyle(Color.milensDanger)
                 }
-                .accessibilityLabel("删除文字")
+                .accessibilityLabel(String(localized: "a11y.editor.deleteText"))
             }
         }
         .padding(.horizontal, Spacing.lg)
@@ -381,7 +381,7 @@ struct EditorTextPanelView: View {
                 }
         }
         .buttonStyle(.plain)
-        .accessibilityLabel("颜色 \(hex)")
+        .accessibilityLabel(String(localized: "a11y.editor.color \(hex)"))
     }
 }
 

@@ -75,7 +75,7 @@ struct CreateView: View {
             }
             .buttonStyle(.plain)
         }
-        .accessibilityLabel("拼豆图纸，选择照片开始")
+        .accessibilityLabel(String(localized: "a11y.create.beadEntry"))
     }
 
     private var beadProjectRow: some View {
@@ -137,7 +137,7 @@ struct CreateView: View {
             petCardProjectRow
         }
         .buttonStyle(.plain)
-        .accessibilityLabel("宠物卡片，选择照片开始")
+        .accessibilityLabel(String(localized: "a11y.create.petCardEntry"))
     }
 
     private var petCardProjectRow: some View {

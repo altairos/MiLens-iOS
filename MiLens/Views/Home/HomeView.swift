@@ -45,7 +45,7 @@ struct HomeView: View {
                             MagazineHero(photo: photo, model: model)
                         }
                         .buttonStyle(.plain)
-                        .accessibilityLabel("打开照片，\(model.heroCaption)")
+                        .accessibilityLabel(String(localized: "a11y.home.openPhoto \(model.heroCaption)"))
                     }
 
                     if let memory = model.memoryItems.first {

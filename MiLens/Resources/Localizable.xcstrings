@@ -3,6 +3,281 @@
   "strings" : {
     "+" : {},
     "AI 模型未就绪，暂不能注册视觉特征" : {},
+    "a11y.bead.generate" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "生成拼豆图纸"
+          }
+        }
+      }
+    },
+    "a11y.create.beadEntry" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "拼豆图纸，选择照片开始"
+          }
+        }
+      }
+    },
+    "a11y.create.petCardEntry" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "宠物卡片，选择照片开始"
+          }
+        }
+      }
+    },
+    "a11y.editor.adjust" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "调整"
+          }
+        }
+      }
+    },
+    "a11y.editor.back" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "返回"
+          }
+        }
+      }
+    },
+    "a11y.editor.color %@" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "颜色 %@"
+          }
+        }
+      }
+    },
+    "a11y.editor.decorate" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "装饰"
+          }
+        }
+      }
+    },
+    "a11y.editor.deleteText" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "删除文字"
+          }
+        }
+      }
+    },
+    "a11y.editor.redo" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "重做"
+          }
+        }
+      }
+    },
+    "a11y.editor.save" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "保存"
+          }
+        }
+      }
+    },
+    "a11y.editor.smart" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "智能"
+          }
+        }
+      }
+    },
+    "a11y.editor.undo" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "撤销"
+          }
+        }
+      }
+    },
+    "a11y.gallery.date %lld %lld" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "，%lld月%lld日"
+          }
+        }
+      }
+    },
+    "a11y.gallery.favorite" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "，已收藏"
+          }
+        }
+      }
+    },
+    "a11y.gallery.photo" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "照片"
+          }
+        }
+      }
+    },
+    "a11y.gallery.selected" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "，已选择"
+          }
+        }
+      }
+    },
+    "a11y.home.openPhoto %@" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "打开照片，%@"
+          }
+        }
+      }
+    },
+    "a11y.onboarding.back" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "返回上一步"
+          }
+        }
+      }
+    },
+    "a11y.onboarding.privacyAgree" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "同意隐私政策"
+          }
+        }
+      }
+    },
+    "a11y.onboarding.step %lld %lld" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "第 %lld 步，共 %lld 步"
+          }
+        }
+      }
+    },
+    "a11y.petcard.generate" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "生成宠物卡片"
+          }
+        }
+      }
+    },
+    "a11y.pets.avatar %@" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@头像"
+          }
+        }
+      }
+    },
+    "a11y.pets.avatarPhoto %@" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@的头像照片"
+          }
+        }
+      }
+    },
+    "a11y.photoView.edit" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "编辑"
+          }
+        }
+      }
+    },
+    "a11y.timeline.representativePhoto" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "代表照片"
+          }
+        }
+      }
+    },
     "about.fonts.note" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -113,6 +388,187 @@
         }
       }
     },
+    "notify.anniversary.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "纪念日回忆"
+          }
+        }
+      }
+    },
+    "notify.anniversary.today %@" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "今天的回忆：%@"
+          }
+        }
+      }
+    },
+    "notify.anniversary.yearsAgo %lld %@" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "variations" : {
+            "plural" : {
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld年前的今天：%@"
+                }
+              },
+              "pluralRuleType" : "pluralRuleType"
+            }
+          }
+        }
+      }
+    },
+    "notify.defaultPetName" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "小宝贝"
+          }
+        }
+      }
+    },
+    "notify.kind.adoption %@" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@的领养纪念日"
+          }
+        }
+      }
+    },
+    "notify.kind.birthday %@" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@的生日"
+          }
+        }
+      }
+    },
+    "notify.timemachine.asking %lld %@" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "variations" : {
+            "plural" : {
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld年前的今天，%@在做什么呢？"
+                }
+              },
+              "pluralRuleType" : "pluralRuleType"
+            }
+          }
+        }
+      }
+    },
+    "notify.timemachine.companion %lld %@" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "variations" : {
+            "plural" : {
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld年前的今天，%@这样陪伴着你"
+                }
+              },
+              "pluralRuleType" : "pluralRuleType"
+            }
+          }
+        }
+      }
+    },
+    "notify.timemachine.flashback %lld %@" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "variations" : {
+            "plural" : {
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "回忆杀！%lld年前%@还是这般模样"
+                }
+              },
+              "pluralRuleType" : "pluralRuleType"
+            }
+          }
+        }
+      }
+    },
+    "notify.timemachine.flight %lld" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "variations" : {
+            "plural" : {
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "时光飞逝，%lld年前的今天"
+                }
+              },
+              "pluralRuleType" : "pluralRuleType"
+            }
+          }
+        }
+      }
+    },
+    "notify.timemachine.flightNote %lld %@" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "variations" : {
+            "plural" : {
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "时光飞逝，%lld年前的今天，%@"
+                }
+              },
+              "pluralRuleType" : "pluralRuleType"
+            }
+          }
+        }
+      }
+    },
+    "notify.timemachine.title %lld" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "variations" : {
+            "plural" : {
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld年前的今天"
+                }
+              },
+              "pluralRuleType" : "pluralRuleType"
+            }
+          }
+        }
+      }
+    },
     "paywall.alert.ok" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -146,6 +602,17 @@
         }
       }
     },
+    "paywall.benefit.albumModes" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "复古相簿翻页浏览模式"
+          }
+        }
+      }
+    },
     "paywall.benefit.beadQuota" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -157,6 +624,17 @@
         }
       }
     },
+    "paywall.benefit.cardTemplates" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "多套精美卡片模板"
+          }
+        }
+      }
+    },
     "paywall.benefit.family" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -164,6 +642,28 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "支持家庭共享（由 Apple StoreKit 提供）"
+          }
+        }
+      }
+    },
+    "paywall.benefit.offlineBackup" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "照片离线备份与恢复"
+          }
+        }
+      }
+    },
+    "paywall.benefit.photoStorage" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "不限量保存宠物照片"
           }
         }
       }
@@ -190,39 +690,6 @@
         }
       }
     },
-    "paywall.benefit.photoStorage" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "不限量保存宠物照片"
-          }
-        }
-      }
-    },
-    "paywall.benefit.watermarkFree" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "导出作品无水印"
-          }
-        }
-      }
-    },
-    "paywall.benefit.cardTemplates" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "多套精美卡片模板"
-          }
-        }
-      }
-    },
     "paywall.benefit.timelineExport" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -234,24 +701,13 @@
         }
       }
     },
-    "paywall.benefit.offlineBackup" : {
+    "paywall.benefit.watermarkFree" : {
       "extractionState" : "manual",
       "localizations" : {
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "照片离线备份与恢复"
-          }
-        }
-      }
-    },
-    "paywall.benefit.albumModes" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "复古相簿翻页浏览模式"
+            "value" : "导出作品无水印"
           }
         }
       }
@@ -289,13 +745,20 @@
         }
       }
     },
-    "paywall.cta.trial" : {
+    "paywall.cta.trial %lld" : {
       "extractionState" : "manual",
       "localizations" : {
         "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "免费试用 %d 天"
+          "variations" : {
+            "plural" : {
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "免费试用 %d 天"
+                }
+              },
+              "pluralRuleType" : "pluralRuleType"
+            }
           }
         }
       }
@@ -531,13 +994,257 @@
         }
       }
     },
-    "paywall.trial.hint" : {
+    "paywall.trial.hint %lld" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "variations" : {
+            "plural" : {
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "前 %d 天免费"
+                }
+              },
+              "pluralRuleType" : "pluralRuleType"
+            }
+          }
+        }
+      }
+    },
+    "pet.age.join" : {
       "extractionState" : "manual",
       "localizations" : {
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "前 %d 天免费"
+            "value" : ""
+          }
+        }
+      }
+    },
+    "pet.age.months %lld" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "variations" : {
+            "plural" : {
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld个月"
+                }
+              },
+              "pluralRuleType" : "pluralRuleType"
+            }
+          }
+        }
+      }
+    },
+    "pet.age.unknown" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "未知"
+          }
+        }
+      }
+    },
+    "pet.age.years %lld" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "variations" : {
+            "plural" : {
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld岁"
+                }
+              },
+              "pluralRuleType" : "pluralRuleType"
+            }
+          }
+        }
+      }
+    },
+    "pet.card.daysHome %lld" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "variations" : {
+            "plural" : {
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "来到家 %lld 天"
+                }
+              },
+              "pluralRuleType" : "pluralRuleType"
+            }
+          }
+        }
+      }
+    },
+    "pet.card.fallbackSubtitle" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "值得记住的一天"
+          }
+        }
+      }
+    },
+    "pet.card.fallbackTitle" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "这一天"
+          }
+        }
+      }
+    },
+    "pet.card.subtitle %@ %@" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ · %@"
+          }
+        }
+      }
+    },
+    "pet.daysTogether %lld" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "variations" : {
+            "plural" : {
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "相处 %lld 天"
+                }
+              },
+              "pluralRuleType" : "pluralRuleType"
+            }
+          }
+        }
+      }
+    },
+    "pet.gender.female" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "女孩子"
+          }
+        }
+      }
+    },
+    "pet.gender.male" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "男孩子"
+          }
+        }
+      }
+    },
+    "pet.gender.unknown" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "未知"
+          }
+        }
+      }
+    },
+    "pet.profile.daysHomeTitle" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "来到家"
+          }
+        }
+      }
+    },
+    "pet.profile.daysLabel" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "相处天数"
+          }
+        }
+      }
+    },
+    "pet.profile.memoryTitle" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "一段记忆"
+          }
+        }
+      }
+    },
+    "pet.profile.speciesAge %@ %@" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ · %@"
+          }
+        }
+      }
+    },
+    "pet.species.cat" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "喵星人"
+          }
+        }
+      }
+    },
+    "pet.species.dog" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "汪星人"
+          }
+        }
+      }
+    },
+    "pet.species.unknown" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "未知"
           }
         }
       }
@@ -967,6 +1674,28 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "我的"
+          }
+        }
+      }
+    },
+    "timeline.birthday.subtitle %lld" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "第%lld个生日"
+          }
+        }
+      }
+    },
+    "timeline.birthday.title %@ %lld" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@%lld岁啦！🎂"
           }
         }
       }

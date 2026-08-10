@@ -251,10 +251,11 @@ enum PetAnniversaryKind: String {
     case adoption
 
     /// 纪念日通知的备注文案（经 AnniversaryLogic 拼入正文）。
-    func notificationNote(petName: String) -> String {
+    /// locale 默认当前环境：通知文案在调度时按用户当前语言固化。
+    func notificationNote(petName: String, locale: Locale = .current) -> String {
         switch self {
-        case .birthday: return "\(petName)的生日"
-        case .adoption: return "\(petName)的领养纪念日"
+        case .birthday: return String(localized: "notify.kind.birthday \(petName)", locale: locale)
+        case .adoption: return String(localized: "notify.kind.adoption \(petName)", locale: locale)
         }
     }
 }

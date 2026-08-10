@@ -417,15 +417,16 @@ private struct PhotoThumbnailCell: View {
     }
 
     private var accessibilityText: String {
-        var text = "照片"
+        // 无障碍拼装：片段各自本地化（含前导分隔符，翻译可整体调整顺序与标点）。
+        var text = String(localized: "a11y.gallery.photo")
         if let takenAt = photo.takenAt {
             let comps = Calendar.current.dateComponents([.month, .day], from: takenAt)
             if let month = comps.month, let day = comps.day {
-                text += "，\(month)月\(day)日"
+                text += String(localized: "a11y.gallery.date \(month) \(day)")
             }
         }
-        if isMultiSelect && isSelected { text += "，已选择" }
-        if photo.isFavorite { text += "，已收藏" }
+        if isMultiSelect && isSelected { text += String(localized: "a11y.gallery.selected") }
+        if photo.isFavorite { text += String(localized: "a11y.gallery.favorite") }
         return text
     }
 }

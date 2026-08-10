@@ -59,7 +59,7 @@ struct OnboardingView: View {
                         .frame(width: Sizing.touchTarget, height: Sizing.touchTarget)
                         .contentShape(Rectangle())
                 }
-                .accessibilityLabel("返回上一步")
+                .accessibilityLabel(String(localized: "a11y.onboarding.back"))
             } else {
                 Color.clear
                     .frame(width: Sizing.touchTarget, height: Sizing.touchTarget)
@@ -78,7 +78,7 @@ struct OnboardingView: View {
             }
         }
         .accessibilityElement(children: .ignore)
-        .accessibilityLabel("第 \(viewModel.step.rawValue + 1) 步，共 \(OnboardingViewModel.Step.allCases.count) 步")
+        .accessibilityLabel(String(localized: "a11y.onboarding.step \(viewModel.step.rawValue + 1) \(OnboardingViewModel.Step.allCases.count)"))
     }
 
     // MARK: - 步骤内容

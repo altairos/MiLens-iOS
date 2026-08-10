@@ -362,7 +362,7 @@ struct TimelineView: View {
                     .clipped()
                     .clipShape(RoundedRectangle(cornerRadius: Radius.thumb, style: .continuous))
                     // M4：时间线照片缩略图提供无障碍描述（标题文本已由下方 Text 读出）。
-                    .accessibilityLabel("代表照片")
+                    .accessibilityLabel(String(localized: "a11y.timeline.representativePhoto"))
             }
 
             VStack(alignment: .leading, spacing: Spacing.xs) {

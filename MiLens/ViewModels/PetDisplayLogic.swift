@@ -11,21 +11,21 @@ enum PetDisplayLogic {
 
     // ─── 物种 / 性别显示名 ───
 
-    /// 物种中文名（对应源端 getSpeciesName）。
-    static func speciesDisplayName(_ species: Species) -> String {
+    /// 物种显示名（对应源端 getSpeciesName；locale 默认当前环境，测试传固定 locale）。
+    static func speciesDisplayName(_ species: Species, locale: Locale = .current) -> String {
         switch species {
-        case .cat: return "喵星人"
-        case .dog: return "汪星人"
-        case .unknown: return "未知"
+        case .cat: return String(localized: "pet.species.cat", locale: locale)
+        case .dog: return String(localized: "pet.species.dog", locale: locale)
+        case .unknown: return String(localized: "pet.species.unknown", locale: locale)
         }
     }
 
-    /// 性别中文名（对应源端 getGenderName）。
-    static func genderDisplayName(_ gender: Gender) -> String {
+    /// 性别显示名（对应源端 getGenderName；locale 默认当前环境）。
+    static func genderDisplayName(_ gender: Gender, locale: Locale = .current) -> String {
         switch gender {
-        case .male: return "男孩子"
-        case .female: return "女孩子"
-        case .unknown: return "未知"
+        case .male: return String(localized: "pet.gender.male", locale: locale)
+        case .female: return String(localized: "pet.gender.female", locale: locale)
+        case .unknown: return String(localized: "pet.gender.unknown", locale: locale)
         }
     }
 
@@ -36,20 +36,28 @@ enum PetDisplayLogic {
     ///   - birthday: 生日；nil 返回「未知」。
     ///   - now: 当前时间（注入保证可测）。
     ///   - calendar: 日历（默认 current，与源端 new Date() 本地时区语义一致）。
+    ///   - locale: 文案语言（默认当前环境；测试传固定 locale）。
     /// - Returns: "3岁"、"3岁2个月"、"8个月"、"0个月"、"未知"。
     static func ageText(
-        from birthday: Date?, now: Date = Date(), calendar: Calendar = .current
+        from birthday: Date?, now: Date = Date(), calendar: Calendar = .current, locale: Locale = .current
     ) -> String {
-        guard let birthday else { return "未知" }
+        guard let birthday else { return String(localized: "pet.age.unknown", locale: locale) }
         let bc = calendar.dateComponents([.year, .month], from: birthday)
         let nc = calendar.dateComponents([.year, .month], from: now)
         let months = ((nc.year ?? 0) - (bc.year ?? 0)) * 12 + ((nc.month ?? 0) - (bc.month ?? 0))
         let years = months / 12
         let remainMonths = months % 12
         if years > 0 {
-            return remainMonths > 0 ? "\(years)岁\(remainMonths)个月" : "\(years)岁"
+            // 年/月各为复数 key（pet.age.years/pet.age.months），中间用本地化连接符
+            // （zh 空串 → "3岁2个月"；en 空格 → "3 years 2 months"）
+            let yearsText = String(localized: "pet.age.years \(years)", locale: locale)
+            if remainMonths > 0 {
+                let monthsText = String(localized: "pet.age.months \(remainMonths)", locale: locale)
+                return yearsText + String(localized: "pet.age.join", locale: locale) + monthsText
+            }
+            return yearsText
         }
-        return "\(remainMonths)个月"
+        return String(localized: "pet.age.months \(remainMonths)", locale: locale)
     }
 
     // ─── 相处天数（对应源端 calcDaysTogether）───

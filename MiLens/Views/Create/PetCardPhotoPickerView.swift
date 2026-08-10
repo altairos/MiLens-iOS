@@ -73,7 +73,7 @@ struct PetCardPhotoPickerView: View {
                                 }
                         }
                         .buttonStyle(.plain)
-                        .accessibilityLabel("生成宠物卡片")
+                        .accessibilityLabel(String(localized: "a11y.petcard.generate"))
                     }
                 }
             }

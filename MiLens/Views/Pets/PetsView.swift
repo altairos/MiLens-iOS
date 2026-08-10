@@ -173,8 +173,8 @@ private struct PetCard: View {
         // M4：头像为装饰性图形，合并为单一无障碍元素（名称由卡片内 Text 读出）。
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(pet.avatarPath.isEmpty
-            ? "\(PetDisplayLogic.speciesDisplayName(pet.species))头像"
-            : "\(pet.name)的头像照片")
+            ? String(localized: "a11y.pets.avatar \(PetDisplayLogic.speciesDisplayName(pet.species))")
+            : String(localized: "a11y.pets.avatarPhoto \(pet.name)"))
     }
 
     private var infoLine: some View {
@@ -202,7 +202,7 @@ private struct PetCard: View {
                 .foregroundStyle(Color.milensActionPrimary)
             if pet.adoptionDay != nil {
                 dot
-                Text("相处 \(PetDisplayLogic.daysTogether(from: pet.adoptionDay)) 天")
+                Text(String(localized: "pet.daysTogether \(PetDisplayLogic.daysTogether(from: pet.adoptionDay))"))
                     .font(.caption)
                     .foregroundStyle(Color.milensTextSecondary)
             }

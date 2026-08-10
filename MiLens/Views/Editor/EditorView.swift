@@ -94,12 +94,12 @@ struct EditorView: View {
                     .frame(width: Sizing.touchTarget, height: Sizing.touchTarget)
                     .contentShape(Rectangle())
             }
-            .accessibilityLabel("返回")
+            .accessibilityLabel(String(localized: "a11y.editor.back"))
 
             Spacer()
 
-            topBarButton(icon: "arrow.uturn.backward", label: "撤销", enabled: vm.canUndo) { vm.undo() }
-            topBarButton(icon: "arrow.uturn.forward", label: "重做", enabled: vm.canRedo) { vm.redo() }
+            topBarButton(icon: "arrow.uturn.backward", label: String(localized: "a11y.editor.undo"), enabled: vm.canUndo) { vm.undo() }
+            topBarButton(icon: "arrow.uturn.forward", label: String(localized: "a11y.editor.redo"), enabled: vm.canRedo) { vm.redo() }
 
             Button {
                 vm.requestSave()
@@ -113,7 +113,7 @@ struct EditorView: View {
                     .clipShape(Capsule())
             }
             .disabled(vm.isSaving || vm.isPhotoLoading)
-            .accessibilityLabel("保存")
+            .accessibilityLabel(String(localized: "a11y.editor.save"))
         }
         .padding(.horizontal, Spacing.sm)
         .padding(.vertical, Spacing.xs)

@@ -5,6 +5,7 @@
 
 import SwiftUI
 import MiLensKit
+import UIKit
 
 struct EditorCanvasView: View {
     @Bindable var viewModel: EditorViewModel
@@ -20,6 +21,7 @@ struct EditorCanvasView: View {
 
                 ZStack {
                     baseImageView
+                    decorationLayers
                     textLayers
                     selectionBoxView(canvasRect: canvasRect)
                     if viewModel.tool == .crop {
@@ -71,6 +73,21 @@ struct EditorCanvasView: View {
                     .scaleEffect(layer.scale)
                     .rotationEffect(.degrees(layer.rotation))
                     .position(x: layer.x, y: layer.y)
+                    .allowsHitTesting(false)
+            }
+        }
+    }
+
+    // MARK: - 装饰图层（相框 / 贴纸）
+
+    /// 画布预览渲染已添加的相框 / 贴纸图层。V1.0 无装饰面板 UI 添加入口，该视图为空；
+    /// V1.x 装饰面板上线后，添加的 frame/sticker layer 会在画布实时显示。
+    /// 预览简化为拉伸显示；导出时 renderExport 按 fitMode 精确绘制（ninePatch 分块 / ratioSet 选图）。
+    @ViewBuilder
+    private var decorationLayers: some View {
+        ForEach(viewModel.layers) { layer in
+            if (layer.type == .frame || layer.type == .sticker) && layer.visible {
+                DecorationLayerView(layer: layer)
                     .allowsHitTesting(false)
             }
         }
@@ -235,6 +252,28 @@ struct EditorCanvasView: View {
             let w = container.width
             let h = w / ratio
             return CGRect(x: 0, y: (container.height - h) / 2, width: w, height: h)
+        }
+    }
+}
+
+/// 装饰图层预览子视图（相框 / 贴纸）。
+///
+/// 按 resourcePath 从 Asset Catalog 加载 UIImage；预览不区分 fitMode（拉伸显示），
+/// 导出精度由 renderExport 负责（ninePatch 分块 / ratioSet 由 imageProvider 选图）。
+private struct DecorationLayerView: View {
+    let layer: EditorLayer
+
+    var body: some View {
+        if let img = UIImage(named: layer.resourcePath) {
+            Image(uiImage: img)
+                .resizable()
+                .opacity(layer.opacity)
+                // layer.width/height/scale 为 Double，.frame 需 CGFloat（显式转换避免类型错误）。
+                .frame(width: CGFloat(layer.width * layer.scale),
+                       height: CGFloat(layer.height * layer.scale))
+                .rotationEffect(.degrees(layer.rotation))
+                .scaleEffect(x: layer.flipX ? -1 : 1, y: layer.flipY ? -1 : 1)
+                .position(x: layer.x, y: layer.y)
         }
     }
 }

@@ -10,6 +10,7 @@
 //  - 编辑器等依赖重服务的构造保留「环境缺失时 in-memory 兜底」语义（Preview/异常路径）。
 
 import Foundation
+import MiLensKit
 import SwiftData
 
 /// 页面 ViewModel 组合工厂（@MainActor——构造出的 VM 与 Repository 均为 MainActor 隔离）。
@@ -126,7 +127,9 @@ final class ViewModelFactory {
                 mediaLifecycle: lifecycle,
                 sandboxDir: sandboxDir,
                 editsDir: editsDir
-            )
+            ),
+            // 装饰资源目录从 Bundle 加载（V1.0 默认空；素材面板上线后填充）。
+            decorationCatalog: DecorationCatalogLoader.load()
         )
     }
 

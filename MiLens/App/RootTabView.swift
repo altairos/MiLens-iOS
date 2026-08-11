@@ -14,10 +14,7 @@ struct RootTabView: View {
     @Environment(\.proEntitlement) private var entitlement
 
     var body: some View {
-        TabView(selection: Binding(
-            get: { selectedTabRaw },
-            set: { selectedTabRaw = $0 }
-        )) {
+        TabView(selection: selectedTab) {
             ForEach(AppTab.allCases, id: \.self) { tab in
                 NavigationStack {
                     tabView(tab)
@@ -27,13 +24,16 @@ struct RootTabView: View {
                             routeDestination(route)
                         }
                 }
-                .tabItem {
-                    Label(tab.title, systemImage: tab.systemImage)
-                }
-                .tag(tab.rawValue)
+                .tag(tab)
             }
         }
-        .tint(.milensActionPrimary)
+        .toolbar(.hidden, for: .tabBar)
+        .safeAreaInset(edge: .bottom, spacing: 0) {
+            MemoryOrbitTabBar(selection: selectedTab)
+                .padding(.horizontal, Spacing.xl)
+                .padding(.vertical, Spacing.sm)
+                .frame(maxWidth: .infinity)
+        }
         .onChange(of: scenePhase) { _, newPhase in
             handleScenePhase(newPhase)
         }
@@ -42,6 +42,13 @@ struct RootTabView: View {
             // 保证首次进入任何 Tab（含创作门控与拼豆路由）前权益已恢复真实状态。
             await entitlement.refresh()
         }
+    }
+
+    private var selectedTab: Binding<AppTab> {
+        Binding(
+            get: { AppTab(rawValue: selectedTabRaw) ?? .home },
+            set: { selectedTabRaw = $0.rawValue }
+        )
     }
 
     @ViewBuilder

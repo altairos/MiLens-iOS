@@ -23,6 +23,7 @@ import ImageIO
 import MiLensKit
 import Observation
 import os
+import UIKit
 
 /// 调色面板字段（Slider 绑定用）。
 enum EditorAdjustField: Sendable {
@@ -130,16 +131,22 @@ final class EditorViewModel {
 
     // MARK: - 初始化
 
+    /// 装饰资源目录（相框/贴纸元数据）；V1.0 默认空目录，由 ViewModelFactory 从
+    /// Bundle catalog.json 加载注入。导出时按 resourcePath 查 item → 构造渲染源。
+    private let decorationCatalog: DecorationCatalog
+
     init(photoID: UUID,
          photoRepo: any PhotoRepositoryProtocol,
          visionService: any VisionService,
          imageProcessor: any EditorImageProcessing,
-         saveService: EditorSaveService) {
+         saveService: EditorSaveService,
+         decorationCatalog: DecorationCatalog = .empty) {
         self.photoID = photoID
         self.photoRepo = photoRepo
         self.visionService = visionService
         self.imageProcessor = imageProcessor
         self.saveService = saveService
+        self.decorationCatalog = decorationCatalog
         // 工具子 VM 在首次访问时创建（见 cropVM 等注释）
     }
 
@@ -315,7 +322,8 @@ final class EditorViewModel {
             baseImage: baseImage,
             layers: document.layers,
             canvasSize: canvasSize,
-            format: format
+            format: format,
+            decorationProvider: makeDecorationProvider()
         ) else {
             errorMessage = "导出失败，请重试"
             return
@@ -327,6 +335,35 @@ final class EditorViewModel {
             )
         } catch {
             errorMessage = "保存失败，请重试"
+        }
+    }
+
+    /// 构造装饰图层素材提供闭包（传给 renderExport）。
+    ///
+    /// 闭包内按 resourcePath 查 decorationCatalog：
+    /// - ratioSet：按当前 photoAspectRatio 在 supportedRatios 选最优比例，
+    ///   实际加载 imageset 名为 `"\(resourcePath)_\(ratio)"`（如 frame_polaroid_1x1）。
+    /// - stretch / ninePatch：直接按 resourcePath 加载 imageset。
+    /// 加载失败返回 nil（renderExport 自动跳过该图层）。
+    private func makeDecorationProvider() -> (String) -> DecorationRenderSource? {
+        let catalog = decorationCatalog
+        let ratio = photoAspectRatio
+        return { resourcePath in
+            guard let item = catalog.items.first(where: { $0.resourcePath == resourcePath })
+                ?? catalog.find(resourcePath) else { return nil }
+            let assetName: String
+            if item.fitMode == .ratioSet, let supported = item.supportedRatios,
+               let best = pickClosestAspectRatio(targetRatio: ratio, candidates: supported) {
+                assetName = "\(resourcePath)_\(best)"
+            } else {
+                assetName = resourcePath
+            }
+            guard let cg = UIImage(named: assetName)?.cgImage else { return nil }
+            return DecorationRenderSource(
+                image: cg,
+                fitMode: item.fitMode,
+                ninePatchInsets: item.ninePatchInsets
+            )
         }
     }
 

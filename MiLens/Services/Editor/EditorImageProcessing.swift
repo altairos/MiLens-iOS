@@ -30,10 +30,15 @@ protocol EditorImageProcessing {
     func flipping(_ image: CGImage, horizontal: Bool) -> CGImage
     /// 抠图蒙版合成：mask 为 0–255 单通道 alpha（尺寸 = 原图尺寸），合成后背景透明。
     func applyingCutoutMask(to image: CGImage, mask: Data, width: Int, height: Int) -> CGImage?
-    /// 合成导出：底图（已含调色/锐化/翻转）+ 装饰图层 → 编码数据（按 format 决策 JPEG/PNG）。
+    /// 合成导出：底图（已含调色/锐化/翻转）+ 装饰图层（文字 / 相框 / 贴纸）→ 编码数据。
+    ///
+    /// - Parameter decorationProvider: 装饰图层（frame/sticker）素材提供闭包，
+    ///   接收 resourcePath 返回 DecorationRenderSource（CGImage + fitMode + insets）；
+    ///   nil 或返回 nil 时跳过该装饰图层（仅渲染文字）。EditorViewModel.save 注入实现。
     func renderExport(
         baseImage: CGImage, layers: [EditorLayer], canvasSize: CGSize,
-        format: EditorSaveFormatDecision
+        format: EditorSaveFormatDecision,
+        decorationProvider: ((String) -> DecorationRenderSource?)?
     ) -> Data?
     /// 编码单张图为导出数据（保存用）。
     func encode(_ image: CGImage, format: EditorSaveFormatDecision) -> Data?
@@ -157,7 +162,8 @@ final class CoreImageEditorProcessing: EditorImageProcessing {
 
     func renderExport(
         baseImage: CGImage, layers: [EditorLayer], canvasSize: CGSize,
-        format: EditorSaveFormatDecision
+        format: EditorSaveFormatDecision,
+        decorationProvider: ((String) -> DecorationRenderSource?)?
     ) -> Data? {
         let width = baseImage.width
         let height = baseImage.height
@@ -185,7 +191,13 @@ final class CoreImageEditorProcessing: EditorImageProcessing {
             UIImage(cgImage: baseImage).draw(in: CGRect(x: 0, y: 0, width: width, height: height))
             ctx.restoreGState()
 
-            // 装饰图层（V1.0：文字图层；贴纸/相框待素材资源）。
+            // 装饰图层：先画相框/贴纸（zIndex 最底层，位于照片之上、文字之下），
+            // 再画文字。无 decorationProvider 时跳过装饰图层（仅渲染文字，向后兼容）。
+            if let provider = decorationProvider {
+                for layer in layers where (layer.type == .frame || layer.type == .sticker) && layer.visible {
+                    drawDecorationLayer(layer, scale: scale, decorationProvider: provider)
+                }
+            }
             for layer in layers where layer.type == .text && layer.visible {
                 drawTextLayer(layer, scale: scale)
             }
@@ -237,6 +249,57 @@ final class CoreImageEditorProcessing: EditorImageProcessing {
                       attributes: strokeAttributes, context: nil)
         }
         text.draw(with: textRect, options: [.usesLineFragmentOrigin], attributes: attributes, context: nil)
+        ctx.restoreGState()
+    }
+
+    /// 绘制装饰图层（相框 / 贴纸）。
+    ///
+    /// - stretch / ratioSet（imageProvider 已按比例选好具体 PNG）：单块拉伸到 layer 的 width×height。
+    /// - ninePatch：computeNinePatchTiles 分 9 块，每块用 CGImage.cropping(to:) 截取子图后 draw。
+    ///
+    /// 图层变换：平移到中心 → 旋转 → 翻转（绕中心，与 drawTextLayer 一致），
+    /// opacity 用 ctx.setAlpha。坐标空间为 UIGraphicsImageRenderer 的 UIKit 上下文（左上原点，Y 向下）。
+    private func drawDecorationLayer(
+        _ layer: EditorLayer, scale: CGFloat,
+        decorationProvider: (String) -> DecorationRenderSource?
+    ) {
+        guard let source = decorationProvider(layer.resourcePath) else { return }
+        guard let ctx = UIGraphicsGetCurrentContext() else { return }
+
+        // 目标尺寸：图层 width/height × 画布缩放 × 图层缩放 → 导出像素。
+        let w = CGFloat(layer.width) * scale * CGFloat(layer.scale)
+        let h = CGFloat(layer.height) * scale * CGFloat(layer.scale)
+        guard w > 0, h > 0 else { return }
+
+        ctx.saveGState()
+        // 平移到图层中心 + 旋转 + 翻转（绕中心）。
+        ctx.translateBy(x: CGFloat(layer.x) * scale, y: CGFloat(layer.y) * scale)
+        ctx.rotate(by: CGFloat(layer.rotation) * .pi / 180)
+        if layer.flipX { ctx.scaleBy(x: -1, y: 1) }
+        if layer.flipY { ctx.scaleBy(x: 1, y: -1) }
+        if layer.opacity < 1 { ctx.setAlpha(CGFloat(layer.opacity)) }
+
+        let srcW = source.image.width
+        let srcH = source.image.height
+        // ninePatch：分块绘制；其余：单块拉伸。
+        if source.fitMode == .ninePatch, let insets = source.ninePatchInsets {
+            let tiles = computeNinePatchTiles(
+                srcWidth: Double(srcW), srcHeight: Double(srcH),
+                insets: insets,
+                dstX: -Double(w) / 2, dstY: -Double(h) / 2,
+                dstW: Double(w), dstH: Double(h))
+            for tile in tiles {
+                guard tile.srcW > 0, tile.srcH > 0, tile.dstW > 0, tile.dstH > 0 else { continue }
+                let srcRect = CGRect(x: tile.srcX, y: tile.srcY, width: tile.srcW, height: tile.srcH)
+                let dstRect = CGRect(x: tile.dstX, y: tile.dstY, width: tile.dstW, height: tile.dstH)
+                // CGImage.cropping(to:) 坐标空间与九宫格逻辑一致（左上原点）。
+                if let sub = source.image.cropping(to: srcRect) {
+                    UIImage(cgImage: sub).draw(in: dstRect)
+                }
+            }
+        } else {
+            UIImage(cgImage: source.image).draw(in: CGRect(x: -w / 2, y: -h / 2, width: w, height: h))
+        }
         ctx.restoreGState()
     }
 
@@ -307,7 +370,8 @@ final class MockEditorImageProcessing: EditorImageProcessing {
 
     func renderExport(
         baseImage: CGImage, layers: [EditorLayer], canvasSize: CGSize,
-        format: EditorSaveFormatDecision
+        format: EditorSaveFormatDecision,
+        decorationProvider: ((String) -> DecorationRenderSource?)?
     ) -> Data? {
         renderExportCalls += 1
         lastExportLayers = layers
@@ -319,6 +383,24 @@ final class MockEditorImageProcessing: EditorImageProcessing {
         encodeCalls += 1
         return encodeResult ?? Data([0xFF, 0xD8])
     }
+}
+
+// MARK: - 装饰素材运行时载体
+
+/// 装饰图层（frame/sticker）渲染所需的运行时数据。
+///
+/// MiLensKit 的 EditorLayer 只存 resourcePath（不含 CGImage），渲染时由
+/// EditorViewModel 通过 decorationProvider 闭包按 resourcePath 查 Bundle imageset
+/// 构造本结构传入 renderExport。fitMode/insets 来自 DecorationItem（catalog.json）。
+struct DecorationRenderSource {
+    /// 已解码的素材图（相框 PNG / 贴纸 PNG）。
+    let image: CGImage
+    /// 相框自适应模式（来自 DecorationItem.fitMode）。
+    /// - stretch / ratioSet：单块拉伸（ratioSet 由 imageProvider 已按比例选好 PNG）。
+    /// - ninePatch：按 ninePatchInsets 分 9 块绘制。
+    let fitMode: FrameFitMode
+    /// 九宫格内边距（仅 fitMode == .ninePatch 时使用）。
+    let ninePatchInsets: NinePatchInsets?
 }
 
 // MARK: - 辅助

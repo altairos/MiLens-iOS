@@ -18,12 +18,13 @@ enum AppTab: Int, CaseIterable, Hashable {
         }
     }
 
-    var systemImage: String {
+    /// UI 测试与辅助技术使用的稳定标识，不随本地化文案变化。
+    var accessibilityIdentifier: String {
         switch self {
-        case .home: return "house"
-        case .pets: return "pawprint"
-        case .create: return "square.and.pencil"
-        case .settings: return "person"
+        case .home: return "tab.home"
+        case .pets: return "tab.pets"
+        case .create: return "tab.create"
+        case .settings: return "tab.settings"
         }
     }
 }

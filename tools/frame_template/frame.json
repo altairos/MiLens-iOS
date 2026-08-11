@@ -1,0 +1,19 @@
+{
+  "_comment": "示例 manifest：九宫格拍立得相框（编辑后用 `python tools/frame_import.py add <src_dir>` 导入）。完整字段说明见 tools/frame_import.py 文档头注释。",
+  "id": "frame_polaroid_white",
+  "name": "拍立得白",
+  "category": "frame",
+  "fit_mode": "nine_patch",
+  "is_premium": false,
+  "group": "基础",
+  "sort_order": 10,
+  "nine_patch_insets": {
+    "top": 96,
+    "left": 96,
+    "right": 96,
+    "bottom": 240
+  },
+  "supported_ratios": null,
+  "native_aspect_ratio": null,
+  "preview_path": null
+}

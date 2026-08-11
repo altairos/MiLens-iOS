@@ -125,7 +125,7 @@ enum Route: Hashable {
 }
 ```
 
-源端 `router.pushUrl({ url: 'pages/Detail' })` 全部改写为 `NavigationLink(value: Route.xxx)` 或 `path.append(Route.xxx)`。Tab 根用 `TabView`（对应源端 `MainPage` 的 `Tabs`）。
+源端 `router.pushUrl({ url: 'pages/Detail' })` 全部改写为 `NavigationLink(value: Route.xxx)` 或 `path.append(Route.xxx)`。Tab 根继续用 `TabView` 管理四个根页面和状态生命周期（对应源端 `MainPage` 的 `Tabs`）；系统 Tab Bar 隐藏后由 `MemoryOrbitTabBar` 通过 `safeAreaInset` 提供品牌化矢量导航。该组件只替换外观、点击入口与选中图标内部的短描边反馈，不自建路由栈，不给页面内容增加 Tab 切换位移或触感；选中轨道使用右深粗、左浅细的分层精确矢量弧，Reduce Motion 下直接呈现最终态。视觉规格见 [UI-DESIGN.md §5.4](UI-DESIGN.md#54-底部主导航memory-orbit)。
 
 ## 7. 数据设计
 

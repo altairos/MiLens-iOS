@@ -19,12 +19,24 @@ final class MiLensUITests: XCTestCase {
     func testLaunchShowsFourTabs() {
         let app = launchApp()
 
-        for title in ["首页", "宠物", "创作", "我的"] {
+        let tabs = [
+            ("tab.home", "首页"),
+            ("tab.pets", "宠物"),
+            ("tab.create", "创作"),
+            ("tab.settings", "我的"),
+        ]
+
+        for (identifier, title) in tabs {
             XCTAssertTrue(
-                app.tabBars.buttons[title].waitForExistence(timeout: 5),
+                app.buttons[identifier].waitForExistence(timeout: 5),
                 "底部 Tab 缺失：\(title)"
             )
         }
+        XCTAssertEqual(
+            tabs.filter { app.buttons[$0.0].isSelected }.count,
+            1,
+            "底部导航应且仅应有一个选中项"
+        )
     }
 
     /// Tab 导航冒烟：依次切换各 Tab，断言页面内容实际渲染（空库状态文案）。
@@ -32,23 +44,25 @@ final class MiLensUITests: XCTestCase {
         let app = launchApp()
 
         // 宠物（Tab 2）：空库 → 空状态引导文案
-        app.tabBars.buttons["宠物"].tap()
+        app.buttons["tab.pets"].tap()
+        XCTAssertTrue(app.buttons["tab.pets"].isSelected, "宠物 Tab 未进入选中态")
         XCTAssertTrue(
             app.staticTexts["还没有伙伴档案"].waitForExistence(timeout: 5),
             "宠物页空状态未渲染"
         )
 
         // 创作（Tab 3）：空库 → 「先保存一张照片」引导
-        app.tabBars.buttons["创作"].tap()
+        app.buttons["tab.create"].tap()
+        XCTAssertTrue(app.buttons["tab.create"].isSelected, "创作 Tab 未进入选中态")
         XCTAssertTrue(
             app.staticTexts["先保存一张照片"].waitForExistence(timeout: 5),
             "创作页空状态未渲染"
         )
 
         // 首页（Tab 1）：返回后主界面仍在
-        app.tabBars.buttons["首页"].tap()
+        app.buttons["tab.home"].tap()
         XCTAssertTrue(
-            app.tabBars.buttons["创作"].waitForExistence(timeout: 5),
+            app.buttons["tab.home"].isSelected,
             "切回首页后 Tab 栏异常"
         )
     }

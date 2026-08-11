@@ -7,6 +7,8 @@
 
 > Figma 框架进度（2026-08-10）：已在连接文件建立 `00 · Cover & Status` 至 `11 · Export & Handoff` 共 12 个 Page，并在各 Page 放置交付板；首次闭环、首页、相册导入、照片详情、编辑器、伙伴档案、时间线、创作和伙伴卡片的第一批主帧已落位，核心主帧已使用 `ui_draft` 伙伴摄影素材验证裁切、圆角、照片层级和珊瑚色行动按钮。当前口径为“框架已搭建、主稿已落位、逐帧状态与素材仍待精修”，不等同于 iOS 已交付。
 
+> 2026-08-11 视觉定稿节点：[08 · Applied Refinement · Micro Grammar](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=140-292) 与 [09 · Core Flow · Precision Continuity](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=211-240)。功能代码落地以这两个节点和 [UI-DESIGN.md §5.4–§5.5](../UI-DESIGN.md#54-底部主导航memory-orbit) 为准；主行动使用 `Archive Spine Action`，不再参考旧的悬浮 Tab、全圆胶囊、缺角主按钮、手绘装饰线或文本化 Core Flow 探索稿。
+
 ## 1. 先记住的边界
 
 - Figma 的执行规格以 [`UI-DESIGN.md`](../UI-DESIGN.md) 为准；旧版页面原型只保留叙事背景，不再作为布局和能力承诺依据。

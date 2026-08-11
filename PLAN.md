@@ -1,6 +1,6 @@
 # MiLens iOS 迁移计划
 
-最后核对：2026-08-10（P0–P4 状态全量同步；P5 首页/设置/订阅/付费墙/元数据已实现 + 上架流水线代码落地待实测；评审高优先级+中优先级修复全部落地；严格并发开启 + ViewModelFactory 分层收敛 + 评审阻塞修复（编辑产物备份分区 / Photos 取消桥接 / 权益注册表取消墓碑 / View 注入全收敛 / UI Test+measure / 本地化规范化）落地；本地化：工具链 plural + 动态文案 10 类收口 8 类（a11y/通知/宠物卡片/水印/分享/首页/启动错误/时间线导出），catalog 260+3 key，check 全绿，见状态摘要；剩性能基准、截图、iPad/深色检查与真机验收，见 [P2-待办清单](docs/P2-待办清单.md)）
+最后核对：2026-08-11（P0–P4 状态全量同步；P5 首页/设置/订阅/付费墙/元数据已实现 + 上架流水线代码落地待实测；评审高优先级+中优先级修复全部落地；严格并发开启 + ViewModelFactory 分层收敛 + 评审阻塞修复（编辑产物备份分区 / Photos 取消桥接 / 权益注册表取消墓碑 / View 注入全收敛 / UI Test+measure / 本地化规范化）落地；Figma Direction D「Memory Orbit」底部导航已接入真实 SwiftUI；本地化：工具链 plural + 动态文案 10 类收口 8 类（a11y/通知/宠物卡片/水印/分享/首页/启动错误/时间线导出），catalog 269+3 key，源语言检查全绿，其他 6 个首发语言仍待翻译；剩性能基准、截图、iPad/深色检查与真机验收，见 [P2-待办清单](docs/P2-待办清单.md)）
 
 > 里程碑与任务清单。架构见 [DESIGN.md](DESIGN.md)，映射与范围见 [MIGRATION_ASSESSMENT.md](MIGRATION_ASSESSMENT.md)，约束见 [AGENTS.md](AGENTS.md)。
 
@@ -49,6 +49,9 @@
 - [x] 在 Mac 上 `xcodegen generate` 生成 `.xcodeproj`，编译空 App 启动（P0 已在 CI 验证 BUILD SUCCEEDED）
 - [x] `MiLensApp`（`@main`）组合根 + `scenePhase` 生命周期骨架；`ModelContainer` 待 P1.2 SwiftData `@Model` 接入
 - [x] TabView 壳（首页/宠物/创作/我的）+ 路由枚举 `Route` + `AppTab`（`@AppStorage` 持久化选中项）
+- [x] Figma Direction D「Memory Orbit」底部导航落地：350×70 浮层、四套固定矢量路径、无可见文字、浅/深色 token、VoiceOver Selected 状态与稳定 UI Test 标识；页面生命周期仍由系统 `TabView` 管理
+- [ ] 按 2026-08-11 Figma 定稿更新 `MemoryOrbitTabBar`：悬浮胶囊改为贴底安全区材质平面；选中短刻度改为精确深铜红直线；圆形轨道以三层矢量弧实现右深粗、左浅细的锥度和约 0.34–0.38s 描边动效；Reduce Motion 直接显示最终态，并补 iPhone/iPad、浅/深色截图测试
+- [ ] 将 Core Flow 主按钮实现为 `ArchiveSpineActionStyle`：14–16pt 圆角行动板 + 2pt 层压边 + 深铜书脊端片 + 动作专属图形；覆盖导入照片、加入记忆、保存记忆、生成拼豆和高清导出，禁止回退到全圆胶囊、缺角按钮或手绘装饰线
 - [x] v1 主题 token 已代码化；[UI Rework v2.0](UI-DESIGN.md) 已重新审计并修订动作色、字体边界、响应式和组件规格。**v2 迁移已落地（2026-08-09）**：v2 token（`ActionPrimary`/`AccentSoft`/`Border` 等）已代码化进 `Color+Theme.swift`，首页/创作/设置/引导页均按 v2 重构（git bea5b2f/bf23ce2/f85e22f），操作层用系统字体、文楷仅作稀缺情感标题
 - [x] 本地化 String Catalog（`Localizable.xcstrings` + `InfoPlist.xcstrings`，源语言简中，结构支持任意语言；`String(localized:)` API）；`tools/localization.py` 导出/导入/校验工具；App Icon / 占位图待源端资源整理后补
 

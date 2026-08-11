@@ -3,7 +3,7 @@ import XCTest
 
 /// P1.1：底部导航枚举 AppTab 纯逻辑测试。
 /// 覆盖 Tab 顺序（对应 DESIGN.md §1 设计稿「首页 | 宠物 | 创作 | 我的」）、
-/// rawValue 持久化稳定性（@AppStorage 存 rawValue）、图标非空。
+/// rawValue 持久化稳定性（@AppStorage 存 rawValue）、无障碍标识稳定性。
 final class AppTabTests: XCTestCase {
     func testTabOrderMatchesDesign() {
         XCTAssertEqual(AppTab.allCases, [.home, .pets, .create, .settings])
@@ -23,10 +23,12 @@ final class AppTabTests: XCTestCase {
         }
     }
 
-    func testSystemImageNotEmpty() {
-        for tab in AppTab.allCases {
-            XCTAssertFalse(tab.systemImage.isEmpty, "Tab \(tab) 缺少 SF Symbol 图标")
-        }
+    func testAccessibilityIdentifiersAreStable() {
+        XCTAssertEqual(AppTab.home.accessibilityIdentifier, "tab.home")
+        XCTAssertEqual(AppTab.pets.accessibilityIdentifier, "tab.pets")
+        XCTAssertEqual(AppTab.create.accessibilityIdentifier, "tab.create")
+        XCTAssertEqual(AppTab.settings.accessibilityIdentifier, "tab.settings")
+        XCTAssertEqual(Set(AppTab.allCases.map(\.accessibilityIdentifier)).count, 4)
     }
 }
 

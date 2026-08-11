@@ -44,8 +44,8 @@ enum Sizing {
     static let iconLg: CGFloat = 24
     /// 触控目标最小尺寸（iOS HIG ≥ 44pt）
     static let touchTarget: CGFloat = 44
-    /// 标准底部导航栏高度
-    static let tabBarHeight: CGFloat = 56
+    /// Memory Orbit 底部导航浮层高度；单个按钮仍为 56pt。
+    static let tabBarHeight: CGFloat = 70
 }
 
 /// 内容最大可读宽度（UI-DESIGN.md §5.1：正文 680 / 表单 620）。

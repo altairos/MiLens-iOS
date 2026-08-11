@@ -313,6 +313,8 @@ UI 文案与 Info.plist 权限说明用 Apple String Catalog（`.xcstrings`）�
 
 ### P1
 
+- 2026-08-11：**Memory Orbit 品牌底部导航落地（Windows/WSL 本地验证）**——系统 `TabView` 继续管理四个根页面与 `@AppStorage` 选中项，系统栏隐藏后由 `MemoryOrbitTabBar` 通过 `safeAreaInset` 展示；按 Figma Direction D 原始节点实现 4 套固定 `Path`、56pt 按钮、350×70 浮层、浅/深色语义 token，并保留本地化 VoiceOver 标签、Selected trait 与稳定 UI Test identifier。同步更新 AppTab 单测和 2 个 UI 冒烟测试。验证：WSL Swift 6.1.3 `swiftc -parse` 7 个改动 Swift 文件通过；`check-ui-tokens.py` 129 文件 **0 ERROR**；String Catalog 源语言/引用检查 269+3 key 通过；完整 7 语言检查仍因既有 6 语言未翻译报 1632 项，不是本次新增回归。App 编译、XCTest、模拟器浅/深色及 VoiceOver 实测依赖 macOS Xcode，**未执行**。
+
 - 2026-08-08：**AI 模型转换工具链落地**——新增 3 个 Python 脚本 + `tools/requirements-models.txt`：①`tools/convert_clip_coreml.py`（CLIP ViT-B/32 vision encoder → Core ML `.mlpackage`，只导 image_features 512 维，支持 INT8/FP16 量化，精度校验 cosine >0.999）；②`tools/convert_rtmpose_coreml.py`（RTMPose-t ONNX → Core ML，SimCC 输出，精度校验 <2px）；③`tools/prepare_text_embeddings.py`（text embeddings f32 格式校验 + Swift 加载代码生成）。三个脚本 `py_compile` 全绿；`prepare_text_embeddings.py --verify-only` 对源端 `pet_text_embeddings.f32`（40960 bytes = 20×512×4）实跑通过，L2 范数全部正常。转换+量化实跑需 macOS（coremltools 依赖）。
 
 ### P2

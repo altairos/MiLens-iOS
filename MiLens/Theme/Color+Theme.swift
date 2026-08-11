@@ -33,6 +33,8 @@ extension Color {
     static let milensTextSecondary = Color("TextSecondary")
     /// 占位/时间戳/最弱信息（浅：#A89F97 / 深：#7A6F64）
     static let milensTextTertiary = Color("TextTertiary")
+    /// 记忆轨道未选中端点（浅：#8E837A / 深：#91857A）
+    static let milensMemoryMarker = Color("MemoryMarker")
     /// 品牌色按钮上的文字（纯白）
     static let milensTextOnAccent = Color("TextOnAccent")
     /// 高对比主动作文字（浅色白字 / 深色暖黑字）

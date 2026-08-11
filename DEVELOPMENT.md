@@ -295,6 +295,14 @@ UI 文案与 Info.plist 权限说明用 Apple String Catalog（`.xcstrings`）�
 
 > **复数（plural）key 支持（2026-08-10）**：`export` 按变体拆行（`key[one]` / `key[other]` 行，variation 列标注），`import` 合并回写 `variations.plural`，`check` 校验缺变体与占位符漂移（en/de/fr 需 one/other，zh/ja/ko 单条 other）。GUI 与资产工作簿已同步。复数 key 以 `%lld` 结尾（如 `paywall.cta.trial %lld`），代码侧以插值调用（`String(localized: "paywall.cta.trial \(days)")`）。
 
+> **check 门禁增强（2026-08-12）**：`check` 现输出每语言进度统计表（total/ok/review/missing/完成度），并新增多项检测：
+> - **默认阻断**：缺译（`new`/空值）、代码缺 key、**普通条目占位符漂移**（译文漏 `%@`/`%d` 会运行时崩或畸形）。
+> - `--strict`：把 `needs_review` 初译待审也计为阻断（发布门禁用）；默认仅警告。多余 key 仍只警告。
+> - `--length-rules <json>`：按 `tools/loc-length-rules.example.json` 格式校验译文长度（优先级：精确 key > comment `[len:N]` > 最长匹配前缀 > default），超限阻断。
+> - `--hardcoded`：扫描 Swift 源码中疑似硬编码的用户可见文案（Text/Label/Button/navigationTitle 等首参含 CJK 且不在 catalog），是日期/年龄/性别等动态内容被写死的高发区检测。
+>
+> 核心统计语义（`LangStatus`/`scan_statuses`）已从 GUI 下沉到 `localization.py`，CLI 与 GUI 共用。单测：`python tools/test_localization.py`（纯 stdlib，不依赖 openpyxl）。
+
 **桌面 GUI（可选）**：`python tools/localization-gui.py` 启动 tkinter 本地化工作台——语言进度总览（7 语种实时统计）、缺译清单（双击复制 key）、一键完整 check / 导出 / 导入 / 生成资产工作簿 / 打开工作簿；任务在后台线程执行不冻结界面。无显示环境可用 `python tools/localization-gui.py --self-check` 做结构自检。GUI 复用 `localization.py` 与 `localization-assets.py` 的全部逻辑，不引入额外依赖。
 
 > **全球首发多语言计划（7 语言：zh-Hans/zh-Hant/ja/ko/en/fr/de）见 [docs/Localization-Plan.md](docs/Localization-Plan.md)**——含各国市场注意要点（日本丁寧語/韩国 반려동물 红线/德语 Bügelperlen 术语与长度预算/法语阴阳性等）、术语表、ASO 策略、翻译批次与验收标准。首次接入新语言前先读该文档，并按其中 §10 工作项顺序执行。

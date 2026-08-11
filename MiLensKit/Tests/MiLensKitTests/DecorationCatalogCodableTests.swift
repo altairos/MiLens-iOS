@@ -113,7 +113,7 @@ final class DecorationCatalogCodableTests: XCTestCase {
             fitMode: .ninePatch,
             ninePatchInsets: NinePatchInsets(top: 1, left: 2, bottom: 3, right: 4))
         let encoded = try JSONEncoder().encode(item)
-        let json = try XCTUnwrap(String(data: encoded, encoding: .utf-8))
+        let json = try XCTUnwrap(String(data: encoded, encoding: String.Encoding.utf8))
         // 关键字段名（与 tools/frame_import.py manifest_to_catalog_item 输出对齐）
         XCTAssertTrue(json.contains("\"resourcePath\""))
         XCTAssertTrue(json.contains("\"previewPath\""))

@@ -1,0 +1,16 @@
+{
+  "_comment": "localization.py check --length-rules 示例。规则优先级：keys 精确 > comment [len:N] > prefixes 最长前缀 > default。App Store 字符限制（名称/副标题 30、推广文本 170）与 UI 经验预算（按钮/Tab 宜短，a11y/描述可长）的折中。复制为 loc-length-rules.json 后按需调整。",
+  "default": 60,
+  "keys": {
+    "CFBundleDisplayName": 30,
+    "NSPhotoLibraryUsageDescription": 100,
+    "NSPhotoLibraryAddUsageDescription": 100
+  },
+  "prefixes": {
+    "a11y.": 80,
+    "paywall.": 60,
+    "settings.": 50,
+    "common.": 40
+  },
+  "comment_tag": "len"
+}

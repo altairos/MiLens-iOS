@@ -1,6 +1,6 @@
 # MiLens iOS 迁移计划
 
-最后核对：2026-08-11（P0–P4 状态全量同步；P5 首页/设置/订阅/付费墙/元数据已实现 + 上架流水线代码落地待实测；评审高优先级+中优先级修复全部落地；严格并发开启 + ViewModelFactory 分层收敛 + 评审阻塞修复（编辑产物备份分区 / Photos 取消桥接 / 权益注册表取消墓碑 / View 注入全收敛 / UI Test+measure / 本地化规范化）落地；Figma Direction D「Memory Orbit」底部导航已接入真实 SwiftUI；本地化：工具链 plural + 动态文案 10 类收口 8 类（a11y/通知/宠物卡片/水印/分享/首页/启动错误/时间线导出），catalog 269+3 key，源语言检查全绿，其他 6 个首发语言仍待翻译；剩性能基准、截图、iPad/深色检查与真机验收，见 [P2-待办清单](docs/P2-待办清单.md)）
+最后核对：2026-08-12（情感触点系统 Stage 1–3 + 创作 Tab 新增「宠物名片」「红包封面」两个项目落地；纯决策逻辑全量下沉 MiLensKit，WSL2 `swift test` 761/761 全绿、本轮新增 138 用例零回归；App 层渲染与集成代码就位待 Mac 编译验证，详见 [docs/情感触点-Mac待办备忘.md](docs/情感触点-Mac待办备忘.md)；其余状态同 2026-08-11：P0–P4 状态全量同步；P5 首页/设置/订阅/付费墙/元数据已实现 + 上架流水线代码落地待实测；评审高优先级+中优先级修复全部落地；严格并发开启 + ViewModelFactory 分层收敛 + 评审阻塞修复落地；Figma Direction D「Memory Orbit」底部导航已接入真实 SwiftUI；本地化：工具链 plural + 动态文案 10 类收口 8 类，catalog 269+3 key，源语言检查全绿，其他 6 个首发语言仍待翻译；剩性能基准、截图、iPad/深色检查与真机验收，见 [P2-待办清单](docs/P2-待办清单.md)）
 
 > 里程碑与任务清单。架构见 [DESIGN.md](DESIGN.md)，映射与范围见 [MIGRATION_ASSESSMENT.md](MIGRATION_ASSESSMENT.md)，约束见 [AGENTS.md](AGENTS.md)。
 
@@ -51,7 +51,7 @@
 - [x] TabView 壳（首页/宠物/创作/我的）+ 路由枚举 `Route` + `AppTab`（`@AppStorage` 持久化选中项）
 - [x] Figma Direction D「Memory Orbit」底部导航落地：350×70 浮层、四套固定矢量路径、无可见文字、浅/深色 token、VoiceOver Selected 状态与稳定 UI Test 标识；页面生命周期仍由系统 `TabView` 管理
 - [ ] 按 2026-08-11 Figma 定稿更新 `MemoryOrbitTabBar`：悬浮胶囊改为贴底安全区材质平面；选中短刻度改为精确深铜红直线；圆形轨道以三层矢量弧实现右深粗、左浅细的锥度和约 0.34–0.38s 描边动效；Reduce Motion 直接显示最终态，并补 iPhone/iPad、浅/深色截图测试
-- [ ] 将 Core Flow 主按钮实现为 `ArchiveSpineActionStyle`：14–16pt 圆角行动板 + 2pt 层压边 + 深铜书脊端片 + 动作专属图形；覆盖导入照片、加入记忆、保存记忆、生成拼豆和高清导出，禁止回退到全圆胶囊、缺角按钮或手绘装饰线
+- [ ] 将 Core Flow 主按钮实现为 `PrimaryActionMaterialStyle`（名称可随代码结构调整）及三种语义变体：`.contactProof` 仅用于照片扫描/导入，`.focusDial` 用于加入记忆与保存记忆，`.darkroomPulse` 用于生成拼豆与高清导出；按 [UI-DESIGN.md §5.5](UI-DESIGN.md#55-容器微语法precision-fold-material) 落实动作专属矢量图形、44pt 最小触控区、浅/深色 token、Reduce Motion 与 iPhone/iPad 截图测试，禁止回退到统一书脊尾块、全圆胶囊、缺角按钮、装订点或手绘装饰线
 - [x] v1 主题 token 已代码化；[UI Rework v2.0](UI-DESIGN.md) 已重新审计并修订动作色、字体边界、响应式和组件规格。**v2 迁移已落地（2026-08-09）**：v2 token（`ActionPrimary`/`AccentSoft`/`Border` 等）已代码化进 `Color+Theme.swift`，首页/创作/设置/引导页均按 v2 重构（git bea5b2f/bf23ce2/f85e22f），操作层用系统字体、文楷仅作稀缺情感标题
 - [x] 本地化 String Catalog（`Localizable.xcstrings` + `InfoPlist.xcstrings`，源语言简中，结构支持任意语言；`String(localized:)` API）；`tools/localization.py` 导出/导入/校验工具；App Icon / 占位图待源端资源整理后补
 
@@ -407,3 +407,15 @@ P1 核心可靠性与性能六项修复全部落地（实现记录见状态摘�
   **接口预留（数据模型锁定）**：⑦**编辑器装饰**：MiLensKit `DecorationCatalog`（边框/贴纸资源目录 + Pro 门控元数据，复用已有 `EditorLayerType.frame/.sticker`）。⑧**实体打印**：`MiLens/Services/Print/PrintService.swift`（协议 + `PrintProductType`/`PrintProductSpec`/`PrintQuote`/`PrintOrder` 数据模型 + `UnavailablePrintService` 占位）。⑨**离线备份**：`MiLens/Services/Backup/BackupService.swift`（协议 + `BackupManifest`/`BackupMetadata`/`PetSnapshot`/`PhotoSnapshot` 数据模型 + ZIP 打包格式定义 + `UnavailableBackupService` 占位；方案选定 A（ZIP + ShareSheet）核心 + B（iTunes File Sharing）补充，排除 C（系统相册丢元数据）和 D（iCloud 违背不联网约束））。⑩**相簿浏览模式**：MiLensKit `GalleryMode` 枚举（网格免费 / 剪贴簿 / 拍立得散页 / 杂志 Pro）。
 
   **Pro 权益扩展**：`ProFeature` 新增 `.photoStorage` / `.watermarkFreeExport` / `.cardTemplates` / `.timelineExport` / `.offlineBackup` / `.albumModes` 6 个权益项 + 对应本地化字符串。
+
+- 2026-08-12：**情感触点系统 Stage 1–3 + 创作 Tab 两个新项目落地**——本轮分两批推进 ADR-0010 §3 情感触点系统与创作 Tab 扩展。架构原则贯穿：纯决策逻辑下沉 MiLensKit（可 WSL2 `swift test` 全绿），App 层渲染与集成需 Mac。详见 [docs/情感触点-Mac待办备忘.md](docs/情感触点-Mac待办备忘.md)。
+
+  **批次一：情感触点系统 Stage 1–3 纯逻辑（MiLensKit，79 用例全绿）**：①**Stage 1 纪念日卡片强化 + 里程碑**——`MemoryCardKind`（6 种卡片类型统一枚举，ADR-0010 §10.11）+ `MilestoneLogic`（相处 100/365/730/1000 天里程碑命中/下一个/日期计算/批量窗口/文案，33 用例）；`PetCardLogic`/`PetCardView`/`Route.petCard` 增加 `kind` 参数（向后兼容，kind=nil 行为不变）+ 3 个 kind 驱动测试。②**Stage 2 成长对比卡片**——`GrowthCompareLogic`（双照片排序/年龄标签/间隔标签/结果构建，20 用例）+ App 层 `GrowthComparePhotoPickerView`（双选）+ `GrowthCompareView`/`GrowthCompareArtwork`（上下分屏双图 + 时间标签 + 间隔条 + Pro 门控）+ CreateView 入口 + Route。③**Stage 3 月度精选/年度回忆册**——`MemoryRecapLogic`（按月/年筛选 + qualityScore 排序 + isBest 去重 + 里程碑穿插，18 用例）+ `ExportQuality`（standard 1080px / high 2400px 画质门控 + 尺寸缩放，8 用例）。④**横切**——`MetricsRecorder`（ADR-0010 §3.4 本地匿名指标计数，11 事件 enum，无联网/无 PII，5 用例）。
+
+  **批次二：创作 Tab 两个新项目**：⑤**宠物名片卡（信息导向）**——`BusinessCardTemplate`（standard 免费 / elegant / playful / minimal Pro）+ `PetBusinessCardLogic`（数据投影/组装/标签规范化（去空白去重保序截断）/长度校验/副标题/主人行，30 用例）；App 层 `BusinessCardPickerView`（选宠物）+ `BusinessCardView`（4 套排版 + 标签编辑 + 简介/主人称呼 + `FlowLayout` 自定义流式布局 + UserDefaults 草稿按 petID 缓存不扩 SwiftData schema + Pro 门控）。⑥**微信红包封面（规格导出 + 场景预览）**——`WeChatRedPacketSpec`（微信平台硬规格常量：957×1278 / ≤500KB / 750×1250 故事图 / 200×200 logo / 8 字简称 / 安全区比例）+ `RedPacketCoverLogic`（简称截断/三类规格校验/上传引导 5 步/文件名，24 用例）；App 层 `RedPacketCoverPickerView`（选照片）+ `RedPacketCoverView`/`RedPacketCoverArtwork`（957×1278 排版 + 封面简称编辑 + PNG→JPEG 大小降级链满足 ≤500KB）+ `WeChatRedPacketMockView`（拆红包页/发红包页/消息气泡/详情页 4 场景中性 UI 预览，不复刻微信商标）+ 上传引导 sheet（含注册门槛提示）。边界：App 只生成素材与预览，不介入发布（发布需用户登录 cover.weixin.qq.com，有注册门槛 + 审核 + 付费）。
+
+  **Route 与入口**：`Route` 新增 `growthCompare`/`businessCard`/`redPacketCover` 共 6 个 case + RootTabView 分发；`CreateView` 创作 Tab 项目清单从 2 个扩展到 5 个（拼豆图纸/伙伴卡片/成长对比/宠物名片/红包封面），入口视觉沿用「原图→成品」示例模式。
+
+  **验证**：WSL2 Swift 6.1.3 `swift test` **761/761 通过**（本轮新增 138 用例全绿，零回归；预存 2 个 Linux 专属失败为 DecorationCatalog JSON 字段名测试，macOS 上全绿）。App 层编译/渲染/真机验证需 Mac（见 [docs/情感触点-Mac待办备忘.md](docs/情感触点-Mac待办备忘.md)）。附带修复：`DecorationCatalogCodableTests.swift:116` `.utf8` → `String.Encoding.utf8`（解锁 WSL2/Linux 测试编译）。UI-DESIGN.md §1.2/§6.6 创作 Tab 项目清单已同步更新。
+
+  **待完成（需 Mac）**：①App 编译验证 + 类型/并发修复（P0 阻塞）；②新增本地化 key（`pet.card.birthdayYears`/`memory.kind.*`/`businessCard.template.*`/`redpacket.guide.*` 等）；③NotifyService 里程碑通知调度（用 MilestoneLogic.upcomingMilestones 预排）；④RecapView + TimelineExportCanvas ExportQuality 扩展；⑤指标埋点接入各触点；⑥红包封面真机验证（导出 PNG 上传 cover.weixin.qq.com 规格校验 + PNG→JPEG 降级链）。

@@ -419,16 +419,19 @@ python tools/localization.py import docs/localization/global-localization.xlsx M
 
 | 门禁 | 工具 | 触发时机 | 通过标准 |
 |---|---|---|---|
-| key 完整性 | `localization.py check` | CI Lint 作业 + 本地 | 代码缺 key 阻断；多余 key 与格式不一致当前仅告警，发布前需升级为阻断 |
-| 缺译检测 | `localization.py check` | 同上 | 当前已阻断缺失/空值/`new`；发布门禁还需阻断 `needs_review`，并输出每语言计数 |
+| key 完整性 | `localization.py check` | CI Lint 作业 + 本地 | 代码缺 key 阻断；多余 key 警告（不阻断） |
+| 缺译检测 + 每语言计数 | `localization.py check` | 同上 | 阻断缺失/空值/`new`；输出每语言进度统计表；`--strict` 把 `needs_review` 升级为阻断 |
+| 占位符漂移 | `localization.py check` | 同上 | 普通条目译文 `%d`/`%@` 占位符集合与源一致（默认阻断）；复数条目由 plural 校验 |
+| 译文长度 | `localization.py check --length-rules` | 每语言导入后 | 按 `tools/loc-length-rules.example.json` 规则校验超限（精确 key > comment `[len:N]` > 最长前缀 > default）|
+| 硬编码文案 | `localization.py check --hardcoded` | 翻译前 + CI | 无 SwiftUI 文案 API（Text/Label/Button/navigationTitle 等）首参含 CJK 且不在 catalog 的硬编码 |
 | 动态文案完整性 | `localization.py check`（plural 支持已落地）+ 固定 locale 快照测试 | 每语言导入后 | plural 键完整（en/de/fr one/other，zh/ja/ko 单条）；`%d`/`%@`/`\n` 占位符与代码引用一致（§3.6）|
 | 术语一致性 | 术语表人工走查 | 每语言翻译完成 | 核心术语逐条对照 §8 |
-| 长度/截断 | 模拟器截图走查 | 每语言导入后 | 无截断、无溢出、无重叠（de/fr 必查）|
+| 长度/截断（视觉） | 模拟器截图走查 | 每语言导入后 | 无截断、无溢出、无重叠（de/fr 必查）|
 | 字体缺字 | 模拟器截图走查 | zh-Hant/ja/ko 导入后 | display 字体回退正确（§4.8 技术项）|
 | 商店文案一致性 | 人工核对 | 上架前 | 描述/截图/审核备注与实际功能一致（诚实原则）|
 | 隐私政策可访问 | 人工核对 | 上架前 | 各语言 URL 可访问、内容与 App 行为一致 |
 
-> CI 后续需增强：`localization.py check` 增加每语言缺译计数，并在发布门禁中阻断 `needs_review`、多余 key 和格式不一致；当前 CI 已接入基础缺译检查。
+> check 增强（2026-08-12）：每语言缺译计数、占位符漂移（默认阻断）、`--strict`（needs_review 阻断）、`--length-rules`、`--hardcoded` 均已落地，单测见 `tools/test_localization.py`（17 用例）。CI 接入 `--strict` 即可作发布门禁；多余 key 与格式不一致（非 Xcode 风格）仍仅告警。
 
 ### 6.1 自动化检查与伪本地化
 
@@ -535,7 +538,7 @@ App Store 元数据与 App 内翻译分别验收，提交 ASC 前逐语言核对
 | 4 | en 全量审校 + 导入 + check | #3 | 1 天 |
 | 5 | ja + zh-Hant 翻译 | #4 | 1-2 天 |
 | 6 | ko + de + fr 翻译（de/fr 长度专项）| #4 | 1-2 天 |
-| 7 | `localization.py check` 增加每语言统计，并让发布门禁阻断 `needs_review`、多余 key、格式不一致 | #4 | 0.5-1 天 |
+| 7 | `localization.py check` 增强：每语言统计 + `needs_review`(`--strict`)/占位符漂移(默认阻断)/长度规则(`--length-rules`)/硬编码检测(`--hardcoded`)；单测 `tools/test_localization.py` | #4 | ✅ 已完成（2026-08-12）|
 | 7.5 | 工具链 plural 支持（export 拆行 `key[one]/[other]` / import 合并回写 / check 完整性 / GUI 与资产工作簿同步）| #7 | ✅ 已完成（端到端测试通过）|
 | 7.6 | accessibilityLabel 等 UI 字面量核对与迁移（22 处 → `String(localized:)` 或 catalog 补 key）| #7 | ✅ 已完成（25 个 `a11y.*` key）|
 | 7.7 | 纯逻辑层动态文案本地化（通知 6 模板 / 宠物卡片 / 物种名 / 年龄 / 时间线导出 / 水印 / 分享 / 首页 / 启动错误）| #7.6 | ✅ 已完成（代码部分；快照测试 → #7.7b）|

@@ -6,6 +6,7 @@
 //  DESIGN.md §4：纯决策逻辑，无 IO/无 SwiftUI 依赖。
 
 import Foundation
+import MiLensKit
 
 /// 卡片文案与模板参数（Equatable/Sendable，供预览与导出共用）。
 struct PetCardContent: Equatable, Sendable {
@@ -38,21 +39,24 @@ enum PetCardLogic {
     ///   - calendar: 日历（默认 current，与 PetDisplayLogic 一致）。
     ///   - locale: 文案语言（默认当前环境；测试传固定 locale）。
     static func content(
-        pet: Pet?, takenAt: Date?, now: Date = Date(), calendar: Calendar = .current, locale: Locale = .current
+        pet: Pet?, takenAt: Date?, now: Date = Date(), calendar: Calendar = .current, locale: Locale = .current,
+        kind: MemoryCardKind? = nil
     ) -> PetCardContent {
         guard let pet else {
             return PetCardContent(
                 title: String(localized: "pet.card.fallbackTitle", locale: locale),
                 emoji: "\u{1F43E}", // 🐾
                 subtitle: String(localized: "pet.card.fallbackSubtitle", locale: locale),
-                dateLine: dateLine(takenAt: takenAt, pet: nil, now: now, calendar: calendar, locale: locale)
+                dateLine: dateLine(takenAt: takenAt, pet: nil, now: now, calendar: calendar, locale: locale,
+                                   kind: kind)
             )
         }
         return PetCardContent(
             title: pet.name,
             emoji: PetProfileLogic.speciesEmoji(pet.species),
             subtitle: subtitle(for: pet, now: now, calendar: calendar, locale: locale),
-            dateLine: dateLine(takenAt: takenAt, pet: pet, now: now, calendar: calendar, locale: locale)
+            dateLine: dateLine(takenAt: takenAt, pet: pet, now: now, calendar: calendar, locale: locale,
+                               kind: kind)
         )
     }
 
@@ -67,10 +71,26 @@ enum PetCardLogic {
             : String(localized: "pet.card.subtitle \(species) \(age)", locale: locale)
     }
 
-    /// 日期行：有领养日 → 「来到家 N 天」（纪念语义优先）；否则拍摄日期。
+    /// 日期行：按 kind 优先级组装。
+    /// - kind == .milestone 且有领养日 → 里程碑文案（「来到家 365 天」，用 MilestoneLogic 计算）
+    /// - 有领养日 → 「来到家 N 天」（纪念语义优先）
+    /// - kind == .birthday 且有生日 → 「N 岁生日」
+    /// - 否则拍摄日期
     static func dateLine(
-        takenAt: Date?, pet: Pet?, now: Date = Date(), calendar: Calendar = .current, locale: Locale = .current
+        takenAt: Date?, pet: Pet?, now: Date = Date(), calendar: Calendar = .current, locale: Locale = .current,
+        kind: MemoryCardKind? = nil
     ) -> String {
+        // 里程碑优先：用 MiLensKit MilestoneLogic 文案（与通知同源）
+        if kind == .milestone, let pet, let adoptionDay = pet.adoptionDay {
+            let days = PetDisplayLogic.daysTogether(from: adoptionDay, now: now)
+            return String(localized: "pet.card.daysHome \(days)", locale: locale)
+        }
+        // 生日纪念：显示「N 岁生日」
+        if kind == .birthday, let pet, let birthday = pet.birthday {
+            let years = max(0, calendar.dateComponents([.year], from: birthday, to: now).year ?? 0)
+            return String(localized: "pet.card.birthdayYears \(years)", locale: locale)
+        }
+        // 领养日纪念（默认语义）
         if let pet, let adoptionDay = pet.adoptionDay {
             let days = PetDisplayLogic.daysTogether(from: adoptionDay, now: now)
             // 复数 key（pet.card.daysHome %lld）：en 需 one/other 变体

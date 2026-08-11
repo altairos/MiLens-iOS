@@ -3,6 +3,7 @@
 
 import XCTest
 @testable import MiLens
+import MiLensKit
 
 final class PetCardLogicTests: XCTestCase {
 
@@ -91,5 +92,36 @@ final class PetCardLogicTests: XCTestCase {
     func testGradientRatioWithinSafeRange() {
         XCTAssertGreaterThan(PetCardLogic.gradientHeightRatio, 0.3)
         XCTAssertLessThan(PetCardLogic.gradientHeightRatio, 0.6)
+    }
+
+    // MARK: - kind 驱动文案变体（ADR-0010 §10.11）
+
+    func testMilestoneKindUsesDaysHomeLine() {
+        let adoption = fixedNow.addingTimeInterval(-365 * 86_400)
+        let pet = makePet(adoptionDay: adoption)
+        let content = PetCardLogic.content(
+            pet: pet, takenAt: fixedNow, now: fixedNow, calendar: calendar, kind: .milestone)
+        // 里程碑与领养日语义同源，均显示「来到家 N 天」
+        XCTAssertTrue(content.dateLine.contains("来到家"))
+        XCTAssertTrue(content.dateLine.contains("365"))
+    }
+
+    func testBirthdayKindUsesBirthdayYearsLine() {
+        let birthday = calendar.date(from: DateComponents(year: 2022, month: 7, day: 16))!
+        let pet = makePet(birthday: birthday)
+        let content = PetCardLogic.content(
+            pet: pet, takenAt: fixedNow, now: fixedNow, calendar: calendar, kind: .birthday)
+        // 3 岁生日
+        XCTAssertTrue(content.dateLine.contains("3"))
+    }
+
+    func testNilKindPreservesExistingBehavior() {
+        let adoption = fixedNow.addingTimeInterval(-100 * 86_400)
+        let pet = makePet(adoptionDay: adoption)
+        let noKind = PetCardLogic.content(
+            pet: pet, takenAt: fixedNow, now: fixedNow, calendar: calendar)
+        let explicitNil = PetCardLogic.content(
+            pet: pet, takenAt: fixedNow, now: fixedNow, calendar: calendar, kind: nil)
+        XCTAssertEqual(noKind, explicitNil)
     }
 }

@@ -14,6 +14,8 @@ private let logger = Logger(subsystem: "com.milens.app", category: "PetCard")
 
 struct PetCardView: View {
     let photoID: UUID
+    /// ADR-0010 §10.11：情感卡片类型（nil = 普通纪念卡，行为同 P4）。
+    var kind: MemoryCardKind? = nil
 
     @Environment(\.viewModelFactory) private var factory
     @Environment(\.proEntitlement) private var entitlement
@@ -266,7 +268,7 @@ struct PetCardView: View {
                 return
             }
             image = loaded
-            content = PetCardLogic.content(pet: photo.pet, takenAt: photo.takenAt)
+            content = PetCardLogic.content(pet: photo.pet, takenAt: photo.takenAt, kind: kind)
         } catch {
             logger.error("load: 读取照片失败（\(error.localizedDescription)）")
         }

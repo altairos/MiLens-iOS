@@ -58,6 +58,9 @@ struct CreateView: View {
                 } else {
                     beadEntry
                     petCardEntry
+                    growthCompareEntry
+                    businessCardEntry
+                    redPacketCoverEntry
                 }
             }
             .frame(maxWidth: 760, alignment: .leading)
@@ -140,6 +143,54 @@ struct CreateView: View {
         .accessibilityLabel(String(localized: "a11y.create.petCardEntry"))
     }
 
+    // MARK: - 成长对比入口（ADR-0010 §3.3，Stage 2）
+
+    private var growthCompareEntry: some View {
+        NavigationLink(value: Route.growthComparePhotoPicker) {
+            growthCompareProjectRow
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel("成长对比")
+    }
+
+    private var growthCompareProjectRow: some View {
+        VStack(spacing: 0) {
+            HStack(spacing: Spacing.lg) {
+                // 示例视觉：两张照片叠放示意（复用现有照片或占位）
+                ZStack {
+                    RoundedRectangle(cornerRadius: Radius.medium, style: .continuous)
+                        .fill(Color.milensGrouped)
+                    Image(systemName: "arrow.left.arrow.right")
+                        .font(.system(size: 28, weight: .light))
+                        .foregroundStyle(Color.milensTextSecondary)
+                }
+                .frame(width: 104, height: 130)
+                .clipShape(RoundedRectangle(cornerRadius: Radius.medium, style: .continuous))
+
+                VStack(alignment: .leading, spacing: Spacing.sm) {
+                    Text("成长对比")
+                        .font(.titleStandard)
+                        .foregroundStyle(Color.milensTextPrimary)
+
+                    Text("选两张不同时期的照片，并排看到时间留下的变化。")
+                        .font(.bodySecondary)
+                        .foregroundStyle(Color.milensTextSecondary)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+
+                Spacer(minLength: Spacing.sm)
+
+                Image(systemName: "chevron.right")
+                    .font(.system(size: Sizing.iconSm, weight: .semibold))
+                    .foregroundStyle(Color.milensTextTertiary)
+                    .frame(width: Sizing.touchTarget, height: Sizing.touchTarget)
+            }
+            .padding(.vertical, Spacing.lg)
+
+            ArchiveDivider()
+        }
+    }
+
     private var petCardProjectRow: some View {
         VStack(spacing: 0) {
             HStack(spacing: Spacing.lg) {
@@ -155,6 +206,114 @@ struct CreateView: View {
                         .foregroundStyle(Color.milensTextPrimary)
 
                     Text("把一张照片做成竖版纪念卡，带上名字与领养纪念日。")
+                        .font(.bodySecondary)
+                        .foregroundStyle(Color.milensTextSecondary)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+
+                Spacer(minLength: Spacing.sm)
+
+                Image(systemName: "chevron.right")
+                    .font(.system(size: Sizing.iconSm, weight: .semibold))
+                    .foregroundStyle(Color.milensTextTertiary)
+                    .frame(width: Sizing.touchTarget, height: Sizing.touchTarget)
+            }
+            .padding(.vertical, Spacing.lg)
+
+            ArchiveDivider()
+        }
+    }
+
+    // MARK: - 宠物名片入口（创作 Tab 新增项目，信息导向）
+
+    private var businessCardEntry: some View {
+        NavigationLink(value: Route.businessCardPicker) {
+            businessCardProjectRow
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel("宠物名片")
+    }
+
+    private var businessCardProjectRow: some View {
+        VStack(spacing: 0) {
+            HStack(spacing: Spacing.lg) {
+                ZStack {
+                    RoundedRectangle(cornerRadius: Radius.medium, style: .continuous)
+                        .fill(Color.milensGrouped)
+                    Image(systemName: "person.crop.circle")
+                        .font(.system(size: 28, weight: .light))
+                        .foregroundStyle(Color.milensTextSecondary)
+                }
+                .frame(width: 104, height: 130)
+                .clipShape(RoundedRectangle(cornerRadius: Radius.medium, style: .continuous))
+
+                VStack(alignment: .leading, spacing: Spacing.sm) {
+                    Text("宠物名片")
+                        .font(.titleStandard)
+                        .foregroundStyle(Color.milensTextPrimary)
+
+                    Text("生成带有头像、性格标签和简介的社交名片卡。")
+                        .font(.bodySecondary)
+                        .foregroundStyle(Color.milensTextSecondary)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+
+                Spacer(minLength: Spacing.sm)
+
+                Image(systemName: "chevron.right")
+                    .font(.system(size: Sizing.iconSm, weight: .semibold))
+                    .foregroundStyle(Color.milensTextTertiary)
+                    .frame(width: Sizing.touchTarget, height: Sizing.touchTarget)
+            }
+            .padding(.vertical, Spacing.lg)
+
+            ArchiveDivider()
+        }
+    }
+
+    // MARK: - 微信红包封面入口（创作 Tab 新增项目，节日/传播场景）
+
+    private var redPacketCoverEntry: some View {
+        NavigationLink(value: Route.redPacketCoverPicker) {
+            redPacketCoverProjectRow
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel("红包封面")
+    }
+
+    private var redPacketCoverProjectRow: some View {
+        VStack(spacing: 0) {
+            HStack(spacing: Spacing.lg) {
+                ZStack {
+                    RoundedRectangle(cornerRadius: Radius.medium, style: .continuous)
+                        .fill(Color.milensGrouped)
+                    VStack(spacing: 4) {
+                        Image(systemName: "gift.fill")
+                            .font(.system(size: 24, weight: .regular))
+                            .foregroundStyle(Color.milensCopper)
+                        Text("红包")
+                            .font(.caption2.weight(.medium))
+                            .foregroundStyle(Color.milensTextSecondary)
+                    }
+                }
+                .frame(width: 104, height: 130)
+                .clipShape(RoundedRectangle(cornerRadius: Radius.medium, style: .continuous))
+
+                VStack(alignment: .leading, spacing: Spacing.sm) {
+                    HStack(spacing: Spacing.sm) {
+                        Text("红包封面")
+                            .font(.titleStandard)
+                            .foregroundStyle(Color.milensTextPrimary)
+                        Text("微信")
+                            .font(.caption.weight(.semibold))
+                            .foregroundStyle(Color.milensTextSecondary)
+                            .padding(.horizontal, Spacing.sm)
+                            .padding(.vertical, Spacing.xs)
+                            .background(Color.milensGrouped)
+                            .clipShape(Capsule())
+                    }
+
+                    Text("生成微信红包封面素材（957×1278），预览红包 4 个场景。")
                         .font(.bodySecondary)
                         .foregroundStyle(Color.milensTextSecondary)
                         .fixedSize(horizontal: false, vertical: true)

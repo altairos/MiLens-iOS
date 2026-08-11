@@ -26,7 +26,6 @@ import io
 import queue
 import sys
 import threading
-from dataclasses import dataclass
 from pathlib import Path
 
 sys.stdout.reconfigure(encoding="utf-8")  # Windows GBK 控制台无需 PYTHONUTF8=1
@@ -38,6 +37,7 @@ except ImportError:  # --self-check 模式不需要 GUI
     tk = None  # type: ignore[assignment]
 
 import localization as loc
+from localization import LANG_NAMES, LangStatus
 
 ROOT = Path(__file__).resolve().parent.parent
 RES = ROOT / "MiLens" / "Resources"
@@ -49,73 +49,22 @@ PROJECT_YML = ROOT / "project.yml"
 SOURCE_ROOT = ROOT / "MiLens"
 ASSETS_XLSX = ROOT / "docs" / "localization" / "global-localization.xlsx"
 
-LANG_NAMES = {
-    "zh-Hans": "简体中文",
-    "zh-Hant": "繁體中文",
-    "ja": "日本語",
-    "ko": "한국어",
-    "en": "English",
-    "fr": "Français",
-    "de": "Deutsch",
-}
+# LangStatus / LANG_NAMES / scan_statuses 的统计语义已下沉到核心库 localization.py，
+# CLI check 与 GUI 共用同一份实现；下方仅保留薄包装以兼容 GUI 既有
+# (xc_paths, known) 默认参数调用（用模块常量 XCSTRINGS / PROJECT_YML）。
 
 
 # --------------------------------------------------------------------------- #
 # 纯逻辑层（不依赖 tkinter，可无头测试）
 # --------------------------------------------------------------------------- #
 
-@dataclass
-class LangStatus:
-    """某语言的翻译进度统计。"""
-
-    lang: str
-    name: str
-    total: int = 0
-    translated: int = 0
-    needs_review: int = 0
-    missing: int = 0
-    is_source: bool = False
-
-    @property
-    def pct(self) -> int:
-        if self.total == 0:
-            return 0
-        return round((self.translated + self.needs_review) * 100 / self.total)
-
-
 def scan_statuses(xc_paths: list[Path] | None = None,
                   known: list[str] | None = None) -> list[LangStatus]:
-    """统计各语言翻译进度（合并全部 .xcstrings）。
-
-    缺译 = 无译文或 state=="new"；初译待审 = state=="needs_review"；
-    已译 = state=="translated"。源语言行只作参照（translated=total）。
-    """
+    """统计各语言翻译进度（合并全部 .xcstrings），委托核心库 loc.scan_statuses。"""
     xc_paths = xc_paths or XCSTRINGS
     known = known or loc.parse_known_regions(PROJECT_YML)
-    source = ""
-    stats: dict[str, LangStatus] = {}
-    for path in xc_paths:
-        obj = loc.load_xcstrings(path)
-        if not source:
-            source = obj.get("sourceLanguage", "")
-        strings = obj.get("strings", {})
-        for lang in known:
-            st = stats.setdefault(lang, LangStatus(lang, LANG_NAMES.get(lang, lang)))
-            if lang == source:
-                st.is_source = True
-                st.total += len(strings)
-                st.translated += len(strings)
-                continue
-            for key in strings:
-                value, state = loc.entry_lang_status(strings[key], lang)
-                st.total += 1
-                if not value or state == "new":
-                    st.missing += 1
-                elif state == "needs_review":
-                    st.needs_review += 1
-                else:
-                    st.translated += 1
-    return [stats[l] for l in known if l in stats]
+    objs = [(p, loc.load_xcstrings(p)) for p in xc_paths]
+    return loc.scan_statuses(objs, known)
 
 
 def missing_problems(xc_paths: list[Path] | None = None,

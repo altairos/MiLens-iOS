@@ -74,9 +74,17 @@ struct RootTabView: View {
             case .beadPhotoPicker: BeadPhotoPickerView()
             case .beadPattern(let photoID): BeadPatternView(photoID: photoID)
             case .petCardPhotoPicker: PetCardPhotoPickerView()
-            case .petCard(let photoID): PetCardView(photoID: photoID)
+            case .petCard(let photoID, let kind): PetCardView(photoID: photoID, kind: kind)
             case .petEdit(let petID): PetEditView(petID: petID)
             case .timeline: TimelineView()
+            case .growthComparePhotoPicker: GrowthComparePhotoPickerView()
+            case .growthCompare(let earlyPhotoID, let latePhotoID, let petID):
+                GrowthCompareView(earlyPhotoID: earlyPhotoID, latePhotoID: latePhotoID, petID: petID)
+            case .businessCardPicker: BusinessCardPickerView()
+            case .businessCard(let petID): BusinessCardView(petID: petID)
+            case .redPacketCoverPicker: RedPacketCoverPickerView()
+            case .redPacketCover(let photoID, let petID):
+                RedPacketCoverView(photoID: photoID, petID: petID)
             }
         }
     }

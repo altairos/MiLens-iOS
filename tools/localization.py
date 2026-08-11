@@ -37,6 +37,7 @@ import argparse
 import json
 import re
 import sys
+from dataclasses import dataclass
 from pathlib import Path
 
 try:
@@ -91,6 +92,69 @@ def collect_languages(obj: dict) -> list[str]:
                 seen.add(lang)
                 langs.append(lang)
     return langs
+
+
+# 语言代码 -> 展示名（CLI 统计表与 GUI 进度面板共用）
+LANG_NAMES: dict[str, str] = {
+    "zh-Hans": "简体中文",
+    "zh-Hant": "繁體中文",
+    "ja": "日本語",
+    "ko": "한국어",
+    "en": "English",
+    "fr": "Français",
+    "de": "Deutsch",
+}
+
+
+@dataclass
+class LangStatus:
+    """某语言的翻译进度统计（CLI check 与 GUI 共用）。"""
+
+    lang: str
+    name: str
+    total: int = 0
+    translated: int = 0
+    needs_review: int = 0
+    missing: int = 0
+    is_source: bool = False
+
+    @property
+    def pct(self) -> int:
+        if self.total == 0:
+            return 0
+        # 已译 + 初译待审 都算"有译文"，计入完成度
+        return round((self.translated + self.needs_review) * 100 / self.total)
+
+
+def scan_statuses(objs: list[tuple[Path, dict]], known: list[str]) -> list[LangStatus]:
+    """统计各语言翻译进度（合并多个已加载的 .xcstrings）。
+
+    缺译 = 无译文或 state=="new"；初译待审 = state=="needs_review"；
+    已译 = state=="translated"。源语言行仅作参照（translated=total）。
+    """
+    source = ""
+    stats: dict[str, LangStatus] = {}
+    for _path, obj in objs:
+        if not source:
+            source = obj.get("sourceLanguage", "")
+        strings = obj.get("strings", {})
+        for lang in known:
+            st = stats.setdefault(lang, LangStatus(lang, LANG_NAMES.get(lang, lang)))
+            if lang == source:
+                st.is_source = True
+                st.total += len(strings)
+                st.translated += len(strings)
+                continue
+            for key in strings:
+                value, state = entry_lang_status(strings[key], lang)
+                st.total += 1
+                if not value or state == "new":
+                    st.missing += 1
+                elif state == "needs_review":
+                    st.needs_review += 1
+                else:
+                    st.translated += 1
+    return [stats[l] for l in known if l in stats]
 
 
 def entry_value_state(entry: dict, lang: str) -> tuple[str, str]:
@@ -232,6 +296,60 @@ def missing_problems(obj: dict, path: Path, known: list[str]
             if not value or state == "new":
                 note = f"{path.stem}：未完成（state={state!r}）" if state else f"{path.stem}：无译文"
                 problems.append((lang, key, note))
+    return problems
+
+
+def review_problems(obj: dict, path: Path, known: list[str]
+                    ) -> list[tuple[str, str, str]]:
+    """初译待审（needs_review）问题清单 [(lang, key, note)]。
+
+    与 missing_problems 互补：缺译（new/空）由 missing_problems 报；
+    本函数只报 value 非空但 state=="needs_review" 的条目，供发布门禁
+    （check --strict）阻断"未审校译文"上线。
+    """
+    source = obj.get("sourceLanguage", "")
+    problems: list[tuple[str, str, str]] = []
+    for key in sorted(obj.get("strings", {}).keys()):
+        entry = obj["strings"][key]
+        for lang in known:
+            if lang == source:
+                continue
+            value, worst = entry_lang_status(entry, lang)
+            # value 非空 + worst==needs_review（复数取聚合 worst）
+            if value and worst == "needs_review":
+                problems.append((lang, key, f"{path.stem}：初译待审（needs_review）"))
+    return problems
+
+
+def placeholder_problems(obj: dict, path: Path, known: list[str]
+                         ) -> list[tuple[str, str, str]]:
+    """普通条目占位符漂移清单 [(lang, key, note)]。
+
+    复数条目的占位符漂移由 plural_problems 检查；本函数覆盖普通 stringUnit
+    条目：译文占位符集合必须与源语言一致（防漏 %d/%@ 等运行时插值）。
+    缺译（无 value）由 missing_problems 负责，此处跳过。
+    """
+    source = obj.get("sourceLanguage", "")
+    problems: list[tuple[str, str, str]] = []
+    for key in sorted(obj.get("strings", {}).keys()):
+        entry = obj["strings"][key]
+        src_value, _ = entry_value_state(entry, source)
+        src_phs = set(_PLACEHOLDER_RE.findall(src_value))
+        if not src_phs:
+            continue
+        for lang in known:
+            if lang == source:
+                continue
+            if entry_plural(entry, lang) is not None:
+                continue  # 复数条目由 plural_problems 检查
+            value, _ = entry_value_state(entry, lang)
+            if not value:
+                continue  # 缺译由 missing_problems 报
+            phs = set(_PLACEHOLDER_RE.findall(value))
+            if phs != src_phs:
+                problems.append((lang, key,
+                                 f"{path.stem}：占位符与源不一致"
+                                 f"（源 {sorted(src_phs)} vs {sorted(phs)}）"))
     return problems
 
 
@@ -470,6 +588,66 @@ def extract_literal_texts(source_root: Path) -> set[str]:
     return texts
 
 
+# SwiftUI 中承载用户可见文案的 API（首参为字符串字面量）。
+# Text("…") / Label("…",…) / Button("…") / navigationTitle("…") / .title("…") /
+# TextField("…",…) / .help("…") / accessibilityLabel("…") / .prompt("…") 等。
+# Section(header: Text("…")) 由 Text 分支覆盖。
+_UI_LITERAL_RE = re.compile(
+    r"\b(?:Text|Label|Button|NavigationLink|Link|MenuItem|Menu|"
+    r"navigationTitle|toolbarTitle|title|help|accessibilityLabel|"
+    r"accessibilityHint|accessibilityValue|prompt|tooltip)"
+    r"\s*\(\s*\"((?:\\.|[^\"\\])*)\""
+)
+# CJK 统一表意范围（汉字 + 假名 + 韩文音节 + CJK 标点）：判定字面量是否含
+# "本应本地化"的表意文字。纯英文/数字/符号串多为技术性标识（bundle id、
+# 文件名、format 串、UserDefaults key），不含 CJK 故天然排除，不报。
+_CJK_RE = re.compile(
+    r"[\u3000-\u303f\u3040-\u309f\u30a0-\u30ff\u3400-\u4dbf"
+    r"\u4e00-\u9fff\uac00-\ud7af\uf900-\ufaff]"
+)
+
+
+def _decode_swift_string(literal: str) -> str:
+    """把 Swift 字符串字面量里的转义还原为实际字符（用于 catalog 比对）。"""
+    return (literal.replace("\\n", "\n")
+            .replace("\\t", "\t")
+            .replace('\\"', '"')
+            .replace("\\\\", "\\"))
+
+
+def hardcoded_problems(source_root: Path, catalog_keys: set[str]
+                       ) -> list[tuple[str, int, str]]:
+    """扫描 Swift 源码中"疑似硬编码的用户可见文案" [(file, line, text)]。
+
+    判定：出现在 SwiftUI 文案 API（Text/Label/Button/navigationTitle 等）
+    首参位置的字符串字面量，含 CJK 表意文字，且不在 String Catalog（精确或
+    插值/占位符归一化后均比对）。这类文案绕过了 String(localized:) 本地化
+    管线，是日期/年龄/性别等动态内容被写死的高发区——翻译阶段无法覆盖。
+
+    误报控制：仅匹配已知 UI API 上下文（非任意字面量）+ 必须含 CJK 字符。
+    结果为"疑似"，需人工复核后收口进 catalog 或改 String(localized:)。
+    """
+    norm_keys = {normalize_localized_key(k) for k in catalog_keys}
+    problems: list[tuple[str, int, str]] = []
+    for swift in source_root.rglob("*.swift"):
+        try:
+            text = swift.read_text(encoding="utf-8")
+        except (OSError, UnicodeDecodeError):
+            continue
+        for m in _UI_LITERAL_RE.finditer(text):
+            literal = m.group(1)
+            if not _CJK_RE.search(literal):
+                continue
+            decoded = _decode_swift_string(literal)
+            if decoded in catalog_keys:
+                continue
+            if normalize_localized_key(decoded) in norm_keys:
+                continue
+            line = text.count("\n", 0, m.start()) + 1
+            problems.append((str(swift.relative_to(source_root)), line, decoded))
+    return problems
+
+
 def parse_known_regions(project_yml: Path) -> list[str]:
     """从 project.yml 提取 knownRegions（简单正则，避免 pyyaml 依赖）。"""
     if not project_yml.exists():
@@ -481,13 +659,90 @@ def parse_known_regions(project_yml: Path) -> list[str]:
     return [r.strip().strip("\"'") for r in m.group(1).split(",") if r.strip()]
 
 
+_LENGTH_TAG_RE = re.compile(r"\[len:\s*(\d+)\]")
+
+
+def load_length_rules(path: Path | None) -> dict:
+    """加载长度规则 JSON。无文件返回空规则（不检查）。
+
+    格式：{"default": int, "keys": {key: int}, "prefixes": {prefix: int},
+    "comment_tag": "len"}。规则优先级：精确 key > comment [len:N] 标记 >
+    最长匹配前缀 > default。
+    """
+    if not path:
+        return {}
+    try:
+        with path.open(encoding="utf-8") as f:
+            data = json.load(f)
+    except (OSError, json.JSONDecodeError) as e:
+        raise SystemExit(f"错误：长度规则文件 {path} 解析失败 -> {e}")
+    return data if isinstance(data, dict) else {}
+
+
+def resolve_maxlen(key: str, comment: str, rules: dict) -> int | None:
+    """解析某 key 的最大长度上限；无规则返回 None（不检查）。"""
+    keys = rules.get("keys", {})
+    if key in keys:
+        return keys[key]
+    tag = rules.get("comment_tag", "len")
+    if tag and comment:
+        m = _LENGTH_TAG_RE.search(comment)
+        if m:
+            return int(m.group(1))
+    prefixes = rules.get("prefixes", {})
+    best: int | None = None
+    best_len = -1
+    for prefix, mx in prefixes.items():
+        if key.startswith(prefix) and len(prefix) > best_len:
+            best, best_len = mx, len(prefix)
+    if best is not None:
+        return best
+    d = rules.get("default")
+    return int(d) if d else None
+
+
+def length_problems(obj: dict, path: Path, known: list[str], rules: dict
+                    ) -> list[tuple[str, str, str]]:
+    """译文长度超限清单 [(lang, key, note)]；rules 为空时直接返回 []。
+
+    复数条目取每个变体长度判定（德语等长语言各变体都可能超限）。
+    """
+    if not rules:
+        return []
+    problems: list[tuple[str, str, str]] = []
+    for key in sorted(obj.get("strings", {}).keys()):
+        entry = obj["strings"][key]
+        mx = resolve_maxlen(key, entry.get("comment", ""), rules)
+        if not mx:
+            continue
+        for lang in known:
+            if lang == obj.get("sourceLanguage", ""):
+                continue
+            for var, value, _state in entry_lang_rows(entry, lang):
+                if not value:
+                    continue
+                if len(value) > mx:
+                    tag = f"「{var}」" if var else ""
+                    problems.append((lang, key,
+                                     f"{path.stem}：{tag}长度 {len(value)} 超过 {mx}"))
+    return problems
+
+
 def cmd_check(args: argparse.Namespace) -> int:
-    problems = 0
+    # 新参数用 getattr 兜底，保证 GUI run_check（只传基础参数）兼容
+    strict = getattr(args, "strict", False)
+    length_rules_path = getattr(args, "length_rules", None)
+    do_hardcoded = getattr(args, "hardcoded", False)
+    rules = load_length_rules(Path(length_rules_path) if length_rules_path else None)
+
+    problems = 0     # 阻断级问题数（决定退出码）
+    warnings = 0     # 警告级问题数（多余 key / needs_review 非 strict，不阻断）
     project_yml = Path(args.project_yml) if args.project_yml else None
     source_root = Path(args.source_root) if args.source_root else None
     code_keys = extract_code_keys(source_root) if source_root else set()
     code_literals = extract_literal_texts(source_root) if source_root else set()
     known = parse_known_regions(project_yml) if project_yml else []
+    loaded: list[tuple[Path, dict]] = []
     last_source = ""
 
     for xc_raw in args.xcstrings:
@@ -503,6 +758,7 @@ def cmd_check(args: argparse.Namespace) -> int:
             print(f"[失败] {path}: 无法读取 -> {e}")
             problems += 1
             continue
+        loaded.append((path, obj))
 
         source = obj.get("sourceLanguage", "")
         last_source = source
@@ -522,7 +778,7 @@ def cmd_check(args: argparse.Namespace) -> int:
             missing = sorted(k for k in code_keys if normalize_localized_key(k) not in norm_xc)
             # 多余 key 排除字面量引用：key 以中文文案形式存在时，代码常以
             # Text("...") 直接字面量引用（未走 String(localized:) API）；
-            # 比较前把 JSON 解码的 \n 还原为源码 \n 文本、\" 还原为 \\\"，
+            # 比较前把 JSON 解码的 \n 还原为源码 \n 文本、\" 还原为 \\",
             # 并对插值/占位符做归一化（复数 key 的 %lld 与 \\(days) 等价）。
             extra = set()
             for key in strings.keys():
@@ -536,21 +792,69 @@ def cmd_check(args: argparse.Namespace) -> int:
                 problems += len(missing)
             if extra:
                 print(f"  [多余 key] String Catalog 有但代码未引用：{sorted(extra)}")
+                warnings += len(extra)
 
-        # ④ 缺译检测 + 复数完整性（knownRegions 声明的非源语言）
+        # ④ 缺译检测 + 复数完整性（knownRegions 非源语言）——阻断
         for lang, key, note in missing_problems(obj, path, known):
             print(f"  [缺译] {key} @ {lang}: {note}")
             problems += 1
 
-    if known and last_source:
+        # ⑤ 普通条目占位符漂移——阻断：译文漏 %@/%d 会运行时崩或显示畸形
+        for lang, key, note in placeholder_problems(obj, path, known):
+            print(f"  [占位符] {key} @ {lang}: {note}")
+            problems += 1
+
+        # ⑥ 初译待审（needs_review）—— --strict 阻断，否则警告
+        for lang, key, note in review_problems(obj, path, known):
+            print(f"  [待审] {key} @ {lang}: {note}")
+            if strict:
+                problems += 1
+            else:
+                warnings += 1
+
+        # ⑧ 译文长度超限（--length-rules 开启）——阻断
+        for lang, key, note in length_problems(obj, path, known, rules):
+            print(f"  [超长] {key} @ {lang}: {note}")
+            problems += 1
+
+    # ⑦ 每语言进度统计（合并全部 xcstrings）
+    if known and loaded:
+        print("\n[进度] 各语言翻译统计：")
+        for st in scan_statuses(loaded, known):
+            if st.is_source:
+                mark = "（源语言）"
+            elif st.missing:
+                mark = "缺译"
+            elif st.needs_review:
+                mark = "待审"
+            else:
+                mark = "完成"
+            print(f"  {st.lang:8s} {st.name:8s} "
+                  f"total={st.total:<4d} ok={st.translated:<4d} "
+                  f"review={st.needs_review:<3d} missing={st.missing:<4d} "
+                  f"({st.pct}%) {mark}")
         non_source = [r for r in known if r != last_source]
         if non_source:
             print(f"[信息] knownRegions={known}，源语言={last_source}；"
                   f"非源语言 {non_source} 需在各 xcstrings 补齐译文。")
 
-    if problems:
-        print(f"\n校验完成：发现 {problems} 个问题。")
-        return 1
+    # ⑨ 硬编码用户可见文案检测（--hardcoded 开启）——阻断
+    if do_hardcoded and source_root and loaded:
+        all_keys: set[str] = set()
+        for _p, o in loaded:
+            all_keys.update(o.get("strings", {}).keys())
+        hards = hardcoded_problems(source_root, all_keys)
+        for f, line, text in hards:
+            print(f"  [硬编码] {f}:{line} 疑似未本地化文案：{text!r}")
+        problems += len(hards)
+
+    if problems or warnings:
+        parts = [f"{problems} 个阻断问题"] if problems else []
+        if warnings:
+            parts.append(f"{warnings} 个警告")
+        tail = "（警告不阻断，加 --strict 升级 needs_review 为阻断）" if (warnings and not strict) else ""
+        print(f"\n校验完成：{'，'.join(parts)} {tail}".rstrip())
+        return 1 if problems else 0
     print("\n校验通过。")
     return 0
 
@@ -593,6 +897,12 @@ def main() -> None:
     pc.add_argument("xcstrings", nargs="+", help="一个或多个 .xcstrings 文件")
     pc.add_argument("--project-yml", help="project.yml 路径（用于对比 knownRegions）")
     pc.add_argument("--source-root", help="Swift 源码根目录（扫描代码引用的 key）")
+    pc.add_argument("--strict", action="store_true",
+                    help="发布门禁：把 needs_review 初译待审也计为阻断问题")
+    pc.add_argument("--length-rules", metavar="JSON",
+                    help="译文长度规则 JSON 路径（{default,keys,prefixes,comment_tag}）")
+    pc.add_argument("--hardcoded", action="store_true",
+                    help="扫描 Swift 源码中疑似硬编码的用户可见文案（含 CJK 且不在 catalog）")
     pc.set_defaults(func=cmd_check)
 
     args = p.parse_args()

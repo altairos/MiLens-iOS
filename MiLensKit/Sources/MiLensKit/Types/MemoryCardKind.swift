@@ -29,7 +29,7 @@ public enum MemoryCardKind: String, CaseIterable, Identifiable, Equatable, Senda
     public var displayName: String {
         switch self {
         case .birthday:     return "生日纪念"
-        case .adoptionDay:  return "领养纪念"
+        case .adoptionDay:  return "成为家人纪念"
         case .milestone:    return "里程碑"
         case .growthCompare: return "成长对比"
         case .monthlyRecap: return "月度精选"

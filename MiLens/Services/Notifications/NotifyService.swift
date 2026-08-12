@@ -2,13 +2,14 @@
 //
 //  P1 重构：前台每日检查 → UNCalendarNotificationTrigger 真调度 + 幂等重调度。
 //  - rescheduleAllReminders()：先 removeAllNotifications 再按当前数据全量调度
-//    （宠物生日/领养日 → 年度重复通知；时光机 → 预排未来 N 天每天一条单次通知），
+//    （生日/成为家人的日子 → 年度重复通知；里程碑/时光机 → 单次通知），
 //    调用方可反复执行。
 //  - updateReminders(for:)/removeReminders(for:)：宠物编辑/删除后的局部更新。
 //  决策逻辑下沉为纯函数（AnniversaryLogic / TimeMachineLogic），本服务只做 IO：
 //  查照片、查宠物、调度/撤销通知（DESIGN.md §4）。
 
 import Foundation
+import MiLensKit
 import os
 
 @MainActor
@@ -22,8 +23,10 @@ final class NotifyService {
     static let timeMachineWindowDays = 7
     /// 时光机通知标识符前缀：`tm-daily-<yyyyMMdd>`（每天一条，撤销/覆盖按标识符定位）。
     static let timeMachineIdentifierPrefix = "tm-daily"
-    /// 宠物纪念日通知标识符前缀：`anniversary-<petID>-birthday|adoption`。
+    /// 宠物周年通知标识符前缀：`anniversary-<petID>-birthday|adoption`。
     static let anniversaryIdentifierPrefix = "anniversary-"
+    /// 相处里程碑通知标识符前缀：`milestone-<petID>-<days>`。
+    static let milestoneIdentifierPrefix = "milestone-"
     /// 提醒触发时间（固定 09:00，P1 不引入可配置时间 UI）。
     static let reminderHour = 9
     static let reminderMinute = 0
@@ -68,20 +71,22 @@ final class NotifyService {
     func rescheduleAllReminders(now: Date = Date(), calendar: Calendar = .current) async {
         await poster.removeAllNotifications()
         await schedulePetAnniversaries(pets: nil, calendar: calendar)
+        await schedulePetMilestones(pets: nil, now: now, calendar: calendar)
         await scheduleTimeMachine(now: now, calendar: calendar)
     }
 
     // MARK: - 宠物局部更新
 
-    /// 宠物生日/领养日编辑后局部更新：撤销旧通知 + 按当前数据重调度。
-    func updateReminders(for pet: Pet, calendar: Calendar = .current) async {
+    /// 宠物日期编辑后局部更新：撤销旧通知 + 按当前数据重调度。
+    func updateReminders(for pet: Pet, now: Date = Date(), calendar: Calendar = .current) async {
         await removeReminders(for: pet)
         await schedulePetAnniversaries(pets: [pet], calendar: calendar)
+        await schedulePetMilestones(pets: [pet], now: now, calendar: calendar)
     }
 
-    /// 宠物删除后撤销其纪念通知（不重调度）。
+    /// 宠物删除后撤销其周年与里程碑通知（不重调度）。
     func removeReminders(for pet: Pet) async {
-        await poster.removeNotifications(identifiers: Self.anniversaryIdentifiers(for: pet))
+        await poster.removeNotifications(identifiers: Self.reminderIdentifiers(for: pet))
     }
 
     /// 撤销全部已调度的纪念/时光机通知（设置开关关闭时调用）。
@@ -113,6 +118,48 @@ final class NotifyService {
         }
     }
 
+    // MARK: - 相处里程碑（按日期单次触发）
+
+    private func schedulePetMilestones(
+        pets providedPets: [Pet]?, now: Date, calendar: Calendar
+    ) async {
+        let pets: [Pet]
+        if let providedPets {
+            pets = providedPets
+        } else {
+            do {
+                pets = try petRepo.getAllPets()
+            } catch {
+                logger.error("schedulePetMilestones: 读取宠物列表失败（\(error.localizedDescription)），跳过里程碑通知")
+                pets = []
+            }
+        }
+
+        for pet in pets {
+            guard let adoptionDay = pet.adoptionDay, adoptionDay <= now else { continue }
+            for days in MilestoneLogic.milestoneDays {
+                let milestoneDate = MilestoneLogic.milestoneDate(anchor: adoptionDay, days: days)
+                var trigger = calendar.dateComponents([.year, .month, .day], from: milestoneDate)
+                trigger.hour = Self.reminderHour
+                trigger.minute = Self.reminderMinute
+                guard let fireDate = calendar.date(from: trigger), fireDate > now else { continue }
+
+                let copy = buildPetMilestoneNotification(petName: pet.name, days: days)
+                do {
+                    try await poster.schedule(
+                        title: copy.title,
+                        body: copy.body,
+                        identifier: Self.milestoneIdentifier(for: pet, days: days),
+                        dateComponents: trigger,
+                        repeats: false
+                    )
+                } catch {
+                    logger.error("schedulePetMilestones: 调度失败（\(pet.name)，第\(days)天，\(error.localizedDescription)）")
+                }
+            }
+        }
+    }
+
     private func scheduleAnniversary(
         pet: Pet, kind: PetAnniversaryKind, date: Date, calendar: Calendar
     ) async {
@@ -126,19 +173,12 @@ final class NotifyService {
         trigger.hour = Self.reminderHour
         trigger.minute = Self.reminderMinute
 
-        // 文案复用 AnniversaryLogic：以生日/领养日当天为「现在」→ "今天的回忆：<note>"
-        let note = kind.notificationNote(petName: pet.name)
-        guard let data = buildAnniversaryNotifications(
-            photos: [TimeMachinePhoto(
-                id: pet.id, takenAt: date, note: note, petID: pet.id
-            )],
-            now: date
-        ).first else { return }
+        let copy = buildPetAnniversaryNotification(petName: pet.name, kind: kind)
 
         // 单条调度失败不阻断其余提醒（通知非关键路径），但记录错误便于诊断
         do {
             try await poster.schedule(
-                title: data.title, body: data.body,
+                title: copy.title, body: copy.body,
                 identifier: Self.anniversaryIdentifier(for: pet, kind: kind),
                 dateComponents: trigger, repeats: true
             )
@@ -243,6 +283,18 @@ final class NotifyService {
         [anniversaryIdentifier(for: pet, kind: .birthday),
          anniversaryIdentifier(for: pet, kind: .adoption)]
     }
+
+    static func milestoneIdentifier(for pet: Pet, days: Int) -> String {
+        "\(milestoneIdentifierPrefix)\(pet.id.uuidString)-\(days)"
+    }
+
+    static func milestoneIdentifiers(for pet: Pet) -> [String] {
+        MilestoneLogic.milestoneDays.map { milestoneIdentifier(for: pet, days: $0) }
+    }
+
+    static func reminderIdentifiers(for pet: Pet) -> [String] {
+        anniversaryIdentifiers(for: pet) + milestoneIdentifiers(for: pet)
+    }
 }
 
 /// 宠物纪念日类型（决定通知标识符后缀与文案）。
@@ -250,12 +302,4 @@ enum PetAnniversaryKind: String {
     case birthday
     case adoption
 
-    /// 纪念日通知的备注文案（经 AnniversaryLogic 拼入正文）。
-    /// locale 默认当前环境：通知文案在调度时按用户当前语言固化。
-    func notificationNote(petName: String, locale: Locale = .current) -> String {
-        switch self {
-        case .birthday: return String(localized: "notify.kind.birthday \(petName)", locale: locale)
-        case .adoption: return String(localized: "notify.kind.adoption \(petName)", locale: locale)
-        }
-    }
 }

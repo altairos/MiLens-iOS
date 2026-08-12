@@ -16,7 +16,7 @@ struct PetCardContent: Equatable, Sendable {
     var emoji: String
     /// 副标题（物种 · 年龄；无宠物时固定文案）
     var subtitle: String
-    /// 日期行（领养纪念「来到家 N 天」优先；否则拍摄日期）
+    /// 日期行（按相处时长选择陪伴文案；否则回退拍摄日期）
     var dateLine: String
 }
 
@@ -72,8 +72,8 @@ enum PetCardLogic {
     }
 
     /// 日期行：按 kind 优先级组装。
-    /// - kind == .milestone 且有领养日 → 里程碑文案（「来到家 365 天」，用 MilestoneLogic 计算）
-    /// - 有领养日 → 「来到家 N 天」（纪念语义优先）
+    /// - kind == .milestone 且有领养日 → 按相处时长选择里程碑文案
+    /// - 有领养日 → 按相处时长选择陪伴文案
     /// - kind == .birthday 且有生日 → 「N 岁生日」
     /// - 否则拍摄日期
     static func dateLine(
@@ -82,8 +82,8 @@ enum PetCardLogic {
     ) -> String {
         // 里程碑优先：用 MiLensKit MilestoneLogic 文案（与通知同源）
         if kind == .milestone, let pet, let adoptionDay = pet.adoptionDay {
-            let days = PetDisplayLogic.daysTogether(from: adoptionDay, now: now)
-            return String(localized: "pet.card.daysHome \(days)", locale: locale)
+            return PetDisplayLogic.companionshipText(
+                petName: pet.name, adoptionDay: adoptionDay, now: now, locale: locale)
         }
         // 生日纪念：显示「N 岁生日」
         if kind == .birthday, let pet, let birthday = pet.birthday {
@@ -92,9 +92,8 @@ enum PetCardLogic {
         }
         // 领养日纪念（默认语义）
         if let pet, let adoptionDay = pet.adoptionDay {
-            let days = PetDisplayLogic.daysTogether(from: adoptionDay, now: now)
-            // 复数 key（pet.card.daysHome %lld）：en 需 one/other 变体
-            return String(localized: "pet.card.daysHome \(days)", locale: locale)
+            return PetDisplayLogic.companionshipText(
+                petName: pet.name, adoptionDay: adoptionDay, now: now, locale: locale)
         }
         return PetDisplayLogic.dateText(takenAt, calendar: calendar)
     }

@@ -43,6 +43,31 @@ final class ZipBackupService: BackupService, @unchecked Sendable {
 
     var isAvailable: Bool { true }
 
+    // MARK: - 预估
+
+    /// 预估将导出的内容规模（仅统计计数，不读取照片文件、不打包）。
+    /// 与 collectExportBundle 同样的 petIDs 过滤语义，保证预估与实际导出一致。
+    func estimateBackup(petIDs: [UUID]?) async throws -> BackupEstimate {
+        let allPets = try petRepo.getAllPets()
+        let selectedPets: [Pet]
+        if let petIDs, !petIDs.isEmpty {
+            let wanted = Set(petIDs)
+            selectedPets = allPets.filter { wanted.contains($0.id) }
+        } else {
+            selectedPets = allPets
+        }
+
+        let photoCount: Int
+        if petIDs != nil {
+            photoCount = try selectedPets.reduce(0) { acc, pet in
+                acc + (try photoRepo.getPhotosByPet(pet)).count
+            }
+        } else {
+            photoCount = try photoRepo.countAllPhotos()
+        }
+        return BackupEstimate(petCount: selectedPets.count, photoCount: photoCount)
+    }
+
     // MARK: - JSON 编解码（ISO8601 日期，键排序保证 manifest 可 diff）
 
     private static let encoder: JSONEncoder = {

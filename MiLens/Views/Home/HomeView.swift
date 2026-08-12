@@ -230,7 +230,7 @@ private struct UpcomingDaySection: View {
                         .font(.system(size: 20, weight: .medium))
                         .foregroundStyle(Color.milensTextPrimary)
 
-                    Text(String(localized: "home.upcoming.days \(upcoming.daysUntil) \(upcoming.daysTogether)"))
+                    Text(daysTogetherText(upcoming))
                         .font(.system(size: 13))
                         .foregroundStyle(Color.milensTextSecondary)
 
@@ -267,6 +267,29 @@ private struct UpcomingDaySection: View {
             }
         }
         .buttonStyle(.plain)
+    }
+
+    /// 根据 kind 显示语义精确的天数文案。
+    /// - birthday: 「还有 N 天 · 出生至今 M 天」
+    /// - adoption: 「还有 N 天 · 已陪伴 M 天」
+    /// - memorial: 「还有 N 天 · 已记录 M 天」
+    private func daysTogetherText(_ upcoming: HomeViewModel.UpcomingDay) -> String {
+        let daysUntil = upcoming.daysUntil
+        let days = upcoming.daysTogether
+        switch upcoming.kind {
+        case .birthday:
+            return String(localized: "home.upcoming.days.birthday \(daysUntil) \(days)")
+        case .adoption:
+            if days <= 180 {
+                return String(localized: "home.upcoming.days.adoption.arrived \(daysUntil) \(days)")
+            }
+            if days <= 365 {
+                return String(localized: "home.upcoming.days.adoption.together \(daysUntil) \(days)")
+            }
+            return String(localized: "home.upcoming.days.adoption.family \(upcoming.petName) \(daysUntil) \(days)")
+        case .memorial:
+            return String(localized: "home.upcoming.days.memorial \(daysUntil) \(days)")
+        }
     }
 }
 

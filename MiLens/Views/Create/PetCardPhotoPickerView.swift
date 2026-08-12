@@ -47,7 +47,7 @@ struct PetCardPhotoPickerView: View {
     private var photoGrid: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: Spacing.sm) {
-                Text("选择一张照片生成纪念卡片")
+                Text(String(localized: "create.petCard.selectPhoto"))
                     .font(.bodySecondary)
                     .foregroundStyle(Color.milensTextPrimary)
                     .padding(.horizontal, Spacing.lg)

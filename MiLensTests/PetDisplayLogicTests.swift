@@ -98,6 +98,53 @@ final class PetDisplayLogicTests: XCTestCase {
         XCTAssertEqual(days, -10)
     }
 
+    // MARK: - 陪伴文案分段
+
+    func testCompanionshipTextUsesArrivedWithin180Days() {
+        let now = Date(timeIntervalSince1970: 180 * 86_400)
+        let adoptionDay = Date(timeIntervalSince1970: 0)
+        XCTAssertEqual(
+            PetDisplayLogic.companionshipText(petName: "小橘", adoptionDay: adoptionDay, now: now),
+            "来到家180天"
+        )
+    }
+
+    func testCompanionshipTextUsesTogetherFrom181To365Days() {
+        let now = Date(timeIntervalSince1970: 181 * 86_400)
+        let adoptionDay = Date(timeIntervalSince1970: 0)
+        XCTAssertEqual(
+            PetDisplayLogic.companionshipText(petName: "小橘", adoptionDay: adoptionDay, now: now),
+            "相处181天"
+        )
+    }
+
+    func testCompanionshipTextUsesFamilyFrom366Days() {
+        let now = Date(timeIntervalSince1970: 366 * 86_400)
+        let adoptionDay = Date(timeIntervalSince1970: 0)
+        XCTAssertEqual(
+            PetDisplayLogic.companionshipText(petName: "小橘", adoptionDay: adoptionDay, now: now),
+            "和小橘成为家人366天"
+        )
+    }
+
+    func testCompanionshipTextWithoutPetNameFallsBackToTogether() {
+        let now = Date(timeIntervalSince1970: 366 * 86_400)
+        let adoptionDay = Date(timeIntervalSince1970: 0)
+        XCTAssertEqual(
+            PetDisplayLogic.companionshipText(petName: "", adoptionDay: adoptionDay, now: now),
+            "相处366天"
+        )
+    }
+
+    func testCompanionshipTextHandlesFutureAdoptionDay() {
+        let now = Date(timeIntervalSince1970: 0)
+        let adoptionDay = Date(timeIntervalSince1970: 86_400)
+        XCTAssertEqual(
+            PetDisplayLogic.companionshipText(petName: "小橘", adoptionDay: adoptionDay, now: now),
+            "相处时间尚未开始"
+        )
+    }
+
     // MARK: - 日期格式化
 
     func testDateTextNilReturnsEmpty() {

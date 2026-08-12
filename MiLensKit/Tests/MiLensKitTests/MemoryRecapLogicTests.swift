@@ -186,7 +186,7 @@ final class YearlyRecapTests: XCTestCase {
     }
 
     func testYearlyTitle() {
-        XCTAssertEqual(MemoryRecapLogic.yearlyTitle(year: 2025), "2025 年度回忆")
+        XCTAssertEqual(MemoryRecapLogic.yearlyTitle(year: 2025), "2025年度回忆")
     }
 
     func testEmptyYear() {

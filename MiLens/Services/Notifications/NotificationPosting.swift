@@ -13,7 +13,7 @@ enum NotificationPostingError: Error, Equatable {
     case notAuthorized
 }
 
-/// 本地通知调度协议。V1.0 含纪念日/时光机通知所需方法。
+/// 本地通知调度协议。V1.0 含周年、里程碑与时光机通知所需方法。
 protocol NotificationPosting {
     /// 请求通知授权（系统弹窗）。返回当前是否已授权。
     func requestAuthorization() async -> Bool

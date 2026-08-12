@@ -4,7 +4,12 @@
 //  决策与服务调用收口在此层；View 只渲染状态（导出中/完成/失败，恢复统计）。
 //  导出完成后暴露临时文件 URL，由 View 层经 ShareSheet 让用户选择保存位置。
 //
-//  幂等保护：导出/恢复进行中时重复触发直接忽略，避免并发写临时文件或重复导入。
+//  导出流程分两步：
+//  1. prepareExport() 预估规模（petCount/photoCount），View 据此弹确认对话框；
+//  2. exportBackup() 实际打包，导出中状态携带阶段文案（收集/复制/压缩），
+//     长任务时用户能看到「卡在哪一步」。
+//
+//  幂等保护：预估/导出/恢复进行中时重复触发直接忽略，避免并发写临时文件或重复导入。
 
 import Foundation
 import Observation
@@ -13,18 +18,20 @@ import Observation
 @Observable
 final class BackupViewModel {
 
-    /// 导出状态机。
+    /// 导出状态机（携带阶段，便于 UI 展示「收集元数据/复制照片/压缩」）。
     enum ExportState: Equatable {
         case idle
-        case inProgress(Double)   // fraction 0…1
-        case done(URL)            // 临时备份文件，待 ShareSheet 分享
+        case estimating
+        case readyToExport(BackupEstimate)  // 预估完成，待用户确认
+        case inProgress(Double, BackupPhase) // fraction 0…1 + 当前阶段
+        case done(URL)                       // 临时备份文件，待 ShareSheet 分享
         case failed(String)
     }
 
     /// 恢复状态机。
     enum RestoreState: Equatable {
         case idle
-        case inProgress(Double)
+        case inProgress(Double, RestorePhase)
         case done(RestoreResult)
         case failed(String)
     }
@@ -34,8 +41,16 @@ final class BackupViewModel {
     var exportState: ExportState = .idle
     var restoreState: RestoreState = .idle
 
+    /// 服务是否可用（UI 据此禁用备份入口）。
+    var isServiceAvailable: Bool { backupService.isAvailable }
+
     var isExporting: Bool {
         if case .inProgress = exportState { return true }
+        return false
+    }
+
+    var isEstimating: Bool {
+        if case .estimating = exportState { return true }
         return false
     }
 
@@ -50,12 +65,26 @@ final class BackupViewModel {
 
     // MARK: - 导出
 
+    /// 预估将导出的内容规模（不打包）。完成后 exportState 进入 .readyToExport，
+    /// 由 View 弹确认对话框让用户确认后再调用 exportBackup()。
+    func prepareExport() async {
+        guard !isEstimating, !isExporting else { return }
+        exportState = .estimating
+        do {
+            let estimate = try await backupService.estimateBackup(petIDs: nil)
+            exportState = .readyToExport(estimate)
+        } catch {
+            exportState = .failed(error.localizedDescription)
+        }
+    }
+
+    /// 实际导出（用户在确认对话框点「导出」后调用）。
     func exportBackup() async {
         guard !isExporting else { return }
-        exportState = .inProgress(0)
+        exportState = .inProgress(0, .collectingMetadata)
         do {
             let result = try await backupService.exportBackup(petIDs: nil) { [weak self] progress in
-                self?.exportState = .inProgress(progress.fraction)
+                self?.exportState = .inProgress(progress.fraction, progress.phase)
             }
             exportState = .done(result.fileURL)
         } catch {
@@ -69,10 +98,10 @@ final class BackupViewModel {
 
     func importBackup(from url: URL) async {
         guard !isRestoring else { return }
-        restoreState = .inProgress(0)
+        restoreState = .inProgress(0, .decompressing)
         do {
             let result = try await backupService.importBackup(from: url) { [weak self] progress in
-                self?.restoreState = .inProgress(progress.fraction)
+                self?.restoreState = .inProgress(progress.fraction, progress.phase)
             }
             restoreState = .done(result)
         } catch {

@@ -215,22 +215,22 @@ final class MilestoneLogicUpcomingTests: XCTestCase {
 final class MilestoneLogicTextTests: XCTestCase {
 
     func testMilestoneTitle() {
-        XCTAssertEqual(MilestoneLogic.milestoneTitle(days: 100), "来到家 100 天")
-        XCTAssertEqual(MilestoneLogic.milestoneTitle(days: 365), "来到家 365 天")
-        XCTAssertEqual(MilestoneLogic.milestoneTitle(days: 1000), "来到家 1000 天")
+        XCTAssertEqual(MilestoneLogic.milestoneTitle(days: 100), "来到家100天")
+        XCTAssertEqual(MilestoneLogic.milestoneTitle(days: 365), "来到家365天")
+        XCTAssertEqual(MilestoneLogic.milestoneTitle(days: 1000), "来到家1000天")
     }
 
     func testMilestoneNotificationTextWithPetName() {
         XCTAssertEqual(
             MilestoneLogic.milestoneNotificationText(petName: "咪咪", days: 365),
-            "咪咪来到家 365 天了"
+            "咪咪已经来到这个家365天了"
         )
     }
 
     func testMilestoneNotificationTextWithoutPetName() {
         XCTAssertEqual(
             MilestoneLogic.milestoneNotificationText(petName: "", days: 100),
-            "来到家 100 天"
+            "来到家100天"
         )
     }
 }

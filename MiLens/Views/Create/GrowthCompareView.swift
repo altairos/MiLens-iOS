@@ -31,6 +31,8 @@ struct GrowthCompareView: View {
     @State private var shareItem: ShareItem?
     @State private var saveError: String?
     @State private var sharePreview: (image: UIImage, url: URL)?
+    /// 保存到相册的统一成功/失败反馈（顶部胶囊 + 触感）。
+    @State private var exportToast: ExportToastMessage?
 
     var body: some View {
         Group {
@@ -44,25 +46,26 @@ struct GrowthCompareView: View {
             }
         }
         .background(Color.milensBackground)
-        .navigationTitle("成长对比")
+        .navigationTitle(String(localized: "create.growthCompare.title"))
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItemGroup(placement: .topBarTrailing) {
                 Button {
                     Task { await saveToLibrary() }
                 } label: {
-                    Label("保存", systemImage: "square.and.arrow.down")
+                    Label(String(localized: "common.save"), systemImage: "square.and.arrow.down")
                 }
                 .disabled(isSaving)
 
                 Button {
                     share()
                 } label: {
-                    Label("分享", systemImage: "square.and.arrow.up")
+                    Label(String(localized: "common.share"), systemImage: "square.and.arrow.up")
                 }
                 .disabled(isSaving)
             }
         }
+        .exportToast($exportToast)
         .sheet(item: $shareItem) { item in
             ShareSheet(items: [item.url])
         }
@@ -76,11 +79,11 @@ struct GrowthCompareView: View {
                 onDismiss: { sharePreview = nil }
             )
         }
-        .alert("保存失败", isPresented: Binding(
+        .alert(String(localized: "create.save.failed"), isPresented: Binding(
             get: { saveError != nil },
             set: { if !$0 { saveError = nil } }
         )) {
-            Button("好", role: .cancel) {}
+            Button(String(localized: "common.ok"), role: .cancel) {}
         } message: {
             Text(saveError ?? "")
         }
@@ -109,7 +112,7 @@ struct GrowthCompareView: View {
                             .stroke(Color.milensBorder, lineWidth: 0.5)
                     }
 
-                Text("两张照片，一段时光。保存到相册或分享给家人。")
+                Text(String(localized: "create.growthCompare.hint"))
                     .font(.bodySecondary)
                     .foregroundStyle(Color.milensTextTertiary)
                     .multilineTextAlignment(.center)
@@ -142,21 +145,22 @@ struct GrowthCompareView: View {
 
     private func saveToLibrary() async {
         guard let rendered = renderCard() else {
-            saveError = "卡片渲染失败，请重试"
+            exportToast = .failure(String(localized: "create.render.failed"))
             return
         }
         let quality = ExportQuality.standard.resolved(isPro: entitlement.isPro)
         guard let jpeg = rendered.jpegData(compressionQuality: quality.jpegCompressionQuality) else {
-            saveError = "图片编码失败，请重试"
+            exportToast = .failure(String(localized: "create.encode.failed"))
             return
         }
         isSaving = true
         defer { isSaving = false }
         do {
             try await BeadExportService().saveToPhotoLibrary(pngData: jpeg)
+            exportToast = .success(String(localized: "create.save.success"))
         } catch {
             logger.error("saveToLibrary: 保存失败（\(error.localizedDescription)）")
-            saveError = "保存到相册失败：\(error.localizedDescription)"
+            saveError = String(localized: "create.save.libraryFailed \(error.localizedDescription)")
         }
     }
 
@@ -179,7 +183,7 @@ struct GrowthCompareView: View {
             Image(systemName: "exclamationmark.triangle")
                 .font(.system(size: 40))
                 .foregroundStyle(Color.milensTextSecondary)
-            Text("照片加载失败")
+            Text(String(localized: "create.load.failed"))
                 .font(.bodyPrimary)
                 .foregroundStyle(Color.milensTextSecondary)
         }

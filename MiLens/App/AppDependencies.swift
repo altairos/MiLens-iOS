@@ -111,7 +111,7 @@ final class AppDependencies {
         )
         // 扫描游标：UserDefaults 持久化上次成功扫描时刻（增量扫描过滤基准）。
         let scanCursorStore = UserDefaultsScanCursorStore()
-        // 纪念提醒：真调度（宠物纪念日 + 时光机）。测试环境不构造，避免触发通知授权。
+        // 纪念提醒：真调度（周年、相处里程碑 + 时光机）。测试环境不构造，避免触发通知授权。
         let notifyService = isTesting ? nil : NotifyService(
             photoRepo: photoRepo,
             petRepo: petRepo,

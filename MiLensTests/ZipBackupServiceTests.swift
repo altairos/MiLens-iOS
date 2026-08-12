@@ -38,6 +38,61 @@ final class ZipBackupServiceTests: XCTestCase {
         XCTAssertTrue(service.isAvailable, "ZipBackupService 必须声明可用（替换 UnavailableBackupService）")
     }
 
+    // MARK: - 预估
+
+    func testEstimateMatchesFullLibrary() async throws {
+        let pet = Pet(name: "小橘", species: .cat)
+        let photos = (0..<3).map { i in
+            Photo(uri: "/src/\(i).jpg", originalURI: "L0/00\(i)", pet: pet)
+        }
+        let (service, _, _, _, _) = makeService(pets: [pet], photos: photos)
+
+        let estimate = try await service.estimateBackup(petIDs: nil)
+
+        XCTAssertEqual(estimate.petCount, 1)
+        XCTAssertEqual(estimate.photoCount, 3, "预估照片数须等于全库照片数")
+    }
+
+    func testEstimateMatchesActualExportManifest() async throws {
+        // 预估计数须与实际导出的 manifest 一致（核心不变量：预估不能骗用户）。
+        let pet1 = Pet(name: "小橘", species: .cat)
+        let pet2 = Pet(name: "豆豆", species: .dog)
+        let photos = [
+            Photo(uri: "/a.jpg", originalURI: "L0/001", pet: pet1),
+            Photo(uri: "/b.jpg", originalURI: "L0/002", pet: pet2),
+        ]
+        let (service, _, _, _, _) = makeService(pets: [pet1, pet2], photos: photos)
+
+        let estimate = try await service.estimateBackup(petIDs: nil)
+        let result = try await service.exportBackup(petIDs: nil, progress: { _ in })
+
+        XCTAssertEqual(estimate.petCount, result.manifest.petCount, "预估宠物数须与导出一致")
+        XCTAssertEqual(estimate.photoCount, result.manifest.photoCount, "预估照片数须与导出一致")
+    }
+
+    func testEstimateWithPetIDsFiltersPhotos() async throws {
+        let pet1 = Pet(name: "小橘", species: .cat)
+        let pet2 = Pet(name: "豆豆", species: .dog)
+        let photos = [
+            Photo(uri: "/a.jpg", originalURI: "L0/001", pet: pet1),
+            Photo(uri: "/b.jpg", originalURI: "L0/002", pet: pet2),
+            Photo(uri: "/c.jpg", originalURI: "L0/003", pet: pet2),
+        ]
+        let (service, _, _, _, _) = makeService(pets: [pet1, pet2], photos: photos)
+
+        let estimate = try await service.estimateBackup(petIDs: [pet2.id])
+
+        XCTAssertEqual(estimate.petCount, 1, "petIDs 过滤后只统计选中宠物")
+        XCTAssertEqual(estimate.photoCount, 2, "petIDs 过滤后只统计选中宠物的照片")
+    }
+
+    func testEstimateEmptyLibrary() async throws {
+        let (service, _, _, _, _) = makeService()
+        let estimate = try await service.estimateBackup(petIDs: nil)
+        XCTAssertEqual(estimate.petCount, 0)
+        XCTAssertEqual(estimate.photoCount, 0)
+    }
+
     // MARK: - 导出
 
     func testExportProducesNonEmptyBackupFile() async throws {

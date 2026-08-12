@@ -94,7 +94,7 @@
 ### Phase 3 — 首页 hero（先补数据层）
 
 **3.1 HomeViewModel（@Observable）+ XCTest**
-- ✅ **数据层纯逻辑已提前落地**（2026-08-08，Windows/WSL2 完成）：`MiLensKit/Sources/MiLensKit/Home/` 新增 `HomeGreetingLogic`（时段问候，5-11 早 / 12-17 午 / 18-4 晚）/ `HomeHeroLogic`（今日判定 + hero 选片「今日最新 → 回退最近一张」+ 「今天 · 小橘」标注）/ `HomeMemoryLogic`（一年前的今天：同月同日历史照片按年份倒序，空则回退最近历史照片，标题「最近回忆」）+ `HomeDateSupport`（固定 UTC Calendar）。`HomeLogicTests` 32 用例，MiLensKit 全量 578 用例全绿。
+- ✅ **数据层纯逻辑已提前落地**（2026-08-08，Windows/WSL2 完成）：`MiLensKit/Sources/MiLensKit/Home/` 新增 `HomeGreetingLogic`（时段问候，5-11 早 / 12-17 午 / 18-4 晚）/ `HomeHeroLogic`（今日判定 + hero 选片三级策略：今日最新 → 质量分 top池随机 → nil）+ 「今天 · 小橘」标注）/ `HomeMemoryLogic`（一年前的今天：同月同日历史照片按年份倒序，空则回退最近历史照片，标题「最近回忆」）+ `HomeDateSupport`（固定 UTC Calendar）。`HomeLogicTests` 32 用例，MiLensKit 全量 578 用例全绿。**2026-08-12 细化**：hero 回退策略从「全部照片最新一张」改为「质量分 top池（min(count, max(5, ceil(count/3)))）按 randomIndex 随机选一张」，`HomeHeroPhoto` 新增 `qualityScore` 字段，`selectHeroPhoto` 新增 `randomIndex` 参数化；`HomeViewModel` 在 `load()` 时固定随机种子避免重绘跳图。+3 用例。
 - ✅ **HomeViewModel（@Observable）编排层已落地**：`MiLens/ViewModels/HomeViewModel.swift` 负责 Repository 查询 → 投影组装 → 调用 Home 纯逻辑；首页只读取最近 500 张，避免无界加载。
 - ⬜ 「一年前的今天」回忆横滑数据：复用 `HomeMemoryLogic`（已落地）+ Repository 查询。
 - ✅ 时段问候语（「早上好/下午好/晚上好」）纯函数 + 测试（32 用例中的 4 用例）。
@@ -201,7 +201,7 @@ cd MiLensKit && swift test
 | # | 页面 | Figma nodeId | 状态 |
 |---|---|---|---|
 | 01 | 首页 | `319:1026` | ✅ 已落地（出血 Hero + 宠物身份条 + 即将到来的日子） |
-| 02 | 伙伴档案 | — | ⬜ 待落地 |
+| 02 | 伙伴档案 | `319:1095` | ✅ 已落地（出血肖像 + Archive Panel + 四列统计 + 置顶记忆 + 最近照片 + 时间线入口） |
 | 03 | 生命时间线 | `140:348` | ✅ 已落地（年份选择器 + 章节标记 + 三种记忆卡片 + 悬浮添加） |
 | 04 | 图库 | — | ⬜ 待落地 |
 | 05 | 创作 | `58:15` | ⬜ 待落地 |

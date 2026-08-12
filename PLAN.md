@@ -1,6 +1,6 @@
 # MiLens iOS 迁移计划
 
-最后核对：2026-08-12（Figma 12 页 Release Candidate 设计稿落地推进中：07·我的、03·生命时间线、01·首页 三页已落地 Ledger 编辑式设计语言，含 PetEvent SchemaV2 扩展 + TimelineLogic 文本记忆/作品记录类型 + 首页纪念日倒计时；Windows 环境代码就绪，编译/UI/真机验证待 Mac；其余状态同前：情感触点系统 Stage 1–3 + 创作 Tab 新增「宠物名片」「红包封面」两个项目落地；纯决策逻辑全量下沉 MiLensKit，WSL2 `swift test` 761/761 全绿、本轮新增 138 用例零回归；App 层渲染与集成代码就位待 Mac 编译验证，详见 [docs/情感触点-Mac待办备忘.md](docs/情感触点-Mac待办备忘.md)；P0–P4 状态全量同步；P5 首页/设置/订阅/付费墙/元数据已实现 + 上架流水线代码落地待实测；评审高优先级+中优先级修复全部落地；严格并发开启 + ViewModelFactory 分层收敛 + 评审阻塞修复落地；Figma Direction D「Memory Orbit」底部导航已接入真实 SwiftUI；本地化：工具链 plural + 动态文案 10 类收口 8 类，catalog 269+3 key，源语言检查全绿，其他 6 个首发语言仍待翻译；剩性能基准、截图、iPad/深色检查与真机验收，见 [P2-待办清单](docs/P2-待办清单.md)）
+最后核对：2026-08-12（Figma 12 页 Release Candidate 设计稿落地推进中：07·我的、03·生命时间线、01·首页 三页已落地 Ledger 编辑式设计语言，含 PetEvent SchemaV2 扩展 + TimelineLogic 文本记忆/作品记录类型 + 首页纪念日倒计时；Windows 环境代码就绪，编译/UI/真机验证待 Mac；其余状态同前：情感触点系统 Stage 1–3 + 创作 Tab 新增「宠物名片」「红包封面」两个项目落地；纯决策逻辑全量下沉 MiLensKit，WSL2 `swift test` 761/761 全绿、本轮新增 138 用例零回归；App 层渲染与集成代码就位待 Mac 编译验证，详见 [docs/情感触点-Mac待办备忘.md](docs/情感触点-Mac待办备忘.md)；P0–P4 状态全量同步；P5 首页/设置/订阅/付费墙/元数据已实现 + 上架流水线代码落地待实测；评审高优先级+中优先级修复全部落地；严格并发开启 + ViewModelFactory 分层收敛 + 评审阻塞修复落地；Figma Direction D「Memory Orbit」底部导航已接入真实 SwiftUI；本地化：工具链 plural + 动态文案 10 类收口 8 类，catalog 269+3 key，源语言检查全绿，其他 6 个首发语言仍待翻译；剩性能基准、截图、iPad/深色检查与真机验收，见 [P2-待办清单](docs/P2-待办清单.md)；本地导出功能体验补强落地（备份导出预预估+确认/阶段进度文案/isAvailable兑底/.milensbackup UTType 限定 + 作品保存统一成功反馈 ExportToast + 创作/设置页硬编码文案迁移 xcstrings 50 key，详见 P5 进度 ADR-0010 条 2026-08-12）
 
 > 里程碑与任务清单。架构见 [DESIGN.md](DESIGN.md)，映射与范围见 [MIGRATION_ASSESSMENT.md](MIGRATION_ASSESSMENT.md)，约束见 [AGENTS.md](AGENTS.md)。
 
@@ -121,7 +121,7 @@ P1 核心可靠性与性能六项修复全部落地（实现记录见状态摘�
 - [x] **像素计算移出主线程**：`AnalysisExecutor`（actor，utility 优先级，受限并发 2）+ `QualityScorer`/`ScanService` 两阶段重构，全部 CPU 密集段经后台执行器，进度回调次数保持按照片数
 - [x] **媒体生命周期**：`MediaLifecycleService`（事务回滚 / 编辑旧文件清理 / 删除联动 / 孤儿审计）+ `refreshPetPhotoCounts` 补上生产链路 + 4 场景单测
 - [x] **SwiftData 启动恢复**：SchemaV1 注释冻结 + `AppDependencies.make(isTesting:)` 工厂 + `DatabaseRecoveryView`（重试/导出诊断/重建本地数据），不再 `try!` 崩溃
-- [x] **通知真调度**：`NotificationPosting.schedule`（`UNCalendarNotificationTrigger`）+ `NotifyService` 幂等重调度（Pet 生日/领养日年度 09:00 + 时光机每日 09:00）+ 设置开关（默认关闭，授权放开关路径）+ 宠物编辑/删除局部更新
+- [x] **通知真调度**：`NotificationPosting.schedule`（`UNCalendarNotificationTrigger`）+ `NotifyService` 幂等重调度（生日/成为家人的日子年度 09:00 + 100/365/730/1000 天里程碑单次提醒 + 时光机每日 09:00）+ 设置开关（默认关闭，授权放开关路径）+ 宠物编辑/删除局部更新
 - [x] **CI 覆盖 App**：PR 也跑 macOS app 作业（构建 + 测试 + 覆盖率），新增 `fetch-models.sh` 步骤 + `actions/cache` 缓存模型
 
 ### 验收标准
@@ -182,7 +182,7 @@ P1 核心可靠性与性能六项修复全部落地（实现记录见状态摘�
 - [x] 时间线增加照片记忆组、用户记录、作品记录、内容类型筛选和来源标签；节点区分形状/内容结构，不只依赖颜色。**✅ 已完成（2026-08-12）**：TimelineView 重构为 Ledger 编辑式设计（年份选择器 + 章节标记 + 照片记忆大图卡 + 文本记忆浅粉卡 + 作品记录卡），三种条目类型区分形状与内容结构。作品记录已接入真实数据（`sourceType="work"` → `.workRecord` 条目，经 `relatedPhotoID` 回链来源照片缩略图；无来源时回退占位网格）+ 作品记录类型标签。
 - [ ] 支持用户命名的相处章节；未命名章节只显示日期范围，不自动臆测宠物生命阶段。**部分完成**：章节标题自动推导（「一起生活的第N年」），自定义命名属 P1。
 - [ ] 照片详情支持加入已有记忆/新建记忆/补充备注；作品保存后回链来源照片或原始记忆。
-- [ ] 首页与纪念提醒进入年度回看，支持添加当前年份照片和一句话；不引入 AI 写真或回忆视频承诺。**部分完成**：首页「即将到来的日子」区块已落地（纪念日倒计时 + 已陪伴天数 + 代表照片缩略图），年度回看回链待实现。
+- [ ] 首页与纪念提醒进入年度回看，支持添加当前年份照片和一句话；不引入 AI 写真或回忆视频承诺。**部分完成**：首页「即将到来的日子」区块已落地（纪念日倒计时 + 按来源区分的天数文案 + 代表照片缩略图），年度回看回链待实现。
 - [ ] 为上述决策逻辑补 XCTest：来源标签、置顶/档案起点、事件关联、日期范围分组、年度回看回链、删除/取消关联边界。**部分完成（2026-08-12）**：作品记录构建/来源照片回链/空标题回退/排序 5 用例已补（`TimelineLogicTests`）；置顶展示、日期范围分组、年度回看回链待补。
 
 验收基准见 [docs/Life-Archive-Design.md](docs/Life-Archive-Design.md) §6。当前 P3 已实现的 CRUD、基础时间线、提醒和照片分类仍有效，本节是下一阶段增量，不回退现有能力。
@@ -206,7 +206,7 @@ P1 核心可靠性与性能六项修复全部落地（实现记录见状态摘�
 - [x] `AddPetSheet` 复用组件（建档表单：名称/物种/性别/生日/领养日）
 - [x] `PetDisplayLogic` 纯函数（年龄/物种名/性别名/相处天数格式化）+ 15 用例 XCTest（翻译源端 DateUtils.test + Pet getSpeciesName/getGenderName）
 - [x] Route 枚举扩展 `.timeline` + RootTabView 路由串联
-- [x] 纪念提醒：`UNUserNotificationCenter`（生日/领养日）→ `NotifyService` 每日检查编排（纪念日同日事件 + 时光机随机一张 + 每日去重 + 撤销），平台层 `NotificationPosting` 协议隔离，15 用例全绿
+- [x] 纪念提醒：`UNUserNotificationCenter`（生日/成为家人的日子/相处里程碑）→ `NotifyService` 真调度（年度重复 + 里程碑单次 + 时光机窗口 + 稳定 ID 撤销），平台层 `NotificationPosting` 协议隔离，文案与调度测试已同步
 - [x] 档案内照片分类（全部照片/待整理/作品三分段，UI-DESIGN.md §6.4）——`PetPhotoCategoryLogic` 纯逻辑（可靠维度：全部=宠物照片 / 待整理=未归属照片 / 作品=编辑产物 `Photo.category==edited`）+ `PhotoRepository.getUnassignedPhotos` + `PetProfileView` 分段 chips（含计数）+ 编辑保存自动打「作品」标记 + 8 用例 XCTest（纯逻辑 6 + SwiftData 查询 2）。V1 不做自动「幼年/玩耍/睡觉」分类（无可靠模型来源，诚实标注原则）
 
 ### 验收标准
@@ -280,8 +280,10 @@ P1 核心可靠性与性能六项修复全部落地（实现记录见状态摘�
 
 ### 任务
 
-- [x] `HomeView`：编辑式首页（设计稿 Tab 1）——hero 大图 + 「往日回忆」+ 空态已按 v2 编辑式布局落地；**Figma「01·首页」#319:1026 落地（2026-08-12）**：出血 Hero（589pt）+ 底部渐变 + 宠物身份条（珊瑚竖线+年龄+切角按钮）+ 文楷大标题（37pt）+ 即将到来的日子区块（纪念日倒计时+缩略图）+ 通知按钮。`HomeViewModel` 新增 `upcomingDay` 计算属性（遍历 birthday/adoptionDay/PetEvent 取最近纪念日）；创作 CTA 已切换至创作 Tab
+- [x] `HomeView`：编辑式首页（设计稿 Tab 1）——hero 大图 + 「往日回忆」+ 空态已按 v2 编辑式布局落地；**Figma「01·首页」#319:1026 落地（2026-08-12）**：出血 Hero（589pt）+ 底部渐变 + 宠物身份条（珊瑚竖线+年龄+切角按钮）+ 文楷大标题（37pt）+ 即将到来的日子区块（纪念日倒计时+缩略图）+ 通知按钮。`HomeViewModel` 新增 `upcomingDay` 计算属性（遍历 birthday/adoptionDay/PetEvent 取最近纪念日）；**纪念日文案语义区分**（`UpcomingDay.Kind`：birthday→「出生至今 N 天」/ adoption→「已陪伴 N 天」/ memorial→「已记录 N 天」）；**Hero 选片策略细化**（今日最新 → 质量分 top池随机 → nil，`HomeHeroPhoto` 加 `qualityScore`，`HomeViewModel` 在 `load()` 时固定 `heroRandomIndex` 避免重绘跳图）；创作 CTA 已切换至创作 Tab
 - [x] 回忆逻辑纯决策：「一年前的今天」（翻译 `TimeMachineService` + `NotifyScheduler` + `PhotoQueryLogic` 日期逻辑 → `AnniversaryLogic` + `TimeMachineLogic`，38 用例 XCTest）
+- [x] WidgetKit 小组件视觉定稿（P5，2026-08-12）：设计与实现契约见 [`docs/WidgetKit-Design.md`](docs/WidgetKit-Design.md)；Figma [`14 · WidgetKit · Life Archive Glances`](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=371-691) 已交付「相片回声」Small/Medium/Large、「纪念日」Small/Medium、「档案年轮」Medium/Large、Accessory Circular/Rectangular，以及 empty/redacted/stale 状态。评审板 `371:693` 全部由组件实例组成，组件源区 `371:694` 共 12 个命名组件；节点审计无小于 10pt 文字、缺失字体、越界或残留 placeholder。
+- [ ] WidgetKit 工程落地：新增独立 Widget Extension + App Group；主 App 输出有界 `WidgetSnapshot` 与降采样缩略图，App Intents 支持选择伙伴/内容源，深链映射到类型安全 `Route`，跨日与数据变更刷新 timeline；补 Small/Medium/Large、锁屏、浅深色、tinted、隐私遮罩、跨日倒计时与失效 ID 测试。Widget 不直接打开 SwiftData store、不联网、不提供购买按钮。
 - [x] `SettingsView`：主题/隐私设置/帮助/关于（设计稿 Tab 4）——`SettingsView` + `SettingsLogic`/`SettingsViewModel`（设置项/Pro 权益展示/通知开关）+ `AboutView`/`HelpView`/`PrivacyInfoView`（git bea5b2f）；**Figma「07·我的」#140:415 落地（2026-08-12）**：重构为 Ledger 账本式设计（珊瑚竖线 rail + Fraunces 编号 + 虚线引导线 + 暖黑 Pro 卡 + 隐私徽章卡 + 居中页脚）。新增 `SettingsLedger.swift` 7 个可复用组件（LedgerSection/LedgerRow/DottedLeader/SettingsSectionLabel/ProHeroCard/PrivacyBadgeCard/SettingsFooter）。ProHeroCard 支持 isPro 双态文案切换。
 - [x] StoreKit 2 订阅：MiLens Pro 产品配置（`Products.storekit`：月 ¥18 / 年 ¥98 / 永久 ¥298）+ `StoreKit2StoreService`（`Transaction` 监听）+ `ProEntitlementStore`（应用级权益唯一消费方）+ 付费墙 UI `PaywallView` + `PaywallLogic`/`PaywallViewModel`（git 61abdeb/a22ddba/078482e/310222c）——StoreKit Testing + 权益/付费墙逻辑均有 XCTest；StoreKit Testing 与真机购买验证待 Mac
 - [x] App Store 截图/描述/ASO 关键词——文案已定稿（[docs/AppStore-metadata.md](docs/AppStore-metadata.md)：描述/关键词/订阅产品/审核备注/隐私问卷，2026-08-08）；**截图制作待 Mac**
@@ -427,6 +429,16 @@ P1 核心可靠性与性能六项修复全部落地（实现记录见状态摘�
 
   **待完成（需 Mac）**：①App 编译验证 + 类型/并发修复（P0 阻塞）；②新增本地化 key（`pet.card.birthdayYears`/`memory.kind.*`/`businessCard.template.*`/`redpacket.guide.*` 等）；③NotifyService 里程碑通知调度（用 MilestoneLogic.upcomingMilestones 预排）；④RecapView + TimelineExportCanvas ExportQuality 扩展；⑤指标埋点接入各触点；⑥红包封面真机验证（导出 PNG 上传 cover.weixin.qq.com 规格校验 + PNG→JPEG 降级链）。
 
+- 2026-08-12：**本地导出功能体验补强（ADR-0010 §8 落地增强 + 创作页反馈一致性）**——针对备份导出与作品导出两条链路体验缺口，完成 6 项修复（Windows 本地代码就绪，编译/测试待 Mac）。
+
+  **备份导出 4 项（ADR-0010 §8）**：①**导出前预估 + 确认**——`BackupService` 协议新增 `estimateBackup(petIDs:) -> BackupEstimate`（预估能力，不打包）；`ZipBackupService` 实现（与 `collectExportBundle` 同 petIDs 过滤语义，保证预估与实际一致）；`BackupViewModel` 拆为两步流程（`prepareExport()` → `.readyToExport` 状态 → 用户确认 → `exportBackup()`）；新增 `BackupConfirmSheet`（导出前展示「宠物档案 N 个 / 照片 M 张」+ 打包说明 + 「开始导出」，避免大库无声产出巨大 ZIP）。②**导出中阶段文案**——`ExportState.inProgress` 现携带 `BackupPhase`（`RestoreState` 同步携带 `RestorePhase`）；新增 `ExportProgressOverlay`（半透明遮罩 + 进度转圈 + 「65% · 复制照片文件」实时阶段文案，解决长任务用户不知道「卡在哪一步」）。③**入口 isAvailable 兑底**——备份导出/恢复入口均读取 `backupVM.isServiceAvailable`，不可用时禁用并显示「即将上线」副标题，对齐协议注释「UI 层据此禁用」承诺（之前注释说但未实现）。④**恢复限定文件格式**——`project.yml` `UTExportedTypeDeclarations` 完善 conformance（`public.zip-archive`+`public.data`+MIME）；`fileImporter` 从 `.item` 改为 `[UTType(exportedAs:"com.milens.backup"), .item]`（减少误选任意文件直到解析失败才报错）。+4 预估用例（全量/与实际导出一致不变量/petIDs 过滤/空库）。
+
+  **作品导出 2 项**：⑤**统一保存成功反馈**——新增 `Components/ExportToast.swift`（`ExportToastMessage` + `.exportToast` 修饰器：胶囊图标+文案 + 成功/失败触感，2.5s 自动消失）；`PetCardView`/`GrowthCompareView` 保存相册从「静默无提示」改为显示「✅ 已保存到相册」+触感（失败也用 toast 替代部分 alert），与拼豆页（自带 `BeadToastMessage` 体系）体验一致。⑥**硬编码文案迁移**——5 个创作/导出页（CreateView/PetCardView/GrowthCompareView/BeadPatternResultView/TimelineView 导出按钮）的硬编码中文全部迁移到 `String(localized:)`；`Localizable.xcstrings` 新增 50 key（`common.save`/`common.share` + `create.*` 系列 38 + `settings.backup.confirm*`/`phase.*` 系列 10）。
+
+  **附带知识沉淀**：发现 `project.yml` `info.properties` 是 Info.plist 唯一事实源（`xcodegen generate` 会覆盖手改），已记录为项目记忆；UTType/文件类型/权限开关类变更必须改 project.yml，不直接改 Info.plist。
+
+  **验证（Windows 本地）**：xcstrings JSON 合法（401 key，源语言 zh-Hans `ok=401 missing=0`）；`localization.py check` 无占位符/格式告警；project.yml YAML 合法；145 处 `String(localized:)` 字面量引用 100% 命中 xcstrings。**未执行**：App 编译/XCTest/UI 预览/真机验证（依赖 iOS SDK，待 Mac）。
+
 ---
 
 ## 数据安全与跨设备迁移（2026-08-12 规划）
@@ -447,9 +459,10 @@ MiLens 是纯本地 App，照片副本与档案数据存于沙盒，对用户具
 ### 任务
 
 1. **实现 `BackupService` 导出/恢复（本次实施）**：将照片原图 + 编辑产物 + 完整元数据（Pet/Photo/PetEvent 的 Codable 快照）打包为 `.milensbackup`（ZIP），通过 ShareSheet 导出到 Files/iCloud Drive/AirDrop；恢复经 DocumentPicker 选择备份文件，校验 `manifest.schemaVersion` 后合并导入（同 ID 跳过，不覆盖现有数据）。
-   - ZIP 能力：MiLensKit 新增纯 Swift `ZIPArchive`（store 模式，无第三方依赖，可在 WSL2 测试）。
+   - ZIP 能力：MiLensKit 新增纯 Swift `ZIPArchive`（store 模式，无三方依赖，可在 WSL2 测试）。
    - 实现 `ZipBackupService` 替换 `UnavailableBackupService`；接入 `AppDependencies` 依赖图。
    - Pro 门控：导出为 Pro 专属（`ProFeature.offlineBackup`）；恢复对所有用户开放。
+   - **导出体验补强（2026-08-12）**：①`estimateBackup` 预估能力（协议级）+ `BackupConfirmSheet` 确认对话框（导出前展示「N 个档案 / M 张照片」规模，用户确认后再打包）；②`ExportState.inProgress` 携带 `BackupPhase`，`ExportProgressOverlay` 浮层展示「65% · 复制照片文件」实时阶段文案；③入口用 `isServiceAvailable` 兑底（不可用时禁用并提示「即将上线」，对齐协议注释承诺）；④`fileImporter` 限定 `com.milens.backup` UTType（project.yml 声明 `UTExportedTypeDeclarations`，conforms `public.zip-archive`+`public.data`+MIME）。+4 预估用例（含预估与实际导出一致不变量）。
 
 2. **引导用户开启备份/主动导出**：在设置页「数据与隐私」分区增加备份导出/恢复入口；首选项或引导流提示「为防止换机/丢机丢失，建议开启 iCloud 备份或定期导出 `.milensbackup`」。不强制、不联网、不读取账户信息。
 
@@ -461,6 +474,7 @@ MiLens 是纯本地 App，照片副本与档案数据存于沙盒，对用户具
 - [x] 任务 1：设置页备份导出/恢复入口可用（ShareSheet 导出 + DocumentPicker 导入）。
 - [x] 任务 2：引导提示文案与入口就位（设置页「数据与隐私」分区：数据安全提示 + .milensbackup 使用引导）。
 - [x] 任务 3：用户可控开关已实现（`PhotoBackupMode` 枚举 + `@AppStorage("photoBackupMode")` + `IOSFileStorage.reapplyBackupExclusion` 切换后立即重标记已有文件 + 5 纯逻辑用例）。
+- [x] 任务 1 增量（2026-08-12）：导出预估+确认/阶段进度浮层/isAvailable兑底/UTType 限定 全部落地；`estimateBackup` +4 用例（Windows 本地 xcstrings JSON + YAML 合法性 + key 引用全命中校验通过；App 编译/测试待 Mac）。
 - [ ] 真机验证：完整导出 → 删 App → 重装 → 恢复，数据（宠物档案 + 照片 + 编辑产物 + 事件）完整还原。
 
 ---
@@ -476,7 +490,7 @@ Figma 文件 `WnT7DCK1XCyPwnS38SE87p`（MiLens iOS Release Candidate · FINAL）
 | # | 页面 | Figma nodeId | 状态 | 说明 |
 |---|---|---|---|---|
 | 01 | 首页（ROOT TAB） | `319:1026` | ✅ 已落地 | 出血 Hero + 宠物身份条 + 即将到来的日子 + 通知按钮 |
-| 02 | 伙伴档案（ROOT TAB） | — | ⬜ 待落地 | |
+| 02 | 伙伴档案（ROOT TAB） | `319:1095` | ✅ 已落地 | 出血肖像 Hero + Archive Panel + 四列统计 + 置顶记忆 + 最近照片 + 时间线入口 |
 | 03 | 生命时间线（PUSH） | `140:348` | ✅ 已落地 | 年份选择器 + 章节标记 + 三种记忆卡片 + 悬浮添加 |
 | 04 | 图库（PUSH） | — | ⬜ 待落地 | |
 | 05 | 创作（ROOT TAB） | `58:15` | ⬜ 待落地 | |
@@ -492,19 +506,22 @@ Figma 文件 `WnT7DCK1XCyPwnS38SE87p`（MiLens iOS Release Candidate · FINAL）
 
 以下限制不阻断功能，但影响视觉完成度或数据完整性，需后续迭代收口：
 
-1. **作品记录（workRecord）数据源未接入**：`WorkRecordCard` 的拼豆网格是 7×7 占位（珊瑚/暖黑交替），`buildTimelineEntries` 不构建 workRecord 条目。需后续接入拼豆结果持久化后填充真实数据。
-2. **添加记忆是占位 Sheet**：TimelineView 悬浮按钮点击弹出「即将推出」占位，完整表单（标题/日期/正文/关联照片/置顶）属 Life-Archive-Design.md P0 待实现功能。
-3. **相处章节不支持自定义命名**：章节标题用公式自动推导（「一起生活的第N年」），用户自定义命名属 P1 功能。
-4. **首页通知按钮是装饰性**：设计稿的 bell icon 暂不跳路由（Tab 切换无法通过 NavigationLink 实现），后续可改用 `@State` 切 Tab 或 badge 红点。
-5. **首页 heroDateString 固定中文星期**：weekday 数组硬编码中文（「星期一」…），未来本地化需改为 `DateFormatter.weekdaySymbols`。
-6. **年份选择器无滚动定位**：当前只做视觉选择，ScrollView 滚动到选中年份的自动定位待优化。
-7. **设置页 ProFeature 列表样式**：设计稿未展示多行功能列表，当前用轻量行（图标+标题）而非 LedgerRow 编号样式。
-8. **Figma SVG 切图未下载**：MCP 图片目录只读权限导致 SVG 下载失败，全部图标改用 SF Symbol（lock.fill/chevron.right/bell/plus 等），与设计稿矢量一致性可能有细微差异。（注：已决定不再需要设计稿矢量图）
-9. **Windows 环境限制**：所有改动仅经过代码审查与 JSON 校验，**Swift 编译、XCTest、UI 预览、真机验证均未执行**，需在 macOS 环境完成最终验证。
+1. **相处章节不支持自定义命名**：章节标题用公式自动推导（「一起生活的第N年」），用户自定义命名属 P1 功能。
+2. **首页通知按钮是装饰性**：设计稿的 bell icon 暂不跳路由（Tab 切换无法通过 NavigationLink 实现），后续可改用 `@State` 切 Tab 或 badge 红点。
+3. **首页 heroDateString 固定中文星期**：weekday 数组硬编码中文（「星期一」…），未来本地化需改为 `DateFormatter.weekdaySymbols`。
+4. **年份选择器无滚动定位**：当前只做视觉选择，ScrollView 滚动到选中年份的自动定位待优化。
+5. **设置页 ProFeature 列表样式**：设计稿未展示多行功能列表，当前用轻量行（图标+标题）而非 LedgerRow 编号样式。
+6. **Figma SVG 切图未下载**：MCP 图片目录只读权限导致 SVG 下载失败，全部图标改用 SF Symbol（lock.fill/chevron.right/bell/plus 等），与设计稿矢量一致性可能有细微差异。（注：已决定不再需要设计稿矢量图）
+7. **伙伴档案置顶记忆回退策略为随机照片**：无置顶事件/用户记录时，`pinnedMemory` 从全部照片中随机选一张展示（每次进入页面不同，增加新鲜感）。当前随机发生在 SwiftUI 计算属性内，每次 body 重算都会重新随机，可能导致频繁切换；后续可改为 `@State` 固定一张（进入页面时选定）或在 ViewModel 层缓存。
+8. **伙伴档案 Archive Panel 浮起效果**：用 `.padding(.top, -25)` 实现 Hero 底部覆盖，在 ScrollView 内可能因安全区/状态栏交互导致位置偏移，需模拟器视觉验证。
+9. **伙伴档案生日日期格式**：`birthday.formatted(.iso8601...)` 产出 `2024.05.16` 格式，与设计稿一致，但未来本地化需验证 locale 行为。
+10. **添加记忆入口仅 TimelineView**：`AddMemorySheet` 完整表单已落地，但 `PetProfileView`、`PhotoViewView` 的入口待实现（Life-Archive-Design.md P0）。
+11. **置顶记忆/档案起点 UI 展示待实现**：数据字段（`isPinned`/`relatedPhotoID`）和写入已支持，档案首页的置顶记忆首屏展示和档案起点功能待实现。
+12. **Windows 环境限制**：所有改动仅经过代码审查与 JSON 校验，**Swift 编译、XCTest、UI 预览、真机验证均未执行**，需在 macOS 环境完成最终验证。
 
 ### 待办
 
-- [ ] 剩余 9 页设计稿落地（02/04/05/06/08-12）
+- [ ] 剩余 8 页设计稿落地（04/05/06/08-12）
 - [ ] macOS 编译验证（全部 Figma 落地改动的类型/并发/资源检查）
 - [ ] XCTest 验证（TimelineLogicTests 新增 4 textNote 用例 + 现有回归）
 - [ ] UI 预览验证（深色模式 + Dynamic Type + iPhone/iPad 尺寸）

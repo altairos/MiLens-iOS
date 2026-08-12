@@ -18,6 +18,16 @@ final class HomeViewModel {
 
     /// 即将到来的纪念日（对照 Figma #319:1039-1044「即将到来的日子」）。
     struct UpcomingDay: Identifiable {
+        /// 纪念日来源类型，决定「已陪伴天数」的文案语义。
+        enum Kind: Sendable {
+            /// 生日：daysTogether 语义 = 「出生至今 N 天」
+            case birthday
+            /// 领养日：daysTogether 语义 = 「已陪伴 N 天」
+            case adoption
+            /// 其他纪念事件：daysTogether 语义 = 「已记录 N 天」
+            case memorial
+        }
+
         let id: UUID
         /// 纪念日标题（「第一次见面的日子」/「小满的生日」）。
         let title: String
@@ -28,8 +38,10 @@ final class HomeViewModel {
         let nextDate: Date
         /// 距今天数（≥0）。
         let daysUntil: Int
-        /// 已陪伴天数（从生日/领养日到现在）。
+        /// 从原始日期到现在的天数（语义随 kind 变化）。
         let daysTogether: Int
+        /// 纪念日来源类型。
+        let kind: Kind
         /// 代表照片缩略图（可选，展示在右侧）。
         let thumbnailPath: String?
     }
@@ -43,6 +55,8 @@ final class HomeViewModel {
     private let photoRepository: any PhotoRepositoryProtocol
     private let petRepository: any PetRepositoryProtocol
     private let now: () -> Date
+    /// hero 回退选片的随机种子；在 load() 时固定，避免计算属性每次重算都换一张。
+    private var heroRandomIndex: Int = 0
 
     init(
         photoRepository: any PhotoRepositoryProtocol,
@@ -61,9 +75,9 @@ final class HomeViewModel {
 
     var heroPhoto: Photo? {
         let projections = photos.map {
-            HomeHeroPhoto(id: $0.id, takenAt: $0.takenAt, petID: $0.pet?.id)
+            HomeHeroPhoto(id: $0.id, takenAt: $0.takenAt, petID: $0.pet?.id, qualityScore: $0.qualityScore)
         }
-        guard let selected = HomeHeroLogic.selectHeroPhoto(projections, now: now()) else {
+        guard let selected = HomeHeroLogic.selectHeroPhoto(projections, now: now(), randomIndex: heroRandomIndex) else {
             return nil
         }
         return photos.first { $0.id == selected.id }
@@ -97,7 +111,17 @@ final class HomeViewModel {
             let entries = HomeMemoryLogic.selectMemoryPhotos(
                 photoProjections,
                 now: now(),
-                pets: petProjections
+                pets: petProjections,
+                sameDayTitle: { yearsAgo in
+                    String(localized: "home.memory.yearsAgo \(yearsAgo)")
+                },
+                fallbackTitle: String(localized: "home.memoryTitle"),
+                dateText: { date in
+                    date.formatted(.dateTime.year().month().day())
+                },
+                datePetText: { dateText, petName in
+                    String(localized: "home.memory.datePet \(dateText) \(petName)")
+                }
             )
             memoryItems = entries.compactMap { entry in
                 guard let photo = photos.first(where: { $0.id == entry.photoID }) else { return nil }
@@ -109,6 +133,10 @@ final class HomeViewModel {
             memoryItems = []
             loadError = String(localized: "home.loadError")
         }
+
+        // 固定本次加载的 hero 随机种子（≥1，避免空池模零；load 后不再变化，
+        // 直到下次 load 才换一张，保证首页不会每次重绘都跳图）。
+        heroRandomIndex = Int.random(in: 1...max(1, photos.count))
 
         isLoading = false
     }
@@ -127,21 +155,21 @@ final class HomeViewModel {
             if let birthday = pet.birthday {
                 if let upcoming = buildUpcoming(
                     originalDate: birthday, title: String(localized: "home.upcoming.birthday \(pet.name)"),
-                    petName: pet.name, petID: pet.id, now: now, cal: cal
+                    petName: pet.name, petID: pet.id, kind: .birthday, now: now, cal: cal
                 ) { candidates.append(upcoming) }
             }
             // 领养日
             if let adoption = pet.adoptionDay {
                 if let upcoming = buildUpcoming(
                     originalDate: adoption, title: String(localized: "home.upcoming.adoption \(pet.name)"),
-                    petName: pet.name, petID: pet.id, now: now, cal: cal
+                    petName: pet.name, petID: pet.id, kind: .adoption, now: now, cal: cal
                 ) { candidates.append(upcoming) }
             }
             // PetEvent（用户纪念事件）
             for ev in pet.events where ev.sourceType != "user" {
                 if let upcoming = buildUpcoming(
                     originalDate: ev.eventDate, title: ev.title,
-                    petName: pet.name, petID: pet.id, now: now, cal: cal
+                    petName: pet.name, petID: pet.id, kind: .memorial, now: now, cal: cal
                 ) { candidates.append(upcoming) }
             }
         }
@@ -154,6 +182,7 @@ final class HomeViewModel {
                 id: upcoming.id, title: upcoming.title, petName: upcoming.petName,
                 petID: upcoming.petID, nextDate: upcoming.nextDate,
                 daysUntil: upcoming.daysUntil, daysTogether: upcoming.daysTogether,
+                kind: upcoming.kind,
                 thumbnailPath: (thumb?.isEmpty == false) ? thumb : nil
             )
         }
@@ -162,7 +191,7 @@ final class HomeViewModel {
     /// 把原始日期推进到今年/明年的下一次月日匹配，构建候选 UpcomingDay。
     private func buildUpcoming(
         originalDate: Date, title: String, petName: String, petID: UUID,
-        now: Date, cal: Calendar
+        kind: UpcomingDay.Kind, now: Date, cal: Calendar
     ) -> UpcomingDay? {
         let comp = cal.dateComponents([.month, .day], from: originalDate)
         guard let month = comp.month, let day = comp.day else { return nil }
@@ -190,7 +219,7 @@ final class HomeViewModel {
         return UpcomingDay(
             id: petID, title: title, petName: petName, petID: petID,
             nextDate: target, daysUntil: daysUntil, daysTogether: daysTogether,
-            thumbnailPath: nil
+            kind: kind, thumbnailPath: nil
         )
     }
 }

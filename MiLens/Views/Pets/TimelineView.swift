@@ -40,7 +40,7 @@ struct TimelineView: View {
                 Button {
                     handleExportShare()
                 } label: {
-                    Label("分享", systemImage: "square.and.arrow.up")
+                    Label(String(localized: "common.share"), systemImage: "square.and.arrow.up")
                 }
                 .disabled(isExporting || viewModel?.months.isEmpty != false)
             }
@@ -163,10 +163,10 @@ struct TimelineView: View {
             Image(systemName: "calendar.badge.exclamationmark")
                 .font(.system(size: 40, weight: .light))
                 .foregroundStyle(Color.milensTextSecondary)
-            Text("还没有成长记录")
+            Text(String(localized: "timeline.empty.title"))
                 .font(.displayMedium)
                 .foregroundStyle(Color.milensTextPrimary)
-            Text("添加宠物档案和照片后，这里会自动生成成长时间线")
+            Text(String(localized: "timeline.empty.body"))
                 .font(.bodyPrimary)
                 .foregroundStyle(Color.milensTextSecondary)
                 .multilineTextAlignment(.center)

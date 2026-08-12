@@ -213,9 +213,14 @@ enum TimelineLogic {
             }
 
             // 系统推导的纪念事件（生日/领养日）
-            let title = ev.title.isEmpty
-                ? (petName.isEmpty ? "宠物纪念日" : "\(petName)的纪念日")
-                : ev.title
+            let title: String
+            if !ev.title.isEmpty {
+                title = ev.title
+            } else if ev.eventType == "birthday" {
+                title = String(localized: "timeline.event.birthday \(petName)", locale: locale)
+            } else {
+                title = String(localized: "timeline.event.adoption \(petName)", locale: locale)
+            }
             entries.append(TimelineEntry(
                 id: "pet_\(ev.id.uuidString)",
                 type: ev.eventType == "birthday" ? .birthday : .adoption,
@@ -284,8 +289,8 @@ enum TimelineLogic {
                     id: "retrain_\(pet.id.uuidString)_m\(m)",
                     type: .photoNote,
                     date: reminderDate,
-                    title: "建议为\(pet.name)更新参考照片",
-                    subtitle: "\(pet.name)正在快速成长，建议重新拍摄注册",
+                    title: String(localized: "timeline.reference.update.title \(pet.name)", locale: locale),
+                    subtitle: String(localized: "timeline.reference.update.subtitle \(pet.name)", locale: locale),
                     petID: pet.id,
                     petName: pet.name,
                     photoID: nil,

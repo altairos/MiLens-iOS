@@ -96,11 +96,51 @@ final class HomeHeroLogicTests: XCTestCase {
         XCTAssertEqual(selected?.id, todayEvening.id)
     }
 
-    func testSelectHeroFallsBackToLatestPhotoWhenNoTodayPhoto() {
-        let older = HomeHeroPhoto(id: UUID(), takenAt: HomeTestSupport.makeDate(2025, 3, 1, 10))
-        let newest = HomeHeroPhoto(id: UUID(), takenAt: HomeTestSupport.makeDate(2026, 7, 30, 18))
-        let selected = HomeHeroLogic.selectHeroPhoto([older, newest], now: now)
-        XCTAssertEqual(selected?.id, newest.id)
+    // MARK: selectHeroPhoto 回退：质量 top 池随机选取
+
+    func testSelectHeroFallbackPicksFromQualityTopPool() {
+        // 3 张历史照片，质量分递减；数量 < 5 所以全部入池。
+        let high = HomeHeroPhoto(id: UUID(), takenAt: HomeTestSupport.makeDate(2026, 3, 1, 10), qualityScore: 0.95)
+        let mid = HomeHeroPhoto(id: UUID(), takenAt: HomeTestSupport.makeDate(2026, 2, 1, 10), qualityScore: 0.50)
+        let low = HomeHeroPhoto(id: UUID(), takenAt: HomeTestSupport.makeDate(2026, 1, 1, 10), qualityScore: 0.10)
+        let photos = [low, mid, high]  // 乱序输入
+
+        // randomIndex=0 → 池内质量最高（high）
+        XCTAssertEqual(HomeHeroLogic.selectHeroPhoto(photos, now: now, randomIndex: 0)?.id, high.id)
+        // randomIndex=1 → mid
+        XCTAssertEqual(HomeHeroLogic.selectHeroPhoto(photos, now: now, randomIndex: 1)?.id, mid.id)
+        // randomIndex=2 → low
+        XCTAssertEqual(HomeHeroLogic.selectHeroPhoto(photos, now: now, randomIndex: 2)?.id, low.id)
+        // randomIndex 模运算绕回
+        XCTAssertEqual(HomeHeroLogic.selectHeroPhoto(photos, now: now, randomIndex: 3)?.id, high.id)
+    }
+
+    func testSelectHeroFallbackTopPoolLimitedToTopThird() {
+        // 9 张照片，质量分 0.1…0.9；top 池 = max(5, ceil(9/3)=3) = 5。
+        // 低分 4 张（0.1…0.4）不应被选中。
+        var photos: [HomeHeroPhoto] = []
+        for i in 1...9 {
+            photos.append(HomeHeroPhoto(
+                id: UUID(),
+                takenAt: HomeTestSupport.makeDate(2026, i, 1, 10),
+                qualityScore: Double(i) * 0.1
+            ))
+        }
+        // 遍历 randomIndex 0..<5，选中的都应该在 top 5（0.5…0.9）里
+        let topIDs = Set(photos.sorted { $0.qualityScore > $1.qualityScore }.prefix(5).map { $0.id })
+        for seed in 0..<20 {
+            let selected = HomeHeroLogic.selectHeroPhoto(photos, now: now, randomIndex: seed)
+            XCTAssertNotNil(selected)
+            XCTAssertTrue(topIDs.contains(selected!.id), "seed=\(seed) 选了非 top5 的照片")
+        }
+    }
+
+    func testSelectHeroFallbackUnscoredPhotosUseDefaultZero() {
+        // 全部未评分（qualityScore=0），仍从全部入池随机
+        let a = HomeHeroPhoto(id: UUID(), takenAt: HomeTestSupport.makeDate(2026, 1, 1, 10))
+        let b = HomeHeroPhoto(id: UUID(), takenAt: HomeTestSupport.makeDate(2026, 2, 1, 10))
+        let selected = HomeHeroLogic.selectHeroPhoto([a, b], now: now, randomIndex: 0)
+        XCTAssertNotNil(selected)
     }
 
     func testSelectHeroIgnoresPhotosWithoutTakenAt() {

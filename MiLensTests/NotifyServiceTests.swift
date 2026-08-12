@@ -1,4 +1,5 @@
 import XCTest
+import MiLensKit
 @testable import MiLens
 
 /// NotifyService 调度编排测试——宠物纪念日年度重复 + 时光机每日、幂等重调度、
@@ -60,7 +61,7 @@ final class NotifyServiceTests: XCTestCase {
         XCTAssertNil(birthday?.dateComponents.year, "无年份 = 每年重复")
         XCTAssertEqual(birthday?.repeats, true)
 
-        // 领养日：anniversary-<petID>-adoption，6/2 09:00 每年重复
+        // 成为家人的日子：anniversary-<petID>-adoption，6/2 09:00 每年重复
         let adoption = poster.scheduled.first {
             $0.identifier == NotifyService.anniversaryIdentifier(for: pet, kind: .adoption)
         }
@@ -79,7 +80,7 @@ final class NotifyServiceTests: XCTestCase {
         XCTAssertTrue(poster.scheduled.isEmpty)
     }
 
-    func testBirthdayBodyReusesAnniversaryWording() async {
+    func testBirthdayNotificationUsesPetSpecificTitleAndBody() async {
         let pet = Pet(name: "小橘", birthday: date(2020, 5, 1))
         let (service, poster, _, _) = makeService(pets: [pet])
 
@@ -88,8 +89,45 @@ final class NotifyServiceTests: XCTestCase {
         let birthday = poster.scheduled.first {
             $0.identifier == NotifyService.anniversaryIdentifier(for: pet, kind: .birthday)
         }
-        XCTAssertEqual(birthday?.title, "纪念日回忆")
-        XCTAssertEqual(birthday?.body, "今天的回忆：小橘的生日")
+        XCTAssertEqual(birthday?.title, "今天是小橘的生日")
+        XCTAssertEqual(birthday?.body, "去看看小橘的生日回忆吧。")
+    }
+
+    func testAdoptionNotificationUsesFamilyDayWording() async {
+        let pet = Pet(name: "小橘", adoptionDay: date(2021, 6, 2))
+        let (service, poster, _, _) = makeService(pets: [pet])
+
+        await service.rescheduleAllReminders(now: date(2026, 8, 8), calendar: calendar)
+
+        let adoption = poster.scheduled.first {
+            $0.identifier == NotifyService.anniversaryIdentifier(for: pet, kind: .adoption)
+        }
+        XCTAssertEqual(adoption?.title, "今天是和小橘成为家人的日子")
+        XCTAssertEqual(adoption?.body, "去看看你们一起留下的回忆吧。")
+    }
+
+    func testUpcomingMilestoneSchedulesOneShotNotification() async {
+        let adoptionDay = date(2026, 1, 1)
+        let pet = Pet(name: "小橘", adoptionDay: adoptionDay)
+        let now = date(2026, 3, 1)
+        let (service, poster, _, _) = makeService(pets: [pet])
+
+        await service.rescheduleAllReminders(now: now, calendar: calendar)
+
+        let milestone = poster.scheduled.first {
+            $0.identifier == NotifyService.milestoneIdentifier(for: pet, days: 100)
+        }
+        XCTAssertNotNil(milestone)
+        XCTAssertEqual(milestone?.title, "来到家100天")
+        XCTAssertEqual(milestone?.body, "小橘已经来到这个家100天了")
+        var expectedDateComponents = calendar.dateComponents(
+            [.year, .month, .day],
+            from: MilestoneLogic.milestoneDate(anchor: adoptionDay, days: 100)
+        )
+        expectedDateComponents.hour = NotifyService.reminderHour
+        expectedDateComponents.minute = NotifyService.reminderMinute
+        XCTAssertEqual(milestone?.dateComponents, expectedDateComponents)
+        XCTAssertFalse(milestone?.repeats ?? true)
     }
 
     // MARK: - 时光机（预排未来 N 天，每天 09:00 单次通知）
@@ -202,8 +240,8 @@ final class NotifyServiceTests: XCTestCase {
         pet.birthday = date(2020, 6, 1)
         await service.updateReminders(for: pet, calendar: calendar)
 
-        // 先撤销旧的两个 identifier（birthday + adoption）
-        XCTAssertEqual(Set(poster.removedIdentifiers), Set(NotifyService.anniversaryIdentifiers(for: pet)))
+        // 先撤销周年与里程碑 identifier，再按新日期调度
+        XCTAssertEqual(Set(poster.removedIdentifiers), Set(NotifyService.reminderIdentifiers(for: pet)))
         // 按新日期调度
         let birthday = poster.scheduled.first {
             $0.identifier == NotifyService.anniversaryIdentifier(for: pet, kind: .birthday)
@@ -218,7 +256,7 @@ final class NotifyServiceTests: XCTestCase {
 
         await service.removeReminders(for: pet)
 
-        XCTAssertEqual(Set(poster.removedIdentifiers), Set(NotifyService.anniversaryIdentifiers(for: pet)))
+        XCTAssertEqual(Set(poster.removedIdentifiers), Set(NotifyService.reminderIdentifiers(for: pet)))
         XCTAssertTrue(poster.scheduled.isEmpty)
     }
 

@@ -75,10 +75,13 @@ targets:
           - UTTypeIdentifier: com.milens.backup
             UTTypeDescription: "MiLens 备份文件"
             UTTypeConformsTo:
-              - public.archive
+              - public.zip-archive
+              - public.data
             UTTypeTagSpecification:
               public.filename-extension:
                 - milensbackup
+              public.mime-type:
+                - application/zip
         CFBundleDocumentTypes:
           - CFBundleTypeName: "MiLens 备份"
             CFBundleTypeRole: Viewer

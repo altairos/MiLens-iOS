@@ -1,6 +1,6 @@
 # MiLens iOS 开发说明
 
-最后核对：2026-08-09（P0–P5 实现完成；本机 macOS 编译 + 1198+ XCTest 全绿；真机与性能验收待做，清单见 docs/P2-待办清单.md）
+最后核对：2026-08-12（P0–P5 实现完成；本机 macOS 编译 + 1198+ XCTest 全绿；本地导出功能体验补强代码就绪待 Mac；真机与性能验收待做，清单见 docs/P2-待办清单.md）
 
 > 环境、命令、开发约定、可复现验证快照。架构见 [DESIGN.md](DESIGN.md)，计划见 [PLAN.md](PLAN.md)，约束见 [AGENTS.md](AGENTS.md)。
 
@@ -154,6 +154,7 @@ tools/check-coverage.sh build/TestResult.xcresult
 - `MiLens/` —— App target
 - `MiLensKit/` —— 本地 Swift Package（拼豆算法，对应源端 `shared` HSP）
 - `project.yml` —— XcodeGen 声明（**唯一受版本控制的项目配置**，`.xcodeproj` 由其生成，可 gitignore）
+- **Info.plist 由 `project.yml` 生成**：`targets.MiLens.info.properties` 是 `MiLens/Resources/Info.plist` 内容的唯一事实源，`xcodegen generate` 会用这些 properties 重新生成 Info.plist。需要新增/修改 Info.plist 键（如 `UTExportedTypeDeclarations`/`UIFileSharingEnabled`/`CFBundleDocumentTypes` 等）时，**必须改 `project.yml` 对应 properties，不要直接改 Info.plist**（会被下次生成覆盖）。例外：本地化权限文案（`NSPhotoLibraryUsageDescription` 等）走 `InfoPlist.xcstrings`，Xcode 15+ 构建时自动注入，不在 project.yml 重复维护。
 - GitHub 仓库：https://github.com/altairos/MiLens-iOS（私有）
 - 资源统一在 `MiLens/Resources/Assets.xcassets`
 

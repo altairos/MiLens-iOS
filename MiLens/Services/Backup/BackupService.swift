@@ -164,6 +164,16 @@ enum BackupServiceError: Error, LocalizedError, Sendable {
     }
 }
 
+// MARK: - 预估
+
+/// 备份导出前的内容预估（供 UI 在导出前向用户展示规模）。
+struct BackupEstimate: Equatable, Sendable {
+    /// 将导出的宠物档案数。
+    let petCount: Int
+    /// 将导出的照片数。
+    let photoCount: Int
+}
+
 // MARK: - 协议
 
 /// 离线备份服务抽象（业务层依赖此协议，不依赖具体实现）。
@@ -174,8 +184,13 @@ enum BackupServiceError: Error, LocalizedError, Sendable {
 /// - 备份文件扩展名 `.milensbackup`，实际为 ZIP 格式。
 /// - 导出后通过 ShareSheet 分享，不联网。
 protocol BackupService: Sendable {
-    /// 服务是否可用（V1 返回 false）。
+    /// 服务是否可用（UI 层据此禁用/隐藏备份入口或显示「即将上线」）。
     var isAvailable: Bool { get }
+
+    /// 预估将导出的内容规模（不实际打包，仅统计计数）。
+    /// - Parameter petIDs: 指定宠物 ID（nil = 全部宠物）。
+    /// - Returns: 宠物数与照片数预估，供导出前确认展示。
+    func estimateBackup(petIDs: [UUID]?) async throws -> BackupEstimate
 
     /// 导出备份包。
     /// - Parameters:
@@ -218,12 +233,16 @@ enum BackupConfig {
 
 // MARK: - V1 占位实现
 
-/// 备份服务占位实现（V1：所有方法 throw `.serviceUnavailable`）。
-/// UI 层通过 `isAvailable == false` 隐藏备份入口或显示「即将上线」。
+/// 备份服务占位实现（服务不可用时 UI 应通过 `isAvailable == false` 禁用入口，
+/// 所有方法 throw `.serviceUnavailable` 作为第二道防线）。
 final class UnavailableBackupService: BackupService {
     init() {}
 
     var isAvailable: Bool { false }
+
+    func estimateBackup(petIDs: [UUID]?) async throws -> BackupEstimate {
+        throw BackupServiceError.serviceUnavailable
+    }
 
     func exportBackup(
         petIDs: [UUID]?,

@@ -88,7 +88,7 @@ ADR-0009 定义的 Pro 权益（宠物档案数 / 拼豆配额 / 时间线窗口
 | 触发点 | 现状 | 强化方案 |
 |---|---|---|
 | 时光机每日推送 | NotifyService 预排 7 天 | 推送带缩略图附件；月度精选合集；超 365 天照片引导 Pro |
-| 宠物生日/领养日 | 年度重复通知 | 当天首页 Hero 替换 + 「生成生日纪念卡片」CTA |
+| 宠物生日/成为家人的日子 | 年度重复通知 | 当天首页 Hero 替换 + 「生成生日纪念卡片」CTA |
 | 时间线门控 | 14 天体验 + 365 天窗口 | 首页倒计时条；时间线锁定区「还有 N 条更早回忆」 |
 
 ### 3.2 新增触发点（P1–P3）
@@ -104,7 +104,7 @@ ADR-0009 定义的 Pro 权益（宠物档案数 / 拼豆配额 / 时间线窗口
 
 | 触点 | 用户看到的价值 | 免费路径 | Pro 付费点 | 复用能力 |
 |---|---|---|---|---|
-| 纪念日卡片 | 生日、领养日、相处 100/365/730/1000 天 | 生成经典模板预览/标准导出 | 高级模板、高清无水印导出 | `PetCardArtwork` + `PetCardTemplate` |
+| 纪念日卡片 | 生日、成为家人的日子、相处 100/365/730/1000 天 | 生成经典模板预览/标准导出 | 高级模板、高清无水印导出 | `PetCardArtwork` + `PetCardTemplate` |
 | 成长对比卡片 | 早期与现在的照片并排，直观看到变化 | 选择照片并预览 | 高清导出/分享 | `PetCardArtwork` + `SharePreviewSheet` |
 | 月度精选 | 每月自动挑选高质量照片形成小回顾 | 浏览精选预览 | 完整长图导出 | `QualityScorer` + `TimelineExportCanvas` |
 | 年度回忆册 | 一年中宠物的照片、事件和里程碑汇总 | 浏览摘要和前几页预览 | 完整回忆册、高清导出 | Timeline 数据 + `ImageRenderer` |
@@ -266,12 +266,15 @@ MiLens-Backup-2026-08-10.milensbackup  (ZIP 压缩包)
 ### 8.4 备份流程
 
 ```
-设置页 → 「备份导出」（Pro 门控）
-  → 选择范围（全部宠物 / 指定宠物）
-  → 异步打包（进度条 + 可取消）
+设置页 → 「备份导出」（Pro 门控；isAvailable=false 时禁用并提示「即将上线」）
+  → estimateBackup 预估规模（宠物数 + 照片数，不打包）
+  → BackupConfirmSheet 确认对话框（展示预估规模 + 打包说明，用户确认）
+  → 异步打包（阶段进度浮层：收集元数据 / 复制照片 / 压缩，带百分比）
   → ShareSheet（用户选择保存位置）
   → 完成
 ```
+
+> **2026-08-12 实现增强**：V1 首版流程仅有「点击 → 异步打包 → 分享」三步。现拆为五步（入口兑底 → 预估 → 确认 → 带阶段的打包 → 分享），解决三个体验缺口：大库无声产出巨大 ZIP、长任务不知道卡在哪一步、服务不可用时点击直接报错而非入口禁用。
 
 ### 8.5 恢复流程
 
@@ -284,11 +287,12 @@ MiLens-Backup-2026-08-10.milensbackup  (ZIP 压缩包)
 
 ### 8.6 架构
 
-- `BackupService`（protocol）：备份导出/恢复服务抽象，定义打包、解包、校验、导入接口。
-- `BackupManifest` / `BackupMetadata`：备份包数据结构，Codable + Sendable。
-- `IOSBackupService`：V1 实现方案，使用 Foundation `ZIPFoundation` 或系统 Compression.framework。
+- `BackupService`（protocol）：备份导出/恢复服务抽象，定义打包、解包、校验、导入接口。**2026-08-12 新增** `estimateBackup(petIDs:) -> BackupEstimate` 预估能力（不打包，仅统计计数）与 `isAvailable` 属性（UI 层据此禁用/隐藏入口或显示「即将上线」，作为服务不可用时的第一道防线，throw `.serviceUnavailable` 为第二道）。
+- `BackupEstimate` / `BackupManifest` / `BackupMetadata`：备份预估与备份包数据结构，Codable + Sendable。
+- `ZipBackupService`：V1 实现（替代原始规划的 `IOSBackupService`），使用 MiLensKit 纯 Swift `ZIPArchive`（store 模式，无三方依赖，可在 WSL2 测试），而非 Foundation `ZIPFoundation` 或系统 Compression.framework（决策落地时的实现选择，保持纯 Swift 无三方依赖原则）。
+- `BackupViewModel`（@Observable）：导出状态机携带 `BackupPhase`（收集/复制/压缩/完成），恢复状态机携带 `RestorePhase`；两步导出流程（`prepareExport()` 预估 → `.readyToExport` 待确认 → `exportBackup()` 打包）。
 - Pro 门控：备份为 Pro 专属功能，恢复对免费用户开放（不限制恢复已获得的备份）。
-- Info.plist：开启 `UIFileSharingEnabled` + `LSSupportsOpeningDocumentsInPlace`。
+- `project.yml`（Info.plist 唯一事实源）：开启 `UIFileSharingEnabled` + `LSSupportsOpeningDocumentsInPlace`；`UTExportedTypeDeclarations` 声明 `com.milens.backup`（conforms `public.zip-archive`+`public.data`，扩展名 `.milensbackup`，MIME `application/zip`）；`CFBundleDocumentTypes` 注册为 Viewer。`fileImporter` 限定该 UTType（`UTType(exportedAs:)`），`.item` 仅作旧版系统兑底。
 
 ## 9. 复古相簿浏览模式
 
@@ -378,10 +382,10 @@ MiLens-Backup-2026-08-10.milensbackup  (ZIP 压缩包)
 
 ### 10.11 纪念日与里程碑卡片（V1）
 
-- `MilestoneLogic`（MiLensKit）：根据领养日/生日/创建日计算 100/365/730/1000 天里程碑，纯函数 + XCTest。
+- `MilestoneLogic`（MiLensKit）：根据 `adoptionDay` 计算 100/365/730/1000 天里程碑，纯函数 + XCTest；`NotifyService` 负责单次本地通知调度。
 - `MemoryCardKind`：`birthday` / `adoptionDay` / `milestone` / `growthCompare` / `monthlyRecap` / `yearlyRecap`。
 - `PetCardArtwork`：复用模板、文案和水印策略，支持纪念卡、成长对比卡和回忆册封面。
-- `NotifyService`：仅在用户开启提醒后调度纪念日通知；通知内容不含照片数据，点击后在本地生成预览。
+- `NotifyService`：仅在用户开启提醒后调度周年、相处里程碑和时光机通知；通知内容不含照片数据，点击后在本地生成预览。
 - `SharePreviewSheet`：统一预览、保存、分享和付费墙入口。
 
 ### 10.12 月度精选与年度回忆册（V1）

@@ -344,6 +344,28 @@
         }
       }
     },
+    "common.save" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "保存"
+          }
+        }
+      }
+    },
+    "common.share" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "分享"
+          }
+        }
+      }
+    },
     "help.a1" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -476,6 +498,35 @@
         }
       }
     },
+    "home.memory.datePet %@ %@" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@·%@"
+          }
+        }
+      }
+    },
+    "home.memory.yearsAgo %lld" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "variations" : {
+            "plural" : {
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld年前的今天"
+                }
+              },
+              "pluralRuleType" : "pluralRuleType"
+            }
+          }
+        }
+      }
+    },
     "home.photoCount %lld" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -560,13 +611,35 @@
         }
       }
     },
-    "home.upcoming.days %lld %lld" : {
+    "home.upcoming.days.birthday %lld %lld" : {
       "extractionState" : "manual",
       "localizations" : {
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "还有 %lld 天 · 已陪伴 %lld 天"
+            "value" : "还有%lld天·出生至今%lld天"
+          }
+        }
+      }
+    },
+    "home.upcoming.days.adoption %lld %lld" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "还有%lld天·已陪伴%lld天"
+          }
+        }
+      }
+    },
+    "home.upcoming.days.memorial %lld %lld" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "还有%lld天·已记录%lld天"
           }
         }
       }
@@ -578,6 +651,39 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "回看那一天 →"
+          }
+        }
+      }
+    },
+    "home.upcoming.days.adoption.arrived %lld %lld" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "还有%lld天·来到家%lld天"
+          }
+        }
+      }
+    },
+    "home.upcoming.days.adoption.together %lld %lld" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "还有%lld天·相处%lld天"
+          }
+        }
+      }
+    },
+    "home.upcoming.days.adoption.family %@ %lld %lld" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "还有%lld天·和%@成为家人%lld天"
           }
         }
       }
@@ -604,29 +710,73 @@
         }
       }
     },
-    "notify.anniversary.title" : {
+    "notify.anniversary.birthday.title %@" : {
       "extractionState" : "manual",
       "localizations" : {
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "纪念日回忆"
+            "value" : "今天是%@的生日"
           }
         }
       }
     },
-    "notify.anniversary.today %@" : {
+    "notify.anniversary.birthday.body %@" : {
       "extractionState" : "manual",
       "localizations" : {
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "今天的回忆：%@"
+            "value" : "去看看%@的生日回忆吧。"
           }
         }
       }
     },
-    "notify.anniversary.yearsAgo %lld %@" : {
+    "notify.anniversary.adoption.title %@" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "今天是和%@成为家人的日子"
+          }
+        }
+      }
+    },
+    "notify.anniversary.adoption.body %@" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "去看看你们一起留下的回忆吧。"
+          }
+        }
+      }
+    },
+    "notify.memory.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "往日回忆"
+          }
+        }
+      }
+    },
+    "notify.memory.today %@" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "往年今日的回忆：%@"
+          }
+        }
+      }
+    },
+    "notify.memory.yearsAgo %lld %@" : {
       "extractionState" : "manual",
       "localizations" : {
         "zh-Hans" : {
@@ -644,6 +794,28 @@
         }
       }
     },
+    "notify.milestone.title %lld" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "来到家%lld天"
+          }
+        }
+      }
+    },
+    "notify.milestone.body %@ %lld" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@已经来到这个家%lld天了"
+          }
+        }
+      }
+    },
     "notify.defaultPetName" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -651,28 +823,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "小宝贝"
-          }
-        }
-      }
-    },
-    "notify.kind.adoption %@" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%@的领养纪念日"
-          }
-        }
-      }
-    },
-    "notify.kind.birthday %@" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%@的生日"
           }
         }
       }
@@ -713,24 +863,6 @@
         }
       }
     },
-    "notify.timemachine.flashback %lld %@" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "zh-Hans" : {
-          "variations" : {
-            "plural" : {
-              "other" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "回忆杀！%lld年前%@还是这般模样"
-                }
-              },
-              "pluralRuleType" : "pluralRuleType"
-            }
-          }
-        }
-      }
-    },
     "notify.timemachine.flight %lld" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -758,7 +890,7 @@
               "other" : {
                 "stringUnit" : {
                   "state" : "translated",
-                  "value" : "时光飞逝，%lld年前的今天，%@"
+                  "value" : "%lld年前的今天，%@"
                 }
               },
               "pluralRuleType" : "pluralRuleType"
@@ -1295,7 +1427,7 @@
               "other" : {
                 "stringUnit" : {
                   "state" : "translated",
-                  "value" : "来到家 %lld 天"
+                  "value" : "来到家%lld天"
                 }
               },
               "pluralRuleType" : "pluralRuleType"
@@ -1346,7 +1478,7 @@
               "other" : {
                 "stringUnit" : {
                   "state" : "translated",
-                  "value" : "相处 %lld 天"
+                  "value" : "相处%lld天"
                 }
               },
               "pluralRuleType" : "pluralRuleType"
@@ -2103,6 +2235,72 @@
         }
       }
     },
+    "settings.backup.comingSoon" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "即将上线"
+          }
+        }
+      }
+    },
+    "settings.backup.confirmAction" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "开始导出"
+          }
+        }
+      }
+    },
+    "settings.backup.confirmHint" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "导出会将原图与全部档案打包为 .milensbackup 文件。照片较多时可能需要一些时间。"
+          }
+        }
+      }
+    },
+    "settings.backup.confirmPets %lld" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "宠物档案：%1$lld 个"
+          }
+        }
+      }
+    },
+    "settings.backup.confirmPhotos %lld" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "照片：%1$lld 张"
+          }
+        }
+      }
+    },
+    "settings.backup.confirmTitle" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "确认导出内容"
+          }
+        }
+      }
+    },
     "settings.backup.export" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -2235,6 +2433,61 @@
         }
       }
     },
+    "settings.backup.phase.collecting" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "收集档案信息"
+          }
+        }
+      }
+    },
+    "settings.backup.phase.compressing" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "压缩打包"
+          }
+        }
+      }
+    },
+    "settings.backup.phase.copying" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "复制照片文件"
+          }
+        }
+      }
+    },
+    "settings.backup.phase.done" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "即将完成"
+          }
+        }
+      }
+    },
+    "settings.backup.phase.progress %lld %@" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$lld%% · %2$@"
+          }
+        }
+      }
+    },
     "settings.backup.photoBackupMode" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -2285,7 +2538,7 @@
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "请在系统设置中允许 MiLens 发送通知，再开启纪念提醒。"
+            "value" : "如需接收纪念提醒，请在系统设置中允许「咪Lens」发送通知。"
           }
         }
       }
@@ -2296,7 +2549,7 @@
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "好"
+            "value" : "知道了"
           }
         }
       }
@@ -2307,7 +2560,7 @@
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "未获得通知权限"
+            "value" : "通知权限未开启"
           }
         }
       }
@@ -2318,7 +2571,7 @@
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "开启后：宠物生日与领养日当天 09:00 提醒；有历史同日照片时每日 09:00 推送时光机。"
+            "value" : "开启后：生日、成为家人的日子当天 09:00 提醒；里程碑和时光机在合适的时候提醒。"
           }
         }
       }
@@ -2708,6 +2961,413 @@
         }
       }
     },
+    "create.bead.a4pdf" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pro · A4 PDF"
+          }
+        }
+      }
+    },
+    "create.bead.dailyQuota" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "每日 5 次"
+          }
+        }
+      }
+    },
+    "create.bead.desc" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "把一张照片变成可动手完成的图案，附配色方案与材料清单。"
+          }
+        }
+      }
+    },
+    "create.bead.exporting" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "导出中..."
+          }
+        }
+      }
+    },
+    "create.bead.materialCount %lld %lld" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$lld 颗 → 建议准备 %2$lld 颗"
+          }
+        }
+      }
+    },
+    "create.bead.materialList" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "材料清单"
+          }
+        }
+      }
+    },
+    "create.bead.mode.color" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "彩色"
+          }
+        }
+      }
+    },
+    "create.bead.mode.letter" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "字母序号"
+          }
+        }
+      }
+    },
+    "create.bead.saveAlbum" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "保存相册"
+          }
+        }
+      }
+    },
+    "create.bead.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "拼豆图纸"
+          }
+        }
+      }
+    },
+    "create.bead.unlimited" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "不限次数"
+          }
+        }
+      }
+    },
+    "create.bead.zoomHint" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "💡 放大图纸即可显示编号"
+          }
+        }
+      }
+    },
+    "create.businessCard.desc" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "生成带有头像、性格标签和简介的社交名片卡。"
+          }
+        }
+      }
+    },
+    "create.businessCard.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "宠物名片"
+          }
+        }
+      }
+    },
+    "create.encode.failed" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "图片编码失败，请重试"
+          }
+        }
+      }
+    },
+    "create.empty.body" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "从相册导入照片后，就可以从这里开始创作。"
+          }
+        }
+      }
+    },
+    "create.empty.cta" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "去相册添加"
+          }
+        }
+      }
+    },
+    "create.empty.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "先保存一张照片"
+          }
+        }
+      }
+    },
+    "create.growthCompare.desc" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "选两张不同时期的照片，并排看到时间留下的变化。"
+          }
+        }
+      }
+    },
+    "create.growthCompare.hint" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "两张照片，一段时光。保存到相册或分享给家人。"
+          }
+        }
+      }
+    },
+    "create.growthCompare.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "成长对比"
+          }
+        }
+      }
+    },
+    "create.headline" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "让照片继续有去处。"
+          }
+        }
+      }
+    },
+    "create.load.failed" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "照片加载失败"
+          }
+        }
+      }
+    },
+    "create.petCard.desc" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "把一张照片做成竖版纪念卡，带上名字与成为家人的日子。"
+          }
+        }
+      }
+    },
+    "create.petCard.hint" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "长按或保存到相册后，可作为壁纸或分享给家人。"
+          }
+        }
+      }
+    },
+    "create.petCard.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "宠物卡片"
+          }
+        }
+      }
+    },
+    "create.redPacket.badge" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "红包"
+          }
+        }
+      }
+    },
+    "create.redPacket.desc" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "生成微信红包封面素材（957×1278），预览红包 4 个场景。"
+          }
+        }
+      }
+    },
+    "create.redPacket.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "红包封面"
+          }
+        }
+      }
+    },
+    "create.redPacket.wechat" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "微信"
+          }
+        }
+      }
+    },
+    "create.render.failed" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "卡片渲染失败，请重试"
+          }
+        }
+      }
+    },
+    "create.save.failed" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "保存失败"
+          }
+        }
+      }
+    },
+    "create.save.libraryFailed %@" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "保存到相册失败：%@"
+          }
+        }
+      }
+    },
+    "create.save.success" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "✅ 已保存到相册"
+          }
+        }
+      }
+    },
+    "create.sectionSupporting" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "选择一张照片"
+          }
+        }
+      }
+    },
+    "create.sectionTitle" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "可以开始的作品"
+          }
+        }
+      }
+    },
+    "create.subheadline" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "从已经保存的照片开始，做一份真正属于它的作品。"
+          }
+        }
+      }
+    },
     "tab.create" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -3027,6 +3687,130 @@
         }
       }
     },
+    "timeline.event.birthday %@" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@的生日"
+          }
+        }
+      }
+    },
+    "create.petCard.selectPhoto" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "选择一张照片生成纪念卡片"
+          }
+        }
+      }
+    },
+    "pet.companionship.arrived %lld" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "variations" : {
+            "plural" : {
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "来到家%lld天"
+                }
+              },
+              "pluralRuleType" : "pluralRuleType"
+            }
+          }
+        }
+      }
+    },
+    "pet.companionship.together %lld" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "variations" : {
+            "plural" : {
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "相处%lld天"
+                }
+              },
+              "pluralRuleType" : "pluralRuleType"
+            }
+          }
+        }
+      }
+    },
+    "pet.companionship.family %@ %lld" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "和%@成为家人%lld天"
+          }
+        }
+      }
+    },
+    "pet.companionship.future" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "相处时间尚未开始"
+          }
+        }
+      }
+    },
+    "pet.companionship.unknown" : {
+      "extractionState" : "manual",
+      "localizations" : {
+          "zh-Hans" : {
+            "stringUnit" : {
+              "state" : "translated",
+              "value" : "相处天数未知"
+            }
+          }
+        }
+      },
+    "timeline.event.adoption %@" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "和%@成为家人的日子"
+          }
+        }
+      }
+    },
+    "timeline.reference.update.title %@" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "建议为%@更新参考照片"
+          }
+        }
+      }
+    },
+    "timeline.reference.update.subtitle %@" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@正在快速成长，建议重新选择照片注册"
+          }
+        }
+      }
+    },
     "timeline.export.dateRange %@ %@" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -3209,6 +3993,39 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "成长时间线"
+          }
+        }
+      }
+    },
+    "timeline.empty.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "还没有成长记录"
+          }
+        }
+      }
+    },
+    "timeline.empty.body" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "添加伙伴档案和照片后，这里会自动生成成长时间线"
+          }
+        }
+      }
+    },
+    "pets.empty.body" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "为它建立一份档案，\n照片、纪念日和故事都会留在这里。"
           }
         }
       }

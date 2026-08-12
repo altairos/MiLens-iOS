@@ -157,7 +157,7 @@ func buildAnniversaryNotifications(
         let text = buildAnniversaryNotificationText(yearsAgo: yearsAgo, note: photo.note, locale: locale)
         // 源端用 photo.id（整数）做 notification id；iOS 用 UUID 做 identifier 字符串 hash
         return AnniversaryNotificationData(
-            title: String(localized: "notify.anniversary.title", locale: locale),
+            title: String(localized: "notify.memory.title", locale: locale),
             body: text,
             identifier: photo.id.hashValue,
             photoID: photo.id

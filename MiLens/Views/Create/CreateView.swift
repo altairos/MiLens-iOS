@@ -33,23 +33,23 @@ struct CreateView: View {
     private var content: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 0) {
-                ArchiveMarker(label: "创作")
+                ArchiveMarker(label: String(localized: "tab.create"))
                     .padding(.top, Spacing.sm)
 
-                Text("让照片继续有去处。")
+                Text(String(localized: "create.headline"))
                     .font(.displayMedium)
                     .foregroundStyle(Color.milensTextPrimary)
                     .padding(.top, Spacing.lg)
 
-                Text("从已经保存的照片开始，做一份真正属于它的作品。")
+                Text(String(localized: "create.subheadline"))
                     .font(.bodySecondary)
                     .foregroundStyle(Color.milensTextSecondary)
                     .fixedSize(horizontal: false, vertical: true)
                     .padding(.top, Spacing.sm)
 
                 ArchiveSectionHeader(
-                    title: "可以开始的作品",
-                    supporting: photos.isEmpty ? nil : "选择一张照片"
+                    title: String(localized: "create.sectionTitle"),
+                    supporting: photos.isEmpty ? nil : String(localized: "create.sectionSupporting")
                 )
                 .padding(.top, Spacing.xxl)
 
@@ -92,11 +92,11 @@ struct CreateView: View {
 
                 VStack(alignment: .leading, spacing: Spacing.sm) {
                     HStack(spacing: Spacing.sm) {
-                        Text("拼豆图纸")
+                        Text(String(localized: "create.bead.title"))
                             .font(.titleStandard)
                             .foregroundStyle(Color.milensTextPrimary)
                         if entitlement.isPro {
-                            Text("不限次数")
+                            Text(String(localized: "create.bead.unlimited"))
                                 .font(.caption.weight(.semibold))
                                 .foregroundStyle(Color.milensSuccess)
                                 .padding(.horizontal, Spacing.sm)
@@ -104,7 +104,7 @@ struct CreateView: View {
                                 .background(Color.milensSuccess.opacity(0.12))
                                 .clipShape(Capsule())
                         } else {
-                            Text("每日 5 次")
+                            Text(String(localized: "create.bead.dailyQuota"))
                                 .font(.caption.weight(.semibold))
                                 .foregroundStyle(Color.milensActionPrimary)
                                 .padding(.horizontal, Spacing.sm)
@@ -114,7 +114,7 @@ struct CreateView: View {
                         }
                     }
 
-                    Text("把一张照片变成可动手完成的图案，附配色方案与材料清单。")
+                    Text(String(localized: "create.bead.desc"))
                         .font(.bodySecondary)
                         .foregroundStyle(Color.milensTextSecondary)
                         .fixedSize(horizontal: false, vertical: true)
@@ -150,7 +150,7 @@ struct CreateView: View {
             growthCompareProjectRow
         }
         .buttonStyle(.plain)
-        .accessibilityLabel("成长对比")
+        .accessibilityLabel(String(localized: "create.growthCompare.title"))
     }
 
     private var growthCompareProjectRow: some View {
@@ -168,11 +168,11 @@ struct CreateView: View {
                 .clipShape(RoundedRectangle(cornerRadius: Radius.medium, style: .continuous))
 
                 VStack(alignment: .leading, spacing: Spacing.sm) {
-                    Text("成长对比")
+                    Text(String(localized: "create.growthCompare.title"))
                         .font(.titleStandard)
                         .foregroundStyle(Color.milensTextPrimary)
 
-                    Text("选两张不同时期的照片，并排看到时间留下的变化。")
+                    Text(String(localized: "create.growthCompare.desc"))
                         .font(.bodySecondary)
                         .foregroundStyle(Color.milensTextSecondary)
                         .fixedSize(horizontal: false, vertical: true)
@@ -201,11 +201,11 @@ struct CreateView: View {
                 .clipShape(RoundedRectangle(cornerRadius: Radius.medium, style: .continuous))
 
                 VStack(alignment: .leading, spacing: Spacing.sm) {
-                    Text("宠物卡片")
+                    Text(String(localized: "create.petCard.title"))
                         .font(.titleStandard)
                         .foregroundStyle(Color.milensTextPrimary)
 
-                    Text("把一张照片做成竖版纪念卡，带上名字与领养纪念日。")
+                    Text(String(localized: "create.petCard.desc"))
                         .font(.bodySecondary)
                         .foregroundStyle(Color.milensTextSecondary)
                         .fixedSize(horizontal: false, vertical: true)
@@ -231,7 +231,7 @@ struct CreateView: View {
             businessCardProjectRow
         }
         .buttonStyle(.plain)
-        .accessibilityLabel("宠物名片")
+        .accessibilityLabel(String(localized: "create.businessCard.title"))
     }
 
     private var businessCardProjectRow: some View {
@@ -248,11 +248,11 @@ struct CreateView: View {
                 .clipShape(RoundedRectangle(cornerRadius: Radius.medium, style: .continuous))
 
                 VStack(alignment: .leading, spacing: Spacing.sm) {
-                    Text("宠物名片")
+                    Text(String(localized: "create.businessCard.title"))
                         .font(.titleStandard)
                         .foregroundStyle(Color.milensTextPrimary)
 
-                    Text("生成带有头像、性格标签和简介的社交名片卡。")
+                    Text(String(localized: "create.businessCard.desc"))
                         .font(.bodySecondary)
                         .foregroundStyle(Color.milensTextSecondary)
                         .fixedSize(horizontal: false, vertical: true)
@@ -278,7 +278,7 @@ struct CreateView: View {
             redPacketCoverProjectRow
         }
         .buttonStyle(.plain)
-        .accessibilityLabel("红包封面")
+        .accessibilityLabel(String(localized: "create.redPacket.title"))
     }
 
     private var redPacketCoverProjectRow: some View {
@@ -291,7 +291,7 @@ struct CreateView: View {
                         Image(systemName: "gift.fill")
                             .font(.system(size: 24, weight: .regular))
                             .foregroundStyle(Color.milensCopper)
-                        Text("红包")
+                        Text(String(localized: "create.redPacket.badge"))
                             .font(.caption2.weight(.medium))
                             .foregroundStyle(Color.milensTextSecondary)
                     }
@@ -301,10 +301,10 @@ struct CreateView: View {
 
                 VStack(alignment: .leading, spacing: Spacing.sm) {
                     HStack(spacing: Spacing.sm) {
-                        Text("红包封面")
+                        Text(String(localized: "create.redPacket.title"))
                             .font(.titleStandard)
                             .foregroundStyle(Color.milensTextPrimary)
-                        Text("微信")
+                        Text(String(localized: "create.redPacket.wechat"))
                             .font(.caption.weight(.semibold))
                             .foregroundStyle(Color.milensTextSecondary)
                             .padding(.horizontal, Spacing.sm)
@@ -313,7 +313,7 @@ struct CreateView: View {
                             .clipShape(Capsule())
                     }
 
-                    Text("生成微信红包封面素材（957×1278），预览红包 4 个场景。")
+                    Text(String(localized: "create.redPacket.desc"))
                         .font(.bodySecondary)
                         .foregroundStyle(Color.milensTextSecondary)
                         .fixedSize(horizontal: false, vertical: true)
@@ -334,16 +334,16 @@ struct CreateView: View {
 
     private var emptyState: some View {
         VStack(alignment: .leading, spacing: Spacing.md) {
-            Text("先保存一张照片")
+            Text(String(localized: "create.empty.title"))
                 .font(.bodyPrimary.weight(.semibold))
                 .foregroundStyle(Color.milensTextPrimary)
-            Text("从相册导入照片后，就可以从这里开始创作。")
+            Text(String(localized: "create.empty.body"))
                 .font(.bodySecondary)
                 .foregroundStyle(Color.milensTextSecondary)
 
             NavigationLink(value: Route.gallery) {
                 HStack(spacing: Spacing.sm) {
-                    Text("去相册添加")
+                    Text(String(localized: "create.empty.cta"))
                         .font(.buttonLabel)
                     Image(systemName: "arrow.up.right")
                         .font(.system(size: Sizing.iconSm, weight: .semibold))

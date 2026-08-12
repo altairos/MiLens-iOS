@@ -250,7 +250,8 @@ struct PetProfileView: View {
 
     // MARK: - 置顶记忆
 
-    /// 取置顶的 PetEvent（isPinned）或最近用户记录（sourceType=="user"），回退最近照片。
+    /// 取置顶的 PetEvent（isPinned）或最近用户记录（sourceType=="user"），
+    /// 回退随机一张照片（每次进入页面从全部照片中随机选一张，增加新鲜感）。
     private struct PinnedMemory {
         let title: String
         let note: String
@@ -269,18 +270,20 @@ struct PetProfileView: View {
             let cal = Calendar.current
             let m = cal.component(.month, from: ev.eventDate)
             let d = cal.component(.day, from: ev.eventDate)
-            let photoPath = photos.first { $0.id == ev.relatedPhotoID }?.thumbnailPath
-                ?? photos.first?.thumbnailPath
+            let relatedPhoto = ev.relatedPhotoID.flatMap { rid in photos.first { $0.id == rid } }
+            let fallbackPhoto = photos.randomElement()
+            let chosen = relatedPhoto ?? fallbackPhoto
+            let path = chosen?.thumbnailPath.isEmpty == false ? chosen?.thumbnailPath : chosen?.uri
             return PinnedMemory(
                 title: ev.title,
                 note: ev.body,
                 dateLabel: String(format: "%02d.%02d", m, d),
-                photoPath: (photoPath?.isEmpty == false) ? photoPath : photos.first?.uri
+                photoPath: path
             )
         }
 
-        // 回退最近照片
-        guard let photo = photos.first else { return nil }
+        // 回退：从全部照片中随机选一张（每次进入页面不同，增加新鲜感）
+        guard let photo = photos.randomElement() else { return nil }
         let dateLabel: String
         if let takenAt = photo.takenAt {
             let cal = Calendar.current

@@ -175,6 +175,6 @@ public enum MemoryRecapLogic {
 
     /// 年度回忆册标题：「2025 年度回忆」。
     public static func yearlyTitle(year: Int) -> String {
-        "\(year) 年度回忆"
+        "\(year)年度回忆"
     }
 }

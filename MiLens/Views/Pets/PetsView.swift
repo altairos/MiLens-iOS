@@ -70,7 +70,7 @@ struct PetsView: View {
             Text("还没有伙伴档案")
                 .font(.displayMedium)
                 .foregroundStyle(Color.milensTextPrimary)
-            Text("为它建立一份档案，\n照片、纪念日和故事都会留在这里。")
+            Text(String(localized: "pets.empty.body"))
                 .font(.bodyPrimary)
                 .foregroundStyle(Color.milensTextSecondary)
                 .multilineTextAlignment(.center)
@@ -202,7 +202,7 @@ private struct PetCard: View {
                 .foregroundStyle(Color.milensActionPrimary)
             if pet.adoptionDay != nil {
                 dot
-                Text(String(localized: "pet.daysTogether \(PetDisplayLogic.daysTogether(from: pet.adoptionDay))"))
+                Text(PetDisplayLogic.companionshipText(petName: pet.name, adoptionDay: pet.adoptionDay))
                     .font(.caption)
                     .foregroundStyle(Color.milensTextSecondary)
             }

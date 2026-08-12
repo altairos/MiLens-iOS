@@ -20,7 +20,7 @@ struct BeadPatternResultView: View {
                 autoHint(pattern)
                 modeChips
                 if vm.viewMode != "color" && vm.cellSize * Int(vm.canvasScale) < 8 {
-                    Text("💡 放大图纸即可显示编号")
+                    Text(String(localized: "create.bead.zoomHint"))
                         .font(.caption2)
                         .foregroundStyle(Color.milensTextTertiary)
                         .frame(maxWidth: .infinity)
@@ -89,8 +89,8 @@ struct BeadPatternResultView: View {
 
     private var modeChips: some View {
         HStack(spacing: 8) {
-            modeChip("彩色", mode: "color")
-            modeChip("字母序号", mode: "letter")
+            modeChip(String(localized: "create.bead.mode.color"), mode: "color")
+            modeChip(String(localized: "create.bead.mode.letter"), mode: "letter")
         }
         .frame(maxWidth: .infinity)
         .padding(.bottom, 4)
@@ -173,7 +173,9 @@ struct BeadPatternResultView: View {
             Button {
                 vm.export()
             } label: {
-                Text(vm.isExporting ? "导出中..." : "保存相册")
+                Text(vm.isExporting
+                     ? String(localized: "create.bead.exporting")
+                     : String(localized: "create.bead.saveAlbum"))
                     .font(.bodySecondary.weight(.medium))
                     .foregroundStyle(Color.milensTextOnActionPrimary)
                     .frame(maxWidth: .infinity)
@@ -186,7 +188,7 @@ struct BeadPatternResultView: View {
             Button {
                 share()
             } label: {
-                Text("分享")
+                Text(String(localized: "common.share"))
                     .font(.bodySecondary.weight(.medium))
                     .foregroundStyle(Color.milensActionPrimary)
                     .frame(maxWidth: .infinity)
@@ -204,7 +206,7 @@ struct BeadPatternResultView: View {
             Button {
                 exportPDF()
             } label: {
-                Text("Pro · A4 PDF")
+                Text(String(localized: "create.bead.a4pdf"))
                     .font(.bodySecondary.weight(.medium))
                     .foregroundStyle(Color.milensActionPrimary)
                     .frame(maxWidth: .infinity)
@@ -244,7 +246,7 @@ struct BeadPatternResultView: View {
 
     private func materialList(_ pattern: BeadPattern) -> some View {
         VStack(alignment: .leading, spacing: 0) {
-            Text("材料清单")
+            Text(String(localized: "create.bead.materialList"))
                 .font(.subheadline.weight(.medium))
                 .foregroundStyle(Color.milensTextPrimary)
                 .padding(.bottom, 8)
@@ -261,7 +263,7 @@ struct BeadPatternResultView: View {
                                 Text("\(row.letter)【\(row.symbol)】 \(row.name)")
                                     .font(.caption)
                                     .foregroundStyle(Color.milensTextSecondary)
-                                Text("\(row.count) 颗 → 建议准备 \(row.suggestedBuyCount) 颗")
+                                Text(String(localized: "create.bead.materialCount \(row.count) \(row.suggestedBuyCount)"))
                                     .font(.caption2)
                                     .foregroundStyle(Color.milensTextTertiary)
                             }

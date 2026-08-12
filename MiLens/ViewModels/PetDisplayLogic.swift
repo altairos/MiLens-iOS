@@ -72,6 +72,31 @@ enum PetDisplayLogic {
         return Int(seconds / 86_400)
     }
 
+    /// 按相处时长选择面向用户的陪伴文案。
+    /// 0–180 天使用「来到家」，181–365 天使用「相处」，366 天起使用「成为家人」。
+    /// 未来日期不显示负数；缺少宠物名时，长时长回退为「相处 N 天」。
+    static func companionshipText(
+        petName: String,
+        adoptionDay: Date?,
+        now: Date = Date(),
+        locale: Locale = .current
+    ) -> String {
+        guard let adoptionDay else {
+            return String(localized: "pet.companionship.unknown", locale: locale)
+        }
+        let days = daysTogether(from: adoptionDay, now: now)
+        guard days >= 0 else {
+            return String(localized: "pet.companionship.future", locale: locale)
+        }
+        if days <= 180 {
+            return String(localized: "pet.companionship.arrived \(days)", locale: locale)
+        }
+        if days <= 365 || petName.isEmpty {
+            return String(localized: "pet.companionship.together \(days)", locale: locale)
+        }
+        return String(localized: "pet.companionship.family \(petName) \(days)", locale: locale)
+    }
+
     // ─── 日期格式化（供表单/详情页显示）───
 
     /// 将日期格式化为 "yyyy-MM-dd"（对应源端 ISO 日期字符串显示）。

@@ -92,12 +92,12 @@ public enum MilestoneLogic {
     /// 里程碑标题文案（与 App 层 pet.card.daysHome 同义，MiLensKit 内用固定中文）。
     /// App 层 PetCardView 渲染时可用 String(localized:) 覆盖；此处供测试与通知文本复用。
     public static func milestoneTitle(days: Int) -> String {
-        "来到家 \(days) 天"
+        "来到家\(days)天"
     }
 
     /// 里程碑通知正文（含宠物名，用于本地推送）。
     public static func milestoneNotificationText(petName: String, days: Int) -> String {
         let title = milestoneTitle(days: days)
-        return petName.isEmpty ? title : "\(petName)\(title)了"
+        return petName.isEmpty ? title : "\(petName)已经来到这个家\(days)天了"
     }
 }

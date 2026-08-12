@@ -72,7 +72,11 @@ public enum HomeMemoryLogic {
         _ photos: [HomeMemoryPhoto],
         now: Date,
         limit: Int = defaultLimit,
-        pets: [HomeMemoryPet] = []
+        pets: [HomeMemoryPet] = [],
+        sameDayTitle: (Int) -> String = { "\($0)年前的今天" },
+        fallbackTitle: String = "最近回忆",
+        dateText: (Date) -> String = formatMemoryDate,
+        datePetText: (String, String) -> String = { "\($0) · \($1)" }
     ) -> [HomeMemoryEntry] {
         let calendar = homeUTCCalendar
         let nowYear = calendar.component(.year, from: now)
@@ -93,7 +97,7 @@ public enum HomeMemoryLogic {
                 let photoYear = calendar.component(.year, from: photo.takenAt ?? now)
                 return HomeMemoryEntry(
                     photoID: photo.id,
-                    title: "\(nowYear - photoYear)年前的今天",
+                    title: sameDayTitle(nowYear - photoYear),
                     subtitle: petName(for: photo.petID, pets: pets)
                 )
             }
@@ -108,11 +112,11 @@ public enum HomeMemoryLogic {
 
         return fallbackPhotos.prefix(limit).map { photo in
             let name = petName(for: photo.petID, pets: pets)
-            let dateText = formatMemoryDate(photo.takenAt ?? now)
-            let subtitle = name.isEmpty ? dateText : "\(dateText) · \(name)"
+            let formattedDate = dateText(photo.takenAt ?? now)
+            let subtitle = name.isEmpty ? formattedDate : datePetText(formattedDate, name)
             return HomeMemoryEntry(
                 photoID: photo.id,
-                title: "最近回忆",
+                title: fallbackTitle,
                 subtitle: subtitle
             )
         }

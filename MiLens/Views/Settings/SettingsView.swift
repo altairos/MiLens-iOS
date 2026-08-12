@@ -22,6 +22,9 @@ struct SettingsView: View {
     @State private var backupVM: BackupViewModel?
     @State private var showRestoreImporter = false
 
+    /// `.milensbackup` 文件类型（project.yml UTExportedTypeDeclarations 声明为本 App 导出类型）。
+    private var milensBackupType: UTType { UTType(exportedAs: "com.milens.backup") }
+
     var body: some View {
         Group {
             if let viewModel {
@@ -107,6 +110,17 @@ struct SettingsView: View {
         } message: {
             Text(String(localized: "settings.notifications.denied.message"))
         }
+        // 导出预估完成 → 弹确认对话框（展示将导出的规模，用户确认后开始打包）
+        .sheet(isPresented: Binding(
+            get: { if case .readyToExport = backupVM?.exportState { return true } else { return false } },
+            set: { if !$0 { if case .readyToExport = backupVM?.exportState { backupVM?.resetExport() } } }
+        )) {
+            if case .readyToExport(let estimate) = backupVM?.exportState {
+                BackupConfirmSheet(estimate: estimate) {
+                    Task { await backupVM?.exportBackup() }
+                }
+            }
+        }
         // 导出完成 → 弹出分享面板（用户选择保存到 Files/iCloud Drive/AirDrop）
         .sheet(isPresented: Binding(
             get: { if case .done = backupVM?.exportState { return true } else { return false } },
@@ -126,10 +140,16 @@ struct SettingsView: View {
         } message: {
             if case .failed(let msg) = backupVM?.exportState { Text(msg) }
         }
-        // 恢复文件选择器（选 .milensbackup）
+        // 导出中 → 阶段进度浮层（长任务时告知「收集/复制/压缩」到哪一步）
+        .overlay {
+            if let phaseText = currentExportPhaseText {
+                ExportProgressOverlay(message: phaseText)
+            }
+        }
+        // 恢复文件选择器（限定 .milensbackup；.item 作为兑底以便旧版系统）
         .fileImporter(
             isPresented: $showRestoreImporter,
-            allowedContentTypes: [.item],
+            allowedContentTypes: [milensBackupType, .item],
             allowsMultipleSelection: false
         ) { result in
             switch result {
@@ -251,37 +271,43 @@ struct SettingsView: View {
                     ArchiveDivider().padding(.leading, 32)
                 }
 
-                // 离线备份导出（Pro 门控）
+                // 离线备份导出（Pro 门控；isAvailable=false 时禁用并提示「即将上线」）
                 Button {
-                    if entitlement.isPro {
-                        Task { await backupVM?.exportBackup() }
+                    if backupVM?.isServiceAvailable == false {
+                        // 服务不可用：入口已禁用，此处为防御兑底
+                    } else if entitlement.isPro {
+                        Task { await backupVM?.prepareExport() }
                     } else {
                         showPaywall = true
                     }
                 } label: {
                     backupEntryRow(
                         title: String(localized: "settings.backup.export"),
-                        subtitle: entitlement.isPro ? nil : String(localized: "settings.backup.proOnly"),
-                        inProgress: backupVM?.isExporting == true,
-                        tint: entitlement.isPro ? .milensActionPrimary : .milensTextSecondary)
+                        subtitle: backupExportSubtitle,
+                        inProgress: backupVM?.isExporting == true || backupVM?.isEstimating == true,
+                        tint: (entitlement.isPro && backupVM?.isServiceAvailable == true)
+                            ? .milensActionPrimary : .milensTextSecondary)
                 }
                 .buttonStyle(.plain)
-                .disabled(backupVM?.isExporting == true)
+                .disabled(backupVM?.isExporting == true
+                          || backupVM?.isEstimating == true
+                          || backupVM?.isServiceAvailable == false)
 
                 ArchiveDivider().padding(.leading, 32)
 
-                // 备份恢复（所有用户）
+                // 备份恢复（所有用户；isAvailable=false 时禁用）
                 Button {
                     showRestoreImporter = true
                 } label: {
                     backupEntryRow(
                         title: String(localized: "settings.backup.restore"),
-                        subtitle: nil,
+                        subtitle: backupVM?.isServiceAvailable == false
+                            ? String(localized: "settings.backup.comingSoon") : nil,
                         inProgress: backupVM?.isRestoring == true,
                         tint: .milensTextSecondary)
                 }
                 .buttonStyle(.plain)
-                .disabled(backupVM?.isRestoring == true)
+                .disabled(backupVM?.isRestoring == true || backupVM?.isServiceAvailable == false)
 
                 ArchiveDivider().padding(.leading, 32)
 
@@ -462,6 +488,132 @@ struct SettingsView: View {
         case .light: return String(localized: "settings.appearance.light")
         case .dark: return String(localized: "settings.appearance.dark")
         }
+    }
+
+    // MARK: - 备份状态文案辅助
+
+    /// 导出入口副标题：服务不可用 →「即将上线」；未解锁 →「Pro 专属功能」；否则不显示。
+    private var backupExportSubtitle: String? {
+        if backupVM?.isServiceAvailable == false {
+            return String(localized: "settings.backup.comingSoon")
+        }
+        if !entitlement.isPro {
+            return String(localized: "settings.backup.proOnly")
+        }
+        return nil
+    }
+
+    /// 导出中当前阶段的本地化文案（仅导出进行中返回非空）。
+    private var currentExportPhaseText: String? {
+        guard let state = backupVM?.exportState else { return nil }
+        if case .inProgress(let fraction, let phase) = state {
+            let pct = Int((fraction * 100).rounded())
+            let phaseLabel: String
+            switch phase {
+            case .collectingMetadata:
+                phaseLabel = String(localized: "settings.backup.phase.collecting")
+            case .copyingPhotos:
+                phaseLabel = String(localized: "settings.backup.phase.copying")
+            case .compressing:
+                phaseLabel = String(localized: "settings.backup.phase.compressing")
+            case .done:
+                phaseLabel = String(localized: "settings.backup.phase.done")
+            }
+            return String(localized: "settings.backup.phase.progress \(pct) \(phaseLabel)")
+        }
+        return nil
+    }
+}
+
+// MARK: - 备份导出确认对话框
+
+/// 导出前展示预估规模（N 个档案、M 张照片），让用户确认后再打包。
+/// 避免大库无声产出巨大 ZIP，用户毫无预期。
+struct BackupConfirmSheet: View {
+    let estimate: BackupEstimate
+    let onConfirm: () -> Void
+
+    var body: some View {
+        NavigationStack {
+            VStack(spacing: Spacing.lg) {
+                Image(systemName: "externaldrive.badge.timemachine")
+                    .font(.system(size: 48))
+                    .foregroundStyle(Color.milensActionPrimary)
+                Text(String(localized: "settings.backup.confirmTitle"))
+                    .font(.headline)
+                    .foregroundStyle(Color.milensTextPrimary)
+                // 预估规模
+                VStack(spacing: Spacing.xs) {
+                    HStack(spacing: Spacing.sm) {
+                        Image(systemName: "pawprint")
+                            .foregroundStyle(Color.milensTextSecondary)
+                        Text(String(localized: "settings.backup.confirmPets \(estimate.petCount)"))
+                        Spacer()
+                    }
+                    HStack(spacing: Spacing.sm) {
+                        Image(systemName: "photo.on.rectangle")
+                            .foregroundStyle(Color.milensTextSecondary)
+                        Text(String(localized: "settings.backup.confirmPhotos \(estimate.photoCount)"))
+                        Spacer()
+                    }
+                }
+                .font(.bodyPrimary)
+                .foregroundStyle(Color.milensTextPrimary)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(Spacing.md)
+                .background(Color.milensCard)
+                .clipShape(RoundedRectangle(cornerRadius: Radius.medium, style: .continuous))
+
+                Text(String(localized: "settings.backup.confirmHint"))
+                    .font(.caption)
+                    .foregroundStyle(Color.milensTextSecondary)
+                    .multilineTextAlignment(.center)
+                    .frame(maxWidth: .infinity)
+
+                Spacer()
+
+                Button {
+                    onConfirm()
+                } label: {
+                    Text(String(localized: "settings.backup.confirmAction"))
+                        .font(.buttonLabel)
+                        .foregroundStyle(Color.milensTextOnActionPrimary)
+                        .frame(maxWidth: .infinity, minHeight: Sizing.touchTarget)
+                        .background(Color.milensActionPrimary)
+                        .clipShape(Capsule())
+                }
+                .buttonStyle(.plain)
+            }
+            .padding()
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .background(Color.milensBackground)
+        }
+        .modalContentWidth()
+    }
+}
+
+// MARK: - 备份导出阶段进度浮层
+
+/// 导出打包进行中的阶段进度浮层（半透明遮罩 + 阶段文案 + 进度转圈）。
+struct ExportProgressOverlay: View {
+    let message: String
+
+    var body: some View {
+        ZStack {
+            Color.black.opacity(0.25).ignoresSafeArea()
+            VStack(spacing: Spacing.md) {
+                ProgressView()
+                    .tint(Color.milensActionPrimary)
+                Text(message)
+                    .font(.bodySecondary)
+                    .foregroundStyle(Color.milensTextPrimary)
+            }
+            .padding(Spacing.xl)
+            .background(Color.milensCard)
+            .clipShape(RoundedRectangle(cornerRadius: Radius.medium, style: .continuous))
+            .shadow(color: .black.opacity(0.15), radius: 12, y: 4)
+        }
+        .accessibilityElement(children: .combine)
     }
 }
 

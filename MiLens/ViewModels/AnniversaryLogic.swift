@@ -71,11 +71,45 @@ func isHistoricalPhoto(takenAt: Date?, now: Date) -> Bool {
 /// - Returns: 通知正文
 func buildAnniversaryNotificationText(yearsAgo: Int, note: String, locale: Locale = .current) -> String {
     if yearsAgo > 0 {
-        // 复数 key（notify.anniversary.yearsAgo %lld %@）：en/de/fr 需 one/other 变体
-        return String(localized: "notify.anniversary.yearsAgo \(yearsAgo) \(note)", locale: locale)
+        // 复数 key（notify.memory.yearsAgo %lld %@）：en/de/fr 需 one/other 变体
+        return String(localized: "notify.memory.yearsAgo \(yearsAgo) \(note)", locale: locale)
     } else {
-        return String(localized: "notify.anniversary.today \(note)", locale: locale)
+        return String(localized: "notify.memory.today \(note)", locale: locale)
     }
+}
+
+/// 构建宠物年度纪念提醒的标题与正文。
+/// 生日和成为家人的日子使用独立标题，避免锁屏上只显示无法识别场景的「纪念日回忆」。
+func buildPetAnniversaryNotification(
+    petName: String,
+    kind: PetAnniversaryKind,
+    locale: Locale = .current
+) -> (title: String, body: String) {
+    switch kind {
+    case .birthday:
+        return (
+            String(localized: "notify.anniversary.birthday.title \(petName)", locale: locale),
+            String(localized: "notify.anniversary.birthday.body \(petName)", locale: locale)
+        )
+    case .adoption:
+        return (
+            String(localized: "notify.anniversary.adoption.title \(petName)", locale: locale),
+            String(localized: "notify.anniversary.adoption.body \(petName)", locale: locale)
+        )
+    }
+}
+
+/// 构建相处里程碑提醒的标题与正文。
+/// 标题突出天数，正文明确宠物与「来到这个家」的语义。
+func buildPetMilestoneNotification(
+    petName: String,
+    days: Int,
+    locale: Locale = .current
+) -> (title: String, body: String) {
+    (
+        String(localized: "notify.milestone.title \(days)", locale: locale),
+        String(localized: "notify.milestone.body \(petName) \(days)", locale: locale)
+    )
 }
 
 // MARK: - 时光机文案生成
@@ -89,18 +123,18 @@ func buildAnniversaryNotificationText(yearsAgo: Int, note: String, locale: Local
 ///   - petName: 宠物名称（空时由调用方传入默认名）
 ///   - yearsAgo: 年份差
 ///   - note: 照片备注（可为空）
-///   - index: 模板索引（0–3），模运算循环
+///   - index: 模板索引（0–2），模运算循环
 ///   - locale: 文案语言（默认当前环境；测试传固定 locale）
 /// - Returns: 文案字符串
 func buildTimeMachineText(petName: String, yearsAgo: Int, note: String, index: Int, locale: Locale = .current) -> String {
     let templates = [
-        // 模板均含年份差 → 复数 key（notify.timemachine.* %lld %@）
+        // 三个模板槽位：提问、陪伴、备注/无备注。
+        // 备注只作为第三个模板的内容分支，不单独参与随机模板池。
         String(localized: "notify.timemachine.asking \(yearsAgo) \(petName)", locale: locale),
         String(localized: "notify.timemachine.companion \(yearsAgo) \(petName)", locale: locale),
         note.isEmpty
             ? String(localized: "notify.timemachine.flight \(yearsAgo)", locale: locale)
             : String(localized: "notify.timemachine.flightNote \(yearsAgo) \(note)", locale: locale),
-        String(localized: "notify.timemachine.flashback \(yearsAgo) \(petName)", locale: locale),
     ]
     let safeIndex = ((index % templates.count) + templates.count) % templates.count
     return templates[safeIndex]

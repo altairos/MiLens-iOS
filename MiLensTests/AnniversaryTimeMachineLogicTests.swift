@@ -114,7 +114,7 @@ final class AnniversaryTimeMachineLogicTests: XCTestCase {
 
     func testAnniversaryTextWithZeroYearsAgo() {
         let text = buildAnniversaryNotificationText(yearsAgo: 0, note: "今天的照片")
-        XCTAssertEqual(text, "今天的回忆：今天的照片")
+        XCTAssertEqual(text, "往年今日的回忆：今天的照片")
     }
 
     func testAnniversaryTextWithEmptyNote() {
@@ -136,7 +136,7 @@ final class AnniversaryTimeMachineLogicTests: XCTestCase {
 
     func testTimeMachineTextTemplate2WithNote() {
         let text = buildTimeMachineText(petName: "咪咪", yearsAgo: 2, note: "在晒太阳", index: 2)
-        XCTAssertEqual(text, "时光飞逝，2年前的今天，在晒太阳")
+        XCTAssertEqual(text, "2年前的今天，在晒太阳")
     }
 
     func testTimeMachineTextTemplate2WithoutNote() {
@@ -144,23 +144,18 @@ final class AnniversaryTimeMachineLogicTests: XCTestCase {
         XCTAssertEqual(text, "时光飞逝，2年前的今天")
     }
 
-    func testTimeMachineTextTemplate3() {
-        let text = buildTimeMachineText(petName: "大黄", yearsAgo: 1, note: "", index: 3)
-        XCTAssertEqual(text, "回忆杀！1年前大黄还是这般模样")
-    }
-
     func testTimeMachineTextIndexWrapsAroundWithModulo() {
-        // index 4 应等于 index 0
+        // index 3 应等于 index 0（三个模板）
         let text0 = buildTimeMachineText(petName: "咪咪", yearsAgo: 2, note: "", index: 0)
-        let text4 = buildTimeMachineText(petName: "咪咪", yearsAgo: 2, note: "", index: 4)
-        XCTAssertEqual(text0, text4)
+        let text3 = buildTimeMachineText(petName: "咪咪", yearsAgo: 2, note: "", index: 3)
+        XCTAssertEqual(text0, text3)
     }
 
     func testTimeMachineTextNegativeIndexWrapsCorrectly() {
-        // index -1 应等于 index 3（4 个模板，-1 % 4 = -1 → 3）
+        // index -1 应等于 index 2（三个模板，-1 % 3 = -1 → 2）
         let textNeg1 = buildTimeMachineText(petName: "咪咪", yearsAgo: 2, note: "", index: -1)
-        let text3 = buildTimeMachineText(petName: "咪咪", yearsAgo: 2, note: "", index: 3)
-        XCTAssertEqual(textNeg1, text3)
+        let text2 = buildTimeMachineText(petName: "咪咪", yearsAgo: 2, note: "", index: 2)
+        XCTAssertEqual(textNeg1, text2)
     }
 
     // MARK: - timeMachineNotificationID
@@ -293,7 +288,7 @@ final class AnniversaryTimeMachineLogicTests: XCTestCase {
         ]
         let result = buildAnniversaryNotifications(photos: photos, now: now)
         XCTAssertEqual(result.count, 2)
-        XCTAssertEqual(result[0].title, "纪念日回忆")
+        XCTAssertEqual(result[0].title, "往日回忆")
         XCTAssertEqual(result[0].body, "2年前的今天：A")
         XCTAssertEqual(result[1].body, "3年前的今天：B")
     }
@@ -305,7 +300,7 @@ final class AnniversaryTimeMachineLogicTests: XCTestCase {
         ]
         let result = buildAnniversaryNotifications(photos: photos, now: now)
         XCTAssertEqual(result.count, 1)
-        XCTAssertEqual(result[0].body, "今天的回忆：today")
+        XCTAssertEqual(result[0].body, "往年今日的回忆：today")
     }
 
     func testAnniversaryNotificationPreservesPhotoID() {

@@ -343,6 +343,10 @@
 
 扩展组件（2026-08-12 组件级对齐后）：[`Navigation/Editor Group Dock` 458:1145](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=458-1145)、[`Navigation/Editor Tool Row` 459:1158](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=459-1158)、[`Control/Workshop Value Rail` 460:1133](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=460-1133)、[`Picker/Photo Proof Cell` 462:1164](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=462-1164)、[`Control/Creation Template Tab` 463:1149](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=463-1149)、[`Action/Creation Output Register` 466:1171](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=466-1171)、[`Action/Editor Panel Register` 466:1197](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=466-1197)。旧 `Control/Editor Tool Dock` 与 `Action/Output Register` 已退役，不再作为实现依据。
 
+本轮返修统一了 12 张扩展稿的 `color/surface/canvas` 背景与 44pt 通用返回控件；编辑器图标已从散线/字符占位替换为单体 SVG Vector Group；所有 `studio/copper` 绑定替换为主系统的 `color/action/brand` 深铜红；03/04/05/06 的面板、动作、二级工具行与一级 Dock 已改为无重叠的同级纵向层，并退出底部 34pt 安全区。
+
+2026-08-13 顶部栏复核：以 [`11 · Red Packet / Upload Guide` 422:845](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=422-845) 为样板，02–12 共 11 张带返回页面已统一为 `18 / 57 / 44×44pt` 返回圆、圆内 `10pt` 居中的 24pt 矢量，以及 `72 / 64` 起点的 `MiLens/UI/Title`（20/24、`color/text/primary`）。03–06 与 12 的旧暗房浅色小标题已归并到同一导航标题层级；07–10 的首个内容区下移 8pt 恢复阴影后的呼吸距离。`01 · Creation / Studio Index` 作为 Tab 根页保留品牌头，不添加返回。最终节点审计通过：11 张顶部栏几何、文字样式与颜色绑定一致，12 张页面无顶部/底部安全区越界、可见字号低于 10pt或缺失字体。
+
 ## 10. 维护规则
 
 - 页面或素材完成后，在本备忘录对应表格增加 `✅ 已交付`、日期和 Figma 链接；不要只改口头状态。

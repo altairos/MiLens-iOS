@@ -19,7 +19,7 @@ final class ImportServiceTests: XCTestCase {
     ) -> (ImportService, SwiftDataPhotoRepository, MockFileStorage, ModelContainer) {
         // container 必须返回并持有——mainContext 不持有 container，
         // 局部变量释放后 repo 的 fetch 触发 SwiftData 内部 SIGTRAP（悬垂引用）。
-        let schema = Schema(versionedSchema: SchemaV1.self)
+        let schema = Schema(versionedSchema: SchemaV2.self)
         let config = ModelConfiguration(isStoredInMemoryOnly: true)
         let container = try! ModelContainer(for: schema, configurations: [config])
         let photoRepo = SwiftDataPhotoRepository(context: container.mainContext)
@@ -326,7 +326,7 @@ final class ImportServiceTests: XCTestCase {
         imageDataOverrides: [String: Data] = [:],
         clip: (any ClipInference)? = nil
     ) -> (ImportService, SwiftDataPetRepository, SwiftDataPhotoRepository, ModelContainer) {
-        let schema = Schema(versionedSchema: SchemaV1.self)
+        let schema = Schema(versionedSchema: SchemaV2.self)
         let config = ModelConfiguration(isStoredInMemoryOnly: true)
         let container = try! ModelContainer(for: schema, configurations: [config])
         let photoRepo = SwiftDataPhotoRepository(context: container.mainContext)

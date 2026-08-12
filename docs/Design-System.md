@@ -90,6 +90,13 @@
 ### 3.3 纪律
 
 - 文楷每屏**恰好一个**标题；其余用系统字体
+
+### 3.4 Workshop 顶部栏契约
+
+- Figma 样板：[`11 · Red Packet / Upload Guide` 422:845](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=422-845)。
+- 390×844pt 参考稿：`Navigation / Back` 为 `x=18 / y=57 / 44×44pt`，24pt 返回矢量在圆内 `10pt` 居中并复用 `MiLens/Elevation/Floating`；标题为 `MiLens/UI/Title`、`color/text/primary`，起点 `x=72 / y=64`。
+- 右侧动作使用现有 UI 控件字级和 `color/action/brand`，与标题垂直居中；撤销/重做等多动作从右向左排列，但不得挤压标题的可读宽度。
+- `01 · Creation / Studio Index` 保留 Tab 根页品牌头，不强行套返回栏。SwiftUI 通过 safe area 与 toolbar placement 还原相对关系，不硬编码 Figma 的 47pt 顶部参考安全区。
 - Fraunces 只用于纯英文（品牌名 / 编号 / 日期），中文标题不可用 Fraunces
 - 非 zh-Hans locale 文楷自动回退系统衬线（Typography.swift `usesWenKai` 守卫）
 
@@ -158,6 +165,8 @@
 | `Control/Creation Template Tab` | `463:1149` | 宠物卡 / 名片模板选择轨 | `Index`、`Label` 独立覆写；Selected 用铜色底槽，Locked 触发真实 Pro 门控 |
 | `Action/Creation Output Register` | `466:1171` | 创作页保存 / 分享与 `SharePreviewSheet` | `Default/Pressed/Loading/Disabled` 四态；只承担成品输出 |
 | `Action/Editor Panel Register` | `466:1197` | 裁剪 / 文字 / 抠图面板动作 | `Default/Pressed/Loading/Disabled` 四态；只承担编辑面板的取消/确认 |
+
+Workshop 组件修正规则（2026-08-12）：组件内图标均为 SF Symbols 语义对应的单体 SVG Vector Group，不使用散线拼接或零宽字符；强调色统一使用 `color/action/brand` 深铜红，`color/material/studio/copper` 退出页面与组件实例；编辑器的 Action、Tool Row、Group Dock 为同级纵向层，不得互相覆盖或嵌入会裁切它们的控制面板。
 
 创作页面只共用来源身份、模板轨与输出动作；成品本体保持不同几何：宠物卡为 4:5 纸样、成长对比为双时态长图、名片为横向信息层、红包为 957×1278 竖版及四场景预览。禁止把四类成品塞回同一种大圆角卡片。
 

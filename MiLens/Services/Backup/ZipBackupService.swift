@@ -225,7 +225,11 @@ final class ZipBackupService: BackupService, @unchecked Sendable {
         let entries = try ZipReader.extract(data)
 
         await progress(RestoreProgress(current: 0, total: 1, phase: .validating))
-        let entryMap = Dictionary(uniqueKeysWithValues: entries.map { ($0.path, $0.data) })
+        // 重复 entry 安全：外部/损坏 ZIP 可能含同名条目，Dictionary(uniqueKeysWithValues:)
+        // 遇重复 key 会 fatalError。保留首次出现，静默忽略后续重复（不崩溃）。
+        let entryMap = Dictionary(
+            entries.map { ($0.path, $0.data) },
+            uniquingKeysWith: { first, _ in first })
 
         guard let manifestData = entryMap[BackupConfig.manifestFileName] else {
             throw BackupServiceError.invalidFormat
@@ -247,14 +251,30 @@ final class ZipBackupService: BackupService, @unchecked Sendable {
         var photoPathByID: [UUID: String] = [:]
         var written = 0
         for photoSnap in metadata.photos {
-            let zipPath = "\(BackupConfig.photosDirName)/\(photoSnap.photoFileName)"
-            if let fileData = entryMap[zipPath] {
-                let dest = "\(sandboxDir)/\(photoSnap.photoFileName)"
-                try await fileStorage.write(fileData, to: dest)
-                photoPathByID[photoSnap.id] = dest
+            // 路径穿越防御：photoFileName 来自外部备份，直接拼接到沙盒路径可越权写入。
+            // 拒绝非纯文件名（含分隔符 / `..`），跳过该照片（元数据仍按缺失处理）。
+            if Self.isSafeFileName(photoSnap.photoFileName) {
+                let zipPath = "\(BackupConfig.photosDirName)/\(photoSnap.photoFileName)"
+                if let fileData = entryMap[zipPath] {
+                    let dest = "\(sandboxDir)/\(photoSnap.photoFileName)"
+                    try await fileStorage.write(fileData, to: dest)
+                    photoPathByID[photoSnap.id] = dest
+                }
             }
             written += 1
             await progress(RestoreProgress(current: written, total: metadata.photos.count, phase: .copyingFiles))
+        }
+
+        // 复制头像文件（导出时写入 avatars/ 目录，恢复时须写回沙盒，否则 avatarPath 悬空）。
+        // 同样需校验 avatarFileName 防路径穿越。
+        for petSnap in metadata.pets {
+            guard let avatarName = petSnap.avatarFileName,
+                  Self.isSafeFileName(avatarName) else { continue }
+            let zipPath = "\(avatarsDirName)/\(avatarName)"
+            if let fileData = entryMap[zipPath] {
+                let dest = "\(sandboxDir)/\(avatarsDirName)/\(avatarName)"
+                try await fileStorage.write(fileData, to: dest)
+            }
         }
 
         await progress(RestoreProgress(current: 0, total: 1, phase: .importingMetadata))
@@ -315,7 +335,12 @@ final class ZipBackupService: BackupService, @unchecked Sendable {
                 continue
             }
             let pet = photoSnap.petID.flatMap { try petRepo.getPet(id: $0) }
-            let uri = photoPathByID[photoSnap.id] ?? "\(sandboxDir)/\(photoSnap.photoFileName)"
+            // 文件未写入（缺失或文件名不安全）时，uri 留空——DB 是事实源，
+            // 缺失文件按 auditOrphans 占位处理；不得拼接潜在穿越路径进 DB。
+            let uri = photoPathByID[photoSnap.id]
+                ?? (Self.isSafeFileName(photoSnap.photoFileName)
+                    ? "\(sandboxDir)/\(photoSnap.photoFileName)"
+                    : "")
             let photo = Self.recreate(
                 photo: photoSnap, uri: uri, pet: pet)
             try photoRepo.insertPhoto(photo)
@@ -346,6 +371,18 @@ final class ZipBackupService: BackupService, @unchecked Sendable {
         guard !pet.avatarPath.isEmpty, fileExists(pet.avatarPath) else { return nil }
         let ext = fileExtension(for: pet.avatarPath)
         return ResolvedAvatar(fileName: "\(pet.id.uuidString).\(ext)", sourcePath: pet.avatarPath)
+    }
+
+    /// 校验外部备份中的文件名是否为安全的纯文件名（防路径穿越）。
+    /// 合法文件名：非空、不含路径分隔符（`/` `\`）、非 `.` / `..`。
+    /// photoFileName / avatarFileName 均由导出端生成（`{uuid}.{ext}`），
+    /// 但恢复端面对的是外部文件，必须防御手写/篡改的备份包。
+    private static func isSafeFileName(_ name: String) -> Bool {
+        !name.isEmpty
+            && !name.contains("/")
+            && !name.contains("\\")
+            && name != "."
+            && name != ".."
     }
 
     private static func snapshot(pet: Pet, avatarFileName: String?) -> PetSnapshot {
@@ -390,7 +427,8 @@ final class ZipBackupService: BackupService, @unchecked Sendable {
         let species = Species(rawValue: Int(snap.species)) ?? .unknown
         let gender = Gender(rawValue: Int(snap.gender)) ?? .unknown
         let avatarPath: String
-        if let avatarName = snap.avatarFileName {
+        if let avatarName = snap.avatarFileName,
+           Self.isSafeFileName(avatarName) {
             avatarPath = "\(sandboxDir)/\(avatarsDirName)/\(avatarName)"
         } else {
             avatarPath = ""

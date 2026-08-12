@@ -343,6 +343,12 @@ Figma 实现参考 [`01 · Creation / Studio Index` 422:805](https://www.figma.c
 - 工具切换保留未提交状态时必须确认或自动生成可撤销历史。
 - Figma 状态页：[`Adjust` 422:813](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=422-813)、[`Crop` 422:817](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=422-817)、[`Text` 422:821](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=422-821)、[`Cutout` 422:825](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=422-825)。四页共用暗房画布和纸面控制层，但必须保留各自真实信息：调整显示当前连续参数与五项选择；裁切显示 3:4 网格、比例、旋转与翻转；文字显示可选图层、输入、字体、字号、颜色和描边；抠图显示主体轮廓、设备端处理阶段、重试与应用。
 - 编辑面板不得继续堆同质圆角卡片；使用一张连续控制纸、开放分隔线、精确刻度与少量铜色校准记号。工具坞本体可延伸到底边洗白，但图标、标签、指示与命中区域必须完全位于实时 bottom safe area 之上。
+- Image Workshop 页面背景统一绑定主稿使用的 `color/surface/canvas`；暗房只作为编辑工具坞和强调动作的局部材质，不再把整个编辑页或分享页染成独立 `studio/surface`。
+- 二级工具行和一级分组坞使用 SF Symbols 语义对应的单体 SVG Vector Group；禁止用多条独立 `Line` 拼图标，也禁止保留零宽符号字符占位。
+- Workshop 的选中、轨道、轮廓和行动强调统一绑定 `color/action/brand`（深铜红）。`color/material/studio/copper` 不再用于产品页面或可复用组件实例。
+- 带返回导航的 Workshop 页面统一使用 44×44pt 白色圆形 `Navigation / Back` 与深色 `chevron.left` 矢量，位置和主稿导航基线一致。
+- Workshop 顶部栏以 [`11 · Red Packet / Upload Guide` 422:845](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=422-845) 为唯一几何样板：390×844pt 参考稿中返回控件为 `x=18 / y=57 / 44×44pt`，24pt `chevron.left` 在控件内 `10pt` 居中；标题使用 `MiLens/UI/Title`（Noto Sans SC Medium 20/24）、`color/text/primary`，起点为 `x=72 / y=64`；右侧页级动作与标题垂直居中并保持 24pt 右边距。该数值只用于 Figma 参考稿，SwiftUI 必须用真实 top safe area 推导相同关系，不能硬编码 47pt 状态栏高度。
+- `01 · Creation / Studio Index` 是带品牌字标的 Tab 根页，不添加返回控件；02–12 的计数、撤销/重做、状态、预览、完成与关闭属于页级 trailing action，统一基线但保留各自语义。顶部栏下方首个内容块至少留出 8pt 光学间隔，不允许与返回圆阴影相接。
 
 ### 6.9 我的
 

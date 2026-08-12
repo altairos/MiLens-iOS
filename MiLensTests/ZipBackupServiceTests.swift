@@ -162,6 +162,83 @@ final class ZipBackupServiceTests: XCTestCase {
         XCTAssertEqual(try await tFs.read(at: writtenPath), Data("jpeg-bytes".utf8))
     }
 
+    // MARK: - 头像还原
+
+    func testExportImportRestoresAvatarFile() async throws {
+        // 头像导出写入 avatars/ 目录，恢复须写回沙盒，否则 avatarPath 悬空。
+        let sharedFS = MockFileStorage()
+        let pet = Pet(name: "小橘", species: .cat, gender: .male, avatarPath: "/src/avatar.jpg")
+        let (source, _, _, _, _) = makeService(pets: [pet], fileStorage: sharedFS)
+        sharedFS.preset(Data("avatar-bytes".utf8), at: "/src/avatar.jpg")
+
+        let result = try await source.exportBackup(petIDs: nil, progress: { _ in })
+
+        // 备份包须含头像条目
+        let zipData = try await sharedFS.read(at: result.fileURL.path)
+        let entries = try ZipReader.extract(zipData)
+        let avatarEntry = entries.first { $0.path.hasPrefix("avatars/") }
+        XCTAssertNotNil(avatarEntry, "备份包须含头像文件")
+        XCTAssertEqual(avatarEntry?.data, Data("avatar-bytes".utf8))
+
+        // 目标空库恢复（共享 fs 才能读到导出的备份文件）
+        let (target, tPetRepo, _, tFs, sandboxDir) = makeService(fileStorage: sharedFS)
+        let restoreResult = try await target.importBackup(from: result.fileURL, progress: { _ in })
+        XCTAssertEqual(restoreResult.importedPets, 1)
+
+        let restoredPet = try tPetRepo.getAllPets().first!
+        XCTAssertFalse(restoredPet.avatarPath.isEmpty, "恢复后 avatarPath 不得为空")
+        XCTAssertTrue(tFs.fileExists(at: restoredPet.avatarPath), "恢复后头像文件须写回沙盒")
+        XCTAssertTrue(restoredPet.avatarPath.hasPrefix("\(sandboxDir)/avatars/"),
+                      "avatarPath 须指向沙盒 avatars 目录")
+        XCTAssertEqual(try await tFs.read(at: restoredPet.avatarPath), Data("avatar-bytes".utf8))
+    }
+
+    // MARK: - 路径穿越防御
+
+    func testImportRejectsPathTraversalPhotoFileName() async throws {
+        // 恶意备份包：photoFileName 含 "../"，直接拼接可越权写入沙盒外。
+        let sharedFS = MockFileStorage()
+        let pet = Pet(name: "小橘", species: .cat)
+        let photo = Photo(uri: "/src/a.jpg", originalURI: "L0/001", pet: pet)
+        let (source, _, _, _, _) = makeService(pets: [pet], photos: [photo], fileStorage: sharedFS)
+        sharedFS.preset(Data([0x01]), at: "/src/a.jpg")
+        let result = try await source.exportBackup(petIDs: nil, progress: { _ in })
+
+        // 篡改 metadata：把 photoFileName 改为穿越路径
+        let zipData = try await sharedFS.read(at: result.fileURL.path)
+        var entries = try ZipReader.extract(zipData)
+        let metaIdx = entries.firstIndex { $0.path == BackupConfig.metadataFileName }!
+        let decoder = JSONDecoder()
+        decoder.dateDecodingStrategy = .iso8601
+        var metadata = try decoder.decode(BackupMetadata.self, from: entries[metaIdx].data)
+        let orig = metadata.photos.first!
+        let maliciousName = "../../\(orig.photoFileName)"
+        metadata = BackupMetadata(
+            pets: metadata.pets,
+            photos: [PhotoSnapshot(
+                id: orig.id, originalURI: orig.originalURI + "#evil", petID: orig.petID,
+                takenAt: orig.takenAt, latitude: orig.latitude, longitude: orig.longitude,
+                placeName: orig.placeName, note: orig.note, isFavorite: orig.isFavorite,
+                eventNotify: orig.eventNotify, width: orig.width, height: orig.height,
+                fileSize: orig.fileSize, category: orig.category, subCategory: orig.subCategory,
+                phash: orig.phash, qualityScore: orig.qualityScore,
+                photoFileName: maliciousName, createdAt: orig.createdAt)],
+            petEvents: metadata.petEvents)
+        let encoder = JSONEncoder()
+        encoder.dateEncodingStrategy = .iso8601
+        entries[metaIdx] = ZipEntry(path: BackupConfig.metadataFileName,
+                                     data: try encoder.encode(metadata))
+        try await sharedFS.write(ZipWriter.archive(entries: entries), to: result.fileURL.path)
+
+        let (target, _, _, tFs, sandboxDir) = makeService(fileStorage: sharedFS)
+        _ = try await target.importBackup(from: result.fileURL, progress: { _ in })
+
+        // 恶意文件名不得被写入：直接拼接的穿越目标路径不应存在。
+        let maliciousDest = "\(sandboxDir)/\(maliciousName)"
+        XCTAssertFalse(tFs.fileExists(at: maliciousDest),
+                       "恢复不得写入路径穿越目标：\(maliciousDest)")
+    }
+
     // MARK: - 合并去重（不覆盖现有数据）
 
     func testImportSkipsExistingPetByID() async throws {

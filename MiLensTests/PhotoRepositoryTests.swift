@@ -13,7 +13,7 @@ final class PhotoRepositoryTests: XCTestCase {
     private var keepAlive: [ModelContainer] = []
 
     private func makeRepo() -> (SwiftDataPhotoRepository, ModelContainer) {
-        let schema = Schema(versionedSchema: SchemaV1.self)
+        let schema = Schema(versionedSchema: SchemaV2.self)
         let config = ModelConfiguration(isStoredInMemoryOnly: true)
         let container = try! ModelContainer(for: schema, configurations: [config])
         keepAlive.append(container)
@@ -195,7 +195,7 @@ final class PhotoRepositoryTests: XCTestCase {
         let dir = FileManager.default.temporaryDirectory
             .appendingPathComponent("PhotoRepositoryTests-\(UUID().uuidString)")
         try FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
-        let schema = Schema(versionedSchema: SchemaV1.self)
+        let schema = Schema(versionedSchema: SchemaV2.self)
         let config = ModelConfiguration(url: dir.appendingPathComponent("test.sqlite"))
         let container = try ModelContainer(for: schema, configurations: [config])
         keepAlive.append(container)

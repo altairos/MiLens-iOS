@@ -106,12 +106,16 @@ final class DecorationCatalogCodableTests: XCTestCase {
 
     func testCatalogJsonFieldNameAlignment() throws {
         // 工具输出的字段名（camelCase）必须与 Codable 自动编码一致。
+        // 注意：合成的 encode(to:) 对 nil 可选字段不输出 key，因此这里必须给全部
+        // 可选字段提供非 nil 值，才能验证字段名拼写与 tools/frame_import.py 输出对齐。
         let item = DecorationItem(
             id: "frame_x", name: "X", category: .frame,
             resourcePath: "frame_x", previewPath: "frame_x",
             isPremium: true, group: "G", sortOrder: 5,
             fitMode: .ninePatch,
-            ninePatchInsets: NinePatchInsets(top: 1, left: 2, bottom: 3, right: 4))
+            ninePatchInsets: NinePatchInsets(top: 1, left: 2, bottom: 3, right: 4),
+            supportedRatios: ["1x1", "3x4"],
+            nativeAspectRatio: 1.5)
         let encoded = try JSONEncoder().encode(item)
         let json = try XCTUnwrap(String(data: encoded, encoding: String.Encoding.utf8))
         // 关键字段名（与 tools/frame_import.py manifest_to_catalog_item 输出对齐）

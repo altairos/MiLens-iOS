@@ -22,10 +22,10 @@ struct PhotoViewView: View {
         self.heroID = heroID
     }
 
-    @Environment(".viewModelFactory) private var factory
-    @Environment(".photoRepository) private var photoRepo
-    @Environment(".dismiss) private var dismiss
-    @Environment(".proEntitlement) private var entitlement
+    @Environment(\.viewModelFactory) private var factory
+    @Environment(\.photoRepository) private var photoRepo
+    @Environment(\.dismiss) private var dismiss
+    @Environment(\.proEntitlement) private var entitlement
 
     @State private var photo: Photo?
     @State private var image: UIImage?

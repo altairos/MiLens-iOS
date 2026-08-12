@@ -40,6 +40,8 @@ public enum ZipArchiveError: Error, Equatable, Sendable {
     case unsupportedCompression(method: UInt16)
     /// 读取偏移超出数据边界（文件损坏）。
     case offsetOutOfBounds
+    /// 解压数据 CRC 与 central directory 记录不符（文件损坏/被篡改）。
+    case crcMismatch(expected: UInt32, actual: UInt32)
 }
 
 // MARK: - Writer
@@ -156,6 +158,8 @@ public enum ZipReader {
             let method = data.readUInt16LE(at: cursor + 10)
             guard method == 0 else { throw ZipArchiveError.unsupportedCompression(method: method) }
 
+            // central directory 记录的权威 CRC-32（+16 偏移）。
+            let expectedCRC = data.readUInt32LE(at: cursor + 16)
             let uncompSize = Int(data.readUInt32LE(at: cursor + 24))
             let nameLen = Int(data.readUInt16LE(at: cursor + 28))
             let extraLen = Int(data.readUInt16LE(at: cursor + 30))
@@ -179,6 +183,12 @@ public enum ZipReader {
             guard dataStart + uncompSize <= data.count else { throw ZipArchiveError.offsetOutOfBounds }
 
             let entryData = data.subdata(in: dataStart..<(dataStart + uncompSize))
+            // 完整性校验：解压数据 CRC 必须与 central directory 记录一致，
+            // 否则文件损坏或被篡改——拒绝静默吞下错误数据。
+            let actualCRC = CRC32.compute(entryData)
+            guard actualCRC == expectedCRC else {
+                throw ZipArchiveError.crcMismatch(expected: expectedCRC, actual: actualCRC)
+            }
             entries.append(ZipEntry(path: name, data: entryData))
         }
 

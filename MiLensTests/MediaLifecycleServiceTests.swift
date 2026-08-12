@@ -15,7 +15,7 @@ final class MediaLifecycleServiceTests: XCTestCase {
     private func makeService(
         photoRepo: (any PhotoRepositoryProtocol)? = nil
     ) -> (MediaLifecycleService, SwiftDataPhotoRepository, SwiftDataPetRepository, MockFileStorage, ModelContainer) {
-        let schema = Schema(versionedSchema: SchemaV1.self)
+        let schema = Schema(versionedSchema: SchemaV2.self)
         let config = ModelConfiguration(isStoredInMemoryOnly: true)
         let container = try! ModelContainer(for: schema, configurations: [config])
         let photoRepo = SwiftDataPhotoRepository(context: container.mainContext)

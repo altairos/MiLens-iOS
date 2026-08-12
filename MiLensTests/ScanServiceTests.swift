@@ -21,7 +21,7 @@ final class ScanServiceTests: XCTestCase {
     ) -> (ScanService, SwiftDataPhotoRepository, ModelContainer) {
         // container 必须返回并持有——mainContext 不持有 container，
         // 局部变量释放后 repo 的 fetch 触发 SwiftData 内部 SIGTRAP（悬垂引用）。
-        let schema = Schema(versionedSchema: SchemaV1.self)
+        let schema = Schema(versionedSchema: SchemaV2.self)
         let config = ModelConfiguration(isStoredInMemoryOnly: true)
         let container = try! ModelContainer(for: schema, configurations: [config])
         let photoRepo = SwiftDataPhotoRepository(context: container.mainContext)
@@ -280,7 +280,7 @@ final class ScanServiceTests: XCTestCase {
         let recentDate = Date(timeIntervalSince1970: 5000)
         let cutoff = Date(timeIntervalSince1970: 3000)
 
-        let schema = Schema(versionedSchema: SchemaV1.self)
+        let schema = Schema(versionedSchema: SchemaV2.self)
         let config = ModelConfiguration(isStoredInMemoryOnly: true)
         let container = try! ModelContainer(for: schema, configurations: [config])
         let photoRepo = SwiftDataPhotoRepository(context: container.mainContext)
@@ -318,7 +318,7 @@ final class ScanServiceTests: XCTestCase {
 
     func testScanRepoFailureReturnsError() async {
         // 已导入照片读取失败：返回 error，不视为完成
-        let schema = Schema(versionedSchema: SchemaV1.self)
+        let schema = Schema(versionedSchema: SchemaV2.self)
         let config = ModelConfiguration(isStoredInMemoryOnly: true)
         let container = try! ModelContainer(for: schema, configurations: [config])
         let petRepo = SwiftDataPetRepository(context: container.mainContext)
@@ -378,7 +378,7 @@ final class ScanServiceTests: XCTestCase {
         clipService: (any ClipInference)?,
         imageDataOverrides: [String: Data] = [:]
     ) -> (ScanService, SwiftDataPetRepository, SwiftDataPhotoRepository, ModelContainer) {
-        let schema = Schema(versionedSchema: SchemaV1.self)
+        let schema = Schema(versionedSchema: SchemaV2.self)
         let config = ModelConfiguration(isStoredInMemoryOnly: true)
         let container = try! ModelContainer(for: schema, configurations: [config])
         let photoRepo = SwiftDataPhotoRepository(context: container.mainContext)

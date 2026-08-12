@@ -85,7 +85,7 @@ final class PetPhotoCategoryLogicTests: XCTestCase {
     // MARK: - SwiftData 仓储集成
 
     func testGetUnassignedPhotosReturnsOnlyUnassignedSortedByTakenAt() throws {
-        let schema = Schema(versionedSchema: SchemaV1.self)
+        let schema = Schema(versionedSchema: SchemaV2.self)
         let config = ModelConfiguration(isStoredInMemoryOnly: true)
         let container = try! ModelContainer(for: schema, configurations: [config])
         let repo = SwiftDataPhotoRepository(context: container.mainContext)
@@ -107,7 +107,7 @@ final class PetPhotoCategoryLogicTests: XCTestCase {
     }
 
     func testGetUnassignedPhotosRespectsLimit() throws {
-        let schema = Schema(versionedSchema: SchemaV1.self)
+        let schema = Schema(versionedSchema: SchemaV2.self)
         let config = ModelConfiguration(isStoredInMemoryOnly: true)
         let container = try! ModelContainer(for: schema, configurations: [config])
         let repo = SwiftDataPhotoRepository(context: container.mainContext)
@@ -122,7 +122,7 @@ final class PetPhotoCategoryLogicTests: XCTestCase {
 
     func testCountAllPhotos() throws {
         // H2：总数走 fetchCount，不物化全表（GalleryViewModel.loadInitial 依赖）
-        let schema = Schema(versionedSchema: SchemaV1.self)
+        let schema = Schema(versionedSchema: SchemaV2.self)
         let config = ModelConfiguration(isStoredInMemoryOnly: true)
         let container = try! ModelContainer(for: schema, configurations: [config])
         let repo = SwiftDataPhotoRepository(context: container.mainContext)
@@ -135,7 +135,7 @@ final class PetPhotoCategoryLogicTests: XCTestCase {
 
     func testGetAllOriginalURIsOnlyFetchesOriginalURI() throws {
         // H2：去重集合只读 originalURI 列（propertiesToFetch），行为与全表等价
-        let schema = Schema(versionedSchema: SchemaV1.self)
+        let schema = Schema(versionedSchema: SchemaV2.self)
         let config = ModelConfiguration(isStoredInMemoryOnly: true)
         let container = try! ModelContainer(for: schema, configurations: [config])
         let repo = SwiftDataPhotoRepository(context: container.mainContext)

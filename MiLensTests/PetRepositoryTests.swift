@@ -13,7 +13,7 @@ final class PetRepositoryTests: XCTestCase {
     private var keepAlive: [ModelContainer] = []
 
     private func makeRepo() -> (SwiftDataPetRepository, ModelContainer) {
-        let schema = Schema(versionedSchema: SchemaV1.self)
+        let schema = Schema(versionedSchema: SchemaV2.self)
         let config = ModelConfiguration(isStoredInMemoryOnly: true)
         let container = try! ModelContainer(for: schema, configurations: [config])
         keepAlive.append(container)

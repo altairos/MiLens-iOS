@@ -104,6 +104,9 @@ targets:
         ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
     dependencies:
       - package: MiLensKit
+      # 嵌入 Widget Extension：App target 依赖 app-extension target 时，
+      # XcodeGen 自动生成「Embed App Extensions」复制阶段，.appex 进入 .app bundle。
+      - target: MiLensWidget
 
   # WidgetKit 小组件（WidgetKit-Design.md）：独立 Extension，不塞入 App target。
   # 经 App Group 共享快照读取数据；不直接打开 SwiftData store、不联网、不提供购买按钮。
@@ -123,7 +126,8 @@ targets:
       path: MiLensWidget/MiLensWidget.entitlements
     dependencies:
       - package: MiLensKit
-      - target: MiLens
+      # 注意：Widget Extension 不得依赖 App target（方向相反且会导致循环依赖）；
+      # 正确关系是 App 嵌入 Widget（见 MiLens target 的 dependencies）。
     info:
       path: MiLensWidget/Info.plist
       properties:

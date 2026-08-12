@@ -42,7 +42,7 @@ final class PetEditViewModel {
         name: "", species: .unknown, gender: .unknown,
         birthday: nil, adoptionDay: nil, notes: "", avatarPath: ""
     )
-    private var avatarPath = ""
+    private(set) var avatarPath = ""
     private var featureTask: Task<Void, Never>?
 
     private let petRepo: any PetRepositoryProtocol

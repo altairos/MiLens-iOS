@@ -1,6 +1,6 @@
 # 情感触点系统 — Mac 环境待办备忘
 
-最后更新：2026-08-11
+最后更新：2026-08-12（§4 RecapView/TimelineExportCanvas + §5 指标埋点接入 已落地）
 关联：[ADR-0010](adr/0010-commercialization-and-emotion-triggers.md) §3 / [PLAN.md](../PLAN.md)
 
 ## 背景
@@ -72,26 +72,26 @@ Stage 1/2 + 名片卡 + 红包封面的 App 层集成代码在 Windows 上无法
 
 **验证**：NotifyServiceTests + 真机通知触发走查。
 
-### 4. RecapView + TimelineExportCanvas 扩展 [P1–P2]
+### 4. RecapView + TimelineExportCanvas 扩展 [P1–P2] ✅ 已落地（2026-08-12）
 
-月度精选 / 年度回忆册 UI：
+月度精选 / 年度回忆册 UI 已全部落地：
 
-- 新建 `MiLens/Views/Create/RecapView.swift` — 月度/年度切换 + 预览（前几页免费）+ Pro 完整导出
-- `MiLens/Views/Pets/TimelineExportCanvas.swift` — 接受 `ExportQuality` 参数 + 回忆册封面/页眉（**不新建渲染管线**，ADR §10.12）
-- 首页/年度通知 → 回忆册入口
-- 免费用户看摘要预览，Pro 完整长图导出
+- [x] 新建 `MiLens/Views/Create/RecapView.swift` — 年份选择器 + 月度精选网格 + Pro 导出（`RecapExportCanvas` 离屏渲染，`ExportQuality.high` 门控）
+- [x] `MiLens/Views/Pets/TimelineExportCanvas.swift` — 接受 `ExportQuality` 参数（standard 1080 / high 2400，尺寸按宽度等比缩放）；修复编译 bug（`entryIconColor` 补全 `.textNote`/`.workRecord`）
+- [x] 首页「年度回忆」入口卡片（`YearlyRecapEntry`）→ `Route.recap` → `RecapView`
+- [x] 免费用户可预览全部代表照片缩略图，Pro 专属完整长图导出
 
-**验证**：长图渲染内存/尺寸真机校准（`ExportQuality.high` 长边 2400px 峰值内存）。
+**待真机**：长图渲染内存/尺寸校准（`ExportQuality.high` 长边 2400px 峰值内存）。
 
-### 5. 指标埋点接入 [P1]
+### 5. 指标埋点接入 [P1] ✅ 已落地（2026-08-12）
 
-`MetricsRecorder` 已就绪，需在各触点调用：
+`MetricsRecorder` 已就绪并在以下触点接入：
 
-- `PetCardView.load()` → `.memoryCardPreviewed`
-- `GrowthCompareView.load()` → `.growthComparePreviewed`
-- 各导出按钮 → `.exportStarted` / `.exportCompleted`
-- `PaywallView` 出现 → `.paywallShown`
-- `ShareSheet` 出现 → `.shareSheetOpened`
+- [x] `PetCardView.task` → `.memoryCardPreviewed`
+- [x] `GrowthCompareView.task` → `.growthComparePreviewed`
+- [x] `TimelineView` / `RecapView` 导出按钮 → `.exportStarted` / `.exportCompleted`
+- [x] `PaywallView.onAppear` → `.paywallShown`
+- [x] `SharePreviewSheet.onAppear` → `.shareSheetOpened`
 
 ### 6. Stage 4 — 触发强化与彩虹桥 [P2–P3，部分需产品评审]
 

@@ -87,7 +87,10 @@ struct GrowthCompareView: View {
         } message: {
             Text(saveError ?? "")
         }
-        .task { await load() }
+        .task {
+            await load()
+            MetricsRecorder().record(.growthComparePreviewed)
+        }
     }
 
     // MARK: - 预览

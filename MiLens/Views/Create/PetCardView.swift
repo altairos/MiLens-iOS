@@ -94,7 +94,10 @@ struct PetCardView: View {
         .sheet(isPresented: $showTemplatePaywall) {
             NavigationStack { PaywallView() }
         }
-        .task { await load() }
+        .task {
+            await load()
+            MetricsRecorder().record(.memoryCardPreviewed)
+        }
     }
 
     // MARK: - 预览

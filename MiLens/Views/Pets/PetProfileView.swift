@@ -14,6 +14,7 @@ struct PetProfileView: View {
     @Environment(\.viewModelFactory) private var factory
     @Environment(\.dismiss) private var dismiss
     @Environment(\.horizontalSizeClass) private var hSizeClass
+    @Environment(\.proEntitlement) private var entitlement
 
     /// 是否处于 regular 宽度（iPad 竖屏 / 大尺寸横屏），启用双栏分栏。
     private var isRegularWidth: Bool { hSizeClass == .regular }
@@ -24,6 +25,8 @@ struct PetProfileView: View {
     @State private var selectedCategory: PetPhotoCategory = .all
     @State private var isLoading = true
     @State private var assignmentPhotos: [Photo] = []
+    @State private var showAddMemorySheet = false
+    private let timelineAccessStore: any TimelineAccessStore = UserDefaultsTimelineAccessStore()
 
     private let recentPhotoColumns = [GridItem(.flexible(), spacing: 12), GridItem(.flexible(), spacing: 12), GridItem(.flexible(), spacing: 12)]
     private let gridColumns = [GridItem(.adaptive(minimum: 100), spacing: 2)]
@@ -48,6 +51,17 @@ struct PetProfileView: View {
                 PetAssignmentSheet(photos: assignmentPhotos) {
                     Task { await load() }
                 }
+            }
+        }
+        .sheet(isPresented: $showAddMemorySheet) {
+            if let pet {
+                let vm = factory.makeTimelineViewModel()
+                AddMemorySheet(
+                    viewModel: vm,
+                    pets: [pet],
+                    isPro: entitlement.isPro,
+                    firstAccessDate: timelineAccessStore.firstAccessDate(now: Date())
+                )
             }
         }
         .task { await load() }
@@ -489,28 +503,48 @@ struct PetProfileView: View {
 
     // MARK: - 时间线入口
 
-    /// 珊瑚色「查看完整生命时间线 →」+ baseline + arrow。
+    /// 珊瑚色「查看完整生命时间线 →」+ baseline + arrow + 「添加记忆」入口。
     /// 对照 #I319:1101;296:603-606。
     private func timelineLink(_ pet: Pet) -> some View {
-        NavigationLink(value: Route.timeline) {
-            HStack(spacing: 6) {
-                Text(String(localized: "pet.profile.timelineLink"))
-                    .font(.system(size: 14, weight: .medium))
-                    .foregroundStyle(Color.milensActionPrimary)
-                Spacer()
-                Image(systemName: "arrow.right")
-                    .font(.system(size: 14, weight: .semibold))
-                    .foregroundStyle(Color.milensActionPrimary)
+        VStack(spacing: 0) {
+            NavigationLink(value: Route.timeline) {
+                HStack(spacing: 6) {
+                    Text(String(localized: "pet.profile.timelineLink"))
+                        .font(.system(size: 14, weight: .medium))
+                        .foregroundStyle(Color.milensActionPrimary)
+                    Spacer()
+                    Image(systemName: "arrow.right")
+                        .font(.system(size: 14, weight: .semibold))
+                        .foregroundStyle(Color.milensActionPrimary)
+                }
+                .padding(.horizontal, 24)
+                .overlay(alignment: .bottom) {
+                    Rectangle()
+                        .fill(Color.milensBorder)
+                        .frame(height: 1)
+                        .padding(.leading, 152)
+                }
             }
-            .padding(.horizontal, 24)
-            .overlay(alignment: .bottom) {
-                Rectangle()
-                    .fill(Color.milensBorder)
-                    .frame(height: 1)
-                    .padding(.leading, 152)
+            .buttonStyle(.plain)
+
+            // 添加记忆入口（Life-Archive-Design.md §3.3）
+            Button {
+                showAddMemorySheet = true
+            } label: {
+                HStack(spacing: 6) {
+                    Text(String(localized: "pet.profile.addMemory"))
+                        .font(.system(size: 14, weight: .medium))
+                        .foregroundStyle(Color.milensTextSecondary)
+                    Spacer()
+                    Image(systemName: "plus")
+                        .font(.system(size: 14, weight: .semibold))
+                        .foregroundStyle(Color.milensTextSecondary)
+                }
+                .padding(.horizontal, 24)
+                .padding(.top, 12)
             }
+            .buttonStyle(.plain)
         }
-        .buttonStyle(.plain)
     }
 
     // MARK: - 照片分类网格（保留现有功能）

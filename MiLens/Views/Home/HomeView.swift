@@ -65,6 +65,16 @@ struct HomeView: View {
                         .padding(.horizontal, Spacing.pagePad)
                         .padding(.top, Spacing.xxl)
                     }
+
+                    // 年度回看入口（情感触点系统 Stage 3）
+                    if !model.photos.isEmpty {
+                        NavigationLink(value: Route.recap(year: nil)) {
+                            YearlyRecapEntry()
+                        }
+                        .buttonStyle(.plain)
+                        .padding(.horizontal, Spacing.pagePad)
+                        .padding(.top, Spacing.lg)
+                    }
                 }
                 .padding(.bottom, Spacing.xxl)
             }
@@ -400,6 +410,34 @@ private struct HomeRecoverableState: View {
         }
         .padding(.horizontal, Spacing.pagePad)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+}
+
+// MARK: - 年度回看入口卡片
+
+/// 年度回忆册入口卡片：珊瑚竖线 + 文楷标题 + 副文 + 箭头。
+private struct YearlyRecapEntry: View {
+    var body: some View {
+        HStack(spacing: 12) {
+            Rectangle()
+                .fill(Color.milensActionPrimary)
+                .frame(width: 3, height: 36)
+            VStack(alignment: .leading, spacing: 2) {
+                Text(String(localized: "home.yearlyRecap.title"))
+                    .font(.custom("LXGWWenKai-Regular", size: 17, relativeTo: .headline))
+                    .foregroundStyle(Color.milensTextPrimary)
+                Text(String(localized: "home.yearlyRecap.body"))
+                    .font(.system(size: 12))
+                    .foregroundStyle(Color.milensTextSecondary)
+            }
+            Spacer()
+            Image(systemName: "chevron.right")
+                .font(.system(size: 14))
+                .foregroundStyle(Color.milensTextSecondary)
+        }
+        .padding(16)
+        .background(Color.milensCard)
+        .clipShape(RoundedRectangle(cornerRadius: Radius.medium, style: .continuous))
     }
 }
 

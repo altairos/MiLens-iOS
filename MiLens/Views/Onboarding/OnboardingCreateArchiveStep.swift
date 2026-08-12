@@ -1,0 +1,190 @@
+//  OnboardingCreateArchiveStep —— 首次启动 02 建立档案（对照 Figma #47:10）。
+//  EditorialSection（LIFE ARCHIVE + "先为伙伴建立生命档案"）+
+//  Empty Identity 卡片（肖像轨道虚线圈 + ARCHIVE 001 + 「等待一位伙伴」）+
+//  「伙伴叫什么名字？」+ 名字字段（Rail + TextField，底 milensGrouped）+
+//  「选择伙伴类型」+ 3 个 species chip（喵星人/汪星人/其他伙伴）+
+//  Honest Note 卡片。
+//  FocusDialButton「创建第一份档案」（disabled：名字为空）。
+//  petName / petSpecies 双向绑定到 viewModel。
+
+import SwiftUI
+
+struct OnboardingCreateArchiveStep: View {
+    @Bindable var viewModel: OnboardingViewModel
+    @FocusState private var nameFocused: Bool
+
+    var body: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 0) {
+                EditorialSection(
+                    overline: "LIFE ARCHIVE · 建立档案",
+                    title: "先为伙伴建立\n生命档案",
+                    body: "先登记名字与伙伴类型；\n此时还不会扫描系统图库。"
+                )
+
+                // Empty Identity 卡片
+                emptyIdentityCard
+                    .padding(.top, Spacing.xxl)
+
+                // 名字字段
+                Text("伙伴叫什么名字？")
+                    .font(.system(size: 15, weight: .medium))
+                    .foregroundStyle(Color.milensTextPrimary)
+                    .padding(.top, Spacing.xxl)
+
+                nameField
+                    .padding(.top, Spacing.sm)
+
+                // 种类选择
+                Text("选择伙伴类型")
+                    .font(.system(size: 15, weight: .medium))
+                    .foregroundStyle(Color.milensTextPrimary)
+                    .padding(.top, Spacing.xl)
+
+                speciesChips
+                    .padding(.top, Spacing.sm)
+
+                // Honest Note 卡片
+                honestNoteCard
+                    .padding(.top, Spacing.xl)
+
+                // 校验错误
+                if !viewModel.scanError.isEmpty {
+                    Label(viewModel.scanError, systemImage: "exclamationmark.triangle.fill")
+                        .font(.caption)
+                        .foregroundStyle(Color.milensDanger)
+                        .padding(.top, Spacing.md)
+                }
+
+                // Focus Dial
+                FocusDialButton(
+                    label: "创建第一份档案",
+                    systemImage: "checkmark",
+                    isEnabled: !viewModel.petName.trimmingCharacters(in: .whitespaces).isEmpty
+                ) {
+                    nameFocused = false
+                    viewModel.submitCreatePet()
+                }
+                .padding(.top, Spacing.xxl)
+            }
+            .padding(.horizontal, Spacing.pagePad)
+            .padding(.top, Spacing.xxl)
+            .padding(.bottom, Spacing.xxl)
+        }
+        .scrollIndicators(.hidden)
+    }
+
+    // MARK: - Empty Identity 卡片（对照 #47:10 Archive / Empty Identity）
+
+    private var emptyIdentityCard: some View {
+        EditorialCard(cornerRadius: Radius.large) {
+            HStack(spacing: 16) {
+                // 肖像轨道虚线圈
+                ZStack {
+                    Circle()
+                        .stroke(Color.milensBorder, lineWidth: 1)
+                        .frame(width: 112, height: 112)
+                    Circle()
+                        .fill(Color.milensPrimary)
+                        .frame(width: 10, height: 10)
+                }
+                .frame(width: 132, height: 132)
+
+                VStack(alignment: .leading, spacing: 6) {
+                    Text("ARCHIVE 001")
+                        .font(.system(size: 12))
+                        .foregroundStyle(Color.milensTextSecondary)
+                    Text("等待一位伙伴")
+                        .font(.system(size: 20, weight: .medium))
+                        .foregroundStyle(Color.milensTextPrimary)
+                    Text("肖像会在注册照片后\n由你确认。")
+                        .font(.system(size: 12))
+                        .foregroundStyle(Color.milensTextSecondary)
+                }
+                Spacer()
+            }
+            .padding(.leading, 22)
+            .padding(.trailing, 16)
+            .padding(.vertical, 20)
+        }
+    }
+
+    // MARK: - 名字字段（对照 #47:10 Field / Name）
+
+    private var nameField: some View {
+        HStack(spacing: 0) {
+            Rectangle()
+                .fill(Color.milensActionPrimary)
+                .frame(width: 2)
+            TextField("小满", text: $viewModel.petName)
+                .font(.system(size: 16))
+                .foregroundStyle(Color.milensTextPrimary)
+                .focused($nameFocused)
+                .submitLabel(.done)
+                .onSubmit {
+                    nameFocused = false
+                    if !viewModel.petName.trimmingCharacters(in: .whitespaces).isEmpty {
+                        viewModel.submitCreatePet()
+                    }
+                }
+                .padding(.horizontal, 14)
+            Spacer()
+        }
+        .frame(height: 54)
+        .background(Color.milensGrouped)
+        .overlay(
+            RoundedRectangle(cornerRadius: Radius.medium, style: .continuous)
+                .stroke(Color.milensBorder, lineWidth: 1)
+        )
+        .clipShape(RoundedRectangle(cornerRadius: Radius.medium, style: .continuous))
+    }
+
+    // MARK: - 种类选择（对照 #47:10 Species chips）
+
+    private var speciesChips: some View {
+        HStack(spacing: Spacing.sm) {
+            speciesChip(title: "喵星人", species: .cat, width: 102)
+            speciesChip(title: "汪星人", species: .dog, width: 102)
+            speciesChip(title: "其他伙伴", species: .unknown, width: 118)
+            Spacer(minLength: 0)
+        }
+    }
+
+    private func speciesChip(title: String, species: Species, width: CGFloat) -> some View {
+        let isSelected = viewModel.petSpecies == species
+        return Button {
+            viewModel.petSpecies = species
+        } label: {
+            Text(title)
+                .font(.system(size: 15, weight: .medium))
+                .foregroundStyle(isSelected ? Color.milensActionPrimary : Color.milensTextSecondary)
+                .frame(width: width, height: 42)
+                .background(isSelected ? Color.milensAccentWash : Color.milensCard)
+                .overlay(
+                    RoundedRectangle(cornerRadius: Radius.medium, style: .continuous)
+                        .stroke(isSelected ? Color.milensActionPrimary : Color.milensBorder, lineWidth: 1)
+                )
+                .clipShape(RoundedRectangle(cornerRadius: Radius.medium, style: .continuous))
+        }
+        .buttonStyle(.plain)
+    }
+
+    // MARK: - Honest Note 卡片（对照 #47:10 Archive / Honest Note）
+
+    private var honestNoteCard: some View {
+        EditorialCard(cornerRadius: Radius.medium) {
+            HStack(spacing: 0) {
+                Rectangle()
+                    .fill(Color.milensActionPrimary)
+                    .frame(width: 2)
+                Text("先有档案，后有特征基准；\n扫描结果不会自动进入档案。")
+                    .font(.system(size: 12))
+                    .foregroundStyle(Color.milensTextSecondary)
+                    .padding(.leading, 14)
+                    .padding(.vertical, 14)
+                    .padding(.trailing, 16)
+                Spacer()
+            }
+        }
+    }
+}

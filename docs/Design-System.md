@@ -1,6 +1,6 @@
 # MiLens Design System — Ledger 编辑式视觉语法
 
-> 基于 Figma 12 页 Release Candidate 定稿（2026-08-12）提炼的产品视觉语法与可复用组件库。
+> 基于 Figma 12 页 Release Candidate 与 12 页 Image Workshop 扩展稿（2026-08-12）提炼的产品视觉语法与可复用组件库。
 > 唯一事实来源为代码实现 + Figma `WnT7DCK1XCyPwnS38SE87p`；本文档为开发参考。
 
 ---
@@ -145,7 +145,21 @@
 | Studio Size Selector | 四段尺寸选择器（珊瑚选中段） |
 | Darkroom Pulse Button | 暗房材质 CTA（珊瑚底 + 拨盘圆） |
 
-### 5.4 其他共享组件
+### 5.4 图片编辑 / 创作扩展组件
+
+以下为 Figma 交付契约；SwiftUI 应优先复用现有 `EditorView`、`EditorToolPanels`、`SharePreviewSheet` 和各创作页状态，不为还原画面复制第二套业务状态机。
+
+| Figma 组件 | Node | SwiftUI 映射 | 设计约束 |
+|---|---|---|---|
+| `Control/Editor Tool Dock` | `423:909` | `EditorView` 一级工具坞 | 四态 Adjust/Crop/Text/Cutout；纸面边缘 + 铜色校准记号，标签与命中区退出 bottom safe area |
+| `Control/Workshop Value Rail` | `424:834` | 调色 Slider 行 | Figma Low/Mid/High 只做视觉验收；代码保留连续值、VoiceOver 调整与撤销历史 |
+| `Picker/Photo Proof Cell` | `425:822` | `GrowthComparePhotoPickerView` | A/B 是早期/近期业务角色；选中态使用接触校样边框，不退化为勾选胶囊 |
+| `Control/Creation Template Tab` | `425:835` | 宠物卡 / 名片模板选择轨 | Selected 用铜色折角与底槽；Locked 必须触发真实 Pro 门控 |
+| `Action/Output Register` | `426:833` | 编辑应用 / 保存相册 / 系统分享 | 双段输出动作；右侧暗房面只承载主动作，Pressed 的 Exposure Slit 不代替 Loading/Disabled |
+
+创作页面只共用来源身份、模板轨与输出动作；成品本体保持不同几何：宠物卡为 4:5 纸样、成长对比为双时态长图、名片为横向信息层、红包为 957×1278 竖版及四场景预览。禁止把四类成品塞回同一种大圆角卡片。
+
+### 5.5 其他共享组件
 
 | 组件 | 文件 | 用途 |
 |---|---|---|

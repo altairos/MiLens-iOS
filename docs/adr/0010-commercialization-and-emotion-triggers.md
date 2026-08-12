@@ -334,6 +334,21 @@ MiLens-Backup-2026-08-10.milensbackup  (ZIP 压缩包)
 - `ProFeature.swift`：新增 `.photoStorage` 权益
 - `CommercialRulesTests.swift`：配额边界用例
 
+#### 10.1.1 配额降级场景（P0-a 扩展，2026-08-12）
+
+原 P0-a 只覆盖「导入时超额拦截」，未处理「Pro 期导入 >50 张、订阅到期降级后已存储超额照片」的僵尸数据场景。用户续费期导入 200 张，到期后这 200 张既无法查看也无法删除，白白占用存储空间。
+
+**策略：超额照片「可见但锁定」**——始终让用户看见回忆，不隐藏照片（情感产品红线）；超额部分加锁标蒙层，可删除但不可进大图/创作。
+
+- `QuotaGatingLogic`（新建纯函数集，可单测）：`overLimitCount` / `lockedPhotoIDs`（按 `takenAt` 倒序第 50 张之后锁定）/ `shouldPromptDowngrade` / `promptShouldReset`。
+- `GalleryViewModel`：新增 `lockedPhotoIDs`（运行时计算，不入 SwiftData）+ `isLocked` / `deleteSelected` / `updateProStatus` / `enterStorageManageMode`；在 `loadInitial` / `loadMore` / `deletePhoto` / Pro 变更后重算。
+- `GalleryView`：`LockedPhotoThumbnailCell`（半透明蒙层 + 锁标 + Pro 角标）+ 多选删除按钮 + 超额横幅；锁定照片点击弹 `QuotaDowngradeSheet`，contextMenu 仅保留「删除」。
+- `QuotaDowngradeSheet`（新建）：双 CTA「续费恢复全部 / 管理存储」；续费 CTA 经 `NotificationCenter` 跨视图请求付费墙。
+- `RootTabView`：降级检测（冷启动 `task` + `onChange(of: entitlement.isPro)`），持久化 `lastKnownIsPro` + `quotaDowngradePromptPending`（防重复）；续费后自动重置标记。
+- `SettingsView`：「照片存储」入口行（N/50 张，超额时珊瑚色高亮），点击跳转 Gallery 存储管理模式。
+- 跨 Tab 协调：`@AppStorage("storageManageRequested")` + `Route.gallery` push。
+- **验证缺口**：本机 Windows 无 iOS SDK，XCTest + 锁定蒙层/sheet 视觉效果待 macOS CI 与模拟器验证。
+
 ### 10.2 水印（P0-b）
 
 - `MiLensKit/.../BeadExportService.swift`：`renderA4Export` 增加 `includeWatermark` 参数
@@ -413,7 +428,7 @@ MiLens-Backup-2026-08-10.milensbackup  (ZIP 压缩包)
 
 | 阶段 | 内容 | 状态 |
 |---|---|---|
-| **P0** | 照片限制 + 水印 + 价格 + 分享增强 | 已完成 |
+| **P0** | 照片限制 + 水印 + 价格 + 分享增强 | 已完成（含配额降级场景 §10.1.1） |
 | **P0-e** | 宠物卡片多模板系统 | 本次实施 |
 | **P0-f** | 时间线导出分享（Pro） | 本次实施 |
 | **V1-a** | 纪念日/里程碑卡片 + 成长对比卡片 | 纳入 V1 |

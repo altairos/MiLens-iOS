@@ -6,6 +6,7 @@
 //  价格/试用天数全部来自 StoreKit Product 投影（StoreProductInfo），代码无硬编码金额（P0-4）。
 
 import SwiftUI
+import MiLensKit
 
 struct PaywallView: View {
     @Environment(\.storeService) private var storeService
@@ -23,6 +24,7 @@ struct PaywallView: View {
             }
         }
         .onAppear {
+            MetricsRecorder().record(.paywallShown)
             guard model == nil else { return }
             let viewModel = PaywallViewModel(store: storeService, entitlement: entitlement)
             viewModel.onAppear()
@@ -116,6 +118,12 @@ struct PaywallView: View {
                     .foregroundStyle(Color.milensPaywallSubtitle)
                     .padding(.top, Spacing.lg)
 
+                // 副标题（对照 Figma #37:29）
+                Text("更多伙伴 · 完整回顾 · 高质量导出")
+                    .font(.system(size: 12))
+                    .foregroundStyle(Color.milensDarkroomText)
+                    .padding(.top, 4)
+
                 Spacer()
             }
             .padding(.horizontal, Spacing.pagePad)
@@ -189,18 +197,18 @@ struct PaywallView: View {
             // 权益列表
             VStack(alignment: .leading, spacing: 0) {
                 benefitRow(
-                    title: String(localized: "paywall.benefit1.title"),
-                    desc: String(localized: "paywall.benefit1.desc")
+                    title: "不限照片数量",
+                    desc: "继续导入每一段回忆"
                 )
                 benefitDivider
                 benefitRow(
-                    title: String(localized: "paywall.benefit2.title"),
-                    desc: String(localized: "paywall.benefit2.desc")
+                    title: "把时间整理成生命章节",
+                    desc: "年度回顾按真实日期生成"
                 )
                 benefitDivider
                 benefitRow(
-                    title: String(localized: "paywall.benefit3.title"),
-                    desc: String(localized: "paywall.benefit3.desc")
+                    title: "作品与原片都能高质量带走",
+                    desc: "高清导出照片、记忆与作品"
                 )
             }
             .padding(.leading, 12)
@@ -276,18 +284,14 @@ struct PaywallView: View {
 
                 Spacer()
 
-                // 右侧：试用/价格信息
+                // 右侧：试用/价格信息（对照 Figma #37:49/51）
                 VStack(alignment: .trailing, spacing: 2) {
                     if isSelected, let trial = product.trialDays, trial > 0 {
                         Text(String(localized: "paywall.trial.hint \(trial)"))
                             .font(.system(size: 11))
                             .foregroundStyle(Color.milensTextSecondary)
-                    } else {
-                        Text(product.displayPrice)
-                            .font(.system(size: 11))
-                            .foregroundStyle(Color.milensTextSecondary)
                     }
-                    Text(String(localized: "paywall.source"))
+                    Text("从 App Store 获取")
                         .font(.system(size: 11))
                         .foregroundStyle(Color.milensTextSecondary)
                 }

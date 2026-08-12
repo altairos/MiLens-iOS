@@ -207,6 +207,6 @@ App 不会主动上传照片；编辑产物可能随用户启用的系统备份�
 - AI 推理框架已定案：方案 A 全转换（CLIP + RTMPose → Core ML，INT8 量化）+ Vision 原生分割。详见 [ADR-0007](docs/adr/0007-ios-ai-inference-route.md)。
 - 质量评分（Laplacian 方差清晰度）+ 重复分组（pHash 视觉哈希）**已实现**（P2，[ADR-0008](docs/adr/0008-v1-scope-decision.md)）；完整图片编辑器**已实现**（P4，裁切/旋转/翻转/调色/锐化/文字/抠图）。CLIP embedding 相似度增强、RTMPose 精度需 iPhone 真机验证（模型已转换，推理质量待实测）。
 - 家庭局域网备份后置 V1.x（离线备份接口已预留：ADR-0010 §8，`BackupService` 协议 + ZIP 打包 + ShareSheet，不联网）；AI 写真/回忆视频 V1.0 不做（无源端参照，需独立产品+技术方案），仅 V1.x 重新评估。
-- 商业化强化方案见 [ADR-0010](docs/adr/0010-commercialization-and-emotion-triggers.md)：照片配额、导出水印、买断降价、分享增强、卡片多模板、时间线导出已实现；离线备份、相簿模式、实体打印、编辑器装饰接口已预留。
+- 商业化强化方案见 [ADR-0010](docs/adr/0010-commercialization-and-emotion-triggers.md)：照片配额（含降级后「可见但锁定」场景 §10.1.1）、导出水印、买断降价、分享增强、卡片多模板、时间线导出已实现；离线备份、相簿模式、实体打印、编辑器装饰接口已预留。
 - SwiftData schema 从零设计，与源端数据无直接迁移路径（两平台数据不互通）。
 - 编译与单元测试已在本机 macOS 验证通过（严格并发 `complete` 下 BUILD SUCCEEDED，MiLensKit 594 + App 604 + UI 2 全绿）；真机调试、模拟器 UI 人工验证、Instruments 性能分析仍需 Mac + iPhone 真机。

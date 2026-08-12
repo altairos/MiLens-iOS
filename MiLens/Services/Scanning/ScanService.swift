@@ -46,6 +46,54 @@ final class ScanService {
     /// 当前是否正在扫描（对应源端 isScanning）
     private(set) var isScanning = false
 
+    /// 当前是否已暂停（对应源端 isPaused）
+    private(set) var isPaused = false
+
+    /// 是否有可恢复的扫描状态（对应源端 hasResumableState）
+    var hasResumableState: Bool { lastScannedIdentifier != nil }
+
+    // MARK: - Pause / Resume / Cancel 状态机（对应源端 shouldPause/shouldCancel）
+    /// 暂停请求标志（主线程原子访问；scanAlbum 循环检查）
+    private var shouldPause = false
+    /// 取消请求标志
+    private var shouldCancel = false
+    /// 暂停断点：下次 resume 时跳过此断点之前的所有照片
+    private var lastScannedIdentifier: String?
+    /// 暂停时保存的累计统计（resume 后继续累加）
+    private var savedPetPhotosFound = 0
+    private var savedMatchedCount = 0
+
+    /// 请求暂停扫描（在下一次循环检查点生效，不中断当前批次）。
+    func pauseScan() {
+        shouldPause = true
+    }
+
+    /// 请求取消扫描（同时清除暂停状态）。
+    func cancelScan() {
+        shouldCancel = true
+        shouldPause = false
+    }
+
+    /// 清除暂停/取消/断点状态（恢复前调用）。
+    /// 对应源端 prepareResume()：重置标志但保留 lastScannedIdentifier（由 scanAlbum 消费后清除）。
+    func prepareResume() {
+        shouldPause = false
+        shouldCancel = false
+        isPaused = false
+        isScanning = false
+    }
+
+    /// 重置全部扫描状态（对应源端 resetScanState）。
+    func resetScanState() {
+        shouldPause = false
+        shouldCancel = false
+        isPaused = false
+        isScanning = false
+        lastScannedIdentifier = nil
+        savedPetPhotosFound = 0
+        savedMatchedCount = 0
+    }
+
     init(photoLibrary: any PhotoLibraryAccess,
          vision: any VisionService,
          photoRepo: any PhotoRepositoryProtocol,
@@ -80,7 +128,19 @@ final class ScanService {
             return ScanResult(error: "已有扫描在进行")
         }
         isScanning = true
-        defer { isScanning = false }
+        shouldPause = false
+        shouldCancel = false
+        isPaused = false
+        // resume 模式：从上次暂停点继续（保存的统计与断点由循环消费）
+        var petPhotosFound = savedPetPhotosFound
+        var matchedCount = savedMatchedCount
+        var pastResumePoint = lastScannedIdentifier == nil
+        defer {
+            // 未暂停时才释放扫描状态（暂停状态保留 isScanning=false 但断点不清除）
+            if !isPaused {
+                isScanning = false
+            }
+        }
 
         // H1 结构化任务日志：扫描全过程记录，供 DiagnosticsCollector 汇总与线上诊断
         let taskId = TaskLogger.beginTask(.scan, label: afterTimestamp == nil ? "full" : "incremental")
@@ -116,8 +176,6 @@ final class ScanService {
 
         var scanned = 0
         var processedCount = 0
-        var petPhotosFound = 0
-        var matchedCount = 0
         var unassignedURIs: [String] = []
         var matchedURIs: [String] = []
         // 阶段 2 待分析的候选 identifiers（已通过已导入/过旧过滤）
@@ -128,9 +186,33 @@ final class ScanService {
         do {
             _ = try await photoLibrary.streamPhotos { asset in
                 // 取消检查点（对应源端 shouldCancel）
-                if Task.isCancelled { return false }
+                if shouldCancel {
+                    return false
+                }
+                // 暂停检查点：保存断点与统计，停止遍历（返回 false 中断流）
+                if shouldPause {
+                    lastScannedIdentifier = asset.identifier
+                    savedPetPhotosFound = petPhotosFound
+                    savedMatchedCount = matchedCount
+                    isPaused = true
+                    isScanning = false
+                    return false
+                }
 
                 scanned += 1
+
+                // 恢复扫描：跳过断点之前的照片（对应源端 updateResumePoint）
+                if !pastResumePoint {
+                    pastResumePoint = ScanControlMath.updateResumePoint(
+                        assetUri: asset.identifier,
+                        lastScannedUri: lastScannedIdentifier ?? "",
+                        alreadyPast: pastResumePoint)
+                    onProgress?(ScanProgress(
+                        scanned: scanned, total: totalCount,
+                        petPhotosFound: petPhotosFound, matchedCount: matchedCount,
+                        currentIdentifier: asset.identifier))
+                    return true
+                }
 
                 // 跳过已导入的照片（按 originalURI 去重——uri 是沙盒副本路径，不能与 identifier 比较）
                 if existingOriginalURIs.contains(asset.identifier) {
@@ -157,18 +239,48 @@ final class ScanService {
                 return true
             }
         } catch {
-            // streamPhotos 抛错：保留已收集结果，但标记失败——
-            // 未完整遍历全部照片，上层不得保存增量游标。
-            // 用户取消（CancellationError）优先记为 canceled（error 为 nil）。
-            taskOutcome = Task.isCancelled ? .canceled : .failed
+            // streamPhotos 抛错：区分暂停 / 取消 / 失败
+            if isPaused {
+                // 暂停：返回空结果（result=nil 语义由 ScanResult 的存在性表达，上层用 hasResumableState 判定）
+                taskOutcome = .success
+                return ScanResult(
+                    matchedCount: matchedCount,
+                    unassignedPetUris: unassignedURIs,
+                    matchedUris: matchedURIs,
+                    processedCount: processedCount,
+                    canceled: false,
+                    error: nil
+                )
+            }
+            // 用户取消优先记为 canceled（error 为 nil）
+            taskOutcome = shouldCancel || Task.isCancelled ? .canceled : .failed
             taskSummary = "阶段1收集中断"
+            // 取消时清除断点（不可恢复）
+            if shouldCancel || Task.isCancelled {
+                lastScannedIdentifier = nil
+                savedPetPhotosFound = 0
+                savedMatchedCount = 0
+            }
             return ScanResult(
                 matchedCount: matchedCount,
                 unassignedPetUris: unassignedURIs,
                 matchedUris: matchedURIs,
                 processedCount: processedCount,
-                canceled: Task.isCancelled,
-                error: Task.isCancelled ? nil : "扫描中断"
+                canceled: shouldCancel || Task.isCancelled,
+                error: (shouldCancel || Task.isCancelled) ? nil : "扫描中断"
+            )
+        }
+
+        // 暂停发生在阶段 1 收集完毕前（streamPhotos 被中断但未 throw 的场景由 isPaused 判定）
+        if isPaused {
+            taskOutcome = .success
+            return ScanResult(
+                matchedCount: matchedCount,
+                unassignedPetUris: unassignedURIs,
+                matchedUris: matchedURIs,
+                processedCount: processedCount,
+                canceled: false,
+                error: nil
             )
         }
 
@@ -177,6 +289,17 @@ final class ScanService {
         let batchSize = executor.maxConcurrent
         var batchStart = 0
         while batchStart < candidates.count {
+            // 取消 / 暂停检查点（阶段 2 循环头部）
+            if shouldCancel { break }
+            if shouldPause {
+                // 阶段 2 暂停：保存断点为当前批次起点对应的候选 identifier
+                lastScannedIdentifier = batchStart < candidates.count ? candidates[batchStart] : nil
+                savedPetPhotosFound = petPhotosFound
+                savedMatchedCount = matchedCount
+                isPaused = true
+                isScanning = false
+                break
+            }
             if Task.isCancelled { break }
             let batchEnd = min(batchStart + batchSize, candidates.count)
             let batch = Array(candidates[batchStart..<batchEnd])
@@ -212,15 +335,32 @@ final class ScanService {
             }
         }
 
-        taskOutcome = Task.isCancelled ? .canceled : .success
+        // 阶段 2 因暂停中断：保留断点，返回当前结果（上层用 hasResumableState 判定可恢复）
+        if isPaused {
+            taskOutcome = .success
+            return ScanResult(
+                matchedCount: matchedCount,
+                unassignedPetUris: unassignedURIs,
+                matchedUris: matchedURIs,
+                processedCount: processedCount,
+                canceled: false,
+                error: nil
+            )
+        }
+
+        taskOutcome = shouldCancel || Task.isCancelled ? .canceled : .success
         taskSummary = "candidates=\(candidates.count) processed=\(processedCount) "
             + "petPhotos=\(petPhotosFound) matched=\(matchedCount)"
+        // 完整完成或取消：清除断点（不可恢复）
+        lastScannedIdentifier = nil
+        savedPetPhotosFound = 0
+        savedMatchedCount = 0
         return ScanResult(
             matchedCount: matchedCount,
             unassignedPetUris: unassignedURIs,
             matchedUris: matchedURIs,
             processedCount: processedCount,
-            canceled: Task.isCancelled
+            canceled: shouldCancel || Task.isCancelled
         )
     }
 

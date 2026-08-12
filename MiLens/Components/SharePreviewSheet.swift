@@ -5,6 +5,7 @@
 //  水印图片自带传播属性：其他用户看到「MiLens」→ 搜索下载。
 
 import SwiftUI
+import MiLensKit
 
 /// 分享预览数据的 Identifiable 包装（sheet(item:) 需要）。
 struct SharePreviewData: Identifiable {
@@ -91,6 +92,7 @@ struct SharePreviewSheet: View {
         .sheet(isPresented: $showSystemShare) {
             ShareSheet(items: shareItems)
         }
+        .onAppear { MetricsRecorder().record(.shareSheetOpened) }
     }
 
     /// 系统 ShareSheet 的 items（图片 URL + 可选文案）。

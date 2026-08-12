@@ -1,11 +1,11 @@
 # MiLens Figma 页面与素材交付备忘
 
-> 核对日期：2026-08-12（12 张 Release Candidate 定稿、12 组可复用组件、重点流程浅深色精修、Surface/Media、iPad 自适应与字号/安全区审计）
+> 核对日期：2026-08-12（12 张 Release Candidate 定稿、12 张 Image Workshop 扩展稿、12 组核心组件 + 5 组创作扩展组件、iPad 自适应与字号/安全区审计）
 > 用途：作为 Figma 高保真设计、页面拆帧、视觉素材制作和 iOS 交付排期的工作清单。  
 > 事实来源：当前 SwiftUI 路由与页面代码、`UI-DESIGN.md`、`DESIGN.md`、`PLAN.md`、ADR-0008/0010。  
 > 状态口径：**已有** = 当前代码已有可运行页面或交互骨架；**待打磨** = 页面/能力存在，但还需要高保真视觉和完整状态设计；**待交付** = 只有规划、协议或算法接口，尚未形成可用页面/素材。
 
-> Figma 框架进度（2026-08-12）：连接文件已收敛到 `MiLens V1 · Product Screens` 页面，以编号 Section 管理主页面、Applied、Core Flow、探索稿和 Design System。`Release Candidate · FINAL` 已按 `01–12` 收齐首页、伙伴档案、时间线、图库、创作、Paywall、我的、照片详情、添加记忆、拼豆结果、拼豆设置与拼豆生成。`11 · Design System · Foundations` / `12 · Design System · Components` 已建立；主行动、底部导航、偏好行、拼豆控件、档案面板、档案读数和身份条共 12 组组件已定稿并回写 Release Candidate / Dark Mode / Applied / Core Flow。`13 · Adaptive Layout · iPad` 已补档案双栏、拼豆设置/结果与结果深色稿；重点流程浅色/深色稿也已完成精修和安全区校正。当前仍缺完整异常状态和 SwiftUI 对应实现，不等同于 iOS 已交付。
+> Figma 框架进度（2026-08-12）：连接文件已收敛到 `MiLens V1 · Product Screens` 页面，以编号 Section 管理主页面、Applied、Core Flow、探索稿和 Design System。`Release Candidate · FINAL` 已按 `01–12` 收齐首页、伙伴档案、时间线、图库、创作、Paywall、我的、照片详情、添加记忆、拼豆结果、拼豆设置与拼豆生成。`11 · Design System · Foundations` / `12 · Design System · Components` 已建立；主行动、底部导航、偏好行、拼豆控件、档案面板、档案读数和身份条共 12 组核心组件已定稿。`13 · Adaptive Layout · iPad` 已补核心双栏；`14 · WidgetKit` 已交付小组件设计；新增 [`15 · Image Workshop · Editing & Keepsakes` 422:801](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=422-801)，按真实 SwiftUI 能力补齐 12 张图片编辑/创作页面和 5 组扩展组件。当前仍缺完整异常状态、深色/iPad 扩展稿和逐页 SwiftUI 视觉回写，不等同于 iOS 已交付。
 
 > 2026-08-12 视觉定稿节点：[08 · Applied Refinement · Micro Grammar](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=140-292) 与 [09 · Core Flow · Precision Continuity](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=211-240)。功能代码落地以这两个节点和 [UI-DESIGN.md §5.4–§5.5](../UI-DESIGN.md#54-底部主导航memory-orbit) 为准；横向主行动采用 `Focus Dial`（加入/保存记忆）、`Contact Proof`（仅照片扫描/导入）和 `Darkroom Pulse`（拼豆生成/高清导出）三种语义变体，不再参考旧的 `Archive Spine Action`、悬浮 Tab、全圆胶囊、缺角主按钮、装订点、手绘装饰线或文本化 Core Flow 探索稿。
 
@@ -19,7 +19,7 @@
 
 - Figma 的执行规格以 [`UI-DESIGN.md`](../UI-DESIGN.md) 为准；旧版页面原型只保留叙事背景，不再作为布局和能力承诺依据。
 - V1 的一级导航只有四个 Tab：**首页、伙伴、创作、我的**。相册、照片详情、编辑器、时间线和创作流程是二级页面，不新增 Tab。
-- V1 创作首页只展示目前能真实完成的两项：**拼豆图纸、伙伴卡片**。AI 写真、回忆视频、商城、社区、账号和手表不应进入 V1 Figma 主流程。
+- V1 创作首页只展示目前能真实完成的五项：**拼豆图纸、伙伴卡片、成长对比、宠物名片、红包封面**。AI 写真、回忆视频、商城、社区、账号和手表不应进入 V1 Figma 主流程。
 - 设计稿不能只交一张“正常状态图”。每个页面至少要覆盖：Loading、Empty、Error、Permission Denied、Partial Data、Offline/Resource Missing；适用时还要有 Selected、Pressed、Disabled、Paywall、Dark Mode、High Contrast、Dynamic Type 和 iPad 版。
 - 当前仓库的 `Assets.xcassets` 主要是颜色 token 和 App Icon，已有两套字体（霞鹜文楷、Fraunces）；**品牌插画、伙伴示例图、装饰素材、相框、贴纸、相簿皮肤目前都没有作为正式资源交付**。
 
@@ -34,9 +34,9 @@
 5. `04 · Home`：首页及首页分支状态。
 6. `05 · Gallery & Photo`：相册、扫描、确认导入、照片详情、编辑器。
 7. `06 · Pets & Timeline`：伙伴列表、档案、编辑档案、时间线、时间线导出。
-8. `07 · Create`：创作首页、拼豆流程、伙伴卡片流程。
+8. `07 · Create`：创作首页、拼豆、伙伴卡片、成长对比、宠物名片、红包封面与分享/导出流程。
 9. `08 · Settings & Pro`：我的、隐私、通知、外观、帮助、关于、付费墙。
-10. `09 · Future Assets`：纪念卡、成长对比、回忆册、相簿皮肤、相框、贴纸、打印等待交付能力，统一标注 `FUTURE / NOT V1 READY`。
+10. `09 · Future Assets`：月度精选、年度回忆册、相簿皮肤、相框、贴纸、打印等待交付能力，统一标注 `FUTURE / NOT V1 READY`。
 11. `10 · Prototype Map`：关键用户路径、页面跳转、弹层和返回关系。
 12. `11 · Export & Handoff`：App Store 截图、App Icon、导出规格、资源命名和开发标注。
 
@@ -51,13 +51,16 @@
 | P-01–04 | 伙伴列表、档案、编辑档案、添加伙伴 | 已有 | P0 |
 | TL-01–02 | 成长时间线、时间线导出/分享 | 已有时间线，导出链路需核验 | P1 |
 | PH-01 | 照片大图详情 | 已有 | P0 |
-| E-01–06 | 图片编辑器及裁切/调整/文字/抠图/旋转翻转 | 已有工具骨架，视觉仍待打磨 | P0 |
-| C-01–03 | 创作首页、空态、作品入口 | 已有 | P0 |
+| E-01–06 | 图片编辑器及裁切/调整/文字/抠图/旋转翻转 | 已实现；Figma 四个关键工具态已交付 | P0 ✅ |
+| C-01–03 | 五项目创作首页、空态、作品入口 | 已有；Figma 完整索引已交付 | P0 ✅ |
 | B-01–04 | 拼豆选图、设置、工作室、结果导出/分享 | 已有 | P0 |
-| PC-01–03 | 伙伴卡片选图、预览、分享/导出 | 已有单模板/模板骨架，需补多模板和状态 | P0/P1 |
+| PC-01–04 | 伙伴卡片选图、多模板、预览、分享/导出 | 已实现；Figma 创作页与输出页已交付 | P0 ✅ |
+| GC-01–02 | 成长对比双选、预览、保存/分享 | 已实现；Figma 已交付 | P0 ✅ |
+| BC-01 | 宠物名片模板、信息编辑、草稿/分享 | 已实现；Figma 已交付 | P0 ✅ |
+| RP-01–02 | 红包封面、四场景预览、上传指引 | 已实现；Figma 已交付 | P0 ✅ |
 | S-01–07 | 我的、Pro、隐私、通知、外观、帮助、关于 | 已有 | P0 |
 | R-01 | 数据库恢复/本地数据无法加载 | 已有恢复页 | P1 |
-| M-01–05 | 纪念卡、成长对比、月度精选、年度回忆册、相簿模式 | 规划/接口预留 | FUTURE |
+| M-01–04 | 纪念卡、月度精选、年度回忆册、相簿模式 | 规划/接口预留 | FUTURE |
 | D-01–02 | 编辑器相框、贴纸资源选择器 | 只有类型与目录接口 | FUTURE |
 | PR-01 | 实体打印产品选择/报价/订单 | 只有服务接口 | FUTURE |
 
@@ -65,17 +68,49 @@
 
 ## 4. 逐页 Figma 清单
 
-### 4.1 首次启动 Onboarding
+### 4.1 首次启动 Onboarding（First Archive）
 
-对应代码：`MiLens/Views/Onboarding/`、`OnboardingViewModel`。
+对应代码：`MiLens/Views/Onboarding/`、`OnboardingViewModel`、`MiLens/Components/OnboardingEditorial.swift`。
+对照 Figma node 47:2「Onboarding · First Launch」11 画板（2026-08-12 重构）。
 
-| Frame | 必须制作的画面 |
-|---|---|
-| O-01 欢迎 | 首次启动主状态；品牌照片/静帧；一句核心标题；真实价值说明；隐私政策链接；开始按钮；已同意/未同意按钮状态 |
-| O-02 照片权限 | 全库访问说明；选择访问照片；手动选几张；请求中；已授权；Limited；拒绝/受限；前往系统设置；继续体验 |
-| O-03 扫描 | 扫描中进度；已检查/可能含伙伴/等待确认；暂停/取消；扫描失败；无候选；跳过扫描；后台恢复提示 |
-| O-04 创建档案 | 名字输入；物种选择；候选照片选择；照片为空；建档中；创建成功；特征注册引导卡片；稍后再说/开始注册 |
-| O-05 首次闭环 | 建档成功后直接进入档案的转场/完成状态；用于 Prototype，不一定是独立页面 |
+**流程（10 step / 4 大阶段）**：欢迎(空态→隐私摘要) → 建立档案 → 特征注册(选图→处理→完成) → 全面扫描 → 候选确认 → 导入中 → 导入成功。顺序关键变更：先建档→特征注册→再扫描（让扫描有特征基准可比对）。
+
+| Frame | 画板 | 对应代码 |
+|---|---|---|
+| #47:6 | 01 欢迎 / 空态（Hero + Empty Archive + Waypoint + 隐私行） | `OnboardingWelcomeStep` |
+| #47:7 | 01 欢迎 / 隐私摘要（On Device + Rules 3 行） | `OnboardingPrivacyStep` |
+| #47:10 | 02 建立档案（Empty Identity + 名字 + species chips + Honest Note） | `OnboardingCreateArchiveStep` |
+| #47:8 | 03 特征注册 / 说明与选图（Contact Sheet + Guidance） | `OnboardingFeatureRegisterStep` featureIntro |
+| #47:11 | 03 特征注册 / 已选 N 张（Photo Grid + Ready Note） | `OnboardingFeatureRegisterStep` featureIntro |
+| #117:50 | 03 特征注册 / 本机处理（Lens + Progress Track + Stages） | `OnboardingFeatureRegisterStep` featureProcessing |
+| #117:100 | 03 特征注册 / 基准已建立（Feature Seal + Next） | `OnboardingFeatureRegisterStep` featureDone |
+| #47:9 | 04 全面扫描（Viewfinder 扫描线 + Candidate Ledger） | `OnboardingFullScanStep` |
+| #123:74 | 04 候选确认（Evidence Register 网格 + Tabs） | `OnboardingCandidatesStep` |
+| #123:161 | 04 导入中（Lens + Stages） | `OnboardingImportStep` importing |
+| #123:198 | 04 导入成功（Archive Entry + Local Archive Proof） | `OnboardingImportStep` success |
+
+**共享组件（`OnboardingEditorial.swift`）**：`FocusDialButton`（机械拨盘式主 CTA，SwiftUI 近似还原）/ `ContactProofButton`（相册入口次级 CTA）/ `EditorialSection`（overline + 文楷标题 + 正文）/ `EditorialCard`（铜色竖 rail + 描边容器）/ `RegisterMark`（lead 浅灰 + tail 铜色 + 珊瑚端点）/ `WaypointRow`。
+
+#### 像素级复刻核查记录（2026-08-12）
+
+**已对齐 Figma 精确数值的项**：
+- 背景色 #FAF8F5、卡片白底、描边 #E5DFD8、分隔线 #ECE7E1 → 均走语义 token（milensBackground/milensCard/milensBorder/milensSeparator）
+- overline caption 12pt #6B625B、文楷 Hero 40pt、文楷 Section 28pt、Title 20pt Medium、Body 16pt → 字号/字色对齐
+- Register 标记三段色：lead #E5DFD8（milensBorder）/ tail #7C3F30（milensDialSurface）/ marker #BC4727（milensActionPrimary）——已修正初始实现色值反转问题
+- EditorialCard 竖 rail #7C3F30（milensDialSurface，对照 Spine #94:28）
+- 阶段编号「01–04」Fraunces Bold 28pt（对照 style_c7adb578）
+- Focus Dial：58pt 高、54pt 拨盘、surface #BC4727、拨盘 #7C3F30、文字 #F1D8CA、disabled opacity 0.36
+- Brand Orbit 实线 2px #7C3F30（已从 dash:[1] 修正为实线）；Brand Seal 圆角 30（接近 Figma 60 的圆形效果）
+
+**已知偏差（非逐像素，需 Mac 真机/Preview 验证后微调）**：
+- Focus Dial 机械拨盘的精密刻度弧为 SwiftUI Circle.trim 近似（三段不同 opacity），非 Figma 原始 SVG 路径几何——视觉接近但不完全一致
+- 各画板内间距/padding 用语义 Spacing token（pagePad=24/lg=16 等）近似 Figma 绝对坐标，整体节奏一致但局部可能有 ±2pt 偏差
+- 候选网格卡片宽度走 LazyVGrid 自适应（3 列 flexible），Figma 固定 110pt 宽 + 8pt gap——在不同屏宽下等比缩放，iPhone 15（390pt）下接近一致
+- FocusDialButton overlay 描边用 milensDarkroomText.opacity(0.25)，Figma 是 milensDarkroomText (#F1D8CA) 作为 Brand outline stroke 1px——视觉一致
+- 隐私政策行用 SwiftUI Toggle + 手势实现，Figma 是纯 Button 行（rail + 文字 + →）——语义一致，视觉细节略有差异
+- 导入中/成功页的 Archive Entry Card 照片区用纯色占位（Figma 是真实归档照片）——需真机首次导入后填充
+
+**结论**：整体视觉语言（编辑式排版、铜色/珊瑚色系、文楷标题、Rail/Register/Focus Dial 语法）已完整还原；Focus Dial 为近似还原（非 SVG 资产）；局部间距/圆角可能需 Mac Preview 对照微调。严格意义上**不是逐像素级复刻**，属于「高保真近似」。要达到像素级，建议后续由设计师导出 Focus Dial 的 SVG/PDF 资产嵌入，并逐画板在 Xcode Preview 中叠 Figma 截图核对。
 
 ### 4.2 根壳与首页
 
@@ -141,13 +176,15 @@
 | E-06 编辑结果 | 保存中、保存成功、保存失败、文件缺失；回到照片详情 |
 | E-07 Future 装饰工具 | 相框/贴纸工具入口和资源选择器，必须标注 `FUTURE`，当前不可画成 V1 已有能力 |
 
+当前高保真节点：[`Adjust` 422:813](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=422-813)、[`Crop` 422:817](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=422-817)、[`Text` 422:821](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=422-821)、[`Cutout` 422:825](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=422-825)。旋转/翻转并入 Crop，保存/分享统一进入 `Output / Share Preview`，不额外伪造一级工具。
+
 ### 4.7 创作与拼豆
 
-对应代码：`CreateView`、`BeadPhotoPickerView`、`BeadSettingsPanelView`、`BeadPatternView`、`BeadPatternResultView`。
+对应代码：`CreateView`、`BeadPhotoPickerView`、`BeadSettingsPanelView`、`BeadPatternView`、`BeadPatternResultView`、`GrowthCompareView`、`BusinessCardView`、`RedPacketCoverView`。
 
 | Frame | 必须制作的画面 |
 |---|---|
-| C-01 创作首页 | “让照片继续有去处”叙事；拼豆图纸入口；伙伴卡片入口；原图→成品示例；没有照片时去相册 |
+| C-01 创作首页 | “让照片继续有去处”叙事；五个真实项目入口；不同项目使用不同成品几何，不做等权卡片宫格；没有照片时去相册 |
 | B-01 选照片 | 照片网格；选中；无照片；筛选/取消；进入设置 |
 | B-02 拼豆设置 | 画布/网格尺寸；色板；风格/细节；主体保护；免费次数/Pro 状态；生成按钮；参数错误 |
 | B-03 生成中 | 进度；取消；资源/模型缺失；失败重试 |
@@ -162,11 +199,22 @@
 |---|---|
 | PC-01 选照片 | 照片选择；伙伴信息预览；无照片；取消/确认 |
 | PC-02 默认卡片 | 4:5 竖版；照片；名字；领养纪念日/来到家 N 天；底部渐变；MiLens 水印 |
-| PC-03 模板选择 | 默认、拍立得、杂志、纪念/明信片等模板缩略图；免费/Pro 标记；选中态；锁定态；模板缺资源 |
+| PC-03 模板选择 | 经典、拍立得、杂志、极简四模板缩略图；免费/Pro 标记；选中态；锁定态；模板缺资源 |
 | PC-04 分享预览 | 卡片预览；保存到照片；系统分享；免费水印；Pro 无水印高清；购买/恢复购买 |
 | PC-05 Future 纪念卡 | 生日、领养日、100/365/730/1000 天里程碑；仅作为下一阶段稿件，和当前单模板卡片分开 |
 
-### 4.9 我的、隐私和 Pro
+### 4.9 成长对比、宠物名片与红包封面
+
+| Frame | 必须制作的画面 |
+|---|---|
+| GC-01 双照片选择 | A/B 早期与近期照片；日期；交换；图库选择；清空/继续；节点 [`422:809`](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=422-809) |
+| GC-02 成长对比 | 上下双图；真实日期；自动时间差；宠物名字；保存/分享；节点 [`422:833`](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=422-833) |
+| BC-01 宠物名片 | 档案头像；横向名片；standard/elegant/playful/minimal；简介、主人称呼、标签；草稿/分享；节点 [`422:837`](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=422-837) |
+| RP-01 红包封面 | 957×1278 固定规格；封面标题；拆红包/发送/气泡/详情四场景；免费水印与 Pro 锁；节点 [`422:841`](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=422-841) |
+| RP-02 上传指引 | 导出规格检查；四个真实上传步骤；明确 MiLens 不介入微信发布/审核；节点 [`422:845`](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=422-845) |
+| EX-01 保存/分享 | 成品预览；文件名、像素、格式、大小；系统分享目标；本地生成隐私说明；节点 [`422:849`](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=422-849) |
+
+### 4.10 我的、隐私和 Pro
 
 对应代码：`SettingsView`、`PrivacyInfoView`、`PaywallView`、`HelpView`、`AboutView`。
 
@@ -202,13 +250,13 @@
 
 | 素材包 | 需要交付 | 当前事实 |
 |---|---|---|
-| 伙伴卡片多模板 | 默认、拍立得、杂志、纪念/明信片等模板的封面、版式、字体、配色、缩略图、Pro 标记 | `PetCardTemplate` 已有模板类型/元数据骨架；需要最终视觉和逐模板验收 |
+| 伙伴卡片多模板 | 经典、拍立得、杂志、极简模板的封面、版式、字体、配色、缩略图、Pro 标记 | Figma 选择轨与经典成品页已交付；其余三套仍需逐模板成品稿与真机验收 |
 | 纪念日/里程碑卡 | 生日、领养日、相处 100/365/730/1000 天的模板、文案规则、日期格式、预览封面 | ADR-0010 纳入 V1；当前不是独立可交付页面 |
-| 成长对比卡 | 早期/现在双照片布局、时间标签、差异文案、长图导出模板 | ADR-0010 纳入 V1；需确定照片选择和裁切规则 |
+| 成长对比卡 | 早期/现在双照片布局、时间标签、差异文案、长图导出模板 | A/B 选图与成品 Figma 已交付；仍需代码对照、长名字/缺日期/裁切边界验收 |
 | 月度精选 | 月份封面、照片排序/质量规则的视觉呈现、摘要卡、空月状态 | 规划为本地按需生成；页面与封面素材未交付 |
 | 年度回忆册 | 封面、目录、章节页、照片页、里程碑页、结尾页、长图导出规格 | 规划为 Pro 情感价值；需先做样章和内容密度测试 |
 | 时间线视觉资产 | 生日/领养/照片备注/里程碑事件图标和标记；不同事件连接线 | 时间线代码已有，品牌化事件资产未正式交付 |
-| 分享预览 | 拼豆、伙伴卡、成长对比、时间线/年度回忆册四类预览背景、导出规格和水印位置 | `SharePreviewSheet` 已有统一入口；四类成品视觉还需统一 |
+| 分享预览 | 拼豆、伙伴卡、成长对比、时间线/年度回忆册四类预览背景、导出规格和水印位置 | 通用成品保存/分享页已交付；仍需补拼豆、时间线/回忆册的内容变体 |
 
 ### 5.3 P2/Future：已有接口或规划，不能当作当前 V1 交付
 
@@ -252,7 +300,7 @@
 1. **先定 Foundations + Components**：颜色、字体、记忆标记、PhotoTile、状态页、按钮、分享预览。
 2. **完成首次闭环**：O-01–04 → H-01/H-02 → G-01/G-05 → P-02，先让“发现照片—确认—建档—看到档案”成为可演示原型。
 3. **完成高频内容页**：相册、照片详情、编辑器、伙伴档案、时间线。
-4. **完成创作闭环**：创作首页 → 拼豆 → 伙伴卡片 → 分享/导出 → Pro。
+4. **完成创作闭环**：创作首页 → 拼豆/伙伴卡/成长对比/名片/红包封面 → 分享/导出 → Pro。
 5. **完成设置与异常状态**：我的、隐私、通知、外观、帮助、关于、数据库恢复。
 6. **再做情感资产**：多模板伙伴卡、纪念卡、成长对比、月度精选、年度回忆册。
 7. **最后做商业化增强素材**：相框、贴纸、相簿皮肤、实体打印；每一类先完成 1 个可用主题，再扩充数量。
@@ -276,7 +324,26 @@
 
 这 12 张已经完成正常态的统一视觉、安全区与字号验收；后续优先沿真实功能补加载、空、失败、权限拒绝、取消和购买恢复等状态分支，不批量制作尚无代码或资源支撑的“未来功能宫格”。
 
-## 9. 维护规则
+## 9. Image Workshop 已交付的 12 张扩展稿
+
+[`15 · Image Workshop · Editing & Keepsakes`](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=422-801) 包含：
+
+1. [`01 · Creation / Studio Index` 422:805](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=422-805)
+2. [`02 · Picker / Source Pair` 422:809](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=422-809)
+3. [`03 · Editor / Adjust` 422:813](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=422-813)
+4. [`04 · Editor / Crop` 422:817](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=422-817)
+5. [`05 · Editor / Text` 422:821](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=422-821)
+6. [`06 · Editor / Cutout` 422:825](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=422-825)
+7. [`07 · Keepsake / Pet Card` 422:829](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=422-829)
+8. [`08 · Keepsake / Growth Compare` 422:833](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=422-833)
+9. [`09 · Keepsake / Business Card` 422:837](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=422-837)
+10. [`10 · Keepsake / Red Packet` 422:841](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=422-841)
+11. [`11 · Red Packet / Upload Guide` 422:845](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=422-845)
+12. [`12 · Output / Share Preview` 422:849](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=422-849)
+
+新增组件：[`Control/Editor Tool Dock` 423:909](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=423-909)、[`Control/Workshop Value Rail` 424:834](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=424-834)、[`Picker/Photo Proof Cell` 425:822](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=425-822)、[`Control/Creation Template Tab` 425:835](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=425-835)、[`Action/Output Register` 426:833](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=426-833)。
+
+## 10. 维护规则
 
 - 页面或素材完成后，在本备忘录对应表格增加 `✅ 已交付`、日期和 Figma 链接；不要只改口头状态。
 - 代码范围、商业化规则或 V1 边界变化时，同步检查 [`DESIGN.md`](../DESIGN.md)、[`PLAN.md`](../PLAN.md)、[`UI-DESIGN.md`](../UI-DESIGN.md) 和 ADR-0010，避免 Figma 继续承诺已砍掉的能力。

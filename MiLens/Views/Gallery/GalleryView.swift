@@ -20,6 +20,8 @@ struct GalleryView: View {
     @State private var showLockedPhotoSheet = false
     /// 批量删除确认弹窗
     @State private var showBatchDeleteConfirm = false
+    /// 扫描导入流程（AlbumScanFlow fullScreenCover）
+    @State private var showScanFlow = false
     /// 从设置页/降级 sheet 跳转来的「存储管理」请求标志。
     @AppStorage("storageManageRequested") private var storageManageRequested = false
     @Namespace private var photoHeroNamespace
@@ -123,6 +125,11 @@ struct GalleryView: View {
                 }
             }
         }
+        .fullScreenCover(isPresented: $showScanFlow) {
+            if let vm = viewModel {
+                AlbumScanFlowView(vm: vm)
+            }
+        }
     }
 
     // MARK: - 内容区
@@ -173,7 +180,7 @@ struct GalleryView: View {
                 .foregroundStyle(Color.milensTextSecondary)
                 .multilineTextAlignment(.center)
             Button {
-                vm.startScan()
+                showScanFlow = true
             } label: {
                 Label("开始扫描", systemImage: "magnifyingglass")
                     .padding(.horizontal, 24)
@@ -548,6 +555,7 @@ private struct LockedPhotoThumbnailCell: View {
 
 struct ThumbnailImage: View {
     let path: String
+    @Environment(\.thumbnailCache) private var cache
     @State private var image: UIImage?
 
     var body: some View {
@@ -565,14 +573,24 @@ struct ThumbnailImage: View {
             // 按路径重启任务：照片编辑后 URI 改变但模型 ID 不变时，
             // .task(id: path) 确保加载任务重启；路径变化时清除旧图强制重载。
             guard !path.isEmpty else { return }
+            // 1. 先查 LRU 缓存（命中则免解码，滚动复用场景显节省）
+            if let cached = cache.get(path) {
+                image = cached
+                return
+            }
             image = nil
-            // 本地文件加载——在后台线程解码；捕获 path 值（String, Sendable），
-            // 避免把非 Sendable 的 self（View struct）送入 detached 隔离区（严格并发）。
+            // 2. 未命中：后台解码后写入缓存
+            //    本地文件加载——在后台线程解码；捕获 path 值（String, Sendable），
+            //    避免把非 Sendable 的 self（View struct）送入 detached 隔离区（严格并发）。
             let targetPath = path
             let loaded = await Task.detached(priority: .utility) {
                 UIImage(contentsOfFile: targetPath)
             }.value
             self.image = loaded
+            // 3. 写入缓存（供后续复用）
+            if let loaded {
+                cache.put(path, image: loaded)
+            }
         }
     }
 }

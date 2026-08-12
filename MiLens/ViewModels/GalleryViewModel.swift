@@ -41,6 +41,12 @@ final class GalleryViewModel {
     /// 预匹配到已注册宠物的照片 identifier（只读预判，尚未入库；
     /// 与 unassignedPetUris 一并提供导入入口，导入时真正归属写入）。
     var matchedPetUris: [String] = []
+    /// 扫描进度百分比（0.0–1.0），供 AlbumScanFlow 进度条使用。
+    var scanProgressPercent: Double = 0
+    /// 导入进度百分比（0.0–1.0），供 AlbumScanFlow 导入中页使用。
+    var importProgressPercent: Double = 0
+    /// 最近一次导入结果（供成功页展示）。
+    var lastImportResult: ImportResult?
 
     // MARK: - 导入
 
@@ -305,6 +311,8 @@ final class GalleryViewModel {
                         scanTotal: progress.total, scanFound: progress.petPhotosFound
                     )
                 )
+                self.scanProgressPercent = progress.total > 0
+                    ? Double(progress.scanned) / Double(progress.total) : 0
             }
             self.isScanning = false
             self.scanProgressText = ""
@@ -354,7 +362,70 @@ final class GalleryViewModel {
         scanProgressText = ""
     }
 
-    // MARK: - 导入
+    // MARK: - AlbumScanFlow 便捷接口
+
+    /// 合并未归属 + 预匹配的候选 URI 列表（供候选页使用）。
+    var candidateURIs: [String] {
+        unassignedPetUris + matchedPetUris
+    }
+
+    /// 导入选中的候选照片到指定宠物档案。
+    /// 复用 ImportService 核心导入流程，导入后强制归属到指定宠物（覆盖自动匹配）。
+    func importCandidates(identifiers: [String], targetPetID: UUID?) {
+        guard !identifiers.isEmpty, !isImporting else { return }
+        isImporting = true
+        importProgressPercent = 0
+        unassignedPetUris = []
+        matchedPetUris = []
+
+        Task { [weak self] in
+            guard let self else { return }
+            let service = ImportService(
+                photoLibrary: self.photoLibrary, fileStorage: self.fileStorage,
+                photoRepo: self.photoRepo, mediaLifecycle: self.mediaLifecycle,
+                sandboxDir: self.sandboxDir, petRepo: self.petRepo,
+                clipService: self.clipService,
+                isPro: self.isPro
+            )
+            let result = await service.importPhotos(
+                identifiers: identifiers
+            ) { progress in
+                self.importProgressPercent = Double(progress.current) / Double(max(progress.total, 1))
+            }
+            self.importProgressPercent = 1
+            self.lastImportResult = result
+
+            // 强制归属到用户选定的宠物（覆盖自动匹配结果）
+            if let petID = targetPetID {
+                self.assignImportedPhotos(to: petID)
+            }
+
+            self.isImporting = false
+            self.loadInitial()
+            self.triggerQualityAnalysis()
+            if result.imported > 0 {
+                WidgetReload.notifyDataChanged()
+            }
+        }
+    }
+
+    /// 将最近导入的照片归属到指定宠物。
+    private func assignImportedPhotos(to petID: UUID) {
+        guard let pet = try? petRepo.getPet(id: petID) else { return }
+        // 取最新导入的照片（loadInitial 已刷新 photos 列表，前 N 张为最新）
+        let recentPhotos = Array(photos.prefix(lastImportResult?.imported ?? 0))
+        for photo in recentPhotos {
+            do {
+                try photoRepo.assignPhoto(photo, to: pet)
+                photo.pet = pet
+            } catch {
+                logger.error("assignImportedPhotos: 归属失败（\(error.localizedDescription)）")
+            }
+        }
+        try? petRepo.refreshPhotoCount(for: pet)
+    }
+
+    // MARK: - 导入（原有全量导入入口，保留向后兼容）
 
     /// 导入本次扫描发现的宠物照片（未匹配 + 预匹配）。
     /// 预匹配只是扫描阶段的只读判定，真正归属写入在 ImportService 导入时完成。

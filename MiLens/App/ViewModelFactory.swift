@@ -160,6 +160,17 @@ final class ViewModelFactory {
         try petRepo.getAllPets()
     }
 
+    // MARK: - 候选缩略图（AlbumScanFlow 候选页）
+
+    /// 加载系统相册候选照片的缩略图（256px JPEG Data → UIImage）。
+    /// 候选尚未导入沙盒，直接从系统相册按 identifier 加载低分辨率数据。
+    func loadCandidateThumbnail(identifier: String) async -> UIImage? {
+        guard let data = try? await photoLibrary.loadImageData(
+            forIdentifier: identifier, maxDimension: 256
+        ) else { return nil }
+        return UIImage(data: data)
+    }
+
     // MARK: - 写操作（手动归属/移出）
 
     /// 将一组照片归属到指定宠物（nil = 移出归属），同步刷新受影响宠物的 photoCount 缓存。

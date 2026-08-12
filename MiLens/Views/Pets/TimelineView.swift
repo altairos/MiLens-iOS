@@ -4,6 +4,7 @@
 //  TimelineViewModel（@Observable）驱动；Pro 门控 / 导出分享 / 宠物筛选保留。
 
 import SwiftUI
+import MiLensKit
 import os
 
 private let logger = Logger(subsystem: "com.milens.app", category: "TimelineView")
@@ -112,8 +113,10 @@ struct TimelineView: View {
             includeWatermark: false
         ) else { return }
 
+        MetricsRecorder().record(.exportStarted)
         isExporting = true
-        let canvas = TimelineExportCanvas(data: exportData)
+        let exportQuality = ExportQuality.high.resolved(isPro: entitlement.isPro)
+        let canvas = TimelineExportCanvas(data: exportData, quality: exportQuality)
         let renderer = ImageRenderer(content: canvas)
         renderer.scale = 1
 
@@ -739,13 +742,15 @@ private struct TimelineAddButton: View {
 /// 添加一条记忆（对照 Figma「09·添加记忆」#211:340）。
 /// Figma 表单布局：记忆类型 tab + Evidence Register（珊瑚 rail）+ 日期/照片/标题/正文 + 拨盘式 CTA。
 /// 保存后写入 PetEvent(sourceType="user")，进入时间线并可被编辑/取消置顶。
-private struct AddMemorySheet: View {
+struct AddMemorySheet: View {
     @Environment(".dismiss) private var dismiss
 
     let viewModel: TimelineViewModel
     let pets: [Pet]
     let isPro: Bool
     let firstAccessDate: Date?
+    /// 预填充关联照片 ID（从照片详情页进入时传入）。
+    var prefilledPhotoID: UUID? = nil
 
     @State private var selectedPetID: UUID?
     @State private var title = ""
@@ -842,6 +847,7 @@ private struct AddMemorySheet: View {
             }
             .onAppear {
                 if selectedPetID == nil { selectedPetID = pets.first?.id }
+                if let prefilledPhotoID { relatedPhotoID = prefilledPhotoID }
             }
         }
         .modalContentWidth()

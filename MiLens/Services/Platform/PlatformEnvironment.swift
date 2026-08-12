@@ -6,6 +6,28 @@
 
 import SwiftUI
 
+// MARK: - ThumbnailCache（全局 LRU 内存缓存，源端单例语义）
+
+private struct ThumbnailCacheKey: EnvironmentKey {
+    static var defaultValue: ThumbnailCache { SharedThumbnailCache.shared }
+}
+
+extension EnvironmentValues {
+    var thumbnailCache: ThumbnailCache {
+        get { self[ThumbnailCacheKey.self] }
+        set { self[ThumbnailCacheKey.self] = newValue }
+    }
+}
+
+/// 全局共享缩略图缓存实例（默认磁盘目录 = Caches/thumbnails）。
+enum SharedThumbnailCache {
+    static let shared: ThumbnailCache = {
+        let cachesDir = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask).first?
+            .appendingPathComponent("thumbnails", isDirectory: true).path
+        return ThumbnailCache(diskDir: cachesDir)
+    }()
+}
+
 // MARK: - PhotoLibraryAccess
 
 private struct PhotoLibraryAccessKey: EnvironmentKey {

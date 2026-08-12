@@ -25,6 +25,7 @@ struct PhotoViewView: View {
     @Environment(".viewModelFactory) private var factory
     @Environment(".photoRepository) private var photoRepo
     @Environment(".dismiss) private var dismiss
+    @Environment(".proEntitlement) private var entitlement
 
     @State private var photo: Photo?
     @State private var image: UIImage?
@@ -37,6 +38,8 @@ struct PhotoViewView: View {
     @State private var backgroundOpacity: CGFloat = 1
     @State private var isDismissing = false
     @State private var showAssignment = false
+    @State private var showAddMemorySheet = false
+    private let timelineAccessStore: any TimelineAccessStore = UserDefaultsTimelineAccessStore()
 
     private let doubleTapScale: CGFloat = 2.5
 
@@ -96,6 +99,19 @@ struct PhotoViewView: View {
         .sheet(isPresented: $showAssignment) {
             if let photo {
                 PetAssignmentSheet(photos: [photo]) { }
+            }
+        }
+        .sheet(isPresented: $showAddMemorySheet) {
+            if let photo {
+                let vm = factory.makeTimelineViewModel()
+                let pets: [Pet] = (try? factory.allPets()) ?? []
+                AddMemorySheet(
+                    viewModel: vm,
+                    pets: pets,
+                    isPro: entitlement.isPro,
+                    firstAccessDate: timelineAccessStore.firstAccessDate(now: Date()),
+                    prefilledPhotoID: photo.id
+                )
             }
         }
         .task {
@@ -184,7 +200,9 @@ struct PhotoViewView: View {
     // MARK: - 拨盘式 CTA（对照 Figma #267:285）
 
     private var ctaButton: some View {
-        NavigationLink(value: Route.timeline) {
+        Button {
+            showAddMemorySheet = true
+        } label: {
             HStack {
                 Text(String(localized: "photo.detail.addToMemory"))
                     .font(.system(size: 15, weight: .bold))

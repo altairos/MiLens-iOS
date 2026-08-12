@@ -153,17 +153,19 @@ P1 核心可靠性与性能六项修复全部落地（实现记录见状态摘�
 - [x] `HomeView`：相册入口 + 扫描入口（NavigationLink → Gallery）
 - [x] RootTabView 路由串联（navigationDestination for Route）
 - [x] 引导流程：首次启动 → 权限说明 → 扫描 → 建档（`OnboardingView` + 4 步骤 + `OnboardingViewModel`，13 用例测试；真机授权弹窗待 P2 真机验证）
+- [x] **引导流程「First Archive」重构（2026-08-12）**：基于 Figma [相册扫描与配额付费墙原型](https://www.figma.com/design/AIvvJIkGKl3celR6H8TxPg) node 47:2「Onboarding · First Launch」11 画板，将旧 4 步引导重构为 10 step / 4 大阶段编辑式流程：欢迎(空态→隐私摘要) → 建立档案 → 特征注册(选图→处理→完成) → 全面扫描 → 候选确认 → 导入中 → 导入成功。流程顺序关键变更：**先建档→特征注册→再扫描**（让扫描有特征基准可比对）。新建 `OnboardingEditorial.swift` 共享组件库（`FocusDialButton` 机械拨盘式主 CTA / `ContactProofButton` / `EditorialSection` / `EditorialCard` / `RegisterMark` / `WaypointRow`）；重写 `OnboardingViewModel`（10 step 枚举 + `majorStage` 进度映射 + `OnboardingImportExecutor` 闭包注入导入编排）；7 个 step 视图（Welcome/Privacy/CreateArchive/FeatureRegister 3 子状态/FullScan/Candidates/Import 2 子状态）；`AppDependencies` 注入导入执行器（复用 ImportService + assignPhoto 链路）；新增 `BrandSeal.imageset` 品牌印章资源；测试重写 18 用例。Focus Dial 为 SwiftUI 近似还原（铜红 surface + 拨盘圆 + 三段刻度弧 + glyph），非逐像素 SVG。**未执行**：App 编译/XCTest/Xcode Preview/真机授权弹窗验证需 Mac；像素级偏差见 [docs/Figma页面与素材交付备忘.md](docs/Figma页面与素材交付备忘.md) §4.1 核查记录
 - [x] P0 修复：`IOSFileStorage`（FileManager 真实实现）注入组合根，替代内存 Mock——导入/编辑产物真正落盘，重启不丢
 - [x] P0 修复：去重字段改 `Photo.originalURI`（Photos localIdentifier，`@Attribute(.unique)` 约束）+ 仓储 `getPhotoByOriginalURI`/`getAllOriginalURIs` + ScanService/ImportService 按 originalURI 去重（含批次内重复 identifier）
 - [x] P0 修复：`ScanCursorStore`（UserDefaults）持久化上次成功扫描时刻，增量扫描不再用 `Date()` 截止；dateAdded 以 creationDate 近似并诚实标注（iOS 无公开「加入相册时间」API）
 - [x] P0 修复：CLIP Phase 2 精筛接入扫描（`ClipInference` 协议 + 失败降级），App Store 文案去除「按宠物分别归类」不实描述
 - [x] P0 修复：**SwiftData 测试进程崩溃根因修复**（ModelContainer 悬垂）——`container.mainContext` 不持有 container，测试 helper 局部 container 返回后释放，repo fetch 触发 SwiftData 内部 SIGTRAP（此前 XCTSkipIf 掩盖，CI/本地间歇崩溃）。修复：测试 helper 返回并持有 container（ImportServiceTests/ScanServiceTests/QualityScorerTests 全部调用点）；`RepositoryEnvironment` fallback 改 static 缓存容器。恢复 QualityScorerTests 运行（移除 XCTSkipIf）。本机完整 XCTest 400/400 通过
 - [ ] 真机验证：Photos 权限 + Vision/Core ML 推理 + 分页性能 + PhotoView 下滑手势（需 Mac + iPhone，详见 [P2-真机验证备忘](docs/P2-真机验证备忘.md)）
+- [x] **扫描导入流程重设计（2026-08-12）**：基于 Figma [相册扫描与配额付费墙原型](https://www.figma.com/design/AIvvJIkGKl3celR6H8TxPg) 实装完整的多步骤扫描导入流程——新建 `AlbumScanFlowView`（fullScreenCover 容器）驱动 6 阶段状态机（扫描→候选→选择宠物→导入→成功/额度用尽），内含 6 个新视图：`AlbumScanStageView`（01/04 扫描/导入中，暗房画布 + 扫描线动画 + 步骤列表）、`AlbumCandidateListView`（02/06 候选网格 + 选择状态 + 额度提示条）、`AlbumPetSelectView`（03 Evidence Register + 宠物行列表 + Import Register）、`AlbumImportSuccessView`（05 归档卡片 + 本地隐私证明）、`AlbumQuotaExhaustedView`（07 Quota Card + Resilience Register 3 行保证）。`GalleryViewModel` 扩展 `candidateURIs`/`scanProgressPercent`/`importProgressPercent`/`importCandidates(identifiers:targetPetID:)` 接口；`ViewModelFactory` 新增 `loadCandidateThumbnail`（系统缩略图加载）；`PaywallView` 对齐 Figma #37 更新权益文案与方案价格显示。`GalleryView` 空状态扫描入口改为触发 fullScreenCover。ScanService / ImportService 核心逻辑零改动
 - [x] P1 可靠性遗留 3 项收口：引导扫描游标（OnboardingViewModel 仅 `completedSuccessfully` 保存）、数据库重建后的沙盒媒体语义（恢复界面文案明确清除范围）、编辑旧文件清理失败策略（引用查询失败保守保留）——实现与单测已落地，详见 [P2-待办清单](docs/P2-待办清单.md)
 
 ### 验收标准
 
-- 首次启动流程已实现：授权 → 扫描发现宠物 → 建档 → 相册可见；真机授权与真实照片走查待做 🟡
+- 首次启动流程已实现（First Archive 重构）：建档 → 特征注册 → 扫描 → 候选确认 → 导入 → 相册可见；真机授权与真实照片走查待做 🟡
 - 相册支持分页、筛选、多选、大图查看 ✅
 - 扫描可取消，不提交过期结果 ✅
 - CI/本机编译 + 测试全绿 ✅（本机 2026-08-09 最新：严格并发 `complete` 下 BUILD SUCCEEDED；App 604 passed / 0 failed、MiLensKit 594 / 0 failed、UI 2 冒烟、本地化 144+3 key 校验通过；CI 仍需下一次 PR 运行确认模型 Release 下载链路）
@@ -178,12 +180,12 @@ P1 核心可靠性与性能六项修复全部落地（实现记录见状态摘�
 产品设计与页面目录原型已沉淀到 [docs/Life-Archive-Design.md](docs/Life-Archive-Design.md)，核心方向是把“宠物详情 + 照片列表 + 日期事件列表”升级为可确认、可补写、可回看的长期档案。
 
 - [x] 扩展 `PetEvent`（复用现有 `title`）：增加用户记录正文、日期/日期范围、来源类型、置顶状态、代表照片/关联照片。**✅ 已完成（2026-08-12）**：`body`/`sourceType`/`isPinned`/`relatedPhotoID` 四字段 + SchemaV2 lightweight migration。`sourceType="user" && body` 非空 → TimelineLogic 构建为 `.textNote` 条目（4 用例 XCTest）。
-- [ ] 从 `PetProfileView`、`TimelineView`、`PhotoViewView` 进入统一的“添加一条记忆”流程；沿用窄协议 ViewModel + Repository 注入。**部分完成**：TimelineView 悬浮添加按钮 + 完整表单（`AddMemorySheet`：归属伙伴/标题/日期/备注/关联照片/置顶，写入 `PetEvent(sourceType="user")`）已落地；`PetProfileView`、`PhotoViewView` 入口待实现。
+- [x] 从 `PetProfileView`、`TimelineView`、`PhotoViewView` 进入统一的“添加一条记忆”流程；沿用窄协议 ViewModel + Repository 注入。**已完成（2026-08-12）**：TimelineView 悬浮添加按钮 + 完整表单（`AddMemorySheet`）已落地；`PetProfileView` archivePanel 新增“添加一条记忆”入口（`showAddMemorySheet` + `factory.makeTimelineViewModel()`）；`PhotoViewView` CTA 从导航 timeline 改为直接弹出 `AddMemorySheet`（预填充 `prefilledPhotoID` 为当前照片）。`AddMemorySheet` 从 private 提升为 internal 以支持多处复用。
 - [ ] 档案首页增加记录数、重要日子数、置顶记忆/档案起点和“继续记录”入口。
 - [x] 时间线增加照片记忆组、用户记录、作品记录、内容类型筛选和来源标签；节点区分形状/内容结构，不只依赖颜色。**✅ 已完成（2026-08-12）**：TimelineView 重构为 Ledger 编辑式设计（年份选择器 + 章节标记 + 照片记忆大图卡 + 文本记忆浅粉卡 + 作品记录卡），三种条目类型区分形状与内容结构。作品记录已接入真实数据（`sourceType="work"` → `.workRecord` 条目，经 `relatedPhotoID` 回链来源照片缩略图；无来源时回退占位网格）+ 作品记录类型标签。
 - [ ] 支持用户命名的相处章节；未命名章节只显示日期范围，不自动臆测宠物生命阶段。**部分完成**：章节标题自动推导（「一起生活的第N年」），自定义命名属 P1。
-- [ ] 照片详情支持加入已有记忆/新建记忆/补充备注；作品保存后回链来源照片或原始记忆。
-- [ ] 首页与纪念提醒进入年度回看，支持添加当前年份照片和一句话；不引入 AI 写真或回忆视频承诺。**部分完成**：首页「即将到来的日子」区块已落地（纪念日倒计时 + 按来源区分的天数文案 + 代表照片缩略图），年度回看回链待实现。
+- [x] 照片详情支持加入已有记忆/新建记忆/补充备注。**已完成（2026-08-12）**：`PhotoViewView` 的拨盘式 CTA 直接弹出 `AddMemorySheet`，预填充当前照片为关联照片。作品保存回链待 V1.x。
+- [x] 首页与纪念提醒进入年度回看，支持添加当前年份照片和一句话；不引入 AI 写真或回忆视频承诺。**已完成（2026-08-12）**：首页「即将到来的日子」区块 + 「年度回忆」入口卡片 → `Route.recap` → `RecapView`（年份选择器 + 月度精选网格 + Pro 导出）；`MemoryRecapLogic` 纯逻辑选片。
 - [ ] 为上述决策逻辑补 XCTest：来源标签、置顶/档案起点、事件关联、日期范围分组、年度回看回链、删除/取消关联边界。**部分完成（2026-08-12）**：作品记录构建/来源照片回链/空标题回退/排序 5 用例已补（`TimelineLogicTests`）；置顶展示、日期范围分组、年度回看回链待补。
 
 验收基准见 [docs/Life-Archive-Design.md](docs/Life-Archive-Design.md) §6。当前 P3 已实现的 CRUD、基础时间线、提醒和照片分类仍有效，本节是下一阶段增量，不回退现有能力。
@@ -414,7 +416,7 @@ P1 核心可靠性与性能六项修复全部落地（实现记录见状态摘�
 
   **已实现（P0-e/f）**：⑤**宠物卡片多模板**：MiLensKit `PetCardTemplate` 枚举（经典免费 / 拍立得 / 杂志 / 极简 Pro）+ `isUsable(isPro:)` / `resolve(_:isPro:)` 门控；`PetCardArtwork` 重构为 4 个独立排版分支；`PetCardView` 底部模板选择器（水平滚动 + 缩略图 + Pro 锁标）+ `@AppStorage` 持久化。⑥**时间线导出分享**（Pro 专属）：`TimelineExportLogic` 纯函数（从 months 构建导出数据）+ `TimelineExportCanvas`（1080px 离屏渲染视图，头部 + 按月分组 + 时间线节点）+ `TimelineView` 导航栏「分享」按钮 + Pro 门控。
 
-  **接口预留（数据模型锁定）**：⑦**编辑器装饰**：MiLensKit `DecorationCatalog`（边框/贴纸资源目录 + Pro 门控元数据，复用已有 `EditorLayerType.frame/.sticker`）。⑧**实体打印**：`MiLens/Services/Print/PrintService.swift`（协议 + `PrintProductType`/`PrintProductSpec`/`PrintQuote`/`PrintOrder` 数据模型 + `UnavailablePrintService` 占位）。⑨**离线备份**：`MiLens/Services/Backup/BackupService.swift`（协议 + `BackupManifest`/`BackupMetadata`/`PetSnapshot`/`PhotoSnapshot` 数据模型 + ZIP 打包格式定义 + `UnavailableBackupService` 占位；方案选定 A（ZIP + ShareSheet）核心 + B（iTunes File Sharing）补充，排除 C（系统相册丢元数据）和 D（iCloud 违背不联网约束））。⑩**相簿浏览模式**：MiLensKit `GalleryMode` 枚举（网格免费 / 剪贴簿 / 拍立得散页 / 杂志 Pro）。
+  **接口预留（数据模型锁定）**：⑦**编辑器装饰**：MiLensKit `DecorationCatalog`（边框/贴纸资源目录 + Pro 门控元数据，复用已有 `EditorLayerType.frame/.sticker`）。⑧**实体打印**：`MiLens/Services/Print/PrintService.swift`（协议 + `PrintProductType`/`PrintProductSpec`/`PrintQuote`/`PrintOrder` 数据模型 + `UnavailablePrintService` 占位）。**⚠️ 延后处理（2026-08-12）**：产品决策将实体打印移出 V1.0，仅保留架构预留，不投入开发资源，不展示入口。后续版本视供应链与运营资源再行评估。⑨**离线备份**：`MiLens/Services/Backup/BackupService.swift`（协议 + `BackupManifest`/`BackupMetadata`/`PetSnapshot`/`PhotoSnapshot` 数据模型 + ZIP 打包格式定义 + `UnavailableBackupService` 占位；方案选定 A（ZIP + ShareSheet）核心 + B（iTunes File Sharing）补充，排除 C（系统相册丢元数据）和 D（iCloud 违背不联网约束））。⑩**相簿浏览模式**：MiLensKit `GalleryMode` 枚举（网格免费 / 剪贴簿 / 拍立得散页 / 杂志 Pro）。
 
   **Pro 权益扩展**：`ProFeature` 新增 `.photoStorage` / `.watermarkFreeExport` / `.cardTemplates` / `.timelineExport` / `.offlineBackup` / `.albumModes` 6 个权益项 + 对应本地化字符串。
 
@@ -451,6 +453,42 @@ P1 核心可靠性与性能六项修复全部落地（实现记录见状态摘�
   **Phase 5 主 App 集成**：①`WidgetSnapshotWriter`（@MainActor，从 Repository 读取→投影→JSON 写入 App Group + detached task 降采样缩略图复制 + `WidgetCenter.reloadAllTimelines`）；②`WidgetDeepLink`（`milens://photo/{id}` 等 → `Route` 纯逻辑 + 9 用例 XCTest）；③`WidgetReload`（NotificationCenter 解耦，ViewModel 不持 writer）；④`MiLensApp` 注入 writer + `.onOpenURL` 深链处理 + `.onReceive(widgetDataChanged)` 自动 reload；`RootTabView` 接 `pendingWidgetRoute` Binding + `homePath` 导航；⑤5 个 ViewModel 数据变更点触发 reload（`GalleryViewModel` 导入后 / `PetProfileViewModel` 宠物 CRUD / `PetEditViewModel` 编辑+删除 / `TimelineViewModel` 添加记忆）。
 
   **验证**：WSL2 Swift 6.1.3 MiLensKit `swift test` 808 用例，本次新增 33 个 Widget 纯逻辑用例全绿，零回归（2 个预存 `DecorationCatalogCodableTests` Linux 专属失败不变，macOS 全绿）。**未执行**：App/Widget Extension 编译（需 iOS SDK，Windows 无法验证）、Xcode Preview、真机验证（共享快照刷新、隐私遮罩、跨日倒计时、配置切换）——需 Mac + iPhone。
+
+- 2026-08-12：**配额降级清理场景落地（ADR-0010 §10.1.1）**——修复原 P0-a 配额拦截只管「导入时」，不管「降级后已存储超额照片」的僵尸数据缺陷。用户在 Pro 期导入 200 张、订阅到期后，这 200 张此前既无法查看也无法删除。
+
+  **策略：超额照片「可见但锁定」**（始终让用户看见回忆——情感产品红线；超额部分加锁标蒙层，可删除但不可进大图/创作）。最新 50 张按 `takenAt` 倒序可见可操作，第 51 张起锁定。
+
+  **新增文件 3 个**：①`QuotaGatingLogic.swift`——纯函数集（`overLimitCount` / `lockedPhotoIDs` / `shouldPromptDowngrade` / `promptShouldReset`），依赖 `CommercialRules.freePhotoLimit` 不重复硬编码；②`QuotaGatingLogicTests.swift`——16 用例（边界：未超额/恰好 50/51 张锁 1/Pro 全不锁/降级四条件组合/续费重置）；③`QuotaDowngradeSheet.swift`——降级提示 sheet（双 CTA：续费恢复 / 管理存储）。
+
+  **修改文件 7 个**：④`GalleryViewModel`——新增 `lockedPhotoIDs`（运行时计算，不入 SwiftData）+ `isLocked` / `deleteSelected` / `updateProStatus` / `enterStorageManageMode`；在 load/delete/Pro 变更后重算。⑤`GalleryView`——`LockedPhotoThumbnailCell`（半透明蒙层 + 锁标 + Pro 角标）+ 多选删除按钮 + 超额横幅 + 存储管理模式入口监听。⑥`GalleryBatchBar`——增加删除按钮（与归属按钮并列）。⑦`RootTabView`——降级检测（冷启动 `task` + `onChange(of: entitlement.isPro)`）持久化 `lastKnownIsPro` + `quotaDowngradePromptPending`（防重复；续费后自动重置）+ 付费墙 `NotificationCenter` 监听 + 跨 Tab 存储管理路由。⑧`SettingsView`——「照片存储」入口行（N/50 张，超额珊瑚色高亮）。⑨`Localizable.xcstrings` +⑩`localization-assets.py`——新增 11 个简中 key + 对应英文翻译。
+
+  **扩展测试**：`GalleryViewModelTests` 新增 7 用例（锁定重算/Pro 切换重算/批量删除联动 DB+文件+计数+锁定重算/管理模式横幅/超额自动退出多选）。
+
+  **验证（Windows 本地）**：xcstrings JSON 合法（`json.load` 验证）；`localization-assets.py` 语法合法（`ast.parse` 验证）。**未执行**：App 编译 + XCTest（需 iOS SDK，待 macOS CI）+ 锁定蒙层/sheet 视觉效果（需模拟器/真机）。跨 Tab 协调用 `@AppStorage("storageManageRequested")` + `Route.gallery` push；不自动删除任何照片（仅用户主动操作）。
+
+- 2026-08-12：**生命档案 P3.6 增强 + 情感触点 App 层集成 + 实体打印延后标注**——本轮收口 3 项系统梳理缺口。
+
+  **C. 生命档案增强 P3.6 缺口收口**：①`AddMemorySheet` 从 `TimelineView.swift` 的 private struct 提升为 internal，支持多处复用；新增 `prefilledPhotoID: UUID? = nil` 参数，从照片详情页进入时预填充关联照片。②`PetProfileView` archivePanel 新增「添加一条记忆」入口（`showAddMemorySheet` + `@Environment(\.proEntitlement)` + `timelineAccessStore` + `factory.makeTimelineViewModel()`）。③`PhotoViewView` 拨盘式 CTA 从 `NavigationLink(value: Route.timeline)` 改为 `Button { showAddMemorySheet = true }`，直接弹出 `AddMemorySheet`（预填充 `prefilledPhotoID`），实现「照片详情 → 加入记忆」一步到位。
+
+  **D. 情感触点系统 App 层集成**：④**新建 `RecapView`**（`Views/Create/RecapView.swift`，370 行）—— 月度精选 / 年度回忆册 UI：年份选择器 + 年度统计 + 月度代表照片网格（`MemoryRecapLogic` 纯逻辑选片）+ Pro 导出（`RecapExportCanvas` 离屏渲染，`ExportQuality.high` 门控，复用 `SharePreviewSheet`）。⑤**`TimelineExportCanvas` 扩展 `ExportQuality`**（修复编译 bug：`entryIconColor` 缺 `.textNote`/`.workRecord` case）+ 尺寸按画质宽度等比缩放（standard 1080 / high 2400）。⑥**`MetricsRecorder` 埋点接入 6 触点**：`PaywallView`→`.paywallShown`、`PetCardView`→`.memoryCardPreviewed`、`GrowthCompareView`→`.growthComparePreviewed`、`SharePreviewSheet`→`.shareSheetOpened`、`RecapView`/`TimelineView` 导出→`.exportStarted`/`.exportCompleted`。⑦`Route` 新增 `.recap(year: Int?)` + `RootTabView` 分发；`HomeView` 新增「年度回忆」入口卡片（`YearlyRecapEntry`）。⑧本地化补充 13 个简中 key（`recap.*` 10 + `home.yearlyRecap.*` 2 + `pet.profile.addMemory` 1）。
+
+  **实体打印延后标注**：产品决策（2026-08-12）将实体打印移出 V1.0。`PrintService.swift` 文件头新增「⚠️ 延后处理」注释；PLAN.md ADR-0010 条目标注延后。
+
+  **Figma 12 页进度校正**：核实全部 12 页 Release Candidate 设计稿均已落地（04 图库 / 05 创作 / 06 Paywall / 08-12 照片详情/添加记忆/拼豆三件套均已有对应视图），PLAN.md 进度表从 4/12 → 12/12。
+
+- 2026-08-12：**源端三技术债迁移：LRU 缩略图缓存 / 扫描 pause/resume / 头像裁切**——收口「已知差距」表中 3 项与源端鸿沟。
+
+  **① LRU 缩略图缓存**（对应源端 `ThumbnailCache.ets`）：新增 `Components/ThumbnailCache.swift`（178 行）—— UIImage 内存 LRU（默认 100 条，淘汰 20 条触发磁盘清理）+ `NSLock` 线程安全 + `UIApplication.didReceiveMemoryWarning` 自动清空 + 磁盘目录 LRU 清理（100MB 上限）；`PlatformEnvironment` 新增 `thumbnailCache` EnvironmentKey + `SharedThumbnailCache.shared`（磁盘目录 = Caches/thumbnails）；`GalleryView.ThumbnailImage` 从「每次现读」改为「先查缓存 → 未命中后台解码 → 写入缓存」。
+
+  **② 扫描 pause/resume**（对应源端 `PhotoScanner.handlePauseResume`/`prepareResume`/`resetScanState`）：`ScanService` 新增完整状态机（`shouldPause`/`shouldCancel`/`isPaused`/`lastScannedIdentifier`/`savedPetPhotosFound`/`savedMatchedCount`）+ `pauseScan()`/`cancelScan()`/`prepareResume()`/`resetScanState()` 公开方法 + `hasResumableState` 属性；阶段 1 `streamPhotos` consumer 与阶段 2 批处理循环头部新增 pause/cancel 检查点；resume 时复用 `ScanControlMath.updateResumePoint` 跳过断点前照片；暂停保留断点，完成/取消清除断点。`ScanResult` 已支持 `completedSuccessfully` 判定（暂停不保存增量游标）。
+
+  **③ 头像裁切**（对应源端 `AvatarCropPage.ets`）：①`MiLensKit/Gallery/AvatarCropMath.swift`（119 行）—— `clampOffset`（偏移钳制，确保裁剪圆被图片覆盖）+ `computeCropRect`（坐标转换：容器 VP → 源像素坐标系）+ `cropAndResize`（UIKit extension，`CGImage.cropping` + `UIGraphicsImageRenderer`）；②`Views/Pets/AvatarCropSheet.swift`（232 行）—— 全屏暗色背景 + 图片预览（缩放/平移手势）+ 中心圆形裁剪框（双图层 destinationOut 遮罩）+ 确定 → 裁切 → 256×256 JPEG 保存到 `Documents/MiPhotos/Avatars`；③`PetEditView.avatarSection` 从占位改为接入 `PhotosPicker`（单选）→ 加载 → `AvatarCropSheet` → `updateAvatarPath`，显示头像预览（有头像显示 UIImage，无头像用物种 Emoji）；④`PetEditViewModel.avatarPath` 从 private 提升为 `private(set)` 以供 View 读取预览；⑤`AvatarCropMathTests`（11 用例，clampOffset 5 + computeCropRect 6，覆盖默认中心/scale2 缩小/偏移移位/边界钳制/零值回退/正方形）。
+
+  **本地化**：新增 3 个简中 key（`avatar.crop.failed`/`avatar.crop.hint`/`common.confirm`）。
+
+  **视觉特征注册**：确认 `PetEditViewModel.registerFeature` + `PetMatcher.registerPetFeatures` + `PetEditView` PhotosPicker UI 已在前期实现，本轮无代码改动。
+
+  **验证（Windows 本地）**：MiLensKit `AvatarCropMathTests` 11 用例纯逻辑可在 WSL2 `swift test` 验证（待执行）。**未执行**：App 编译 + ThumbnailCache/ScanService pause/resume 真机验证（需 iOS SDK + 真实照片库，待 macOS CI + iPhone）。
 
 ---
 
@@ -505,15 +543,15 @@ Figma 文件 `WnT7DCK1XCyPwnS38SE87p`（MiLens iOS Release Candidate · FINAL）
 | 01 | 首页（ROOT TAB） | `319:1026` | ✅ 已落地 | 出血 Hero + 宠物身份条 + 即将到来的日子 + 通知按钮 |
 | 02 | 伙伴档案（ROOT TAB） | `319:1095` | ✅ 已落地 | 出血肖像 Hero + Archive Panel + 四列统计 + 置顶记忆 + 最近照片 + 时间线入口 |
 | 03 | 生命时间线（PUSH） | `140:348` | ✅ 已落地 | 年份选择器 + 章节标记 + 三种记忆卡片 + 悬浮添加 |
-| 04 | 图库（PUSH） | — | ⬜ 待落地 | |
-| 05 | 创作（ROOT TAB） | `58:15` | ⬜ 待落地 | |
-| 06 | MiLens Pro（MODAL） | `58:25` | ⬜ 待落地 | |
+| 04 | 图库（PUSH） | — | ✅ 已落地 | GalleryView（扫描/导入/分页/筛选/多选/配额锁定） |
+| 05 | 创作（ROOT TAB） | `58:15` | ✅ 已落地 | CreateView（拼豆/卡片/成长对比/名片/红包封面五项目） |
+| 06 | MiLens Pro（MODAL） | `58:25` | ✅ 已落地 | PaywallView（StoreKit 2 三档产品 + 权益展示 + 购买/恢复） |
 | 07 | 我的（ROOT TAB） | `140:415` | ✅ 已落地 | Ledger 账本式设计 + 暖黑 Pro 卡 + 隐私徽章卡 |
-| 08 | 照片详情（PUSH） | — | ⬜ 待落地 | |
-| 09 | 添加记忆（SHEET） | — | ⬜ 待落地 | |
-| 10 | 拼豆结果（PUSH） | — | ⬜ 待落地 | |
-| 11 | 拼豆设置（PUSH） | — | ⬜ 待落地 | |
-| 12 | 拼豆生成（PROCESS） | — | ⬜ 待落地 | |
+| 08 | 照片详情（PUSH） | — | ✅ 已落地 | PhotoViewView（全屏暗色 + 手势 + 底部信息 Sheet + 添加记忆入口） |
+| 09 | 添加记忆（SHEET） | — | ✅ 已落地 | AddMemorySheet（类型 tab + Evidence Register + 标题/正文 + CTA） |
+| 10 | 拼豆结果（PUSH） | — | ✅ 已落地 | BeadPatternResultView（统计/彩色字母/缩放/保存/分享） |
+| 11 | 拼豆设置（PUSH） | — | ✅ 已落地 | BeadSettingsPanelView（5 风格/4 尺寸/高级设置） |
+| 12 | 拼豆生成（PROCESS） | — | ✅ 已落地 | BeadPatternView（选图/生成预览/调参/导出） |
 
 ### 已知限制（本次落地引入）
 
@@ -534,7 +572,7 @@ Figma 文件 `WnT7DCK1XCyPwnS38SE87p`（MiLens iOS Release Candidate · FINAL）
 
 ### 待办
 
-- [ ] 剩余 8 页设计稿落地（04/05/06/08-12）
+- [x] 剩余 8 页设计稿落地（04/05/06/08-12）——全部 12 页均已落地
 - [ ] macOS 编译验证（全部 Figma 落地改动的类型/并发/资源检查）
 - [ ] XCTest 验证（TimelineLogicTests 新增 4 textNote 用例 + 现有回归）
 - [ ] UI 预览验证（深色模式 + Dynamic Type + iPhone/iPad 尺寸）

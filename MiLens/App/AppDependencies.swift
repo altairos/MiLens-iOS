@@ -122,6 +122,32 @@ final class AppDependencies {
             poster: IOSNotificationCenter()
         )
         // 首次启动引导状态机（onFinish 置位持久化标记，触发 @AppStorage 切换主界面）。
+        // 导入执行器：复用 ImportService 链路，把已确认候选写入档案 + 强制归属到刚创建的宠物。
+        // 引导首次导入不触发配额墙（从 0 张开始，远低于免费上限），isPro=false 即可。
+        let onboardingImportExecutor: OnboardingImportExecutor = { identifiers, targetPetID, onProgress in
+            let service = ImportService(
+                photoLibrary: photoLibrary, fileStorage: fileStorage,
+                photoRepo: photoRepo, mediaLifecycle: mediaLifecycle,
+                sandboxDir: sandboxDir, petRepo: petRepo,
+                clipService: clipService, isPro: false
+            )
+            let result = await service.importPhotos(identifiers: identifiers) { progress in
+                onProgress(Double(progress.current) / Double(max(progress.total, 1)))
+            }
+            // 强制归属到刚创建的宠物（覆盖自动匹配结果）
+            if let petID = targetPetID,
+               let pet = try? petRepo.getPet(id: petID) {
+                let recent = (try? photoRepo.getUnassignedPhotos(limit: result.imported)) ?? []
+                for photo in recent {
+                    try? photoRepo.assignPhoto(photo, to: pet)
+                }
+                try? petRepo.refreshPhotoCount(for: pet)
+            }
+            if result.imported > 0 {
+                WidgetReload.notifyDataChanged()
+            }
+            return result.imported
+        }
         let onboardingViewModel = OnboardingViewModel(
             photoRepo: photoRepo,
             petRepo: petRepo,
@@ -131,7 +157,8 @@ final class AppDependencies {
                 UserDefaults.standard.set(true, forKey: "hasCompletedOnboarding")
             },
             clipService: clipService,
-            cursorStore: scanCursorStore
+            cursorStore: scanCursorStore,
+            importExecutor: onboardingImportExecutor
         )
         // 订阅服务：StoreKit 2 真实实现（测试环境用 mock，避免启动 Transaction.updates 监听）。
         let storeService: any StoreService = isTesting ? MockStoreService() : StoreKit2StoreService()

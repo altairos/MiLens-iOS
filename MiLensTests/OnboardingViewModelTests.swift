@@ -1,7 +1,8 @@
 import XCTest
 @testable import MiLens
 
-/// OnboardingViewModel 测试——首次启动引导状态机（欢迎→权限→扫描→建档）。
+/// OnboardingViewModel 测试——首次启动引导「First Archive」状态机。
+/// 流程：欢迎(空态/隐私摘要) → 建立档案 → 特征注册 → 全面扫描 → 候选确认 → 导入 → 成功。
 /// 使用纯内存 mock（不碰 SwiftData，规避模拟器 CI 集成崩溃问题，
 /// 与 ScanServiceTests 的 skip 策略一致但保留可运行性）。
 @MainActor
@@ -14,7 +15,8 @@ final class OnboardingViewModelTests: XCTestCase {
         detections: [DetectionBox] = [],
         authStatus: PhotoLibraryAuthorizationStatus = .authorized,
         cursorStore: MockScanCursorStore = MockScanCursorStore(),
-        photoCountError: Error? = nil
+        photoCountError: Error? = nil,
+        importExecutor: OnboardingImportExecutor? = nil
     ) -> (OnboardingViewModel, InMemoryPetRepository, MockPhotoLibraryAccess) {
         let photoRepo = InMemoryPhotoRepository()
         let petRepo = InMemoryPetRepository()
@@ -26,7 +28,8 @@ final class OnboardingViewModelTests: XCTestCase {
             photoRepo: photoRepo, petRepo: petRepo,
             photoLibrary: photoLibrary, vision: vision,
             onFinish: {},
-            cursorStore: cursorStore
+            cursorStore: cursorStore,
+            importExecutor: importExecutor
         )
         return (vm, petRepo, photoLibrary)
     }
@@ -54,6 +57,7 @@ final class OnboardingViewModelTests: XCTestCase {
         XCTAssertFalse(vm.privacyAgreed)
         XCTAssertFalse(vm.canAdvance)
         XCTAssertEqual(vm.authStatus, .notDetermined)
+        XCTAssertEqual(vm.majorStage, 0)
     }
 
     func testWelcomeRequiresPrivacyAgreementToAdvance() {
@@ -61,11 +65,11 @@ final class OnboardingViewModelTests: XCTestCase {
         // 未勾选不能前进
         vm.goToNextStep()
         XCTAssertEqual(vm.step, .welcome)
-        // 勾选后前进到权限步骤
+        // 勾选后前进到隐私摘要步骤
         vm.privacyAgreed = true
         XCTAssertTrue(vm.canAdvance)
         vm.goToNextStep()
-        XCTAssertEqual(vm.step, .permission)
+        XCTAssertEqual(vm.step, .privacy)
     }
 
     func testGoBackAtFirstStepDoesNothing() {
@@ -74,16 +78,14 @@ final class OnboardingViewModelTests: XCTestCase {
         XCTAssertEqual(vm.step, .welcome)
     }
 
-    func testStepProgressionAndGoBack() {
+    func testMajorStageMapping() {
         let (vm, _, _) = makeVM()
         vm.privacyAgreed = true
-        vm.goToNextStep() // welcome → permission
-        XCTAssertEqual(vm.step, .permission)
-        XCTAssertTrue(vm.canAdvance, "权限步骤 denied 也允许继续")
-        vm.goToNextStep() // permission → scan
-        XCTAssertEqual(vm.step, .scan)
-        vm.goBack() // scan → permission
-        XCTAssertEqual(vm.step, .permission)
+        vm.goToNextStep() // welcome → privacy
+        XCTAssertEqual(vm.majorStage, 0)
+        vm.goToNextStep() // privacy → createArchive
+        XCTAssertEqual(vm.majorStage, 1)
+        XCTAssertEqual(vm.stageIndexText, "02")
     }
 
     // MARK: - 权限
@@ -102,7 +104,58 @@ final class OnboardingViewModelTests: XCTestCase {
         XCTAssertEqual(vm.authStatus, .denied)
     }
 
-    // MARK: - 扫描
+    // MARK: - 建档
+
+    func testCreateArchiveRequiresName() {
+        let (vm, _, _) = makeVM()
+        vm.step = .createArchive
+        XCTAssertFalse(vm.canAdvance, "名字为空不可前进")
+        vm.petName = "小满"
+        XCTAssertTrue(vm.canAdvance)
+    }
+
+    func testAddFirstPetRejectsBlankName() {
+        let (vm, _, _) = makeVM()
+        XCTAssertFalse(vm.addFirstPet(name: "   "))
+        XCTAssertEqual(vm.scanError, "请输入宠物名字")
+    }
+
+    func testCreateFirstPetSuccessInsertsPetWithSpecies() {
+        let (vm, petRepo, _) = makeVM()
+        vm.petName = "小橘"
+        vm.petSpecies = .cat
+        XCTAssertTrue(vm.createFirstPet())
+        XCTAssertEqual(try? petRepo.getAllPets().count, 1)
+        let pet = try? petRepo.getAllPets().first
+        XCTAssertEqual(pet?.name, "小橘")
+        XCTAssertEqual(pet?.species, .cat)
+        XCTAssertEqual(vm.scanError, "")
+        XCTAssertNotNil(vm.createdPetID)
+    }
+
+    func testAddFirstPetEnforcesCountLimit() {
+        let (vm, petRepo, _) = makeVM()
+        // 预置达到上限的宠物数
+        for i in 0..<PetProfileConstants.maxPets {
+            try? petRepo.insertPet(Pet(name: "宠物\(i)"))
+        }
+        XCTAssertFalse(vm.addFirstPet(name: "多一只"))
+        XCTAssertEqual(vm.scanError, "最多支持管理 \(PetProfileConstants.maxPets) 只伙伴")
+        XCTAssertEqual(try? petRepo.getAllPets().count, PetProfileConstants.maxPets)
+    }
+
+    func testSubmitCreatePetNoClipSkipsFeatureRegister() {
+        // 无 CLIP 模型：建档成功后跳过特征注册，直接进入 fullScan
+        let (vm, petRepo, _) = makeVM()
+        vm.petName = "小满"
+        vm.petSpecies = .dog
+        vm.submitCreatePet()
+        XCTAssertEqual(try? petRepo.getAllPets().count, 1)
+        XCTAssertEqual(vm.step, .fullScan, "无 CLIP 时建档后直接进 fullScan")
+        XCTAssertFalse(vm.showFeatureRegistration)
+    }
+
+    // MARK: - 扫描（fullScan 复用 ScanService）
 
     func testScanAutoRunsAndReportsFoundCount() async {
         let petBox = DetectionBox(x: 0.1, y: 0.1, width: 0.5, height: 0.5, label: "cat", confidence: 0.9)
@@ -110,7 +163,7 @@ final class OnboardingViewModelTests: XCTestCase {
             assets: [asset("a"), asset("b"), asset("c")],
             detections: [petBox]
         )
-        vm.step = .scan
+        vm.step = .fullScan
         vm.onStepAppear()
         XCTAssertTrue(vm.isScanning)
         XCTAssertFalse(vm.canAdvance, "扫描中不可前进")
@@ -118,28 +171,28 @@ final class OnboardingViewModelTests: XCTestCase {
         XCTAssertTrue(vm.scanCompleted)
         XCTAssertEqual(vm.scanFoundCount, 3)
         XCTAssertTrue(vm.scanError.isEmpty, "成功后不应残留错误")
+        XCTAssertEqual(vm.candidateURIs.count, 3)
         XCTAssertTrue(vm.canAdvance, "扫描完成后可前进")
     }
 
     func testScanWithNoPhotosCompletesEmpty() async {
         let (vm, _, _) = makeVM()
-        vm.step = .scan
+        vm.step = .fullScan
         vm.onStepAppear()
         await waitUntil { !vm.isScanning }
         XCTAssertTrue(vm.scanCompleted)
         XCTAssertEqual(vm.scanFoundCount, 0)
-        XCTAssertTrue(vm.canAdvance)
+        XCTAssertTrue(vm.candidateURIs.isEmpty)
     }
 
     func testSkipScanCancelsAndAllowsAdvance() async {
         let (vm, _, _) = makeVM(assets: [asset("a")])
-        vm.step = .scan
+        vm.step = .fullScan
         vm.onStepAppear()
         XCTAssertTrue(vm.isScanning)
         vm.skipScan()
         XCTAssertFalse(vm.isScanning)
         XCTAssertTrue(vm.scanCompleted)
-        XCTAssertTrue(vm.canAdvance)
         // 扫描任务被取消，不应再覆盖状态
         await waitUntil { !vm.isScanning }
         XCTAssertTrue(vm.scanCompleted)
@@ -148,9 +201,8 @@ final class OnboardingViewModelTests: XCTestCase {
     func testSkipScanCanceledTaskCannotOverwriteCompleted() async {
         // 取消竞争回归：skipScan 先把 scanCompleted 置 true，被取消的旧任务随后
         // 返回 canceled 结果——generation 守卫下不得把它覆盖回 false。
-        // （旧测试只等到 !isScanning 就结束，没真正等旧任务退出，覆盖不了该竞争。）
         let (vm, _, _) = makeVM(assets: [asset("a")])
-        vm.step = .scan
+        vm.step = .fullScan
         vm.onStepAppear()
         XCTAssertTrue(vm.isScanning)
         vm.skipScan()
@@ -159,13 +211,12 @@ final class OnboardingViewModelTests: XCTestCase {
         for _ in 0..<50 { await Task.yield() }
         XCTAssertTrue(vm.scanCompleted, "被取消的旧任务不得把 scanCompleted 覆盖回 false")
         XCTAssertFalse(vm.isScanning)
-        XCTAssertTrue(vm.canAdvance)
     }
 
     func testScanSuccessSavesCursor() async {
         let cursor = MockScanCursorStore()
         let (vm, _, _) = makeVM(assets: [asset("a")], cursorStore: cursor)
-        vm.step = .scan
+        vm.step = .fullScan
         vm.onStepAppear()
         await waitUntil { !vm.isScanning }
         XCTAssertTrue(vm.scanCompleted)
@@ -180,50 +231,84 @@ final class OnboardingViewModelTests: XCTestCase {
             cursorStore: cursor,
             photoCountError: MockOnboardingScanError.countFailure
         )
-        vm.step = .scan
+        vm.step = .fullScan
         vm.onStepAppear()
         await waitUntil { !vm.isScanning }
         XCTAssertFalse(vm.scanCompleted, "失败不得显示为扫描完成")
         XCTAssertEqual(vm.scanError, "读取照片数量失败", "失败原因必须写入 scanError 供界面展示")
         XCTAssertNil(cursor.lastSuccessfulScan, "扫描失败不得保存增量游标")
-
-        // 失败后可通过跳过继续（scanCompleted 置位，错误保留供扫描页展示）
-        vm.skipScan()
-        XCTAssertTrue(vm.scanCompleted)
-        XCTAssertEqual(vm.scanError, "读取照片数量失败")
-
-        // 离开扫描步骤时清空错误，不残留到建档页
-        vm.goToNextStep()
-        XCTAssertEqual(vm.step, .createPet)
-        XCTAssertTrue(vm.scanError.isEmpty, "扫描错误不得残留到建档页")
     }
 
-    // MARK: - 建档
+    // MARK: - 候选确认
 
-    func testAddFirstPetRejectsBlankName() {
+    func testPrepareCandidatesSelectsAllByDefault() async {
+        let petBox = DetectionBox(x: 0.1, y: 0.1, width: 0.5, height: 0.5, label: "cat", confidence: 0.9)
+        let (vm, _, _) = makeVM(
+            assets: [asset("a"), asset("b")],
+            detections: [petBox]
+        )
+        vm.petName = "小满"
+        vm.submitCreatePet() // 无 CLIP → fullScan
+        vm.onStepAppear()
+        await waitUntil { !vm.isScanning }
+        vm.step = .candidates
+        vm.prepareCandidates()
+        XCTAssertEqual(vm.selectedCandidateIDs.count, vm.candidateURIs.count)
+    }
+
+    func testToggleCandidate() {
         let (vm, _, _) = makeVM()
-        XCTAssertFalse(vm.addFirstPet(name: "   "))
-        XCTAssertEqual(vm.scanError, "请输入宠物名字")
+        vm.candidateURIs = ["a", "b", "c"]
+        vm.selectedCandidateIDs = ["a", "b", "c"]
+        vm.toggleCandidate("b")
+        XCTAssertFalse(vm.selectedCandidateIDs.contains("b"))
+        XCTAssertEqual(vm.selectedCandidateIDs.count, 2)
+        vm.toggleCandidate("b")
+        XCTAssertTrue(vm.selectedCandidateIDs.contains("b"))
     }
 
-    func testCreateFirstPetSuccessInsertsPet() {
-        let (vm, petRepo, _) = makeVM()
-        vm.petName = "小橘"
-        XCTAssertTrue(vm.createFirstPet())
-        XCTAssertEqual(try? petRepo.getAllPets().count, 1)
-        XCTAssertEqual(try? petRepo.getAllPets().first?.name, "小橘")
-        XCTAssertEqual(vm.scanError, "")
+    func testCandidatesCanAdvanceRequiresSelection() {
+        let (vm, _, _) = makeVM()
+        vm.step = .candidates
+        vm.selectedCandidateIDs = []
+        XCTAssertFalse(vm.canAdvance)
+        vm.selectedCandidateIDs = ["a"]
+        XCTAssertTrue(vm.canAdvance)
     }
 
-    func testAddFirstPetEnforcesCountLimit() {
-        let (vm, petRepo, _) = makeVM()
-        // 预置达到上限的宠物数
-        for i in 0..<PetProfileConstants.maxPets {
-            try? petRepo.insertPet(Pet(name: "宠物\(i)"))
+    // MARK: - 导入
+
+    func testImportConfirmedCandidatesRunsExecutor() async {
+        var executedIdentifiers: [String] = []
+        var executedPetID: UUID?
+        let executor: OnboardingImportExecutor = { ids, petID, _ in
+            executedIdentifiers = ids
+            executedPetID = petID
+            return ids.count
         }
-        XCTAssertFalse(vm.addFirstPet(name: "多一只"))
-        XCTAssertEqual(vm.scanError, "最多支持管理 \(PetProfileConstants.maxPets) 只伙伴")
-        XCTAssertEqual(try? petRepo.getAllPets().count, PetProfileConstants.maxPets)
+        let (vm, _, _) = makeVM(importExecutor: executor)
+        vm.petName = "小满"
+        vm.submitCreatePet()
+        // 模拟候选
+        vm.candidateURIs = ["a", "b"]
+        vm.selectedCandidateIDs = ["a", "b"]
+        vm.importConfirmedCandidates()
+        XCTAssertEqual(vm.step, .importing)
+        await waitUntil { vm.step == .success }
+        XCTAssertEqual(vm.importedCount, 2)
+        XCTAssertEqual(executedIdentifiers, ["a", "b"])
+        XCTAssertEqual(executedPetID, vm.createdPetID)
+    }
+
+    func testImportWithoutExecutorDegradesGracefully() async {
+        let (vm, _, _) = makeVM()
+        vm.petName = "小满"
+        vm.submitCreatePet()
+        vm.candidateURIs = ["a"]
+        vm.selectedCandidateIDs = ["a"]
+        vm.importConfirmedCandidates()
+        await waitUntil { vm.step == .success }
+        XCTAssertEqual(vm.importedCount, 0, "无 executor 降级：不执行真实导入，计数为 0")
     }
 
     // MARK: - 完成
@@ -241,6 +326,20 @@ final class OnboardingViewModelTests: XCTestCase {
         vm.finish()
         vm.finish()
         XCTAssertEqual(finishCount, 1)
+    }
+
+    // MARK: - overline / stageIndexText
+
+    func testStepOverlineAndStageIndex() {
+        let (vm, _, _) = makeVM()
+        XCTAssertEqual(vm.stepOverline, "FIRST LIGHT · 欢迎")
+        XCTAssertEqual(vm.stageIndexText, "01")
+        vm.step = .createArchive
+        XCTAssertEqual(vm.stepOverline, "LIFE ARCHIVE · 建立档案")
+        XCTAssertEqual(vm.stageIndexText, "02")
+        vm.step = .fullScan
+        XCTAssertTrue(vm.stepOverline.contains("LOCAL SCAN"))
+        XCTAssertEqual(vm.stageIndexText, "04")
     }
 }
 

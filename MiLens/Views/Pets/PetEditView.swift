@@ -24,6 +24,12 @@ struct PetEditView: View {
     @State private var selectedFeatureItems: [PhotosPickerItem] = []
     /// 照片数据加载任务（loadTransferable，页面消失时取消）
     @State private var featureLoadTask: Task<Void, Never>?
+    /// 头像选择：PhotosPicker 单选
+    @State private var avatarPickerItem: PhotosPickerItem?
+    /// 头像裁切 sheet
+    @State private var showAvatarCropSheet = false
+    /// 待裁切的头像原图（PhotosPicker 加载完成后设置）
+    @State private var pendingAvatarImage: UIImage?
 
     private let dateRange: ClosedRange<Date> = {
         let cal = Calendar(identifier: .gregorian)
@@ -162,9 +168,18 @@ struct PetEditView: View {
                     Circle()
                         .fill(Color.milensAccentSoft)
                         .frame(width: 64, height: 64)
-                    // 无头像时用物种 Emoji 占位（头像选择后置 V1.x）
-                    Text(PetProfileLogic.speciesEmoji(vm.form.species))
-                        .font(.system(size: 32))
+                    // 有头像显示头像，无头像用物种 Emoji 占位
+                    if !vm.avatarPath.isEmpty,
+                       let img = UIImage(contentsOfFile: vm.avatarPath) {
+                        Image(uiImage: img)
+                            .resizable()
+                            .scaledToFill()
+                            .frame(width: 64, height: 64)
+                            .clipShape(Circle())
+                    } else {
+                        Text(PetProfileLogic.speciesEmoji(vm.form.species))
+                            .font(.system(size: 32))
+                    }
                 }
                 VStack(alignment: .leading, spacing: Spacing.xs) {
                     Text(vm.form.name.isEmpty ? "未命名" : vm.form.name)
@@ -174,13 +189,51 @@ struct PetEditView: View {
                         .foregroundStyle(Color.milensTextSecondary)
                 }
                 Spacer()
+                // 头像选择入口（PhotosPicker 单选）
+                PhotosPicker(selection: $avatarPickerItem, matching: .images) {
+                    Text(vm.avatarPath.isEmpty ? "选择" : "更换")
+                        .font(.caption)
+                        .foregroundStyle(Color.milensActionPrimary)
+                }
+                .onChange(of: avatarPickerItem) { _, newItem in
+                    loadAvatarImage(newItem)
+                }
             }
             .padding(.vertical, Spacing.xs)
         } header: {
             Text("头像")
         } footer: {
-            Text("头像选择功能将在后续版本支持")
+            Text("选择一张照片裁切为圆形头像")
                 .font(.caption)
+        }
+        .sheet(isPresented: $showAvatarCropSheet) {
+            if let image = pendingAvatarImage {
+                AvatarCropSheet(
+                    image: image,
+                    onCropped: { path in
+                        vm.updateAvatarPath(path)
+                        pendingAvatarImage = nil
+                    },
+                    onCancel: {
+                        pendingAvatarImage = nil
+                    }
+                )
+            }
+        }
+    }
+
+    /// 加载 PhotosPicker 选中照片为 UIImage（后台解码，避免主线程卡顿）。
+    private func loadAvatarImage(_ item: PhotosPickerItem?) {
+        guard let item else { return }
+        Task {
+            if let data = try? await item.loadTransferable(type: Data.self),
+               let image = UIImage(data: data) {
+                await MainActor.run {
+                    pendingAvatarImage = image
+                    showAvatarCropSheet = true
+                }
+            }
+            avatarPickerItem = nil
         }
     }
 

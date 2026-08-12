@@ -33,6 +33,10 @@ struct TimelinePetEvent: Equatable, Sendable {
     let eventType: String
     let eventDate: Date
     let title: String
+    /// SchemaV2：用户记录正文（空=纯事件，非空=用户文本记忆）。
+    var body: String = ""
+    /// SchemaV2：来源标签 "system" / "user" / "work"。
+    var sourceType: String = "system"
 }
 
 /// 时间线输入用的照片投影（对应源端 TimelineInput.photoEvents）。
@@ -60,6 +64,8 @@ enum TimelineEntryType: String, Equatable, Sendable {
     case birthday
     case adoption
     case photoNote   // 源端 'photo_note'
+    case textNote    // SchemaV2：用户文本记忆（sourceType="user" 且 body 非空）
+    case workRecord  // SchemaV2：作品记录（拼豆等，预留）
 }
 
 /// 时间线条目（对应源端 TimelineEntry）。
@@ -77,6 +83,11 @@ struct TimelineEntry: Equatable, Identifiable, Sendable {
     let photoID: UUID?
     let photoURI: String
     let thumbnailPath: String
+    // SchemaV2 扩展字段
+    /// 文本记忆正文（仅 .textNote 使用）。
+    var bodyText: String = ""
+    /// 来源标签："system" / "user" / "work"（供 UI 显示来源标签）。
+    var sourceType: String = "system"
 }
 
 /// 年月分组（对应源端 TimelineMonth）。
@@ -129,10 +140,34 @@ enum TimelineLogic {
     ) -> [TimelineEntry] {
         var entries: [TimelineEntry] = []
 
-        // 1. 纪念事件（生日/领养日）
+        // 1. 纪念事件（生日/领养日）+ 用户文本记忆（SchemaV2：sourceType="user"）
         for ev in input.petEvents {
             let pet = input.pets.first { $0.id == ev.petID }
             let petName = pet?.name ?? ""
+
+            // SchemaV2：sourceType="user" 且 body 非空 → 构建为文本记忆条目
+            if ev.sourceType == "user" && !ev.body.isEmpty {
+                let title = ev.title.isEmpty
+                    ? String(localized: "timeline.memoryType.text", locale: locale)
+                    : ev.title
+                entries.append(TimelineEntry(
+                    id: "pet_\(ev.id.uuidString)",
+                    type: .textNote,
+                    date: ev.eventDate,
+                    title: title,
+                    subtitle: isoDateString(from: ev.eventDate, calendar: calendar),
+                    petID: ev.petID,
+                    petName: petName,
+                    photoID: nil,
+                    photoURI: "",
+                    thumbnailPath: "",
+                    bodyText: ev.body,
+                    sourceType: ev.sourceType
+                ))
+                continue
+            }
+
+            // 系统推导的纪念事件（生日/领养日）
             let title = ev.title.isEmpty
                 ? (petName.isEmpty ? "宠物纪念日" : "\(petName)的纪念日")
                 : ev.title
@@ -146,7 +181,8 @@ enum TimelineLogic {
                 petName: petName,
                 photoID: nil,
                 photoURI: "",
-                thumbnailPath: ""
+                thumbnailPath: "",
+                sourceType: ev.sourceType
             ))
         }
 

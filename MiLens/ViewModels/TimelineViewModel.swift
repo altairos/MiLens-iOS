@@ -62,8 +62,11 @@ final class TimelineViewModel {
         }
         let timelineEvents = pets.flatMap { p in
             p.events.map { ev in
-                TimelinePetEvent(id: ev.id, petID: p.id, eventType: ev.eventType,
-                                 eventDate: ev.eventDate, title: ev.title)
+                TimelinePetEvent(
+                    id: ev.id, petID: p.id, eventType: ev.eventType,
+                    eventDate: ev.eventDate, title: ev.title,
+                    body: ev.body, sourceType: ev.sourceType
+                )
             }
         }
         let timelinePhotos = allPhotos.map { ph in

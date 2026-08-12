@@ -65,6 +65,32 @@ final class SettingsLogicTests: XCTestCase {
         )
     }
 
+    // MARK: - 照片副本备份模式（任务 3）
+
+    func testParseKnownPhotoBackupModes() {
+        XCTAssertEqual(PhotoBackupMode.parse("cloudOptimized"), .cloudOptimized)
+        XCTAssertEqual(PhotoBackupMode.parse("dataSafe"), .dataSafe)
+    }
+
+    func testParseUnknownPhotoBackupModeFallsBackToCloudOptimized() {
+        XCTAssertEqual(PhotoBackupMode.parse("unknown"), .cloudOptimized)
+        XCTAssertEqual(PhotoBackupMode.parse(""), .cloudOptimized)
+    }
+
+    func testPhotoBackupModeAllCasesRawValuesRoundTrip() {
+        for mode in PhotoBackupMode.allCases {
+            XCTAssertEqual(PhotoBackupMode.parse(mode.rawValue), mode)
+        }
+    }
+
+    func testShouldExcludePhotosCloudOptimizedReturnsTrue() {
+        XCTAssertTrue(SettingsLogic.shouldExcludePhotos(.cloudOptimized))
+    }
+
+    func testShouldExcludePhotosDataSafeReturnsFalse() {
+        XCTAssertFalse(SettingsLogic.shouldExcludePhotos(.dataSafe))
+    }
+
     // MARK: - 字体许可与外链
 
     func testFontCreditsCoverBothEmbeddedFontsWithOFL() {

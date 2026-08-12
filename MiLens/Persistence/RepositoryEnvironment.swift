@@ -16,7 +16,7 @@ import SwiftData
 @MainActor
 enum FallbackContainer {
     static let shared: ModelContainer = {
-        let schema = Schema(versionedSchema: SchemaV1.self)
+        let schema = Schema(versionedSchema: SchemaV2.self)
         let config = ModelConfiguration(isStoredInMemoryOnly: true)
         do {
             return try ModelContainer(for: schema, configurations: [config])

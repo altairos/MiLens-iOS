@@ -1,8 +1,7 @@
 //  TimelineView —— 成长时间线（route .timeline，对应源端 pages/TimelinePage.ets）。
-//  TimelineViewModel（@Observable）驱动：按年月分组的时间线条目列表 + 按宠物筛选。
-//  条目类型：生日🎂 / 领养日🏠 / 照片事件📷。
-//  UI rework：左侧竖线 + 圆点节点样式（UI-DESIGN.md §6.5），照片事件配代表照片缩略图。
-//  P3 实现：按月分组展示 + 宠物筛选 + 条目点击进入照片大图。
+//  Ledger 编辑式时间线设计（对照 Figma「03·生命时间线」#140:348）：
+//  左侧竖线 rail + 章节大圆点 + Fraunces 年份 + 文楷章节名 + 三种记忆卡片 + 悬浮添加。
+//  TimelineViewModel（@Observable）驱动；Pro 门控 / 导出分享 / 宠物筛选保留。
 
 import SwiftUI
 import os
@@ -20,8 +19,10 @@ struct TimelineView: View {
     @State private var sharePreview: (image: UIImage, url: URL)?
     @State private var isExporting = false
     @State private var exportError: String?
+    @State private var showAddMemorySheet = false
+    /// 选中的年份筛选（nil = 全部年份）。
+    @State private var selectedYear: Int? = nil
     private let timelineAccessStore: any TimelineAccessStore = UserDefaultsTimelineAccessStore()
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     var body: some View {
         Group {
@@ -32,7 +33,7 @@ struct TimelineView: View {
             }
         }
         .navigationTitle(String(localized: "timeline.title"))
-        .navigationBarTitleDisplayMode(.large)
+        .navigationBarTitleDisplayMode(.inline)
         .background(Color.milensBackground)
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
@@ -46,6 +47,9 @@ struct TimelineView: View {
         }
         .sheet(isPresented: $showPaywall) {
             NavigationStack { PaywallView() }
+        }
+        .sheet(isPresented: $showAddMemorySheet) {
+            AddMemoryPlaceholderSheet()
         }
         // ADR-0010 §5：导出分享预览面板
         .sheet(item: Binding<SharePreviewData?>(
@@ -72,7 +76,6 @@ struct TimelineView: View {
         }
         .task {
             if viewModel == nil {
-                // 分层收敛：VM 与数据查询均经工厂（View 不再直连 petRepo/photoRepo）
                 let vm = factory.makeTimelineViewModel()
                 let firstAccessDate = timelineAccessStore.firstAccessDate(now: Date())
                 vm.load(isPro: entitlement.isPro, firstAccessDate: firstAccessDate)
@@ -91,7 +94,6 @@ struct TimelineView: View {
 
     private func handleExportShare() {
         guard let vm = viewModel else { return }
-        // Pro 门控：免费用户弹付费墙
         guard entitlement.isPro else {
             showPaywall = true
             return
@@ -126,7 +128,6 @@ struct TimelineView: View {
         isExporting = false
     }
 
-    /// 当前筛选标题（导出长图头部用）。
     private func currentFilterTitle(_ vm: TimelineViewModel) -> String {
         if let petID = vm.selectedPetID,
            let pet = pets.first(where: { $0.id == petID }) {
@@ -170,30 +171,43 @@ struct TimelineView: View {
     // MARK: - 时间线列表
 
     private func timelineList(_ vm: TimelineViewModel) -> some View {
-        ScrollView {
-            VStack(spacing: 0) {
-                if vm.shouldShowPreviewReminder && !entitlement.isPro {
-                    previewReminderBanner(vm)
-                        .padding(.bottom, Spacing.md)
-                } else if vm.hasLockedHistory && !entitlement.isPro {
-                    lockedHistoryBanner
-                        .padding(.bottom, Spacing.md)
-                }
-                // 筛选器
-                if !pets.isEmpty {
-                    petFilter(vm)
-                        .padding(.bottom, Spacing.md)
-                }
+        ZStack(alignment: .bottomTrailing) {
+            ScrollView {
+                VStack(spacing: 0) {
+                    if vm.shouldShowPreviewReminder && !entitlement.isPro {
+                        previewReminderBanner(vm)
+                            .padding(.bottom, Spacing.md)
+                    } else if vm.hasLockedHistory && !entitlement.isPro {
+                        lockedHistoryBanner
+                            .padding(.bottom, Spacing.md)
+                    }
 
-                // 按月分组
-                ForEach(Array(vm.months.enumerated()), id: \.element.yearMonth) { _, month in
-                    monthSection(month)
+                    // 宠物筛选（轻量化，对齐设计稿）
+                    if !pets.isEmpty {
+                        petFilter(vm)
+                            .padding(.bottom, Spacing.md)
+                    }
+
+                    // 年份选择器
+                    yearSelector(vm)
+                        .padding(.bottom, Spacing.lg)
+
+                    // 时间轴主体
+                    timelineAxis(vm)
                 }
+                .padding(.horizontal, Spacing.pagePad)
+                .padding(.vertical, Spacing.sm)
+                .padding(.bottom, 80) // 给悬浮按钮留空
             }
-            .padding(.horizontal, Spacing.pagePad)
-            .padding(.vertical, Spacing.sm)
+            .scrollIndicators(.hidden)
+
+            // 悬浮添加按钮
+            TimelineAddButton {
+                showAddMemorySheet = true
+            }
+            .padding(.trailing, 18)
+            .padding(.bottom, 18)
         }
-        .scrollIndicators(.hidden)
     }
 
     private var lockedHistoryEmptyState: some View {
@@ -227,8 +241,8 @@ struct TimelineView: View {
                 Button(String(localized: "timeline.lockedBannerCTA")) {
                     showPaywall = true
                 }
-                    .font(.caption)
-                    .foregroundStyle(Color.milensActionPrimary)
+                .font(.caption)
+                .foregroundStyle(Color.milensActionPrimary)
             }
             Spacer()
         }
@@ -256,11 +270,11 @@ struct TimelineView: View {
         .clipShape(RoundedRectangle(cornerRadius: Radius.medium, style: .continuous))
     }
 
-    // MARK: - 宠物筛选
+    // MARK: - 宠物筛选（轻量化）
 
     private func petFilter(_ vm: TimelineViewModel) -> some View {
         ScrollView(.horizontal, showsIndicators: false) {
-            HStack(spacing: Spacing.sm) {
+            HStack(spacing: Spacing.md) {
                 filterChip(title: String(localized: "timeline.filterAll"), isSelected: vm.selectedPetID == nil) {
                     vm.selectPet(nil)
                 }
@@ -280,48 +294,166 @@ struct TimelineView: View {
     private func filterChip(title: String, isSelected: Bool, action: @escaping () -> Void) -> some View {
         Button(action: action) {
             Text(title)
-                .font(.bodySecondary.weight(.semibold))
-                .foregroundStyle(isSelected ? Color.milensTextOnActionPrimary : Color.milensTextSecondary)
-                .padding(.horizontal, Spacing.lg)
-                .frame(minHeight: Sizing.touchTarget)
-                .background(isSelected ? Color.milensActionPrimary : Color.milensCard)
-                .overlay {
-                    Capsule().stroke(Color.milensBorder, lineWidth: isSelected ? 0 : 0.5)
-                }
-                .clipShape(Capsule())
+                .font(.bodySecondary.weight(isSelected ? .bold : .regular))
+                .foregroundStyle(isSelected ? Color.milensActionPrimary : Color.milensTextSecondary)
         }
         .buttonStyle(.plain)
-        .animation(reduceMotion ? nil : .easeInOut(duration: Motion.durationFast), value: isSelected)
-        .accessibilityAddTraits(isSelected ? .isSelected : [])
     }
 
-    // MARK: - 月份分组
+    // MARK: - 年份选择器
 
-    private func monthSection(_ month: TimelineMonth) -> some View {
-        VStack(alignment: .leading, spacing: Spacing.sm) {
-            // 分组标题：年份大分节 + 月份，衬线 displayMedium（§6.5）
-            HStack(alignment: .firstTextBaseline, spacing: Spacing.sm) {
-                if month.isYearStart {
-                    Text(String(localized: "timeline.year \(month.year)"))
-                        .font(.displayMedium)
-                        .foregroundStyle(Color.milensTextPrimary)
+    /// 从 months 提取可用年份列表，水平排列。
+    private func yearSelector(_ vm: TimelineViewModel) -> some View {
+        let years = availableYears(vm)
+        guard !years.isEmpty else { AnyView(EmptyView()) }
+        return AnyView(
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 0) {
+                    ForEach(years, id: \.self) { year in
+                        yearChip(year: year, isSelected: selectedYear == year || (selectedYear == nil && year == years.last)) {
+                            selectedYear = (selectedYear == year) ? nil : year
+                        }
+                    }
                 }
-                Text(monthLabel(month.month))
-                    .font(.displayMedium)
-                    .foregroundStyle(Color.milensTextPrimary)
+                // baseline
+                .overlay(alignment: .bottom) {
+                    Rectangle()
+                        .fill(Color.milensBorder)
+                        .frame(height: 1)
+                }
             }
-            .accessibilityAddTraits(.isHeader)
-            .padding(.leading, Spacing.xxl)
+        )
+    }
 
-            // 节点条目列表
-            VStack(spacing: 0) {
-                ForEach(Array(month.entries.enumerated()), id: \.element.id) { index, entry in
-                    entryRow(
-                        entry,
-                        isFirst: index == 0,
-                        isLast: index == month.entries.count - 1
-                    )
+    private func availableYears(_ vm: TimelineViewModel) -> [Int] {
+        let years = Set(vm.months.map { $0.year })
+        return years.sorted()
+    }
+
+    private func yearChip(year: Int, isSelected: Bool, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            VStack(spacing: 6) {
+                Text(String(year))
+                    .font(.system(size: 12, weight: isSelected ? .bold : .medium))
+                    .foregroundStyle(isSelected ? Color.milensActionPrimary : Color.milensTextSecondary)
+                if isSelected {
+                    Circle()
+                        .fill(Color.milensBackground)
+                        .overlay(Circle().stroke(Color.milensActionPrimary, lineWidth: 2))
+                        .frame(width: 10, height: 10)
+                } else {
+                    Color.clear.frame(width: 10, height: 10)
                 }
+            }
+            .frame(width: 100)
+        }
+        .buttonStyle(.plain)
+    }
+
+    // MARK: - 时间轴主体
+
+    /// 左侧竖线 rail + 章节分组 + 条目卡片。
+    private func timelineAxis(_ vm: TimelineViewModel) -> some View {
+        let filteredMonths = filteredByYear(vm.months)
+        // 按年份分组
+        let yearGroups = groupByYear(filteredMonths)
+
+        return HStack(alignment: .top, spacing: 0) {
+            // 左侧竖线 rail（1pt，贯穿）
+            VStack(spacing: 0) {
+                Rectangle()
+                    .fill(Color.milensBorder)
+                    .frame(width: 1)
+                Spacer()
+            }
+            .frame(width: 40) // rail 区域：节点占 22pt + 左右各约 9pt padding
+
+            // 右侧内容
+            VStack(alignment: .leading, spacing: 0) {
+                ForEach(yearGroups, id: \.year) { group in
+                    chapterSection(group)
+                }
+            }
+            Spacer(minLength: 0)
+        }
+    }
+
+    /// 按选中年份过滤月份组。
+    private func filteredByYear(_ months: [TimelineMonth]) -> [TimelineMonth] {
+        guard let year = selectedYear else { return months }
+        return months.filter { $0.year == year }
+    }
+
+    /// 按年份分组月份。
+    private func groupByYear(_ months: [TimelineMonth]) -> [(year: Int, months: [TimelineMonth])] {
+        let years = Set(months.map { $0.year }).sorted()
+        return years.map { year in
+            (year: year, months: months.filter { $0.year == year })
+        }
+    }
+
+    /// 一个相处章节：珊瑚大圆点 + Fraunces 年份 + 章节名 + 副标题 + 月内条目。
+    private func chapterSection(_ group: (year: Int, months: [TimelineMonth])) -> some View {
+        VStack(alignment: .leading, spacing: 0) {
+            // 章节标记（圆点向左偏移到 rail 位置）
+            HStack(spacing: 0) {
+                // 圆点占位（实际圆点通过 overlay 放在 rail 上）
+                Color.clear.frame(width: 0, height: 22)
+                VStack(alignment: .leading, spacing: 2) {
+                    HStack(spacing: 6) {
+                        Text(String(group.year))
+                            .font(.custom("Fraunces-Bold", size: 12))
+                            .foregroundStyle(Color.milensActionPrimary)
+                    }
+                    Text(chapterTitle(group.year, months: group.months))
+                        .font(.custom("LXGWWenKai-Regular", size: 19, relativeTo: .title3))
+                        .foregroundStyle(Color.milensTextPrimary)
+                    Text(String(localized: "timeline.chapter.subtitle"))
+                        .font(.system(size: 12))
+                        .foregroundStyle(Color.milensTextSecondary)
+                }
+                .offset(x: -30) // 向左拉到 rail 位置
+                Spacer()
+            }
+            .overlay(alignment: .leading) {
+                // 珊瑚大圆点覆盖在 rail 上
+                Circle()
+                    .fill(Color.milensActionPrimary)
+                    .frame(width: 22, height: 22)
+                    .offset(x: -40 + 9) // 对齐 rail 中心
+            }
+            .padding(.top, Spacing.lg)
+            .padding(.bottom, Spacing.md)
+
+            // 月内条目
+            ForEach(group.months, id: \.yearMonth) { month in
+                monthEntries(month)
+            }
+        }
+    }
+
+    /// 章节标题：根据年份推导「一起生活的第N年」。
+    private func chapterTitle(_ year: Int, months: [TimelineMonth]) -> String {
+        // 从最早生日推导相处年数（简化：用最早月份年份与当前年份的差）
+        guard let firstYear = months.first?.year else { return "" }
+        let years = max(1, year - firstYear + 1)
+        return String(localized: "timeline.chapter.together \(years)")
+    }
+
+    // MARK: - 月内条目
+
+    private func monthEntries(_ month: TimelineMonth) -> some View {
+        VStack(alignment: .leading, spacing: Spacing.md) {
+            // 月份小标题（非年份首月才显示）
+            if !month.isYearStart {
+                Text(monthLabel(month.month))
+                    .font(.system(size: 14, weight: .medium))
+                    .foregroundStyle(Color.milensTextSecondary)
+                    .padding(.leading, 4)
+            }
+
+            ForEach(month.entries) { entry in
+                entryCard(entry)
             }
         }
         .padding(.bottom, Spacing.lg)
@@ -331,105 +463,255 @@ struct TimelineView: View {
         String(localized: "timeline.month \(month)")
     }
 
-    // MARK: - 条目（节点）
-
+    /// 按条目类型分发到不同记忆卡片。
     @ViewBuilder
-    private func entryRow(_ entry: TimelineEntry, isFirst: Bool, isLast: Bool) -> some View {
-        Group {
-            if let photoID = entry.photoID {
-                NavigationLink(value: Route.photoView(photoID: photoID)) {
-                    entryContent(entry, isFirst: isFirst, isLast: isLast)
-                }
-                .buttonStyle(.plain)
-            } else {
-                entryContent(entry, isFirst: isFirst, isLast: isLast)
-            }
+    private func entryCard(_ entry: TimelineEntry) -> some View {
+        switch entry.type {
+        case .photoNote:
+            PhotoMemoryCard(entry: entry)
+        case .textNote:
+            TextMemoryCard(entry: entry)
+        case .workRecord:
+            WorkRecordCard(entry: entry)
+        case .birthday, .adoption:
+            // 重要日子：简洁文字行 + 节点
+            milestoneRow(entry)
         }
     }
 
-    private func entryContent(_ entry: TimelineEntry, isFirst: Bool, isLast: Bool) -> some View {
+    /// 重要日子行（生日/领养日）：标题 + 日期 + 类型标签。
+    private func milestoneRow(_ entry: TimelineEntry) -> some View {
         HStack(alignment: .top, spacing: Spacing.md) {
-            // 节点轨：圆点 + 竖线（§6.5 时间线骨架）
-            nodeRail(type: entry.type, isFirst: isFirst, isLast: isLast)
-
-            // 照片事件配代表照片缩略图
-            if let thumbPath = thumbnailPath(for: entry) {
-                ThumbnailImage(path: thumbPath)
-                    .scaledToFill()
-                    .frame(width: 56, height: 56)
-                    .clipped()
-                    .clipShape(RoundedRectangle(cornerRadius: Radius.thumb, style: .continuous))
-                    // M4：时间线照片缩略图提供无障碍描述（标题文本已由下方 Text 读出）。
-                    .accessibilityLabel(String(localized: "a11y.timeline.representativePhoto"))
-            }
-
-            VStack(alignment: .leading, spacing: Spacing.xs) {
-                HStack(alignment: .firstTextBaseline, spacing: Spacing.sm) {
-                    Text(entry.title)
-                        .font(.bodyPrimary)
-                        .foregroundStyle(Color.milensTextPrimary)
-                    if let label = typeLabel(entry.type) {
-                        Text(label)
-                            .font(.caption)
-                            .foregroundStyle(Color.milensTextTertiary)
-                    }
-                }
+            VStack(alignment: .leading, spacing: 2) {
+                Text(entry.title)
+                    .font(.bodyPrimary)
+                    .foregroundStyle(Color.milensTextPrimary)
                 if !entry.subtitle.isEmpty {
                     Text(entry.subtitle)
                         .font(.caption)
                         .foregroundStyle(Color.milensTextTertiary)
                 }
             }
-            Spacer(minLength: 0)
-
-            if entry.photoID != nil {
-                Image(systemName: "chevron.right")
-                    .font(.caption)
-                    .foregroundStyle(Color.milensTextTertiary)
-            }
+            Spacer()
         }
         .padding(.vertical, Spacing.sm)
     }
+}
 
-    /// 节点轨：圆点 + 贯穿竖线；首末条目截断线避免悬空头尾。
-    private func nodeRail(type: TimelineEntryType, isFirst: Bool, isLast: Bool) -> some View {
-        VStack(spacing: 0) {
+// MARK: - 照片记忆卡片
+
+/// 照片记忆：大图 + 左上「照片记忆」标签 + 日期 + 文楷标题 + 正文。
+/// 对照 Figma #140:362-367。
+private struct PhotoMemoryCard: View {
+    let entry: TimelineEntry
+
+    var body: some View {
+        NavigationLink(value: Route.photoView(photoID: entry.photoID ?? UUID())) {
+            VStack(alignment: .leading, spacing: Spacing.sm) {
+                // 大图 + 左上角标签
+                ZStack(alignment: .topLeading) {
+                    if !entry.thumbnailPath.isEmpty {
+                        ThumbnailImage(path: entry.thumbnailPath)
+                            .scaledToFill()
+                            .frame(height: 176)
+                            .clipped()
+                    } else if !entry.photoURI.isEmpty {
+                        ThumbnailImage(path: entry.photoURI)
+                            .scaledToFill()
+                            .frame(height: 176)
+                            .clipped()
+                    } else {
+                        // 无图占位
+                        Rectangle()
+                            .fill(Color.milensGrouped)
+                            .frame(height: 176)
+                            .overlay(
+                                Image(systemName: "photo")
+                                    .foregroundStyle(Color.milensTextTertiary)
+                            )
+                    }
+
+                    // 左上角「照片记忆」标签
+                    HStack(spacing: 4) {
+                        Rectangle()
+                            .fill(Color.milensActionPrimary)
+                            .frame(width: 22, height: 2)
+                        Text(String(localized: "timeline.memoryType.photo"))
+                            .font(.system(size: 10, weight: .medium))
+                            .foregroundStyle(Color.milensActionPrimary)
+                    }
+                    .padding(.leading, 14)
+                    .padding(.top, 14)
+                }
+                .clipShape(RoundedRectangle(cornerRadius: 4, style: .continuous))
+
+                // 日期（珊瑚）
+                Text(entry.subtitle)
+                    .font(.system(size: 11, weight: .medium))
+                    .foregroundStyle(Color.milensActionPrimary)
+
+                // 文楷标题
+                if !entry.title.isEmpty {
+                    Text(entry.title)
+                        .font(.custom("LXGWWenKai-Regular", size: 18, relativeTo: .title3))
+                        .foregroundStyle(Color.milensTextPrimary)
+                }
+            }
+        }
+        .buttonStyle(.plain)
+    }
+}
+
+// MARK: - 文本记忆卡片
+
+/// 文本记忆：浅粉底 #FCE8DF + 左侧珊瑚 rail + 日期 + 正文。
+/// 对照 Figma #140:369-371 + #143:411 rail。
+private struct TextMemoryCard: View {
+    let entry: TimelineEntry
+
+    var body: some View {
+        HStack(spacing: 0) {
+            // 左侧珊瑚 rail（3pt）
             Rectangle()
-                .fill(isFirst ? Color.clear : Color.milensSeparator)
-                .frame(width: 1, height: Spacing.sm + 7)
-            Circle()
-                .fill(nodeColor(type))
-                .frame(width: 8, height: 8)
+                .fill(Color.milensActionPrimary)
+                .frame(width: 3)
+            // 内容区
+            VStack(alignment: .leading, spacing: Spacing.xs) {
+                Text(entry.subtitle)
+                    .font(.system(size: 11, weight: .bold))
+                    .foregroundStyle(Color.milensActionPrimary)
+                if !entry.title.isEmpty {
+                    Text(entry.title)
+                        .font(.system(size: 14, weight: .bold))
+                        .foregroundStyle(Color.milensTextPrimary)
+                }
+                if !entry.bodyText.isEmpty {
+                    Text(entry.bodyText)
+                        .font(.system(size: 14))
+                        .foregroundStyle(Color.milensTextPrimary)
+                }
+            }
+            .padding(.leading, 18)
+            .padding(.trailing, 18)
+            .padding(.vertical, 18)
+            Spacer()
+        }
+        .background(Color(red: 0.988, green: 0.910, blue: 0.875)) // #FCE8DF
+        .clipShape(RoundedRectangle(cornerRadius: 4, style: .continuous))
+    }
+}
+
+// MARK: - 作品记录卡片
+
+/// 作品记录：左侧珊瑚 rail + 拼豆网格占位 + 标题 + 来源说明。
+/// 对照 Figma #140:374-411。数据来源待接入（当前用占位网格）。
+private struct WorkRecordCard: View {
+    let entry: TimelineEntry
+
+    var body: some View {
+        HStack(spacing: 0) {
+            // 左侧珊瑚 rail（3pt）
             Rectangle()
-                .fill(isLast ? Color.clear : Color.milensSeparator)
-                .frame(width: 1)
-                .frame(maxHeight: .infinity)
+                .fill(Color.milensActionPrimary)
+                .frame(width: 3)
+            // 内容区
+            HStack(spacing: Spacing.md) {
+                // 拼豆网格占位（7x7）
+                beadGridPlaceholder
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(entry.title)
+                        .font(.system(size: 14, weight: .bold))
+                        .foregroundStyle(Color.milensTextPrimary)
+                    Text(String(localized: "timeline.work.fromPhoto"))
+                        .font(.system(size: 11))
+                        .foregroundStyle(Color.milensTextSecondary)
+                    Text(String(localized: "timeline.work.saved"))
+                        .font(.system(size: 11))
+                        .foregroundStyle(Color.milensTextSecondary)
+                }
+                Spacer()
+            }
+            .padding(16)
         }
-        .frame(width: 12)
+        .overlay(alignment: .top) {
+            Rectangle().fill(Color.milensBorder).frame(height: 0.5)
+        }
+        .overlay(alignment: .bottom) {
+            Rectangle().fill(Color.milensBorder).frame(height: 0.5)
+        }
     }
 
-    private func nodeColor(_ type: TimelineEntryType) -> Color {
-        switch type {
-        case .birthday: Color.milensPrimary
-        case .adoption: Color.milensDogAccent
-        case .photoNote: Color.milensSuccess
+    /// 7x7 拼豆占位网格（设计稿配色 #C74729 / #2E2924 交替）。
+    private var beadGridPlaceholder: some View {
+        let cols = 7
+        let rows = 7
+        let beadSize: CGFloat = 8
+        let gap: CGFloat = 3
+        return VStack(spacing: gap) {
+            ForEach(0..<rows, id: \.self) { r in
+                HStack(spacing: gap) {
+                    ForEach(0..<cols, id: \.self) { c in
+                        Circle()
+                            .fill((r + c) % 3 == 0 ? Color.milensActionPrimary : Color.milensInk)
+                            .frame(width: beadSize, height: beadSize)
+                    }
+                }
+            }
         }
     }
+}
 
-    /// 类型文字标签：节点不只靠颜色区分（§6.5）。
-    private func typeLabel(_ type: TimelineEntryType) -> String? {
-        switch type {
-        case .birthday: String(localized: "timeline.type.birthday")
-        case .adoption: String(localized: "timeline.type.adoption")
-        case .photoNote: nil
+// MARK: - 悬浮添加按钮
+
+/// 右下角切角珊瑚方块 + plus 图标。
+/// 对照 Figma #143:418「Add Memory Cut Corner Key」。
+private struct TimelineAddButton: View {
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            ZStack {
+                Rectangle()
+                    .fill(Color.milensActionPrimary)
+                    .frame(width: 56, height: 56)
+                Image(systemName: "plus")
+                    .font(.system(size: 24, weight: .semibold))
+                    .foregroundStyle(Color.white)
+            }
+            .shadow(color: .black.opacity(0.15), radius: 8, y: 4)
         }
+        .buttonStyle(.plain)
+        .accessibilityLabel(String(localized: "timeline.addMemory"))
     }
+}
 
-    /// 照片事件的代表缩略图路径；无照片事件返回 nil。
-    private func thumbnailPath(for entry: TimelineEntry) -> String? {
-        guard entry.photoID != nil else { return nil }
-        if !entry.thumbnailPath.isEmpty { return entry.thumbnailPath }
-        return entry.photoURI.isEmpty ? nil : entry.photoURI
+// MARK: - 添加记忆占位 Sheet
+
+/// 添加记忆流程属 P0 未实现，先占位（对照计划风险与取舍 §3）。
+private struct AddMemoryPlaceholderSheet: View {
+    @Environment(\.dismiss) private var dismiss
+
+    var body: some View {
+        NavigationStack {
+            VStack(spacing: Spacing.lg) {
+                Image(systemName: "note.text.badge.plus")
+                    .font(.system(size: 48))
+                    .foregroundStyle(Color.milensActionPrimary)
+                Text(String(localized: "timeline.addMemory"))
+                    .font(.headline)
+                Text(String(localized: "timeline.addMemory.comingSoon"))
+                    .font(.bodyPrimary)
+                    .foregroundStyle(Color.milensTextSecondary)
+                    .multilineTextAlignment(.center)
+                Button(String(localized: "common.ok")) { dismiss() }
+                    .buttonStyle(.borderedProminent)
+                    .tint(Color.milensActionPrimary)
+            }
+            .padding()
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .background(Color.milensBackground)
+        }
+        .presentationDetents([.medium])
     }
 }
 

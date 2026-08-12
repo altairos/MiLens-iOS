@@ -1916,6 +1916,72 @@
         }
       }
     },
+    "settings.backup.hint.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "数据安全提示"
+          }
+        }
+      }
+    },
+    "settings.backup.hint.body" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "为防止换机或丢机时数据丢失，建议定期使用「备份导出」生成 .milensbackup 文件，保存到 iCloud 云盘或隔空投送到电脑。"
+          }
+        }
+      }
+    },
+    "settings.backup.photoBackupMode" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "照片副本纳入系统备份"
+          }
+        }
+      }
+    },
+    "settings.backup.photoBackupMode.footer" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "关闭可节省 iCloud 存储空间（原图可从相册重建）。开启后导入副本将随系统备份保存，数据更安全。"
+          }
+        }
+      }
+    },
+    "settings.backup.modeUpdated" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "已更新备份策略"
+          }
+        }
+      }
+    },
+    "settings.backup.modeUpdatedMessage" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "现有照片已按新策略重新标记。"
+          }
+        }
+      }
+    },
     "settings.notifications.denied.message" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -2076,7 +2142,7 @@
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "数据与隐私"
+            "value" : "隐私与数据"
           }
         }
       }
@@ -2098,7 +2164,139 @@
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "支持"
+            "value" : "支持与版本"
+          }
+        }
+      }
+    },
+    "settings.footer.privacy" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "无联网功能 · 无信息收集 · 无需注册账号"
+          }
+        }
+      }
+    },
+    "settings.privacy.badge.body" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "本地分析 · 随时可导出"
+          }
+        }
+      }
+    },
+    "settings.privacy.badge.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "照片只保存在设备上"
+          }
+        }
+      }
+    },
+    "settings.pro.card.body" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "更多伙伴、更长回顾与完整导出"
+          }
+        }
+      }
+    },
+    "settings.pro.card.cta" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "了解 Pro 版 →"
+          }
+        }
+      }
+    },
+    "settings.pro.card.headline" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "让长期档案更完整"
+          }
+        }
+      }
+    },
+    "settings.pro.card.body.active" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "感谢支持，长期档案现已完整"
+          }
+        }
+      }
+    },
+    "settings.pro.card.cta.active" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "管理订阅 →"
+          }
+        }
+      }
+    },
+    "settings.pro.card.headline.active" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "全部功能已解锁"
+          }
+        }
+      }
+    },
+    "settings.section.preferences" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "偏好设置"
+          }
+        }
+      }
+    },
+    "settings.subtitle.suffix" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "，把所有回忆留在你的设备上"
+          }
+        }
+      }
+    },
+    "settings.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "我的"
           }
         }
       }
@@ -2253,6 +2451,94 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "我的"
+          }
+        }
+      }
+    },
+    "timeline.addMemory" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "添加记忆"
+          }
+        }
+      }
+    },
+    "timeline.addMemory.comingSoon" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "添加记忆功能即将推出，敬请期待。"
+          }
+        }
+      }
+    },
+    "timeline.chapter.subtitle" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "把日常慢慢变成共同的历史"
+          }
+        }
+      }
+    },
+    "timeline.chapter.together %lld" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "一起生活的第%lld年"
+          }
+        }
+      }
+    },
+    "timeline.memoryType.photo" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "照片记忆"
+          }
+        }
+      }
+    },
+    "timeline.memoryType.text" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "文字记忆"
+          }
+        }
+      }
+    },
+    "timeline.work.fromPhoto" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "由一张照片生成"
+          }
+        }
+      }
+    },
+    "timeline.work.saved" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "已保存"
           }
         }
       }

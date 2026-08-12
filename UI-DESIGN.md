@@ -134,7 +134,7 @@ Fraunces 不进入常规 App 界面；仅可用于英文营销物料或最终 wo
 
 所有样式必须基于 Dynamic Type；最大辅助字号时允许标题换行、横向按钮改为纵向、统计行改为两列或单列。自定义字体缺字时回退系统字体，不显示方框字。
 
-Figma 紧凑画板的可读性下限按内容职责区分：正文、说明、表单值和交互标签不得小于 11pt，常规正文仍以 15–17pt 为主；10pt 只用于 overline、色号、极短技术标识等非关键元信息；9pt 只允许作为状态圆内部的纯装饰字形，且外层命中区不得小于 44×44pt。代码不得把这些静态 pt 值硬编码为 Dynamic Type 上限，仍需使用语义字体并在辅助功能字号下重排。
+Figma 紧凑画板的可读性下限按内容职责区分：正文、说明、表单值和交互标签不得小于 11pt，常规正文仍以 15–17pt 为主；10pt 只用于 overline、色号、极短技术标识或状态圆内部的纯装饰字形，任何可见文字不得低于 10pt，交互控件命中区不得小于 44×44pt。代码不得把这些静态 pt 值硬编码为 Dynamic Type 上限，仍需使用语义字体并在辅助功能字号下重排。
 
 ### 4.2 文案语气
 
@@ -230,7 +230,8 @@ Figma 定稿组件集中在 [12 · Design System · Components](https://www.figm
 - [`Paywall` 58:25](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=58-25) / [`Dark 79:712`](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=79-712)：下半区改为连续生命档案纸，权益使用开放登记轨，套餐使用票据层级，购买动作保留独立确认印记；不再堆叠通用权益卡片。
 - [`Bead Studio / Generating` 91:366](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=91-366) / [`Dark 84:365`](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=84-365)：以照片、曝光门、逐步显影的色珠矩阵和开放式显影记录表达真实生成过程；状态、取消和进度不再使用同质圆角卡片。
 - [`Core Flow Precision / Add Memory` 211:340](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=211-340) / [`Dark 79:380`](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=79-380)：类型切换使用精确分段轨，日期与照片证据收拢到一张连续档案纸；标题、长记忆和保存动作分别使用登记轨、折页纸面与 `Focus Dial`，保持清晰的输入层级。
-- 本轮对 Release Candidate、Dark Mode、iPad、Foundations 和 Components 范围共 743 个文本节点做了字号审计：仅两枚生成步骤完成态的装饰 `✓` 为 9pt；其余最小字号为 10pt 的辅助 overline/标识，正文和交互文字均不小于 11pt。上述六张 390×844pt 画板无文字越界或截断，顶部关键内容退出 47pt 状态栏区，底部交互和法律入口退出 34pt Home Indicator 区；SwiftUI 仍必须读取设备实时 safe area。
+- Release Candidate 已按 `01–12` 建立完整目录并进入 `FINAL`：首页、伙伴档案、时间线、图库、创作、Paywall、我的、照片详情、添加记忆、拼豆结果、拼豆设置与拼豆生成共 12 张主稿。`Light / Bead Studio / Setup` 与 `Navigation / Memory Orbit / Create · Release Instance` 已重新校正顶部/底部安全区；四个 `Memory Orbit` 实例采用底部约束，交互命中止于 `y=810pt`，不侵入 34pt Home Indicator 参考区。
+- 本轮对 Release Candidate、Dark Mode、iPad、Foundations 和 Components 范围共 743 个文本节点做了字号审计并将原 9pt 完成符号提升到 10pt；正文和交互文字均不小于 11pt。最终 12 张 390×844pt 主稿另做逐节点复核：224 个文本节点无缺失字体、截断、越界或禁用字体，顶部关键内容退出 47pt 状态栏参考区，底部交互退出 34pt Home Indicator 参考区，顶部独立操作控件不小于 44×44pt。SwiftUI 实现仍必须读取设备实时 safe area，并在真机复核 Dynamic Type。
 
 ## 6. 关键页面规格
 

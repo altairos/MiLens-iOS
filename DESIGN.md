@@ -151,9 +151,10 @@ SwiftData 从 V1.0 干净 schema 起步（不复刻源端 16 版历史迁移）�
 
 **保存事务封装**：仓储层所有写路径统一经 `ModelContext.saveOrRollback()` 提交（[ModelContext+Transaction.swift](MiLens/Persistence/ModelContext+Transaction.swift)）——`context.save()` 失败不会自动回滚，失败的 insert/update/delete 会残留在 pending changes 中污染同一上下文的后续保存（如唯一约束冲突后下一次 save 继续失败，导入/编辑链路被卡死）；`saveOrRollback` 失败即 `rollback()` 并重抛，保证上下文回到调用前干净状态。编辑保存失败时 `MediaLifecycleService.saveEditedPhoto` 同时恢复记录全部旧属性（含 `category`，与「完整回滚」注释一致）。
 
-**媒体备份策略**：`Documents/MiPhotos` 下按可重建性分区（`IOSFileStorage` 写入/建目录时设置 `isExcludedFromBackup`，目录属性不向新文件传播故逐文件设置；失败仅记日志不阻断写入，备份排除是优化项）：
-- `Documents/MiPhotos/`（导入副本）：原图在系统相册可重新导入，可重建 —— 排除 iCloud/iTunes 备份。App 不会主动上传照片；编辑产物可能随用户启用的系统备份保存。
-- `Documents/MiPhotos/Edits/`（编辑产物，`ScanConfig.editsDirName`）：编辑成品只存沙盒且**不**同步回系统相册、无重建步骤（DB 只覆盖 URI），不可重建 —— **允许备份**。`EditorSaveService` 保存到 Edits 子目录（2026-08-09 评审阻塞项修复：此前全部排除备份，设备恢复后会出现「DB 记录仍在、图片文件缺失」）。
+**媒体备份策略**：`Documents/MiPhotos` 下按可重建性分区 + 用户可控（任务 3）：
+- `Documents/MiPhotos/Edits/`（编辑产物，`ScanConfig.editsDirName`）：编辑成品只存沙盒且**不**同步回系统相册、无重建步骤（DB 只覆盖 URI），不可重建 —— **始终允许备份**。`EditorSaveService` 保存到 Edits 子目录（2026-08-09 评审阻塞项修复：此前全部排除备份，设备恢复后会出现「DB 记录仍在、图片文件缺失」）。
+- `Documents/MiPhotos/`（导入副本）：默认**排除** iCloud/iTunes 备份（`isExcludedFromBackup`，原图在系统相册可重建，节省云空间）。用户可在设置页切换为 `dataSafe` 模式——`PhotoBackupMode` 枚举 + `@AppStorage("photoBackupMode")` + `IOSFileStorage` 闭包延迟求值；切换后 `reapplyBackupExclusion` 立即遍历已有文件重标记，避免「系统相册已清/换 Apple ID」时导入副本随系统备份恢复时缺失。
+App 不会主动上传照片；编辑产物可能随用户启用的系统备份保存；离线备份导出（`.milensbackup`）始终包含全部照片（含导入副本），不受此设置影响。
 `MediaLifecycleService.auditOrphans` 与 `AppDependencies.destroyPersistentStore` 提示文案均覆盖两个目录。
 
 **离线备份/恢复**（[ADR-0010 §8](docs/adr/0010-commercialization-and-emotion-triggers.md)，2026-08-12 实施）：`BackupService` 将照片原图 + 编辑产物 + 完整元数据（Pet/Photo/PetEvent 的 Codable 快照）打包为 `.milensbackup`（ZIP，store 模式）。ZIP 能力由 MiLensKit `ZIPArchive`（纯 Swift，无第三方依赖）提供——决策不引入 ZIPFoundation 等三方库，保持项目完整 Swift 重写原则；store 模式对已压缩的 JPEG 几乎无体积惩罚且实现极简。导出经 ShareSheet 交给用户选择存储位置（Files/iCloud Drive/AirDrop），不联网；恢复经 DocumentPicker 选择备份文件，校验 `manifest.schemaVersion` 后合并导入（同 ID 跳过，不覆盖现有数据）。导出为 Pro 专属，恢复对所有用户开放。这是换机/丢机/删 App 场景下数据不丢失的**主路径**——系统 iCloud 备份是被动兜底，离线备份是用户主动的跨设备迁移与归档手段，不依赖用户是否开启系统备份。

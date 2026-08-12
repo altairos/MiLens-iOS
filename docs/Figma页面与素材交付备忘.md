@@ -1,11 +1,11 @@
 # MiLens Figma 页面与素材交付备忘
 
-> 核对日期：2026-08-12（12 组可复用组件、重点流程浅深色精修、Surface/Media、iPad 自适应与字号/安全区审计）
+> 核对日期：2026-08-12（12 张 Release Candidate 定稿、12 组可复用组件、重点流程浅深色精修、Surface/Media、iPad 自适应与字号/安全区审计）
 > 用途：作为 Figma 高保真设计、页面拆帧、视觉素材制作和 iOS 交付排期的工作清单。  
 > 事实来源：当前 SwiftUI 路由与页面代码、`UI-DESIGN.md`、`DESIGN.md`、`PLAN.md`、ADR-0008/0010。  
 > 状态口径：**已有** = 当前代码已有可运行页面或交互骨架；**待打磨** = 页面/能力存在，但还需要高保真视觉和完整状态设计；**待交付** = 只有规划、协议或算法接口，尚未形成可用页面/素材。
 
-> Figma 框架进度（2026-08-12）：连接文件已收敛到 `MiLens V1 · Product Screens` 页面，以编号 Section 管理主页面、Applied、Core Flow、探索稿和 Design System。`11 · Design System · Foundations` / `12 · Design System · Components` 已建立；主行动、底部导航、偏好行、拼豆控件、档案面板、档案读数和身份条共 12 组组件已定稿并回写 Release Candidate / Dark Mode / Applied / Core Flow。`13 · Adaptive Layout · iPad` 已补档案双栏、拼豆设置/结果与结果深色稿；Paywall、Bead Studio / Generating、Core Flow Precision / Add Memory 的浅色/深色稿也已完成重点精修和安全区校正。当前仍缺完整异常状态和 SwiftUI 对应实现，不等同于 iOS 已交付。
+> Figma 框架进度（2026-08-12）：连接文件已收敛到 `MiLens V1 · Product Screens` 页面，以编号 Section 管理主页面、Applied、Core Flow、探索稿和 Design System。`Release Candidate · FINAL` 已按 `01–12` 收齐首页、伙伴档案、时间线、图库、创作、Paywall、我的、照片详情、添加记忆、拼豆结果、拼豆设置与拼豆生成。`11 · Design System · Foundations` / `12 · Design System · Components` 已建立；主行动、底部导航、偏好行、拼豆控件、档案面板、档案读数和身份条共 12 组组件已定稿并回写 Release Candidate / Dark Mode / Applied / Core Flow。`13 · Adaptive Layout · iPad` 已补档案双栏、拼豆设置/结果与结果深色稿；重点流程浅色/深色稿也已完成精修和安全区校正。当前仍缺完整异常状态和 SwiftUI 对应实现，不等同于 iOS 已交付。
 
 > 2026-08-12 视觉定稿节点：[08 · Applied Refinement · Micro Grammar](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=140-292) 与 [09 · Core Flow · Precision Continuity](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=211-240)。功能代码落地以这两个节点和 [UI-DESIGN.md §5.4–§5.5](../UI-DESIGN.md#54-底部主导航memory-orbit) 为准；横向主行动采用 `Focus Dial`（加入/保存记忆）、`Contact Proof`（仅照片扫描/导入）和 `Darkroom Pulse`（拼豆生成/高清导出）三种语义变体，不再参考旧的 `Archive Spine Action`、悬浮 Tab、全圆胶囊、缺角主按钮、装订点、手绘装饰线或文本化 Core Flow 探索稿。
 
@@ -13,7 +13,7 @@
 
 > 可复用组件节点：[`Action/Focus Dial` 259:344](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=259-344)、[`Action/Contact Proof` 262:314](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=262-314)、[`Action/Darkroom Pulse` 263:368](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=263-368)、[`Navigation/Memory Orbit` 272:582](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=272-582)、[`Control/Preference Row` 275:522](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=275-522)、[`Control/Studio Effect Proof` 309:777](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=309-777)、[`Control/Studio Size Selector` 285:597](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=285-597)、[`Control/Studio View Mode` 286:564](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=286-564)、[`Control/Studio Range` 287:574](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=287-574)、[`Data/Archive Stat` 295:587](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=295-587)、[`Surface/Archive Panel` 296:629](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=296-629)、[`Surface/Identity Strip` 299:615](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=299-615)。iPad 参考画板见 [`13 · Adaptive Layout · iPad` 306:669](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=306-669)；组件变体、尺寸 token、动效和 SwiftUI 映射以 [UI-DESIGN.md §5.6](../UI-DESIGN.md#56-figma-可复用组件契约2026-08-12) 为唯一说明。
 
-> 重点精修节点：[`Paywall` 58:25](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=58-25)、[`Bead Studio / Generating` 91:366](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=91-366)、[`Core Flow Precision / Add Memory` 211:340](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=211-340)，对应深色节点为 `79:712`、`84:365`、`79:380`。本轮审计 Release Candidate、Dark Mode、iPad、Foundations 与 Components 共 743 个文本节点：仅两枚纯装饰完成符号为 9pt，正文/交互文字不小于 11pt；六张目标画板无文字越界或截断，顶部 47pt、底部 34pt iPhone 参考安全区已校正。详细规则见 [UI-DESIGN.md §4.1 与 §5.7](../UI-DESIGN.md#57-重点流程精修与字号验收2026-08-12)。
+> 重点精修节点：[`Paywall` 58:25](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=58-25)、[`Bead Studio / Generating` 91:366](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=91-366)、[`Core Flow Precision / Add Memory` 211:340](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=211-340)，对应深色节点为 `79:712`、`84:365`、`79:380`。本轮审计 Release Candidate、Dark Mode、iPad、Foundations 与 Components 共 743 个文本节点，全部不小于 10pt，正文/交互文字不小于 11pt；最终 12 张主稿的 224 个文本节点无缺失字体、禁用字体、截断或越界，顶部 47pt、底部 34pt iPhone 参考安全区与 44×44pt 顶部操作控件已校正，四个 `Memory Orbit` 实例的命中区域止于 `y=810pt`。详细规则见 [UI-DESIGN.md §4.1 与 §5.7](../UI-DESIGN.md#57-重点流程精修与字号验收2026-08-12)。
 
 ## 1. 先记住的边界
 
@@ -257,24 +257,24 @@
 6. **再做情感资产**：多模板伙伴卡、纪念卡、成长对比、月度精选、年度回忆册。
 7. **最后做商业化增强素材**：相框、贴纸、相簿皮肤、实体打印；每一类先完成 1 个可用主题，再扩充数量。
 
-## 8. 当前最值得立即开 Figma 的 12 张主稿
+## 8. Release Candidate 已定稿的 12 张主稿
 
-如果按“先能看懂产品，再逐步补齐”的方式推进，建议第一批制作：
+[`MiLens · Release Candidate · FINAL`](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=58-2) 目前包含：
 
-1. O-01 欢迎页
-2. O-03 扫描页
-3. O-04 创建第一份档案
-4. H-01 首页有今日照片
-5. G-01 相册内容页
-6. G-05 导入确认页
-7. P-02 伙伴档案页
-8. TL-01 成长时间线
-9. PH-01 照片大图页
-10. E-01 图片编辑器默认态
-11. C-01 创作首页
-12. B-04 拼豆结果 / PC-02 伙伴卡片二选一作为第一张作品展示页
+1. [`01 · 首页`](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=319-1026)
+2. [`02 · 伙伴档案`](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=319-1095)
+3. [`03 · 时间线`](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=140-348)
+4. [`04 · 图库`](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=211-243)
+5. [`05 · 创作`](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=58-15)
+6. [`06 · MiLens Pro`](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=58-25)
+7. [`07 · 我的`](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=140-415)
+8. [`08 · 照片详情`](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=211-306)
+9. [`09 · 添加记忆`](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=211-340)
+10. [`10 · 拼豆结果`](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=211-492)
+11. [`11 · 拼豆设置`](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=91-248)
+12. [`12 · 拼豆生成`](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=91-366)
 
-这 12 张完成后，再沿各自页面的状态分支扩展，不要先批量制作尚未有真实页面和资源支撑的“未来功能宫格”。
+这 12 张已经完成正常态的统一视觉、安全区与字号验收；后续优先沿真实功能补加载、空、失败、权限拒绝、取消和购买恢复等状态分支，不批量制作尚无代码或资源支撑的“未来功能宫格”。
 
 ## 9. 维护规则
 

@@ -71,7 +71,7 @@ final class AppDependencies {
     /// - Parameter isTesting: 测试环境切 in-memory 容器（避免模拟器 Application
     ///   Support 目录不可写导致 CoreData 存储错误噪音）。
     static func make(isTesting: Bool) throws -> AppDependencies {
-        let schema = Schema(versionedSchema: SchemaV1.self)
+        let schema = Schema(versionedSchema: SchemaV2.self)
         let config = isTesting
             ? ModelConfiguration(isStoredInMemoryOnly: true)
             : ModelConfiguration()
@@ -92,7 +92,14 @@ final class AppDependencies {
         // 照片库适配器：真实 Photos 框架实现（授权 + 流式遍历）。
         let photoLibrary: any PhotoLibraryAccess = IOSPhotoLibraryAccess()
         // 文件存储：真实 FileManager 实现（导入/编辑产物写入沙盒，重启后仍存在）。
-        let fileStorage: any FileStorage = IOSFileStorage()
+        // 导入副本是否排除系统备份由用户偏好决定（任务 3）：闭包延迟读取 UserDefaults，
+        // 响应用户在设置页切换 PhotoBackupMode。
+        let fileStorage: any FileStorage = IOSFileStorage(
+            excludePhotosFromBackup: {
+                let raw = UserDefaults.standard.string(forKey: "photoBackupMode") ?? ""
+                return SettingsLogic.shouldExcludePhotos(PhotoBackupMode.parse(raw))
+            }
+        )
         // 媒体生命周期：事务一致性（导入回滚 / 删除联动 / 启动孤儿审计）。
         let sandboxDir = URL.documentsDirectory
             .appendingPathComponent(ScanConfig.sandboxDirName).path

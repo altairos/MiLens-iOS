@@ -4,11 +4,11 @@
 //  .environment(\.fileStorage) 注入（DESIGN.md §9 平台适配层）。
 //  写文件前自动创建父目录，保证 ImportService / EditorSaveService 不依赖调用方建目录。
 //
-//  备份策略（V1.0）：按目录区分可重建性——
-//  - Documents/MiPhotos/ 下的导入副本（原图在系统相册可重新导入）按 Apple 指引
-//    排除 iCloud/iTunes 备份；App 不主动上传照片，但编辑产物允许随用户启用的系统备份保存；
-//  - Documents/MiPhotos/Edits/ 下的编辑成品（系统相册中没有编辑后版本，
-//    删除后不可重建）允许备份，保证设备恢复后编辑产物不丢失（DESIGN.md §7）。
+//  备份策略（V1.0）：按目录区分可重建性 + 用户可控（任务 3）——
+//  - Documents/MiPhotos/Edits/ 下的编辑成品始终允许备份（不可重建）；
+//  - Documents/MiPhotos/ 下的导入副本默认排除 iCloud/iTunes 备份（节省云空间）；
+//    用户可在设置页切换为 dataSafe 模式，将导入副本也纳入系统备份。
+//    切换后调用 reapplyBackupExclusion 立即重标记已有文件。
 
 import Foundation
 import os
@@ -17,6 +17,12 @@ import os
 final class IOSFileStorage: FileStorage, @unchecked Sendable {
 
     private let logger = Logger(subsystem: "com.milens.app", category: "FileStorage")
+    /// 导入副本是否排除系统备份（用户可配置，闭包延迟求值以响应用户切换）。
+    private let excludePhotosFromBackup: @Sendable () -> Bool
+
+    init(excludePhotosFromBackup: @Sendable @escaping () -> Bool = { true }) {
+        self.excludePhotosFromBackup = excludePhotosFromBackup
+    }
 
     func copy(from source: String, to destination: String) async throws {
         guard fileExists(at: source) else {
@@ -91,11 +97,13 @@ final class IOSFileStorage: FileStorage, @unchecked Sendable {
     }
 
     /// 对沙盒「可重建的导入副本」设置排除备份（isExcludedFromBackup）。
-    /// 仅作用于 Documents/MiPhotos/ 下、非 Edits 子目录的媒体（编辑成品允许备份）；
+    /// 仅作用于 Documents/MiPhotos/ 下、非 Edits 子目录的媒体（编辑成品始终允许备份）；
     /// 目录属性不向新建文件传播，因此写入时逐文件设置；失败仅记日志不阻断写入
     /// （备份排除是优化项，不应让文件操作失败）。
+    /// 用户可在设置页切换为 dataSafe 模式——此时不排除导入副本（纳入系统备份）。
     private func applyBackupExclusionIfNeeded(at path: String) {
-        guard path.contains("/Documents/\(ScanConfig.sandboxDirName)/"),
+        guard excludePhotosFromBackup(),
+              path.contains("/Documents/\(ScanConfig.sandboxDirName)/"),
               !path.contains("/\(ScanConfig.sandboxDirName)/\(ScanConfig.editsDirName)/") else {
             return
         }
@@ -107,5 +115,48 @@ final class IOSFileStorage: FileStorage, @unchecked Sendable {
         } catch {
             logger.error("applyBackupExclusion: 设置排除备份失败（\(path)，\(error.localizedDescription)）")
         }
+    }
+
+    /// 用户切换备份模式后，重新标记已有文件的 isExcludedFromBackup 属性。
+    /// 遍历沙盒目录，对导入副本（非 Edits 子目录）设置或清除排除标记。
+    /// Edits 子目录始终不排除（编辑成品不可重建，始终允许备份）。
+    /// - Parameters:
+    ///   - sandboxDir: 沙盒媒体根目录（Documents/MiPhotos）
+    ///   - exclude: 导入副本是否排除系统备份
+    func reapplyBackupExclusion(in sandboxDir: String, exclude: Bool) async {
+        let fm = FileManager.default
+        let dirURL = URL(fileURLWithPath: sandboxDir)
+        let editsMarker = "/\(ScanConfig.sandboxDirName)/\(ScanConfig.editsDirName)/"
+
+        guard let enumerator = fm.enumerator(
+            at: dirURL,
+            includingPropertiesForKeys: [.isRegularFileKey],
+            options: [.skipsHiddenFiles]
+        ) else {
+            logger.warning("reapplyBackupExclusion: 目录不存在或无法枚举（\(sandboxDir)）")
+            return
+        }
+
+        var reapplied = 0
+        for case let url as URL in enumerator {
+            // 仅处理常规文件（跳过子目录本身）
+            guard let isRegular = try? url.resourceValues(forKeys: [.isRegularFileKey]).isRegularFile,
+                  isRegular == true else { continue }
+            // Edits 子目录始终不排除
+            if url.path.contains(editsMarker) { continue }
+            // 仅处理 MiPhotos 下的导入副本
+            guard url.path.contains("/\(ScanConfig.sandboxDirName)/") else { continue }
+
+            var mutableURL = url
+            var values = URLResourceValues()
+            values.isExcludedFromBackup = exclude
+            do {
+                try mutableURL.setResourceValues(values)
+                reapplied += 1
+            } catch {
+                logger.error("reapplyBackupExclusion: 设置 \(url.path) 失败（\(error.localizedDescription)）")
+            }
+        }
+        logger.info("reapplyBackupExclusion: 已重新标记 \(reapplied) 个文件（exclude=\(exclude)）")
     }
 }

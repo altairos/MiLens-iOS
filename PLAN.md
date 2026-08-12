@@ -52,7 +52,7 @@
 - [x] Figma Direction D「Memory Orbit」底部导航落地：350×70 浮层、四套固定矢量路径、无可见文字、浅/深色 token、VoiceOver Selected 状态与稳定 UI Test 标识；页面生命周期仍由系统 `TabView` 管理
 - [x] Figma 可复用组件库定稿（2026-08-12）：主行动、`Navigation/Memory Orbit`、偏好行、拼豆控件，以及 `Data/Archive Stat`、`Surface/Archive Panel`、`Surface/Identity Strip` 共 12 组组件已建立变量、变体、可编辑属性和使用边界，并以实例回写 Release Candidate / Dark Mode / Applied / Core Flow / iPad Adaptive Layout；节点与代码映射见 [UI-DESIGN.md §5.6](UI-DESIGN.md#56-figma-可复用组件契约2026-08-12)
 - [x] Figma iPad 自适应参考稿完成（2026-08-12）：[`13 · Adaptive Layout · iPad`](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=306-669) 包含档案双栏、拼豆设置双栏、拼豆结果检查器及结果深色稿；834×1194pt 画板均显式保留顶部 24pt / 底部 20pt 参考安全区，组件与内容无越界。代码仍须使用实时 safe area、size class 与可用宽度决策
-- [x] Figma 重点流程精修与字号审计完成（2026-08-12）：Paywall、Bead Studio / Generating、Core Flow Precision / Add Memory 的浅色/深色共 6 张画板已统一为生命档案纸、显影记录和精确输入轨语法；交付范围 743 个文本节点中仅两枚装饰完成符号为 9pt，正文/交互文字不小于 11pt；目标画板无越界或截断，顶部 47pt、底部 34pt iPhone 参考安全区已校正。节点与实现边界见 [UI-DESIGN.md §5.7](UI-DESIGN.md#57-重点流程精修与字号验收2026-08-12)
+- [x] Figma 12 页 Release Candidate 定稿与字号审计完成（2026-08-12）：目录 `01–12` 已覆盖首页、伙伴档案、时间线、图库、创作、Paywall、我的、照片详情、添加记忆、拼豆结果、拼豆设置与拼豆生成；重点流程的浅/深色稿已统一为生命档案纸、显影记录和精确输入轨语法。交付范围 743 个文本节点均不小于 10pt，正文/交互文字不小于 11pt；最终 12 张主稿的 224 个文本节点无缺失字体、截断或越界，顶部 47pt、底部 34pt iPhone 参考安全区及 44×44pt 顶部操作控件已校正，四个 `Memory Orbit` 实例的命中区域止于 Home Indicator 参考区上沿。节点与实现边界见 [UI-DESIGN.md §5.7](UI-DESIGN.md#57-重点流程精修与字号验收2026-08-12)
 - [ ] 按 2026-08-12 Figma 组件 [`Navigation/Memory Orbit`](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=272-582) 更新 `MemoryOrbitTabBar`：悬浮胶囊改为贴底安全区材质平面；选中短刻度改为精确深铜红直线；圆形轨道以三层矢量弧实现右深粗、左浅细的锥度和约 0.34–0.38s 描边动效；Reduce Motion 直接显示最终态，并补 iPhone/iPad、浅/深色截图测试
 - [ ] 按 2026-08-12 Figma Action 组件实现 `PrimaryActionMaterialStyle`（名称可随代码结构调整）及三种语义变体：`.contactProof` 仅用于照片扫描/导入，`.focusDial` 用于加入记忆与保存记忆，`.darkroomPulse` 用于生成拼豆与高清导出；按 [UI-DESIGN.md §5.5–§5.6](UI-DESIGN.md#55-容器微语法precision-fold-material) 落实动作专属矢量图形、44pt 最小触控区、浅/深色 token、Reduce Motion 与 iPhone/iPad 截图测试，禁止回退到统一书脊尾块、全圆胶囊、缺角按钮、装订点或手绘装饰线
 - [ ] 将设置页 01–02 落实为 `PreferenceRow`（Toggle On/Off、Disclosure），保持 03–04「支持与版本」独立分组；Switch 使用 SwiftUI 原生行为与 44pt 点击语义，不实现手绘圈线或装饰性假开关
@@ -456,8 +456,8 @@ MiLens 是纯本地 App，照片副本与档案数据存于沙盒，对用户具
 
 ### 验收标准
 
-- [ ] 任务 1：`ZIPArchive` 纯逻辑测试（WSL2 全绿）+ `ZipBackupService` 服务测试（待 Mac）。
-- [ ] 任务 1：设置页备份导出/恢复入口可用（ShareSheet 导出 + DocumentPicker 导入）。
-- [ ] 任务 2：引导提示文案与入口就位。
-- [ ] 任务 3：策略评估（是否给开关或强制导出含导入副本）。
+- [x] 任务 1：`ZIPArchive` 纯逻辑测试（WSL2 12/12 全绿）+ `ZipBackupService` 服务测试（代码就绪，待 Mac）。
+- [x] 任务 1：设置页备份导出/恢复入口可用（ShareSheet 导出 + DocumentPicker 导入）。
+- [x] 任务 2：引导提示文案与入口就位（设置页「数据与隐私」分区：数据安全提示 + .milensbackup 使用引导）。
+- [x] 任务 3：用户可控开关已实现（`PhotoBackupMode` 枚举 + `@AppStorage("photoBackupMode")` + `IOSFileStorage.reapplyBackupExclusion` 切换后立即重标记已有文件 + 5 纯逻辑用例）。
 - [ ] 真机验证：完整导出 → 删 App → 重装 → 恢复，数据（宠物档案 + 照片 + 编辑产物 + 事件）完整还原。

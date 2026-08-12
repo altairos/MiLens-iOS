@@ -260,4 +260,77 @@ final class TimelineLogicTests: XCTestCase {
                                     isYearStart: true, entries: [])]
         XCTAssertNil(TimelineLogic.findMonthIndex(containing: "missing", in: months))
     }
+
+    // MARK: - SchemaV2：用户文本记忆（textNote）
+
+    func testBuildTimelineEntriesCreatesTextNoteForUserSourceWithBody() {
+        let petID = UUID()
+        let ev = TimelinePetEvent(
+            id: UUID(), petID: petID, eventType: "custom",
+            eventDate: date(2026, 5, 16), title: "生日记忆",
+            body: "两岁了。愿以后每一年，我们都还能这样看着彼此。",
+            sourceType: "user"
+        )
+        let entries = TimelineLogic.buildTimelineEntries(
+            input(pets: [pet(petID, name: "小满")], petEvents: [ev], now: date(2026, 6, 1)),
+            calendar: cal)
+        let notes = entries.filter { $0.type == .textNote }
+        XCTAssertEqual(notes.count, 1)
+        XCTAssertEqual(notes[0].bodyText, "两岁了。愿以后每一年，我们都还能这样看着彼此。")
+        XCTAssertEqual(notes[0].sourceType, "user")
+        XCTAssertEqual(notes[0].title, "生日记忆")
+    }
+
+    func testBuildTimelineEntriesSkipsTextNoteWhenBodyEmpty() {
+        let petID = UUID()
+        // sourceType=user 但 body 为空 → 不应生成 textNote，回落为系统事件
+        let ev = TimelinePetEvent(
+            id: UUID(), petID: petID, eventType: "birthday",
+            eventDate: date(2026, 5, 16), title: "生日",
+            body: "", sourceType: "user"
+        )
+        let entries = TimelineLogic.buildTimelineEntries(
+            input(pets: [pet(petID, name: "小满")], petEvents: [ev], now: date(2026, 6, 1)),
+            calendar: cal)
+        let notes = entries.filter { $0.type == .textNote }
+        XCTAssertEqual(notes.count, 0)
+        // 应回落为系统事件（birthday）
+        XCTAssertFalse(entries.filter { $0.type == .birthday }.isEmpty)
+    }
+
+    func testBuildTimelineEntriesSkipsTextNoteForSystemSource() {
+        let petID = UUID()
+        // sourceType=system → 不生成 textNote
+        let ev = TimelinePetEvent(
+            id: UUID(), petID: petID, eventType: "birthday",
+            eventDate: date(2026, 5, 16), title: "生日",
+            body: "不应出现的正文", sourceType: "system"
+        )
+        let entries = TimelineLogic.buildTimelineEntries(
+            input(pets: [pet(petID, name: "小满")], petEvents: [ev], now: date(2026, 6, 1)),
+            calendar: cal)
+        let notes = entries.filter { $0.type == .textNote }
+        XCTAssertEqual(notes.count, 0)
+    }
+
+    func testTextNoteSortsWithOtherEntriesByDate() {
+        let petID = UUID()
+        let textEv = TimelinePetEvent(
+            id: UUID(), petID: petID, eventType: "custom",
+            eventDate: date(2026, 5, 16), title: "生日记忆",
+            body: "两岁了。", sourceType: "user"
+        )
+        let photo = TimelinePhoto(
+            id: UUID(), petID: petID, takenAt: date(2026, 6, 18),
+            note: "夏天", uri: "", thumbnailPath: ""
+        )
+        let entries = TimelineLogic.buildTimelineEntries(
+            input(pets: [pet(petID, name: "小满")], petEvents: [textEv],
+                  photoEvents: [photo], now: date(2026, 7, 1)),
+            calendar: cal)
+        // textNote (5月) 应在 photoNote (6月) 之前
+        XCTAssertEqual(entries.count, 2)
+        XCTAssertEqual(entries[0].type, .textNote)
+        XCTAssertEqual(entries[1].type, .photoNote)
+    }
 }

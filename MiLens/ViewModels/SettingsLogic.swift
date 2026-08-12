@@ -19,6 +19,22 @@ enum AppearanceMode: String, CaseIterable, Sendable {
     }
 }
 
+// MARK: - 照片副本系统备份策略（任务 3）
+
+/// 照片副本是否参与系统 iCloud/iTunes 备份（DESIGN.md §7 媒体备份策略）。
+/// - cloudOptimized：导入副本排除系统备份（默认，节省云空间——原图在系统相册可重建）
+/// - dataSafe：导入副本纳入系统备份（数据安全优先——防止系统相册已清/换 Apple ID 时丢失）
+/// 编辑成品（Edits/）始终允许备份，不受此设置影响。
+enum PhotoBackupMode: String, CaseIterable, Sendable {
+    case cloudOptimized
+    case dataSafe
+
+    /// 解析持久化值；未知值回退 cloudOptimized（安全默认值）。
+    static func parse(_ rawValue: String) -> PhotoBackupMode {
+        PhotoBackupMode(rawValue: rawValue) ?? .cloudOptimized
+    }
+}
+
 // MARK: - 纪念提醒开关决策
 
 enum ReminderToggleDecision: Equatable {
@@ -65,6 +81,14 @@ enum SettingsLogic {
     static func resolveReminderToggle(enabled: Bool, authorized: Bool) -> ReminderToggleDecision {
         guard enabled else { return .cancelAll }
         return authorized ? .schedule : .rollbackAndPrompt
+    }
+
+    // MARK: 照片副本备份策略
+
+    /// 根据备份模式决定导入副本是否排除系统备份。
+    /// cloudOptimized → true（排除，节省云空间）；dataSafe → false（纳入，数据安全优先）。
+    static func shouldExcludePhotos(_ mode: PhotoBackupMode) -> Bool {
+        mode == .cloudOptimized
     }
 
     // MARK: 字体许可（Resources/Fonts/README.md 为事实来源）

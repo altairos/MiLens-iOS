@@ -1,0 +1,117 @@
+//  BeadResultComponents —— 拼豆结果页输出面板组件。
+//  从 BeadPatternResultView 拆出（规模守卫，DESIGN.md §6 / AGENTS.md §3）。
+//  对照 Figma #313:1428-1448（Export Inspector · Archive Output）。
+
+import SwiftUI
+
+/// 作品输出面板：HD 保存 / 分享 / A4 图纸 + Darkroom Pulse 导出按钮。
+/// 复用与 exportDock 相同的导出逻辑（onExport / onShare）。
+struct BeadResultOutputPanel: View {
+    let isExporting: Bool
+    let onExport: () -> Void
+    let onShare: () -> Void
+    let onA4Paywall: () -> Void
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            Text("ARCHIVE OUTPUT")
+                .font(.custom("Jacques Francois", size: 10))
+                .tracking(0.4)
+                .foregroundStyle(Color.milensActionPrimary)
+                .padding(.horizontal, 16)
+                .padding(.top, 18)
+
+            Text("将这一次的作品永久珍藏")
+                .font(.custom("LXGWWenKai-Regular", size: 20))
+                .foregroundStyle(Color.milensTextPrimary)
+                .padding(.horizontal, 16)
+                .padding(.top, 4)
+                .padding(.bottom, 14)
+
+            // 输出选项列表（对照 #313:1430-1447）
+            outputRow(title: String(localized: "create.bead.saveHd"),
+                      desc: "原始像素 · 透明背景可选", badge: nil,
+                      action: onExport)
+            outputSeparator
+
+            outputRow(title: "分享作品",
+                      desc: "系统分享面板", badge: nil,
+                      action: onShare)
+            outputSeparator
+
+            outputRow(title: "A4 制作图纸",
+                      desc: "单页 PDF · 打印友好", badge: "PRO",
+                      action: onA4Paywall)
+            outputSeparator
+
+            // Darkroom Pulse 导出按钮（对照 #313:1448）
+            Button {
+                onExport()
+            } label: {
+                Group {
+                    if isExporting {
+                        HStack(spacing: 8) {
+                            ProgressView().tint(.white)
+                            Text(String(localized: "create.bead.exporting"))
+                                .font(.system(size: 15, weight: .bold))
+                                .foregroundStyle(.white)
+                        }
+                    } else {
+                        Text(String(localized: "create.bead.saveHd"))
+                            .font(.system(size: 15, weight: .bold))
+                            .foregroundStyle(.white)
+                    }
+                }
+                .frame(maxWidth: .infinity, minHeight: 52)
+            }
+            .buttonStyle(.plain)
+            .disabled(isExporting)
+            .padding(.horizontal, 16)
+            .padding(.top, 12)
+            .padding(.bottom, 16)
+        }
+        .background(Color.milensCard)
+        .overlay(
+            RoundedRectangle(cornerRadius: 18, style: .continuous)
+                .stroke(Color.milensBorder, lineWidth: 1)
+        )
+        .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
+    }
+
+    /// 输出选项行（对照 #313:1430-1446）
+    private func outputRow(title: String, desc: String, badge: String?, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            HStack(spacing: 0) {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(title)
+                        .font(.system(size: 13, weight: .medium))
+                        .foregroundStyle(Color.milensTextPrimary)
+                    Text(desc)
+                        .font(.system(size: 10))
+                        .foregroundStyle(Color.milensTextTertiary)
+                }
+                Spacer()
+                if let badge {
+                    Text(badge)
+                        .font(.system(size: 11, weight: .medium))
+                        .foregroundStyle(Color.milensActionPrimary)
+                        .padding(.horizontal, 10)
+                        .padding(.vertical, 4)
+                        .background(Color.milensAccentSoft)
+                        .clipShape(Capsule())
+                }
+            }
+            .padding(.horizontal, 16)
+            .padding(.vertical, 14)
+        }
+        .buttonStyle(.plain)
+        .disabled(isExporting)
+    }
+
+    private var outputSeparator: some View {
+        Rectangle()
+            .fill(Color.milensBorder)
+            .frame(height: 1)
+            .padding(.leading, 16)
+    }
+}

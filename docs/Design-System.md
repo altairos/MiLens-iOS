@@ -151,11 +151,13 @@
 
 | Figma 组件 | Node | SwiftUI 映射 | 设计约束 |
 |---|---|---|---|
-| `Control/Editor Tool Dock` | `423:909` | `EditorView` 一级工具坞 | 四态 Adjust/Crop/Text/Cutout；纸面边缘 + 铜色校准记号，标签与命中区退出 bottom safe area |
-| `Control/Workshop Value Rail` | `424:834` | 调色 Slider 行 | Figma Low/Mid/High 只做视觉验收；代码保留连续值、VoiceOver 调整与撤销历史 |
-| `Picker/Photo Proof Cell` | `425:822` | `GrowthComparePhotoPickerView` | A/B 是早期/近期业务角色；选中态使用接触校样边框，不退化为勾选胶囊 |
-| `Control/Creation Template Tab` | `425:835` | 宠物卡 / 名片模板选择轨 | Selected 用铜色折角与底槽；Locked 必须触发真实 Pro 门控 |
-| `Action/Output Register` | `426:833` | 编辑应用 / 保存相册 / 系统分享 | 双段输出动作；右侧暗房面只承载主动作，Pressed 的 Exposure Slit 不代替 Loading/Disabled |
+| `Navigation/Editor Group Dock` | `458:1145` | `EditorDockView` | `Active=Adjust/Smart/Decorate`，保留真实一级分组和底部安全区 |
+| `Navigation/Editor Tool Row` | `459:1158` | `EditorGroupToolRow` | `Group` 与 `Active` 分离；Adjust 展开 Crop/Rotate/Adjust，Smart 展开 Cutout，Decorate 展开 Text |
+| `Control/Workshop Value Rail` | `460:1133` | `EditorAdjustPanelView` / 文字字号 Slider | 连续值；`State=Default/Changed/Disabled`，代码保留 VoiceOver 调整与撤销历史 |
+| `Picker/Photo Proof Cell` | `462:1164` | `GrowthComparePhotoPickerView` | `Selection` 与 `Role=None/Earlier/Recent` 分离；选中勾选和时间角色均不可只靠颜色 |
+| `Control/Creation Template Tab` | `463:1149` | 宠物卡 / 名片模板选择轨 | `Index`、`Label` 独立覆写；Selected 用铜色底槽，Locked 触发真实 Pro 门控 |
+| `Action/Creation Output Register` | `466:1171` | 创作页保存 / 分享与 `SharePreviewSheet` | `Default/Pressed/Loading/Disabled` 四态；只承担成品输出 |
+| `Action/Editor Panel Register` | `466:1197` | 裁剪 / 文字 / 抠图面板动作 | `Default/Pressed/Loading/Disabled` 四态；只承担编辑面板的取消/确认 |
 
 创作页面只共用来源身份、模板轨与输出动作；成品本体保持不同几何：宠物卡为 4:5 纸样、成长对比为双时态长图、名片为横向信息层、红包为 957×1278 竖版及四场景预览。禁止把四类成品塞回同一种大圆角卡片。
 

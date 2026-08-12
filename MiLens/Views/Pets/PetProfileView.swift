@@ -78,7 +78,14 @@ struct PetProfileView: View {
             ScrollView {
                 VStack(spacing: 0) {
                     // 出血肖像 Hero（对照 #319:1096-1100）
-                    portraitHero(pet, height: 315)
+                    PortraitHero(
+                        path: portraitPath,
+                        emojiPlaceholder: PetProfileLogic.speciesEmoji(pet.species),
+                        name: pet.name,
+                        subtitle: petSubtitle(pet),
+                        height: 315,
+                        petID: pet.id
+                    )
 
                     // Archive Panel 浮起覆盖（对照 #319:1101）
                     archivePanel(pet)
@@ -100,8 +107,15 @@ struct PetProfileView: View {
             // 左列（376pt）：肖像 + 连续性标语
             ScrollView {
                 VStack(spacing: 18) {
-                    portraitHero(pet, height: 700)
-                    continuityNote(pet)
+                    PortraitHero(
+                        path: portraitPath,
+                        emojiPlaceholder: PetProfileLogic.speciesEmoji(pet.species),
+                        name: pet.name,
+                        subtitle: petSubtitle(pet),
+                        height: 700,
+                        petID: pet.id
+                    )
+                    ArchiveContinuityNote(pet: pet)
                 }
                 .padding(.bottom, Spacing.xxl)
             }
@@ -113,7 +127,7 @@ struct PetProfileView: View {
                 VStack(spacing: 18) {
                     archivePanel(pet)
                         .padding(.top, 0)
-                    timelineContinuation(pet)
+                    TimelineContinuationCard()
                 }
                 .padding(.bottom, Spacing.xxl)
             }
@@ -125,142 +139,7 @@ struct PetProfileView: View {
         .background(Color.milensBackground)
     }
 
-    // MARK: - Archive Continuity Note（对照 #307:680-684）
-
-    /// 左列底部的生命档案连续性标语：LIFE 编号 + 文楷引言 + 说明 + 基线。
-    private func continuityNote(_ pet: Pet) -> some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Text("LIFE 02 · \(PetDisplayLogic.daysTogether(from: pet.adoptionDay)) DAYS")
-                .font(.custom("Jacques Francois", size: 10))
-                .tracking(0.4)
-                .foregroundStyle(Color.milensActionPrimary)
-            Text("将散落的记忆，\n装订成流动的时间之河")
-                .font(.custom("LXGWWenKai-Regular", size: 28, relativeTo: .title2))
-                .foregroundStyle(Color.milensTextPrimary)
-            Text("从第一张照片、第一次出门，到每天微小的变化；所有片段都回到它发生的时间里。")
-                .font(.system(size: 14))
-                .foregroundStyle(Color.milensTextSecondary)
-                .fixedSize(horizontal: false, vertical: true)
-            Rectangle()
-                .fill(Color.milensBorder)
-                .frame(width: 180, height: 1)
-        }
-        .padding(.leading, 8)
-        .padding(.trailing, 24)
-        .padding(.top, 18)
-        .frame(maxWidth: .infinity, alignment: .leading)
-    }
-
-    // MARK: - Timeline Continuation 卡片（对照 #307:715-721）
-
-    /// 右列底部的时间线续页卡片：下一页日期 + 标题 + 副文 + 打开链接。
-    private func timelineContinuation(_ pet: Pet) -> some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Text("NEXT LEAF · 2026.06")
-                .font(.custom("Jacques Francois", size: 10))
-                .tracking(0.4)
-                .foregroundStyle(Color.milensActionPrimary)
-            Text("06. 18")
-                .font(.custom("Fraunces-Semibold", size: 34))
-                .foregroundStyle(Color.milensTextPrimary)
-            Text("夏天开始前的傍晚")
-                .font(.custom("LXGWWenKai-Regular", size: 20))
-                .foregroundStyle(Color.milensTextPrimary)
-            Text("一条风很大的路，一次主动跑进海水里的勇气。")
-                .font(.system(size: 13))
-                .foregroundStyle(Color.milensTextSecondary)
-            Rectangle()
-                .fill(Color.milensBorder)
-                .frame(height: 1)
-            NavigationLink(value: Route.timeline) {
-                HStack(spacing: 4) {
-                    Text("打开完整生命时间线")
-                        .font(.system(size: 14, weight: .medium))
-                        .foregroundStyle(Color.milensActionPrimary)
-                    Image(systemName: "arrow.right")
-                        .font(.system(size: 14, weight: .semibold))
-                        .foregroundStyle(Color.milensActionPrimary)
-                }
-            }
-            .buttonStyle(.plain)
-        }
-        .padding(22)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .background(Color.milensCard)
-        .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
-    }
-
     // MARK: - 出血肖像 Hero
-
-    /// 肖像大图 + 底部渐变 + 文楷名字 + 副标题 + More 按钮。
-    /// - Parameter height: Hero 高度（iPhone 315pt / iPad 700pt）。
-    private func portraitHero(_ pet: Pet, height: CGFloat) -> some View {
-        ZStack(alignment: .bottomLeading) {
-            // 大图 / 占位
-            if let path = portraitPath {
-                ThumbnailImage(path: path)
-                    .scaledToFill()
-                    .frame(maxWidth: .infinity)
-                    .frame(height: height)
-                    .clipped()
-            } else {
-                Color.milensAccentSoft
-                    .frame(height: height)
-                    .overlay(
-                        Text(PetProfileLogic.speciesEmoji(pet.species))
-                            .font(.system(size: 72))
-                    )
-            }
-
-            // 底部渐变（对照 Portrait Gradient #319:1097）
-            LinearGradient(
-                colors: [Color.black.opacity(0), Color.milensHeroGradientEnd.opacity(0.7)],
-                startPoint: .top,
-                endPoint: .bottom
-            )
-            .frame(height: min(height * 0.54, 330))
-            .frame(maxHeight: .infinity, alignment: .bottom)
-
-            // 名字 + 副标题（对照 #319:1099-1100）
-            VStack(alignment: .leading, spacing: 4) {
-                Text(pet.name)
-                    .font(.custom("LXGWWenKai-Regular", size: height > 400 ? 42 : 38,
-                                  relativeTo: .largeTitle))
-                    .foregroundStyle(.white)
-                Text(petSubtitle(pet))
-                    .font(.system(size: 13))
-                    .foregroundStyle(.white.opacity(0.92))
-            }
-            .padding(.leading, 28)
-            .padding(.bottom, height > 400 ? 32 : 16)
-
-            // 右上角 More Action 按钮（对照 #319:1098）
-            VStack {
-                HStack {
-                    Spacer()
-                    Menu {
-                        NavigationLink(value: Route.petEdit(petID: pet.id)) {
-                            Label(String(localized: "pet.profile.edit"), systemImage: "pencil")
-                        }
-                    } label: {
-                        Circle()
-                            .fill(.white)
-                            .frame(width: 44, height: 44)
-                            .overlay(
-                                Image(systemName: "ellipsis")
-                                    .font(.system(size: 16, weight: .semibold))
-                                    .foregroundStyle(Color.milensInk)
-                            )
-                    }
-                }
-                Spacer()
-            }
-            .padding(.trailing, 20)
-            .padding(.top, height > 400 ? 48 : 56)
-        }
-        .frame(height: height)
-        .clipShape(RoundedRectangle(cornerRadius: height > 400 ? 28 : 0, style: .continuous))
-    }
 
     /// 肖像数据源。
     private var portraitPath: String? {
@@ -354,24 +233,12 @@ struct PetProfileView: View {
         let memoryCount = pet.events.count
 
         return HStack(spacing: 0) {
-            archiveStatItem(value: "\(pet.photoCount)", label: String(localized: "pet.profile.stat.photos"))
-            archiveStatItem(value: "\(memoryCount)", label: String(localized: "pet.profile.stat.memories"))
-            archiveStatItem(value: "\(PetDisplayLogic.daysTogether(from: pet.adoptionDay))", label: String(localized: "pet.profile.stat.days"))
-            archiveStatItem(value: "\(workCount)", label: String(localized: "pet.profile.stat.works"))
+            ArchiveStatItem(value: "\(pet.photoCount)", label: String(localized: "pet.profile.stat.photos"))
+            ArchiveStatItem(value: "\(memoryCount)", label: String(localized: "pet.profile.stat.memories"))
+            ArchiveStatItem(value: "\(PetDisplayLogic.daysTogether(from: pet.adoptionDay))", label: String(localized: "pet.profile.stat.days"))
+            ArchiveStatItem(value: "\(workCount)", label: String(localized: "pet.profile.stat.works"))
         }
         .padding(.horizontal, 24)
-    }
-
-    private func archiveStatItem(value: String, label: String) -> some View {
-        VStack(spacing: 4) {
-            Text(value)
-                .font(.system(size: 28, weight: .bold))
-                .foregroundStyle(Color.milensTextPrimary)
-            Text(label)
-                .font(.system(size: 11))
-                .foregroundStyle(Color.milensTextSecondary)
-        }
-        .frame(maxWidth: .infinity)
     }
 
     // MARK: - 置顶记忆

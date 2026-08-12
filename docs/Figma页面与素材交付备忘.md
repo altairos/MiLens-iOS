@@ -1,11 +1,11 @@
 # MiLens Figma 页面与素材交付备忘
 
-> 核对日期：2026-08-12（12 张 Release Candidate 定稿、12 张 Image Workshop 扩展稿、12 组核心组件 + 5 组创作扩展组件、iPad 自适应与字号/安全区审计）
+> 核对日期：2026-08-12（12 张 Release Candidate 定稿、12 张 Image Workshop 扩展稿、12 组核心组件 + 7 组创作扩展组件、iPad 自适应与字号/安全区审计）
 > 用途：作为 Figma 高保真设计、页面拆帧、视觉素材制作和 iOS 交付排期的工作清单。  
 > 事实来源：当前 SwiftUI 路由与页面代码、`UI-DESIGN.md`、`DESIGN.md`、`PLAN.md`、ADR-0008/0010。  
 > 状态口径：**已有** = 当前代码已有可运行页面或交互骨架；**待打磨** = 页面/能力存在，但还需要高保真视觉和完整状态设计；**待交付** = 只有规划、协议或算法接口，尚未形成可用页面/素材。
 
-> Figma 框架进度（2026-08-12）：连接文件已收敛到 `MiLens V1 · Product Screens` 页面，以编号 Section 管理主页面、Applied、Core Flow、探索稿和 Design System。`Release Candidate · FINAL` 已按 `01–12` 收齐首页、伙伴档案、时间线、图库、创作、Paywall、我的、照片详情、添加记忆、拼豆结果、拼豆设置与拼豆生成。`11 · Design System · Foundations` / `12 · Design System · Components` 已建立；主行动、底部导航、偏好行、拼豆控件、档案面板、档案读数和身份条共 12 组核心组件已定稿。`13 · Adaptive Layout · iPad` 已补核心双栏；`14 · WidgetKit` 已交付小组件设计；新增 [`15 · Image Workshop · Editing & Keepsakes` 422:801](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=422-801)，按真实 SwiftUI 能力补齐 12 张图片编辑/创作页面和 5 组扩展组件。当前仍缺完整异常状态、深色/iPad 扩展稿和逐页 SwiftUI 视觉回写，不等同于 iOS 已交付。
+> Figma 框架进度（2026-08-12）：连接文件已收敛到 `MiLens V1 · Product Screens` 页面，以编号 Section 管理主页面、Applied、Core Flow、探索稿和 Design System。`Release Candidate · FINAL` 已按 `01–12` 收齐首页、伙伴档案、时间线、图库、创作、Paywall、我的、照片详情、添加记忆、拼豆结果、拼豆设置与拼豆生成。`11 · Design System · Foundations` / `12 · Design System · Components` 已建立；主行动、底部导航、偏好行、拼豆控件、档案面板、档案读数和身份条共 12 组核心组件已定稿。`13 · Adaptive Layout · iPad` 已补核心双栏；`14 · WidgetKit` 已交付小组件设计；新增 [`15 · Image Workshop · Editing & Keepsakes` 422:801](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=422-801)，按真实 SwiftUI 能力补齐 12 张图片编辑/创作页面和 7 组扩展组件。组件级对齐已完成，共 32 个连接实例；当前仍缺完整异常状态、深色/iPad 扩展稿和逐页 SwiftUI 视觉回写，不等同于 iOS 已交付。
 
 > 2026-08-12 视觉定稿节点：[08 · Applied Refinement · Micro Grammar](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=140-292) 与 [09 · Core Flow · Precision Continuity](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=211-240)。功能代码落地以这两个节点和 [UI-DESIGN.md §5.4–§5.5](../UI-DESIGN.md#54-底部主导航memory-orbit) 为准；横向主行动采用 `Focus Dial`（加入/保存记忆）、`Contact Proof`（仅照片扫描/导入）和 `Darkroom Pulse`（拼豆生成/高清导出）三种语义变体，不再参考旧的 `Archive Spine Action`、悬浮 Tab、全圆胶囊、缺角主按钮、装订点、手绘装饰线或文本化 Core Flow 探索稿。
 
@@ -341,7 +341,7 @@
 11. [`11 · Red Packet / Upload Guide` 422:845](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=422-845)
 12. [`12 · Output / Share Preview` 422:849](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=422-849)
 
-新增组件：[`Control/Editor Tool Dock` 423:909](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=423-909)、[`Control/Workshop Value Rail` 424:834](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=424-834)、[`Picker/Photo Proof Cell` 425:822](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=425-822)、[`Control/Creation Template Tab` 425:835](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=425-835)、[`Action/Output Register` 426:833](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=426-833)。
+扩展组件（2026-08-12 组件级对齐后）：[`Navigation/Editor Group Dock` 458:1145](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=458-1145)、[`Navigation/Editor Tool Row` 459:1158](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=459-1158)、[`Control/Workshop Value Rail` 460:1133](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=460-1133)、[`Picker/Photo Proof Cell` 462:1164](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=462-1164)、[`Control/Creation Template Tab` 463:1149](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=463-1149)、[`Action/Creation Output Register` 466:1171](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=466-1171)、[`Action/Editor Panel Register` 466:1197](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=466-1197)。旧 `Control/Editor Tool Dock` 与 `Action/Output Register` 已退役，不再作为实现依据。
 
 ## 10. 维护规则
 

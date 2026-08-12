@@ -19,14 +19,7 @@ struct AddPetSheet: View {
     @State private var adoptionDay: Date = Date()
     @State private var hasAdoptionDay = false
 
-    private let dateRange: ClosedRange<Date> = {
-        let cal = Calendar(identifier: .gregorian)
-        // 2000-01-01 在 Gregorian 日历必然有效；失败属于日历基础设施异常，显式崩溃并携带原因。
-        guard let start = cal.date(from: DateComponents(year: 2000, month: 1, day: 1)) else {
-            fatalError("无法构造 2000-01-01 日期（Gregorian 日历异常）")
-        }
-        return start...Date()
-    }()
+    private let dateRange: ClosedRange<Date> = Date.milensEpochStart...Date()
 
     var body: some View {
         NavigationStack {

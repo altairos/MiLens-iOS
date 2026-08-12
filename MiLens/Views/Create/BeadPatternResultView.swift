@@ -105,7 +105,12 @@ struct BeadPatternResultView: View {
                 ScrollView {
                     VStack(spacing: 14) {
                         identityStrip(pattern)
-                        outputFormatsPanel
+                        BeadResultOutputPanel(
+                            isExporting: vm.isExporting,
+                            onExport: { vm.export() },
+                            onShare: { share() },
+                            onA4Paywall: { showPaywall = true }
+                        )
                     }
                     .padding(.bottom, Spacing.xxl)
                 }
@@ -468,113 +473,6 @@ struct BeadPatternResultView: View {
         .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
     }
 
-    // MARK: - iPad 导出面板（对照 Figma #313:1427-1448 Archive Output）
-
-    /// iPad 右列导出面板：标题 + 列表式输出选项（保存/分享/A4）+ Export 按钮。
-    /// 复用与 exportDock 相同的导出逻辑（vm.export() / share()）。
-    private var outputFormatsPanel: some View {
-        VStack(alignment: .leading, spacing: 0) {
-            Text("ARCHIVE OUTPUT")
-                .font(.custom("Jacques Francois", size: 10))
-                .tracking(0.4)
-                .foregroundStyle(Color.milensActionPrimary)
-                .padding(.horizontal, 16)
-                .padding(.top, 18)
-
-            Text("将这一次的作品永久珍藏")
-                .font(.custom("LXGWWenKai-Regular", size: 20))
-                .foregroundStyle(Color.milensTextPrimary)
-                .padding(.horizontal, 16)
-                .padding(.top, 4)
-                .padding(.bottom, 14)
-
-            // 输出选项列表（对照 #313:1430-1447）
-            outputRow(title: String(localized: "create.bead.saveHd"),
-                      desc: "原始像素 · 透明背景可选", badge: nil,
-                      action: { vm.export() })
-            outputSeparator
-
-            outputRow(title: "分享作品",
-                      desc: "系统分享面板", badge: nil,
-                      action: { share() })
-            outputSeparator
-
-            outputRow(title: "A4 制作图纸",
-                      desc: "单页 PDF · 打印友好", badge: "PRO",
-                      action: { showPaywall = true })
-            outputSeparator
-
-            // Darkroom Pulse 导出按钮（对照 #313:1448）
-            Button {
-                vm.export()
-            } label: {
-                Group {
-                    if vm.isExporting {
-                        HStack(spacing: 8) {
-                            ProgressView().tint(.white)
-                            Text(String(localized: "create.bead.exporting"))
-                                .font(.system(size: 15, weight: .bold))
-                                .foregroundStyle(.white)
-                        }
-                    } else {
-                        Text(String(localized: "create.bead.saveHd"))
-                            .font(.system(size: 15, weight: .bold))
-                            .foregroundStyle(.white)
-                    }
-                }
-                .frame(maxWidth: .infinity, minHeight: 52)
-            }
-            .buttonStyle(.plain)
-            .disabled(vm.isExporting)
-            .padding(.horizontal, 16)
-            .padding(.top, 12)
-            .padding(.bottom, 16)
-        }
-        .background(Color.milensCard)
-        .overlay(
-            RoundedRectangle(cornerRadius: 18, style: .continuous)
-                .stroke(Color.milensBorder, lineWidth: 1)
-        )
-        .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
-    }
-
-    /// 输出选项行（对照 #313:1430-1446）
-    private func outputRow(title: String, desc: String, badge: String?, action: @escaping () -> Void) -> some View {
-        Button(action: action) {
-            HStack(spacing: 0) {
-                VStack(alignment: .leading, spacing: 3) {
-                    Text(title)
-                        .font(.system(size: 13, weight: .medium))
-                        .foregroundStyle(Color.milensTextPrimary)
-                    Text(desc)
-                        .font(.system(size: 10))
-                        .foregroundStyle(Color.milensTextTertiary)
-                }
-                Spacer()
-                if let badge {
-                    Text(badge)
-                        .font(.system(size: 11, weight: .medium))
-                        .foregroundStyle(Color.milensActionPrimary)
-                        .padding(.horizontal, 10)
-                        .padding(.vertical, 4)
-                        .background(Color.milensAccentSoft)
-                        .clipShape(Capsule())
-                }
-            }
-            .padding(.horizontal, 16)
-            .padding(.vertical, 14)
-        }
-        .buttonStyle(.plain)
-        .disabled(vm.isExporting)
-    }
-
-    private var outputSeparator: some View {
-        Rectangle()
-            .fill(Color.milensBorder)
-            .frame(height: 1)
-            .padding(.leading, 16)
-    }
-
     // MARK: - 导出逻辑（保留不变）
 
     private func share() {
@@ -587,21 +485,4 @@ struct BeadPatternResultView: View {
             }
         }
     }
-}
-
-// MARK: - 系统分享
-
-struct ShareItem: Identifiable {
-    let id = UUID()
-    let url: URL
-}
-
-struct ShareSheet: UIViewControllerRepresentable {
-    let items: [Any]
-
-    func makeUIViewController(context: Context) -> UIActivityViewController {
-        UIActivityViewController(activityItems: items, applicationActivities: nil)
-    }
-
-    func updateUIViewController(_ uiViewController: UIActivityViewController, context: Context) {}
 }

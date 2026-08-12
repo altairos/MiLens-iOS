@@ -158,17 +158,23 @@
 
 | Figma 组件 | Node | SwiftUI 映射 | 设计约束 |
 |---|---|---|---|
-| `Navigation/Editor Group Dock` | `458:1145` | `EditorDockView` | `Active=Adjust/Smart/Decorate`，保留真实一级分组和底部安全区 |
-| `Navigation/Editor Tool Row` | `459:1158` | `EditorGroupToolRow` | `Group` 与 `Active` 分离；Adjust 展开 Crop/Rotate/Adjust，Smart 展开 Cutout，Decorate 展开 Text |
-| `Control/Workshop Value Rail` | `460:1133` | `EditorAdjustPanelView` / 文字字号 Slider | 连续值；`State=Default/Changed/Disabled`，代码保留 VoiceOver 调整与撤销历史 |
+| `Navigation/Editor Group Dock` | `458:1145` | `EditorDockView` | `Active=Adjust/Smart/Decorate`；342×54pt 浅色连续导航面，三等分目标；中文标签固定 Noto Sans SC Medium 12pt、32pt 文本宽度，避免 Inter 回退裁字；选中项为深铜红图标、文字与 48×2pt 短刻度，未选项为 `color/text/secondary`；不使用暗色材质、悬浮胶囊或阴影 |
+| `Navigation/Editor Tool Row` | `459:1158` | `EditorGroupToolRow` | `Group` 与 `Active` 分离；342×40pt 横向滚动。Adjust：裁剪/旋转/调色/翻转；Smart：主体抠图/智能消除/背景虚化；Decorate 只保留文字/贴纸/相框。选中 40×2pt 刻度与标签底边保持 5pt 间距；贴纸、相框等未实现项须由 catalog 与能力标志禁用或标为 Future |
+| `Control/Workshop Value Rail` | `460:1133` | `EditorAdjustPanelView` / 文字字号 Slider | 342×36pt 连续值，`State=Default/Changed/Disabled`；调色页使用 342×85pt 纵向滚动视口、2pt 行间距且不显示右侧数字；代码保留 VoiceOver 调整与撤销历史 |
+| `Picker/Decoration Asset Cell` | `552:1084` | `DecorationCatalog` 资源选择单元 | `State=Default/Selected/Locked`；60×56pt，实际贴纸/相框预览由实例内容提供。横向素材轨必须保留 Selected 与 Pro 锁定语义；catalog 为空时显示空态，不生成假资源 |
 | `Picker/Photo Proof Cell` | `462:1164` | `GrowthComparePhotoPickerView` | `Selection` 与 `Role=None/Earlier/Recent` 分离；选中勾选和时间角色均不可只靠颜色 |
 | `Control/Creation Template Tab` | `463:1149` | 宠物卡 / 名片模板选择轨 | `Index`、`Label` 独立覆写；Selected 用铜色底槽，Locked 触发真实 Pro 门控 |
+| `Field/Keepsake Annotation Register` | `554:1086` | 伙伴卡 / 成长对比注释输入 | `State=Display/Editing`；342×44pt 原位编辑登记行，聚焦态使用深铜红短刻度和“完成”。代码使用单行 `TextField`，建议 36 个中文字符上限，空值回退模板句并写入作品草稿 |
 | `Action/Creation Output Register` | `466:1171` | 创作页保存 / 分享与 `SharePreviewSheet` | `Default/Pressed/Loading/Disabled` 四态；只承担成品输出 |
 | `Action/Editor Panel Register` | `466:1197` | 裁剪 / 文字 / 抠图面板动作 | `Default/Pressed/Loading/Disabled` 四态；只承担编辑面板的取消/确认 |
 
-Workshop 组件修正规则（2026-08-12）：组件内图标均为 SF Symbols 语义对应的单体 SVG Vector Group，不使用散线拼接或零宽字符；强调色统一使用 `color/action/brand` 深铜红，`color/material/studio/copper` 退出页面与组件实例；编辑器的 Action、Tool Row、Group Dock 为同级纵向层，不得互相覆盖或嵌入会裁切它们的控制面板。
+Workshop 组件修正规则（2026-08-13）：组件内图标均为 SF Symbols 语义对应的单体 SVG Vector Group，不使用散线拼接或零宽字符；强调色统一使用 `color/action/brand` 深铜红，`color/material/studio/copper` 退出页面与组件实例。03–06 在当前参数纸内常驻横向滚动 Tool Row，并把当前工具参数紧凑排在其下；Group Dock 常驻且保持 342×54pt，不得被 Inspector 挤压。390×844pt 参考稿的画布底到铜红线为 8pt，线底到二级标题顶为 9pt。页面、参数纸与 Group Dock 均使用 `color/surface/canvas`；02、07–11 同时把实际回退填充校正为 `#FAF8F5`，避免只绑定变量却仍渲染纯白。Action、参数面板与 Group Dock 必须作为无重叠的纵向层，不能嵌入会裁切它们的容器。
 
-创作页面只共用来源身份、模板轨与输出动作；成品本体保持不同几何：宠物卡为 4:5 纸样、成长对比为双时态长图、名片为横向信息层、红包为 957×1278 竖版及四场景预览。禁止把四类成品塞回同一种大圆角卡片。
+最终精修规则（2026-08-13）：05/05A/05B 的图层标题行不并列说明文案，只保留标题和 28×28pt 图标动作；02 的双时态交换矢量精确位于两张校样中心；12 的 AirDrop、微信、信息和更多图标使用 24×24pt 可编辑 Vector Group，并分别绑定 `color/text/primary` 或 `color/text/on-action`，禁止使用单字或符号占位。
+
+装饰操作态（2026-08-13）：[`05A · Sticker` 555:1075](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=555-1075) 在画布内显示可拖动、双指缩放/旋转和删除的选中贴纸图层，面板使用横向分类轨与横向素材轨；[`05B · Frame` 558:1152](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=558-1152) 使用整画布相框图层、比例自动适配、移除动作和相框缩略图轨。两者复用 `Decoration Asset Cell`，不新建普通大圆角卡片，也不包含“留白”“签名”入口。当前 `catalog.json` 为空，设计交付不等于功能与正式资产已交付。
+
+创作页面只共用来源身份、模板轨与输出动作；成品本体保持不同几何：宠物卡为 4:5 纸样、成长对比为双时态长图、名片为横向信息层、红包为 957×1278 竖版及四场景预览。07/08 的作品注释复用同一登记行组件，但预览文字必须绑定各自作品草稿，不能只改静态文案。禁止把四类成品塞回同一种大圆角卡片。
 
 ### 5.5 其他共享组件
 

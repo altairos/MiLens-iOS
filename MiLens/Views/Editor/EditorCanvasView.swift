@@ -17,7 +17,7 @@ struct EditorCanvasView: View {
         GeometryReader { geo in
             let canvasRect = Self.fitRect(container: geo.size, aspectRatio: viewModel.photoAspectRatio)
             ZStack {
-                Color.black.ignoresSafeArea()
+                Color.milensSealSurface.ignoresSafeArea()
 
                 ZStack {
                     baseImageView
@@ -52,7 +52,7 @@ struct EditorCanvasView: View {
                     .scaleEffect(x: viewModel.photoFlipX ? -1 : 1, y: viewModel.photoFlipY ? -1 : 1)
             } else {
                 Rectangle()
-                    .fill(Color.black.opacity(0.3))
+                    .fill(Color.milensSealSurface.opacity(0.5))
                     .overlay(ProgressView().tint(.white))
             }
         }
@@ -155,7 +155,7 @@ struct EditorCanvasView: View {
                     }
                 }
                 .stroke(.white.opacity(0.3), lineWidth: CROP_GRID_WIDTH)
-                // 角标（四角 L 形）
+                // 角标（四角 L 形，珊瑚色，对照 Figma Corner H/V fill_225c8549）
                 Path { path in
                     for handle in computeCropCornerHandles(rect: cropRect) {
                         path.move(to: CGPoint(x: handle.x, y: handle.y))
@@ -164,7 +164,7 @@ struct EditorCanvasView: View {
                         path.addLine(to: CGPoint(x: handle.x, y: handle.y + CROP_HANDLE_LENGTH * Double(handle.dy)))
                     }
                 }
-                .stroke(.white, lineWidth: CROP_HANDLE_WIDTH)
+                .stroke(Color.milensActionPrimary, lineWidth: CROP_HANDLE_WIDTH)
             }
             .allowsHitTesting(false)
         }

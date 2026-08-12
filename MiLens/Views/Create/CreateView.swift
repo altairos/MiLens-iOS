@@ -1,9 +1,9 @@
 //  CreateView —— 创作（Tab 3）。
 //
-//  Ledger 编辑式暗色设计（对照 Figma「05·创作」#58:15）：
-//  暗色背景 + 文楷标题 + 大尺寸 Hero 卡片（照片铺底 + 珊瑚打开按钮）。
-//  5 个创作项目全保留，按暗/浅交替排列。
-//  页面语言是「照片 → 作品」的档案式入口，而不是功能宫格。
+//  Workshop 编辑式浅色设计（对照 Figma「01 · Creation / Studio Index」#422:805）：
+//  浅色背景 + Fraunces 品牌标 + 编辑式小标 + 编号项目不等大网格。
+//  5 个创作项目按杂志式非对称排列（大卡 + 双栏 + 横条），不做等权卡片宫格。
+//  页面语言是「照片 → 作品」的档案式入口。
 
 import SwiftUI
 import os
@@ -26,7 +26,7 @@ struct CreateView: View {
                 content
             }
         }
-        .background(Color.milensStudioBackground)
+        .background(Color.milensBackground)
         .toolbar(.hidden, for: .navigationBar)
         .task { await loadPhotos() }
     }
@@ -38,62 +38,62 @@ struct CreateView: View {
             VStack(alignment: .leading, spacing: 0) {
                 header
                     .padding(.horizontal, Spacing.pagePad)
-                    .padding(.top, 59)
-                    .padding(.bottom, Spacing.xl)
+                    .padding(.top, 52)
+                    .padding(.bottom, Spacing.lg)
 
                 if photos.isEmpty {
                     emptyState
                         .padding(.horizontal, Spacing.pagePad)
                 } else {
-                    cardStack
+                    projectGrid
                         .padding(.horizontal, Spacing.pagePad)
+                        .padding(.bottom, Spacing.xxl)
                 }
             }
-            .padding(.bottom, Spacing.xxl)
         }
         .scrollIndicators(.hidden)
     }
 
-    // MARK: - 头部（对照 Figma #61:56-59）
+    // MARK: - 头部（对照 Figma 422:805 顶部）
 
     private var header: some View {
         VStack(alignment: .leading, spacing: 0) {
-            HStack(alignment: .top) {
-                Text("MiLens")
-                    .font(.custom("Fraunces-Semibold", size: 24))
-                    .foregroundStyle(Color.milensPaper)
-                Spacer()
-                Text(String(localized: "tab.create"))
-                    .font(.system(size: 12, weight: .medium))
-                    .foregroundStyle(Color.milensTextSecondary.opacity(0.7))
-            }
+            Text("MiLens")
+                .font(.displayLargeEN)
+                .foregroundStyle(Color.milensTextPrimary)
 
-            Text(String(localized: "create.header.title"))
-                .font(.custom("LXGWWenKai-Regular", size: 34, relativeTo: .largeTitle))
-                .foregroundStyle(Color.milensPaper)
+            EditorialOverline(text: String(localized: "create.studio.overline"))
+                .padding(.top, Spacing.xs)
+
+            Text(String(localized: "create.studio.title"))
+                .font(.editorialSection)
+                .foregroundStyle(Color.milensTextPrimary)
                 .fixedSize(horizontal: false, vertical: true)
-                .padding(.top, Spacing.lg)
-
-            Text(String(localized: "create.header.subtitle"))
-                .font(.system(size: 12))
-                .foregroundStyle(Color.milensTextSecondary.opacity(0.7))
-                .padding(.top, Spacing.md)
+                .padding(.top, Spacing.sm)
         }
     }
 
-    // MARK: - 卡片堆栈
+    // MARK: - 项目网格（杂志式非对称布局）
 
-    private var cardStack: some View {
-        VStack(spacing: 18) {
+    /// 对照 Figma 422:805 项目区：
+    /// - 01 拼豆工作室：342×202 暗色大卡（满宽）
+    /// - 左 02 伙伴卡片 158×222 + 右 [03 成长对比 166×102 + 04 名片 166×102]
+    /// - 05 红包封面：342×78 珊瑚横条（满宽）
+    private var projectGrid: some View {
+        VStack(spacing: 16) {
             beadEntry
-            petCardEntry
-            growthCompareEntry
-            businessCardEntry
-            redPacketCoverEntry
+            HStack(alignment: .top, spacing: 16) {
+                petCardEntry
+                VStack(spacing: 18) {
+                    growthCompareEntry
+                    businessCardEntry
+                }
+            }
+            redPacketEntry
         }
     }
 
-    // MARK: - 拼豆入口（262pt 暗色大卡，对照 Figma #61:60）
+    // MARK: - 01 拼豆工作室（暗色大卡）
 
     private var beadEntry: some View {
         NavigationLink(value: Route.beadPhotoPicker) {
@@ -105,60 +105,52 @@ struct CreateView: View {
 
     private var beadCard: some View {
         ZStack(alignment: .bottomLeading) {
-            // 照片铺底 + 像素化
             BeadExampleVisual(path: photos.first.map {
                 $0.thumbnailPath.isEmpty ? $0.uri : $0.thumbnailPath
             } ?? "")
             .clipped()
 
-            // 底部渐变（对照 Bead Overlay #61:62）
+            // 底部渐变
             LinearGradient(
-                colors: [Color.black.opacity(0), Color.black.opacity(0.88)],
+                colors: [Color.black.opacity(0.08), Color.black.opacity(0.9)],
                 startPoint: .top,
                 endPoint: .bottom
             )
-            .frame(height: 146)
-            .frame(maxHeight: .infinity, alignment: .bottom)
             .accessibilityHidden(true)
 
-            // Feature Badge（对照 #61:63）
-            HStack {
-                Text(String(localized: "create.bead.title"))
-                    .font(.system(size: 11, weight: .bold))
-                    .foregroundStyle(.white)
-                    .padding(.horizontal, 15)
-                    .padding(.vertical, 7)
-                    .background(Color.milensPrimary)
-                    .clipShape(Capsule())
-                Spacer()
-            }
-            .padding(.leading, 20)
-            .padding(.top, 18)
-            .frame(maxHeight: .infinity, alignment: .top)
+            // 编号
+            Text("01")
+                .font(.editorialNumberIndex)
+                .foregroundStyle(.white)
+                .padding(.leading, 18)
+                .padding(.top, 16)
+                .frame(maxHeight: .infinity, alignment: .topLeading)
 
-            // 底部文案 + 打开按钮
-            HStack(alignment: .bottom) {
-                VStack(alignment: .leading, spacing: 4) {
-                    Text(String(localized: "create.bead.desc"))
-                        .font(.system(size: 22, weight: .bold))
-                        .foregroundStyle(.white)
-                    Text(String(localized: "create.subheadline"))
-                        .font(.system(size: 12))
-                        .foregroundStyle(Color.milensPaywallSubtitle)
-                }
-                Spacer()
-                // 打开按钮（42pt 珊瑚圆）
-                openButton(size: 42, iconSize: 16)
+            // 底部文案
+            VStack(alignment: .leading, spacing: 4) {
+                Text(String(localized: "create.bead.title"))
+                    .font(.uiTitle)
+                    .foregroundStyle(.white)
+                Text(String(localized: "create.project.bead.desc"))
+                    .font(.editorialMetadata)
+                    .foregroundStyle(.white.opacity(0.7))
             }
-            .padding(.leading, 20)
-            .padding(.trailing, 16)
-            .padding(.bottom, 20)
+            .padding(.leading, 18)
+            .padding(.bottom, 16)
+
+            // 右上箭头
+            Text("↗")
+                .font(.uiTitle)
+                .foregroundStyle(.white)
+                .padding(.trailing, 18)
+                .padding(.top, 16)
+                .frame(maxHeight: .infinity, alignment: .topTrailing)
         }
-        .frame(height: 262)
-        .clipShape(RoundedRectangle(cornerRadius: 30, style: .continuous))
+        .frame(width: 342, height: 202)
+        .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
     }
 
-    // MARK: - 宠物卡片入口（194pt 浅底 + 右侧竖版照片，对照 Figma #61:70）
+    // MARK: - 02 伙伴卡片（竖版白卡）
 
     private var petCardEntry: some View {
         NavigationLink(value: Route.petCardPhotoPicker) {
@@ -169,158 +161,158 @@ struct CreateView: View {
     }
 
     private var petCardCard: some View {
-        HStack(spacing: 0) {
-            // 左侧文案区
-            HStack(alignment: .bottom) {
-                VStack(alignment: .leading, spacing: Spacing.sm) {
-                    Text("PET CARD")
-                        .font(.system(size: 10, weight: .bold))
-                        .foregroundStyle(Color.milensActionPrimary)
-                    Text(String(localized: "create.petCard.title"))
-                        .font(.system(size: 22, weight: .bold))
-                        .foregroundStyle(Color.milensInk)
-                    Text(String(localized: "create.petCard.desc"))
-                        .font(.system(size: 12))
-                        .foregroundStyle(Color.milensTextSecondary)
-                        .fixedSize(horizontal: false, vertical: true)
-                    Spacer(minLength: 8)
-                    // 打开按钮（40pt 珊瑚圆）
-                    openButton(size: 40, iconSize: 16)
-                }
-                Spacer()
-            }
-            .padding(.leading, 20)
-            .padding(.trailing, 12)
-            .padding(.top, 20)
-            .padding(.bottom, 20)
-
-            // 右侧竖版照片
+        VStack(alignment: .leading, spacing: 0) {
             PetCardExampleVisual(path: photos.first.map {
                 $0.thumbnailPath.isEmpty ? $0.uri : $0.thumbnailPath
             } ?? "")
-            .frame(width: 156)
-            .frame(maxHeight: .infinity)
-            .clipped()
+            .frame(width: 138, height: 142)
+            .clipShape(RoundedRectangle(cornerRadius: 4, style: .continuous))
+            .padding(10)
+
+            HStack(spacing: 9) {
+                Text("02")
+                    .font(.editorialNumberIndex)
+                    .foregroundStyle(Color.milensActionPrimary)
+                Text(String(localized: "create.petCard.title"))
+                    .font(.uiBodyStrong)
+                    .foregroundStyle(Color.milensTextPrimary)
+            }
+            .padding(.leading, 10)
+
+            Text(String(localized: "create.project.petCard.desc"))
+                .font(.editorialMetadata)
+                .foregroundStyle(Color.milensTextSecondary)
+                .padding(.leading, 10)
+                .padding(.top, 2)
         }
-        .frame(height: 194)
-        .background(Color.milensPaper)
-        .clipShape(RoundedRectangle(cornerRadius: 30, style: .continuous))
+        .frame(width: 158, height: 222)
+        .background(Color.milensCard)
+        .overlay(
+            RoundedRectangle(cornerRadius: 6, style: .continuous)
+                .stroke(Color.milensSeparator, lineWidth: 1)
+        )
+        .clipShape(RoundedRectangle(cornerRadius: 6, style: .continuous))
     }
 
-    // MARK: - 成长对比入口（194pt 暗色卡）
+    // MARK: - 03 成长对比（珊瑚竖条白卡）
 
     private var growthCompareEntry: some View {
         NavigationLink(value: Route.growthComparePhotoPicker) {
-            darkCard(
-                title: String(localized: "create.growthCompare.title"),
-                desc: String(localized: "create.growthCompare.desc"),
-                icon: "arrow.left.arrow.right"
-            )
+            growthCompareCard
         }
         .buttonStyle(.plain)
         .accessibilityLabel(String(localized: "create.growthCompare.title"))
     }
 
-    // MARK: - 宠物名片入口（194pt 浅色卡）
+    private var growthCompareCard: some View {
+        HStack(alignment: .top, spacing: 0) {
+            // 左侧珊瑚竖条
+            Rectangle()
+                .fill(Color.milensActionPrimary)
+                .frame(width: 4, height: 102)
+
+            VStack(alignment: .leading, spacing: 2) {
+                Text("03")
+                    .font(.editorialNumberIndex)
+                    .foregroundStyle(Color.milensActionPrimary)
+                Text(String(localized: "create.growthCompare.title"))
+                    .font(.uiBodyStrong)
+                    .foregroundStyle(Color.milensTextPrimary)
+                Text(String(localized: "create.project.growthCompare.desc"))
+                    .font(.editorialMetadata)
+                    .foregroundStyle(Color.milensTextSecondary)
+            }
+            .padding(.leading, 12)
+            .padding(.top, 13)
+
+            Spacer()
+        }
+        .frame(width: 166, height: 102)
+        .background(Color.milensCard)
+        .overlay(
+            RoundedRectangle(cornerRadius: 5, style: .continuous)
+                .stroke(Color.milensSeparator, lineWidth: 1)
+        )
+        .clipShape(RoundedRectangle(cornerRadius: 5, style: .continuous))
+    }
+
+    // MARK: - 04 名片（浅灰竖条白卡）
 
     private var businessCardEntry: some View {
         NavigationLink(value: Route.businessCardPicker) {
-            lightCard(
-                title: String(localized: "create.businessCard.title"),
-                desc: String(localized: "create.businessCard.desc"),
-                icon: "person.crop.circle"
-            )
+            businessCardCard
         }
         .buttonStyle(.plain)
         .accessibilityLabel(String(localized: "create.businessCard.title"))
     }
 
-    // MARK: - 微信红包封面入口（194pt 暗色卡）
+    private var businessCardCard: some View {
+        HStack(alignment: .top, spacing: 0) {
+            // 左侧浅灰竖条
+            Rectangle()
+                .fill(Color.milensSeparator)
+                .frame(width: 4, height: 102)
 
-    private var redPacketCoverEntry: some View {
+            VStack(alignment: .leading, spacing: 2) {
+                Text("04")
+                    .font(.editorialNumberIndex)
+                    .foregroundStyle(Color.milensActionPrimary)
+                Text(String(localized: "create.businessCard.title"))
+                    .font(.uiBodyStrong)
+                    .foregroundStyle(Color.milensTextPrimary)
+                Text(String(localized: "create.project.businessCard.desc"))
+                    .font(.editorialMetadata)
+                    .foregroundStyle(Color.milensTextSecondary)
+            }
+            .padding(.leading, 12)
+            .padding(.top, 13)
+
+            Spacer()
+        }
+        .frame(width: 166, height: 102)
+        .background(Color.milensCard)
+        .overlay(
+            RoundedRectangle(cornerRadius: 5, style: .continuous)
+                .stroke(Color.milensSeparator, lineWidth: 1)
+        )
+        .clipShape(RoundedRectangle(cornerRadius: 5, style: .continuous))
+    }
+
+    // MARK: - 05 红包封面（珊瑚横条）
+
+    private var redPacketEntry: some View {
         NavigationLink(value: Route.redPacketCoverPicker) {
-            darkCard(
-                title: String(localized: "create.redPacket.title"),
-                desc: String(localized: "create.redPacket.desc"),
-                icon: "gift.fill"
-            )
+            redPacketCard
         }
         .buttonStyle(.plain)
         .accessibilityLabel(String(localized: "create.redPacket.title"))
     }
 
-    // MARK: - 可复用卡片组件
+    private var redPacketCard: some View {
+        HStack(alignment: .center, spacing: 0) {
+            Text("05")
+                .font(.editorialNumberIndex)
+                .foregroundStyle(.white)
 
-    /// 暗色卡片：#211C1A 底色，标题 + 描述 + 右下打开按钮。
-    private func darkCard(title: String, desc: String, icon: String) -> some View {
-        ZStack(alignment: .bottomTrailing) {
-            HStack(alignment: .bottom) {
-                VStack(alignment: .leading, spacing: Spacing.sm) {
-                    Image(systemName: icon)
-                        .font(.system(size: 28, weight: .light))
-                        .foregroundStyle(Color.milensTextSecondary.opacity(0.5))
-                    Text(title)
-                        .font(.system(size: 22, weight: .bold))
-                        .foregroundStyle(.white)
-                    Text(desc)
-                        .font(.system(size: 12))
-                        .foregroundStyle(Color.milensPaywallSubtitle)
-                        .fixedSize(horizontal: false, vertical: true)
-                }
-                Spacer()
+            VStack(alignment: .leading, spacing: 2) {
+                Text(String(localized: "create.redPacket.title"))
+                    .font(.uiBodyStrong)
+                    .foregroundStyle(.white)
+                Text(String(localized: "create.project.redPacket.desc"))
+                    .font(.editorialMetadata)
+                    .foregroundStyle(.white.opacity(0.8))
             }
             .padding(.leading, 20)
-            .padding(.top, 20)
-            .padding(.bottom, 20)
-            .padding(.trailing, 70)
 
-            openButton(size: 42, iconSize: 16)
-                .padding(.trailing, 16)
-                .padding(.bottom, 20)
-        }
-        .frame(height: 194)
-        .background(Color.milensStudioSurface)
-        .clipShape(RoundedRectangle(cornerRadius: 30, style: .continuous))
-    }
-
-    /// 浅色卡片：#F2EFEA 底色，标题 + 描述 + 左下打开按钮。
-    private func lightCard(title: String, desc: String, icon: String) -> some View {
-        HStack(alignment: .bottom) {
-            VStack(alignment: .leading, spacing: Spacing.sm) {
-                Image(systemName: icon)
-                    .font(.system(size: 28, weight: .light))
-                    .foregroundStyle(Color.milensTextSecondary)
-                Text(title)
-                    .font(.system(size: 22, weight: .bold))
-                    .foregroundStyle(Color.milensInk)
-                Text(desc)
-                    .font(.system(size: 12))
-                    .foregroundStyle(Color.milensTextSecondary)
-                    .fixedSize(horizontal: false, vertical: true)
-                Spacer(minLength: 8)
-                openButton(size: 40, iconSize: 16)
-            }
             Spacer()
-        }
-        .padding(.leading, 20)
-        .padding(.top, 20)
-        .padding(.bottom, 20)
-        .padding(.trailing, 20)
-        .frame(height: 194)
-        .background(Color.milensPaper)
-        .clipShape(RoundedRectangle(cornerRadius: 30, style: .continuous))
-    }
-
-    /// 珊瑚色圆形打开按钮。
-    private func openButton(size: CGFloat, iconSize: CGFloat) -> some View {
-        ZStack {
-            Circle()
-                .fill(Color.milensActionPrimary)
-                .frame(width: size, height: size)
-            Image(systemName: "arrow.right")
-                .font(.system(size: iconSize, weight: .semibold))
+            Text("↗")
+                .font(.uiTitle)
                 .foregroundStyle(.white)
         }
+        .padding(.horizontal, 16)
+        .frame(width: 342, height: 78)
+        .background(Color.milensActionPrimary)
+        .clipShape(RoundedRectangle(cornerRadius: 6, style: .continuous))
     }
 
     // MARK: - 空态
@@ -329,10 +321,10 @@ struct CreateView: View {
         VStack(alignment: .leading, spacing: Spacing.md) {
             Text(String(localized: "create.empty.title"))
                 .font(.bodyPrimary.weight(.semibold))
-                .foregroundStyle(Color.milensPaper)
+                .foregroundStyle(Color.milensTextPrimary)
             Text(String(localized: "create.empty.body"))
                 .font(.bodySecondary)
-                .foregroundStyle(Color.milensTextSecondary.opacity(0.7))
+                .foregroundStyle(Color.milensTextSecondary)
 
             NavigationLink(value: Route.gallery) {
                 HStack(spacing: Spacing.sm) {
@@ -372,7 +364,7 @@ private struct BeadExampleVisual: View {
 
     var body: some View {
         ZStack {
-            Color.milensStudioSurface
+            Color.milensSealSurface
             if let image {
                 Image(uiImage: image)
                     .resizable()

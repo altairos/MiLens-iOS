@@ -157,6 +157,226 @@
         }
       }
     },
+    "editor.panel.adjust" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "调色"
+          }
+        }
+      }
+    },
+    "editor.panel.crop" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "构图比例"
+          }
+        }
+      }
+    },
+    "editor.panel.rotate" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "旋转"
+          }
+        }
+      }
+    },
+    "editor.panel.flip" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "翻转"
+          }
+        }
+      }
+    },
+    "editor.panel.text" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "文字图层"
+          }
+        }
+      }
+    },
+    "editor.panel.cutout" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "主体抠图"
+          }
+        }
+      }
+    },
+    "editor.adjust.reset" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "重置"
+          }
+        }
+      }
+    },
+    "editor.transform.ccw" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "左转"
+          }
+        }
+      }
+    },
+    "editor.transform.cw" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "右转"
+          }
+        }
+      }
+    },
+    "editor.transform.flipH" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "水平"
+          }
+        }
+      }
+    },
+    "editor.transform.flipV" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "垂直"
+          }
+        }
+      }
+    },
+    "editor.text.placeholder" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "输入文字"
+          }
+        }
+      }
+    },
+    "editor.text.size" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "字号"
+          }
+        }
+      }
+    },
+    "editor.text.stroke" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "描边"
+          }
+        }
+      }
+    },
+    "editor.text.add" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "添加到图片"
+          }
+        }
+      }
+    },
+    "editor.cutout.localProcessing" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "本地处理"
+          }
+        }
+      }
+    },
+    "editor.cutout.notUploaded" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "照片未上传"
+          }
+        }
+      }
+    },
+    "editor.cutout.outputFormat" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "输出格式"
+          }
+        }
+      }
+    },
+    "editor.cutout.transparentPng" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "透明背景 PNG"
+          }
+        }
+      }
+    },
+    "editor.cutout.done" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "已完成"
+          }
+        }
+      }
+    },
     "a11y.gallery.date %lld %lld" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -3445,6 +3665,116 @@
         }
       }
     },
+    "share.preview.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "成品预览"
+          }
+        }
+      }
+    },
+    "share.preview.close" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "关闭"
+          }
+        }
+      }
+    },
+    "share.preview.overline" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "READY TO KEEP"
+          }
+        }
+      }
+    },
+    "share.preview.headline" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "这张照片，已经有了\n另一种留下来的方式。"
+          }
+        }
+      }
+    },
+    "share.panel.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "保存与分享"
+          }
+        }
+      }
+    },
+    "share.panel.destinations" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "系统分享目标"
+          }
+        }
+      }
+    },
+    "share.panel.more" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "更多"
+          }
+        }
+      }
+    },
+    "share.panel.privacy" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "照片在设备端生成；只有主动分享时才会离开 MiLens。"
+          }
+        }
+      }
+    },
+    "share.action.share" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "分享成品"
+          }
+        }
+      }
+    },
+    "share.action.saveLibrary" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "存到系统图库"
+          }
+        }
+      }
+    },
     "startup.unknownError" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -4288,6 +4618,83 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "从已经保存的照片开始，做一份真正属于它的作品。"
+          }
+        }
+      }
+    },
+    "create.studio.overline" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "CREATION DARKROOM"
+          }
+        }
+      }
+    },
+    "create.studio.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "让美好的回忆\n以作品形式留在指尖。"
+          }
+        }
+      }
+    },
+    "create.project.bead.desc" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "图纸 · 色号 · 用量"
+          }
+        }
+      }
+    },
+    "create.project.petCard.desc" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "纪念珍贵瞬间"
+          }
+        }
+      }
+    },
+    "create.project.growthCompare.desc" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "从过去到现在"
+          }
+        }
+      }
+    },
+    "create.project.businessCard.desc" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "分享这份可爱"
+          }
+        }
+      }
+    },
+    "create.project.redPacket.desc" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "四种微信红包封面模版 + 上传指引"
           }
         }
       }

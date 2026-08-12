@@ -25,6 +25,7 @@ public enum EditorToolMode: String, Sendable, Equatable {
     case crop
     case rotate
     case adjust
+    case flip
     case cutout
     case none
 }
@@ -219,6 +220,7 @@ private let GROUP_ADJUST_TOOLS: [EditorGroupToolItem] = [
     .init(label: "裁剪", mode: .crop),
     .init(label: "旋转", mode: .rotate),
     .init(label: "调色", mode: .adjust),
+    .init(label: "翻转", mode: .flip),
 ]
 
 private let GROUP_SMART_TOOLS: [EditorGroupToolItem] = [
@@ -238,7 +240,7 @@ private let GROUP_CREATE_TOOLS: [EditorGroupToolItem] = [
 /// 工具→组映射。对应源端 `resolveToolGroup`。
 public func resolveToolGroup(_ tool: EditorToolMode) -> EditorToolGroup {
     switch tool {
-    case .crop, .rotate, .adjust: return .adjust
+    case .crop, .rotate, .adjust, .flip: return .adjust
     case .text, .sticker, .frame: return .decorate
     case .bead: return .create
     case .cutout: return .smart

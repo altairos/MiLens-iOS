@@ -1,11 +1,11 @@
 # MiLens Figma 页面与素材交付备忘
 
-> 核对日期：2026-08-12（12 张 Release Candidate 定稿、12 张 Image Workshop 扩展稿、12 组核心组件 + 7 组创作扩展组件、iPad 自适应与字号/安全区审计）
+> 核对日期：2026-08-13（12 张 Release Candidate 定稿、12 张 Image Workshop 主页面 + 4 张操作态、12 组核心组件 + 9 组创作扩展组件、iPad 自适应与字号/安全区审计）
 > 用途：作为 Figma 高保真设计、页面拆帧、视觉素材制作和 iOS 交付排期的工作清单。  
 > 事实来源：当前 SwiftUI 路由与页面代码、`UI-DESIGN.md`、`DESIGN.md`、`PLAN.md`、ADR-0008/0010。  
 > 状态口径：**已有** = 当前代码已有可运行页面或交互骨架；**待打磨** = 页面/能力存在，但还需要高保真视觉和完整状态设计；**待交付** = 只有规划、协议或算法接口，尚未形成可用页面/素材。
 
-> Figma 框架进度（2026-08-12）：连接文件已收敛到 `MiLens V1 · Product Screens` 页面，以编号 Section 管理主页面、Applied、Core Flow、探索稿和 Design System。`Release Candidate · FINAL` 已按 `01–12` 收齐首页、伙伴档案、时间线、图库、创作、Paywall、我的、照片详情、添加记忆、拼豆结果、拼豆设置与拼豆生成。`11 · Design System · Foundations` / `12 · Design System · Components` 已建立；主行动、底部导航、偏好行、拼豆控件、档案面板、档案读数和身份条共 12 组核心组件已定稿。`13 · Adaptive Layout · iPad` 已补核心双栏；`14 · WidgetKit` 已交付小组件设计；新增 [`15 · Image Workshop · Editing & Keepsakes` 422:801](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=422-801)，按真实 SwiftUI 能力补齐 12 张图片编辑/创作页面和 7 组扩展组件。组件级对齐已完成，共 32 个连接实例；当前仍缺完整异常状态、深色/iPad 扩展稿和逐页 SwiftUI 视觉回写，不等同于 iOS 已交付。
+> Figma 框架进度（2026-08-13）：连接文件已收敛到 `MiLens V1 · Product Screens` 页面，以编号 Section 管理主页面、Applied、Core Flow、探索稿和 Design System。`Release Candidate · FINAL` 已按 `01–12` 收齐首页、伙伴档案、时间线、图库、创作、Paywall、我的、照片详情、添加记忆、拼豆结果、拼豆设置与拼豆生成。`11 · Design System · Foundations` / `12 · Design System · Components` 已建立；主行动、底部导航、偏好行、拼豆控件、档案面板、档案读数和身份条共 12 组核心组件已定稿。`13 · Adaptive Layout · iPad` 已补核心双栏；`14 · WidgetKit` 已交付小组件设计；[`15 · Image Workshop · Editing & Keepsakes` 422:801](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=422-801) 现含 12 张图片编辑/创作主页面、贴纸/相框操作态、07/08 注释编辑态与 9 组扩展组件。新增状态均保持组件连接；当前仍缺完整异常状态、深色/iPad 扩展稿和逐页 SwiftUI 视觉回写，不等同于 iOS 已交付。
 
 > 2026-08-12 视觉定稿节点：[08 · Applied Refinement · Micro Grammar](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=140-292) 与 [09 · Core Flow · Precision Continuity](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=211-240)。功能代码落地以这两个节点和 [UI-DESIGN.md §5.4–§5.5](../UI-DESIGN.md#54-底部主导航memory-orbit) 为准；横向主行动采用 `Focus Dial`（加入/保存记忆）、`Contact Proof`（仅照片扫描/导入）和 `Darkroom Pulse`（拼豆生成/高清导出）三种语义变体，不再参考旧的 `Archive Spine Action`、悬浮 Tab、全圆胶囊、缺角主按钮、装订点、手绘装饰线或文本化 Core Flow 探索稿。
 
@@ -54,14 +54,14 @@
 | E-01–06 | 图片编辑器及裁切/调整/文字/抠图/旋转翻转 | 已实现；Figma 四个关键工具态已交付 | P0 ✅ |
 | C-01–03 | 五项目创作首页、空态、作品入口 | 已有；Figma 完整索引已交付 | P0 ✅ |
 | B-01–04 | 拼豆选图、设置、工作室、结果导出/分享 | 已有 | P0 |
-| PC-01–04 | 伙伴卡片选图、多模板、预览、分享/导出 | 已实现；Figma 创作页与输出页已交付 | P0 ✅ |
-| GC-01–02 | 成长对比双选、预览、保存/分享 | 已实现；Figma 已交付 | P0 ✅ |
+| PC-01–04 | 伙伴卡片选图、多模板、预览、分享/导出 | 主流程已实现；Figma 创作页、注释显示/编辑态与输出页已交付，注释业务状态待代码落地 | P0 ✅ / 注释待实现 |
+| GC-01–02 | 成长对比双选、预览、保存/分享 | 主流程已实现；Figma 注释显示/编辑态已交付，注释业务状态待代码落地 | P0 ✅ / 注释待实现 |
 | BC-01 | 宠物名片模板、信息编辑、草稿/分享 | 已实现；Figma 已交付 | P0 ✅ |
 | RP-01–02 | 红包封面、四场景预览、上传指引 | 已实现；Figma 已交付 | P0 ✅ |
 | S-01–07 | 我的、Pro、隐私、通知、外观、帮助、关于 | 已有 | P0 |
 | R-01 | 数据库恢复/本地数据无法加载 | 已有恢复页 | P1 |
 | M-01–04 | 纪念卡、月度精选、年度回忆册、相簿模式 | 规划/接口预留 | FUTURE |
-| D-01–02 | 编辑器相框、贴纸资源选择器 | 只有类型与目录接口 | FUTURE |
+| D-01–02 | 编辑器相框、贴纸资源选择器 | Figma 操作态与复用资源单元已交付；代码只有类型/目录接口，正式 catalog 与素材仍为空 | FUTURE / 设计已交付 |
 | PR-01 | 实体打印产品选择/报价/订单 | 只有服务接口 | FUTURE |
 
 ---
@@ -174,9 +174,9 @@
 | E-04 文字 | 输入；字号；颜色预设；描边；添加到图片；选中文字图层；删除图层 |
 | E-05 抠图 | 空闲、识别中、成功、失败、重试；透明背景提示 |
 | E-06 编辑结果 | 保存中、保存成功、保存失败、文件缺失；回到照片详情 |
-| E-07 Future 装饰工具 | 相框/贴纸工具入口和资源选择器，必须标注 `FUTURE`，当前不可画成 V1 已有能力 |
+| E-07 Future 装饰工具 | 贴纸：选中图层、拖动、双指缩放/旋转、删除、横向分类与素材轨；相框：整画布图层、比例自动适配、移除、横向分类与缩略图轨。稿件作为实现规格，代码开放仍受 catalog/feature flag 控制 |
 
-当前高保真节点：[`Adjust` 422:813](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=422-813)、[`Crop` 422:817](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=422-817)、[`Text` 422:821](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=422-821)、[`Cutout` 422:825](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=422-825)。旋转/翻转并入 Crop，保存/分享统一进入 `Output / Share Preview`，不额外伪造一级工具。
+当前高保真节点：[`Adjust` 422:813](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=422-813)、[`Crop` 422:817](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=422-817)、[`Text` 422:821](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=422-821)、[`Cutout` 422:825](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=422-825)、[`Sticker` 555:1075](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=555-1075)、[`Frame` 558:1152](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=558-1152)。Decorate 组只保留文字/贴纸/相框，不包含“留白”“签名”。03–06 基础态与 05A/05B 操作态共用 342×40pt 横向滚动二级工具轨；贴纸/相框虽已有可执行的设计规格，仍属于 Future 代码能力，不得在 catalog 为空时伪装为可用。保存/分享统一进入 `Output / Share Preview`，不额外伪造一级工具。
 
 ### 4.7 创作与拼豆
 
@@ -198,7 +198,8 @@
 | Frame | 必须制作的画面 |
 |---|---|
 | PC-01 选照片 | 照片选择；伙伴信息预览；无照片；取消/确认 |
-| PC-02 默认卡片 | 4:5 竖版；照片；名字；领养纪念日/来到家 N 天；底部渐变；MiLens 水印 |
+| PC-02 默认卡片 | 4:5 竖版；照片；名字；领养纪念日/来到家 N 天；一行注释预览与编辑入口；底部渐变；MiLens 水印；节点 [`422:829`](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=422-829) |
+| PC-02A 注释编辑 | 在成品上下文中原位聚焦单行输入；36 个中文字符上限；完成/空值回退；预览和导出共用同一草稿状态；节点 [`563:1149`](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=563-1149) |
 | PC-03 模板选择 | 经典、拍立得、杂志、极简四模板缩略图；免费/Pro 标记；选中态；锁定态；模板缺资源 |
 | PC-04 分享预览 | 卡片预览；保存到照片；系统分享；免费水印；Pro 无水印高清；购买/恢复购买 |
 | PC-05 Future 纪念卡 | 生日、领养日、100/365/730/1000 天里程碑；仅作为下一阶段稿件，和当前单模板卡片分开 |
@@ -208,7 +209,8 @@
 | Frame | 必须制作的画面 |
 |---|---|
 | GC-01 双照片选择 | A/B 早期与近期照片；日期；交换；图库选择；清空/继续；节点 [`422:809`](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=422-809) |
-| GC-02 成长对比 | 上下双图；真实日期；自动时间差；宠物名字；保存/分享；节点 [`422:833`](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=422-833) |
+| GC-02 成长对比 | 上下双图；真实日期；自动时间差；宠物名字；一行注释预览与编辑入口；保存/分享；节点 [`422:833`](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=422-833) |
+| GC-02A 注释编辑 | 在成长对比成品上下文中原位聚焦输入；36 个中文字符上限；完成/空值回退；节点 [`563:1217`](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=563-1217) |
 | BC-01 宠物名片 | 档案头像；横向名片；standard/elegant/playful/minimal；简介、主人称呼、标签；草稿/分享；节点 [`422:837`](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=422-837) |
 | RP-01 红包封面 | 957×1278 固定规格；封面标题；拆红包/发送/气泡/详情四场景；免费水印与 Pro 锁；节点 [`422:841`](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=422-841) |
 | RP-02 上传指引 | 导出规格检查；四个真实上传步骤；明确 MiLens 不介入微信发布/审核；节点 [`422:845`](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=422-845) |
@@ -262,8 +264,8 @@
 
 | 素材包 | 需要交付 | 当前状态 |
 |---|---|---|
-| 编辑器相框 | 基础相框、高级相框、节日相框、透明边界、缩略图、分类、Pro 标记 | `EditorLayerType.frame` 与 `DecorationCatalog` 已预留；无正式资源/选择器页面 |
-| 编辑器贴纸 | 爪印、日期、爱心、食物、玩具、节日、彩虹桥等；PNG/SVG、边界、缩略图、分类、Pro 标记 | `EditorLayerType.sticker` 已预留；源端也只是规划，尚未实施 |
+| 编辑器相框 | 基础相框、高级相框、节日相框、透明边界、缩略图、分类、Pro 标记 | `EditorLayerType.frame` 与 `DecorationCatalog` 已预留；Figma 选择/操作态与复用单元已交付，正式资源、catalog 内容和代码面板未实施 |
+| 编辑器贴纸 | 爪印、日期、爱心、食物、玩具、节日、彩虹桥等；PNG/SVG、边界、缩略图、分类、Pro 标记 | `EditorLayerType.sticker` 已预留；Figma 选择/变换/删除操作态已交付，正式资源、catalog 内容和代码面板未实施 |
 | 贴纸文字/字体包 | 可商用字体、手写字、日期数字、中文长文案适配 | 当前编辑器只有文字工具和固定颜色预设，没有贴纸字体包 |
 | 相簿浏览模式 | 复古翻页、拍立得散页、杂志版式的背景、纸张、装订、翻页动效 | `GalleryMode` 已有类型接口；Pro 模式尚未实现页面 |
 | 实体打印 | 相册、明信片套装、拼豆材料包、周边的商品图、包装、尺寸和价格展示 | `PrintService` 只有接口/占位模型；真实订单为 V1.x |
@@ -324,7 +326,7 @@
 
 这 12 张已经完成正常态的统一视觉、安全区与字号验收；后续优先沿真实功能补加载、空、失败、权限拒绝、取消和购买恢复等状态分支，不批量制作尚无代码或资源支撑的“未来功能宫格”。
 
-## 9. Image Workshop 已交付的 12 张扩展稿
+## 9. Image Workshop 已交付的 12 张主稿与 4 张操作态
 
 [`15 · Image Workshop · Editing & Keepsakes`](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=422-801) 包含：
 
@@ -341,11 +343,41 @@
 11. [`11 · Red Packet / Upload Guide` 422:845](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=422-845)
 12. [`12 · Output / Share Preview` 422:849](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=422-849)
 
-扩展组件（2026-08-12 组件级对齐后）：[`Navigation/Editor Group Dock` 458:1145](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=458-1145)、[`Navigation/Editor Tool Row` 459:1158](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=459-1158)、[`Control/Workshop Value Rail` 460:1133](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=460-1133)、[`Picker/Photo Proof Cell` 462:1164](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=462-1164)、[`Control/Creation Template Tab` 463:1149](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=463-1149)、[`Action/Creation Output Register` 466:1171](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=466-1171)、[`Action/Editor Panel Register` 466:1197](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=466-1197)。旧 `Control/Editor Tool Dock` 与 `Action/Output Register` 已退役，不再作为实现依据。
+补充操作态：
 
-本轮返修统一了 12 张扩展稿的 `color/surface/canvas` 背景与 44pt 通用返回控件；编辑器图标已从散线/字符占位替换为单体 SVG Vector Group；所有 `studio/copper` 绑定替换为主系统的 `color/action/brand` 深铜红；03/04/05/06 的面板、动作、二级工具行与一级 Dock 已改为无重叠的同级纵向层，并退出底部 34pt 安全区。
+1. [`05A · Editor / Sticker` 555:1075](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=555-1075)
+2. [`05B · Editor / Frame` 558:1152](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=558-1152)
+3. [`07A · Keepsake / Pet Card · Annotation Editing` 563:1149](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=563-1149)
+4. [`08A · Keepsake / Growth Compare · Annotation Editing` 563:1217](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=563-1217)
+
+扩展组件（2026-08-13 组件级对齐后）：[`Navigation/Editor Group Dock` 458:1145](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=458-1145)、[`Navigation/Editor Tool Row` 459:1158](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=459-1158)、[`Control/Workshop Value Rail` 460:1133](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=460-1133)、[`Picker/Decoration Asset Cell` 552:1084](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=552-1084)、[`Picker/Photo Proof Cell` 462:1164](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=462-1164)、[`Control/Creation Template Tab` 463:1149](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=463-1149)、[`Field/Keepsake Annotation Register` 554:1086](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=554-1086)、[`Action/Creation Output Register` 466:1171](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=466-1171)、[`Action/Editor Panel Register` 466:1197](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=466-1197)。旧 `Control/Editor Tool Dock` 与 `Action/Output Register` 已退役，不再作为实现依据。
+
+本轮返修统一了 12 张扩展稿的 `color/surface/canvas` 背景与 44pt 通用返回控件；其中 02、07–11 还同步校正了实际回退填充，避免变量已绑定而画面仍为纯白。编辑器图标已从散线/字符占位替换为单体 SVG Vector Group；所有 `studio/copper` 绑定替换为主系统的 `color/action/brand` 深铜红。03/04/05/06 已按紧凑三层 `EditorPanelArea` 重排：参数纸内依次是二级标题、342×40pt 横向滚动 Tool Row 和当前参数，一级 Group Dock 常驻；调色页的五条 342×36pt Slider 收入 342×85pt 纵向滚动视口，行间距 2pt且不显示右侧数字。四张编辑画布统一为 `x=24 / y=109 / 342×489pt`，参数纸从 `y=606pt` 起；画布底到铜红线 8pt，线底到二级标题顶 9pt。Group Dock 保持用户确认的 `x=24 / y=767 / 342×54pt` 浅色连续导航面，三等分按钮，选中项使用 `color/action/brand` 图标、文字与 48×2pt 短刻度，未选项使用 `color/text/secondary`，不再使用暗房底、悬浮胶囊或卡片阴影。SwiftUI 实现须从实时 safe area 推导底部位置，不复制参考稿绝对 y 值。
+
+2026-08-13 装饰与注释补充：Decorate 二级轨收敛为文字/贴纸/相框。贴纸操作态提供选中层、拖动、双指缩放/旋转、删除、横向分类轨与横向素材轨；相框操作态提供整画布图层、3:4 自动适配、移除、横向分类轨与相框缩略图。素材单元包含 Default/Selected/Locked 三态与 Pro 语义。07/08 主页面新增注释 Display 行，07A/08A 使用 Editing 变体原位输入；建议 36 个中文字符上限，预览与导出引用同一草稿状态。当前仓库的装饰 catalog 为空，且两类作品暂无注释业务状态，因此这些页面是代码落实依据，不能写成已上线能力。
+
+2026-08-13 最终精修：12 的 AirDrop、微信、信息、更多由字符占位替换为 24×24pt 可编辑矢量并绑定语义色；05A/05B 的 Dock 中文统一为 Noto Sans SC Medium 12pt 与 32pt 文本框，消除“调整/装饰”裁字；05/05A/05B 图层标题右侧的图层名、手势提示及删除/移除文字被移除，只保留 28×28pt 图标动作；六张编辑态的二级选中刻度从行底收紧到文字下方 5pt；02 的 20×20pt 双时态交换矢量中心校正到 `(195, 270)`。对 12 张主页面与 4 张操作态完成最终截图和结构审计：全部为 390×844pt、绑定 `color/surface/canvas`、可见字号不小于 10pt、无缺失字体、无 detached 实例。
 
 2026-08-13 顶部栏复核：以 [`11 · Red Packet / Upload Guide` 422:845](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=422-845) 为样板，02–12 共 11 张带返回页面已统一为 `18 / 57 / 44×44pt` 返回圆、圆内 `10pt` 居中的 24pt 矢量，以及 `72 / 64` 起点的 `MiLens/UI/Title`（20/24、`color/text/primary`）。03–06 与 12 的旧暗房浅色小标题已归并到同一导航标题层级；07–10 的首个内容区下移 8pt 恢复阴影后的呼吸距离。`01 · Creation / Studio Index` 作为 Tab 根页保留品牌头，不添加返回。最终节点审计通过：11 张顶部栏几何、文字样式与颜色绑定一致，12 张页面无顶部/底部安全区越界、可见字号低于 10pt或缺失字体。
+
+### 9.1 Image Workshop 第一批代码落地（2026-08-13）
+
+✅ 已落地页面：
+
+| # | 页面 | Figma 节点 | 代码文件 | 状态 |
+|---|---|---|---|---|
+| 01 | Creation / Studio Index | 422:805 | `Views/Create/CreateView.swift` | ✅ 已落地：浅色编号网格 |
+| 03 | Editor / Adjust | 422:813 | `Views/Editor/EditorToolPanels.swift` | ✅ 已落地：铜索引头 + WorkshopValueRail |
+| 04 | Editor / Crop | 422:817 | `Views/Editor/EditorToolPanels.swift` | ✅ 已落地：构图比例 + Transform Rail |
+| 05 | Editor / Text | 422:821 | `Views/Editor/EditorToolPanels.swift` | ✅ 已落地：文字图层 + 墨色调色板 |
+| 06 | Editor / Cutout | 422:825 | `Views/Editor/EditorToolPanels.swift` | ✅ 已落地：主体抠图 + 双格信息 |
+| 12 | Output / Share Preview | 422:849 | `Components/SharePreviewSheet.swift` | ✅ 已落地：编辑式预览 + 系统分享面板 |
+
+✅ 新增组件库：`Components/WorkshopComponents.swift`（CopperIndexBar / WorkshopValueRail / CreationActionBar / EditorialOverline / WorkshopPanelHeader / EditorTransformRail）。
+
+✅ 编辑器架构变更：`EditorToolMode` 新增 `.flip`（独立翻转入口），调整组工具行 = 裁剪/旋转/调色/翻转。
+
+⬚ 待落地页面（第二批）：02 Picker/Source Pair、07–11 Keepsake 系列成品页。
 
 ## 10. 维护规则
 

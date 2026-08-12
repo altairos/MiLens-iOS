@@ -71,4 +71,27 @@ extension Font {
 
     /// 统计数字（「3280」「3岁2个月」）。`.title2` 级别，圆体粗体。
     static let numberStat = Font.system(.title2, design: .rounded).bold()
+
+    // MARK: - Workshop 编辑式小标（对照 Figma `15 · Image Workshop`）
+
+    /// Overline 小标（「CREATION DARKROOM」「READY TO KEEP」）。
+    /// Figma `MiLens/UI/Overline`：10pt Medium + letterSpacing 0.04em。
+    /// 文字间距通过调用方 `.tracking(0.4)` 补足（SwiftUI tracking 单位为 pt）。
+    static let editorialOverline = Font.system(size: 10, weight: .medium)
+
+    /// Metadata 元信息（「图纸 · 色号 · 用量」「2021.04.18」）。
+    /// Figma `MiLens/UI/Metadata`：11pt Regular。
+    static let editorialMetadata = Font.system(size: 11)
+
+    /// 项目编号 / 步骤编号（「01」「02」「03」）。
+    /// Figma `MiLens/Number/Index`：Fraunces-Bold 12pt。
+    static let editorialNumberIndex = Font.custom("Fraunces-Bold", size: 12)
+
+    /// UI Title（「成品预览」「拼豆工作室」「选择两段时光」）。
+    /// Figma `MiLens/UI/Title`：20pt Medium + letterSpacing -0.01em。
+    static let uiTitle = Font.system(size: 20, weight: .medium)
+
+    /// UI Body Strong（「从生命档案选择」「窗边观察员」）。
+    /// Figma `MiLens/UI/Body Strong`：15pt Medium。
+    static let uiBodyStrong = Font.system(size: 15, weight: .medium)
 }

@@ -18,7 +18,7 @@ struct EditorView: View {
             if let viewModel {
                 content(viewModel)
             } else {
-                Color.black.ignoresSafeArea()
+                Color.milensBackground.ignoresSafeArea()
             }
         }
         .toolbar(.hidden, for: .navigationBar)
@@ -40,7 +40,7 @@ struct EditorView: View {
             EditorPanelArea(viewModel: vm)
             EditorDockView(viewModel: vm)
         }
-        .background(.black)
+        .background(Color.milensBackground)
         .onChange(of: vm.shouldDismiss) { _, shouldDismiss in
             if shouldDismiss { dismiss() }
         }
@@ -90,7 +90,7 @@ struct EditorView: View {
             } label: {
                 Image(systemName: "chevron.left")
                     .font(.system(size: Sizing.iconLg, weight: .semibold))
-                    .foregroundStyle(.white)
+                    .foregroundStyle(Color.milensTextPrimary)
                     .frame(width: Sizing.touchTarget, height: Sizing.touchTarget)
                     .contentShape(Rectangle())
             }
@@ -109,7 +109,7 @@ struct EditorView: View {
                     .foregroundStyle(Color.milensTextOnActionPrimary)
                     .padding(.horizontal, Spacing.lg)
                     .padding(.vertical, Spacing.xs)
-                    .background(vm.isSaving ? Color.white.opacity(0.15) : Color.milensActionPrimary)
+                    .background(vm.isSaving ? Color.milensBorder : Color.milensActionPrimary)
                     .clipShape(Capsule())
             }
             .disabled(vm.isSaving || vm.isPhotoLoading)
@@ -117,15 +117,15 @@ struct EditorView: View {
         }
         .padding(.horizontal, Spacing.sm)
         .padding(.vertical, Spacing.xs)
-        .background(.black)
-        .overlay(alignment: .bottom) { Divider().overlay(Color.white.opacity(0.15)) }
+        .background(Color.milensBackground)
+        .overlay(alignment: .bottom) { Divider().overlay(Color.milensSeparator) }
     }
 
     private func topBarButton(icon: String, label: String, enabled: Bool, action: @escaping () -> Void) -> some View {
         Button(action: action) {
             Image(systemName: icon)
                 .font(.system(size: Sizing.iconLg))
-                .foregroundStyle(enabled ? .white : .white.opacity(0.3))
+                .foregroundStyle(enabled ? Color.milensTextPrimary : Color.milensTextTertiary)
                 .frame(width: Sizing.touchTarget, height: Sizing.touchTarget)
                 .contentShape(Rectangle())
         }

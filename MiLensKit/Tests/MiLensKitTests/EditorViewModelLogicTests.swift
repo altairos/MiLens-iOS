@@ -197,6 +197,7 @@ final class EditorToolLogicGroupTests: XCTestCase {
         XCTAssertEqual(resolveToolGroup(.crop), .adjust)
         XCTAssertEqual(resolveToolGroup(.rotate), .adjust)
         XCTAssertEqual(resolveToolGroup(.adjust), .adjust)
+        XCTAssertEqual(resolveToolGroup(.flip), .adjust)
     }
 
     func testResolveToolGroupDecorate() {
@@ -218,12 +219,14 @@ final class EditorToolLogicGroupTests: XCTestCase {
     }
 
     // toolsInGroup
-    func testAdjustGroupHas3Tools() {
+    func testAdjustGroupHas4Tools() {
         let tools = toolsInGroup(.adjust)
-        XCTAssertEqual(tools.count, 3)
+        XCTAssertEqual(tools.count, 4)
         XCTAssertEqual(tools[0].label, "裁剪")
         XCTAssertEqual(tools[0].mode, .crop)
         XCTAssertEqual(tools[2].label, "调色")
+        XCTAssertEqual(tools[3].label, "翻转")
+        XCTAssertEqual(tools[3].mode, .flip)
     }
 
     func testDecorateGroupHas3Tools() {

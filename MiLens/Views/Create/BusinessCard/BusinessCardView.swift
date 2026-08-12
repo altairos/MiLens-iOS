@@ -37,7 +37,7 @@ struct BusinessCardView: View {
     @State private var isSaving = false
     @State private var shareItem: ShareItem?
     @State private var saveError: String?
-    @State private var sharePreview: (image: UIImage, url: URL)?
+    @State private var sharePreview: (image: UIImage, url: URL, filename: String, spec: String)?
 
     private let petDraftPrefix = "businessCard.draft."
 
@@ -76,12 +76,14 @@ struct BusinessCardView: View {
             ShareSheet(items: [item.url])
         }
         .sheet(item: Binding<SharePreviewData?>(
-            get: { sharePreview.map { SharePreviewData(image: $0.image, url: $0.url) } },
+            get: { sharePreview.map { SharePreviewData(image: $0.image, url: $0.url, filename: $0.filename, spec: $0.spec) } },
             set: { if $0 == nil { sharePreview = nil } }
         )) { data in
             SharePreviewSheet(
                 previewImage: data.image,
                 shareURL: data.url,
+                filename: data.filename,
+                spec: data.spec,
                 onDismiss: { sharePreview = nil }
             )
         }
@@ -318,13 +320,21 @@ struct BusinessCardView: View {
         guard let pet else { return }
         guard let rendered = renderCard(pet: pet),
               let png = rendered.pngData() else { return }
-        let filename = "business_card_\(pet.name).png"
+        let filename = "MiLens_\(pet.name)_\(String(localized: "share.panel.title")).png"
+        let spec = "\(PetBusinessCardLogic.exportWidth) × \(PetBusinessCardLogic.exportHeight) · PNG · \(formatByteCount(png.count))"
         do {
             let url = try BeadExportService().writeShareCache(data: png, filename: filename)
-            sharePreview = (image: rendered, url: url)
+            sharePreview = (image: rendered, url: url, filename: filename, spec: spec)
         } catch {
             logger.error("share: 写入分享缓存失败（\(error.localizedDescription)）")
         }
+    }
+
+    /// 格式化字节数为可读字符串（KB/MB）。
+    private func formatByteCount(_ bytes: Int) -> String {
+        let formatter = ByteCountFormatter()
+        formatter.countStyle = .file
+        return formatter.string(fromByteCount: Int64(bytes))
     }
 
     // MARK: - 加载失败

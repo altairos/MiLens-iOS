@@ -1,6 +1,6 @@
 # MiLens iOS UI Rework 设计规范
 
-最后核对：2026-08-10（文案规范 v2.1：伙伴 / 性别代词 / 物种 / 无 Emoji）
+最后核对：2026-08-13（Image Workshop 贴纸/相框操作态与纪念作品注释编辑态）
 
 > 本文是 MiLens iOS 视觉、交互和页面规格的唯一事实来源。产品范围以 [ADR-0008](docs/adr/0008-v1-scope-decision.md) 为准，技术架构见 [DESIGN.md](DESIGN.md)，本轮审计结论见 [docs/UI_REWORK_AUDIT.md](docs/UI_REWORK_AUDIT.md)。旧页面原型只保留产品叙事，不再作为布局或功能范围依据。
 >
@@ -222,15 +222,17 @@ Figma 核心组件集中在 [12 · Design System · Components](https://www.figm
 | `Data/Archive Stat` | [`295:587`](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=295-587) | `Value`、`Label` 文本属性；宽度可按统计带等分 | `ArchiveStatView`；保持开放报表排版，不把每个读数包装成小卡 |
 | `Surface/Archive Panel` | [`296:629`](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=296-629) | 档案引言、置顶记忆、时间线入口等文本属性；嵌套 `Archive Stat`，照片由实例覆盖 | `ArchivePanel`；统计、记忆与近期照片属于同一张连续档案纸，不拆成同质圆角容器 |
 | `Surface/Identity Strip` | [`299:615`](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=299-615) | `Context=Source/Recipe`；`Label`、`Meta`、`Action` 可覆盖，照片由实例覆盖 | `IdentityStrip`；用于拼豆原图与方案上下文，保留接触印、铜色登记轨和 12pt 精确折角，不泛化为普通设置行 |
-| `Navigation/Editor Group Dock` | [`458:1145`](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=458-1145) | `Active=Adjust/Smart/Decorate` | 一一映射 `EditorDockView` 的一级分组；图标、标签与铜色校准记号必须位于实时 bottom safe area 之上 |
-| `Navigation/Editor Tool Row` | [`459:1158`](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=459-1158) | `Group=Adjust/Smart/Decorate` × `Active=Crop/Rotate/Adjust/Cutout/Text` | 一一映射 `EditorGroupToolRow`；只在所属一级分组展开后出现，不把工具伪装成一级入口 |
-| `Control/Workshop Value Rail` | [`460:1133`](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=460-1133) | `State=Default/Changed/Disabled`；`Label`、`Value` 可覆盖 | `EditorAdjustPanelView` 的连续 Slider 行；亮度、对比度、饱和度、色温、锐化同时呈现，轨道位置由真实 `Double` 值驱动 |
+| `Navigation/Editor Group Dock` | [`458:1145`](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=458-1145) | `Active=Adjust/Smart/Decorate` | 一一映射 `EditorDockView` 的一级分组；iPhone 参考态为 342×54pt 浅色连续导航面，三等分目标，三个中文标签统一为 Noto Sans SC Medium 12pt、32pt 文本框，禁止回退到 Inter 导致裁字；选中项使用深铜红图标、文字与 48×2pt 短刻度，未选项使用 `color/text/secondary`；不使用暗房底、悬浮胶囊或卡片阴影 |
+| `Navigation/Editor Tool Row` | [`459:1158`](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=459-1158) | `Group=Adjust/Smart/Decorate` × `Active=Crop/Rotate/Adjust/Cutout/Text/Sticker/Frame` | 一一映射 `EditorGroupToolRow`；342×40pt 横向滚动，常驻于激活工具面板标题下方作为二级模式切换。Adjust 为裁剪/旋转/调色/翻转，Smart 为主体抠图/智能消除/背景虚化，Decorate **只保留**文字/贴纸/相框；选中项用深铜红文字与 40×2pt 短刻度，刻度顶边与文字底边相距 5pt，不贴行底。贴纸、相框的交互稿不代表代码和素材已交付，能力开放必须受 catalog 与 feature flag 控制 |
+| `Control/Workshop Value Rail` | [`460:1133`](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=460-1133) | `State=Default/Changed/Disabled`；`Label` 可覆盖 | `EditorAdjustPanelView` 的 342×36pt 连续 Slider 行；03 调色页将亮度、对比度、饱和度、色温、锐化放入 342×85pt 纵向滚动视口，行间距 2pt，不显示易错位的右侧数字，轨道位置由真实 `Double` 值驱动 |
+| `Picker/Decoration Asset Cell` | [`552:1084`](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=552-1084) | `State=Default/Selected/Locked`；素材预览由实例内容覆盖 | `DecorationCatalog` 的贴纸/相框资源单元；Selected 使用深铜红登记框，Locked 显示 Pro，60×56pt 单元组成横向滚动素材轨。空 catalog 必须显示真实空态，不注入演示素材冒充可用资产 |
 | `Picker/Photo Proof Cell` | [`462:1164`](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=462-1164) | `Selection=Default/Selected` × `Role=None/Earlier/Recent`；标签、日期和照片可覆盖 | `GrowthComparePhotoPickerView` 双选校样；选择状态与早期/近期业务角色独立表达，不再混入 Primary/Secondary |
 | `Control/Creation Template Tab` | [`463:1149`](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=463-1149) | `State=Default/Selected/Locked`；`Index`、`Label` 可覆盖 | `PetCardView` / `BusinessCardView` 模板轨；编号属于模板顺序而非状态，Locked 进入真实 Pro 门控 |
+| `Field/Keepsake Annotation Register` | [`554:1086`](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=554-1086) | `State=Display/Editing`；`Label`、`Value` 可覆盖 | 伙伴卡与成长对比共用的一行注释输入；Display 提供“编辑”，Editing 显示深铜红聚焦刻度与“完成”。SwiftUI 使用单行 `TextField`，建议上限 36 个中文字符；空值回退到模板默认句，输入状态纳入作品草稿 |
 | `Action/Creation Output Register` | [`466:1171`](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=466-1171) | `State=Default/Pressed/Loading/Disabled`；左右文案可覆盖 | 创作页保存/分享与 `SharePreviewSheet`；异步保存期间必须显示 Loading 或 Disabled |
 | `Action/Editor Panel Register` | [`466:1197`](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=466-1197) | `State=Default/Pressed/Loading/Disabled`；左右文案可覆盖 | 裁剪、文字、抠图面板的取消/确认动作；不得用于成长对比选择或成品分享 |
 
-上述 12 组核心组件与 7 组 Image Workshop 扩展组件均绑定 `MiLens · Semantic` / `MiLens · Metrics` 变量，并已用实例回写 Release Candidate、Dark Mode、Applied、Core Flow、Image Workshop 或 iPad Adaptive Layout 中的适用页面。Image Workshop 组件完成组件级代码对齐后共有 32 个连接实例，旧 `Control/Editor Tool Dock` 与 `Action/Output Register` 已退役。Figma 的 `Pressed`、`Min/Default/Max` 等变体只记录视觉验收态；SwiftUI 还需实现弹簧、路径描边、连续 Slider 值、取消与 Reduce Motion。Code Connect 只在代码侧形成一一对应组件后添加，禁止把多个页面私有 View 强行映射到同一 Figma 组件。
+上述核心组件与 9 组 Image Workshop 扩展组件均绑定 `MiLens · Semantic` / `MiLens · Metrics` 变量，并已用实例回写 Release Candidate、Dark Mode、Applied、Core Flow、Image Workshop 或 iPad Adaptive Layout 中的适用页面；新增贴纸、相框和注释编辑态仍保持组件连接，未 detached。旧 `Control/Editor Tool Dock` 与 `Action/Output Register` 已退役。Figma 的 `Pressed`、`Min/Default/Max` 等变体只记录视觉验收态；SwiftUI 还需实现弹簧、路径描边、连续 Slider 值、取消与 Reduce Motion。Code Connect 只在代码侧形成一一对应组件后添加，禁止把多个页面私有 View 强行映射到同一 Figma 组件。
 
 ### 5.7 重点流程精修与字号验收（2026-08-12）
 
@@ -239,7 +241,7 @@ Figma 核心组件集中在 [12 · Design System · Components](https://www.figm
 - [`Core Flow Precision / Add Memory` 211:340](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=211-340) / [`Dark 79:380`](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=79-380)：类型切换使用精确分段轨，日期与照片证据收拢到一张连续档案纸；标题、长记忆和保存动作分别使用登记轨、折页纸面与 `Focus Dial`，保持清晰的输入层级。
 - Release Candidate 已按 `01–12` 建立完整目录并进入 `FINAL`：首页、伙伴档案、时间线、图库、创作、Paywall、我的、照片详情、添加记忆、拼豆结果、拼豆设置与拼豆生成共 12 张主稿。`Light / Bead Studio / Setup` 与 `Navigation / Memory Orbit / Create · Release Instance` 已重新校正顶部/底部安全区；四个 `Memory Orbit` 实例采用底部约束，交互命中止于 `y=810pt`，不侵入 34pt Home Indicator 参考区。
 - 本轮对 Release Candidate、Dark Mode、iPad、Foundations 和 Components 范围共 743 个文本节点做了字号审计并将原 9pt 完成符号提升到 10pt；正文和交互文字均不小于 11pt。最终 12 张 390×844pt 主稿另做逐节点复核：224 个文本节点无缺失字体、截断、越界或禁用字体，顶部关键内容退出 47pt 状态栏参考区，底部交互退出 34pt Home Indicator 参考区，顶部独立操作控件不小于 44×44pt。SwiftUI 实现仍必须读取设备实时 safe area，并在真机复核 Dynamic Type。
-- [`15 · Image Workshop · Editing & Keepsakes` 422:801](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=422-801) 已按真实代码能力补齐 12 张 390×844pt 页面：创作索引、双照片选择、调色、裁切、文字、抠图、伙伴卡、成长对比、宠物名片、红包封面、上传指引、保存/分享。组件级对齐后编辑器改为一级分组 + 二级工具行，调色页同时展示五条连续参数，保存/分享与编辑确认拆为不同组件族。扩展组件可读文字不小于 10pt，正文/交互不小于 11pt；可见内容无顶部 47pt 或底部 34pt 安全区侵入，32 个组件实例保持连接且未 detached。
+- [`15 · Image Workshop · Editing & Keepsakes` 422:801](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=422-801) 保留 12 张 390×844pt 主页面，并补充 4 张操作态：[`Sticker` 555:1075](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=555-1075)、[`Frame` 558:1152](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=558-1152)、[`Pet Card · Annotation Editing` 563:1149](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=563-1149)、[`Growth Compare · Annotation Editing` 563:1217](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=563-1217)。贴纸/相框采用横向分类轨 + 横向素材轨，07/08 则在成品上下文中提供 Display/Editing 注释登记行。02、07–11 的页面实际填充与变量绑定统一到 `color/surface/canvas`；扩展稿可读文字不小于 10pt，正文/交互不小于 11pt，可见内容不侵入顶部 47pt 或底部 34pt 安全区。`catalog.json` 当前为空，作品注释也尚无业务状态，因此这 4 张是待实现规格，不是已上线声明。
 
 ## 6. 关键页面规格
 
@@ -313,6 +315,8 @@ Hero 比例 iPhone 为 4:5 或 3:4，iPad 最大高度 560pt；用图像焦点�
 
 Figma 实现参考 [`01 · Creation / Studio Index` 422:805](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=422-805)：拼豆使用单一影像 Hero，伙伴卡使用 4:5 纸样，成长对比与名片使用开放式登记面，红包封面使用独立珊瑚/铜色面；禁止把五个入口再次做成等尺寸、等圆角、等权重的卡片宫格。
 
+伙伴卡与成长对比的成品页均提供一行可编辑注释：默认展示模板句，点击“编辑”后原位进入聚焦态并由系统键盘输入，点击“完成”提交到作品草稿。注释建议限制为 36 个中文字符，导出画面与编辑登记行引用同一状态；空值回退到模板默认句，不允许只改预览文字而不持久化。Figma 主页面与编辑态分别见 [`07` 422:829](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=422-829) / [`07A` 563:1149](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=563-1149) 和 [`08` 422:833](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=422-833) / [`08A` 563:1217](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=563-1217)。
+
 | 项目 | 定位 | 免费路径 | Pro 门控 |
 |---|---|---|---|
 | 拼豆图纸 | 照片 → 可动手完成的像素图案 | 每日 5 次，带水印 | 不限次数、无水印 |
@@ -335,20 +339,24 @@ Figma 实现参考 [`01 · Creation / Studio Index` 422:805](https://www.figma.c
 
 ### 6.8 图片编辑器
 
-编辑器服务于档案照片，不复制桌面软件。底部一级分组限定为“调整 / 智能 / 装饰”，展开后的 V1 工具限定为裁切、旋转、调色、文字、抠图；撤销/重做与保存常驻。
+编辑器服务于档案照片，不复制桌面软件。底部一级分组限定为“调整 / 智能 / 装饰”；现有代码能力为裁切、旋转、调色、文字、抠图，Figma 另为装饰组定义贴纸与相框的后续实现规格。装饰组不包含未设计的“留白”或“签名”；撤销/重做与保存常驻。
 
 - iPhone 底部工具轨 + 单层面板；iPad 右侧 Inspector。
+- iPhone 编辑器使用三层但不重叠的 `EditorPanelArea`：当前参数纸内依次是二级标题、342×40pt 横向滚动 `EditorGroupToolRow`、工具专属参数；342×54pt `EditorDockView` 作为一级分组坞贴在其下方常驻。二级工具轨负责同组模式切换，参数区只承载当前模式内容；必须通过固定高度、裁切和滚动避免三层侵占编辑画布。
 - 保存前说明“更新当前照片”或“保存副本”，默认选择可恢复方式。
 - 抠图失败明确说明未改变原图；不得用中心裁切作为“抠图成功”的视觉降级。
 - 工具切换保留未提交状态时必须确认或自动生成可撤销历史。
-- Figma 状态页：[`Adjust` 422:813](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=422-813)、[`Crop` 422:817](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=422-817)、[`Text` 422:821](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=422-821)、[`Cutout` 422:825](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=422-825)。四页共用暗房画布和纸面控制层，但必须保留各自真实信息：调整显示当前连续参数与五项选择；裁切显示 3:4 网格、比例、旋转与翻转；文字显示可选图层、输入、字体、字号、颜色和描边；抠图显示主体轮廓、设备端处理阶段、重试与应用。
-- 编辑面板不得继续堆同质圆角卡片；使用一张连续控制纸、开放分隔线、精确刻度与少量铜色校准记号。工具坞本体可延伸到底边洗白，但图标、标签、指示与命中区域必须完全位于实时 bottom safe area 之上。
-- Image Workshop 页面背景统一绑定主稿使用的 `color/surface/canvas`；暗房只作为编辑工具坞和强调动作的局部材质，不再把整个编辑页或分享页染成独立 `studio/surface`。
+- Figma 状态页：[`Adjust` 422:813](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=422-813)、[`Crop` 422:817](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=422-817)、[`Text` 422:821](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=422-821)、[`Cutout` 422:825](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=422-825)、[`Sticker` 555:1075](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=555-1075)、[`Frame` 558:1152](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=558-1152)。六页共用画布与纸面控制层，但保留各自真实信息：调整以纵向滑动访问五项连续参数且不显示右端数字；裁切显示 3:4 网格、比例、旋转与翻转；文字显示图层、输入、字体、字号、颜色和描边；抠图显示主体轮廓、设备端处理阶段、重试与应用；贴纸显示选中图层的拖动/双指缩放旋转/删除，并以横向分类轨和素材轨选择资源；相框以整画布图层、自动适配比例、移除、横向分类轨和相框缩略图表达。
+- 05/05A/05B 的参数纸标题行只显示“文字图层 / 贴纸图层 / 相框图层”和右侧图标动作，不在标题右侧并列图层名、手势说明或“删除/移除”文字；详细操作由画布直接操控、可访问性标签和首次提示承担。
+- 390×844pt Figma 参考稿中，03–06 的编辑画布统一为 `x=24 / y=109 / 342×489pt`，参数纸从 `y=606pt` 起，一级 Group Dock 保持 `x=24 / y=767 / 342×54pt`。画布底到参数纸铜红线为 8pt，铜红线底到二级标题顶为 9pt；二级工具轨统一为 `x=24 / y=640 / 342×40pt`。这些数值用于校验页面节奏，不是 SwiftUI 硬编码值；实际布局必须根据 safe area、键盘和可用高度收缩 Inspector。
+- 编辑面板不得继续堆同质圆角卡片；使用一张连续控制纸、开放分隔线、精确刻度与少量铜色校准记号。Group Dock 使用与主 Tab 同源的浅色连续导航语法，仅保留顶部细分隔和选中短刻度；图标、标签、指示与命中区域必须相对实时 bottom safe area 布局。
+- Image Workshop 页面背景、参数纸和 Group Dock 统一绑定主稿使用的 `color/surface/canvas`；暗房材质只保留在照片留黑、透明预览等画布内部和少数强调动作，不再用于页面背景、Group Dock 或分享页。
 - 二级工具行和一级分组坞使用 SF Symbols 语义对应的单体 SVG Vector Group；禁止用多条独立 `Line` 拼图标，也禁止保留零宽符号字符占位。
 - Workshop 的选中、轨道、轮廓和行动强调统一绑定 `color/action/brand`（深铜红）。`color/material/studio/copper` 不再用于产品页面或可复用组件实例。
 - 带返回导航的 Workshop 页面统一使用 44×44pt 白色圆形 `Navigation / Back` 与深色 `chevron.left` 矢量，位置和主稿导航基线一致。
 - Workshop 顶部栏以 [`11 · Red Packet / Upload Guide` 422:845](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=422-845) 为唯一几何样板：390×844pt 参考稿中返回控件为 `x=18 / y=57 / 44×44pt`，24pt `chevron.left` 在控件内 `10pt` 居中；标题使用 `MiLens/UI/Title`（Noto Sans SC Medium 20/24）、`color/text/primary`，起点为 `x=72 / y=64`；右侧页级动作与标题垂直居中并保持 24pt 右边距。该数值只用于 Figma 参考稿，SwiftUI 必须用真实 top safe area 推导相同关系，不能硬编码 47pt 状态栏高度。
 - `01 · Creation / Studio Index` 是带品牌字标的 Tab 根页，不添加返回控件；02–12 的计数、撤销/重做、状态、预览、完成与关闭属于页级 trailing action，统一基线但保留各自语义。顶部栏下方首个内容块至少留出 8pt 光学间隔，不允许与返回圆阴影相接。
+- 02 的双时态交换图标使用 20×20pt 单体矢量，中心固定在两张 158pt 校样之间的 `x=195pt` 与照片区域垂直中心 `y=270pt`；12 的 AirDrop、微信、信息和更多均使用 24×24pt 可编辑矢量，不使用 `⌁ / 微 / 信 / •••` 等字符占位。
 
 ### 6.9 我的
 

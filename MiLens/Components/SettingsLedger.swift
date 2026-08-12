@@ -165,12 +165,6 @@ struct ProHeroCard: View {
 
     private var cardContent: some View {
         VStack(alignment: .leading, spacing: 0) {
-            // 顶部珊瑚 accent rule（对照 Pro Accent Rule #145:406）
-            Rectangle()
-                .fill(Color.milensActionPrimary)
-                .frame(height: 1)
-                .padding(.trailing, 238)  // 卡片右侧留白，仅左上角一段
-
             VStack(alignment: .leading, spacing: 0) {
                 HStack(spacing: 6) {
                     Text("MiLens Pro")
@@ -206,6 +200,15 @@ struct ProHeroCard: View {
             .padding(.trailing, 25)
             .padding(.bottom, 21)
             .padding(.top, 29)
+
+            // 底部珊瑚 accent rule（对照 Pro Accent Rule #145:406，卡片底部右侧）
+            HStack {
+                Spacer()
+                Rectangle()
+                    .fill(Color.milensActionPrimary)
+                    .frame(width: 104, height: 1)
+            }
+            .padding(.trailing, 0)
         }
         .background(cardBackground)
         .clipShape(RoundedRectangle(cornerRadius: 4, style: .continuous))
@@ -243,28 +246,27 @@ struct PrivacyBadgeCard: View {
 
     var body: some View {
         HStack(spacing: 0) {
-                // 左侧 wash + rail + 徽章区（宽 56，徽章在 wash 内居中偏移）
+                // 左侧 wash + rail（16pt 宽，对照 Privacy Rail Wash #145:407）
                 ZStack {
-                    // 浅粉 wash（贴左 16pt 宽）
                     Rectangle()
                         .fill(Color(red: 0.988, green: 0.910, blue: 0.875))  // #FCE8DF
-                        .frame(width: 56)
-                    // 珊瑚 rail（3pt，覆盖 wash 左缘）
                     Rectangle()
                         .fill(Color.milensActionPrimary)
                         .frame(width: 3)
                         .frame(maxHeight: .infinity, alignment: .leading)
-                    // 珊瑚圆形徽章
-                    Circle()
-                        .fill(Color.milensActionPrimary)
-                        .frame(width: 40, height: 40)
-                        .overlay(
-                            Image(systemName: "lock.fill")
-                                .font(.system(size: 16))
-                                .foregroundStyle(Color.white)
-                        )
                 }
-                .frame(width: 56)
+                .frame(width: 16)
+
+                // 珊瑚圆形徽章（40pt，紧跟 wash 右缘）
+                Circle()
+                    .fill(Color.milensActionPrimary)
+                    .frame(width: 40, height: 40)
+                    .overlay(
+                        Image(systemName: "lock.fill")
+                            .font(.system(size: 16))
+                            .foregroundStyle(Color.white)
+                    )
+                    .padding(.leading, 16)
 
                 // 右侧文案
                 VStack(alignment: .leading, spacing: 7) {
@@ -275,7 +277,7 @@ struct PrivacyBadgeCard: View {
                         .font(.system(size: 11))
                         .foregroundStyle(Color.milensTextSecondary)
                 }
-                .padding(.leading, 8)
+                .padding(.leading, 16)
                 .frame(maxWidth: .infinity, alignment: .leading)
 
                 Image(systemName: "chevron.right")

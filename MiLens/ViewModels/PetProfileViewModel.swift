@@ -78,6 +78,8 @@ final class PetProfileViewModel {
         }
         addError = ""
         loadPets()
+        // 新建宠物后刷新 Widget 快照（§6.1）
+        WidgetReload.notifyDataChanged()
 
         // 彩蛋：同日生日
         let monthDay = PetProfileLogic.monthDayString(from: birthday)
@@ -97,6 +99,8 @@ final class PetProfileViewModel {
         do {
             try petRepo.deletePet(pet)
             loadPets()
+            // 删除宠物后刷新 Widget 快照（§6.1）
+            WidgetReload.notifyDataChanged()
         } catch {
             // 静默失败，列表保持不变
         }

@@ -13,10 +13,20 @@ struct RootTabView: View {
     @Environment(\.notifyService) private var notifyService
     @Environment(\.proEntitlement) private var entitlement
 
+    /// Widget 深链回调路由：外部绑定，新值到达时触发导航。
+    @Binding var pendingWidgetRoute: Route?
+
+    init(pendingWidgetRoute: Binding<Route?> = .constant(nil)) {
+        self._pendingWidgetRoute = pendingWidgetRoute
+    }
+
+    /// 首页 Tab 的导航路径（Widget 深链统一从首页 push）。
+    @State private var homePath = NavigationPath()
+
     var body: some View {
         TabView(selection: selectedTab) {
             ForEach(AppTab.allCases, id: \.self) { tab in
-                NavigationStack {
+                NavigationStack(path: tab == .home ? $homePath : .constant(NavigationPath())) {
                     tabView(tab)
                         .navigationTitle(tab.title)
                         .navigationBarTitleDisplayMode(.large)
@@ -36,6 +46,9 @@ struct RootTabView: View {
         }
         .onChange(of: scenePhase) { _, newPhase in
             handleScenePhase(newPhase)
+        }
+        .onChange(of: pendingWidgetRoute) { _, newRoute in
+            handleWidgetRoute(newRoute)
         }
         .task {
             // 启动权益校准：显式查询 currentProStatus（Transaction.updates 冷启动不保证推送），
@@ -87,6 +100,17 @@ struct RootTabView: View {
                 RedPacketCoverView(photoID: photoID, petID: petID)
             }
         }
+    }
+
+    /// 处理 Widget 深链回调：切换到首页 Tab 并 push Route。
+    private func handleWidgetRoute(_ route: Route?) {
+        guard let route else { return }
+        // 切换到首页 Tab（Widget 深链统一从首页 push）
+        selectedTabRaw = AppTab.home.rawValue
+        // push 目标路由
+        homePath.append(route)
+        // 清除 pending 状态（避免重复触发）
+        pendingWidgetRoute = nil
     }
 
     private func handleScenePhase(_ phase: ScenePhase) {

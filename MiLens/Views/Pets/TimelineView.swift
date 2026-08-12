@@ -341,7 +341,7 @@ struct TimelineView: View {
         Button(action: action) {
             VStack(spacing: 6) {
                 Text(String(year))
-                    .font(.system(size: 12, weight: isSelected ? .bold : .medium))
+                    .font(.system(size: isSelected ? 16 : 12, weight: isSelected ? .bold : .medium))
                     .foregroundStyle(isSelected ? Color.milensActionPrimary : Color.milensTextSecondary)
                 if isSelected {
                     Circle()
@@ -562,6 +562,13 @@ private struct PhotoMemoryCard: View {
                     Text(entry.title)
                         .font(.custom("LXGWWenKai-Regular", size: 18, relativeTo: .title3))
                         .foregroundStyle(Color.milensTextPrimary)
+                }
+
+                // 正文（对照 #140:367，13pt regular secondary）
+                if !entry.bodyText.isEmpty {
+                    Text(entry.bodyText)
+                        .font(.system(size: 13))
+                        .foregroundStyle(Color.milensTextSecondary)
                 }
             }
         }

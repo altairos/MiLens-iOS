@@ -155,6 +155,8 @@ final class TimelineViewModel {
         }
         addMemoryError = ""
         load(now: now, isPro: isPro, firstAccessDate: firstAccessDate)
+        // 添加记忆后刷新 Widget 快照（§6.1）
+        WidgetReload.notifyDataChanged()
         return true
     }
 

@@ -32,6 +32,8 @@ final class AppDependencies {
     let backupService: any BackupService
     /// 页面 ViewModel 组合工厂（分层收敛：View 不再直连 Repository/Service）
     let viewModelFactory: ViewModelFactory
+    /// WidgetKit 快照写入器（数据变更后写入 App Group，Widget 读取展示）
+    let widgetSnapshotWriter: WidgetSnapshotWriter?
 
     init(container: ModelContainer,
          petRepo: any PetRepositoryProtocol,
@@ -48,7 +50,8 @@ final class AppDependencies {
          storeService: any StoreService,
          proEntitlement: ProEntitlementStore,
          backupService: any BackupService,
-         viewModelFactory: ViewModelFactory) {
+         viewModelFactory: ViewModelFactory,
+         widgetSnapshotWriter: WidgetSnapshotWriter?) {
         self.container = container
         self.petRepo = petRepo
         self.photoRepo = photoRepo
@@ -65,6 +68,7 @@ final class AppDependencies {
         self.proEntitlement = proEntitlement
         self.backupService = backupService
         self.viewModelFactory = viewModelFactory
+        self.widgetSnapshotWriter = widgetSnapshotWriter
     }
 
     /// 构造完整依赖图。失败时抛出——调用方进入可诊断恢复界面。
@@ -156,6 +160,10 @@ final class AppDependencies {
             cursorStore: scanCursorStore,
             mediaLifecycle: mediaLifecycle
         )
+        // Widget 快照写入器：测试环境不构造（避免写入真实 App Group 容器）。
+        let widgetSnapshotWriter = isTesting ? nil : WidgetSnapshotWriter(
+            petRepo: petRepo, photoRepo: photoRepo
+        )
 
         return AppDependencies(
             container: container,
@@ -173,7 +181,8 @@ final class AppDependencies {
             storeService: storeService,
             proEntitlement: proEntitlement,
             backupService: backupService,
-            viewModelFactory: viewModelFactory
+            viewModelFactory: viewModelFactory,
+            widgetSnapshotWriter: widgetSnapshotWriter
         )
     }
 

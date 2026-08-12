@@ -277,7 +277,7 @@ struct PetProfileView: View {
             return PinnedMemory(
                 title: ev.title,
                 note: ev.body,
-                dateLabel: String(format: "%02d.%02d", m, d),
+                dateLabel: "RECENT · " + String(format: "%02d.%02d", m, d),
                 photoPath: path
             )
         }
@@ -287,7 +287,7 @@ struct PetProfileView: View {
         let dateLabel: String
         if let takenAt = photo.takenAt {
             let cal = Calendar.current
-            dateLabel = String(format: "%02d.%02d", cal.component(.month, from: takenAt), cal.component(.day, from: takenAt))
+            dateLabel = "RECENT · " + String(format: "%02d.%02d", cal.component(.month, from: takenAt), cal.component(.day, from: takenAt))
         } else {
             dateLabel = "RECENT"
         }
@@ -301,48 +301,53 @@ struct PetProfileView: View {
     }
 
     private func pinnedMemorySection(_ pinned: PinnedMemory) -> some View {
-        HStack(alignment: .top, spacing: 0) {
-            // 左侧珊瑚竖线 4pt（对照 Pinned Fold Index #I319:1101;296:604）
-            Rectangle()
-                .fill(Color.milensActionPrimary)
-                .frame(width: 4)
-                .cornerRadius(2)
+        VStack(alignment: .leading, spacing: 8) {
+            // Section 标签（独立头部行，对照 #I319:1101;296:595）
+            Text(String(localized: "pet.profile.pinned.section"))
+                .font(.system(size: 12, weight: .medium))
+                .foregroundStyle(Color.milensTextSecondary)
+                .padding(.horizontal, 24)
 
-            VStack(alignment: .leading, spacing: 6) {
-                // 日期 overline
-                Text(pinned.dateLabel)
-                    .font(.system(size: 10, weight: .medium))
-                    .tracking(0.4)
-                    .foregroundStyle(Color.milensActionPrimary)
-                // 置顶标签
-                Text(String(localized: "pet.profile.pinned.section"))
-                    .font(.system(size: 12, weight: .medium))
-                    .foregroundStyle(Color.milensTextSecondary)
-                // 文楷标题
-                Text(pinned.title)
-                    .font(.custom("LXGWWenKai-Regular", size: 16, relativeTo: .body))
-                    .foregroundStyle(Color.milensTextPrimary)
-                // 正文
-                if !pinned.note.isEmpty {
-                    Text(pinned.note)
-                        .font(.system(size: 13))
-                        .foregroundStyle(Color.milensTextSecondary)
+            // Fold index + 内容行（对照 #I319:1101;296:604-598）
+            HStack(alignment: .top, spacing: 15) {
+                // 左侧珊瑚竖线 4pt（panel x=16 起，对照 Pinned Fold Index #I319:1101;296:604）
+                Rectangle()
+                    .fill(Color.milensActionPrimary)
+                    .frame(width: 4)
+                    .cornerRadius(2)
+
+                VStack(alignment: .leading, spacing: 6) {
+                    // 日期 overline（对照 #I319:1101;296:608）
+                    Text(pinned.dateLabel)
+                        .font(.system(size: 10, weight: .medium))
+                        .tracking(0.4)
+                        .foregroundStyle(Color.milensActionPrimary)
+                    // 文楷标题（对照 #I319:1101;296:597）
+                    Text(pinned.title)
+                        .font(.custom("LXGWWenKai-Regular", size: 16, relativeTo: .body))
+                        .foregroundStyle(Color.milensTextPrimary)
+                    // 正文（对照 #I319:1101;296:598）
+                    if !pinned.note.isEmpty {
+                        Text(pinned.note)
+                            .font(.system(size: 13))
+                            .foregroundStyle(Color.milensTextSecondary)
+                    }
+                }
+
+                Spacer(minLength: 12)
+
+                // 右侧缩略图 122×86（对照 Pinned Memory Photo #I319:1101;296:596）
+                if let path = pinned.photoPath {
+                    ThumbnailImage(path: path)
+                        .scaledToFill()
+                        .frame(width: 122, height: 86)
+                        .clipped()
+                        .clipShape(RoundedRectangle(cornerRadius: 4, style: .continuous))
                 }
             }
-            .padding(.leading, 15)
-
-            Spacer(minLength: 12)
-
-            // 右侧缩略图 122×86（对照 Pinned Memory Photo #I319:1101;296:596）
-            if let path = pinned.photoPath {
-                ThumbnailImage(path: path)
-                    .scaledToFill()
-                    .frame(width: 122, height: 86)
-                    .clipped()
-                    .clipShape(RoundedRectangle(cornerRadius: 4, style: .continuous))
-            }
+            .padding(.leading, 16)
+            .padding(.trailing, 24)
         }
-        .padding(.horizontal, 24)
     }
 
     // MARK: - 最近照片
@@ -359,7 +364,7 @@ struct PetProfileView: View {
                     NavigationLink(value: Route.photoView(photoID: photo.id)) {
                         ThumbnailImage(path: photo.thumbnailPath.isEmpty ? photo.uri : photo.thumbnailPath)
                             .scaledToFill()
-                            .frame(height: 86)
+                            .frame(width: 100, height: 86)
                             .clipped()
                             .clipShape(RoundedRectangle(cornerRadius: 4, style: .continuous))
                     }

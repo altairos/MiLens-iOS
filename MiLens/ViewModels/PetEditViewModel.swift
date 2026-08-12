@@ -175,6 +175,8 @@ final class PetEditViewModel {
             originalSnapshot = makeSnapshot()
             errorMessage = ""
             didSaveSuccessfully = true
+            // 编辑宠物后刷新 Widget 快照（§6.1）
+            WidgetReload.notifyDataChanged()
         } catch {
             errorMessage = "保存失败，请重试"
             isSaving = false
@@ -246,6 +248,8 @@ final class PetEditViewModel {
         guard let petID else { return nil }
         guard let pet = try petRepo.getPet(id: petID) else { return nil }
         try petRepo.deletePet(pet)
+        // 删除宠物后刷新 Widget 快照（§6.1）
+        WidgetReload.notifyDataChanged()
         return pet
     }
 }

@@ -50,6 +50,8 @@ targets:
           - "Resources/Models/README.md"
           - "Resources/Models/CLIPVisionEncoder_fp16.mlpackage"
           - "Resources/Models/RTMPoseTPetFace_int8.mlpackage"
+    entitlements:
+      path: MiLens/MiLens.entitlements
     info:
       path: MiLens/Resources/Info.plist
       properties:
@@ -59,6 +61,12 @@ targets:
           UIColorName: ""
         UIApplicationSceneManifest:
           UIApplicationSupportsMultipleScenes: false
+        # WidgetKit 深链：milens://photo/{id} 等回调主 App
+        CFBundleURLTypes:
+          - CFBundleTypeRole: Editor
+            CFBundleURLName: com.milens.app
+            CFBundleURLSchemes:
+              - milens
         ITSAppUsesNonExemptEncryption: false
         # 自定义字体（霞鹜文楷 GB2312 子集 + Fraunces，均 SIL OFL）
         UIAppFonts:
@@ -96,6 +104,32 @@ targets:
     dependencies:
       - package: MiLensKit
 
+  # WidgetKit 小组件（WidgetKit-Design.md）：独立 Extension，不塞入 App target。
+  # 经 App Group 共享快照读取数据；不直接打开 SwiftData store、不联网、不提供购买按钮。
+  MiLensWidget:
+    type: app-extension
+    platform: iOS
+    deploymentTarget: "17.0"
+    sources:
+      - path: MiLensWidget
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.milens.app.widget
+        SKIP_INSTALL: YES
+        CODE_SIGN_STYLE: Automatic
+        ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
+    entitlements:
+      path: MiLensWidget/MiLensWidget.entitlements
+    dependencies:
+      - package: MiLensKit
+      - target: MiLens
+    info:
+      path: MiLensWidget/Info.plist
+      properties:
+        CFBundleDisplayName: "MiLens"
+        NSExtension:
+          NSExtensionPointIdentifier: com.apple.widgetkit-extension
+
   MiLensTests:
     type: bundle.unit-test
     platform: iOS
@@ -132,6 +166,7 @@ schemes:
     build:
       targets:
         MiLens: all
+        MiLensWidget: all
     run:
       config: Debug
     test:

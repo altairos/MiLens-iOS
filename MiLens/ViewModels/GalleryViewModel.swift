@@ -353,6 +353,10 @@ final class GalleryViewModel {
                     imported: result.imported, matched: result.matched, failed: result.failed)
                 self.showScanCompleteDialog = true
             }
+            // 导入成功后刷新 Widget 快照（§6.1）
+            if result.imported > 0 {
+                WidgetReload.notifyDataChanged()
+            }
         }
     }
 

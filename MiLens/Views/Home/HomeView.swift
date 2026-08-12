@@ -103,7 +103,7 @@ private struct HomeHero: View {
 
             // 内容层
             VStack(alignment: .leading, spacing: 0) {
-                // 顶部行：品牌名 + 日期 + 通知按钮
+                // 顶部行：品牌名 + 日期 + 通知按钮（对照 #319:1029-1032，x=32）
                 HStack(alignment: .top) {
                     VStack(alignment: .leading, spacing: 4) {
                         Text("MiLens")
@@ -120,19 +120,13 @@ private struct HomeHero: View {
                         .foregroundStyle(.white)
                         .frame(width: 44, height: 44)
                 }
+                .padding(.leading, 32)
+                .padding(.trailing, 23)
 
                 Spacer()
 
-                // 底部标题区
+                // 底部标题区（对照 #319:1035-1037，x=23）
                 VStack(alignment: .leading, spacing: Spacing.sm) {
-                    // 宠物身份条（对照 Pet Identity #319:1037-1047）
-                    if let pet = photo.pet {
-                        NavigationLink(value: Route.petProfile(petID: pet.id)) {
-                            petIdentityBar(pet)
-                        }
-                        .buttonStyle(.plain)
-                    }
-
                     // 小标签
                     Text(String(localized: "home.hero.todayLabel"))
                         .font(.system(size: 13, weight: .medium))
@@ -143,9 +137,17 @@ private struct HomeHero: View {
                         .font(.custom("LXGWWenKai-Regular", size: 37, relativeTo: .largeTitle))
                         .foregroundStyle(.white)
                         .fixedSize(horizontal: false, vertical: true)
+
+                    // 宠物身份条（对照 Pet Identity #319:1037-1047，Hero 最底部）
+                    if let pet = photo.pet {
+                        NavigationLink(value: Route.petProfile(petID: pet.id)) {
+                            petIdentityBar(pet)
+                        }
+                        .buttonStyle(.plain)
+                    }
                 }
+                .padding(.horizontal, 23)
             }
-            .padding(.horizontal, 23)
             .padding(.top, 53)
             .padding(.bottom, 28)
         }

@@ -53,6 +53,8 @@ struct MiLensApp: App {
         }
     }
 
+    @State private var pendingWidgetRoute: Route?
+
     @ViewBuilder
     private var content: some View {
         if let dependencies {
@@ -73,6 +75,12 @@ struct MiLensApp: App {
                 .environment(\.backupService, dependencies.backupService)
                 .environment(\.viewModelFactory, dependencies.viewModelFactory)
                 .preferredColorScheme(preferredScheme)
+                .onOpenURL { url in
+                    // Widget 深链：milens://photo/{id} 等 → 类型安全 Route
+                    if let route = WidgetDeepLink.route(from: url) {
+                        pendingWidgetRoute = route
+                    }
+                }
                 .task {
                     // 启动孤儿审计：清理上一次崩溃/回滚残留的媒体文件（仅生产环境）。
                     // L3：延迟到首屏稳定后执行，不阻塞启动关键路径；IO 在 service 内部降级到 utility 优先级。
@@ -80,6 +88,12 @@ struct MiLensApp: App {
                     try? await Task.sleep(for: .seconds(3))
                     guard !Task.isCancelled else { return }
                     await dependencies.mediaLifecycle.auditOrphans()
+                    // 前台启动后刷新 Widget 快照（§6.1：数据迁移/启动完成后）
+                    dependencies.widgetSnapshotWriter?.writeSnapshot()
+                }
+                .onReceive(NotificationCenter.default.publisher(for: .widgetDataChanged)) { _ in
+                    // 数据变更后刷新 Widget 快照（§6.1：导入/删除/CRUD 后）
+                    dependencies.widgetSnapshotWriter?.writeSnapshot()
                 }
         } else {
             DatabaseRecoveryView(
@@ -93,7 +107,7 @@ struct MiLensApp: App {
     private func mainContent(_ dependencies: AppDependencies) -> some View {
         Group {
             if isTesting || hasCompletedOnboarding {
-                RootTabView()
+                RootTabView(pendingWidgetRoute: $pendingWidgetRoute)
             } else {
                 OnboardingView(viewModel: dependencies.onboardingViewModel)
             }

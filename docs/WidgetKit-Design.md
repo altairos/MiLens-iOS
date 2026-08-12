@@ -1,6 +1,6 @@
 # MiLens WidgetKit 小组件设计规格
 
-> 状态：Figma 视觉定稿 + 产品/实现契约（2026-08-12）  
+> 状态：Figma 视觉定稿 + 产品/实现契约 + 工程落地（2026-08-12）  
 > 适用：iOS / iPadOS 17+，WidgetKit + App Intents  
 > 视觉来源：[Figma `14 · WidgetKit · Life Archive Glances`](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=371-691)、[`UI-DESIGN.md`](../UI-DESIGN.md) §5–§6  
 > 数据边界：照片与档案只从本地 App Group 共享快照读取；不上传照片，不承诺云同步或生成式 AI 内容。
@@ -91,7 +91,7 @@ Figma 当前包含 12 个命名组件与 12 个场景实例。最终审计结果
 
 ## 5. 字体与可读性
 
-- 中文情绪标题可使用霞鹜文楷；品牌名可使用 Fraunces；其余标签、数字和正文使用系统字体。
+- 中文情绪标题可使用霞鹜文楷；品牌名和数字使用 Fraunces；其余标签、英文字母和正文使用系统字体。
 - 组件正文不小于 11pt，技术标识不小于 10pt；锁屏尺寸按系统 family 另行适配。
 - Small 不放超过两行的可变正文；所有中文稿至少为英文、德文预留 30% 增长空间。
 - 支持 Bold Text、Increase Contrast、Differentiate Without Color 与系统 tinted rendering；文字不能只靠照片暗部保证对比。

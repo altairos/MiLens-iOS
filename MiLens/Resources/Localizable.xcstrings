@@ -1199,6 +1199,160 @@
         }
       }
     },
+    "paywall.plan.annual" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "年度方案"
+          }
+        }
+      }
+    },
+    "paywall.plan.monthly" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "月度方案"
+          }
+        }
+      }
+    },
+    "paywall.source" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "从 App Store 获取"
+          }
+        }
+      }
+    },
+    "paywall.purchase.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "一份生命档案，值得长期保存"
+          }
+        }
+      }
+    },
+    "paywall.cta.confirm" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "确认并继续"
+          }
+        }
+      }
+    },
+    "paywall.benefit1.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "独立保存每一位伙伴"
+          }
+        }
+      }
+    },
+    "paywall.benefit1.desc" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "不限伙伴数量，档案彼此清晰"
+          }
+        }
+      }
+    },
+    "paywall.benefit2.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "把时间整理成生命章节"
+          }
+        }
+      }
+    },
+    "paywall.benefit2.desc" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "年度回顾按真实日期生成"
+          }
+        }
+      }
+    },
+    "paywall.benefit3.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "作品与原片都能高质量带走"
+          }
+        }
+      }
+    },
+    "paywall.benefit3.desc" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "高清导出照片、记忆与拼豆图纸"
+          }
+        }
+      }
+    },
+    "paywall.hero.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "把她的一生，\n完整地留在身边"
+          }
+        }
+      }
+    },
+    "paywall.hero.subtitle" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "更多伙伴 · 完整回顾 · 高质量导出"
+          }
+        }
+      }
+    },
+    "paywall.footer.links" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "恢复购买   ·   使用条款   ·   隐私政策"
+          }
+        }
+      }
+    },
     "paywall.pro.owned" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -3188,6 +3342,28 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "成长对比"
+          }
+        }
+      }
+    },
+    "create.header.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "把共同生活，\n做成可以留下的作品"
+          }
+        }
+      }
+    },
+    "create.header.subtitle" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "只使用设备里的照片 · 本地生成"
           }
         }
       }

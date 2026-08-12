@@ -49,7 +49,14 @@ struct TimelineView: View {
             NavigationStack { PaywallView() }
         }
         .sheet(isPresented: $showAddMemorySheet) {
-            AddMemoryPlaceholderSheet()
+            if let vm = viewModel {
+                AddMemorySheet(
+                    viewModel: vm,
+                    pets: pets,
+                    isPro: entitlement.isPro,
+                    firstAccessDate: timelineAccessStore.firstAccessDate(now: Date())
+                )
+            }
         }
         // ADR-0010 §5：导出分享预览面板
         .sheet(item: Binding<SharePreviewData?>(
@@ -603,8 +610,9 @@ private struct TextMemoryCard: View {
 
 // MARK: - 作品记录卡片
 
-/// 作品记录：左侧珊瑚 rail + 拼豆网格占位 + 标题 + 来源说明。
-/// 对照 Figma #140:374-411。数据来源待接入（当前用占位网格）。
+/// 作品记录：左侧珊瑚 rail + 作品预览 + 类型标签 + 标题 + 来源说明。
+/// 对照 Figma #140:374-411。作品预览优先回链来源照片缩略图（relatedPhotoID），
+/// 无来源照片时回退到 7x7 拼豆占位网格（拼豆像素级预览属后续功能）。
 private struct WorkRecordCard: View {
     let entry: TimelineEntry
 
@@ -616,18 +624,38 @@ private struct WorkRecordCard: View {
                 .frame(width: 3)
             // 内容区
             HStack(spacing: Spacing.md) {
-                // 拼豆网格占位（7x7）
-                beadGridPlaceholder
+                // 作品预览（方形）：优先来源照片缩略图，回退拼豆占位网格
+                preview
+                    .frame(width: 72, height: 72)
+                    .clipShape(RoundedRectangle(cornerRadius: 4, style: .continuous))
                 VStack(alignment: .leading, spacing: 4) {
+                    // 作品记录类型标签
+                    HStack(spacing: 4) {
+                        Rectangle()
+                            .fill(Color.milensActionPrimary)
+                            .frame(width: 22, height: 2)
+                        Text(String(localized: "timeline.memoryType.work"))
+                            .font(.system(size: 10, weight: .medium))
+                            .foregroundStyle(Color.milensActionPrimary)
+                    }
                     Text(entry.title)
                         .font(.system(size: 14, weight: .bold))
                         .foregroundStyle(Color.milensTextPrimary)
-                    Text(String(localized: "timeline.work.fromPhoto"))
+                    // 日期（珊瑚）
+                    Text(entry.subtitle)
                         .font(.system(size: 11))
-                        .foregroundStyle(Color.milensTextSecondary)
-                    Text(String(localized: "timeline.work.saved"))
-                        .font(.system(size: 11))
-                        .foregroundStyle(Color.milensTextSecondary)
+                        .foregroundStyle(Color.milensActionPrimary)
+                    // 来源说明：优先正文，其次「由一张照片生成」
+                    if !entry.bodyText.isEmpty {
+                        Text(entry.bodyText)
+                            .font(.system(size: 11))
+                            .foregroundStyle(Color.milensTextSecondary)
+                            .lineLimit(2)
+                    } else if entry.photoID != nil {
+                        Text(String(localized: "timeline.work.fromPhoto"))
+                            .font(.system(size: 11))
+                            .foregroundStyle(Color.milensTextSecondary)
+                    }
                 }
                 Spacer()
             }
@@ -641,7 +669,19 @@ private struct WorkRecordCard: View {
         }
     }
 
-    /// 7x7 拼豆占位网格（设计稿配色 #C74729 / #2E2924 交替）。
+    /// 作品预览：优先来源照片缩略图，回退拼豆占位网格。
+    @ViewBuilder
+    private var preview: some View {
+        if !entry.thumbnailPath.isEmpty {
+            ThumbnailImage(path: entry.thumbnailPath)
+        } else if !entry.photoURI.isEmpty {
+            ThumbnailImage(path: entry.photoURI)
+        } else {
+            beadGridPlaceholder
+        }
+    }
+
+    /// 7x7 拼豆占位网格（无来源照片时回退；设计稿配色 #C74729 / #2E2924 交替）。
     private var beadGridPlaceholder: some View {
         let cols = 7
         let rows = 7
@@ -658,6 +698,8 @@ private struct WorkRecordCard: View {
                 }
             }
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(Color.milensGrouped)
     }
 }
 
@@ -685,33 +727,220 @@ private struct TimelineAddButton: View {
     }
 }
 
-// MARK: - 添加记忆占位 Sheet
+// MARK: - 添加记忆表单 Sheet
 
-/// 添加记忆流程属 P0 未实现，先占位（对照计划风险与取舍 §3）。
-private struct AddMemoryPlaceholderSheet: View {
+/// 添加一条记忆（Life-Archive-Design.md §3.3）。
+/// 最小表单：归属宠物 + 标题 + 日期 + 备注 + 关联照片(可选) + 置顶(可选)。
+/// 保存后写入 PetEvent(sourceType="user")，进入时间线并可被编辑/取消置顶。
+private struct AddMemorySheet: View {
     @Environment(\.dismiss) private var dismiss
+
+    let viewModel: TimelineViewModel
+    let pets: [Pet]
+    let isPro: Bool
+    let firstAccessDate: Date?
+
+    @State private var selectedPetID: UUID?
+    @State private var title = ""
+    @State private var date = Date()
+    @State private var note = ""
+    @State private var isPinned = false
+    @State private var relatedPhotoID: UUID? = nil
+
+    private var selectedPet: Pet? {
+        pets.first { $0.id == selectedPetID }
+    }
+
+    private var candidatePhotos: [Photo] {
+        guard let pet = selectedPet else { return [] }
+        return viewModel.photos(for: pet)
+    }
+
+    private var canSubmit: Bool {
+        selectedPet != nil
+            && !title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+    }
+
+    private let dateRange: ClosedRange<Date> = {
+        let cal = Calendar(identifier: .gregorian)
+        // 2000-01-01 在 Gregorian 日历必然有效；失败属于日历基础设施异常。
+        guard let start = cal.date(from: DateComponents(year: 2000, month: 1, day: 1)) else {
+            fatalError("无法构造 2000-01-01 日期（Gregorian 日历异常）")
+        }
+        return start...Date()
+    }()
 
     var body: some View {
         NavigationStack {
-            VStack(spacing: Spacing.lg) {
-                Image(systemName: "note.text.badge.plus")
-                    .font(.system(size: 48))
-                    .foregroundStyle(Color.milensActionPrimary)
-                Text(String(localized: "timeline.addMemory"))
-                    .font(.headline)
-                Text(String(localized: "timeline.addMemory.comingSoon"))
+            Form {
+                petSection
+                contentSection
+                if !candidatePhotos.isEmpty {
+                    photoSection
+                }
+                optionsSection
+                if !viewModel.addMemoryError.isEmpty {
+                    errorSection
+                }
+            }
+            .scrollContentBackground(.hidden)
+            .listRowBackground(Color.milensGrouped)
+            .background(Color.milensBackground)
+            .navigationTitle(String(localized: "timeline.addMemory"))
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    Button(String(localized: "common.cancel")) { dismiss() }
+                }
+            }
+            .safeAreaInset(edge: .bottom) {
+                Button { submit() } label: {
+                    Text(String(localized: "timeline.addMemory.save"))
+                        .font(.buttonLabel)
+                        .foregroundStyle(Color.milensTextOnActionPrimary)
+                        .frame(maxWidth: .infinity, minHeight: Sizing.touchTarget)
+                        .background(canSubmit ? Color.milensActionPrimary : Color.milensTextTertiary)
+                        .clipShape(Capsule())
+                }
+                .buttonStyle(.plain)
+                .disabled(!canSubmit)
+                .padding(.horizontal, Spacing.pagePad)
+                .padding(.vertical, Spacing.sm)
+            }
+            .onAppear {
+                if selectedPetID == nil { selectedPetID = pets.first?.id }
+            }
+        }
+        // iPad/regular 宽度下表单限宽居中（UI-DESIGN.md §8）
+        .modalContentWidth()
+    }
+
+    // MARK: - 表单分区
+
+    private var petSection: some View {
+        Section(String(localized: "timeline.addMemory.pet")) {
+            if pets.isEmpty {
+                Text(String(localized: "timeline.addMemory.noPet"))
                     .font(.bodyPrimary)
                     .foregroundStyle(Color.milensTextSecondary)
-                    .multilineTextAlignment(.center)
-                Button(String(localized: "common.ok")) { dismiss() }
-                    .buttonStyle(.borderedProminent)
-                    .tint(Color.milensActionPrimary)
+            } else {
+                Picker(String(localized: "timeline.addMemory.pet"), selection: $selectedPetID) {
+                    ForEach(pets, id: \.id) { pet in
+                        Text("\(PetProfileLogic.speciesEmoji(pet.species)) \(pet.name)")
+                            .tag(Optional(pet.id))
+                    }
+                }
+                .environment(\.locale, Locale(identifier: "zh_CN"))
             }
-            .padding()
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .background(Color.milensBackground)
         }
-        .presentationDetents([.medium])
+    }
+
+    private var contentSection: some View {
+        Section(String(localized: "timeline.addMemory.content")) {
+            TextField(
+                String(localized: "timeline.addMemory.titlePlaceholder"),
+                text: $title
+            )
+            .font(.bodyPrimary)
+            .submitLabel(.done)
+
+            DatePicker(
+                String(localized: "timeline.addMemory.date"),
+                selection: $date, in: dateRange,
+                displayedComponents: .date
+            )
+            .environment(\.locale, Locale(identifier: "zh_CN"))
+
+            TextField(
+                String(localized: "timeline.addMemory.bodyPlaceholder"),
+                text: $note, axis: .vertical
+            )
+            .lineLimit(2...5)
+            .font(.bodyPrimary)
+        }
+    }
+
+    /// 关联照片：横向缩略图选择器（可选）。
+    private var photoSection: some View {
+        Section(String(localized: "timeline.addMemory.relatedPhoto")) {
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: Spacing.sm) {
+                    // 「无」选项
+                    relatedPhotoNilButton
+                    ForEach(candidatePhotos, id: \.id) { photo in
+                        relatedPhotoThumbnail(photo)
+                    }
+                }
+                .padding(.vertical, Spacing.xs)
+            }
+        }
+    }
+
+    private var relatedPhotoNilButton: some View {
+        Button {
+            relatedPhotoID = nil
+        } label: {
+            ZStack {
+                RoundedRectangle(cornerRadius: Radius.small, style: .continuous)
+                    .fill(Color.milensGrouped)
+                    .frame(width: 64, height: 64)
+                Image(systemName: "slash.circle")
+                    .font(.system(size: 22))
+                    .foregroundStyle(Color.milensTextTertiary)
+            }
+            .overlay(
+                RoundedRectangle(cornerRadius: Radius.small, style: .continuous)
+                    .stroke(Color.milensActionPrimary, lineWidth: relatedPhotoID == nil ? 2 : 0)
+            )
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel(String(localized: "timeline.addMemory.noPhoto"))
+    }
+
+    private func relatedPhotoThumbnail(_ photo: Photo) -> some View {
+        let isSelected = relatedPhotoID == photo.id
+        let path = photo.thumbnailPath.isEmpty ? photo.uri : photo.thumbnailPath
+        return Button {
+            relatedPhotoID = isSelected ? nil : photo.id
+        } label: {
+            ThumbnailImage(path: path)
+                .frame(width: 64, height: 64)
+                .clipShape(RoundedRectangle(cornerRadius: Radius.small, style: .continuous))
+                .overlay(
+                    RoundedRectangle(cornerRadius: Radius.small, style: .continuous)
+                        .stroke(Color.milensActionPrimary, lineWidth: isSelected ? 2 : 0)
+                )
+        }
+        .buttonStyle(.plain)
+    }
+
+    private var optionsSection: some View {
+        Section(String(localized: "timeline.addMemory.options")) {
+            Toggle(String(localized: "timeline.addMemory.pinned"), isOn: $isPinned)
+                .font(.bodyPrimary)
+        }
+    }
+
+    private var errorSection: some View {
+        Section {
+            Label(viewModel.addMemoryError, systemImage: "exclamationmark.triangle.fill")
+                .foregroundStyle(Color.milensDanger)
+                .font(.caption)
+        }
+    }
+
+    // MARK: - 提交
+
+    private func submit() {
+        guard let pet = selectedPet else { return }
+        let ok = viewModel.addMemory(
+            to: pet, title: title, date: date, body: note,
+            relatedPhotoID: relatedPhotoID, isPinned: isPinned,
+            isPro: isPro, firstAccessDate: firstAccessDate
+        )
+        if ok {
+            dismiss()
+        }
     }
 }
 

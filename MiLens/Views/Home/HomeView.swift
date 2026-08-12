@@ -1,7 +1,7 @@
-//  HomeView —— 编辑式首页。
+//  HomeView —— 编辑式首页（对照 Figma「01·首页」#319:1026）。
 //
-//  参考视觉稿：整张记忆 Hero + 暗部大标题 + 竖排日期 + 一条编辑式回忆记录。
-//  首页不再把问候、照片和动作拆成普通卡片堆叠。
+//  出血 Hero 大图 + 暗部文楷大标题 + 宠物身份条 + 即将到来的日子区块。
+//  HomeViewModel（@Observable）驱动：选片、问候、回忆和纪念日倒计时。
 
 import SwiftUI
 
@@ -18,7 +18,7 @@ struct HomeView: View {
                     .tint(Color.milensActionPrimary)
             }
         }
-        .background(Color.milensPaper)
+        .background(Color.milensBackground)
         .toolbar(.hidden, for: .navigationBar)
         .onAppear {
             guard viewModel == nil else { return }
@@ -40,14 +40,23 @@ struct HomeView: View {
         } else {
             ScrollView {
                 VStack(spacing: 0) {
+                    // Hero 区
                     if let photo = model.heroPhoto {
                         NavigationLink(value: Route.photoView(photoID: photo.id)) {
-                            MagazineHero(photo: photo, model: model)
+                            HomeHero(photo: photo, model: model)
                         }
                         .buttonStyle(.plain)
                         .accessibilityLabel(String(localized: "a11y.home.openPhoto \(model.heroCaption)"))
                     }
 
+                    // 即将到来的日子
+                    if let upcoming = model.upcomingDay {
+                        UpcomingDaySection(upcoming: upcoming)
+                            .padding(.horizontal, Spacing.pagePad)
+                            .padding(.top, Spacing.lg)
+                    }
+
+                    // 历史回忆（保留原有编辑式回忆行）
                     if let memory = model.memoryItems.first {
                         NavigationLink(value: Route.photoView(photoID: memory.photo.id)) {
                             MemoryEditorialRow(item: memory)
@@ -64,97 +73,204 @@ struct HomeView: View {
     }
 }
 
-private struct MagazineHero: View {
+// MARK: - Hero 大图区
+
+/// 出血 Hero：大图 + 渐变 + 品牌名 + 日期 + 通知按钮 + 宠物身份条。
+/// 对照 Figma #319:1027-1051。
+private struct HomeHero: View {
     let photo: Photo
     let model: HomeViewModel
 
     var body: some View {
-        GeometryReader { proxy in
-            ZStack(alignment: .topLeading) {
-                ThumbnailImage(path: photo.thumbnailPath.isEmpty ? photo.uri : photo.thumbnailPath)
-                    .frame(width: proxy.size.width, height: proxy.size.height)
-                    .clipped()
+        ZStack(alignment: .top) {
+            // 大图
+            ThumbnailImage(path: photo.thumbnailPath.isEmpty ? photo.uri : photo.thumbnailPath)
+                .frame(maxWidth: .infinity)
+                .frame(height: 589)
+                .clipped()
 
-                LinearGradient(
-                    colors: [
-                        Color.black.opacity(0.12),
-                        Color.black.opacity(0.08),
-                        Color.black.opacity(0.74)
-                    ],
-                    startPoint: .top,
-                    endPoint: .bottom
-                )
+            // 底部渐变（对照 Hero Gradient #319:1028）
+            LinearGradient(
+                colors: [
+                    Color.black.opacity(0),
+                    Color(red: 0.04, green: 0.03, blue: 0.03).opacity(0.82)
+                ],
+                startPoint: .top,
+                endPoint: .bottom
+            )
+            .frame(height: 311)
+            .frame(maxHeight: .infinity, alignment: .bottom)
 
-                VStack(alignment: .leading, spacing: 0) {
-                    Text("MiLens")
-                        .font(.displayLargeEN)
-                        .foregroundStyle(.white)
-                    Text("和它一起的每一天")
-                        .font(.bodySecondary)
-                        .foregroundStyle(.white.opacity(0.92))
-
+            // 内容层
+            VStack(alignment: .leading, spacing: 0) {
+                // 顶部行：品牌名 + 日期 + 通知按钮
+                HStack(alignment: .top) {
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("MiLens")
+                            .font(.custom("Fraunces-Semibold", size: 24))
+                            .foregroundStyle(.white)
+                        Text(heroDateString)
+                            .font(.system(size: 12, weight: .medium))
+                            .foregroundStyle(.white.opacity(0.92))
+                    }
                     Spacer()
+                    // 通知按钮（装饰性，Tab 切换需用户手动点底部 Tab）
+                    Image(systemName: "bell")
+                        .font(.system(size: 18))
+                        .foregroundStyle(.white)
+                        .frame(width: 44, height: 44)
+                }
 
-                    Text(String(localized: "home.photoCount \(model.photos.count)"))
-                        .font(.caption.weight(.medium))
-                        .foregroundStyle(.white.opacity(0.9))
-                        .padding(.bottom, Spacing.sm)
+                Spacer()
 
-                    Text(String(localized: "home.editorialTitle"))
-                        .font(.editorialHero)
+                // 底部标题区
+                VStack(alignment: .leading, spacing: Spacing.sm) {
+                    // 宠物身份条（对照 Pet Identity #319:1037-1047）
+                    if let pet = photo.pet {
+                        NavigationLink(value: Route.petProfile(petID: pet.id)) {
+                            petIdentityBar(pet)
+                        }
+                        .buttonStyle(.plain)
+                    }
+
+                    // 小标签
+                    Text(String(localized: "home.hero.todayLabel"))
+                        .font(.system(size: 13, weight: .medium))
+                        .foregroundStyle(.white)
+
+                    // 文楷大标题（对照 #319:1036，37pt 文楷）
+                    Text(String(localized: "home.hero.title"))
+                        .font(.custom("LXGWWenKai-Regular", size: 37, relativeTo: .largeTitle))
                         .foregroundStyle(.white)
                         .fixedSize(horizontal: false, vertical: true)
-
-                    Text(heroCaption)
-                        .font(.bodySecondary.weight(.medium))
-                        .foregroundStyle(.white.opacity(0.92))
-                        .padding(.top, Spacing.md)
                 }
-                .padding(.horizontal, Spacing.xxl)
-                .padding(.top, Spacing.xxl)
-                .padding(.bottom, Spacing.xxl)
-
-                Text(heroDate)
-                    .font(.caption.weight(.medium))
-                    .foregroundStyle(.white.opacity(0.88))
-                    .tracking(4)
-                    .rotationEffect(.degrees(90))
-                    .position(x: proxy.size.width - 30, y: proxy.size.height * 0.28)
             }
+            .padding(.horizontal, 23)
+            .padding(.top, 53)
+            .padding(.bottom, 28)
         }
-        .frame(height: 600)
+        .frame(height: 589)
         .clipped()
     }
 
-    private var heroCaption: String {
-        if let pet = photo.pet?.name {
-            return "\(pet) · \(photoTime)"
+    /// 宠物身份条：珊瑚竖线 + 名字年龄 + 切角箭头按钮。
+    private func petIdentityBar(_ pet: Pet) -> some View {
+        HStack(spacing: 8) {
+            // 珊瑚竖线 3pt（对照 Pet Identity Index #319:1046）
+            Rectangle()
+                .fill(Color.milensActionPrimary)
+                .frame(width: 3, height: 32)
+
+            // 名字 · 年龄
+            Text(petIdentityText(pet))
+                .font(.system(size: 12, weight: .medium))
+                .foregroundStyle(.white)
+
+            Spacer()
+
+            // 切角按钮（对照 Hero Cut Corner Key #319:1048-1051）
+            ZStack {
+                Rectangle()
+                    .fill(Color.milensActionPrimary)
+                    .frame(width: 36, height: 36)
+                Image(systemName: "arrow.right")
+                    .font(.system(size: 14, weight: .semibold))
+                    .foregroundStyle(.white)
+            }
         }
-        return "\(model.heroCaption) · \(photoTime)"
     }
 
-    private var photoTime: String {
-        guard let date = photo.takenAt else { return String(localized: "home.today") }
-        // 「今天」前缀为本地化 key，时间部分跟随 locale（zh 24 小时制，en AM/PM）
-        return String(localized: "home.todayTime \(date.formatted(Self.timeStyle))")
+    private func petIdentityText(_ pet: Pet) -> String {
+        if let birthday = pet.birthday {
+            let cal = Calendar.current
+            let now = Date()
+            let comps = cal.dateComponents([.year, .month], from: birthday, to: now)
+            let years = comps.year ?? 0
+            let months = comps.month ?? 0
+            return "\(pet.name) · \(years)岁\(months)个月"
+        }
+        return pet.name
     }
 
-    private var heroDate: String {
-        guard let date = photo.takenAt else { return String(localized: "home.today") }
-        return Self.dateFormatter.string(from: date)
+    /// 日期格式：「8月10日 · 星期一」（对照 #319:1030）。
+    private var heroDateString: String {
+        let now = Date()
+        let cal = Calendar.current
+        let month = cal.component(.month, from: now)
+        let day = cal.component(.day, from: now)
+        let weekdayIdx = cal.component(.weekday, from: now) - 1
+        let weekdays = ["星期日", "星期一", "星期二", "星期三", "星期四", "星期五", "星期六"]
+        return "\(month)月\(day)日 · \(weekdays[weekdayIdx])"
     }
-
-    private static let timeStyle = Date.FormatStyle(date: .omitted, time: .shortened)
-
-    private static let dateFormatter: DateFormatter = {
-        let formatter = DateFormatter()
-        // 杂志竖排日期为装饰性固定格式（纯数字 + 分隔符，无语言依赖），
-        // 故意不随 locale 变化；locale 跟随系统保证行为一致。
-        formatter.locale = .current
-        formatter.dateFormat = "MM · dd · yyyy"
-        return formatter
-    }()
 }
+
+// MARK: - 即将到来的日子
+
+/// 即将到来的纪念日区块：珊瑚竖线 + 标题 + 倒计时 + 缩略图。
+/// 对照 Figma #319:1039-1053。
+private struct UpcomingDaySection: View {
+    let upcoming: HomeViewModel.UpcomingDay
+
+    var body: some View {
+        NavigationLink(value: Route.petProfile(petID: upcoming.petID)) {
+            HStack(spacing: 0) {
+                // 左侧珊瑚竖线 4pt（对照 Section Accent #319:1039）
+                Rectangle()
+                    .fill(Color.milensPrimary)
+                    .frame(width: 4)
+                    .cornerRadius(2)
+
+                // 文案区
+                VStack(alignment: .leading, spacing: Spacing.xs) {
+                    Text(String(localized: "home.upcoming.sectionLabel"))
+                        .font(.system(size: 12, weight: .medium))
+                        .foregroundStyle(Color.milensTextSecondary)
+
+                    Text(upcoming.title)
+                        .font(.system(size: 20, weight: .medium))
+                        .foregroundStyle(Color.milensTextPrimary)
+
+                    Text(String(localized: "home.upcoming.days \(upcoming.daysUntil) \(upcoming.daysTogether)"))
+                        .font(.system(size: 13))
+                        .foregroundStyle(Color.milensTextSecondary)
+
+                    Text(String(localized: "home.upcoming.lookBack"))
+                        .font(.system(size: 13, weight: .medium))
+                        .foregroundStyle(Color.milensActionPrimary)
+                }
+                .padding(.leading, 21)
+                .padding(.vertical, 4)
+
+                Spacer(minLength: Spacing.md)
+
+                // 右侧缩略图 + 底部珊瑚 divider
+                VStack(spacing: 0) {
+                    if let thumbPath = upcoming.thumbnailPath {
+                        ThumbnailImage(path: thumbPath)
+                            .frame(width: 96, height: 126)
+                            .clipped()
+                            .clipShape(RoundedRectangle(cornerRadius: 4, style: .continuous))
+                    } else {
+                        RoundedRectangle(cornerRadius: 4)
+                            .fill(Color.milensGrouped)
+                            .frame(width: 96, height: 126)
+                            .overlay(
+                                Image(systemName: "photo")
+                                    .foregroundStyle(Color.milensTextTertiary)
+                            )
+                    }
+                    // 底部珊瑚 divider（对照 Upcoming Caption Divider #319:1053）
+                    Rectangle()
+                        .fill(Color.milensActionPrimary)
+                        .frame(width: 96, height: 4)
+                }
+            }
+        }
+        .buttonStyle(.plain)
+    }
+}
+
+// MARK: - 历史回忆行（保留原有编辑式行）
 
 private struct MemoryEditorialRow: View {
     let item: HomeViewModel.MemoryItem
@@ -207,6 +323,8 @@ private struct MemoryEditorialRow: View {
         return String(format: "%02d", Calendar.current.component(.month, from: date))
     }
 }
+
+// MARK: - 空态 / 错误态
 
 private struct HomeEmptyState: View {
     var body: some View {

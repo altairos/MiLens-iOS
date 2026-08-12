@@ -1,6 +1,6 @@
-//  PetProfileView —— 单只宠物档案详情（route .petProfile，对应源端 PetEditPage 头部展示 + 照片网格）。
-//  传记式布局（UI-DESIGN.md §6.4）：顶部出血肖像大图（约屏高 40%）+ 名字浮于底部渐变，
-//  统计（照片数/相处天数/年龄）、最近照片网格、备忘、编辑/时间线入口。
+//  PetProfileView —— 单只宠物档案详情（route .petProfile）。
+//  Ledger 编辑式设计（对照 Figma「02·伙伴档案」#319:1095）：
+//  出血肖像 Hero（315pt）+ Archive Panel 浮起覆盖（32px 圆角）+ 四列统计 + 置顶记忆 + 最近照片 + 时间线入口。
 //  P3 实现（只读详情）；编辑走 .petEdit 路由，时间线走 .timeline 路由。
 
 import SwiftUI
@@ -19,44 +19,22 @@ struct PetProfileView: View {
     @State private var unassignedPhotos: [Photo] = []
     @State private var selectedCategory: PetPhotoCategory = .all
     @State private var isLoading = true
-    /// 手动归属 sheet 的照片列表（非空=显示 sheet）
     @State private var assignmentPhotos: [Photo] = []
 
-    private let photoColumns = [GridItem(.adaptive(minimum: 100), spacing: 2)]
+    private let recentPhotoColumns = [GridItem(.flexible(), spacing: 12), GridItem(.flexible(), spacing: 12), GridItem(.flexible(), spacing: 12)]
+    private let gridColumns = [GridItem(.adaptive(minimum: 100), spacing: 2)]
 
     var body: some View {
         Group {
             if isLoading {
                 ProgressView()
             } else if let pet {
-                GeometryReader { proxy in
-                    ScrollView {
-                        VStack(spacing: 0) {
-                            heroSection(pet, height: proxy.size.height * 0.4)
-                            VStack(spacing: Spacing.xxl) {
-                                profileHeader(pet)
-                                statsRow(pet)
-                                storySection(pet)
-                                if hasPhotoContent {
-                                    photosSection
-                                }
-                                if !parsedNotes.isEmpty {
-                                    notesSection
-                                }
-                                actionButtons(pet)
-                            }
-                            .padding(.horizontal, Spacing.pagePad)
-                            .padding(.top, Spacing.lg)
-                            .padding(.bottom, Spacing.md)
-                        }
-                    }
-                    .scrollIndicators(.hidden)
-                }
+                petArchive(pet)
             } else {
                 loadFailedView
             }
         }
-        .background(Color.milensPaper)
+        .background(Color.milensBackground)
         .toolbar(.hidden, for: .navigationBar)
         .sheet(isPresented: Binding(
             get: { !assignmentPhotos.isEmpty },
@@ -64,7 +42,6 @@ struct PetProfileView: View {
         )) {
             if !assignmentPhotos.isEmpty {
                 PetAssignmentSheet(photos: assignmentPhotos) {
-                    // 归属变更后重新加载（本宠物照片/待整理列表/计数均可能变化）
                     Task { await load() }
                 }
             }
@@ -72,9 +49,94 @@ struct PetProfileView: View {
         .task { await load() }
     }
 
-    // MARK: - 出血肖像
+    // MARK: - 档案主体
 
-    /// 肖像数据源：avatarPath 非空用头像，否则回退最近一张照片，再回退物种占位（不伪造图像）。
+    private func petArchive(_ pet: Pet) -> some View {
+        ScrollView {
+            VStack(spacing: 0) {
+                // 出血肖像 Hero（对照 #319:1096-1100）
+                portraitHero(pet)
+
+                // Archive Panel 浮起覆盖（对照 #319:1101）
+                archivePanel(pet)
+                    .padding(.top, -25) // 覆盖 Hero 底部
+                    .padding(.bottom, Spacing.xxl)
+            }
+            .padding(.bottom, Spacing.xxl)
+        }
+        .scrollIndicators(.hidden)
+    }
+
+    // MARK: - 出血肖像 Hero
+
+    /// 肖像大图 315pt + 底部渐变 + 文楷名字 + 副标题 + More 按钮。
+    private func portraitHero(_ pet: Pet) -> some View {
+        ZStack(alignment: .bottomLeading) {
+            // 大图 / 占位
+            if let path = portraitPath {
+                ThumbnailImage(path: path)
+                    .scaledToFill()
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 315)
+                    .clipped()
+            } else {
+                Color.milensAccentSoft
+                    .frame(height: 315)
+                    .overlay(
+                        Text(PetProfileLogic.speciesEmoji(pet.species))
+                            .font(.system(size: 72))
+                    )
+            }
+
+            // 底部渐变（对照 Portrait Gradient #319:1097）
+            LinearGradient(
+                colors: [Color.black.opacity(0), Color(red: 0.02, green: 0.02, blue: 0.02).opacity(0.7)],
+                startPoint: .top,
+                endPoint: .bottom
+            )
+            .frame(height: 170)
+            .frame(maxHeight: .infinity, alignment: .bottom)
+
+            // 名字 + 副标题（对照 #319:1099-1100）
+            VStack(alignment: .leading, spacing: 4) {
+                Text(pet.name)
+                    .font(.custom("LXGWWenKai-Regular", size: 38, relativeTo: .largeTitle))
+                    .foregroundStyle(.white)
+                Text(petSubtitle(pet))
+                    .font(.system(size: 12))
+                    .foregroundStyle(.white.opacity(0.92))
+            }
+            .padding(.leading, 24)
+            .padding(.bottom, 16)
+
+            // 右上角 More Action 按钮（对照 #319:1098）
+            VStack {
+                HStack {
+                    Spacer()
+                    Menu {
+                        NavigationLink(value: Route.petEdit(petID: pet.id)) {
+                            Label(String(localized: "pet.profile.edit"), systemImage: "pencil")
+                        }
+                    } label: {
+                        Circle()
+                            .fill(.white)
+                            .frame(width: 44, height: 44)
+                            .overlay(
+                                Image(systemName: "ellipsis")
+                                    .font(.system(size: 16, weight: .semibold))
+                                    .foregroundStyle(Color.milensInk)
+                            )
+                    }
+                }
+                Spacer()
+            }
+            .padding(.trailing, 20)
+            .padding(.top, 56)
+        }
+        .frame(height: 315)
+    }
+
+    /// 肖像数据源。
     private var portraitPath: String? {
         guard let pet else { return nil }
         if !pet.avatarPath.isEmpty { return pet.avatarPath }
@@ -82,112 +144,257 @@ struct PetProfileView: View {
         return latest.thumbnailPath.isEmpty ? latest.uri : latest.thumbnailPath
     }
 
-    private func heroSection(_ pet: Pet, height: CGFloat) -> some View {
-        ZStack(alignment: .bottomLeading) {
-            if let path = portraitPath {
-                ThumbnailImage(path: path)
-                    .scaledToFill()
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    .clipped()
-            } else {
-                Color.milensAccentSoft
-                Text(PetProfileLogic.speciesEmoji(pet.species))
-                    .font(.system(size: 72))
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-            }
-
-            VStack {
-                HStack {
-                    Text("肖像 1 / 4")
-                    Spacer()
-                    Text("编辑")
-                }
-                .font(.caption.weight(.medium))
-                .foregroundStyle(.white.opacity(0.92))
-                .padding(.horizontal, Spacing.xxl)
-                .padding(.top, Spacing.xxl)
-                Spacer()
-            }
+    /// 副标题：「喵星人 · 女孩子 · 生于 2024.05.16」（生日用 Fraunces 内联）。
+    private func petSubtitle(_ pet: Pet) -> Text {
+        let species = PetDisplayLogic.speciesDisplayName(pet.species)
+        let gender = PetDisplayLogic.genderDisplayName(pet.gender)
+        var subtitle = Text("\(species) · \(gender)")
+        if let birthday = pet.birthday {
+            let dateStr = birthday.formatted(.iso8601.year().month().day().dateSeparator(.dot))
+            subtitle = subtitle + Text(" · ") + Text(String(localized: "pet.profile.born")) + Text(" ") + Text(dateStr).font(.custom("Fraunces-Semibold", size: 12))
         }
-        .frame(maxWidth: .infinity)
-        .frame(height: height)
-        .ignoresSafeArea(edges: .top)
+        return subtitle.foregroundStyle(.white.opacity(0.92))
     }
 
-    private func profileHeader(_ pet: Pet) -> some View {
-        HStack(alignment: .top, spacing: Spacing.lg) {
-            Text(pet.name)
-                .font(.editorialSection)
-                .foregroundStyle(Color.milensTextPrimary)
-                .accessibilityAddTraits(.isHeader)
+    // MARK: - Archive Panel
 
-            Spacer(minLength: Spacing.sm)
-
-            VStack(alignment: .trailing, spacing: Spacing.xs) {
-                Text(String(localized: "pet.profile.speciesAge \(PetDisplayLogic.speciesDisplayName(pet.species)) \(pet.birthday != nil ? PetDisplayLogic.ageText(from: pet.birthday) : "—")"))
-                    .font(.bodySecondary)
-                    .foregroundStyle(Color.milensTextSecondary)
-                Text(String(localized: "pet.card.daysHome \(PetDisplayLogic.daysTogether(from: pet.adoptionDay))"))
-                    .font(.bodySecondary)
+    /// 浮起覆盖面板：Eyebrow + Intro + 四列统计 + 置顶记忆 + 最近照片 + 时间线入口。
+    /// 对照 Figma #319:1101（Surface/Archive Panel，32px 圆角）。
+    private func archivePanel(_ pet: Pet) -> some View {
+        VStack(alignment: .leading, spacing: 0) {
+            // Eyebrow + Intro（对照 #I319:1101;296:588-589）
+            VStack(alignment: .leading, spacing: 4) {
+                Text(String(localized: "pet.profile.eyebrow"))
+                    .font(.system(size: 10, weight: .medium))
+                    .tracking(0.4)
+                    .foregroundStyle(Color.milensActionPrimary)
+                Text(String(localized: "pet.profile.intro"))
+                    .font(.system(size: 15))
                     .foregroundStyle(Color.milensTextSecondary)
             }
+            .padding(.horizontal, 24)
+            .padding(.top, 30)
+
+            // 四列统计（对照 Archive Stat #I319:1101;296:617-626）
+            archiveStatsRow(pet)
+                .padding(.top, 20)
+
+            // 分隔线
+            Rectangle().fill(Color.milensBorder).frame(height: 0.5)
+                .padding(.horizontal, 24)
+                .padding(.top, 16)
+
+            // 置顶记忆（对照 #I319:1101;296:595-608）
+            if let pinned = pinnedMemory(pet) {
+                pinnedMemorySection(pinned)
+                    .padding(.top, 16)
+            }
+
+            // 最近照片（对照 #I319:1101;296:599-602）
+            if !photos.isEmpty {
+                recentPhotosSection
+                    .padding(.top, 20)
+            }
+
+            // 时间线入口（对照 #I319:1101;296:603-606）
+            timelineLink(pet)
+                .padding(.top, 20)
+                .padding(.bottom, 24)
+
+            // 照片分类网格（保留现有功能）
+            if hasPhotoContent {
+                Divider().padding(.horizontal, 24)
+                photosSection
+                    .padding(.top, 20)
+                    .padding(.horizontal, 24)
+            }
+
+            // 备忘事件（保留现有功能）
+            if !parsedNotes.isEmpty {
+                Divider().padding(.horizontal, 24)
+                notesSection
+                    .padding(.top, 20)
+                    .padding(.horizontal, 24)
+            }
         }
+        .background(Color.milensBackground)
+        .clipShape(RoundedRectangle(cornerRadius: 32, style: .continuous))
     }
 
-    // MARK: - 标签行
+    // MARK: - 四列统计
 
-    private func tagRow(_ pet: Pet) -> some View {
-        EmptyView()
+    private func archiveStatsRow(_ pet: Pet) -> some View {
+        let workCount = photos.filter { PetPhotoCategoryLogic.isEditedPhoto($0) }.count
+        let memoryCount = pet.events.count
+
+        return HStack(spacing: 0) {
+            archiveStatItem(value: "\(pet.photoCount)", label: String(localized: "pet.profile.stat.photos"))
+            archiveStatItem(value: "\(memoryCount)", label: String(localized: "pet.profile.stat.memories"))
+            archiveStatItem(value: "\(PetDisplayLogic.daysTogether(from: pet.adoptionDay))", label: String(localized: "pet.profile.stat.days"))
+            archiveStatItem(value: "\(workCount)", label: String(localized: "pet.profile.stat.works"))
+        }
+        .padding(.horizontal, 24)
     }
 
-    // MARK: - 统计行
-
-    private func statsRow(_ pet: Pet) -> some View {
-        HStack(spacing: 0) {
-            statItem(value: "\(pet.photoCount)", label: "照片")
-            divider
-            statItem(value: "\(PetDisplayLogic.daysTogether(from: pet.adoptionDay))", label: String(localized: "pet.profile.daysLabel"))
-            divider
-            statItem(
-                value: pet.birthday != nil
-                    ? PetDisplayLogic.ageText(from: pet.birthday) : "—",
-                label: "年龄"
-            )
-        }
-        .padding(.vertical, Spacing.md)
-        .overlay(alignment: .top) {
-            Rectangle()
-                .fill(Color.milensBorder)
-                .frame(height: 1)
-        }
-        .overlay(alignment: .bottom) {
-            Rectangle()
-                .fill(Color.milensBorder)
-                .frame(height: 1)
-        }
-    }
-
-    private func statItem(value: String, label: String) -> some View {
-        VStack(spacing: Spacing.xs) {
+    private func archiveStatItem(value: String, label: String) -> some View {
+        VStack(spacing: 4) {
             Text(value)
-                .font(.numberStat)
+                .font(.system(size: 28, weight: .bold))
                 .foregroundStyle(Color.milensTextPrimary)
             Text(label)
-                .font(.caption)
+                .font(.system(size: 11))
                 .foregroundStyle(Color.milensTextSecondary)
         }
         .frame(maxWidth: .infinity)
     }
 
-    private var divider: some View {
-        Rectangle()
-            .fill(Color.milensSeparator)
-            .frame(width: 0.5, height: 32)
+    // MARK: - 置顶记忆
+
+    /// 取置顶的 PetEvent（isPinned）或最近用户记录（sourceType=="user"），回退最近照片。
+    private struct PinnedMemory {
+        let title: String
+        let note: String
+        let dateLabel: String
+        let photoPath: String?
     }
 
-    // MARK: - 照片网格
+    private func pinnedMemory(_ pet: Pet) -> PinnedMemory? {
+        // 优先 isPinned 事件
+        let pinnedEvents = pet.events.filter { $0.isPinned }
+        // 其次用户记录
+        let userEvents = pet.events.filter { $0.sourceType == "user" && !$0.body.isEmpty }
+        let candidates = pinnedEvents.isEmpty ? userEvents : pinnedEvents
 
-    /// 任一分类有照片即展示照片区（全部/作品为空时，待整理可能仍有内容）。
+        if let ev = candidates.sorted(by: { $0.eventDate > $1.eventDate }).first {
+            let cal = Calendar.current
+            let m = cal.component(.month, from: ev.eventDate)
+            let d = cal.component(.day, from: ev.eventDate)
+            let photoPath = photos.first { $0.id == ev.relatedPhotoID }?.thumbnailPath
+                ?? photos.first?.thumbnailPath
+            return PinnedMemory(
+                title: ev.title,
+                note: ev.body,
+                dateLabel: String(format: "%02d.%02d", m, d),
+                photoPath: (photoPath?.isEmpty == false) ? photoPath : photos.first?.uri
+            )
+        }
+
+        // 回退最近照片
+        guard let photo = photos.first else { return nil }
+        let dateLabel: String
+        if let takenAt = photo.takenAt {
+            let cal = Calendar.current
+            dateLabel = String(format: "%02d.%02d", cal.component(.month, from: takenAt), cal.component(.day, from: takenAt))
+        } else {
+            dateLabel = "RECENT"
+        }
+        let path = photo.thumbnailPath.isEmpty ? photo.uri : photo.thumbnailPath
+        return PinnedMemory(
+            title: photo.note.isEmpty ? String(localized: "pet.profile.pinned.recent") : photo.note,
+            note: "",
+            dateLabel: dateLabel,
+            photoPath: path
+        )
+    }
+
+    private func pinnedMemorySection(_ pinned: PinnedMemory) -> some View {
+        HStack(alignment: .top, spacing: 0) {
+            // 左侧珊瑚竖线 4pt（对照 Pinned Fold Index #I319:1101;296:604）
+            Rectangle()
+                .fill(Color.milensActionPrimary)
+                .frame(width: 4)
+                .cornerRadius(2)
+
+            VStack(alignment: .leading, spacing: 6) {
+                // 日期 overline
+                Text(pinned.dateLabel)
+                    .font(.system(size: 10, weight: .medium))
+                    .tracking(0.4)
+                    .foregroundStyle(Color.milensActionPrimary)
+                // 置顶标签
+                Text(String(localized: "pet.profile.pinned.section"))
+                    .font(.system(size: 12, weight: .medium))
+                    .foregroundStyle(Color.milensTextSecondary)
+                // 文楷标题
+                Text(pinned.title)
+                    .font(.custom("LXGWWenKai-Regular", size: 16, relativeTo: .body))
+                    .foregroundStyle(Color.milensTextPrimary)
+                // 正文
+                if !pinned.note.isEmpty {
+                    Text(pinned.note)
+                        .font(.system(size: 13))
+                        .foregroundStyle(Color.milensTextSecondary)
+                }
+            }
+            .padding(.leading, 15)
+
+            Spacer(minLength: 12)
+
+            // 右侧缩略图 122×86（对照 Pinned Memory Photo #I319:1101;296:596）
+            if let path = pinned.photoPath {
+                ThumbnailImage(path: path)
+                    .scaledToFill()
+                    .frame(width: 122, height: 86)
+                    .clipped()
+                    .clipShape(RoundedRectangle(cornerRadius: 4, style: .continuous))
+            }
+        }
+        .padding(.horizontal, 24)
+    }
+
+    // MARK: - 最近照片
+
+    private var recentPhotosSection: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text(String(localized: "pet.profile.recentPhotos"))
+                .font(.system(size: 12, weight: .medium))
+                .foregroundStyle(Color.milensTextSecondary)
+                .padding(.horizontal, 24)
+
+            HStack(spacing: 12) {
+                ForEach(photos.prefix(3), id: \.id) { photo in
+                    NavigationLink(value: Route.photoView(photoID: photo.id)) {
+                        ThumbnailImage(path: photo.thumbnailPath.isEmpty ? photo.uri : photo.thumbnailPath)
+                            .scaledToFill()
+                            .frame(height: 86)
+                            .clipped()
+                            .clipShape(RoundedRectangle(cornerRadius: 4, style: .continuous))
+                    }
+                    .buttonStyle(.plain)
+                }
+            }
+            .padding(.horizontal, 24)
+        }
+    }
+
+    // MARK: - 时间线入口
+
+    /// 珊瑚色「查看完整生命时间线 →」+ baseline + arrow。
+    /// 对照 #I319:1101;296:603-606。
+    private func timelineLink(_ pet: Pet) -> some View {
+        NavigationLink(value: Route.timeline) {
+            HStack(spacing: 6) {
+                Text(String(localized: "pet.profile.timelineLink"))
+                    .font(.system(size: 14, weight: .medium))
+                    .foregroundStyle(Color.milensActionPrimary)
+                Spacer()
+                Image(systemName: "arrow.right")
+                    .font(.system(size: 14, weight: .semibold))
+                    .foregroundStyle(Color.milensActionPrimary)
+            }
+            .padding(.horizontal, 24)
+            .overlay(alignment: .bottom) {
+                Rectangle()
+                    .fill(Color.milensBorder)
+                    .frame(height: 1)
+                    .padding(.leading, 152)
+            }
+        }
+        .buttonStyle(.plain)
+    }
+
+    // MARK: - 照片分类网格（保留现有功能）
+
     private var hasPhotoContent: Bool {
         !photos.isEmpty || !unassignedPhotos.isEmpty
     }
@@ -195,19 +402,18 @@ struct PetProfileView: View {
     private var photosSection: some View {
         VStack(alignment: .leading, spacing: Spacing.md) {
             HStack(alignment: .firstTextBaseline, spacing: Spacing.md) {
-                Text("照片")
+                Text(String(localized: "pet.profile.allPhotos"))
                     .font(.titleStandard)
                     .foregroundStyle(Color.milensTextPrimary)
                 Spacer()
                 if selectedCategory == .unassigned {
-                    Text("尚未归属宠物的照片")
+                    Text(String(localized: "pet.profile.unassignedHint"))
                         .font(.caption)
                         .foregroundStyle(Color.milensTextTertiary)
                         .multilineTextAlignment(.trailing)
                 }
             }
 
-            // 分类分段：全部照片 / 待整理 / 作品（UI-DESIGN.md §6.4，可靠维度）
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: Spacing.sm) {
                     ForEach(PetPhotoCategory.profileOrder) { category in
@@ -229,7 +435,7 @@ struct PetProfileView: View {
             if shown.isEmpty {
                 emptyCategoryView
             } else {
-                LazyVGrid(columns: photoColumns, spacing: 2) {
+                LazyVGrid(columns: gridColumns, spacing: 2) {
                     ForEach(shown.prefix(9), id: \.id) { photo in
                         NavigationLink(value: Route.photoView(photoID: photo.id)) {
                             ThumbnailImage(path: photo.thumbnailPath.isEmpty ? photo.uri : photo.thumbnailPath)
@@ -260,7 +466,7 @@ struct PetProfileView: View {
                 }
                 if shown.count > 9 {
                     NavigationLink(value: Route.gallery) {
-                        Text("查看全部 \(shown.count) 张")
+                        Text(String(localized: "pet.profile.viewAll \(shown.count)"))
                             .font(.bodySecondary)
                             .foregroundStyle(Color.milensActionPrimary)
                     }
@@ -271,12 +477,12 @@ struct PetProfileView: View {
 
     private var emptyCategoryView: some View {
         VStack(spacing: Spacing.xs) {
-            Text(selectedCategory == .all ? "还没有照片" : "这个分类还没有照片")
+            Text(selectedCategory == .all ? String(localized: "pet.profile.noPhotos") : String(localized: "pet.profile.noCategoryPhotos"))
                 .font(.bodyPrimary)
                 .foregroundStyle(Color.milensTextSecondary)
             Text(selectedCategory == .unassigned
-                 ? "在相册中导入或扫描照片后，尚未归属宠物的照片会出现在这里。"
-                 : "在图片编辑器中保存过的照片，会出现在这里。")
+                 ? String(localized: "pet.profile.unassignedHintBody")
+                 : String(localized: "pet.profile.worksHintBody"))
                 .font(.bodySecondary)
                 .foregroundStyle(Color.milensTextTertiary)
                 .multilineTextAlignment(.center)
@@ -285,57 +491,15 @@ struct PetProfileView: View {
         .padding(.vertical, Spacing.xl)
     }
 
-    private func storySection(_ pet: Pet) -> some View {
-        VStack(alignment: .leading, spacing: Spacing.md) {
-            HStack(alignment: .firstTextBaseline) {
-                Text("它的故事")
-                    .font(.editorialSection)
-                    .foregroundStyle(Color.milensTextPrimary)
-                Spacer()
-                Text("\(Calendar.current.component(.year, from: pet.createdAt))—现在")
-                    .font(.caption)
-                    .foregroundStyle(Color.milensTextSecondary)
-            }
-
-            if parsedNotes.isEmpty {
-                Text("这些照片，构成了它来到你身边后的全部档案。")
-                    .font(.bodyPrimary)
-                    .foregroundStyle(Color.milensTextSecondary)
-            } else {
-                ForEach(Array(parsedNotes.prefix(3).enumerated()), id: \.offset) { index, note in
-                    HStack(alignment: .top, spacing: Spacing.md) {
-                        Text("\(Calendar.current.component(.year, from: pet.createdAt) + index)")
-                            .font(.editorialNumber)
-                            .foregroundStyle(Color.milensCopper)
-                            .frame(width: 64, alignment: .leading)
-                        Rectangle()
-                            .fill(Color.milensBorder)
-                            .frame(width: 1)
-                        VStack(alignment: .leading, spacing: Spacing.xs) {
-                            Text(index == 0 ? String(localized: "pet.profile.daysHomeTitle") : String(localized: "pet.profile.memoryTitle"))
-                                .font(.bodyPrimary.weight(.semibold))
-                                .foregroundStyle(Color.milensTextPrimary)
-                            Text(note)
-                                .font(.bodySecondary)
-                                .foregroundStyle(Color.milensTextSecondary)
-                        }
-                        Spacer(minLength: 0)
-                    }
-                    .padding(.vertical, Spacing.sm)
-                }
-            }
-        }
-    }
-
     // MARK: - 备忘
 
     private var parsedNotes: [String] {
-        PetFormLogic.parseNoteItems(pet?.notes ?? "")
+        PetFormLogic.parseNotesItems(pet?.notes ?? "")
     }
 
     private var notesSection: some View {
         VStack(alignment: .leading, spacing: Spacing.sm) {
-            Text("重要事件")
+            Text(String(localized: "pet.profile.importantEvents"))
                 .font(.titleStandard)
                 .foregroundStyle(Color.milensTextPrimary)
             ForEach(Array(parsedNotes.enumerated()), id: \.offset) { _, note in
@@ -351,64 +515,17 @@ struct PetProfileView: View {
                 .padding(.vertical, Spacing.xs)
             }
         }
-        .padding(Spacing.lg)
-        .background(Color.milensPaper)
-        .overlay(alignment: .top) {
-            Rectangle()
-                .fill(Color.milensBorder)
-                .frame(height: 1)
-        }
-    }
-
-    // MARK: - 操作按钮
-
-    private func actionButtons(_ pet: Pet) -> some View {
-        VStack(spacing: Spacing.md) {
-            NavigationLink(value: Route.petEdit(petID: pet.id)) {
-                Label("编辑档案", systemImage: "pencil")
-                    .font(.buttonLabel)
-                    .foregroundStyle(Color.milensTextOnActionPrimary)
-                    .frame(maxWidth: .infinity, minHeight: Sizing.touchTarget)
-                    .background(Color.milensActionPrimary)
-                    .clipShape(Capsule())
-            }
-            .buttonStyle(.plain)
-
-            NavigationLink(value: Route.timeline) {
-                Label("成长时间线", systemImage: "calendar.badge.clock")
-                    .font(.buttonLabel)
-                    .foregroundStyle(Color.milensTextPrimary)
-                    .frame(maxWidth: .infinity, minHeight: Sizing.touchTarget)
-                    .overlay {
-                        Capsule().stroke(Color.milensBorder, lineWidth: 0.5)
-                    }
-            }
-            .buttonStyle(.plain)
-        }
     }
 
     // MARK: - 加载失败
 
     private var loadFailedView: some View {
-        // 复用统一状态组件（UI-DESIGN.md §5.3.9）：图标 + 标题 + 明确退出路径。
         StateView(
             icon: "exclamationmark.triangle",
             title: String(localized: "pet.profile.loadFailed"),
             primaryActionTitle: String(localized: "common.back"),
             primaryAction: { dismiss() }
         )
-    }
-
-    // MARK: - 辅助
-
-    private func tag(_ text: String) -> some View {
-        Text(text)
-            .font(.caption)
-            .foregroundStyle(Color.milensTextSecondary)
-            .padding(.horizontal, Spacing.md)
-            .padding(.vertical, Spacing.xs)
-            .background(Color.milensGrouped)
-            .clipShape(Capsule())
     }
 
     // MARK: - 数据加载
@@ -427,7 +544,6 @@ struct PetProfileView: View {
                     logger.error("load: 读取宠物照片失败（\(error.localizedDescription)）")
                 }
             }
-            // 待整理分类：未归属宠物的照片（失败时置空，不阻断档案展示）
             do {
                 unassignedPhotos = try factory.unassignedPhotos(limit: 200)
             } catch {
@@ -437,5 +553,11 @@ struct PetProfileView: View {
         } catch {
             pet = nil
         }
+    }
+}
+
+#Preview {
+    NavigationStack {
+        PetProfileView(petID: UUID())
     }
 }

@@ -16,6 +16,9 @@ protocol PetRepositoryProtocol {
     func refreshPhotoCount(for pet: Pet) throws
     /// 更新宠物视觉特征 blob（对应源端 updateFeatureData；data 为 nil 表示清除）。
     func updateFeatureData(_ pet: Pet, data: Data?) throws
+    /// 为宠物新增一条纪念事件/用户记录（Life-Archive-Design.md §2）。
+    /// 建立双向关系并持久化；事件默认不启用通知提醒（由调用方按需设置）。
+    func addEvent(_ event: PetEvent, to pet: Pet) throws
 }
 
 /// SwiftData 实现的宠物档案仓储。
@@ -65,6 +68,14 @@ final class SwiftDataPetRepository: PetRepositoryProtocol {
 
     func updateFeatureData(_ pet: Pet, data: Data?) throws {
         pet.featureData = data
+        pet.updatedAt = Date()
+        try context.saveOrRollback()
+    }
+
+    func addEvent(_ event: PetEvent, to pet: Pet) throws {
+        context.insert(event)
+        event.pet = pet
+        pet.events.append(event)
         pet.updatedAt = Date()
         try context.saveOrRollback()
     }

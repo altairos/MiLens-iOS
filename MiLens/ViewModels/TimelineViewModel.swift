@@ -65,7 +65,8 @@ final class TimelineViewModel {
                 TimelinePetEvent(
                     id: ev.id, petID: p.id, eventType: ev.eventType,
                     eventDate: ev.eventDate, title: ev.title,
-                    body: ev.body, sourceType: ev.sourceType
+                    body: ev.body, sourceType: ev.sourceType,
+                    relatedPhotoID: ev.relatedPhotoID
                 )
             }
         }
@@ -109,7 +110,60 @@ final class TimelineViewModel {
         months = TimelineLogic.buildMonths(allEntries, selectedPetID: selectedPetID)
     }
 
+    // MARK: - 添加记忆（Life-Archive-Design.md §3.3）
+
+    /// 添加记忆的错误文案（空=无错误）。
+    var addMemoryError = ""
+
+    /// 添加一条用户记忆，写入 PetEvent（sourceType="user"）。
+    /// - Parameters:
+    ///   - pet: 归属宠物（必须）
+    ///   - title: 标题（可空，空时视图层拦截）
+    ///   - date: 记忆日期
+    ///   - body: 一句话/备注（可空）
+    ///   - relatedPhotoID: 关联照片（可选）
+    ///   - isPinned: 是否置顶（可选）
+    /// - Returns: true 表示成功（并已刷新时间线），false 表示失败（addMemoryError 已填充）。
+    @discardableResult
+    func addMemory(
+        to pet: Pet, title: String, date: Date, body: String,
+        relatedPhotoID: UUID? = nil, isPinned: Bool = false,
+        now: Date = Date(), isPro: Bool = false, firstAccessDate: Date? = nil
+    ) -> Bool {
+        let trimmedTitle = title.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmedTitle.isEmpty else {
+            addMemoryError = String(localized: "timeline.addMemory.titleRequired")
+            return false
+        }
+        let event = PetEvent(
+            pet: pet,
+            eventType: "custom",
+            eventDate: date,
+            title: trimmedTitle,
+            notify: false,
+            body: body.trimmingCharacters(in: .whitespacesAndNewlines),
+            sourceType: "user",
+            isPinned: isPinned,
+            relatedPhotoID: relatedPhotoID
+        )
+        do {
+            try petRepo.addEvent(event, to: pet)
+        } catch {
+            logger.error("addMemory: 保存失败（\(error.localizedDescription)）")
+            addMemoryError = String(localized: "timeline.addMemory.saveFailed")
+            return false
+        }
+        addMemoryError = ""
+        load(now: now, isPro: isPro, firstAccessDate: firstAccessDate)
+        return true
+    }
+
     // MARK: - 查询
+
+    /// 某宠物的照片（按拍摄时间倒序，供「添加记忆」选择关联照片用）。
+    func photos(for pet: Pet) -> [Photo] {
+        (try? photoRepo.getPhotosByPet(pet)) ?? []
+    }
 
     /// 全部条目数（不受筛选影响，供标题栏统计用）。
     var totalCount: Int { allEntries.count }

@@ -16,6 +16,24 @@ final class HomeViewModel {
         let photo: Photo
     }
 
+    /// 即将到来的纪念日（对照 Figma #319:1039-1044「即将到来的日子」）。
+    struct UpcomingDay: Identifiable {
+        let id: UUID
+        /// 纪念日标题（「第一次见面的日子」/「小满的生日」）。
+        let title: String
+        let petName: String
+        /// 关联宠物 ID（点击进档案）。
+        let petID: UUID
+        /// 纪念日今年/明年的下一次发生日期。
+        let nextDate: Date
+        /// 距今天数（≥0）。
+        let daysUntil: Int
+        /// 已陪伴天数（从生日/领养日到现在）。
+        let daysTogether: Int
+        /// 代表照片缩略图（可选，展示在右侧）。
+        let thumbnailPath: String?
+    }
+
     var photos: [Photo] = []
     var pets: [Pet] = []
     var memoryItems: [MemoryItem] = []
@@ -93,5 +111,86 @@ final class HomeViewModel {
         }
 
         isLoading = false
+    }
+
+    // MARK: - 即将到来的纪念日
+
+    /// 下一个即将到来的纪念日（生日/领养日/PetEvent 中天数最近的）。
+    /// 无有效日期时返回 nil。
+    var upcomingDay: UpcomingDay? {
+        let now = now()
+        let cal = Calendar.current
+        var candidates: [UpcomingDay] = []
+
+        for pet in pets {
+            // 生日
+            if let birthday = pet.birthday {
+                if let upcoming = buildUpcoming(
+                    originalDate: birthday, title: String(localized: "home.upcoming.birthday \(pet.name)"),
+                    petName: pet.name, petID: pet.id, now: now, cal: cal
+                ) { candidates.append(upcoming) }
+            }
+            // 领养日
+            if let adoption = pet.adoptionDay {
+                if let upcoming = buildUpcoming(
+                    originalDate: adoption, title: String(localized: "home.upcoming.adoption \(pet.name)"),
+                    petName: pet.name, petID: pet.id, now: now, cal: cal
+                ) { candidates.append(upcoming) }
+            }
+            // PetEvent（用户纪念事件）
+            for ev in pet.events where ev.sourceType != "user" {
+                if let upcoming = buildUpcoming(
+                    originalDate: ev.eventDate, title: ev.title,
+                    petName: pet.name, petID: pet.id, now: now, cal: cal
+                ) { candidates.append(upcoming) }
+            }
+        }
+
+        // 取天数最近的（跳过已过去的今天：daysUntil == 0 保留，负数不出现）
+        return candidates.sorted { $0.daysUntil < $1.daysUntil }.first.map { upcoming in
+            // 尝试找到一张代表照片
+            let thumb = photos.first { $0.pet?.id == upcoming.petID }?.thumbnailPath
+            return UpcomingDay(
+                id: upcoming.id, title: upcoming.title, petName: upcoming.petName,
+                petID: upcoming.petID, nextDate: upcoming.nextDate,
+                daysUntil: upcoming.daysUntil, daysTogether: upcoming.daysTogether,
+                thumbnailPath: (thumb?.isEmpty == false) ? thumb : nil
+            )
+        }
+    }
+
+    /// 把原始日期推进到今年/明年的下一次月日匹配，构建候选 UpcomingDay。
+    private func buildUpcoming(
+        originalDate: Date, title: String, petName: String, petID: UUID,
+        now: Date, cal: Calendar
+    ) -> UpcomingDay? {
+        let comp = cal.dateComponents([.month, .day], from: originalDate)
+        guard let month = comp.month, let day = comp.day else { return nil }
+
+        // 今年
+        let nowYear = cal.component(.year, from: now)
+        var dc = DateComponents()
+        dc.year = nowYear
+        dc.month = month
+        dc.day = day
+        guard let thisYear = cal.date(from: dc) else { return nil }
+
+        // 如果今年已过，取明年
+        let target: Date
+        if thisYear >= cal.startOfDay(for: now) {
+            target = thisYear
+        } else {
+            dc.year = nowYear + 1
+            target = cal.date(from: dc) ?? thisYear
+        }
+
+        let daysUntil = max(0, cal.dateComponents([.day], from: cal.startOfDay(for: now), to: cal.startOfDay(for: target)).day ?? 0)
+        let daysTogether = max(0, cal.dateComponents([.day], from: originalDate, to: now).day ?? 0)
+
+        return UpcomingDay(
+            id: petID, title: title, petName: petName, petID: petID,
+            nextDate: target, daysUntil: daysUntil, daysTogether: daysTogether,
+            thumbnailPath: nil
+        )
     }
 }

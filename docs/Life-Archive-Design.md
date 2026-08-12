@@ -110,16 +110,16 @@ MiLens 的档案不应只是“宠物详情 + 照片列表 + 日期事件列表�
 
 ### P0：让档案成立
 
-- [ ] `PetEvent` 支持用户记录的标题、日期、正文、来源类型、置顶状态、代表照片/关联照片。
-- [ ] 从 `PetProfileView`、`TimelineView`、`PhotoViewView` 进入统一的“添加一条记忆”流程。
-- [ ] 支持置顶记忆、档案起点和代表照片。
-- [ ] 时间线区分照片记忆、重要日子、用户记录、作品记录，并展示来源标签。
+- [x] `PetEvent` 支持用户记录的标题、日期、正文、来源类型、置顶状态、代表照片/关联照片。**✅ 2026-08-12**：新增 `body`/`sourceType`/`isPinned`/`relatedPhotoID` 四字段（SchemaV2 lightweight migration）。
+- [ ] 从 `PetProfileView`、`TimelineView`、`PhotoViewView` 进入统一的“添加一条记忆”流程。**部分完成**：TimelineView 悬浮添加按钮 + 完整表单（`AddMemorySheet`：归属伙伴/标题/日期/备注/关联照片/置顶，写入 `PetEvent(sourceType="user")`）已落地；`PetProfileView`、`PhotoViewView` 入口待实现。
+- [ ] 支持置顶记忆、档案起点和代表照片。**数据字段已就绪 + 写入已支持**（`AddMemorySheet` 可写入 `isPinned`/`relatedPhotoID`），档案首页展示待实现。
+- [x] 时间线区分照片记忆、重要日子、用户记录、作品记录，并展示来源标签。**✅ 2026-08-12**：TimelineView 重构为 Ledger 编辑式设计，三种条目类型（照片记忆大图卡 / 文本记忆浅粉卡 / 作品记录卡）区分形状与内容结构；TimelineLogic 根据 `sourceType` 构建不同条目类型。
 
 ### P1：让档案持续增长
 
 - [ ] 支持用户命名的相处章节和日期范围。
 - [ ] 首页/通知进入年度回看，并支持添加今年的照片和一句话。
-- [ ] 作品记录回链来源照片或原始记忆。
+- [x] 作品记录回链来源照片或原始记忆。**✅ 2026-08-12**：`sourceType="work"` → `.workRecord` 条目，经 `relatedPhotoID` 回链来源照片 URI/缩略图（`WorkRecordCard` 优先展示来源照片缩略图）；原始记忆回链属后续。
 - [ ] 时间线支持按内容类型筛选；多伙伴筛选保留在适用场景。
 
 ### V1.x：增强回看与整理

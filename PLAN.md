@@ -1,6 +1,6 @@
 # MiLens iOS 迁移计划
 
-最后核对：2026-08-12（情感触点系统 Stage 1–3 + 创作 Tab 新增「宠物名片」「红包封面」两个项目落地；纯决策逻辑全量下沉 MiLensKit，WSL2 `swift test` 761/761 全绿、本轮新增 138 用例零回归；App 层渲染与集成代码就位待 Mac 编译验证，详见 [docs/情感触点-Mac待办备忘.md](docs/情感触点-Mac待办备忘.md)；其余状态同 2026-08-11：P0–P4 状态全量同步；P5 首页/设置/订阅/付费墙/元数据已实现 + 上架流水线代码落地待实测；评审高优先级+中优先级修复全部落地；严格并发开启 + ViewModelFactory 分层收敛 + 评审阻塞修复落地；Figma Direction D「Memory Orbit」底部导航已接入真实 SwiftUI；本地化：工具链 plural + 动态文案 10 类收口 8 类，catalog 269+3 key，源语言检查全绿，其他 6 个首发语言仍待翻译；剩性能基准、截图、iPad/深色检查与真机验收，见 [P2-待办清单](docs/P2-待办清单.md)）
+最后核对：2026-08-12（Figma 12 页 Release Candidate 设计稿落地推进中：07·我的、03·生命时间线、01·首页 三页已落地 Ledger 编辑式设计语言，含 PetEvent SchemaV2 扩展 + TimelineLogic 文本记忆/作品记录类型 + 首页纪念日倒计时；Windows 环境代码就绪，编译/UI/真机验证待 Mac；其余状态同前：情感触点系统 Stage 1–3 + 创作 Tab 新增「宠物名片」「红包封面」两个项目落地；纯决策逻辑全量下沉 MiLensKit，WSL2 `swift test` 761/761 全绿、本轮新增 138 用例零回归；App 层渲染与集成代码就位待 Mac 编译验证，详见 [docs/情感触点-Mac待办备忘.md](docs/情感触点-Mac待办备忘.md)；P0–P4 状态全量同步；P5 首页/设置/订阅/付费墙/元数据已实现 + 上架流水线代码落地待实测；评审高优先级+中优先级修复全部落地；严格并发开启 + ViewModelFactory 分层收敛 + 评审阻塞修复落地；Figma Direction D「Memory Orbit」底部导航已接入真实 SwiftUI；本地化：工具链 plural + 动态文案 10 类收口 8 类，catalog 269+3 key，源语言检查全绿，其他 6 个首发语言仍待翻译；剩性能基准、截图、iPad/深色检查与真机验收，见 [P2-待办清单](docs/P2-待办清单.md)）
 
 > 里程碑与任务清单。架构见 [DESIGN.md](DESIGN.md)，映射与范围见 [MIGRATION_ASSESSMENT.md](MIGRATION_ASSESSMENT.md)，约束见 [AGENTS.md](AGENTS.md)。
 
@@ -65,6 +65,7 @@
 
 - [x] SwiftData `@Model`：`Pet` / `Photo` / `PetEvent`（参照评估报告 §3 + 源端 ER，UUID 业务标识）
 - [x] `VersionedSchema` v1 + 空 `SchemaMigrationPlan`
+- [x] SchemaV2 扩展（2026-08-12）：PetEvent 新增 `body`/`sourceType`/`isPinned`/`relatedPhotoID` 四字段（Life-Archive-Design.md P0），lightweight migration 自动处理；`SchemaV1`→`SchemaV2` 迁移 stage 接入 `MiLensMigrationPlan`，App 与 Fallback 容器切换到 V2
 - [x] Repository 协议 + 实现（`PetRepositoryProtocol` / `PhotoRepositoryProtocol` + SwiftData 实现，`@MainActor`）
 - [x] 扫描/导入边界设计：`getAllPhotoURIs()` 去重 + `insertPhoto()` 唯一入库路径（沿用源端约束）
 - [x] `MiLensApp` 接入 `ModelContainer` + Repository `.environment` 注入
@@ -175,14 +176,14 @@ P1 核心可靠性与性能六项修复全部落地（实现记录见状态摘�
 
 产品设计与页面目录原型已沉淀到 [docs/Life-Archive-Design.md](docs/Life-Archive-Design.md)，核心方向是把“宠物详情 + 照片列表 + 日期事件列表”升级为可确认、可补写、可回看的长期档案。
 
-- [ ] 扩展 `PetEvent`（复用现有 `title`）：增加用户记录正文、日期/日期范围、来源类型、置顶状态、代表照片/关联照片。
-- [ ] 从 `PetProfileView`、`TimelineView`、`PhotoViewView` 进入统一的“添加一条记忆”流程；沿用窄协议 ViewModel + Repository 注入。
+- [x] 扩展 `PetEvent`（复用现有 `title`）：增加用户记录正文、日期/日期范围、来源类型、置顶状态、代表照片/关联照片。**✅ 已完成（2026-08-12）**：`body`/`sourceType`/`isPinned`/`relatedPhotoID` 四字段 + SchemaV2 lightweight migration。`sourceType="user" && body` 非空 → TimelineLogic 构建为 `.textNote` 条目（4 用例 XCTest）。
+- [ ] 从 `PetProfileView`、`TimelineView`、`PhotoViewView` 进入统一的“添加一条记忆”流程；沿用窄协议 ViewModel + Repository 注入。**部分完成**：TimelineView 悬浮添加按钮 + 完整表单（`AddMemorySheet`：归属伙伴/标题/日期/备注/关联照片/置顶，写入 `PetEvent(sourceType="user")`）已落地；`PetProfileView`、`PhotoViewView` 入口待实现。
 - [ ] 档案首页增加记录数、重要日子数、置顶记忆/档案起点和“继续记录”入口。
-- [ ] 时间线增加照片记忆组、用户记录、作品记录、内容类型筛选和来源标签；节点区分形状/内容结构，不只依赖颜色。
-- [ ] 支持用户命名的相处章节；未命名章节只显示日期范围，不自动臆测宠物生命阶段。
+- [x] 时间线增加照片记忆组、用户记录、作品记录、内容类型筛选和来源标签；节点区分形状/内容结构，不只依赖颜色。**✅ 已完成（2026-08-12）**：TimelineView 重构为 Ledger 编辑式设计（年份选择器 + 章节标记 + 照片记忆大图卡 + 文本记忆浅粉卡 + 作品记录卡），三种条目类型区分形状与内容结构。作品记录已接入真实数据（`sourceType="work"` → `.workRecord` 条目，经 `relatedPhotoID` 回链来源照片缩略图；无来源时回退占位网格）+ 作品记录类型标签。
+- [ ] 支持用户命名的相处章节；未命名章节只显示日期范围，不自动臆测宠物生命阶段。**部分完成**：章节标题自动推导（「一起生活的第N年」），自定义命名属 P1。
 - [ ] 照片详情支持加入已有记忆/新建记忆/补充备注；作品保存后回链来源照片或原始记忆。
-- [ ] 首页与纪念提醒进入年度回看，支持添加当前年份照片和一句话；不引入 AI 写真或回忆视频承诺。
-- [ ] 为上述决策逻辑补 XCTest：来源标签、置顶/档案起点、事件关联、日期范围分组、年度回看回链、删除/取消关联边界。
+- [ ] 首页与纪念提醒进入年度回看，支持添加当前年份照片和一句话；不引入 AI 写真或回忆视频承诺。**部分完成**：首页「即将到来的日子」区块已落地（纪念日倒计时 + 已陪伴天数 + 代表照片缩略图），年度回看回链待实现。
+- [ ] 为上述决策逻辑补 XCTest：来源标签、置顶/档案起点、事件关联、日期范围分组、年度回看回链、删除/取消关联边界。**部分完成（2026-08-12）**：作品记录构建/来源照片回链/空标题回退/排序 5 用例已补（`TimelineLogicTests`）；置顶展示、日期范围分组、年度回看回链待补。
 
 验收基准见 [docs/Life-Archive-Design.md](docs/Life-Archive-Design.md) §6。当前 P3 已实现的 CRUD、基础时间线、提醒和照片分类仍有效，本节是下一阶段增量，不回退现有能力。
 
@@ -279,9 +280,9 @@ P1 核心可靠性与性能六项修复全部落地（实现记录见状态摘�
 
 ### 任务
 
-- [x] `HomeView`：杂志式首页（设计稿 Tab 1）——hero 大图 + 「往日回忆」+ 空态已按 v2 编辑式布局落地（`HomeViewModel` + `HomeHeroLogic`/`HomeMemoryLogic`/`HomeGreetingLogic` 纯逻辑 + HomeLogicTests，git d6e9ec5/f85e22f）；**成长提醒区块待补**，创作 CTA 已切换至创作 Tab
+- [x] `HomeView`：编辑式首页（设计稿 Tab 1）——hero 大图 + 「往日回忆」+ 空态已按 v2 编辑式布局落地；**Figma「01·首页」#319:1026 落地（2026-08-12）**：出血 Hero（589pt）+ 底部渐变 + 宠物身份条（珊瑚竖线+年龄+切角按钮）+ 文楷大标题（37pt）+ 即将到来的日子区块（纪念日倒计时+缩略图）+ 通知按钮。`HomeViewModel` 新增 `upcomingDay` 计算属性（遍历 birthday/adoptionDay/PetEvent 取最近纪念日）；创作 CTA 已切换至创作 Tab
 - [x] 回忆逻辑纯决策：「一年前的今天」（翻译 `TimeMachineService` + `NotifyScheduler` + `PhotoQueryLogic` 日期逻辑 → `AnniversaryLogic` + `TimeMachineLogic`，38 用例 XCTest）
-- [x] `SettingsView`：主题/隐私设置/帮助/关于（设计稿 Tab 4）——`SettingsView` + `SettingsLogic`/`SettingsViewModel`（设置项/Pro 权益展示/通知开关）+ `AboutView`/`HelpView`/`PrivacyInfoView`（git bea5b2f）
+- [x] `SettingsView`：主题/隐私设置/帮助/关于（设计稿 Tab 4）——`SettingsView` + `SettingsLogic`/`SettingsViewModel`（设置项/Pro 权益展示/通知开关）+ `AboutView`/`HelpView`/`PrivacyInfoView`（git bea5b2f）；**Figma「07·我的」#140:415 落地（2026-08-12）**：重构为 Ledger 账本式设计（珊瑚竖线 rail + Fraunces 编号 + 虚线引导线 + 暖黑 Pro 卡 + 隐私徽章卡 + 居中页脚）。新增 `SettingsLedger.swift` 7 个可复用组件（LedgerSection/LedgerRow/DottedLeader/SettingsSectionLabel/ProHeroCard/PrivacyBadgeCard/SettingsFooter）。ProHeroCard 支持 isPro 双态文案切换。
 - [x] StoreKit 2 订阅：MiLens Pro 产品配置（`Products.storekit`：月 ¥18 / 年 ¥98 / 永久 ¥298）+ `StoreKit2StoreService`（`Transaction` 监听）+ `ProEntitlementStore`（应用级权益唯一消费方）+ 付费墙 UI `PaywallView` + `PaywallLogic`/`PaywallViewModel`（git 61abdeb/a22ddba/078482e/310222c）——StoreKit Testing + 权益/付费墙逻辑均有 XCTest；StoreKit Testing 与真机购买验证待 Mac
 - [x] App Store 截图/描述/ASO 关键词——文案已定稿（[docs/AppStore-metadata.md](docs/AppStore-metadata.md)：描述/关键词/订阅产品/审核备注/隐私问卷，2026-08-08）；**截图制作待 Mac**
 - [ ] 性能基准：大图库（5000+）滚动/内存
@@ -461,3 +462,51 @@ MiLens 是纯本地 App，照片副本与档案数据存于沙盒，对用户具
 - [x] 任务 2：引导提示文案与入口就位（设置页「数据与隐私」分区：数据安全提示 + .milensbackup 使用引导）。
 - [x] 任务 3：用户可控开关已实现（`PhotoBackupMode` 枚举 + `@AppStorage("photoBackupMode")` + `IOSFileStorage.reapplyBackupExclusion` 切换后立即重标记已有文件 + 5 纯逻辑用例）。
 - [ ] 真机验证：完整导出 → 删 App → 重装 → 恢复，数据（宠物档案 + 照片 + 编辑产物 + 事件）完整还原。
+
+---
+
+## Figma 12 页 Release Candidate 设计稿落地（2026-08-12 启动）
+
+### 背景
+
+Figma 文件 `WnT7DCK1XCyPwnS38SE87p`（MiLens iOS Release Candidate · FINAL）含 12 张定稿页面。设计语言为 **Ledger 编辑式**：珊瑚竖线 rail + Fraunces 编号 + 虚线引导线 + 文楷情感标题 + 暖黑产品卡片。各页对照 Figma nodeId 落地到 SwiftUI，保留全部现有业务逻辑（Pro 门控/导出/导航/数据绑定），仅替换视觉层。
+
+### 进度
+
+| # | 页面 | Figma nodeId | 状态 | 说明 |
+|---|---|---|---|---|
+| 01 | 首页（ROOT TAB） | `319:1026` | ✅ 已落地 | 出血 Hero + 宠物身份条 + 即将到来的日子 + 通知按钮 |
+| 02 | 伙伴档案（ROOT TAB） | — | ⬜ 待落地 | |
+| 03 | 生命时间线（PUSH） | `140:348` | ✅ 已落地 | 年份选择器 + 章节标记 + 三种记忆卡片 + 悬浮添加 |
+| 04 | 图库（PUSH） | — | ⬜ 待落地 | |
+| 05 | 创作（ROOT TAB） | `58:15` | ⬜ 待落地 | |
+| 06 | MiLens Pro（MODAL） | `58:25` | ⬜ 待落地 | |
+| 07 | 我的（ROOT TAB） | `140:415` | ✅ 已落地 | Ledger 账本式设计 + 暖黑 Pro 卡 + 隐私徽章卡 |
+| 08 | 照片详情（PUSH） | — | ⬜ 待落地 | |
+| 09 | 添加记忆（SHEET） | — | ⬜ 待落地 | |
+| 10 | 拼豆结果（PUSH） | — | ⬜ 待落地 | |
+| 11 | 拼豆设置（PUSH） | — | ⬜ 待落地 | |
+| 12 | 拼豆生成（PROCESS） | — | ⬜ 待落地 | |
+
+### 已知限制（本次落地引入）
+
+以下限制不阻断功能，但影响视觉完成度或数据完整性，需后续迭代收口：
+
+1. **作品记录（workRecord）数据源未接入**：`WorkRecordCard` 的拼豆网格是 7×7 占位（珊瑚/暖黑交替），`buildTimelineEntries` 不构建 workRecord 条目。需后续接入拼豆结果持久化后填充真实数据。
+2. **添加记忆是占位 Sheet**：TimelineView 悬浮按钮点击弹出「即将推出」占位，完整表单（标题/日期/正文/关联照片/置顶）属 Life-Archive-Design.md P0 待实现功能。
+3. **相处章节不支持自定义命名**：章节标题用公式自动推导（「一起生活的第N年」），用户自定义命名属 P1 功能。
+4. **首页通知按钮是装饰性**：设计稿的 bell icon 暂不跳路由（Tab 切换无法通过 NavigationLink 实现），后续可改用 `@State` 切 Tab 或 badge 红点。
+5. **首页 heroDateString 固定中文星期**：weekday 数组硬编码中文（「星期一」…），未来本地化需改为 `DateFormatter.weekdaySymbols`。
+6. **年份选择器无滚动定位**：当前只做视觉选择，ScrollView 滚动到选中年份的自动定位待优化。
+7. **设置页 ProFeature 列表样式**：设计稿未展示多行功能列表，当前用轻量行（图标+标题）而非 LedgerRow 编号样式。
+8. **Figma SVG 切图未下载**：MCP 图片目录只读权限导致 SVG 下载失败，全部图标改用 SF Symbol（lock.fill/chevron.right/bell/plus 等），与设计稿矢量一致性可能有细微差异。（注：已决定不再需要设计稿矢量图）
+9. **Windows 环境限制**：所有改动仅经过代码审查与 JSON 校验，**Swift 编译、XCTest、UI 预览、真机验证均未执行**，需在 macOS 环境完成最终验证。
+
+### 待办
+
+- [ ] 剩余 9 页设计稿落地（02/04/05/06/08-12）
+- [ ] macOS 编译验证（全部 Figma 落地改动的类型/并发/资源检查）
+- [ ] XCTest 验证（TimelineLogicTests 新增 4 textNote 用例 + 现有回归）
+- [ ] UI 预览验证（深色模式 + Dynamic Type + iPhone/iPad 尺寸）
+- [ ] 真机视觉验收（设计稿一致性 + 交互流畅度）
+- [ ] Figma SVG 资源补充（如需精确还原图标，手动导出后放入 Assets.xcassets）

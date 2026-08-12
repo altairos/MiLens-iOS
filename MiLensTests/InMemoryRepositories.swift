@@ -91,4 +91,11 @@ final class InMemoryPetRepository: PetRepositoryProtocol {
         pet.photoCount = pet.photos.count
     }
     func updateFeatureData(_ pet: Pet, data: Data?) throws { pet.featureData = data }
+    func addEvent(_ event: PetEvent, to pet: Pet) throws {
+        // 维护双向关系（SwiftData @Model 自动维护，mock 需手动）
+        event.pet = pet
+        if !pet.events.contains(where: { $0.id == event.id }) {
+            pet.events.append(event)
+        }
+    }
 }

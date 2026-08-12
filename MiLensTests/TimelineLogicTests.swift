@@ -333,4 +333,101 @@ final class TimelineLogicTests: XCTestCase {
         XCTAssertEqual(entries[0].type, .textNote)
         XCTAssertEqual(entries[1].type, .photoNote)
     }
+
+    // MARK: - SchemaV2：作品记录（workRecord）
+
+    func testBuildTimelineEntriesCreatesWorkRecordForWorkSource() {
+        let petID = UUID()
+        let ev = TimelinePetEvent(
+            id: UUID(), petID: petID, eventType: "custom",
+            eventDate: date(2026, 5, 16), title: "拼豆图纸",
+            body: "用夏天那张照片做的", sourceType: "work"
+        )
+        let entries = TimelineLogic.buildTimelineEntries(
+            input(pets: [pet(petID, name: "小满")], petEvents: [ev], now: date(2026, 6, 1)),
+            calendar: cal)
+        let works = entries.filter { $0.type == .workRecord }
+        XCTAssertEqual(works.count, 1)
+        XCTAssertEqual(works[0].title, "拼豆图纸")
+        XCTAssertEqual(works[0].sourceType, "work")
+        XCTAssertEqual(works[0].bodyText, "用夏天那张照片做的")
+        XCTAssertEqual(works[0].petID, petID)
+    }
+
+    func testBuildTimelineEntriesWorkRecordLinksRelatedPhoto() {
+        let petID = UUID()
+        let photoID = UUID()
+        let ev = TimelinePetEvent(
+            id: UUID(), petID: petID, eventType: "custom",
+            eventDate: date(2026, 5, 16), title: "拼豆图纸",
+            body: "", sourceType: "work", relatedPhotoID: photoID
+        )
+        let photo = TimelinePhoto(
+            id: photoID, petID: petID, takenAt: date(2026, 5, 10),
+            note: "", uri: "file://src.jpg", thumbnailPath: "thumb.jpg"
+        )
+        let entries = TimelineLogic.buildTimelineEntries(
+            input(pets: [pet(petID, name: "小满")], petEvents: [ev],
+                  photoEvents: [photo], now: date(2026, 6, 1)),
+            calendar: cal)
+        let work = entries.first { $0.type == .workRecord }
+        XCTAssertNotNil(work)
+        XCTAssertEqual(work?.photoID, photoID)
+        XCTAssertEqual(work?.photoURI, "file://src.jpg")
+        XCTAssertEqual(work?.thumbnailPath, "thumb.jpg")
+    }
+
+    func testBuildTimelineEntriesWorkRecordWithoutRelatedPhotoHasNilPhotoID() {
+        let petID = UUID()
+        let ev = TimelinePetEvent(
+            id: UUID(), petID: petID, eventType: "custom",
+            eventDate: date(2026, 5, 16), title: "编辑作品",
+            body: "", sourceType: "work"
+        )
+        let entries = TimelineLogic.buildTimelineEntries(
+            input(pets: [pet(petID, name: "小满")], petEvents: [ev], now: date(2026, 6, 1)),
+            calendar: cal)
+        let work = entries.first { $0.type == .workRecord }
+        XCTAssertNotNil(work)
+        XCTAssertNil(work?.photoID)
+        XCTAssertEqual(work?.photoURI, "")
+        XCTAssertEqual(work?.thumbnailPath, "")
+    }
+
+    func testBuildTimelineEntriesWorkRecordUsesDefaultTitleWhenEmpty() {
+        let petID = UUID()
+        let ev = TimelinePetEvent(
+            id: UUID(), petID: petID, eventType: "custom",
+            eventDate: date(2026, 5, 16), title: "",
+            body: "", sourceType: "work"
+        )
+        let entries = TimelineLogic.buildTimelineEntries(
+            input(pets: [pet(petID, name: "小满")], petEvents: [ev], now: date(2026, 6, 1)),
+            calendar: cal)
+        let work = entries.first { $0.type == .workRecord }
+        XCTAssertNotNil(work)
+        // 空标题回退到默认标签（timeline.memoryType.work）
+        XCTAssertFalse(work?.title.isEmpty ?? true)
+    }
+
+    func testWorkRecordSortsWithOtherEntriesByDate() {
+        let petID = UUID()
+        let workEv = TimelinePetEvent(
+            id: UUID(), petID: petID, eventType: "custom",
+            eventDate: date(2026, 5, 16), title: "拼豆",
+            body: "", sourceType: "work"
+        )
+        let photo = TimelinePhoto(
+            id: UUID(), petID: petID, takenAt: date(2026, 6, 18),
+            note: "夏天", uri: "", thumbnailPath: ""
+        )
+        let entries = TimelineLogic.buildTimelineEntries(
+            input(pets: [pet(petID, name: "小满")], petEvents: [workEv],
+                  photoEvents: [photo], now: date(2026, 7, 1)),
+            calendar: cal)
+        // workRecord (5月) 应在 photoNote (6月) 之前
+        XCTAssertEqual(entries.count, 2)
+        XCTAssertEqual(entries[0].type, .workRecord)
+        XCTAssertEqual(entries[1].type, .photoNote)
+    }
 }

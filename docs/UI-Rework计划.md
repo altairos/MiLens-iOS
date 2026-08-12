@@ -1,6 +1,6 @@
 # MiLens iOS UI Rework 计划
 
-最后核对：2026-08-08（方案定稿，Phase 3 首页首轮已开始执行）
+最后核对：2026-08-12（Figma 12 页 Release Candidate 设计稿落地推进：07·我的、03·生命时间线、01·首页 三页已落地 Ledger 编辑式设计语言；Windows 环境代码就绪，编译/UI/真机验证待 Mac）
 
 > 本文是 UI rework 的**执行计划**（阶段划分、任务明细、验收方式）。视觉规范唯一事实来源为 [UI-DESIGN.md](../UI-DESIGN.md)（色彩/字体/间距/动效/页面视觉）；架构见 [DESIGN.md](../DESIGN.md)，里程碑见 [PLAN.md](../PLAN.md)。执行期间按本文 §7 同步勾选状态。
 
@@ -193,6 +193,29 @@ cd MiLensKit && swift test
 | Phase 4 | 4.3 Onboarding 打磨 | ✅ 四步视觉统一（安静步骤指示器/ActionPrimary 胶囊/品牌瞬间收敛为 3 处记忆标记点/文楷每屏一个）+ 修复 CTA 对比度缺陷；全量 511 用例 0 失败 |
 | Phase 4 | 4.4 Settings 功能实现 | ✅ 六分区（Pro/隐私/通知/外观/支持/关于）+ SettingsLogic 纯函数 + 15 用例 + xcstrings 76 key 已落地 |
 | Phase 4 | 4.5 付费墙 | ✅ 当前动作导向标题 + 年度突出 + StoreKit 2 接线（含 Transaction 监听/恢复）+ 28 用例 + Products.storekit 重写为规范 v3；scheme 关联与购买链路走查待人工 |
+
+### Phase Figma — Figma 12 页 Release Candidate 落地（2026-08-12 启动）
+
+> Figma 文件 `WnT7DCK1XCyPwnS38SE87p` 12 张定稿页面逐页落地。设计语言为 Ledger 编辑式（珊瑚竖线 rail + Fraunces 编号 + 虚线引导线 + 文楷标题 + 暖黑产品卡片）。各页对照 Figma nodeId 落地到 SwiftUI，保留全部业务逻辑，仅替换视觉层。进度与已知限制详见 [PLAN.md](../PLAN.md) 「Figma 12 页 Release Candidate 设计稿落地」章节。
+
+| # | 页面 | Figma nodeId | 状态 |
+|---|---|---|---|
+| 01 | 首页 | `319:1026` | ✅ 已落地（出血 Hero + 宠物身份条 + 即将到来的日子） |
+| 02 | 伙伴档案 | — | ⬜ 待落地 |
+| 03 | 生命时间线 | `140:348` | ✅ 已落地（年份选择器 + 章节标记 + 三种记忆卡片 + 悬浮添加） |
+| 04 | 图库 | — | ⬜ 待落地 |
+| 05 | 创作 | `58:15` | ⬜ 待落地 |
+| 06 | MiLens Pro | `58:25` | ⬜ 待落地 |
+| 07 | 我的 | `140:415` | ✅ 已落地（Ledger 账本式设计 + 暖黑 Pro 卡 + 隐私徽章卡） |
+| 08 | 照片详情 | — | ⬜ 待落地 |
+| 09 | 添加记忆 | — | ⬜ 待落地 |
+| 10 | 拼豆结果 | — | ⬜ 待落地 |
+| 11 | 拼豆设置 | — | ⬜ 待落地 |
+| 12 | 拼豆生成 | — | ⬜ 待落地 |
+
+**数据模型扩展**：PetEvent SchemaV2（body/sourceType/isPinned/relatedPhotoID）+ TimelineLogic 新增 `.textNote`/`.workRecord` 类型 + lightweight migration。
+
+**验证状态**：代码就绪（Windows 环境），编译/XCTest/UI 预览/真机验证均待 macOS。
 
 ### 本轮验证记录（2026-08-09，Phase 2 宠物档案传记化）
 

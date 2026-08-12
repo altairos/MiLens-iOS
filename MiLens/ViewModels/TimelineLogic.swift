@@ -37,6 +37,8 @@ struct TimelinePetEvent: Equatable, Sendable {
     var body: String = ""
     /// SchemaV2：来源标签 "system" / "user" / "work"。
     var sourceType: String = "system"
+    /// SchemaV2：关联照片 ID（作品记录回链来源照片；用户记录可关联一张代表照片）。
+    var relatedPhotoID: UUID? = nil
 }
 
 /// 时间线输入用的照片投影（对应源端 TimelineInput.photoEvents）。
@@ -131,6 +133,25 @@ enum TimelineLogic {
 
     // ─── 条目构建 ───
 
+    /// 查找事件关联照片的原图 URI（对应 SchemaV2 relatedPhotoID 回链）。
+    /// 无关联或找不到时返回空串（与照片事件回退语义一致）。
+    private static func relatedPhotoURI(
+        for event: TimelinePetEvent, in photos: [TimelinePhoto]
+    ) -> String {
+        guard let photoID = event.relatedPhotoID,
+              let photo = photos.first(where: { $0.id == photoID }) else { return "" }
+        return photo.uri
+    }
+
+    /// 查找事件关联照片的缩略图路径（用于卡片预览加载）。
+    private static func relatedPhotoThumbnail(
+        for event: TimelinePetEvent, in photos: [TimelinePhoto]
+    ) -> String {
+        guard let photoID = event.relatedPhotoID,
+              let photo = photos.first(where: { $0.id == photoID }) else { return "" }
+        return photo.thumbnailPath
+    }
+
     /// 构建全部时间线条目（对应源端 buildTimelineEntries）。
     /// 依次纳入：纪念事件 → 历年生日 → 幼宠参考照片提醒 → 照片事件，最后按日期升序排序。
     static func buildTimelineEntries(
@@ -158,9 +179,33 @@ enum TimelineLogic {
                     subtitle: isoDateString(from: ev.eventDate, calendar: calendar),
                     petID: ev.petID,
                     petName: petName,
-                    photoID: nil,
-                    photoURI: "",
-                    thumbnailPath: "",
+                    photoID: ev.relatedPhotoID,
+                    photoURI: relatedPhotoURI(for: ev, in: input.photoEvents),
+                    thumbnailPath: relatedPhotoThumbnail(for: ev, in: input.photoEvents),
+                    bodyText: ev.body,
+                    sourceType: ev.sourceType
+                ))
+                continue
+            }
+
+            // SchemaV2：sourceType="work" → 作品记录条目（拼豆图纸/伙伴卡片/编辑产物等）。
+            // 来源照片通过 relatedPhotoID 回链（Life-Archive-Design.md §3.2）；
+            // 拼豆像素级预览属后续功能，此处先以来源照片缩略图承载视觉。
+            if ev.sourceType == "work" {
+                let title = ev.title.isEmpty
+                    ? String(localized: "timeline.memoryType.work", locale: locale)
+                    : ev.title
+                entries.append(TimelineEntry(
+                    id: "pet_\(ev.id.uuidString)",
+                    type: .workRecord,
+                    date: ev.eventDate,
+                    title: title,
+                    subtitle: isoDateString(from: ev.eventDate, calendar: calendar),
+                    petID: ev.petID,
+                    petName: petName,
+                    photoID: ev.relatedPhotoID,
+                    photoURI: relatedPhotoURI(for: ev, in: input.photoEvents),
+                    thumbnailPath: relatedPhotoThumbnail(for: ev, in: input.photoEvents),
                     bodyText: ev.body,
                     sourceType: ev.sourceType
                 ))

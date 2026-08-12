@@ -379,6 +379,25 @@
 
 ⬚ 待落地页面（第二批）：02 Picker/Source Pair、07–11 Keepsake 系列成品页。
 
+### 9.2 Image Workshop 第二批代码落地（2026-08-13）
+
+✅ 已落地页面：
+
+| # | 页面 | Figma 节点 | 代码文件 | 状态 |
+|---|---|---|---|---|
+| 02 | Picker / Source Pair | 422:809 | `Views/Create/GrowthComparePhotoPickerView.swift` | ✅ 已落地：A/B 角色双选 + 筛选 + CreationActionBar |
+| 07 | Keepsake / Pet Card | 422:829 | `Views/Create/PetCardView.swift` | ✅ 已落地：Source 条 + TemplateRail + 注释行 |
+| 08 | Keepsake / Growth Compare | 422:833 | `Views/Create/GrowthCompareView.swift` | ✅ 已落地：Paired Sources + 注释行 |
+| 09 | Keepsake / Business Card | 422:837 | `Views/Create/BusinessCard/BusinessCardView.swift` | ✅ 已落地：SourceBar + FieldRow + TemplateRail |
+| 10 | Keepsake / Red Packet | 422:841 | `Views/Create/RedPacket/RedPacketCoverView.swift` | ✅ 已落地：SourceBar + Workshop 暗卡 + 上传指引入口 |
+| 11 | Red Packet / Upload Guide | 422:845 | `Views/Create/RedPacket/RedPacketUploadGuideView.swift` | ✅ 已落地：新页，时间线步骤 + Platform Note |
+
+✅ 新增共享组件：`WorkshopNavHeader`/`WorkshopSourceBar`/`WorkshopTemplateTab`/`WorkshopFieldRow`/`WorkshopTimelineStep`（追加到 `Components/WorkshopComponents.swift`）。
+
+✅ 路由变更：`Route` 新增 `.redPacketUploadGuide(photoID:petID:)`。
+
+Image Workshop 12 页全部落地完成。
+
 ## 10. 维护规则
 
 - 页面或素材完成后，在本备忘录对应表格增加 `✅ 已交付`、日期和 Figma 链接；不要只改口头状态。

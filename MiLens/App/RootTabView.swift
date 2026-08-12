@@ -129,6 +129,8 @@ struct RootTabView: View {
             case .redPacketCoverPicker: RedPacketCoverPickerView()
             case .redPacketCover(let photoID, let petID):
                 RedPacketCoverView(photoID: photoID, petID: petID)
+            case .redPacketUploadGuide(let photoID, let petID):
+                RedPacketUploadGuideView(photoID: photoID, petID: petID)
             case .recap(let year):
                 RecapView(year: year)
             }

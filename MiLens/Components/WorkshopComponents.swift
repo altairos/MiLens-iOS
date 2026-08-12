@@ -294,3 +294,285 @@ func formatAdjustValueLabel(_ value: Double) -> String {
     if rounded < 0 { return String(format: "−%02d", abs(rounded)) }
     return "0"
 }
+
+// MARK: - 页面导航头（WorkshopNavHeader）
+
+/// 统一页面导航头（对照 Figma 02–11 标准 Navigation / Back + Title）。
+/// 结构 = 返回圆(44×44) + uiTitle(20pt) + 可选右侧动作。
+/// 用于创作成品页，替代系统 `.navigationTitle + .toolbar`。
+struct WorkshopNavHeader<Trailing: View>: View {
+    let title: String
+    var onBack: () -> Void
+    @ViewBuilder var trailing: () -> Trailing
+
+    var body: some View {
+        HStack(spacing: 0) {
+            Button(action: onBack) {
+                Image(systemName: "chevron.left")
+                    .font(.system(size: 24, weight: .semibold))
+                    .foregroundStyle(Color.milensTextPrimary)
+                    .frame(width: Sizing.touchTarget, height: Sizing.touchTarget)
+                    .contentShape(Rectangle())
+            }
+            .accessibilityLabel(String(localized: "a11y.editor.back"))
+
+            Text(title)
+                .font(.uiTitle)
+                .foregroundStyle(Color.milensTextPrimary)
+                .padding(.leading, 16)
+
+            Spacer()
+
+            trailing()
+        }
+        .padding(.horizontal, 18)
+        .padding(.top, 10)
+        .padding(.bottom, 4)
+    }
+}
+
+extension WorkshopNavHeader where Trailing == EmptyView {
+    init(title: String, onBack: @escaping () -> Void) {
+        self.init(title: title, onBack: onBack) { EmptyView() }
+    }
+}
+
+// MARK: - 来源照片条（WorkshopSourceBar）
+
+/// 来源照片条（对照 Figma `Source / Xiao Man` #299:604）。
+/// 结构 = 左缩略图 + 右三行（Overline Meta / BodyStrong Label / 更换动作）。
+/// 圆角不对称 `8 0 18 8`，`milensGrouped` 底 + `milensBorder` 描边。
+struct WorkshopSourceBar<ImageContent: View>: View {
+    let meta: String
+    let label: String
+    var onChange: (() -> Void)? = nil
+    @ViewBuilder var thumbnail: () -> ImageContent
+
+    var body: some View {
+        HStack(spacing: 12) {
+            thumbnail()
+                .frame(width: 64, height: 64)
+                .clipShape(RoundedRectangle(cornerRadius: 6, style: .continuous))
+                .clipped()
+
+            VStack(alignment: .leading, spacing: 4) {
+                EditorialOverline(text: meta)
+                Text(label)
+                    .font(.uiBodyStrong)
+                    .foregroundStyle(Color.milensTextPrimary)
+                    .lineLimit(1)
+            }
+
+            Spacer()
+
+            if let onChange {
+                Button(String(localized: "source.change"), action: onChange)
+                    .font(.system(size: 13))
+                    .foregroundStyle(Color.milensActionPrimary)
+            }
+        }
+        .padding(.horizontal, 12)
+        .padding(.vertical, 12)
+        .background(Color.milensGrouped)
+        .overlay {
+            // 不对称圆角（Figma borderRadius 8 0 18 8）
+            UnevenRoundedRectangle(
+                cornerRadii: RectangleCornerRadii(topLeading: 8, bottomLeading: 0, bottomTrailing: 18, topTrailing: 8),
+                style: .continuous
+            )
+            .stroke(Color.milensBorder, lineWidth: 1)
+        }
+        .clipShape(UnevenRoundedRectangle(
+            cornerRadii: RectangleCornerRadii(topLeading: 8, bottomLeading: 0, bottomTrailing: 18, topTrailing: 8),
+            style: .continuous
+        ))
+    }
+}
+
+// MARK: - 模板单元（WorkshopTemplateTab）
+
+/// 模板选择单元状态（对照 Figma `Control/Creation Template Tab`）。
+enum WorkshopTemplateState {
+    case `default`
+    case selected
+    case locked
+}
+
+/// 模板单元（对照 Figma `Control/Creation Template Tab` #463:1149）。
+/// 三态：Default / Selected（铜描边 + 底部 Selection Slot）/ Locked（灰 + Pro Badge）。
+struct WorkshopTemplateTab: View {
+    let index: String
+    let label: String
+    let state: WorkshopTemplateState
+    var action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            VStack(spacing: 6) {
+                ZStack {
+                    Text(index)
+                        .font(.editorialNumberIndex)
+                        .foregroundStyle(indexColor)
+                    if state == .locked {
+                        Text("PRO")
+                            .font(.system(size: 8, weight: .bold))
+                            .foregroundStyle(.white)
+                            .padding(.horizontal, 4)
+                            .padding(.vertical, 2)
+                            .background(Color.milensActionPrimary)
+                            .clipShape(Capsule())
+                            .offset(x: 20, y: -22)
+                    }
+                }
+                Text(label)
+                    .font(.system(size: 12, weight: .medium))
+                    .foregroundStyle(labelColor)
+            }
+            .frame(width: 78, height: 50)
+            .background(background)
+            .overlay {
+                RoundedRectangle(cornerRadius: 2, style: .continuous)
+                    .stroke(borderColor, lineWidth: state == .selected ? 1 : 0.5)
+            }
+            .overlay(alignment: .bottom) {
+                if state == .selected {
+                    Rectangle()
+                        .fill(Color.milensActionPrimary)
+                        .frame(width: 24, height: 2)
+                        .padding(.bottom, 2)
+                }
+            }
+            .clipShape(RoundedRectangle(cornerRadius: 2, style: .continuous))
+        }
+        .buttonStyle(.plain)
+        .disabled(state == .locked)
+    }
+
+    private var indexColor: Color {
+        switch state {
+        case .selected: return .milensActionPrimary
+        case .locked: return .milensTextSecondary
+        default: return .milensTextSecondary
+        }
+    }
+
+    private var labelColor: Color {
+        switch state {
+        case .selected: return .milensTextPrimary
+        case .locked: return .milensTextTertiary
+        default: return .milensTextPrimary
+        }
+    }
+
+    private var background: Color {
+        state == .selected ? Color.milensAccentWash : Color.milensCard
+    }
+
+    private var borderColor: Color {
+        state == .selected ? Color.milensActionPrimary : Color.milensBorder
+    }
+}
+
+// MARK: - 字段编辑行（WorkshopFieldRow）
+
+/// 字段编辑行（对照 Figma 09/10 的 Label + 值 + 编辑 + Field Rule）。
+/// 结构 = 左 Metadata Label + 中 BodyStrong 值 + 右 Caption「编辑」+ 底部 1pt 分隔。
+struct WorkshopFieldRow: View {
+    let label: String
+    let value: String
+    var onEdit: (() -> Void)? = nil
+    /// 是否显示底部 Field Rule（默认 true，最后一行可关闭）。
+    var showsRule: Bool = true
+
+    var body: some View {
+        Button {
+            onEdit?()
+        } label: {
+            HStack(alignment: .center, spacing: 0) {
+                Text(label)
+                    .font(.editorialMetadata)
+                    .foregroundStyle(Color.milensTextSecondary)
+                    .frame(width: 80, alignment: .leading)
+
+                Text(value)
+                    .font(.uiBodyStrong)
+                    .foregroundStyle(Color.milensTextPrimary)
+                    .lineLimit(1)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+
+                if onEdit != nil {
+                    Text(String(localized: "field.edit"))
+                        .font(.caption)
+                        .foregroundStyle(Color.milensActionPrimary)
+                }
+            }
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .padding(.vertical, 8)
+        .overlay(alignment: .bottom) {
+            if showsRule {
+                Rectangle()
+                    .fill(Color.milensSeparator)
+                    .frame(height: 1)
+            }
+        }
+    }
+}
+
+// MARK: - 时间线步骤（WorkshopTimelineStep）
+
+/// 上传指引时间线步骤（对照 Figma 11 Upload Guide Step Marker）。
+/// 结构 = 左圆形 Marker(32×32, 编号) + 竖线 + 右标题(BodyStrong) + 说明(Metadata)。
+struct WorkshopTimelineStep: View {
+    let index: String
+    let title: String
+    let desc: String
+    /// 是否已完成（圆形填铜色；否则白底描边）。
+    var isCompleted: Bool = false
+    /// 是否显示底部连接线。
+    var showsConnector: Bool = true
+
+    var body: some View {
+        HStack(alignment: .top, spacing: 16) {
+            // Marker + 竖线
+            VStack(spacing: 0) {
+                ZStack {
+                    Circle()
+                        .fill(isCompleted ? Color.milensActionPrimary : Color.milensCard)
+                        .overlay {
+                            Circle().stroke(Color.milensActionPrimary, lineWidth: 1)
+                        }
+                    Text(index)
+                        .font(.editorialNumberIndex)
+                        .foregroundStyle(isCompleted ? Color.milensTextOnActionPrimary : Color.milensActionPrimary)
+                }
+                .frame(width: 32, height: 32)
+
+                if showsConnector {
+                    Rectangle()
+                        .fill(Color.milensSeparator)
+                        .frame(width: 2)
+                        .frame(maxHeight: .infinity)
+                }
+            }
+            .frame(width: 32)
+
+            // 文本
+            VStack(alignment: .leading, spacing: 2) {
+                Text(title)
+                    .font(.uiBodyStrong)
+                    .foregroundStyle(Color.milensTextPrimary)
+                    .fixedSize(horizontal: false, vertical: true)
+                Text(desc)
+                    .font(.editorialMetadata)
+                    .foregroundStyle(Color.milensTextSecondary)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+            .padding(.top, 5)
+            .padding(.bottom, showsConnector ? 16 : 0)
+
+            Spacer(minLength: 0)
+        }
+    }
+}

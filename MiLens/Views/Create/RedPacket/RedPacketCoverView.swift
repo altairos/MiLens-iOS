@@ -19,8 +19,10 @@ struct RedPacketCoverView: View {
 
     @Environment(\.viewModelFactory) private var factory
     @Environment(\.proEntitlement) private var entitlement
+    @Environment(\.dismiss) private var dismiss
 
     @State private var image: UIImage?
+    @State private var photo: Photo?
     @State private var petName = ""
     @State private var coverTitle = ""
     @State private var isLoading = true
@@ -32,8 +34,7 @@ struct RedPacketCoverView: View {
     @State private var isSaving = false
     @State private var saveError: String?
     @State private var shareItem: ShareItem?
-    @State private var sharePreview: (image: UIImage, url: URL)?
-    @State private var showUploadGuide = false
+    @State private var sharePreview: (image: UIImage, url: URL, filename: String, spec: String)?
 
     enum RedPacketScene: String, CaseIterable, Identifiable {
         case open      // 拆红包页（最完整展示）
@@ -64,54 +65,29 @@ struct RedPacketCoverView: View {
             }
         }
         .background(Color.milensBackground)
-        .navigationTitle("红包封面")
-        .navigationBarTitleDisplayMode(.inline)
-        .toolbar {
-            ToolbarItemGroup(placement: .topBarTrailing) {
-                Button {
-                    showUploadGuide = true
-                } label: {
-                    Label("上传引导", systemImage: "questionmark.circle")
-                }
-
-                Button {
-                    Task { await saveToLibrary() }
-                } label: {
-                    Label("保存", systemImage: "square.and.arrow.down")
-                }
-                .disabled(isSaving)
-
-                Button {
-                    share()
-                } label: {
-                    Label("分享", systemImage: "square.and.arrow.up")
-                }
-                .disabled(isSaving)
-            }
-        }
+        .toolbar(.hidden, for: .navigationBar)
         .sheet(item: $shareItem) { item in
             ShareSheet(items: [item.url])
         }
         .sheet(item: Binding<SharePreviewData?>(
-            get: { sharePreview.map { SharePreviewData(image: $0.image, url: $0.url) } },
+            get: { sharePreview.map { SharePreviewData(image: $0.image, url: $0.url, filename: $0.filename, spec: $0.spec) } },
             set: { if $0 == nil { sharePreview = nil } }
         )) { data in
             SharePreviewSheet(
                 previewImage: data.image,
                 shareURL: data.url,
+                filename: data.filename,
+                spec: data.spec,
                 onDismiss: { sharePreview = nil }
             )
         }
-        .alert("保存失败", isPresented: Binding(
+        .alert(String(localized: "redpacket.save.failed"), isPresented: Binding(
             get: { saveError != nil },
             set: { if !$0 { saveError = nil } }
         )) {
-            Button("好", role: .cancel) {}
+            Button(String(localized: "common.ok"), role: .cancel) {}
         } message: {
             Text(saveError ?? "")
-        }
-        .sheet(isPresented: $showUploadGuide) {
-            uploadGuideSheet
         }
         .task { await load() }
     }
@@ -119,163 +95,171 @@ struct RedPacketCoverView: View {
     // MARK: - 内容
 
     private func content(image: UIImage) -> some View {
-        ScrollView {
-            VStack(spacing: Spacing.lg) {
-                // 封面预览（按规格比例）
-                RedPacketCoverArtwork(
-                    image: image,
-                    coverTitle: coverTitle,
-                    includeWatermark: !entitlement.isPro
-                )
-                    .frame(maxWidth: 360)
-                    .aspectRatio(
-                        Double(WeChatRedPacketSpec.coverImageWidth) / Double(WeChatRedPacketSpec.coverImageHeight),
-                        contentMode: .fit)
-                    .clipShape(RoundedRectangle(cornerRadius: Radius.medium, style: .continuous))
-                    .overlay {
-                        RoundedRectangle(cornerRadius: Radius.medium, style: .continuous)
-                            .stroke(Color.milensBorder, lineWidth: 0.5)
-                    }
-
-                // 场景选择器
-                sceneSelector
-
-                // 场景模拟预览
-                WeChatRedPacketMockView(
-                    image: image,
-                    coverTitle: coverTitle,
-                    scene: selectedScene,
-                    isPro: entitlement.isPro
-                )
-                    .frame(maxWidth: 360)
-                    .clipShape(RoundedRectangle(cornerRadius: Radius.medium, style: .continuous))
-                    .overlay {
-                        RoundedRectangle(cornerRadius: Radius.medium, style: .continuous)
-                            .stroke(Color.milensBorder, lineWidth: 0.5)
-                    }
-
-                // 封面简称编辑
-                VStack(alignment: .leading, spacing: Spacing.xs) {
-                    Text("封面简称（最多 \(WeChatRedPacketSpec.coverTitleMaxLength) 字）")
-                        .font(.bodyPrimary.weight(.medium))
-                        .foregroundStyle(Color.milensTextPrimary)
-                    TextField("宠物名", text: $coverTitle, axis: .horizontal)
-                        .textFieldStyle(.roundedBorder)
-                        .onChange(of: coverTitle) { _, newValue in
-                            if newValue.count > WeChatRedPacketSpec.coverTitleMaxLength {
-                                coverTitle = String(newValue.prefix(WeChatRedPacketSpec.coverTitleMaxLength))
-                            }
-                        }
-                }
-                .padding(Spacing.lg)
-                .background(Color.milensCard)
-                .clipShape(RoundedRectangle(cornerRadius: Radius.medium, style: .continuous))
-
-                Text("导出 957×1278 封面图后，按「上传引导」到微信红包封面开放平台提交审核。")
-                    .font(.bodySecondary)
-                    .foregroundStyle(Color.milensTextTertiary)
-                    .multilineTextAlignment(.center)
+        VStack(spacing: 0) {
+            WorkshopNavHeader(title: String(localized: "redpacket.title")) {
+                dismiss()
             }
-            .padding(.horizontal, Spacing.pagePad)
-            .padding(.top, Spacing.lg)
-            .padding(.bottom, Spacing.xxl)
-        }
-        .scrollIndicators(.hidden)
-    }
 
-    // MARK: - 场景选择器
-
-    private var sceneSelector: some View {
-        ScrollView(.horizontal, showsIndicators: false) {
-            HStack(spacing: Spacing.md) {
-                ForEach(RedPacketScene.allCases) { scene in
-                    let isUnlocked = scene == .open || entitlement.isPro
-                    Button {
-                        if isUnlocked {
-                            selectedScene = scene
-                        } else {
-                            // Pro 场景：可在功能层触发付费墙
-                        }
-                    } label: {
-                        VStack(spacing: Spacing.xs) {
-                            Text(scene.displayName)
-                                .font(.caption.weight(.medium))
-                                .foregroundStyle(selectedScene == scene ? Color.white : Color.milensTextSecondary)
-                            if !isUnlocked {
-                                Image(systemName: "lock.fill")
-                                    .font(.system(size: 10))
-                                    .foregroundStyle(Color.milensTextTertiary)
-                            }
-                        }
-                        .padding(.horizontal, Spacing.md)
-                        .padding(.vertical, Spacing.sm)
-                        .background(selectedScene == scene ? Color.milensActionPrimary : Color.milensGrouped)
-                        .clipShape(Capsule())
-                    }
-                    .buttonStyle(.plain)
-                    .disabled(!isUnlocked)
-                }
-            }
-            .padding(.vertical, Spacing.xs)
-        }
-    }
-
-    // MARK: - 上传引导 sheet
-
-    private var uploadGuideSheet: some View {
-        NavigationStack {
             ScrollView {
-                VStack(alignment: .leading, spacing: Spacing.md) {
-                    // 注册门槛提示
-                    HStack(alignment: .top, spacing: Spacing.sm) {
-                        Image(systemName: "exclamationmark.circle.fill")
-                            .foregroundStyle(Color.milensWarning)
-                        Text("微信红包封面开放平台需要视频号/公众号粉丝≥100 或企业认证才能注册。")
-                            .font(.bodySecondary)
+                VStack(alignment: .leading, spacing: 0) {
+                    // 来源条
+                    if let photo {
+                        WorkshopSourceBar(
+                            meta: String(localized: "source.redPacket.meta"),
+                            label: "\(petName) · \(formatDate(photo.takenAt))",
+                            onChange: { dismiss() }
+                        ) {
+                            ThumbnailImage(path: photo.thumbnailPath.isEmpty ? photo.uri : photo.thumbnailPath)
+                        }
+                        .padding(.horizontal, Spacing.pagePad)
+                        .padding(.top, Spacing.md)
+                    }
+
+                    // Overline + 规格
+                    HStack {
+                        EditorialOverline(text: String(localized: "redpacket.overline"))
+                        Spacer()
+                        Text(String(localized: "redpacket.spec"))
+                            .font(.editorialMetadata)
                             .foregroundStyle(Color.milensTextSecondary)
                     }
-                    .padding(Spacing.md)
-                    .background(Color.milensWarning.opacity(0.1))
-                    .clipShape(RoundedRectangle(cornerRadius: Radius.small, style: .continuous))
+                    .padding(.horizontal, Spacing.pagePad)
+                    .padding(.top, Spacing.lg)
 
-                    Text("上传步骤")
-                        .font(.titleStandard)
-                        .foregroundStyle(Color.milensTextPrimary)
+                    // Red Packet Workshop（暗卡）
+                    VStack(spacing: 0) {
+                        HStack(alignment: .top, spacing: 16) {
+                            // 封面预览
+                            RedPacketCoverArtwork(
+                                image: image,
+                                coverTitle: coverTitle,
+                                includeWatermark: !entitlement.isPro
+                            )
+                            .frame(width: 150)
+                            .aspectRatio(
+                                Double(WeChatRedPacketSpec.coverImageWidth) / Double(WeChatRedPacketSpec.coverImageHeight),
+                                contentMode: .fit)
+                            .clipShape(RoundedRectangle(cornerRadius: 6, style: .continuous))
+
+                            // 场景选择
+                            VStack(spacing: 8) {
+                                ForEach(Array(RedPacketScene.allCases.enumerated()), id: \.element.id) { index, scene in
+                                    sceneMiniCell(scene, index: index + 1)
+                                }
+                            }
+                        }
+                        .padding(16)
+
+                        Text(String(localized: "redpacket.watermarkHint"))
+                            .font(.editorialMetadata)
+                            .foregroundStyle(Color.white.opacity(0.6))
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .padding(.horizontal, 20)
+                            .padding(.bottom, 14)
+                    }
+                    .background(Color.milensSealSurface)
+                    .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+                    .padding(.horizontal, Spacing.pagePad)
+                    .padding(.top, Spacing.sm)
+
+                    // 场景模拟预览
+                    WeChatRedPacketMockView(
+                        image: image,
+                        coverTitle: coverTitle,
+                        scene: selectedScene,
+                        isPro: entitlement.isPro
+                    )
+                        .frame(maxWidth: 342)
+                        .clipShape(RoundedRectangle(cornerRadius: Radius.medium, style: .continuous))
+                        .overlay {
+                            RoundedRectangle(cornerRadius: Radius.medium, style: .continuous)
+                                .stroke(Color.milensBorder, lineWidth: 0.5)
+                        }
+                        .padding(.horizontal, Spacing.pagePad)
                         .padding(.top, Spacing.lg)
 
-                    ForEach(Array(RedPacketCoverLogic.uploadGuideSteps().enumerated()), id: \.offset) { idx, key in
-                        VStack(alignment: .leading, spacing: Spacing.xs) {
-                            Text("\(idx + 1). \(localizedStep(key))")
-                                .font(.bodyPrimary)
-                                .foregroundStyle(Color.milensTextPrimary)
-                        }
-                    }
+                    // 封面标题字段编辑行
+                    WorkshopFieldRow(
+                        label: String(localized: "redpacket.coverTitle"),
+                        value: coverTitle.isEmpty ? String(localized: "redpacket.coverTitle.placeholder") : coverTitle,
+                        onEdit: nil,
+                        showsRule: false
+                    )
+                    .padding(.horizontal, Spacing.pagePad)
+                    .padding(.top, Spacing.xl)
 
-                    Spacer()
+                    // 封面标题输入（内联）
+                    VStack(alignment: .leading, spacing: Spacing.xs) {
+                        TextField(String(localized: "redpacket.coverTitle.placeholder"), text: $coverTitle, axis: .horizontal)
+                            .textFieldStyle(.roundedBorder)
+                            .onChange(of: coverTitle) { _, newValue in
+                                if newValue.count > WeChatRedPacketSpec.coverTitleMaxLength {
+                                    coverTitle = String(newValue.prefix(WeChatRedPacketSpec.coverTitleMaxLength))
+                                }
+                            }
+                    }
+                    .padding(.horizontal, Spacing.pagePad)
+                    .padding(.top, Spacing.sm)
+
+                    // 上传指引入口
+                    NavigationLink(value: Route.redPacketUploadGuide(photoID: photoID, petID: petID)) {
+                        Text(String(localized: "redpacket.uploadGuide.link"))
+                            .font(.uiBodyStrong)
+                            .foregroundStyle(Color.milensActionPrimary)
+                    }
+                    .padding(.horizontal, Spacing.pagePad)
+                    .padding(.top, Spacing.lg)
+
+                    Text(String(localized: "redpacket.uploadGuide.note"))
+                        .font(.editorialMetadata)
+                        .foregroundStyle(Color.milensTextSecondary)
+                        .padding(.horizontal, Spacing.pagePad)
+                        .padding(.top, Spacing.xs)
+
+                    Spacer(minLength: 100)
                 }
-                .padding(.horizontal, Spacing.pagePad)
-                .padding(.vertical, Spacing.lg)
+                .padding(.bottom, Spacing.xxl)
             }
-            .navigationTitle("上传引导")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button("完成") { showUploadGuide = false }
-                }
+            .scrollIndicators(.hidden)
+            .safeAreaInset(edge: .bottom) {
+                CreationActionBar(
+                    primaryLabel: String(localized: "redpacket.action.export"),
+                    secondaryLabel: String(localized: "share.action.saveLibrary"),
+                    primaryAction: { share() },
+                    secondaryAction: { Task { await saveToLibrary() } }
+                )
+                .padding(.horizontal, Spacing.pagePad)
+                .padding(.top, Spacing.sm)
+                .padding(.bottom, Spacing.md)
+                .background(Color.milensBackground)
             }
         }
     }
 
-    /// 简易步骤文案映射（V1 固定中文；后续接入 Localizable.xcstrings）。
-    private func localizedStep(_ key: String) -> String {
-        switch key {
-        case "redpacket.guide.step1": return "电脑访问微信红包封面开放平台 cover.weixin.qq.com"
-        case "redpacket.guide.step2": return "点击「定制封面」，上传导出的封面图（957×1278 PNG）"
-        case "redpacket.guide.step3": return "填写封面简称，上传品牌 logo（可选）"
-        case "redpacket.guide.step4": return "提交审核（约 1-2 小时）"
-        case "redpacket.guide.step5": return "审核通过后选择使用人数并支付，生成领取链接"
-        default: return key
+    // MARK: - 场景缩略单元
+
+    private func sceneMiniCell(_ scene: RedPacketScene, index: Int) -> some View {
+        let isSelected = selectedScene == scene
+        return Button {
+            let isUnlocked = scene == .open || entitlement.isPro
+            if isUnlocked { selectedScene = scene }
+        } label: {
+            VStack(spacing: 4) {
+                RoundedRectangle(cornerRadius: 4, style: .continuous)
+                    .fill(isSelected ? Color.milensActionPrimary.opacity(0.2) : Color.milensSealSurface)
+                    .overlay {
+                        RoundedRectangle(cornerRadius: 4, style: .continuous)
+                            .stroke(isSelected ? Color.milensActionPrimary : Color.milensSeparator, lineWidth: isSelected ? 1.5 : 1)
+                    }
+                    .frame(width: 72, height: 44)
+                Text("模版\(index)")
+                    .font(.editorialMetadata)
+                    .foregroundStyle(isSelected ? Color.milensTextPrimary : Color.milensTextSecondary)
+            }
         }
+        .buttonStyle(.plain)
+        .disabled(scene != .open && !entitlement.isPro)
+    }
     }
 
     // MARK: - 动作
@@ -334,12 +318,27 @@ struct RedPacketCoverView: View {
             data = rendered.jpegData(compressionQuality: 0.85) ?? Data()
         }
         let filename = RedPacketCoverLogic.exportFilename(petName: petName)
+        let spec = "\(WeChatRedPacketSpec.coverImageWidth) × \(WeChatRedPacketSpec.coverImageHeight) · PNG · \(formatByteCount(data.count))"
         do {
             let url = try BeadExportService().writeShareCache(data: data, filename: filename)
-            sharePreview = (image: rendered, url: url)
+            sharePreview = (image: rendered, url: url, filename: filename, spec: spec)
         } catch {
             logger.error("share: 写入分享缓存失败（\(error.localizedDescription)）")
         }
+    }
+
+    /// 格式化字节数为可读字符串（KB/MB）。
+    private func formatByteCount(_ bytes: Int) -> String {
+        let formatter = ByteCountFormatter()
+        formatter.countStyle = .file
+        return formatter.string(fromByteCount: Int64(bytes))
+    }
+
+    /// 格式化日期。
+    private func formatDate(_ date: Date) -> String {
+        let fmt = DateFormatter()
+        fmt.dateFormat = "yyyy.MM.dd"
+        return fmt.string(from: date)
     }
 
     // MARK: - 加载失败
@@ -362,8 +361,9 @@ struct RedPacketCoverView: View {
     private func load() async {
         defer { isLoading = false }
         do {
-            guard let photo = try factory.photo(id: photoID) else { return }
-            let path = photo.thumbnailPath.isEmpty ? photo.uri : photo.thumbnailPath
+            guard let foundPhoto = try factory.photo(id: photoID) else { return }
+            self.photo = foundPhoto
+            let path = foundPhoto.thumbnailPath.isEmpty ? foundPhoto.uri : foundPhoto.thumbnailPath
             let loaded = await Task.detached(priority: .utility) {
                 UIImage(contentsOfFile: path)
             }.value
@@ -377,7 +377,7 @@ struct RedPacketCoverView: View {
             var name = ""
             if let petID, let pet = try factory.pet(id: petID) {
                 name = pet.name
-            } else if let pet = photo.pet {
+            } else if let pet = foundPhoto.pet {
                 name = pet.name
             }
             petName = name

@@ -1,6 +1,7 @@
-//  GrowthComparePhotoPickerView —— 成长对比卡片的选照片页（ADR-0010 §3.3，Stage 2）。
-//  从 CreateView「成长对比」入口进入；选两张照片（按拍摄时间自动判定早晚）。
-//  选中两张后底部出现「生成对比卡」按钮 → 导航到 GrowthCompareView。
+//  GrowthComparePhotoPickerView —— 成长对比卡片的选照片页。
+//  对照 Figma「02 · Picker / Source Pair」#422:809：
+//  编辑式导航头 + 编辑式标题 + A/B 角色双选区 + 宠物筛选 + 照片网格 + CreationActionBar。
+//  选中两张后顶部出现 Earlier/Recent 角色卡，点击已选照片可重新指定角色。
 
 import SwiftUI
 import os
@@ -9,145 +10,308 @@ private let logger = Logger(subsystem: "com.milens.app", category: "GrowthCompar
 
 struct GrowthComparePhotoPickerView: View {
     @Environment(\.viewModelFactory) private var factory
+    @Environment(\.dismiss) private var dismiss
 
     @State private var photos: [Photo] = []
     @State private var isLoading = true
-    /// 已选中的照片 ID（最多 2 张）
-    @State private var selectedIDs: Set<UUID> = []
+    /// 已选中的照片 ID（最多 2 张，顺序 = 选择顺序）。
+    @State private var selectedIDs: [UUID] = []
 
-    private let columns = [GridItem(.adaptive(minimum: 100), spacing: 2)]
+    private let columns = [GridItem(.adaptive(minimum: 108), spacing: 9)]
 
     var body: some View {
         Group {
             if isLoading {
                 ProgressView()
-                    .tint(Color.milensPrimary)
+                    .tint(Color.milensActionPrimary)
             } else if photos.isEmpty {
                 emptyState
             } else {
-                photoGrid
+                content
             }
         }
         .background(Color.milensBackground)
-        .navigationTitle("选择两张照片")
-        .navigationBarTitleDisplayMode(.inline)
-        .safeAreaInset(edge: .bottom) {
-            if selectedIDs.count == 2 {
-                generateButton
-            }
-        }
+        .toolbar(.hidden, for: .navigationBar)
         .task { await loadPhotos() }
     }
 
-    // MARK: - 空态
+    // MARK: - 主内容
 
-    private var emptyState: some View {
-        ContentUnavailableView(
-            "还没有照片",
-            systemImage: "photo.on.rectangle.angled",
-            description: Text("先到相册导入照片，再回来生成成长对比卡片")
-        )
-    }
+    private var content: some View {
+        VStack(spacing: 0) {
+            WorkshopNavHeader(title: String(localized: "picker.compare.title")) {
+                dismiss()
+            }
 
-    // MARK: - 照片网格（双选）
+            ScrollView {
+                VStack(alignment: .leading, spacing: 0) {
+                    // 编辑式标题
+                    Text(String(localized: "picker.compare.headline"))
+                        .font(.editorialSection)
+                        .foregroundStyle(Color.milensTextPrimary)
+                        .fixedSize(horizontal: false, vertical: true)
+                        .padding(.horizontal, Spacing.pagePad)
+                        .padding(.top, Spacing.md)
 
-    private var photoGrid: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: Spacing.sm) {
-                Text("选择同一宠物的两张不同时期照片")
-                    .font(.bodySecondary)
-                    .foregroundStyle(Color.milensTextPrimary)
-                    .padding(.horizontal, Spacing.lg)
-                    .padding(.top, Spacing.xs)
-
-                LazyVGrid(columns: columns, spacing: 2) {
-                    ForEach(photos) { photo in
-                        photoCell(photo)
+                    // A/B 角色双选区（选满 2 张时出现）
+                    if selectedIDs.count == 2 {
+                        pairedSelectionRow
+                            .padding(.horizontal, Spacing.pagePad)
+                            .padding(.top, Spacing.lg)
                     }
+
+                    // 从生命档案选择 + 筛选条
+                    Text(String(localized: "picker.compare.fromArchive"))
+                        .font(.uiBodyStrong)
+                        .foregroundStyle(Color.milensTextPrimary)
+                        .padding(.horizontal, Spacing.pagePad)
+                        .padding(.top, Spacing.xl)
+
+                    filterRow
+                        .padding(.horizontal, Spacing.pagePad)
+                        .padding(.top, Spacing.xs)
+
+                    // 照片网格
+                    LazyVGrid(columns: columns, spacing: 9) {
+                        ForEach(photos) { photo in
+                            photoCell(photo)
+                        }
+                    }
+                    .padding(.horizontal, Spacing.pagePad)
+                    .padding(.top, Spacing.sm)
+
+                    if selectedIDs.count == 2 {
+                        Text(String(localized: "picker.compare.hint"))
+                            .font(.editorialMetadata)
+                            .foregroundStyle(Color.milensTextSecondary)
+                            .frame(maxWidth: .infinity, alignment: .trailing)
+                            .padding(.horizontal, Spacing.pagePad)
+                            .padding(.top, Spacing.md)
+                    }
+
+                    Spacer(minLength: 100)
+                }
+                .padding(.bottom, Spacing.xxl)
+            }
+            .scrollIndicators(.hidden)
+            .safeAreaInset(edge: .bottom) {
+                if selectedIDs.count == 2 {
+                    bottomActionBar
                 }
             }
-            .padding(.bottom, Spacing.xxl)
         }
     }
 
+    // MARK: - A/B 角色双选区
+
+    /// 选中两张后，横向展示 Earlier / Recent 两个角色卡 + 中间交换图标。
+    private var pairedSelectionRow: some View {
+        let pair = selectedPhotos()
+        let earlier = pair.0
+        let recent = pair.1
+        return HStack(spacing: 0) {
+            roleCard(photo: earlier, role: .earlier)
+            Spacer()
+            // 交换图标
+            Image(systemName: "arrow.left.arrow.right")
+                .font(.system(size: 14))
+                .foregroundStyle(Color.milensTextTertiary)
+                .frame(width: 20, height: 20)
+            Spacer()
+            roleCard(photo: recent, role: .recent)
+        }
+    }
+
+    private func roleCard(photo: Photo, role: SelectionRole) -> some View {
+        let path = photo.thumbnailPath.isEmpty ? photo.uri : photo.thumbnailPath
+        return VStack(alignment: .leading, spacing: 0) {
+            ThumbnailImage(path: path)
+                .aspectRatio(contentMode: .fill)
+                .frame(width: 140, height: 150)
+                .clipped()
+                .overlay(alignment: .topTrailing) {
+                    Text(role == .earlier ? String(localized: "picker.role.earlier") : String(localized: "picker.role.recent"))
+                        .font(.editorialOverline)
+                        .foregroundStyle(.white)
+                        .padding(.horizontal, 6)
+                        .padding(.vertical, 3)
+                        .background(Color.milensActionPrimary)
+                        .clipShape(Capsule())
+                        .padding(6)
+                }
+
+            VStack(alignment: .leading, spacing: 2) {
+                Text(role == .earlier ? "A" : "B")
+                    .font(.editorialNumberIndex)
+                    .foregroundStyle(Color.milensActionPrimary)
+                Text(photo.pet?.name ?? String(localized: "picker.compare.fromArchive"))
+                    .font(.system(size: 12, weight: .medium))
+                    .foregroundStyle(Color.milensTextPrimary)
+                    .lineLimit(1)
+                Text(formatDate(photo.takenAt))
+                    .font(.editorialMetadata)
+                    .foregroundStyle(Color.milensTextSecondary)
+            }
+            .padding(.horizontal, 8)
+            .padding(.top, 6)
+            .padding(.bottom, 8)
+        }
+        .frame(width: 140)
+        .background(Color.milensCard)
+        .overlay {
+            RoundedRectangle(cornerRadius: 4, style: .continuous)
+                .stroke(Color.milensActionPrimary, lineWidth: 2)
+        }
+        .clipShape(RoundedRectangle(cornerRadius: 4, style: .continuous))
+        .onTapGesture {
+            swapRoles()
+        }
+    }
+
+    private enum SelectionRole { case earlier, recent }
+
+    // MARK: - 筛选条
+
+    private var filterRow: some View {
+        HStack(spacing: 24) {
+            filterChip(label: String(localized: "picker.filter.all"), isActive: true)
+            ForEach(petFilters.prefix(3), id: \.id) { pet in
+                filterChip(label: pet.name, isActive: false)
+            }
+            Spacer()
+        }
+        .padding(.top, 4)
+    }
+
+    private func filterChip(label: String, isActive: Bool) -> some View {
+        VStack(spacing: 4) {
+            Text(label)
+                .font(.system(size: 13))
+                .foregroundStyle(isActive ? Color.milensActionPrimary : Color.milensTextSecondary)
+            Rectangle()
+                .fill(isActive ? Color.milensActionPrimary : Color.clear)
+                .frame(width: 25, height: 2)
+        }
+    }
+
+    /// 网格中出现的宠物列表（用于筛选条展示）。
+    private var petFilters: [Pet] {
+        let seen = Set<UUID>()
+        return photos.compactMap { p -> Pet? in
+            guard let pet = p.pet, !seen.contains(pet.id) else { return nil }
+            seen.insert(pet.id)
+            return pet
+        }
+    }
+
+    // MARK: - 照片单元
+
     @ViewBuilder
     private func photoCell(_ photo: Photo) -> some View {
-        let isSelected = selectedIDs.contains(photo.id)
+        let order = selectedIDs.firstIndex(of: photo.id)
+        let path = photo.thumbnailPath.isEmpty ? photo.uri : photo.thumbnailPath
         Button {
             toggleSelection(photo.id)
         } label: {
-            ThumbnailImage(path: photo.thumbnailPath.isEmpty ? photo.uri : photo.thumbnailPath)
-                .aspectRatio(1, contentMode: .fill)
+            ThumbnailImage(path: path)
+                .aspectRatio(108.0 / 100.0, contentMode: .fill)
+                .frame(width: 108, height: 100)
                 .clipped()
-                .clipShape(RoundedRectangle(cornerRadius: 4))
+                .clipShape(RoundedRectangle(cornerRadius: 4, style: .continuous))
                 .overlay {
-                    if isSelected {
-                        RoundedRectangle(cornerRadius: 4)
-                            .stroke(Color.milensActionPrimary, lineWidth: 3)
-                        Image(systemName: "checkmark.circle.fill")
-                            .font(.system(size: 22))
-                            .foregroundStyle(Color.milensActionPrimary)
-                            .background(Circle().fill(.white))
-                            .padding(6)
-                            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topTrailing)
-                    }
-                }
-                .overlay(alignment: .bottomLeading) {
-                    if let pet = photo.pet, !pet.name.isEmpty {
-                        Text(pet.name)
-                            .font(.caption.weight(.medium))
+                    if let order {
+                        // A/B 角标
+                        Text(order == 0 ? "A" : "B")
+                            .font(.editorialNumberIndex)
                             .foregroundStyle(.white)
-                            .padding(.horizontal, Spacing.sm)
-                            .padding(.vertical, Spacing.xs)
-                            .background(.black.opacity(0.55))
-                            .clipShape(Capsule())
-                            .padding(Spacing.xs)
+                            .frame(width: 23, height: 15)
+                            .background(Color.milensActionPrimary)
+                            .clipShape(RoundedRectangle(cornerRadius: 2, style: .continuous))
+                            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+                            .padding(3)
                     }
                 }
         }
         .buttonStyle(.plain)
-        .accessibilityLabel(isSelected ? "已选择" : "选择照片")
     }
 
-    // MARK: - 生成按钮
+    // MARK: - 底部操作栏
 
-    private var generateButton: some View {
-        let selected = photos.filter { selectedIDs.contains($0.id) }
-        let petID = selected.first?.pet?.id
+    private var bottomActionBar: some View {
+        let pair = selectedPhotos()
+        let petID = pair.0.pet?.id ?? pair.1.pet?.id
         return NavigationLink(value: Route.growthCompare(
-            earlyPhotoID: selected[0].id,
-            latePhotoID: selected[1].id,
+            earlyPhotoID: pair.0.id,
+            latePhotoID: pair.1.id,
             petID: petID
         )) {
-            Text("生成成长对比卡")
-                .font(.bodyPrimary.weight(.semibold))
-                .foregroundStyle(.white)
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, Spacing.md)
-                .background(Color.milensActionPrimary)
-                .clipShape(Capsule())
-                .padding(.horizontal, Spacing.pagePad)
-                .padding(.bottom, Spacing.md)
+            CreationActionBar(
+                primaryLabel: String(localized: "picker.compare.start"),
+                secondaryLabel: String(localized: "picker.compare.clear"),
+                primaryAction: { /* NavigationLink 处理导航 */ },
+                secondaryAction: { selectedIDs.removeAll() },
+                primaryEnabled: true
+            )
         }
         .buttonStyle(.plain)
         .simultaneousGesture(TapGesture().onEnded {
             selectedIDs.removeAll()
         })
+        .padding(.horizontal, Spacing.pagePad)
+        .padding(.top, Spacing.sm)
+        .padding(.bottom, Spacing.md)
+        .background(Color.milensBackground)
+    }
+
+    // MARK: - 空态
+
+    private var emptyState: some View {
+        VStack(spacing: Spacing.lg) {
+            WorkshopNavHeader(title: String(localized: "picker.compare.title")) {
+                dismiss()
+            }
+            ContentUnavailableView(
+                String(localized: "picker.compare.empty"),
+                systemImage: "photo.on.rectangle.angled",
+                description: Text(String(localized: "picker.compare.emptyDesc"))
+            )
+        }
     }
 
     // MARK: - 选择逻辑
 
     private func toggleSelection(_ id: UUID) {
-        if selectedIDs.contains(id) {
-            selectedIDs.remove(id)
+        if let idx = selectedIDs.firstIndex(of: id) {
+            selectedIDs.remove(at: idx)
         } else if selectedIDs.count < 2 {
-            selectedIDs.insert(id)
+            selectedIDs.append(id)
         } else {
             // 已选 2 张，替换最早选的一张
-            let first = selectedIDs.first!
-            selectedIDs.remove(first)
-            selectedIDs.insert(id)
+            selectedIDs.removeFirst()
+            selectedIDs.append(id)
         }
+    }
+
+    /// 交换 A/B 角色（点击角色卡时触发）。
+    private func swapRoles() {
+        guard selectedIDs.count == 2 else { return }
+        selectedIDs.reverse()
+    }
+
+    /// 按拍摄时间返回早/晚两张照片。
+    private func selectedPhotos() -> (Photo, Photo) {
+        let pair = photos.filter { selectedIDs.contains($0.id) }
+        guard pair.count == 2 else {
+            return (photos[0], photos[0])
+        }
+        let sorted = pair.sorted { $0.takenAt < $1.takenAt }
+        return (sorted[0], sorted[1])
+    }
+
+    private func formatDate(_ date: Date) -> String {
+        let fmt = DateFormatter()
+        fmt.dateFormat = "yyyy.MM.dd"
+        return fmt.string(from: date)
     }
 
     // MARK: - 数据
@@ -161,5 +325,11 @@ struct GrowthComparePhotoPickerView: View {
             logger.error("loadPhotos: 读取照片列表失败（\(error.localizedDescription)）")
             photos = []
         }
+    }
+}
+
+#Preview {
+    NavigationStack {
+        GrowthComparePhotoPickerView()
     }
 }

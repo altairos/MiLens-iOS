@@ -4699,6 +4699,611 @@
         }
       }
     },
+    "picker.compare.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "选择两段时光"
+          }
+        }
+      }
+    },
+    "picker.compare.headline" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "先把「从前」和「现在」\n放在一起。"
+          }
+        }
+      }
+    },
+    "picker.compare.fromArchive" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "从生命档案选择"
+          }
+        }
+      }
+    },
+    "picker.compare.hint" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "轻点已选照片即可重新指定"
+          }
+        }
+      }
+    },
+    "picker.compare.start" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "开始对比"
+          }
+        }
+      }
+    },
+    "picker.compare.clear" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "清空"
+          }
+        }
+      }
+    },
+    "picker.compare.empty" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "还没有照片"
+          }
+        }
+      }
+    },
+    "picker.compare.emptyDesc" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "先到相册导入照片，再回来生成成长对比卡片"
+          }
+        }
+      }
+    },
+    "picker.filter.all" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "全部"
+          }
+        }
+      }
+    },
+    "picker.role.earlier" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "从前"
+          }
+        }
+      }
+    },
+    "picker.role.recent" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "现在"
+          }
+        }
+      }
+    },
+    "source.change" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "更换"
+          }
+        }
+      }
+    },
+    "source.petCard.meta" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "来源照片"
+          }
+        }
+      }
+    },
+    "source.businessCard.meta" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "档案头像"
+          }
+        }
+      }
+    },
+    "source.redPacket.meta" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "封面素材"
+          }
+        }
+      }
+    },
+    "petcard.overline" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "PET CARD"
+          }
+        }
+      }
+    },
+    "petcard.spec" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "4:5 · 竖版"
+          }
+        }
+      }
+    },
+    "growthcompare.overline" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "GROWTH COMPARE"
+          }
+        }
+      }
+    },
+    "businesscard.overline" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "HORIZONTAL NAMECARD"
+          }
+        }
+      }
+    },
+    "businesscard.spec" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "PNG · 高清"
+          }
+        }
+      }
+    },
+    "businesscard.selectTemplate" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "选择模版"
+          }
+        }
+      }
+    },
+    "field.annotation.label" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "注释"
+          }
+        }
+      }
+    },
+    "field.annotation.placeholder" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "为这张卡片写一句话"
+          }
+        }
+      }
+    },
+    "field.tagline" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "一句话"
+          }
+        }
+      }
+    },
+    "field.owner" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "照护人"
+          }
+        }
+      }
+    },
+    "field.tags" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "个性标签"
+          }
+        }
+      }
+    },
+    "field.edit" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "编辑"
+          }
+        }
+      }
+    },
+    "action.saveShare" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "保存并分享"
+          }
+        }
+      }
+    },
+    "action.saveDraft" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "保存草稿"
+          }
+        }
+      }
+    },
+    "redpacket.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "红包封面"
+          }
+        }
+      }
+    },
+    "redpacket.overline" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "WECHAT RED ENVELOPES"
+          }
+        }
+      }
+    },
+    "redpacket.spec" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "957 × 1278 · 固定"
+          }
+        }
+      }
+    },
+    "redpacket.coverTitle" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "封面标题"
+          }
+        }
+      }
+    },
+    "redpacket.coverTitle.placeholder" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "宠物名"
+          }
+        }
+      }
+    },
+    "redpacket.uploadGuide.link" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "查看微信红包封面上传指引 →"
+          }
+        }
+      }
+    },
+    "redpacket.uploadGuide.note" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "导出后需要上传到微信红包封面平台才能使用"
+          }
+        }
+      }
+    },
+    "redpacket.watermarkHint" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "免费导出含 MiLens 水印"
+          }
+        }
+      }
+    },
+    "redpacket.action.export" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "导出封面"
+          }
+        }
+      }
+    },
+    "redpacket.save.failed" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "保存失败"
+          }
+        }
+      }
+    },
+    "redpacket.render.failed" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "封面渲染失败，请重试"
+          }
+        }
+      }
+    },
+    "upload.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "上传指引"
+          }
+        }
+      }
+    },
+    "upload.headline" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "封面已经做好，\n接下来交给微信。"
+          }
+        }
+      }
+    },
+    "upload.proof.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "导出规格已通过"
+          }
+        }
+      }
+    },
+    "upload.proof.spec" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "957 × 1278 px · PNG"
+          }
+        }
+      }
+    },
+    "upload.proof.watermark" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "免费版 · 含 MiLens 小字水印"
+          }
+        }
+      }
+    },
+    "upload.step.01.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "先把封面图存到系统相册"
+          }
+        }
+      }
+    },
+    "upload.step.01.desc" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "保存时请选择原始尺寸。"
+          }
+        }
+      }
+    },
+    "upload.step.02.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "打开微信红包封面开放平台"
+          }
+        }
+      }
+    },
+    "upload.step.02.desc" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在浏览器中登录并进入个人定制。"
+          }
+        }
+      }
+    },
+    "upload.step.03.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "上传封面图并检查裁切"
+          }
+        }
+      }
+    },
+    "upload.step.03.desc" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "不要二次压缩，确认主体完整。"
+          }
+        }
+      }
+    },
+    "upload.step.04.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "按平台流程提交审核"
+          }
+        }
+      }
+    },
+    "upload.step.04.desc" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "审核状态与结果由微信平台提供。"
+          }
+        }
+      }
+    },
+    "upload.platformNote" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "MiLens 只负责生成与导出；上传、审核和发布均在微信完成。"
+          }
+        }
+      }
+    },
+    "upload.action.wechatShare" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "用微信分享"
+          }
+        }
+      }
+    },
     "tab.create" : {
       "extractionState" : "manual",
       "localizations" : {

@@ -20,6 +20,7 @@ struct GrowthCompareView: View {
 
     @Environment(\.viewModelFactory) private var factory
     @Environment(\.proEntitlement) private var entitlement
+    @Environment(\.dismiss) private var dismiss
 
     @State private var earlyImage: UIImage?
     @State private var lateImage: UIImage?
@@ -30,9 +31,12 @@ struct GrowthCompareView: View {
     @State private var isSaving = false
     @State private var shareItem: ShareItem?
     @State private var saveError: String?
-    @State private var sharePreview: (image: UIImage, url: URL)?
+    @State private var sharePreview: (image: UIImage, url: URL, filename: String, spec: String)?
     /// 保存到相册的统一成功/失败反馈（顶部胶囊 + 触感）。
     @State private var exportToast: ExportToastMessage?
+    /// Figma 08 Annotation Register：一行注释。
+    @State private var annotation = ""
+    @State private var showAnnotationEditor = false
 
     var body: some View {
         Group {
@@ -46,36 +50,20 @@ struct GrowthCompareView: View {
             }
         }
         .background(Color.milensBackground)
-        .navigationTitle(String(localized: "create.growthCompare.title"))
-        .navigationBarTitleDisplayMode(.inline)
-        .toolbar {
-            ToolbarItemGroup(placement: .topBarTrailing) {
-                Button {
-                    Task { await saveToLibrary() }
-                } label: {
-                    Label(String(localized: "common.save"), systemImage: "square.and.arrow.down")
-                }
-                .disabled(isSaving)
-
-                Button {
-                    share()
-                } label: {
-                    Label(String(localized: "common.share"), systemImage: "square.and.arrow.up")
-                }
-                .disabled(isSaving)
-            }
-        }
+        .toolbar(.hidden, for: .navigationBar)
         .exportToast($exportToast)
         .sheet(item: $shareItem) { item in
             ShareSheet(items: [item.url])
         }
         .sheet(item: Binding<SharePreviewData?>(
-            get: { sharePreview.map { SharePreviewData(image: $0.image, url: $0.url) } },
+            get: { sharePreview.map { SharePreviewData(image: $0.image, url: $0.url, filename: $0.filename, spec: $0.spec) } },
             set: { if $0 == nil { sharePreview = nil } }
         )) { data in
             SharePreviewSheet(
                 previewImage: data.image,
                 shareURL: data.url,
+                filename: data.filename,
+                spec: data.spec,
                 onDismiss: { sharePreview = nil }
             )
         }
@@ -87,6 +75,9 @@ struct GrowthCompareView: View {
         } message: {
             Text(saveError ?? "")
         }
+        .sheet(isPresented: $showAnnotationEditor) {
+            AnnotationEditorSheet(annotation: $annotation, limit: 36)
+        }
         .task {
             await load()
             MetricsRecorder().record(.growthComparePreviewed)
@@ -96,35 +87,94 @@ struct GrowthCompareView: View {
     // MARK: - 预览
 
     private func previewStack(early: UIImage, late: UIImage, result: GrowthCompareResult) -> some View {
-        ScrollView {
-            VStack(spacing: Spacing.lg) {
-                GrowthCompareArtwork(
-                    earlyImage: early,
-                    lateImage: late,
-                    result: result,
-                    petName: petName,
-                    includeWatermark: !entitlement.isPro
-                )
-                    .frame(maxWidth: 480)
-                    .aspectRatio(
-                        Double(GrowthCompareLogic.exportWidth) / Double(GrowthCompareLogic.exportHeight),
-                        contentMode: .fit)
-                    .clipShape(RoundedRectangle(cornerRadius: Radius.large, style: .continuous))
-                    .overlay {
-                        RoundedRectangle(cornerRadius: Radius.large, style: .continuous)
-                            .stroke(Color.milensBorder, lineWidth: 0.5)
-                    }
-
-                Text(String(localized: "create.growthCompare.hint"))
-                    .font(.bodySecondary)
-                    .foregroundStyle(Color.milensTextTertiary)
-                    .multilineTextAlignment(.center)
+        VStack(spacing: 0) {
+            WorkshopNavHeader(title: String(localized: "create.growthCompare.title")) {
+                dismiss()
             }
-            .padding(.horizontal, Spacing.pagePad)
-            .padding(.top, Spacing.lg)
-            .padding(.bottom, Spacing.xxl)
+
+            ScrollView {
+                VStack(alignment: .leading, spacing: 0) {
+                    // Paired Sources 条（横向双缩略图）
+                    HStack(spacing: 0) {
+                        pairedThumb(image: early, label: result.earlyLabel)
+                        Rectangle()
+                            .fill(Color.milensSeparator)
+                            .frame(width: 1, height: 64)
+                        pairedThumb(image: late, label: result.lateLabel)
+                    }
+                    .padding(.horizontal, Spacing.pagePad)
+                    .padding(.top, Spacing.md)
+
+                    // Overline
+                    EditorialOverline(text: String(localized: "growthcompare.overline"))
+                        .padding(.horizontal, Spacing.pagePad)
+                        .padding(.top, Spacing.lg)
+
+                    GrowthCompareArtwork(
+                        earlyImage: early,
+                        lateImage: late,
+                        result: result,
+                        petName: petName,
+                        includeWatermark: !entitlement.isPro
+                    )
+                        .frame(maxWidth: 342)
+                        .aspectRatio(
+                            Double(GrowthCompareLogic.exportWidth) / Double(GrowthCompareLogic.exportHeight),
+                            contentMode: .fit)
+                        .clipShape(RoundedRectangle(cornerRadius: Radius.large, style: .continuous))
+                        .overlay {
+                            RoundedRectangle(cornerRadius: Radius.large, style: .continuous)
+                                .stroke(Color.milensBorder, lineWidth: 0.5)
+                        }
+                        .elevation(.medium)
+                        .padding(.horizontal, Spacing.pagePad)
+                        .padding(.top, Spacing.sm)
+
+                    // 注释行
+                    WorkshopFieldRow(
+                        label: String(localized: "field.annotation.label"),
+                        value: annotation.isEmpty ? String(localized: "field.annotation.placeholder") : annotation,
+                        onEdit: { showAnnotationEditor = true },
+                        showsRule: false
+                    )
+                    .padding(.horizontal, Spacing.pagePad)
+                    .padding(.top, Spacing.xl)
+
+                    Spacer(minLength: 100)
+                }
+                .padding(.bottom, Spacing.xxl)
+            }
+            .scrollIndicators(.hidden)
+            .safeAreaInset(edge: .bottom) {
+                CreationActionBar(
+                    primaryLabel: String(localized: "action.saveShare"),
+                    secondaryLabel: String(localized: "action.saveDraft"),
+                    primaryAction: { share() },
+                    secondaryAction: { Task { await saveToLibrary() } }
+                )
+                .padding(.horizontal, Spacing.pagePad)
+                .padding(.top, Spacing.sm)
+                .padding(.bottom, Spacing.md)
+                .background(Color.milensBackground)
+            }
         }
-        .scrollIndicators(.hidden)
+    }
+
+    /// Paired Sources 缩略图单元。
+    private func pairedThumb(image: UIImage, label: String) -> some View {
+        VStack(spacing: 4) {
+            Image(uiImage: image)
+                .resizable()
+                .scaledToFill()
+                .frame(width: 56, height: 56)
+                .clipped()
+                .clipShape(RoundedRectangle(cornerRadius: 4, style: .continuous))
+            Text(label)
+                .font(.editorialMetadata)
+                .foregroundStyle(Color.milensTextSecondary)
+                .lineLimit(1)
+        }
+        .frame(maxWidth: .infinity)
     }
 
     // MARK: - 动作
@@ -171,12 +221,21 @@ struct GrowthCompareView: View {
         guard let rendered = renderCard() else { return }
         let quality = ExportQuality.standard.resolved(isPro: entitlement.isPro)
         guard let jpeg = rendered.jpegData(compressionQuality: quality.jpegCompressionQuality) else { return }
+        let filename = "MiLens_\(petName)_\(String(localized: "create.growthCompare.title")).jpg"
+        let spec = "\(GrowthCompareLogic.exportWidth) × \(GrowthCompareLogic.exportHeight) · JPEG · \(formatByteCount(jpeg.count))"
         do {
-            let url = try BeadExportService().writeShareCache(data: jpeg, filename: "growth_compare_share.jpg")
-            sharePreview = (image: rendered, url: url)
+            let url = try BeadExportService().writeShareCache(data: jpeg, filename: filename)
+            sharePreview = (image: rendered, url: url, filename: filename, spec: spec)
         } catch {
             logger.error("share: 写入分享缓存失败（\(error.localizedDescription)）")
         }
+    }
+
+    /// 格式化字节数为可读字符串（KB/MB）。
+    private func formatByteCount(_ bytes: Int) -> String {
+        let formatter = ByteCountFormatter()
+        formatter.countStyle = .file
+        return formatter.string(fromByteCount: Int64(bytes))
     }
 
     // MARK: - 加载失败

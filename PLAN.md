@@ -271,6 +271,7 @@ P1 核心可靠性与性能六项修复全部落地（实现记录见状态摘�
 - [x] 编辑产物回写沙盒（沿用 DESIGN.md §7 唯一入库路径）
 - [x] XCTest：编辑器 ViewModel 决策
 - [x] Image Workshop 第一批视觉重做（2026-08-13）：对照 Figma 422:801，编辑器从全黑沉浸式重做为浅色编辑式语言（铜索引条 + WorkshopValueRail 数值滑杆 + 校准线 + Transform Rail）；创作首页改为浅色编号网格；分享预览改为编辑式全屏页 + 系统分享面板。新增 `WorkshopComponents.swift` 组件库与 `.flip` 工具模式。
+- [x] Image Workshop 第二批成品系列（2026-08-13）：对照 Figma 422:801 第二批，重做 02 Picker（A/B 角色双选）、07–10 四个成品页（Source 条 + TemplateRail + FieldRow + CreationActionBar）+ 11 上传指引新页（时间线步骤）。新增 `WorkshopNavHeader`/`WorkshopSourceBar`/`WorkshopTemplateTab`/`WorkshopFieldRow`/`WorkshopTimelineStep` 共享组件。12 页全部落地。
 
 ### 验收标准
 

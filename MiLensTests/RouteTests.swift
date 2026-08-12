@@ -15,6 +15,7 @@ final class RouteTests: XCTestCase {
         XCTAssertFalse(Route.petCard(photoID: UUID()).requiresPro)
         XCTAssertFalse(Route.petProfile(petID: UUID()).requiresPro)
         XCTAssertFalse(Route.timeline.requiresPro)
+        XCTAssertFalse(Route.redPacketUploadGuide(photoID: UUID(), petID: nil).requiresPro)
     }
 
     func testProFeatureCatalogContainsOnlyImplementedV1Features() {

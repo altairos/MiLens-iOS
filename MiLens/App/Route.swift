@@ -25,6 +25,7 @@ enum Route: Hashable {
     // 微信红包封面（创作 Tab 新增项目，导出规格素材 + 场景预览）
     case redPacketCoverPicker
     case redPacketCover(photoID: UUID, petID: UUID?)
+    case redPacketUploadGuide(photoID: UUID, petID: UUID?)
     // 月度精选 / 年度回忆册（情感触点系统 Stage 3）
     case recap(year: Int?)
 

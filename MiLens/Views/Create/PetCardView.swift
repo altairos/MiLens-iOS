@@ -19,6 +19,7 @@ struct PetCardView: View {
 
     @Environment(\.viewModelFactory) private var factory
     @Environment(\.proEntitlement) private var entitlement
+    @Environment(\.dismiss) private var dismiss
 
     @State private var photo: Photo?
     @State private var image: UIImage?
@@ -28,13 +29,16 @@ struct PetCardView: View {
     @State private var shareItem: ShareItem?
     @State private var saveError: String?
     /// ADR-0010 分享预览面板状态。
-    @State private var sharePreview: (image: UIImage, url: URL)?
+    @State private var sharePreview: (image: UIImage, url: URL, filename: String, spec: String)?
     /// 保存到相册的统一成功/失败反馈（顶部胶囊 + 触感）。
     @State private var exportToast: ExportToastMessage?
     /// ADR-0010 §4：卡片模板选择（持久化到 UserDefaults）。
     @AppStorage("petCardTemplate") private var selectedTemplateRaw: String = PetCardTemplate.classic.rawValue
     /// ADR-0010 §4：非 Pro 用户点击 Pro 模板时弹付费墙。
     @State private var showTemplatePaywall = false
+    /// Figma 07 Annotation Register：一行注释（Display + 编辑 sheet）。
+    @State private var annotation = ""
+    @State private var showAnnotationEditor = false
 
     var body: some View {
         Group {
@@ -48,37 +52,21 @@ struct PetCardView: View {
             }
         }
         .background(Color.milensBackground)
-        .navigationTitle(String(localized: "create.petCard.title"))
-        .navigationBarTitleDisplayMode(.inline)
-        .toolbar {
-            ToolbarItemGroup(placement: .topBarTrailing) {
-                Button {
-                    Task { await saveToLibrary() }
-                } label: {
-                    Label(String(localized: "common.save"), systemImage: "square.and.arrow.down")
-                }
-                .disabled(isSaving)
-
-                Button {
-                    share()
-                } label: {
-                    Label(String(localized: "common.share"), systemImage: "square.and.arrow.up")
-                }
-                .disabled(isSaving)
-            }
-        }
+        .toolbar(.hidden, for: .navigationBar)
         .exportToast($exportToast)
         .sheet(item: $shareItem) { item in
             ShareSheet(items: [item.url])
         }
         // ADR-0010 分享预览面板
         .sheet(item: Binding<SharePreviewData?>(
-            get: { sharePreview.map { SharePreviewData(image: $0.image, url: $0.url) } },
+            get: { sharePreview.map { SharePreviewData(image: $0.image, url: $0.url, filename: $0.filename, spec: $0.spec) } },
             set: { if $0 == nil { sharePreview = nil } }
         )) { data in
             SharePreviewSheet(
                 previewImage: data.image,
                 shareURL: data.url,
+                filename: data.filename,
+                spec: data.spec,
                 onDismiss: { sharePreview = nil }
             )
         }
@@ -93,6 +81,10 @@ struct PetCardView: View {
         // ADR-0010 §4.2：Pro 模板门控弹窗
         .sheet(isPresented: $showTemplatePaywall) {
             NavigationStack { PaywallView() }
+        }
+        // Figma 07A：注释编辑 sheet
+        .sheet(isPresented: $showAnnotationEditor) {
+            AnnotationEditorSheet(annotation: $annotation, limit: 36)
         }
         .task {
             await load()
@@ -112,87 +104,124 @@ struct PetCardView: View {
     }
 
     private func cardPreview(image: UIImage, content: PetCardContent) -> some View {
-        ScrollView {
-            VStack(spacing: Spacing.lg) {
-                // 预览即导出排版（同一 Artwork，等比缩放）
-                PetCardArtwork(
-                    image: image,
-                    content: content,
-                    template: resolvedTemplate,
-                    includeWatermark: !entitlement.isPro
-                )
-                    .frame(maxWidth: 480)
-                    .aspectRatio(PetCardLogic.exportSize.width.cg / PetCardLogic.exportSize.height.cg,
-                                 contentMode: .fit)
-                    .clipShape(RoundedRectangle(cornerRadius: Radius.large, style: .continuous))
-                    .overlay {
-                        RoundedRectangle(cornerRadius: Radius.large, style: .continuous)
-                            .stroke(Color.milensBorder, lineWidth: 0.5)
+        VStack(spacing: 0) {
+            WorkshopNavHeader(title: String(localized: "create.petCard.title")) {
+                dismiss()
+            }
+
+            ScrollView {
+                VStack(alignment: .leading, spacing: 0) {
+                    // 来源条
+                    if let photo {
+                        WorkshopSourceBar(
+                            meta: String(localized: "source.petCard.meta"),
+                            label: photo.pet?.name ?? String(localized: "create.petCard.title"),
+                            onChange: { dismiss() }
+                        ) {
+                            ThumbnailImage(path: photo.thumbnailPath.isEmpty ? photo.uri : photo.thumbnailPath)
+                        }
+                        .padding(.horizontal, Spacing.pagePad)
+                        .padding(.top, Spacing.md)
                     }
 
-                // ADR-0010 §4.3：模板选择器
-                templateSelector
-                    .shadow(color: .black.opacity(0.08), radius: 16, y: 6)
+                    // Overline + 规格
+                    HStack {
+                        EditorialOverline(text: String(localized: "petcard.overline"))
+                        Spacer()
+                        Text(String(localized: "petcard.spec"))
+                            .font(.editorialMetadata)
+                            .foregroundStyle(Color.milensTextSecondary)
+                    }
+                    .padding(.horizontal, Spacing.pagePad)
+                    .padding(.top, Spacing.lg)
 
-                Text(String(localized: "create.petCard.hint"))
-                    .font(.bodySecondary)
-                    .foregroundStyle(Color.milensTextTertiary)
-                    .multilineTextAlignment(.center)
+                    // 预览即导出排版（同一 Artwork，等比缩放）
+                    PetCardArtwork(
+                        image: image,
+                        content: content,
+                        template: resolvedTemplate,
+                        includeWatermark: !entitlement.isPro
+                    )
+                        .frame(maxWidth: 342)
+                        .aspectRatio(PetCardLogic.exportSize.width.cg / PetCardLogic.exportSize.height.cg,
+                                     contentMode: .fit)
+                        .clipShape(RoundedRectangle(cornerRadius: Radius.large, style: .continuous))
+                        .overlay {
+                            RoundedRectangle(cornerRadius: Radius.large, style: .continuous)
+                                .stroke(Color.milensBorder, lineWidth: 0.5)
+                        }
+                        .elevation(.medium)
+                        .padding(.horizontal, Spacing.pagePad)
+                        .padding(.top, Spacing.sm)
+
+                    // 模板选择器
+                    Text(String(localized: "businesscard.selectTemplate"))
+                        .font(.uiBodyStrong)
+                        .foregroundStyle(Color.milensTextPrimary)
+                        .padding(.horizontal, Spacing.pagePad)
+                        .padding(.top, Spacing.xl)
+
+                    templateRail
+                        .padding(.horizontal, Spacing.pagePad)
+                        .padding(.top, Spacing.xs)
+
+                    // 注释行
+                    WorkshopFieldRow(
+                        label: String(localized: "field.annotation.label"),
+                        value: annotation.isEmpty ? String(localized: "field.annotation.placeholder") : annotation,
+                        onEdit: { showAnnotationEditor = true },
+                        showsRule: false
+                    )
+                    .padding(.horizontal, Spacing.pagePad)
+                    .padding(.top, Spacing.xl)
+
+                    Spacer(minLength: 100)
+                }
+                .padding(.bottom, Spacing.xxl)
             }
-            .padding(.horizontal, Spacing.pagePad)
-            .padding(.top, Spacing.lg)
-            .padding(.bottom, Spacing.xxl)
+            .scrollIndicators(.hidden)
+            .safeAreaInset(edge: .bottom) {
+                CreationActionBar(
+                    primaryLabel: String(localized: "action.saveShare"),
+                    secondaryLabel: String(localized: "action.saveDraft"),
+                    primaryAction: { share() },
+                    secondaryAction: { Task { await saveToLibrary() } }
+                )
+                .padding(.horizontal, Spacing.pagePad)
+                .padding(.top, Spacing.sm)
+                .padding(.bottom, Spacing.md)
+                .background(Color.milensBackground)
+            }
         }
-        .scrollIndicators(.hidden)
     }
 
-    // MARK: - 模板选择器
+    // MARK: - 模板选择器（WorkshopTemplateTab）
 
-    private var templateSelector: some View {
+    private var templateRail: some View {
         ScrollView(.horizontal, showsIndicators: false) {
-            HStack(spacing: Spacing.md) {
-                ForEach(PetCardTemplate.allTemplates) { template in
-                    templateChip(template)
+            HStack(spacing: Spacing.sm) {
+                ForEach(Array(PetCardTemplate.allTemplates.enumerated()), id: \.element.id) { index, template in
+                    WorkshopTemplateTab(
+                        index: String(format: "%02d", index + 1),
+                        label: template.displayName,
+                        state: templateState(template),
+                        action: {
+                            if template.isUsable(isPro: entitlement.isPro) {
+                                selectedTemplateRaw = template.rawValue
+                            } else {
+                                showTemplatePaywall = true
+                            }
+                        }
+                    )
                 }
             }
             .padding(.vertical, Spacing.xs)
         }
     }
 
-    private func templateChip(_ template: PetCardTemplate) -> some View {
-        let isSelected = selectedTemplate == template
-        let isUsable = template.isUsable(isPro: entitlement.isPro)
-        Button {
-            if isUsable {
-                selectedTemplateRaw = template.rawValue
-            } else {
-                showTemplatePaywall = true
-            }
-        } label: {
-            VStack(spacing: Spacing.xs) {
-                ZStack {
-                    RoundedRectangle(cornerRadius: Radius.small, style: .continuous)
-                        .fill(Color.milensGrouped)
-                        .frame(width: 56, height: 70)
-                    Image(systemName: template.previewIcon)
-                        .font(.system(size: 22))
-                        .foregroundStyle(Color.milensTextSecondary)
-                    if !isUsable {
-                        Image(systemName: "lock.fill")
-                            .font(.system(size: 14))
-                            .foregroundStyle(Color.milensActionPrimary)
-                    }
-                }
-                .overlay {
-                    RoundedRectangle(cornerRadius: Radius.small, style: .continuous)
-                        .stroke(isSelected ? Color.milensActionPrimary : Color.clear, lineWidth: 2)
-                }
-                Text(template.displayName)
-                    .font(.caption)
-                    .foregroundStyle(isSelected ? Color.milensActionPrimary : Color.milensTextSecondary)
-            }
-        }
-        .buttonStyle(.plain)
+    private func templateState(_ template: PetCardTemplate) -> WorkshopTemplateState {
+        if !template.isUsable(isPro: entitlement.isPro) { return .locked }
+        return selectedTemplate == template ? .selected : .default
     }
 
     // MARK: - 动作
@@ -236,12 +265,22 @@ struct PetCardView: View {
     private func share() {
         guard let rendered = renderCard(),
               let jpeg = rendered.jpegData(compressionQuality: 0.9) else { return }
+        let petName = photo?.pet?.name ?? ""
+        let filename = "MiLens_\(petName)_\(String(localized: "create.petCard.title")).jpg"
+        let spec = "\(PetCardLogic.exportSize.width) × \(PetCardLogic.exportSize.height) · JPEG · \(formatByteCount(jpeg.count))"
         do {
-            let url = try BeadExportService().writeShareCache(data: jpeg, filename: "pet_card_share.jpg")
-            sharePreview = (image: rendered, url: url)
+            let url = try BeadExportService().writeShareCache(data: jpeg, filename: filename)
+            sharePreview = (image: rendered, url: url, filename: filename, spec: spec)
         } catch {
             logger.error("share: 写入分享缓存失败（\(error.localizedDescription)）")
         }
+    }
+
+    /// 格式化字节数为可读字符串（KB/MB）。
+    private func formatByteCount(_ bytes: Int) -> String {
+        let formatter = ByteCountFormatter()
+        formatter.countStyle = .file
+        return formatter.string(fromByteCount: Int64(bytes))
     }
 
     // MARK: - 加载失败
@@ -278,6 +317,47 @@ struct PetCardView: View {
             content = PetCardLogic.content(pet: photo.pet, takenAt: photo.takenAt, kind: kind)
         } catch {
             logger.error("load: 读取照片失败（\(error.localizedDescription)）")
+        }
+    }
+}
+
+// MARK: - 注释编辑 Sheet（Figma 07A Annotation Editing）
+
+/// 一行注释的原位编辑 sheet（Display + Editing 统一草稿）。
+/// 36 个中文字符上限；空值回退到占位文案。
+/// PetCard / GrowthCompare 共用。
+struct AnnotationEditorSheet: View {
+    @Binding var annotation: String
+    let limit: Int
+    @Environment(\.dismiss) private var dismiss
+
+    var body: some View {
+        NavigationStack {
+            VStack(alignment: .leading, spacing: Spacing.md) {
+                Text(String(localized: "field.annotation.placeholder"))
+                    .font(.editorialMetadata)
+                    .foregroundStyle(Color.milensTextSecondary)
+                TextField(String(localized: "field.annotation.placeholder"), text: $annotation, axis: .horizontal)
+                    .font(.bodyPrimary)
+                    .textFieldStyle(.roundedBorder)
+                    .onChange(of: annotation) { _, newValue in
+                        if newValue.count > limit {
+                            annotation = String(newValue.prefix(limit))
+                        }
+                    }
+                Text("\(annotation.count)/\(limit)")
+                    .font(.caption)
+                    .foregroundStyle(Color.milensTextTertiary)
+                Spacer()
+            }
+            .padding(Spacing.lg)
+            .navigationTitle(String(localized: "field.annotation.label"))
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .confirmationAction) {
+                    Button(String(localized: "common.ok")) { dismiss() }
+                }
+            }
         }
     }
 }

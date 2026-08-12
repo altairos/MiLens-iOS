@@ -50,6 +50,14 @@ final class GalleryViewModel {
     /// Pro 权益状态（GalleryView 经 Environment 同步）。
     var isPro = false
 
+    // MARK: - 配额降级门控（ADR-0010 §10.1 扩展）
+
+    /// 被配额锁定的照片 ID 集合（免费版超额时，第 50 张之后的照片）。
+    /// 运行时计算，不入 SwiftData；photos / isPro 变更后重算。
+    private(set) var lockedPhotoIDs: Set<UUID> = []
+    /// Gallery 是否应显示「超额横幅」（降级后进入管理模式时展示）。
+    var showOverLimitBanner = false
+
     // MARK: - 多选
 
     var isMultiSelectMode = false
@@ -174,6 +182,7 @@ final class GalleryViewModel {
             pets = []
         }
         isLoading = false
+        recomputeLockedPhotoIDs()
     }
 
     func loadMore() {
@@ -186,6 +195,7 @@ final class GalleryViewModel {
         } catch {
             hasMorePhotos = false
         }
+        recomputeLockedPhotoIDs()
     }
 
     private var currentLoadedCount = 0
@@ -220,8 +230,34 @@ final class GalleryViewModel {
                 try await mediaLifecycle.deletePhoto(photo)
                 photos.removeAll { $0.id == id }
                 totalPhotoCount = max(0, totalPhotoCount - 1)
+                recomputeLockedPhotoIDs()
             } catch {
                 // 删除失败不从内存移除，等待用户重试。
+            }
+        }
+    }
+
+    /// 批量删除多选选中的照片（多选删除入口）。走媒体生命周期服务逐张联动删除。
+    func deleteSelected() {
+        let toDelete = photos.filter { selectedPhotoIDs.contains($0.id) }
+        guard !toDelete.isEmpty else { return }
+        let deleteIDs = selectedPhotoIDs
+        selectedPhotoIDs.removeAll()
+        Task {
+            do {
+                try await mediaLifecycle.deletePhotos(toDelete)
+                photos.removeAll { deleteIDs.contains($0.id) }
+                totalPhotoCount = max(0, totalPhotoCount - toDelete.count)
+                recomputeLockedPhotoIDs()
+                // 删除后若已无超额，隐藏横幅并退出多选
+                if QuotaGatingLogic.overLimitCount(
+                    photoCount: totalPhotoCount, isPro: isPro) == 0 {
+                    showOverLimitBanner = false
+                    isMultiSelectMode = false
+                }
+            } catch {
+                // 部分失败时恢复选中状态，让用户知道哪些未删除
+                selectedPhotoIDs = deleteIDs
             }
         }
     }
@@ -365,6 +401,34 @@ final class GalleryViewModel {
     func toggleMultiSelect() {
         isMultiSelectMode.toggle()
         if !isMultiSelectMode { selectedPhotoIDs.removeAll() }
+    }
+
+    /// 便捷查询：指定照片是否被配额锁定。
+    func isLocked(_ photoID: UUID) -> Bool {
+        lockedPhotoIDs.contains(photoID)
+    }
+
+    /// 重算锁定照片集合。在 photos / isPro / 删除变更后调用。
+    /// photos 已由 Repository 保证按 takenAt 倒序（最新在前），直接传入纯函数。
+    private func recomputeLockedPhotoIDs() {
+        lockedPhotoIDs = QuotaGatingLogic.lockedPhotoIDs(photos: photos, isPro: isPro)
+    }
+
+    /// Pro 状态变更时重算锁定集合（由 GalleryView.onChange(of: entitlement.isPro) 调用）。
+    func updateProStatus(_ isPro: Bool) {
+        self.isPro = isPro
+        recomputeLockedPhotoIDs()
+        if isPro {
+            showOverLimitBanner = false
+        }
+    }
+
+    /// 从设置页/降级 sheet 进入「存储管理」模式：激活多选 + 显示超额横幅。
+    func enterStorageManageMode() {
+        isMultiSelectMode = true
+        selectedPhotoIDs.removeAll()
+        showOverLimitBanner = QuotaGatingLogic.overLimitCount(
+            photoCount: totalPhotoCount, isPro: isPro) > 0
     }
 
     func toggleSelection(_ id: UUID) {

@@ -1073,19 +1073,19 @@ private struct AddMemorySheet: View {
             HStack {
                 Text(String(localized: "memory.saveToPet \(selectedPet?.name ?? "")"))
                     .font(.system(size: 15, weight: .bold))
-                    .foregroundStyle(Color(red: 0.945, green: 0.847, blue: 0.792)) // #F1D8CA ui-token:ok
+                    .foregroundStyle(Color.milensDarkroomText)
                 Spacer()
                 // 暗色拨盘圆
                 ZStack {
                     Circle()
-                        .fill(Color(red: 0.486, green: 0.247, blue: 0.188)) // #7C3F30 ui-token:ok
+                        .fill(Color.milensDialSurface)
                         .frame(width: 44, height: 44)
                     Circle()
-                        .stroke(Color(red: 0.945, green: 0.847, blue: 0.792), lineWidth: 1) // #F1D8CA ui-token:ok
+                        .stroke(Color.milensDarkroomText, lineWidth: 1)
                         .frame(width: 44, height: 44)
                     Image(systemName: "checkmark")
                         .font(.system(size: 18, weight: .bold))
-                        .foregroundStyle(Color(red: 0.945, green: 0.847, blue: 0.792)) // #F1D8CA ui-token:ok
+                        .foregroundStyle(Color.milensDarkroomText)
                 }
             }
             .padding(.leading, 24)

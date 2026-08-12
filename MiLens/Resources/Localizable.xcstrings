@@ -168,6 +168,17 @@
         }
       }
     },
+    "a11y.gallery.lockedPhoto" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "已锁定照片"
+          }
+        }
+      }
+    },
     "a11y.gallery.selected" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -2114,6 +2125,28 @@
         }
       }
     },
+    "photo.batch.delete" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "删除"
+          }
+        }
+      }
+    },
+    "photo.batch.delete.confirm %lld" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "删除选中的 %lld 张照片？"
+          }
+        }
+      }
+    },
     "photo.batch.selected %lld" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -2242,6 +2275,72 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "数据存储"
+          }
+        }
+      }
+    },
+    "quota.downgrade.banner" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "已超出免费版 50 张限额，删除多余照片或续费解锁"
+          }
+        }
+      }
+    },
+    "quota.locked.badge" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pro"
+          }
+        }
+      }
+    },
+    "quota.locked.sheet.body" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "免费版可查看最近 50 张照片，更早的已锁定。续费可恢复全部访问，或清理超额照片释放存储空间。"
+          }
+        }
+      }
+    },
+    "quota.locked.sheet.cta.manage" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "管理存储"
+          }
+        }
+      }
+    },
+    "quota.locked.sheet.cta.renew" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "续费恢复全部"
+          }
+        }
+      }
+    },
+    "quota.locked.sheet.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "部分照片已锁定"
           }
         }
       }
@@ -2924,6 +3023,28 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "支持与版本"
+          }
+        }
+      }
+    },
+    "settings.storage.count %lld %lld" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$lld/%2$lld 张"
+          }
+        }
+      }
+    },
+    "settings.storage.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "照片存储"
           }
         }
       }

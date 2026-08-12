@@ -14,6 +14,28 @@ extension Color {
     static let milensStudioBackground = Color(red: 0.085, green: 0.070, blue: 0.062)
     static let milensStudioSurface = Color(red: 0.135, green: 0.115, blue: 0.100)
 
+    // MARK: - Darkroom 暗房专用色（Focus Dial / Processing / Paywall Seal）
+    //  仅用于暗房强暗色底面上的叠层文字、拨盘、徽章与印章。
+
+    /// 暗房上的浅暖文字色（#F1D8CA）—— Focus Dial 文字、暗房 Badge 文字。
+    static let milensDarkroomText = Color(red: 0.945, green: 0.847, blue: 0.792)
+    /// Focus Dial 拨盘圆底色（#7C3F30）—— 加入记忆/购买印章内拨盘。
+    static let milensDialSurface = Color(red: 0.486, green: 0.247, blue: 0.188)
+    /// 暗房 Phase Badge 底色（#1D1815）—— 生成进度徽章暗底。
+    static let milensDarkroomBadge = Color(red: 0.114, green: 0.094, blue: 0.082)
+    /// 暗房描边色（#383129）—— 暗房画布描边。
+    static let milensDarkroomBorder = Color(red: 0.22, green: 0.19, blue: 0.16)
+    /// 购买印章拨盘底（#2A201C）—— Paywall 购买按钮内印章。
+    static let milensSealSurface = Color(red: 0.165, green: 0.125, blue: 0.110)
+    /// Paywall 副标题暖灰（#D4CBC4）—— Paywall Hero 副文。
+    static let milensPaywallSubtitle = Color(red: 0.83, green: 0.80, blue: 0.77)
+    /// 品牌珊瑚发光色（#E8845F）—— 扫描线发光 / 按钮发光。
+    static let milensCopperGlow = Color(red: 0.91, green: 0.52, blue: 0.37)
+    /// Paywall Hero 渐变起点（#0D0A09 近似）—— Pro 卡片暗色渐变。
+    static let milensPaywallGradientStart = Color(red: 0.05, green: 0.04, blue: 0.035)
+    /// Paywall Hero 渐变终点（#050403 近似）—— Pro 卡片暗色渐变。
+    static let milensPaywallGradientEnd = Color(red: 0.02, green: 0.015, blue: 0.012)
+
     // MARK: - Surface 表面
 
     /// 页面背景（浅：暖白 #FAF8F5 / 深：暖黑 #161311）

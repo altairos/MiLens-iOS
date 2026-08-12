@@ -57,6 +57,21 @@ enum ReadingWidth {
     static let form: CGFloat = 620
 }
 
+/// iPad 分栏列宽 token（对照 Figma 306:669 Adaptive Layout · iPad）。
+/// regular 水平 size class（iPad 竖屏 / 大尺寸横屏）下启用双栏布局。
+enum AdaptiveColumn {
+    /// 伙伴档案：左肖像列（对照 #307:672 Portrait Column）
+    static let archivePortrait: CGFloat = 376
+    /// 伙伴档案：右档案列（对照 #307:673 Archive Column）
+    static let archivePanel: CGFloat = 390
+    /// 拼豆：源工作区/画布列（对照 #310:849 Source Workspace）
+    static let studioSource: CGFloat = 408
+    /// 拼豆：参数/导出检查器列（对照 #310:850 Parameter Inspector）
+    static let studioInspector: CGFloat = 354
+    /// 分栏间距（对照 Figma gap: 24px）
+    static let splitGap: CGFloat = 24
+}
+
 /// 动效时长 token（UI-DESIGN.md §4）
 enum Motion {
     /// 即时反馈：点击态、chip 切换
@@ -127,5 +142,19 @@ private struct ModalContentWidthModifier: ViewModifier {
         } else {
             content
         }
+    }
+}
+
+/// 判断当前是否处于 regular 水平 size class（iPad 竖屏 / 大尺寸横屏）。
+/// 用于双栏分栏布局的门控条件（UI-DESIGN.md §5.1）。
+struct AdaptiveLayoutKey: EnvironmentKey {
+    static let defaultValue: Bool = false
+}
+
+extension EnvironmentValues {
+    /// 是否处于 regular 水平 size class。在根视图设置一次，子视图读取。
+    var isRegularWidth: Bool {
+        get { self[AdaptiveLayoutKey.self] }
+        set { self[AdaptiveLayoutKey.self] = newValue }
     }
 }

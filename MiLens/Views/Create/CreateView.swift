@@ -144,7 +144,7 @@ struct CreateView: View {
                         .foregroundStyle(.white)
                     Text(String(localized: "create.subheadline"))
                         .font(.system(size: 12))
-                        .foregroundStyle(Color(red: 0.83, green: 0.80, blue: 0.77)) // #D4CBC4 ui-token:ok
+                        .foregroundStyle(Color.milensPaywallSubtitle)
                 }
                 Spacer()
                 // 打开按钮（42pt 珊瑚圆）
@@ -264,7 +264,7 @@ struct CreateView: View {
                         .foregroundStyle(.white)
                     Text(desc)
                         .font(.system(size: 12))
-                        .foregroundStyle(Color(red: 0.83, green: 0.80, blue: 0.77)) // #D4CBC4 ui-token:ok
+                        .foregroundStyle(Color.milensPaywallSubtitle)
                         .fixedSize(horizontal: false, vertical: true)
                 }
                 Spacer()

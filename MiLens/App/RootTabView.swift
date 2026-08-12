@@ -9,9 +9,14 @@ import SwiftUI
 struct RootTabView: View {
     @AppStorage("selectedTab") private var selectedTabRaw: Int = AppTab.home.rawValue
     @AppStorage("reminderNotificationsEnabled") private var remindersEnabled = false
+    /// 上次已知 Pro 状态（用于识别冷启动/前台降级：lastKnownIsPro && !currentIsPro）。
+    @AppStorage("lastKnownIsPro") private var lastKnownIsPro = false
+    /// 当前降级周期是否已弹提示（防重复打扰；续费后重置）。
+    @AppStorage("quotaDowngradePromptPending") private var quotaDowngradePromptPending = false
     @Environment(\.scenePhase) private var scenePhase
     @Environment(\.notifyService) private var notifyService
     @Environment(\.proEntitlement) private var entitlement
+    @Environment(\.photoRepository) private var photoRepo
 
     /// Widget 深链回调路由：外部绑定，新值到达时触发导航。
     @Binding var pendingWidgetRoute: Route?
@@ -22,6 +27,12 @@ struct RootTabView: View {
 
     /// 首页 Tab 的导航路径（Widget 深链统一从首页 push）。
     @State private var homePath = NavigationPath()
+    /// 降级提示 sheet
+    @State private var showDowngradeSheet = false
+    /// 付费墙 sheet（跨视图通知 .presentPaywallRequested 触发）
+    @State private var showPaywall = false
+    /// 跨 Tab 请求进入 Gallery 存储管理模式（与 SettingsView/GalleryView 共享）
+    @AppStorage("storageManageRequested") private var storageManageRequested = false
 
     var body: some View {
         TabView(selection: selectedTab) {
@@ -50,10 +61,30 @@ struct RootTabView: View {
         .onChange(of: pendingWidgetRoute) { _, newRoute in
             handleWidgetRoute(newRoute)
         }
+        .onChange(of: entitlement.isPro) { _, isPro in
+            evaluateDowngradePrompt(currentIsPro: isPro)
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .presentPaywallRequested)) { _ in
+            showPaywall = true
+        }
+        .onChange(of: storageManageRequested) { _, requested in
+            if requested {
+                selectedTabRaw = AppTab.home.rawValue
+                homePath.append(Route.gallery)
+            }
+        }
         .task {
             // 启动权益校准：显式查询 currentProStatus（Transaction.updates 冷启动不保证推送），
             // 保证首次进入任何 Tab（含创作门控与拼豆路由）前权益已恢复真实状态。
             await entitlement.refresh()
+            // 冷启动降级检测（App 非活跃期订阅过期后首次启动）
+            evaluateDowngradePrompt(currentIsPro: entitlement.isPro)
+        }
+        .sheet(isPresented: $showDowngradeSheet) {
+            QuotaDowngradeSheet(showManageCTA: true)
+        }
+        .sheet(isPresented: $showPaywall) {
+            NavigationStack { PaywallView() }
         }
     }
 
@@ -125,6 +156,29 @@ struct RootTabView: View {
         @unknown default:
             break
         }
+    }
+
+    // MARK: - 配额降级检测
+
+    /// 评估是否需要弹出降级提示。在启动 refresh 后和 isPro 变更时调用。
+    private func evaluateDowngradePrompt(currentIsPro: Bool) {
+        let photoCount = (try? photoRepo.countAllPhotos()) ?? 0
+        let shouldPrompt = QuotaGatingLogic.shouldPromptDowngrade(
+            lastKnownIsPro: lastKnownIsPro,
+            currentIsPro: currentIsPro,
+            photoCount: photoCount,
+            promptPending: quotaDowngradePromptPending
+        )
+        if shouldPrompt {
+            quotaDowngradePromptPending = true
+            showDowngradeSheet = true
+        }
+        // 续费后重置提示标记，为下一次降级周期准备
+        if QuotaGatingLogic.promptShouldReset(isPro: currentIsPro) {
+            quotaDowngradePromptPending = false
+        }
+        // 更新已知状态
+        lastKnownIsPro = currentIsPro
     }
 }
 

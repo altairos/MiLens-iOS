@@ -47,13 +47,8 @@ struct BeadSettingsPanelView: View {
     var body: some View {
         ScrollView {
             VStack(spacing: 14) {
-                identityStrip
-                effectSection
-                sizeSection
-                currentRecipe
-                advancedSection
-                generateButton
-                footerHint
+                sourceContent
+                inspectorContent
             }
             .padding(.horizontal, 18)
             .padding(.bottom, Spacing.xxl)
@@ -62,6 +57,25 @@ struct BeadSettingsPanelView: View {
         .background(Color.milensBackground)
         .animation(reduceMotion ? nil : .spring(duration: Motion.durationFast, bounce: 0.2), value: vm.settings)
         .animation(reduceMotion ? nil : .spring(duration: Motion.durationFast, bounce: 0.2), value: vm.showAdvancedSettings)
+    }
+
+    // MARK: - 可复用子区块（供 iPhone 全量与 iPad 分栏复用）
+
+    /// 源上下文区块：Identity Strip + Effect Proof 卡片。
+    /// iPad 左列（Source Workspace）使用。
+    @ViewBuilder var sourceContent: some View {
+        identityStrip
+        effectSection
+    }
+
+    /// 参数检查器区块：尺寸 + 配方 + 高级设置 + 生成按钮。
+    /// iPad 右列（Parameter Inspector）使用。
+    @ViewBuilder var inspectorContent: some View {
+        sizeSection
+        currentRecipe
+        advancedSection
+        generateButton
+        footerHint
     }
 
     // MARK: - Identity Strip/Source（对照 #301:888）

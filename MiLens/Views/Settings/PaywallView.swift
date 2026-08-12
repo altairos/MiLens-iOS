@@ -91,8 +91,8 @@ struct PaywallView: View {
             // 暗色渐变底（纯色兜底，不依赖具体照片资源）
             LinearGradient(
                 colors: [
-                    Color(red: 0.05, green: 0.04, blue: 0.035).opacity(0.85),  // ui-token:ok
-                    Color(red: 0.02, green: 0.015, blue: 0.012).opacity(0.95)   // ui-token:ok
+                    Color.milensPaywallGradientStart.opacity(0.85),
+                    Color.milensPaywallGradientEnd.opacity(0.95)
                 ],
                 startPoint: .top,
                 endPoint: .bottom
@@ -113,7 +113,7 @@ struct PaywallView: View {
 
                 Text(String(localized: "paywall.hero.subtitle"))
                     .font(.system(size: 12))
-                    .foregroundStyle(Color(red: 0.83, green: 0.80, blue: 0.77)) // #D4CBC4 ui-token:ok
+                    .foregroundStyle(Color.milensPaywallSubtitle)
                     .padding(.top, Spacing.lg)
 
                 Spacer()
@@ -328,19 +328,19 @@ struct PaywallView: View {
                 HStack {
                     Text(ctaTitle(for: model))
                         .font(.system(size: 15, weight: .bold))
-                        .foregroundStyle(Color(red: 0.945, green: 0.847, blue: 0.792)) // #F1D8CA ui-token:ok
+                        .foregroundStyle(Color.milensDarkroomText)
                     Spacer()
                     // 箭头印章（对照 Purchase Seal #328:693）
                     ZStack {
                         Circle()
-                            .fill(Color(red: 0.165, green: 0.125, blue: 0.110)) // #2A201C ui-token:ok
+                            .fill(Color.milensSealSurface)
                             .frame(width: 36, height: 36)
                         Circle()
                             .stroke(Color.milensActionPrimary, lineWidth: 2)
                             .frame(width: 36, height: 36)
                         Image(systemName: "arrow.right")
                             .font(.system(size: 14, weight: .medium))
-                            .foregroundStyle(Color(red: 0.945, green: 0.847, blue: 0.792)) // #F1D8CA ui-token:ok
+                            .foregroundStyle(Color.milensDarkroomText)
                     }
                 }
                 .padding(.leading, 24)

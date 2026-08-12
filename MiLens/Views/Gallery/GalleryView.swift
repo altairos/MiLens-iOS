@@ -16,6 +16,12 @@ struct GalleryView: View {
     @State private var isManageMode = false
     /// 手动归属 sheet 的照片列表（非空=显示 sheet；单张=contextMenu，多张=批量）
     @State private var assignmentPhotos: [Photo] = []
+    /// 锁定照片点击时展示的提示 sheet（提供「续费 / 去清理」）。
+    @State private var showLockedPhotoSheet = false
+    /// 批量删除确认弹窗
+    @State private var showBatchDeleteConfirm = false
+    /// 从设置页/降级 sheet 跳转来的「存储管理」请求标志。
+    @AppStorage("storageManageRequested") private var storageManageRequested = false
     @Namespace private var photoHeroNamespace
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
@@ -38,15 +44,41 @@ struct GalleryView: View {
                 vm.loadInitial()
                 viewModel = vm
             }
+            // 从设置页/降级 sheet 跳转来：进入存储管理模式
+            if storageManageRequested {
+                storageManageRequested = false
+                viewModel?.enterStorageManageMode()
+                isManageMode = true
+            }
         }
         .onChange(of: entitlement.isPro) { _, isPro in
-            viewModel?.isPro = isPro
+            viewModel?.updateProStatus(isPro)
+        }
+        .onChange(of: storageManageRequested) { _, requested in
+            if requested {
+                storageManageRequested = false
+                viewModel?.enterStorageManageMode()
+                isManageMode = true
+            }
         }
         .sheet(isPresented: Binding(
             get: { viewModel?.showQuotaPaywall ?? false },
             set: { viewModel?.showQuotaPaywall = $0 }
         )) {
             NavigationStack { PaywallView() }
+        }
+        .sheet(isPresented: $showLockedPhotoSheet) {
+            QuotaDowngradeSheet()
+        }
+        .alert(String(format: String(localized: "photo.batch.delete.confirm %lld"),
+                      viewModel?.selectedPhotoIDs.count ?? 0),
+               isPresented: $showBatchDeleteConfirm) {
+            Button("删除", role: .destructive) {
+                viewModel?.deleteSelected()
+            }
+            Button("取消", role: .cancel) {}
+        } message: {
+            Text("只会从咪Lens 的整理记录中移除，不会删除系统相册原图。")
         }
         .navigationTitle("")
         .toolbar(.hidden, for: .navigationBar)
@@ -72,6 +104,9 @@ struct GalleryView: View {
                     selectedCount: vm.selectedPhotoIDs.count,
                     onAssign: {
                         assignmentPhotos = vm.photos.filter { vm.selectedPhotoIDs.contains($0.id) }
+                    },
+                    onDelete: {
+                        showBatchDeleteConfirm = true
                     }
                 )
             }
@@ -170,6 +205,7 @@ struct GalleryView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: Spacing.xl) {
                 galleryHeader(vm)
+                overLimitBanner(vm)
                 filterChips(vm)
                 let visiblePhotos = vm.filteredPhotos
                 let photoByID = Dictionary(uniqueKeysWithValues: vm.photos.map { ($0.id, $0) })
@@ -220,7 +256,7 @@ struct GalleryView: View {
             Text("照片")
                 .font(.custom("LXGWWenKai-Regular", size: 24, relativeTo: .largeTitle))
                 .foregroundStyle(Color.milensTextPrimary)
-            Text("\(vm.photos.count) 张")
+            Text("\(vm.totalPhotoCount) 张")
                 .font(.system(size: 11))
                 .foregroundStyle(Color.milensTextSecondary)
                 .padding(.bottom, 2)
@@ -243,6 +279,27 @@ struct GalleryView: View {
         }
         .padding(.horizontal, Spacing.pagePad)
         .padding(.top, Spacing.lg)
+    }
+
+    /// 超额横幅：进入存储管理模式时显示，引导用户删除多余照片或续费。
+    @ViewBuilder
+    private func overLimitBanner(_ vm: GalleryViewModel) -> some View {
+        if vm.showOverLimitBanner {
+            HStack(spacing: Spacing.sm) {
+                Image(systemName: "lock.fill")
+                    .font(.system(size: Sizing.iconSm))
+                    .foregroundStyle(Color.milensActionPrimary)
+                Text(String(localized: "quota.downgrade.banner"))
+                    .font(.caption)
+                    .foregroundStyle(Color.milensTextSecondary)
+                Spacer()
+            }
+            .padding(.horizontal, Spacing.md)
+            .padding(.vertical, Spacing.sm)
+            .background(Color.milensAccentWash)
+            .padding(.horizontal, Spacing.pagePad)
+            .padding(.top, Spacing.sm)
+        }
     }
 
     @ViewBuilder
@@ -280,8 +337,10 @@ struct GalleryView: View {
 
     @ViewBuilder
     private func photoCell(photo: Photo, vm: GalleryViewModel) -> some View {
+        let isLocked = vm.isLocked(photo.id)
         Group {
             if vm.isMultiSelectMode {
+                // 多选模式：锁定照片可正常选中删除（不显示蒙层）
                 Button {
                     vm.toggleSelection(photo.id)
                 } label: {
@@ -289,6 +348,22 @@ struct GalleryView: View {
                                        isSelected: vm.selectedPhotoIDs.contains(photo.id))
                 }
                 .buttonStyle(.plain)
+            } else if isLocked {
+                // 非多选 + 锁定：显示锁标蒙层，点击弹提示（不进大图）
+                Button {
+                    showLockedPhotoSheet = true
+                } label: {
+                    LockedPhotoThumbnailCell(photo: photo)
+                }
+                .buttonStyle(.plain)
+                .contextMenu {
+                    // 锁定照片可删除，移除「创作」等需解锁的操作
+                    Button(role: .destructive) {
+                        pendingDeleteID = photo.id
+                    } label: {
+                        Label("从咪Lens 移除", systemImage: "trash")
+                    }
+                }
             } else {
                 NavigationLink {
                     PhotoViewView(
@@ -424,6 +499,51 @@ private struct PhotoThumbnailCell: View {
     }
 }
 
+// MARK: - 锁定照片缩略图单元格
+
+/// 配额锁定照片的缩略图：半透明蒙层 + 居中锁标 + 角标「Pro」。
+/// 可见但不可进大图，点击弹提示（续费 / 去清理）。
+private struct LockedPhotoThumbnailCell: View {
+    let photo: Photo
+
+    var body: some View {
+        ZStack {
+            ThumbnailImage(path: photo.thumbnailPath.isEmpty ? photo.uri : photo.thumbnailPath)
+                .aspectRatio(1, contentMode: .fill)
+                .clipped()
+                .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+
+            // 半透明蒙层
+            RoundedRectangle(cornerRadius: 8, style: .continuous)
+                .fill(Color.black.opacity(0.35))
+
+            // 居中锁标
+            Image(systemName: "lock.fill")
+                .font(.system(size: 18, weight: .medium))
+                .foregroundStyle(.white)
+
+            // 右上角 Pro 角标
+            VStack {
+                HStack {
+                    Spacer()
+                    Text(String(localized: "quota.locked.badge"))
+                        .font(.system(size: 9, weight: .bold))
+                        .foregroundStyle(.white)
+                        .padding(.horizontal, 6)
+                        .padding(.vertical, 3)
+                        .background(Color.milensActionPrimary)
+                        .clipShape(Capsule())
+                        .padding(5)
+                }
+                Spacer()
+            }
+        }
+        .aspectRatio(1, contentMode: .fit)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(String(localized: "a11y.gallery.lockedPhoto"))
+    }
+}
+
 // MARK: - 缩略图加载（本地文件）
 
 struct ThumbnailImage: View {
@@ -524,6 +644,7 @@ private struct ScanCompleteSheet: View {
 private struct GalleryBatchBar: View {
     let selectedCount: Int
     let onAssign: () -> Void
+    let onDelete: () -> Void
 
     var body: some View {
         HStack(spacing: Spacing.md) {
@@ -537,6 +658,14 @@ private struct GalleryBatchBar: View {
             }
             .buttonStyle(.borderedProminent)
             .tint(Color.milensActionPrimary)
+            .disabled(selectedCount == 0)
+
+            Button(action: onDelete) {
+                Label(String(localized: "photo.batch.delete"), systemImage: "trash")
+                    .font(.bodySecondary.weight(.semibold))
+            }
+            .buttonStyle(.borderedProminent)
+            .tint(Color.red)
             .disabled(selectedCount == 0)
         }
         .padding(.horizontal, Spacing.pagePad)

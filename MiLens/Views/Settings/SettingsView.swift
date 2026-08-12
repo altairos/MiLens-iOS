@@ -11,16 +11,21 @@ struct SettingsView: View {
     @AppStorage("reminderNotificationsEnabled") private var remindersEnabled = false
     @AppStorage("appearanceMode") private var appearanceRaw = AppearanceMode.system.rawValue
     @AppStorage("photoBackupMode") private var photoBackupModeRaw = PhotoBackupMode.cloudOptimized.rawValue
+    /// 跨 Tab 请求进入 Gallery 存储管理模式（与 RootTabView/GalleryView 共享）
+    @AppStorage("storageManageRequested") private var storageManageRequested = false
     @Environment(\.notifyService) private var notifyService
     @Environment(\.proEntitlement) private var entitlement
     @Environment(\.backupService) private var backupService
     @Environment(\.fileStorage) private var fileStorage
+    @Environment(\.photoRepository) private var photoRepo
     @Environment(\.openURL) private var openURL
 
     @State private var viewModel: SettingsViewModel?
     @State private var showPaywall = false
     @State private var backupVM: BackupViewModel?
     @State private var showRestoreImporter = false
+    /// 照片总数（onAppear / scenePhase active 时刷新）
+    @State private var photoCount = 0
 
     /// `.milensbackup` 文件类型（project.yml UTExportedTypeDeclarations 声明为本 App 导出类型）。
     private var milensBackupType: UTType { UTType(exportedAs: "com.milens.backup") }
@@ -48,6 +53,7 @@ struct SettingsView: View {
             if backupVM == nil {
                 backupVM = BackupViewModel(backupService: backupService)
             }
+            photoCount = (try? photoRepo.countAllPhotos()) ?? 0
         }
         .task {
             await entitlement.refresh()
@@ -256,6 +262,15 @@ struct SettingsView: View {
                 PrivacyBadgeCard()
             }
             .buttonStyle(.plain)
+
+            // 照片存储管理入口（免费用户超额时珊瑚色高亮提示）
+            Button {
+                storageManageRequested = true
+            } label: {
+                storageEntryRow
+            }
+            .buttonStyle(.plain)
+            .padding(.top, Spacing.lg)
 
             // 备份/政策行（无编号，置于 LedgerSection 内保持 rail 视觉一致）
             LedgerSection {
@@ -488,6 +503,35 @@ struct SettingsView: View {
         case .light: return String(localized: "settings.appearance.light")
         case .dark: return String(localized: "settings.appearance.dark")
         }
+    }
+
+    // MARK: - 照片存储入口行
+
+    /// 照片存储行：图标 + 标题 + 计数（超额时珊瑚色高亮）。
+    /// 点击跳转 Gallery 存储管理模式（设置 storageManageRequested，GalleryView 监听）。
+    private var storageEntryRow: some View {
+        let limit = CommercialRules.photoLimit(isPro: entitlement.isPro)
+        let isOverLimit = !entitlement.isPro && photoCount > limit
+        return HStack(spacing: Spacing.md) {
+            Image(systemName: "photo.stack")
+                .font(.system(size: Sizing.iconMd))
+                .foregroundStyle(isOverLimit ? Color.milensActionPrimary : Color.milensTextSecondary)
+                .frame(width: 32)
+            Text(String(localized: "settings.storage.title"))
+                .font(.bodyPrimary)
+                .foregroundStyle(Color.milensTextPrimary)
+            Spacer()
+            Text(String(format: String(localized: "settings.storage.count %lld %lld"),
+                         photoCount, limit == Int.max ? 9999 : limit))
+                .font(.system(size: 13))
+                .foregroundStyle(isOverLimit ? Color.milensActionPrimary : Color.milensTextSecondary)
+            Image(systemName: "chevron.right")
+                .font(.system(size: 11, weight: .semibold))
+                .foregroundStyle(Color.milensTextTertiary)
+        }
+        .frame(minHeight: Sizing.touchTarget)
+        .padding(.horizontal, 6)
+        .contentShape(Rectangle())
     }
 
     // MARK: - 备份状态文案辅助

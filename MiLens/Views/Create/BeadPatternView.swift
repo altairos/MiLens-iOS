@@ -15,6 +15,10 @@ struct BeadPatternView: View {
     @Environment(\.proEntitlement) private var entitlement
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.horizontalSizeClass) private var hSizeClass
+
+    /// 是否处于 regular 宽度（iPad 竖屏 / 大尺寸横屏），启用双栏分栏。
+    private var isRegularWidth: Bool { hSizeClass == .regular }
 
     @State private var vm: BeadViewModel?
     @State private var showOriginalImage = false
@@ -67,17 +71,12 @@ struct BeadPatternView: View {
     // MARK: - 工作室布局（上预览 / 下参数）
 
     private func studio(_ vm: BeadViewModel) -> some View {
-        VStack(spacing: 0) {
-            studioHeader(vm)
-            previewArea(vm)
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-            Rectangle()
-                .fill(Color.milensBorder)
-                .frame(height: 0.5)
-            BeadSettingsPanelView(vm: vm) {
-                showExport = true
+        Group {
+            if isRegularWidth {
+                studioIPad(vm)
+            } else {
+                studioCompact(vm)
             }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
         .overlay(alignment: .bottom) {
             if let message = vm.toastMessage {
@@ -88,7 +87,7 @@ struct BeadPatternView: View {
                     .padding(.vertical, 10)
                     .background(Color.black.opacity(0.75))
                     .clipShape(Capsule())
-                    .padding(.bottom, 60)
+                    .padding(.bottom, isRegularWidth ? 20 : 60)
             }
         }
         // 参数变化实时重渲染：仅在已有图纸后自动再生成（首次生成由「生成拼豆图纸」按钮显式触发，
@@ -104,6 +103,75 @@ struct BeadPatternView: View {
         }
         .sensoryFeedback(.success, trigger: vm.phase) { _, new in
             new == .success
+        }
+    }
+
+    // MARK: - iPhone 紧凑布局（上预览 / 下参数）
+
+    private func studioCompact(_ vm: BeadViewModel) -> some View {
+        VStack(spacing: 0) {
+            studioHeader(vm)
+            previewArea(vm)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+            Rectangle()
+                .fill(Color.milensBorder)
+                .frame(height: 0.5)
+            BeadSettingsPanelView(vm: vm) {
+                showExport = true
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+        }
+    }
+
+    // MARK: - iPad 双栏分栏（对照 Figma #310:841 Adaptive Workspace）
+
+    /// 左列（Source Workspace，408pt）：源上下文 + 预览区；
+    /// 右列（Parameter Inspector，354pt）：参数检查器。中间 24pt 间距。
+    private func studioIPad(_ vm: BeadViewModel) -> some View {
+        let settingsPanel = BeadSettingsPanelView(vm: vm) {
+            showExport = true
+        }
+        return VStack(spacing: 0) {
+            studioHeader(vm)
+            HStack(spacing: AdaptiveColumn.splitGap) {
+                // 左列：源上下文 + 预览区
+                ScrollView {
+                    VStack(spacing: 16) {
+                        settingsPanel.sourceContent
+                                                   .frame(maxWidth: .infinity)
+                        previewArea(vm)
+                                                       .frame(minHeight: 400)
+                    }
+                    .padding(.horizontal, 16)
+                    .padding(.bottom, Spacing.xxl)
+                }
+                .frame(width: AdaptiveColumn.studioSource)
+                .scrollIndicators(.hidden)
+
+                // 右列：参数检查器
+                ScrollView {
+                    VStack(spacing: 16) {
+                        // 参数标题（对照 #310:924-925）
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text("PATTERN PARAMETERS")
+                                .font(.custom("Jacques Francois", size: 10))
+                                .tracking(0.4)
+                                .foregroundStyle(Color.milensActionPrimary)
+                            Text("图纸参数")
+                                .font(.custom("LXGWWenKai-Regular", size: 26))
+                                .foregroundStyle(Color.milensTextPrimary)
+                        }
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(.top, 8)
+
+                        settingsPanel.inspectorContent
+                    }
+                    .padding(.bottom, Spacing.xxl)
+                }
+                .frame(width: AdaptiveColumn.studioInspector)
+                .scrollIndicators(.hidden)
+            }
+            .padding(.horizontal, Spacing.xxl)
         }
     }
 
@@ -251,7 +319,7 @@ struct BeadPatternView: View {
                 .fill(Color.milensInk)
                 .overlay(
                     RoundedRectangle(cornerRadius: 20, style: .continuous)
-                        .stroke(Color(red: 0.22, green: 0.19, blue: 0.16), lineWidth: 1) // #383129 ui-token:ok
+                        .stroke(Color.milensDarkroomBorder, lineWidth: 1)
                 )
 
             // 来源照片底（半透明）
@@ -282,11 +350,11 @@ struct BeadPatternView: View {
                         .frame(width: 8, height: 8)
                     Text(beadPhaseTitle(vm.phase))
                         .font(.system(size: 11, weight: .medium))
-                        .foregroundStyle(Color(red: 0.945, green: 0.847, blue: 0.792)) // #F1D8CA ui-token:ok
+                        .foregroundStyle(Color.milensDarkroomText)
                 }
                 .padding(.horizontal, 16)
                 .padding(.vertical, 9)
-                .background(Color(red: 0.114, green: 0.094, blue: 0.082)) // #1D1815 ui-token:ok
+                .background(Color.milensDarkroomBadge)
                 .overlay(
                     RoundedRectangle(cornerRadius: 10, style: .continuous)
                         .stroke(Color.milensActionPrimary, lineWidth: 1)
@@ -340,7 +408,7 @@ struct BeadPatternView: View {
             Rectangle()
                 .fill(Color.milensActionPrimary)
                 .frame(width: geo.size.width - 148, height: 2)
-                .shadow(color: Color(red: 0.91, green: 0.52, blue: 0.37), radius: 4) // #E8845F glow ui-token:ok
+                .shadow(color: Color.milensCopperGlow, radius: 4)
                 .opacity(0.95)
                 .clipShape(RoundedRectangle(cornerRadius: 1))
                 .offset(x: 74, y: scanLineOffset)

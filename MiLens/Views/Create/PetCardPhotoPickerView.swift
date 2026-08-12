@@ -1,6 +1,6 @@
 //  PetCardPhotoPickerView —— 宠物卡片的选照片页（CreateView 宠物卡片入口进入）。
-//  照片网格沿用 BeadPhotoPickerView 模式；已归属宠物的照片显示宠物名角标，
-//  点击照片进入卡片生成（PetCardView）。
+//  对照 Workshop 编辑式导航头 + 编辑式网格（统一风格）。
+//  已归属宠物的照片显示宠物名角标，点击照片进入卡片生成（PetCardView）。
 
 import SwiftUI
 import os
@@ -9,17 +9,18 @@ private let logger = Logger(subsystem: "com.milens.app", category: "PetCard")
 
 struct PetCardPhotoPickerView: View {
     @Environment(\.viewModelFactory) private var factory
+    @Environment(\.dismiss) private var dismiss
 
     @State private var photos: [Photo] = []
     @State private var isLoading = true
 
-    private let columns = [GridItem(.adaptive(minimum: 100), spacing: 2)]
+    private let columns = [GridItem(.adaptive(minimum: 108), spacing: 9)]
 
     var body: some View {
         Group {
             if isLoading {
                 ProgressView()
-                    .tint(Color.milensPrimary)
+                    .tint(Color.milensActionPrimary)
             } else if photos.isEmpty {
                 emptyState
             } else {
@@ -27,57 +28,68 @@ struct PetCardPhotoPickerView: View {
             }
         }
         .background(Color.milensBackground)
-        .navigationTitle("选择照片")
-        .navigationBarTitleDisplayMode(.inline)
+        .toolbar(.hidden, for: .navigationBar)
         .task { await loadPhotos() }
     }
 
     // MARK: - 空态
 
     private var emptyState: some View {
-        ContentUnavailableView(
-            "还没有照片",
-            systemImage: "photo.on.rectangle.angled",
-            description: Text("先到相册导入照片，再回来生成宠物卡片")
-        )
+        VStack(spacing: 0) {
+            WorkshopNavHeader(title: String(localized: "picker.petCard.title")) { dismiss() }
+            ContentUnavailableView(
+                String(localized: "picker.petCard.empty"),
+                systemImage: "photo.on.rectangle.angled",
+                description: Text(String(localized: "picker.petCard.emptyDesc"))
+            )
+        }
     }
 
     // MARK: - 照片网格
 
     private var photoGrid: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: Spacing.sm) {
-                Text(String(localized: "create.petCard.selectPhoto"))
-                    .font(.bodySecondary)
-                    .foregroundStyle(Color.milensTextPrimary)
-                    .padding(.horizontal, Spacing.lg)
-                    .padding(.top, Spacing.xs)
-                LazyVGrid(columns: columns, spacing: 2) {
-                    ForEach(photos) { photo in
-                        NavigationLink(value: Route.petCard(photoID: photo.id)) {
-                            ThumbnailImage(path: photo.thumbnailPath.isEmpty ? photo.uri : photo.thumbnailPath)
-                                .aspectRatio(1, contentMode: .fill)
-                                .clipped()
-                                .clipShape(RoundedRectangle(cornerRadius: 4))
-                                .overlay(alignment: .bottomLeading) {
-                                    if let pet = photo.pet, !pet.name.isEmpty {
-                                        Text(pet.name)
-                                            .font(.caption.weight(.medium))
-                                            .foregroundStyle(.white)
-                                            .padding(.horizontal, Spacing.sm)
-                                            .padding(.vertical, Spacing.xs)
-                                            .background(.black.opacity(0.55))
-                                            .clipShape(Capsule())
-                                            .padding(Spacing.xs)
+        VStack(spacing: 0) {
+            WorkshopNavHeader(title: String(localized: "picker.petCard.title")) { dismiss() }
+
+            ScrollView {
+                VStack(alignment: .leading, spacing: 0) {
+                    Text(String(localized: "picker.petCard.fromArchive"))
+                        .font(.uiBodyStrong)
+                        .foregroundStyle(Color.milensTextPrimary)
+                        .padding(.horizontal, Spacing.pagePad)
+                        .padding(.top, Spacing.md)
+
+                    LazyVGrid(columns: columns, spacing: 9) {
+                        ForEach(photos) { photo in
+                            NavigationLink(value: Route.petCard(photoID: photo.id)) {
+                                ThumbnailImage(path: photo.thumbnailPath.isEmpty ? photo.uri : photo.thumbnailPath)
+                                    .aspectRatio(108.0 / 100.0, contentMode: .fill)
+                                    .frame(width: 108, height: 100)
+                                    .clipped()
+                                    .clipShape(RoundedRectangle(cornerRadius: 4, style: .continuous))
+                                    .overlay(alignment: .bottomLeading) {
+                                        if let pet = photo.pet, !pet.name.isEmpty {
+                                            Text(pet.name)
+                                                .font(.caption.weight(.medium))
+                                                .foregroundStyle(.white)
+                                                .padding(.horizontal, Spacing.xs)
+                                                .padding(.vertical, 2)
+                                                .background(.black.opacity(0.55))
+                                                .clipShape(Capsule())
+                                                .padding(4)
+                                        }
                                     }
-                                }
+                            }
+                            .buttonStyle(.plain)
+                            .accessibilityLabel(String(localized: "a11y.petcard.generate"))
                         }
-                        .buttonStyle(.plain)
-                        .accessibilityLabel(String(localized: "a11y.petcard.generate"))
                     }
+                    .padding(.horizontal, Spacing.pagePad)
+                    .padding(.top, Spacing.sm)
+                    .padding(.bottom, Spacing.xxl)
                 }
             }
-            .padding(.bottom, Spacing.lg)
+            .scrollIndicators(.hidden)
         }
     }
 

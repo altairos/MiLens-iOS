@@ -74,6 +74,7 @@ struct MiLensApp: App {
                 .environment(\.proEntitlement, dependencies.proEntitlement)
                 .environment(\.backupService, dependencies.backupService)
                 .environment(\.viewModelFactory, dependencies.viewModelFactory)
+                .environment(\.marketProfile, MarketProfile.current)
                 .preferredColorScheme(preferredScheme)
                 .onOpenURL { url in
                     // Widget 深链：milens://photo/{id} 等 → 类型安全 Route

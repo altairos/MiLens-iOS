@@ -330,7 +330,6 @@ struct PetEditView: View {
                 in: dateRange,
                 displayedComponents: .date
             )
-            .environment(\.locale, Locale(identifier: "zh_CN"))
 
             DatePicker(
                 "领养日",
@@ -341,7 +340,6 @@ struct PetEditView: View {
                 in: dateRange,
                 displayedComponents: .date
             )
-            .environment(\.locale, Locale(identifier: "zh_CN"))
 
             // 清除日期
             if vm.form.birthday != nil || vm.form.adoptionDay != nil {

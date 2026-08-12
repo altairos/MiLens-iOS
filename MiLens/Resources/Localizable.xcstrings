@@ -2565,6 +2565,28 @@
         }
       }
     },
+    "privacy.commit.gdpr" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "无云端，不上传"
+          }
+        }
+      }
+    },
+    "privacy.commit.gdpr.detail" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "所有照片的识别与分析都在设备本地完成，不经过任何云服务，不连接任何外部服务器。"
+          }
+        }
+      }
+    },
     "privacy.commit.local" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -4706,6 +4728,182 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "选择两段时光"
+          }
+        }
+      }
+    },
+    "picker.bead.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "选择照片"
+          }
+        }
+      }
+    },
+    "picker.bead.empty" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "还没有照片"
+          }
+        }
+      }
+    },
+    "picker.bead.emptyDesc" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "先到相册导入照片，再回来生成拼豆图纸"
+          }
+        }
+      }
+    },
+    "picker.bead.fromArchive" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "选择照片生成拼豆图纸"
+          }
+        }
+      }
+    },
+    "picker.petCard.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "选择照片"
+          }
+        }
+      }
+    },
+    "picker.petCard.empty" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "还没有照片"
+          }
+        }
+      }
+    },
+    "picker.petCard.emptyDesc" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "先到相册导入照片，再回来生成宠物卡片"
+          }
+        }
+      }
+    },
+    "picker.petCard.fromArchive" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "选择照片生成宠物卡片"
+          }
+        }
+      }
+    },
+    "picker.businessCard.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "选择伙伴"
+          }
+        }
+      }
+    },
+    "picker.businessCard.empty" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "还没有伙伴档案"
+          }
+        }
+      }
+    },
+    "picker.businessCard.emptyDesc" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "先到「伙伴」Tab 建立宠物档案，再来生成名片"
+          }
+        }
+      }
+    },
+    "picker.businessCard.fromArchive" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "选择一位伙伴"
+          }
+        }
+      }
+    },
+    "picker.redPacket.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "选择封面照片"
+          }
+        }
+      }
+    },
+    "picker.redPacket.empty" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "还没有照片"
+          }
+        }
+      }
+    },
+    "picker.redPacket.emptyDesc" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "先到相册导入照片，再回来生成红包封面"
+          }
+        }
+      }
+    },
+    "picker.redPacket.fromArchive" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "选择一张竖版照片效果最好（微信红包封面为 957×1278）"
           }
         }
       }

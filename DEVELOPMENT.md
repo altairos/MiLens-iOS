@@ -307,6 +307,8 @@ UI 文案与 Info.plist 权限说明用 Apple String Catalog（`.xcstrings`）�
 **桌面 GUI（可选）**：`python tools/localization-gui.py` 启动 tkinter 本地化工作台——语言进度总览（7 语种实时统计）、缺译清单（双击复制 key）、一键完整 check / 导出 / 导入 / 生成资产工作簿 / 打开工作簿；任务在后台线程执行不冻结界面。无显示环境可用 `python tools/localization-gui.py --self-check` 做结构自检。GUI 复用 `localization.py` 与 `localization-assets.py` 的全部逻辑，不引入额外依赖。
 
 > **全球首发多语言计划（7 语言：zh-Hans/zh-Hant/ja/ko/en/fr/de）见 [docs/Localization-Plan.md](docs/Localization-Plan.md)**——含各国市场注意要点（日本丁寧語/韩国 반려동물 红线/德语 Bügelperlen 术语与长度预算/法语阴阳性等）、术语表、ASO 策略、翻译批次与验收标准。首次接入新语言前先读该文档，并按其中 §10 工作项顺序执行。
+>
+> **区域差异化（2026-08-13）**：文本翻译之外，按市场/地区的 UI 与逻辑差异由 `MarketProfile`（`MiLens/ViewModels/MarketProfile.swift`）承载，经 `@Environment(\.marketProfile)` 注入。当前落地两个维度：字体策略（zh-Hans 文楷 vs 系统衬线回退）与隐私叙事强度（GDPR 区 DE/FR 追加第 4 条强化声明，`PrivacyNarrativeLogic` 纯逻辑 + `PrivacyInfoView` 消费）。新增差异维度时在 `MarketProfile` 追加字段 + 纯逻辑 + 单测，不在 View 内散写 `if Locale` 判断。
 
 ## 5. 验证快照
 

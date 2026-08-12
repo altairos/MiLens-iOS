@@ -330,14 +330,14 @@ python tools/localization.py check \
 **技术**
 - 日期/数字/日历：UI 展示一律走系统 locale（`Date.FormatStyle` / `Number.FormatStyle`），禁止硬编码格式串（现有 `utcCalendar` 纯逻辑仅用于测试确定性，展示路径不受影响）；
 - 时区：通知、纪念日全部按用户本地时区调度（现有实现已满足）；
-- **字体策略**：霞鹜文楷子集仅覆盖 GB2312 简体字符——**zh-Hant / ja / ko 不能使用文楷**（缺字）。`Typography.swift` 已落地 locale 感知的 display 字体策略：zh-Hans 用文楷，其他语言回退系统字体；en 的 Fraunces 仍用于纯英文标题。首发前剩余工作是逐语言模拟器走查，确认混排、缺字和 Dynamic Type 表现；
+- **字体策略**：霞鹜文楷子集仅覆盖 GB2312 简体字符——**zh-Hant / ja / ko 不能使用文楷**（缺字）。字体判断已下沉到区域差异化模型 `MarketProfile.usesWenKaiDisplay`（`MiLens/ViewModels/MarketProfile.swift`），`Typography.swift` 委托读取——zh-Hans 用文楷，其他语言回退系统字体；en 的 Fraunces 仍用于纯英文标题。首发前剩余工作是逐语言模拟器走查，确认混排、缺字和 Dynamic Type 表现；
 - 长度预算：UI 按德语/法语最坏情况预留 30-40%，每语言在模拟器走查 Tab 标题、按钮、卡片、付费墙；
 - 换行规则：CJK 逐字换行 vs 西文断词，长文本测试；
 - 订阅价格：由 App Store Connect 价格层级按地区自动生效，App 内不硬编码金额文案（现有实现已满足）。
 
 **文化**
 - 节日营销节点（通知/推广文本可复用）：日本猫の日 2/22、日本犬の日 11/1、国际宠物日、各国圣诞/新年/感恩节；
-- 宠物照片审美差异：日韩偏好可爱系、欧美偏好纪实与自然光——**截图素材选择按市场调整**，不要一套截图换语言就上；
+- 宠物照片审美差异：日韩偏好可爱系、欧美偏好纪实与自然光——**截图素材选择按市场调整**，不要一套截图换语言就上。区域差异化的代码基础设施已落地（`MarketProfile` 模型 + `@Environment(\.marketProfile)` 注入），当前承载字体策略与隐私叙事强度两个维度，未来可按需追加审美方向等维度；
 - 法律合规：GDPR（欧盟/德法）、PIPA（韩国）、个保法（中国）、個資法（台湾）——在"不收集数据"的产品定位下合规负担很轻，但**隐私政策需按市场法律语境撰写**，不是机械翻译；
 - 宠物离世（彩虹桥）文化接受度：英语区/日本/台湾普遍正面，韩国需更谨慎措辞，中国大陆以温和表达为主。
 
@@ -507,7 +507,7 @@ App Store 元数据与 App 内翻译分别验收，提交 ASC 前逐语言核对
 - [ ] `project.yml` knownRegions 含 7 语言，CI 构建通过
 - [ ] 每种语言分别记录翻译、UI 验收、商店资产、隐私政策上线四项状态；P0/P1 降级策略已明确
 - [ ] 260+3 key × 6 种非源语言全部翻译完成，`localization.py check` 0 缺译，且无 `needs_review`
-- [ ] Typography locale 感知字体回退已落地，并完成 7 语言模拟器走查（文楷仅 zh-Hans，ja/ko/zh-Hant 不缺字）
+- [ ] MarketProfile 区域差异化已落地（字体策略 + 隐私叙事强度），并完成 7 语言模拟器走查（文楷仅 zh-Hans，ja/ko/zh-Hant 不缺字；GDPR 区 PrivacyInfoView 4 条承诺不截断）
 - [ ] de/fr 长度专项走查：Tab/按钮/付费墙/卡片无截断溢出
 - [ ] 术语表定稿且全文一致（§8 清单）
 - [ ] App Store 元数据 7 语言录入（名称/副标题/描述/关键词/推广文本/审核备注）
@@ -533,6 +533,7 @@ App Store 元数据与 App 内翻译分别验收，提交 ASC 前逐语言核对
 |---|---|---|---|
 | 1 | knownRegions 追加 6 语言 | — | ✅ 已完成 |
 | 2 | Typography locale 感知字体回退 | #1 | ✅ 已完成 |
+| 2.1 | **MarketProfile 区域差异化基础设施**：`MarketProfile` 模型 + `@Environment(\.marketProfile)` 注入 + Typography 委托 + PrivacyInfoView 隐私叙事强度（GDPR 区第 4 条强化声明）+ `PrivacyNarrativeLogic` 纯逻辑 + 22 单测；5 处硬编码 `zh_CN` 清理 | #2 | ✅ 已完成（2026-08-13）|
 | 2.5 | Excel 资产工作簿（`localization-assets.py` + 9 sheet，en 初译 150 条）| #1 | ✅ 已完成 |
 | 3 | 术语表定稿（批次 0 前）| — | 0.5 天 |
 | 4 | en 全量审校 + 导入 + check | #3 | 1 天 |

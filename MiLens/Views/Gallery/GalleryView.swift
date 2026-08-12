@@ -38,7 +38,7 @@ struct GalleryView: View {
                 ProgressView()
             }
         }
-        .background(Color.milensPaper)
+        .background(Color.milensBackground)
         .onAppear {
             if viewModel == nil {
                 let vm = factory.makeGalleryViewModel()

@@ -7,25 +7,14 @@ import SwiftUI
 
 struct PrivacyInfoView: View {
     @Environment(\.openURL) private var openURL
+    @Environment(\.marketProfile) private var marketProfile
 
     var body: some View {
         List {
             Section {
-                commitmentRow(
-                    icon: "iphone",
-                    title: String(localized: "privacy.commit.ondevice"),
-                    detail: String(localized: "privacy.commit.ondevice.detail")
-                )
-                commitmentRow(
-                    icon: "cpu",
-                    title: String(localized: "privacy.commit.local"),
-                    detail: String(localized: "privacy.commit.local.detail")
-                )
-                commitmentRow(
-                    icon: "hand.raised",
-                    title: String(localized: "privacy.commit.control"),
-                    detail: String(localized: "privacy.commit.control.detail")
-                )
+                ForEach(PrivacyNarrativeLogic.commitmentKinds(for: marketProfile)) { kind in
+                    commitmentRow(for: kind)
+                }
             } header: {
                 Text(String(localized: "privacy.commit.title"))
             }
@@ -56,6 +45,27 @@ struct PrivacyInfoView: View {
         .scrollContentBackground(.hidden)
         .background(Color.milensBackground)
         .navigationTitle(String(localized: "settings.privacy.local"))
+    }
+
+    /// 根据承诺类型映射到 String Catalog key（保持编译时 key 检查）。
+    private func commitmentRow(for kind: PrivacyCommitKind) -> some View {
+        let title: String
+        let detail: String
+        switch kind {
+        case .ondevice:
+            title = String(localized: "privacy.commit.ondevice")
+            detail = String(localized: "privacy.commit.ondevice.detail")
+        case .local:
+            title = String(localized: "privacy.commit.local")
+            detail = String(localized: "privacy.commit.local.detail")
+        case .control:
+            title = String(localized: "privacy.commit.control")
+            detail = String(localized: "privacy.commit.control.detail")
+        case .gdpr:
+            title = String(localized: "privacy.commit.gdpr")
+            detail = String(localized: "privacy.commit.gdpr.detail")
+        }
+        return commitmentRow(icon: kind.icon, title: title, detail: detail)
     }
 
     private func commitmentRow(icon: String, title: String, detail: String) -> some View {

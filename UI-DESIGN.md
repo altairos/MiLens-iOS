@@ -132,6 +132,8 @@ App 图标、空态插画与商店截图需要单独产出；未有品牌插画�
 
 Fraunces 不进入常规 App 界面；仅可用于英文营销物料或最终 wordmark。这样常规页面最多出现系统字体与一套中文情感字体，避免三种视觉声线竞争。
 
+字体选择由区域差异化模型 `MarketProfile.usesWenKaiDisplay` 控制（`MiLens/ViewModels/MarketProfile.swift`）：仅 zh-Hans 使用霞鹜文楷，zh-Hant/ja/ko 等语言回退系统衬线字体——文楷子集仅覆盖 GB2312 简体字符，其他语言使用会缺字。详见 [docs/Localization-Plan.md](docs/Localization-Plan.md) §4.8。
+
 所有样式必须基于 Dynamic Type；最大辅助字号时允许标题换行、横向按钮改为纵向、统计行改为两列或单列。自定义字体缺字时回退系统字体，不显示方框字。
 
 Figma 紧凑画板的可读性下限按内容职责区分：正文、说明、表单值和交互标签不得小于 11pt，常规正文仍以 15–17pt 为主；10pt 只用于 overline、色号、极短技术标识或状态圆内部的纯装饰字形，任何可见文字不得低于 10pt，交互控件命中区不得小于 44×44pt。代码不得把这些静态 pt 值硬编码为 Dynamic Type 上限，仍需使用语义字体并在辅助功能字号下重排。

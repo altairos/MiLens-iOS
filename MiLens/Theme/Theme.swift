@@ -158,3 +158,25 @@ extension EnvironmentValues {
         set { self[AdaptiveLayoutKey.self] = newValue }
     }
 }
+
+// MARK: - MarketProfile（区域差异化）
+
+/// 区域差异化配置的 Environment key。
+/// 在 App 组合根注入 `MarketProfile.current`；测试/预览可注入固定 profile
+/// 以验证不同市场的 UI 表现。defaultValue 用安全后备值（非系统 locale），
+/// 避免忘记注入时意外读到错误的 locale。
+struct MarketProfileKey: EnvironmentKey {
+    static let defaultValue = MarketProfile(
+        market: .other,
+        usesWenKaiDisplay: false,
+        privacyNarrativeStrength: .standard
+    )
+}
+
+extension EnvironmentValues {
+    /// 当前市场的区域差异化配置（字体策略、隐私叙事强度等）。
+    var marketProfile: MarketProfile {
+        get { self[MarketProfileKey.self] }
+        set { self[MarketProfileKey.self] = newValue }
+    }
+}

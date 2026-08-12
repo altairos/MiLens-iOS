@@ -9,13 +9,6 @@ struct AlbumImportSuccessView: View {
     let count: Int
     let onViewPhotos: () -> Void
 
-    private let dateFormatter: DateFormatter = {
-        let f = DateFormatter()
-        f.locale = Locale(identifier: "zh_CN")
-        f.dateFormat = "yyyy 年 M 月"
-        return f
-    }()
-
     var body: some View {
         ScrollView {
             VStack(spacing: 0) {
@@ -51,7 +44,7 @@ struct AlbumImportSuccessView: View {
                     .frame(maxHeight: .infinity, alignment: .bottom)
 
                 // 日期标签
-                Text("\(petName) · \(dateFormatter.string(from: Date()))")
+                Text("\(petName) · \(Date(), format: .dateTime.year().month())")
                     .font(.system(size: 11))
                     .foregroundStyle(Color.milensDarkroomText)
                     .padding(.leading, 18)

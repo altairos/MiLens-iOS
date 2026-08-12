@@ -17,12 +17,12 @@ extension Font {
     // MARK: - 语言感知 display 字体
 
     /// 是否使用霞鹜文楷作为 display 字体：仅简体中文（zh-Hans）。
-    /// 文楷子集仅覆盖 GB2312 简体字符，zh-Hant/ja/ko 使用会缺字（豆腐块），
-    /// 必须回退系统衬线字体；en/de/fr 等拉丁语言标题走 Fraunces（displayLargeEN 等）。
-    /// 见 docs/Localization-Plan.md §4.8 字体策略。
+    /// 字体策略判断已下沉到 `MarketProfile.usesWenKaiDisplay`（区域差异化单一入口），
+    /// 这里读全局 current——View 层如需按注入的 profile 选择字体，可用
+    /// `@Environment(\.marketProfile)` 自行判断。
+    /// 见 MiLens/ViewModels/MarketProfile.swift 与 docs/Localization-Plan.md §4.8。
     private static var usesWenKai: Bool {
-        let lang = Locale.current.language
-        return lang.languageCode?.identifier == "zh" && lang.script?.identifier == "Hans"
+        MarketProfile.current.usesWenKaiDisplay
     }
 
     /// 简体中文用文楷；其他语言回退系统衬线（保留 display 编辑感，避免缺字）。

@@ -11,13 +11,6 @@ import SwiftUI
 struct OnboardingImportStep: View {
     @Bindable var viewModel: OnboardingViewModel
 
-    private let dateFormatter: DateFormatter = {
-        let f = DateFormatter()
-        f.locale = Locale(identifier: "zh_CN")
-        f.dateFormat = "yyyy 年 M 月"
-        return f
-    }()
-
     var body: some View {
         Group {
             switch viewModel.step {
@@ -193,7 +186,7 @@ struct OnboardingImportStep: View {
                     .frame(height: 78)
                     .frame(maxHeight: .infinity, alignment: .bottom)
 
-                Text("\(viewModel.petName) · \(dateFormatter.string(from: Date()))")
+                Text("\(viewModel.petName) · \(Date(), format: .dateTime.year().month())")
                     .font(.system(size: 11))
                     .foregroundStyle(Color.milensDarkroomText)
                     .padding(.leading, 18)

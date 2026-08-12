@@ -38,9 +38,8 @@ struct BeadPatternView: View {
                     .tint(Color.milensPrimary)
             }
         }
-        .background(Color.milensStudioBackground)
+        .background(Color.milensBackground)
         .toolbar(.hidden, for: .navigationBar)
-        .environment(\.colorScheme, .dark)
         .sheet(isPresented: $showOriginalImage) {
             originalImageView
         }
@@ -48,13 +47,6 @@ struct BeadPatternView: View {
             if let vm {
                 NavigationStack {
                     BeadPatternResultView(vm: vm)
-                        .navigationTitle("拼豆图纸")
-                        .navigationBarTitleDisplayMode(.inline)
-                        .toolbar {
-                            ToolbarItem(placement: .topBarLeading) {
-                                Button("完成") { showExport = false }
-                            }
-                        }
                 }
             }
         }
@@ -176,37 +168,18 @@ struct BeadPatternView: View {
     }
 
     private func studioHeader(_ vm: BeadViewModel) -> some View {
-        HStack {
-            Button {
-                dismiss()
-            } label: {
-                Image(systemName: "chevron.left")
-                    .font(.system(size: Sizing.iconMd, weight: .medium))
-                    .frame(width: Sizing.touchTarget, height: Sizing.touchTarget)
-            }
-
-            Spacer()
-
-            Text("拼豆工作室")
-                .font(.editorialSection)
-
-            Spacer()
-
+        WorkshopNavHeader(title: String(localized: "create.bead.studio")) {
+            dismiss()
+        } trailing: {
             Button {
                 showOriginalImage = true
             } label: {
                 Image(systemName: "arrowshape.turn.up.left")
                     .font(.system(size: Sizing.iconMd, weight: .medium))
+                    .foregroundStyle(Color.milensTextPrimary)
                     .frame(width: Sizing.touchTarget, height: Sizing.touchTarget)
             }
             .disabled(vm.photoURI.isEmpty)
-        }
-        .foregroundStyle(Color.milensTextPrimary)
-        .padding(.horizontal, Spacing.lg)
-        .overlay(alignment: .bottom) {
-            Rectangle()
-                .fill(Color.milensBorder)
-                .frame(height: 1)
         }
     }
 

@@ -95,7 +95,7 @@ View ──> @Observable ViewModel ──> Service（用例）
 - **任务级**：扫描/导出任务 —— Service 返回 `Task` 句柄，调用方在完成/取消时 `cancel()`（对应源端 `ScanSession`/`ExportSession`）。
 - **页面级**：`@State` ViewModel —— 视图拥有，销毁时随视图回收；**统一经 `ViewModelFactory` 构造**（`MiLens/App/ViewModelFactory.swift`，随组合根注入 `\.viewModelFactory`）。
 
-ViewModel 通过 `@Environment` 接收依赖协议，不引用具体实现或全局单例（沿用源端 P1.7/P1.9 DI 门禁精神）。
+ViewModel 通过 `@Environment` 接收依赖协议，不引用具体实现或全局单例（沿用源端 P1.7/P1.9 DI 门禁精神）。区域差异化配置（`MarketProfile`）同样经 `@Environment(\.marketProfile)` 注入——组合根解析 `Locale.current` 生成 profile，承载字体策略（zh-Hans 文楷 vs 系统衬线回退）与隐私叙事强度（GDPR 区追加强化声明）等按市场/地区差异的维度，与语言层 `.xcstrings` 翻译分离（见 [docs/Localization-Plan.md](docs/Localization-Plan.md) §4.8）。
 
 **分层收敛（ViewModelFactory）**：View 不直接通过 `@Environment` 持有 Repository/Service 来拼装 ViewModel（2026-08-09 前 GalleryView 持有 8 个依赖、EditorView 自带 in-memory 兜底逻辑、`sandboxDir` 拼装散落多处）。现改为：页面只依赖 `\.viewModelFactory`，由工厂组装 VM（`sandboxDir`/`editsDir` 拼装、编辑器 in-memory 兜底均收进工厂）；无 VM 的轻量页面（选照片/单照查看/档案详情）经工厂的 `photoList(limit:)`/`photo(id:)`/`pet(id:)`/`photosByPet(_:)`/`unassignedPhotos(limit:)`/`allPets()` 查询，View 层不再出现 Repository 类型。`GalleryViewModel`/`HomeViewModel`/`EditorViewModel`/`PetEditViewModel`/`BeadViewModel`/`PetProfileViewModel`/`TimelineViewModel` 的构造点全部收敛到工厂（2026-08-09 评审阻塞项：BeadPattern/Pets/Timeline/Create 四处 View 直连 Repository 已一并收敛）；VM 内部按既有规则通过窄协议声明依赖不变。非 Repository 的应用级状态（`\.proEntitlement` 权益、`\.notifyService` 提醒调度）仍由页面直接经环境值读取，与 Settings/Paywall 等页面一致。
 
@@ -208,5 +208,5 @@ App 不会主动上传照片；编辑产物可能随用户启用的系统备份�
 - 质量评分（Laplacian 方差清晰度）+ 重复分组（pHash 视觉哈希）**已实现**（P2，[ADR-0008](docs/adr/0008-v1-scope-decision.md)）；完整图片编辑器**已实现**（P4，裁切/旋转/翻转/调色/锐化/文字/抠图）。CLIP embedding 相似度增强、RTMPose 精度需 iPhone 真机验证（模型已转换，推理质量待实测）。
 - 家庭局域网备份后置 V1.x（离线备份接口已预留：ADR-0010 §8，`BackupService` 协议 + ZIP 打包 + ShareSheet，不联网）；AI 写真/回忆视频 V1.0 不做（无源端参照，需独立产品+技术方案），仅 V1.x 重新评估。
 - 商业化强化方案见 [ADR-0010](docs/adr/0010-commercialization-and-emotion-triggers.md)：照片配额（含降级后「可见但锁定」场景 §10.1.1）、导出水印、买断降价、分享增强、卡片多模板、时间线导出已实现；离线备份、相簿模式、实体打印、编辑器装饰接口已预留。
-- SwiftData schema 从零设计，与源端数据无直接迁移路径（两平台数据不互通）。
+- **区域差异化基础设施已落地**：`MarketProfile`（`ViewModels/MarketProfile.swift`）作为按市场/地区差异的单一入口，当前承载字体策略与隐私叙事强度两个维度；新增维度时在该模型追加字段 + 纯逻辑 + 单测，UI 层从 `@Environment(\.marketProfile)` 消费，不在 View 内散写 `if Locale` 判断。
 - 编译与单元测试已在本机 macOS 验证通过（严格并发 `complete` 下 BUILD SUCCEEDED，MiLensKit 594 + App 604 + UI 2 全绿）；真机调试、模拟器 UI 人工验证、Instruments 性能分析仍需 Mac + iPhone 真机。

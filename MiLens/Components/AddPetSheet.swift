@@ -80,13 +80,11 @@ struct AddPetSheet: View {
             if hasBirthday {
                 DatePicker("生日", selection: $birthday, in: dateRange,
                            displayedComponents: .date)
-                    .environment(\.locale, Locale(identifier: "zh_CN"))
             }
             Toggle("记录领养日", isOn: $hasAdoptionDay)
             if hasAdoptionDay {
                 DatePicker("领养日", selection: $adoptionDay, in: dateRange,
                            displayedComponents: .date)
-                    .environment(\.locale, Locale(identifier: "zh_CN"))
             }
         }
     }

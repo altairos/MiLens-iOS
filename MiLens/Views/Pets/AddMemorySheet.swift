@@ -123,7 +123,6 @@ struct AddMemorySheet: View {
             }
         }
         .pickerStyle(.menu)
-        .environment(\.locale, Locale(identifier: "zh_CN"))
     }
 
     // MARK: - 记忆类型 tab
@@ -188,7 +187,6 @@ struct AddMemorySheet: View {
                         .labelsHidden()
                         .font(.system(size: 14, weight: .medium))
                         .foregroundStyle(Color.milensTextPrimary)
-                        .environment(\.locale, Locale(identifier: "zh_CN"))
                     }
                     Spacer()
                     Image(systemName: "chevron.right")

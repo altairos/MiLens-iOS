@@ -13,6 +13,7 @@ private let logger = Logger(subsystem: "com.milens.app", category: "RecapView")
 struct RecapView: View {
     @Environment(\.viewModelFactory) private var factory
     @Environment(\.proEntitlement) private var entitlement
+    @Environment(\.dismiss) private var dismiss
 
     /// 初始年份（从路由/首页传入；nil 默认当前年）。
     let initialYear: Int?
@@ -22,7 +23,7 @@ struct RecapView: View {
     @State private var selectedYear: Int
     @State private var isLoading = true
     @State private var showPaywall = false
-    @State private var sharePreview: (image: UIImage, url: URL)?
+    @State private var sharePreview: (image: UIImage, url: URL, filename: String, spec: String)?
     @State private var isExporting = false
     @State private var exportError: String?
 
@@ -33,38 +34,44 @@ struct RecapView: View {
     }
 
     var body: some View {
-        Group {
+        VStack(spacing: 0) {
+            WorkshopNavHeader(title: String(localized: "recap.title")) {
+                dismiss()
+            } trailing: {
+                Button {
+                    handleExport()
+                } label: {
+                    Image(systemName: "square.and.arrow.up")
+                        .font(.system(size: Sizing.iconLg))
+                        .foregroundStyle(Color.milensTextPrimary)
+                        .frame(width: Sizing.touchTarget, height: Sizing.touchTarget)
+                }
+                .disabled(isExporting || recap == nil)
+            }
+
             if isLoading {
                 ProgressView()
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
             } else if availableYears.isEmpty {
                 emptyState
             } else {
                 recapContent
             }
         }
-        .navigationTitle(String(localized: "recap.title"))
-        .navigationBarTitleDisplayMode(.inline)
+        .toolbar(.hidden, for: .navigationBar)
         .background(Color.milensBackground)
-        .toolbar {
-            ToolbarItem(placement: .topBarTrailing) {
-                Button {
-                    handleExport()
-                } label: {
-                    Label(String(localized: "common.share"), systemImage: "square.and.arrow.up")
-                }
-                .disabled(isExporting || recap == nil)
-            }
-        }
         .sheet(isPresented: $showPaywall) {
             NavigationStack { PaywallView() }
         }
         .sheet(item: Binding<SharePreviewData?>(
-            get: { sharePreview.map { SharePreviewData(image: $0.image, url: $0.url) } },
+            get: { sharePreview.map { SharePreviewData(image: $0.image, url: $0.url, filename: $0.filename, spec: $0.spec) } },
             set: { if $0 == nil { sharePreview = nil } }
         )) { data in
             SharePreviewSheet(
                 previewImage: data.image,
                 shareURL: data.url,
+                filename: data.filename,
+                spec: data.spec,
                 onDismiss: { sharePreview = nil }
             )
         }
@@ -267,15 +274,24 @@ struct RecapView: View {
         }
 
         do {
+            let filename = "recap_\(recap.year).png"
             let url = try BeadExportService().writeShareCache(
-                data: pngData, filename: "recap_\(recap.year).png"
+                data: pngData, filename: filename
             )
-            sharePreview = (image: image, url: url)
+            let spec = "PNG · \(formatByteCount(pngData.count))"
+            sharePreview = (image: image, url: url, filename: filename, spec: spec)
             MetricsRecorder().record(.exportCompleted)
         } catch {
             exportError = String(localized: "recap.exportFailedDetail \(error.localizedDescription)")
         }
         isExporting = false
+    }
+
+    /// 格式化字节数为可读字符串（KB/MB）。
+    private func formatByteCount(_ bytes: Int) -> String {
+        let formatter = ByteCountFormatter()
+        formatter.countStyle = .file
+        return formatter.string(fromByteCount: Int64(bytes))
     }
 
     // MARK: - 数据加载

@@ -13,7 +13,7 @@ struct BeadPatternResultView: View {
     @Environment(\.horizontalSizeClass) private var hSizeClass
     @State private var shareItem: ShareItem?
     @State private var showPaywall = false
-    @State private var sharePreview: (image: UIImage, url: URL)?
+    @State private var sharePreview: (image: UIImage, url: URL, filename: String, spec: String)?
 
     /// 是否处于 regular 宽度（iPad 竖屏 / 大尺寸横屏），启用双栏分栏。
     private var isRegularWidth: Bool { hSizeClass == .regular }
@@ -48,12 +48,14 @@ struct BeadPatternResultView: View {
             ShareSheet(items: [item.url])
         }
         .sheet(item: Binding<SharePreviewData?>(
-            get: { sharePreview.map { SharePreviewData(image: $0.image, url: $0.url) } },
+            get: { sharePreview.map { SharePreviewData(image: $0.image, url: $0.url, filename: $0.filename, spec: $0.spec) } },
             set: { if $0 == nil { sharePreview = nil } }
         )) { data in
             SharePreviewSheet(
                 previewImage: data.image,
                 shareURL: data.url,
+                filename: data.filename,
+                spec: data.spec,
                 onDismiss: { sharePreview = nil }
             )
         }
@@ -121,39 +123,12 @@ struct BeadPatternResultView: View {
         .padding(.horizontal, Spacing.xxl)
     }
 
-    // MARK: - 自定义头部（对照 Figma #211:493-497）
+    // MARK: - 自定义头部（WorkshopNavHeader 统一风格）
 
     private var customHeader: some View {
-        HStack(spacing: 0) {
-            Button {
-                dismiss()
-            } label: {
-                ZStack {
-                    Circle()
-                        .fill(Color.milensCard)
-                        .overlay(Circle().stroke(Color.milensBorder, lineWidth: 1))
-                        .frame(width: 44, height: 44)
-                    Image(systemName: "chevron.left")
-                        .font(.system(size: 14, weight: .semibold))
-                        .foregroundStyle(Color.milensTextPrimary)
-                }
-            }
-            VStack(alignment: .leading, spacing: 2) {
-                Text("BEAD STUDIO")
-                    .font(.system(size: 10, weight: .medium))
-                    .tracking(0.4)
-                    .foregroundStyle(Color.milensTextTertiary)
-                Text(String(localized: "create.bead.studio"))
-                    .font(.system(size: 20, weight: .medium))
-                    .foregroundStyle(Color.milensTextPrimary)
-            }
-            .padding(.leading, 11)
-            Spacer()
+        WorkshopNavHeader(title: String(localized: "create.bead.studio")) {
+            dismiss()
         }
-        .padding(.horizontal, 15)
-        .padding(.top, 12)
-        .padding(.bottom, 8)
-        .background(Color.milensBackground)
     }
 
     // MARK: - Identity Strip（对照 #301:981）
@@ -479,7 +454,9 @@ struct BeadPatternResultView: View {
         Task { @MainActor in
             guard let url = await vm.prepareShareFile() else { return }
             if let preview = vm.previewImage {
-                sharePreview = (image: preview, url: url)
+                let filename = url.lastPathComponent
+                let spec = "PNG"
+                sharePreview = (image: preview, url: url, filename: filename, spec: spec)
             } else {
                 shareItem = ShareItem(url: url)
             }

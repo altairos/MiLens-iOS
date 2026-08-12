@@ -12,12 +12,13 @@ private let logger = Logger(subsystem: "com.milens.app", category: "TimelineView
 struct TimelineView: View {
     @Environment(\.viewModelFactory) private var factory
     @Environment(\.proEntitlement) private var entitlement
+    @Environment(\.dismiss) private var dismiss
 
     @State private var viewModel: TimelineViewModel?
     @State private var pets: [Pet] = []
     @State private var showPaywall = false
     /// ADR-0010 §5：时间线导出分享状态。
-    @State private var sharePreview: (image: UIImage, url: URL)?
+    @State private var sharePreview: (image: UIImage, url: URL, filename: String, spec: String)?
     @State private var isExporting = false
     @State private var exportError: String?
     @State private var showAddMemorySheet = false
@@ -33,19 +34,8 @@ struct TimelineView: View {
                 ProgressView()
             }
         }
-        .navigationTitle(String(localized: "timeline.title"))
-        .navigationBarTitleDisplayMode(.inline)
+        .toolbar(.hidden, for: .navigationBar)
         .background(Color.milensBackground)
-        .toolbar {
-            ToolbarItem(placement: .topBarTrailing) {
-                Button {
-                    handleExportShare()
-                } label: {
-                    Label(String(localized: "common.share"), systemImage: "square.and.arrow.up")
-                }
-                .disabled(isExporting || viewModel?.months.isEmpty != false)
-            }
-        }
         .sheet(isPresented: $showPaywall) {
             NavigationStack { PaywallView() }
         }
@@ -61,12 +51,14 @@ struct TimelineView: View {
         }
         // ADR-0010 §5：导出分享预览面板
         .sheet(item: Binding<SharePreviewData?>(
-            get: { sharePreview.map { SharePreviewData(image: $0.image, url: $0.url) } },
+            get: { sharePreview.map { SharePreviewData(image: $0.image, url: $0.url, filename: $0.filename, spec: $0.spec) } },
             set: { if $0 == nil { sharePreview = nil } }
         )) { data in
             SharePreviewSheet(
                 previewImage: data.image,
                 shareURL: data.url,
+                filename: data.filename,
+                spec: data.spec,
                 onDismiss: { sharePreview = nil }
             )
         }
@@ -128,10 +120,12 @@ struct TimelineView: View {
         }
 
         do {
+            let filename = "timeline_export.png"
             let url = try BeadExportService().writeShareCache(
-                data: pngData, filename: "timeline_export.png"
+                data: pngData, filename: filename
             )
-            sharePreview = (image: image, url: url)
+            let spec = "PNG · \(formatByteCount(pngData.count))"
+            sharePreview = (image: image, url: url, filename: filename, spec: spec)
         } catch {
             exportError = String(localized: "timeline.exportFailedDetail \(error.localizedDescription)")
         }
@@ -146,18 +140,42 @@ struct TimelineView: View {
         return String(localized: "timeline.allPets")
     }
 
+    /// 格式化字节数为可读字符串（KB/MB）。
+    private func formatByteCount(_ bytes: Int) -> String {
+        let formatter = ByteCountFormatter()
+        formatter.countStyle = .file
+        return formatter.string(fromByteCount: Int64(bytes))
+    }
+
     // MARK: - 内容区
 
     @ViewBuilder
     private func content(_ vm: TimelineViewModel) -> some View {
-        if vm.isLoading {
-            ProgressView()
-        } else if vm.months.isEmpty && vm.hasLockedHistory && !entitlement.isPro {
-            lockedHistoryEmptyState
-        } else if vm.months.isEmpty {
-            emptyState
-        } else {
-            timelineList(vm)
+        VStack(spacing: 0) {
+            WorkshopNavHeader(title: String(localized: "timeline.title")) {
+                dismiss()
+            } trailing: {
+                Button {
+                    handleExportShare()
+                } label: {
+                    Image(systemName: "square.and.arrow.up")
+                        .font(.system(size: Sizing.iconLg))
+                        .foregroundStyle(Color.milensTextPrimary)
+                        .frame(width: Sizing.touchTarget, height: Sizing.touchTarget)
+                }
+                .disabled(isExporting || vm.months.isEmpty)
+            }
+
+            if vm.isLoading {
+                ProgressView()
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+            } else if vm.months.isEmpty && vm.hasLockedHistory && !entitlement.isPro {
+                lockedHistoryEmptyState
+            } else if vm.months.isEmpty {
+                emptyState
+            } else {
+                timelineList(vm)
+            }
         }
     }
 

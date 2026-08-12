@@ -193,6 +193,8 @@ App 不会主动上传照片；编辑产物可能随用户启用的系统备份�
 
 **通知调度语义**：`NotificationPosting` 提供 `schedule(title:body:identifier:dateComponents:repeats:)`（`UNCalendarNotificationTrigger` 真调度）而非一次性 post。`NotifyService.rescheduleAllReminders()` 幂等（先 `removeAllNotifications` 再全量调度）：Pet 生日/领养日 → 年度重复通知（月日组件 + 09:00，identifier `anniversary-<petID>-<kind>`）；时光机历史同日照片非空 → 每日 09:00（identifier `tm-daily`，内容由 `TimeMachineLogic` 调度时选定）。设置页「纪念提醒」开关（`@AppStorage`，默认关闭）是唯一授权入口：打开 → `requestAuthorization()` 成功才重调度，拒绝回弹；关闭 → 撤销全部。宠物编辑/删除走 `updateReminders`/`removeReminders` 局部更新。
 
+**应用内兜底回看**：系统通知瞬时、依赖授权、可被系统清除，App 内提供不依赖权限、不丢失的持久回看入口。首页铃铛进入「待看的回忆」（`Route.memoryReminders` → `MemoryRemindersView`），三段式：今日命中（生日/成为家人的日子/里程碑/往日回忆）+ 全部即将到来的纪念日倒计时 + 往日回忆。决策逻辑下沉为纯函数 `RemindersLogic`（复用 `NotifyCheckLogic`/`MilestoneLogic`），与系统通知共用命中语义但调度路径独立；文案见 [Notification-Copy-Design.md §9.7](docs/Notification-Copy-Design.md)。铃铛不做红点角标，今日有命中时用温和摇晃动效 + Haptic 提示（遵循「不制造焦虑」原则）。
+
 ### 9.1 并发纪律（SWIFT_STRICT_CONCURRENCY=complete）
 
 2026-08-09 起 `project.yml` 开启 `SWIFT_STRICT_CONCURRENCY=complete`（Swift 5 语言模式下的完整并发诊断），后续新增代码按 complete 标准编写：

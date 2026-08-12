@@ -432,6 +432,17 @@
         }
       }
     },
+    "a11y.home.bell" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "待看的回忆"
+          }
+        }
+      }
+    },
     "a11y.home.openPhoto %@" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -1957,6 +1968,24 @@
         }
       }
     },
+    "pet.card.birthdayYears %lld" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "variations" : {
+            "plural" : {
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld岁生日"
+                }
+              },
+              "pluralRuleType" : "pluralRuleType"
+            }
+          }
+        }
+      }
+    },
     "pet.card.daysHome %lld" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -2913,6 +2942,171 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "重试"
+          }
+        }
+      }
+    },
+    "reminders.empty.body" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "添加伙伴档案和照片后，这里会提醒你生日、成为家人的日子和值得回看的回忆。"
+          }
+        }
+      }
+    },
+    "reminders.empty.hint" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "开启「纪念提醒」可以收到系统通知"
+          }
+        }
+      }
+    },
+    "reminders.empty.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "暂时没有待看的回忆"
+          }
+        }
+      }
+    },
+    "reminders.loadError" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "暂时无法加载回忆，请稍后重试。"
+          }
+        }
+      }
+    },
+    "reminders.section.memories" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "往日回忆"
+          }
+        }
+      }
+    },
+    "reminders.section.today" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "今日"
+          }
+        }
+      }
+    },
+    "reminders.section.upcoming" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "即将到来的日子"
+          }
+        }
+      }
+    },
+    "reminders.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "待看的回忆"
+          }
+        }
+      }
+    },
+    "reminders.today.adoption %@" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "和%@成为家人的日子"
+          }
+        }
+      }
+    },
+    "reminders.today.birthday %@" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@的生日"
+          }
+        }
+      }
+    },
+    "reminders.today.memory %lld" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld年前的今天"
+          }
+        }
+      }
+    },
+    "reminders.today.milestone %@ %lld" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@来到家%lld天"
+          }
+        }
+      }
+    },
+    "reminders.upcoming.dayUnit" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "天"
+          }
+        }
+      }
+    },
+    "reminders.upcoming.daysLeft %lld" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "还有%lld天"
+          }
+        }
+      }
+    },
+    "reminders.upcoming.today" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "今天"
           }
         }
       }
@@ -5172,6 +5366,50 @@
         }
       }
     },
+    "businessCard.template.standard" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "标准"
+          }
+        }
+      }
+    },
+    "businessCard.template.elegant" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "优雅"
+          }
+        }
+      }
+    },
+    "businessCard.template.playful" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "活泼"
+          }
+        }
+      }
+    },
+    "businessCard.template.minimal" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "极简"
+          }
+        }
+      }
+    },
     "field.annotation.label" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -5542,6 +5780,72 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "用微信分享"
+          }
+        }
+      }
+    },
+    "memory.kind.birthday" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "生日纪念"
+          }
+        }
+      }
+    },
+    "memory.kind.adoptionDay" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "成为家人纪念"
+          }
+        }
+      }
+    },
+    "memory.kind.milestone" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "里程碑"
+          }
+        }
+      }
+    },
+    "memory.kind.growthCompare" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "成长对比"
+          }
+        }
+      }
+    },
+    "memory.kind.monthlyRecap" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "月度精选"
+          }
+        }
+      }
+    },
+    "memory.kind.yearlyRecap" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "年度回忆"
           }
         }
       }

@@ -28,6 +28,8 @@ enum Route: Hashable {
     case redPacketUploadGuide(photoID: UUID, petID: UUID?)
     // 月度精选 / 年度回忆册（情感触点系统 Stage 3）
     case recap(year: Int?)
+    // 回忆提醒中心（首页铃铛入口，系统通知的应用内兜底回看）
+    case memoryReminders
 
     /// 便捷构造：不带 kind 的纪念卡路由（保持调用点简洁）。
     static func petCard(photoID: UUID) -> Route {

@@ -137,7 +137,13 @@ final class NotifyService {
 
         for pet in pets {
             guard let adoptionDay = pet.adoptionDay, adoptionDay <= now else { continue }
-            for days in MilestoneLogic.milestoneDays {
+            // 用 MilestoneLogic.upcomingMilestones 计算尚未到达的里程碑。
+            // 窗口覆盖到最后一个里程碑（1000 天），保证全量预排未到达项；
+            // 已过触发时刻的当日里程碑由下方 fireDate > now 跳过（与时光机同语义）。
+            let elapsed = MilestoneLogic.daysSince(from: adoptionDay, now: now)
+            let horizon = max(0, (MilestoneLogic.milestoneDays.last ?? 0) - elapsed)
+            for milestone in MilestoneLogic.upcomingMilestones(from: adoptionDay, now: now, daysAhead: horizon) {
+                let days = milestone.days
                 let milestoneDate = MilestoneLogic.milestoneDate(anchor: adoptionDay, days: days)
                 var trigger = calendar.dateComponents([.year, .month, .day], from: milestoneDate)
                 trigger.hour = Self.reminderHour

@@ -95,6 +95,26 @@ final class HomeViewModel {
         )
     }
 
+    /// 今日是否有值得看的回忆（驱动首页铃铛摇晃动效）。
+    /// 复用 RemindersLogic 纯逻辑：生日/成为家人的日子/里程碑/往日回忆任一命中即为 true。
+    var hasTodayContent: Bool {
+        let reminderPets = pets.map { pet in
+            ReminderPet(
+                id: pet.id, name: pet.name,
+                birthday: pet.birthday, adoptionDay: pet.adoptionDay,
+                events: pet.events
+                    .filter { $0.sourceType != "user" }
+                    .map { ReminderEvent(id: $0.id, title: $0.title, eventDate: $0.eventDate) }
+            )
+        }
+        let reminderPhotos = photos.map {
+            ReminderPhoto(id: $0.id, takenAt: $0.takenAt, note: $0.note, petID: $0.pet?.id)
+        }
+        return !RemindersLogic.todayReminders(
+            pets: reminderPets, photos: reminderPhotos, now: now()
+        ).isEmpty
+    }
+
     func load() {
         isLoading = true
         loadError = nil

@@ -130,6 +130,8 @@ struct RootTabView: View {
                 RedPacketUploadGuideView(photoID: photoID, petID: petID)
             case .recap(let year):
                 RecapView(year: year)
+            case .memoryReminders:
+                MemoryRemindersView()
             }
         }
     }

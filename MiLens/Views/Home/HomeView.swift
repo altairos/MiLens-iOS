@@ -91,6 +91,9 @@ private struct HomeHero: View {
     let photo: Photo
     let model: HomeViewModel
 
+    /// 铃铛摇晃动效状态：今日有命中内容时启动温和摆动（±6°，周期 1.2s）。
+    @State private var bellAnimating = false
+
     var body: some View {
         ZStack(alignment: .top) {
             // 大图
@@ -124,11 +127,26 @@ private struct HomeHero: View {
                             .foregroundStyle(.white.opacity(0.92))
                     }
                     Spacer()
-                    // 通知按钮（装饰性，Tab 切换需用户手动点底部 Tab）
-                    Image(systemName: "bell")
-                        .font(.system(size: 18))
-                        .foregroundStyle(.white)
-                        .frame(width: 44, height: 44)
+                    // 铃铛：今日有回忆时轻微摇晃，点击进入回忆提醒中心
+                    NavigationLink(value: Route.memoryReminders) {
+                        Image(systemName: "bell")
+                            .font(.system(size: 18))
+                            .foregroundStyle(.white)
+                            .frame(width: 44, height: 44)
+                            .rotationEffect(.degrees(bellAnimating ? 6 : -6))
+                            .animation(
+                                bellAnimating
+                                    ? .easeInOut(duration: 1.2).repeatForever(autoreverses: true)
+                                    : .easeInOut(duration: Motion.durationNormal),
+                                value: bellAnimating
+                            )
+                    }
+                    .buttonStyle(.plain)
+                    .simultaneousGesture(TapGesture().onEnded {
+                        Haptics.light()
+                        bellAnimating = false
+                    })
+                    .accessibilityLabel(String(localized: "a11y.home.bell"))
                 }
                 .padding(.leading, 32)
                 .padding(.trailing, 23)
@@ -163,6 +181,12 @@ private struct HomeHero: View {
         }
         .frame(height: 589)
         .clipped()
+        .onAppear {
+            bellAnimating = model.hasTodayContent
+        }
+        .onChange(of: model.hasTodayContent) { _, hasContent in
+            bellAnimating = hasContent
+        }
     }
 
     /// 宠物身份条：珊瑚竖线 + 名字年龄 + 切角箭头按钮。

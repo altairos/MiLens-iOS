@@ -70,6 +70,11 @@ final class ViewModelFactory {
         HomeViewModel(photoRepository: photoRepo, petRepository: petRepo)
     }
 
+    /// 回忆提醒中心 ViewModel（首页铃铛入口，复用 photoRepo/petRepo）。
+    func makeMemoryRemindersViewModel() -> MemoryRemindersViewModel {
+        MemoryRemindersViewModel(photoRepository: photoRepo, petRepository: petRepo)
+    }
+
     func makeGalleryViewModel() -> GalleryViewModel {
         GalleryViewModel(
             photoRepo: photoRepo,

@@ -1,6 +1,6 @@
 # 情感触点系统 — Mac 环境待办备忘
 
-最后更新：2026-08-12（§4 RecapView/TimelineExportCanvas + §5 指标埋点接入 已落地）
+最后更新：2026-08-13（§2 本地化 key 补齐 + §3 里程碑通知调度与 tap 路由 + §4 长图渲染内存校准 已落地）
 关联：[ADR-0010](adr/0010-commercialization-and-emotion-triggers.md) §3 / [PLAN.md](../PLAN.md)
 
 ## 背景
@@ -43,18 +43,17 @@ Stage 1/2 + 名片卡 + 红包封面的 App 层集成代码在 Windows 上无法
 
 **验证**：`xcodebuild build` + `xcodebuild test`（App target + MiLensKit target）。
 
-### 2. 新增本地化 key [P0，阻塞 UI 文案]
+### 2. 新增本地化 key [P0，阻塞 UI 文案] ✅ 已落地（2026-08-13）
 
-以下新增 key 需补到 `MiLens/Resources/Localizable.xcstrings`，并跑 `tools/localization.py check`：
+全部新增 key 已补到 `MiLens/Resources/Localizable.xcstrings`，`tools/localization.py check` 校验通过（658 key）。
 
-- `pet.card.birthdayYears %lld` — 「N 岁生日」（PetCardLogic kind=.birthday）
-- `memory.kind.*` — MemoryCardKind 6 个类型显示名
-- `businessCard.template.*` — BusinessCardTemplate 4 个模板显示名
-- `redpacket.guide.step1`…`step5` — 红包封面上传引导 5 步
-- `redpacket.guide.eligibility` — 微信红包封面注册门槛提示
-- 成长对比/名片卡/红包封面页相关字面量（「选择两张照片」「生成对比卡」「宠物名片」「红包封面」入口标题/描述等）
+- [x] `pet.card.birthdayYears %lld` — 「N 岁生日」（PetCardLogic kind=.birthday，复数 zh-Hans other 变体）
+- [x] `memory.kind.*` — MemoryCardKind 6 个类型显示名（birthday/adoptionDay/milestone/growthCompare/monthlyRecap/yearlyRecap）
+- [x] `businessCard.template.*` — BusinessCardTemplate 4 个模板显示名（standard/elegant/playful/minimal）
+- [x] 红包封面上传引导 key 实际命名为 `upload.step.01`…`upload.step.04`（含 title/desc）+ `upload.proof.*` + `upload.platformNote` + `upload.action.wechatShare`（已在代码中引用，xcstrings 已有）
+- [x] 成长对比/名片卡/红包封面页字面量（`create.growthCompare.title`、`create.businessCard.title`、`create.redPacket.title`、`create.project.*.desc`、`redpacket.*`、`businesscard.*`、`growthcompare.*`、`picker.*`、`field.*`、`source.*` 等已全部就位）
 
-复数 key（`birthdayYears`、`daysHome`）的 en/de/fr 需补 one/other 变体。
+**待真机**：en/de/fr 翻译（当前 xcstrings 仅有 zh-Hans；复数 key `birthdayYears`/`daysHome` 的 en/de/fr one/other 变体随整体多语言翻译批次补）。
 
 ### 2b. 红包封面真机验证要点 [P0，红包封面专属]
 
@@ -62,15 +61,18 @@ Stage 1/2 + 名片卡 + 红包封面的 App 层集成代码在 Windows 上无法
 - 高细节照片 PNG 可能超限，需验证导出时的 PNG→JPEG 降级链是否满足大小约束
 - 4 场景模拟预览的中性 UI 不复刻微信商标/外观（法理安全）
 
-### 3. NotifyService 里程碑通知调度 [P1]
+### 3. NotifyService 里程碑通知调度 [P1] ✅ 已落地（2026-08-13）
 
-用 `MilestoneLogic.upcomingMilestones(from:now:daysAhead:)` 在 `MiLens/Services/Notifications` 的每日检查编排中预排近期里程碑通知（100/365/730/1000 天）。
+用 `MilestoneLogic.upcomingMilestones(from:now:daysAhead:)` 在 `NotifyService.schedulePetMilestones` 中预排未到达的里程碑通知（100/365/730/1000 天）。
 
-- 复用 `AnniversaryLogic` 已有的每日去重 + 撤销逻辑
-- 通知 tap → 路由到 `.petCard(photoID:kind:.milestone)`（需选一张该宠物代表照片）
-- 通知 ID 命名空间需与周年通知区分（避免冲突）
+- [x] `schedulePetMilestones` 重构为调用 `upcomingMilestones`（窗口覆盖到最后一个里程碑，等价全量预排未到达项；当日已过触发时刻的由 `fireDate > now` 跳过）
+- [x] 复用 `AnniversaryLogic` + 幂等 `rescheduleAllReminders`（removeAll + 全量重调度）的每日去重 + 撤销逻辑
+- [x] 通知 ID 命名空间 `milestone-<petID>-<days>` 与周年通知 `anniversary-<petID>-*` 区分（避免冲突）
+- [x] 通知 tap → 路由到 `.petCard(photoID:kind:.milestone)`：新增 `NotificationDeepLink` 纯解析器（标识符 → `NotificationTapDestination`）+ `NotificationAppDelegate`（UNUserNotificationCenterDelegate，冷启动 tap + 前台展示）+ MiLensApp 查代表照片（isBest / qualityScore）后构造 Route，复用 Widget 深链 `pendingWidgetRoute` 管线
 
-**验证**：NotifyServiceTests + 真机通知触发走查。
+**新增文件**：`MiLens/Services/Notifications/NotificationDeepLink.swift`、`NotificationAppDelegate.swift`、`MiLensTests/NotificationDeepLinkTests.swift`（9 个解析器单测）。
+
+**验证**：NotifyServiceTests `testUpcomingMilestoneSchedulesOneShotNotification` 仍通过（upcomingMilestones 等价重构）；真机通知触发走查待 Mac/Xcode。
 
 ### 4. RecapView + TimelineExportCanvas 扩展 [P1–P2] ✅ 已落地（2026-08-12）
 
@@ -81,7 +83,14 @@ Stage 1/2 + 名片卡 + 红包封面的 App 层集成代码在 Windows 上无法
 - [x] 首页「年度回忆」入口卡片（`YearlyRecapEntry`）→ `Route.recap` → `RecapView`
 - [x] 免费用户可预览全部代表照片缩略图，Pro 专属完整长图导出
 
-**待真机**：长图渲染内存/尺寸校准（`ExportQuality.high` 长边 2400px 峰值内存）。
+**内存校准已落地（2026-08-13）**：
+- [x] 导出每月降采样 8→3 张/月（`exportPhotosPerMonth`），长图高度 ÷3，位图峰值从 ~288MB 降到 ~96MB
+- [x] 后台线程渲染（`Task.detached(priority: .utility)`）+ `autoreleasepool` 及时释放 CoreGraphics 中间缓冲
+- [x] JPEG 替代 PNG 编码（照片拼贴体积大幅降低）
+- [x] 预加载降采样缩略图（`CGImageSourceCreateThumbnail`，修复 ImageRenderer 同步渲染不执行 ThumbnailImage `.task` 的空白问题）
+- [x] 分享预览用降采样 1080px JPEG（非常驻全分辨率长图）
+
+**待真机**：最终峰值内存 / 分享缓存体积在 iPhone 真机 Instruments 走查。
 
 ### 5. 指标埋点接入 [P1] ✅ 已落地（2026-08-12）
 

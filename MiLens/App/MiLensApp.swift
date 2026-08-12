@@ -21,6 +21,9 @@ struct MiLensApp: App {
     /// 启动失败的错误描述（展示在恢复界面；重试/重建后清除）
     @State private var startupError: String?
 
+    /// 通知 tap 路由 AppDelegate（前台展示 + 冷启动从通知拉起时的 tap 路由）。
+    @UIApplicationDelegateAdaptor(NotificationAppDelegate.self) private var notificationDelegate
+
     /// 测试环境（XCTest host 加载 @main App）跳过引导直接进主界面
     private let isTesting: Bool
 
@@ -82,6 +85,15 @@ struct MiLensApp: App {
                         pendingWidgetRoute = route
                     }
                 }
+                .onReceive(notificationDelegate.$pendingDestination) { destination in
+                    // 本地通知 tap：里程碑通知 → 查代表照片 → .petCard(kind:.milestone)。
+                    // 复用 Widget 深链的 pendingWidgetRoute 管线（统一从首页 push）。
+                    guard let destination else { return }
+                    Task { @MainActor in
+                        pendingWidgetRoute = resolveNotificationRoute(destination)
+                        notificationDelegate.pendingDestination = nil
+                    }
+                }
                 .task {
                     // 启动孤儿审计：清理上一次崩溃/回滚残留的媒体文件（仅生产环境）。
                     // L3：延迟到首屏稳定后执行，不阻塞启动关键路径；IO 在 service 内部降级到 utility 优先级。
@@ -103,6 +115,22 @@ struct MiLensApp: App {
                 onRebuild: rebuildLocalData
             )
         }
+    }
+
+    /// 通知 tap 路由：查该宠物的代表照片构造里程碑卡片 Route；无照片时回退宠物档案。
+    @MainActor
+    private func resolveNotificationRoute(_ destination: NotificationTapDestination) -> Route? {
+        guard let factory = dependencies?.viewModelFactory else { return nil }
+        guard let pet = try? factory.pet(id: destination.petID) else { return nil }
+        let photos = (try? factory.photosByPet(pet)) ?? []
+        // 代表照片：优先 isBest，其次最高质量分。
+        let representative = photos.first { $0.isBest }
+            ?? photos.max(by: { $0.qualityScore < $1.qualityScore })
+        if let representative {
+            return .petCard(photoID: representative.id, kind: destination.kind)
+        }
+        // 无照片 → 回退宠物档案（安全降级，不 crash）。
+        return .petProfile(petID: destination.petID)
     }
 
     private func mainContent(_ dependencies: AppDependencies) -> some View {

@@ -121,6 +121,19 @@ extension EnvironmentValues {
     }
 }
 
+// MARK: - BackupService（离线备份导出/恢复，ADR-0010 §8）
+
+private struct BackupServiceKey: EnvironmentKey {
+    static var defaultValue: any BackupService { UnavailableBackupService() }
+}
+
+extension EnvironmentValues {
+    var backupService: any BackupService {
+        get { self[BackupServiceKey.self] }
+        set { self[BackupServiceKey.self] = newValue }
+    }
+}
+
 // MARK: - MediaLifecycleService（媒体文件-数据库事务一致性）
 
 private struct MediaLifecycleServiceKey: EnvironmentKey {

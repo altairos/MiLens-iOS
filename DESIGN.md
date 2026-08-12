@@ -156,6 +156,8 @@ SwiftData 从 V1.0 干净 schema 起步（不复刻源端 16 版历史迁移）�
 - `Documents/MiPhotos/Edits/`（编辑产物，`ScanConfig.editsDirName`）：编辑成品只存沙盒且**不**同步回系统相册、无重建步骤（DB 只覆盖 URI），不可重建 —— **允许备份**。`EditorSaveService` 保存到 Edits 子目录（2026-08-09 评审阻塞项修复：此前全部排除备份，设备恢复后会出现「DB 记录仍在、图片文件缺失」）。
 `MediaLifecycleService.auditOrphans` 与 `AppDependencies.destroyPersistentStore` 提示文案均覆盖两个目录。
 
+**离线备份/恢复**（[ADR-0010 §8](docs/adr/0010-commercialization-and-emotion-triggers.md)，2026-08-12 实施）：`BackupService` 将照片原图 + 编辑产物 + 完整元数据（Pet/Photo/PetEvent 的 Codable 快照）打包为 `.milensbackup`（ZIP，store 模式）。ZIP 能力由 MiLensKit `ZIPArchive`（纯 Swift，无第三方依赖）提供——决策不引入 ZIPFoundation 等三方库，保持项目完整 Swift 重写原则；store 模式对已压缩的 JPEG 几乎无体积惩罚且实现极简。导出经 ShareSheet 交给用户选择存储位置（Files/iCloud Drive/AirDrop），不联网；恢复经 DocumentPicker 选择备份文件，校验 `manifest.schemaVersion` 后合并导入（同 ID 跳过，不覆盖现有数据）。导出为 Pro 专属，恢复对所有用户开放。这是换机/丢机/删 App 场景下数据不丢失的**主路径**——系统 iCloud 备份是被动兜底，离线备份是用户主动的跨设备迁移与归档手段，不依赖用户是否开启系统备份。
+
 **像素计算移出主线程**：CPU 密集段（JPEG 解码、Laplacian、pHash、VNRequest、CLIP 预处理、O(n²) 重复分组）统一经 `AnalysisExecutor`（actor，utility 优先级，受限并发 `maxConcurrent = 2`，内部 in-flight 计数 + continuation 队列）执行，只把 Sendable 结果回 MainActor 写库/更新 UI。`ScanService` 两阶段：阶段 1（MainActor 轻量）过滤已导入/过旧照片收集候选；阶段 2 候选分批（每批 `maxConcurrent` 个）后台分析，进度回调次数保持按照片数。扫描阶段对已注册宠物做只读预匹配（复用 CLIP 同一次推理的 embedding + 14 维颜色签名，`matchedCount`/`matchedUris` 真实反映归属判定），真正归属写入仍在导入时（`ImportService` → `assignPhoto`）——扫描不写库的硬约束不变。
 
 **启动恢复**：`ModelContainer` 构造失败不再 `try!` 崩溃——`MiLensApp` 用 `@State` 启动状态机（正常容器 / `DatabaseRecoveryView`），失败时可查看可读错误、导出诊断（Documents/Diagnostics/ 日志文件）、重试，或重建本地数据（二次确认，清除相册记录不动系统相册原图）。依赖组装收口到 `AppDependencies.make(isTesting:)` 工厂，测试环境保持 in-memory 快速路径。

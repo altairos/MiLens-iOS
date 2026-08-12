@@ -62,6 +62,8 @@ struct PhotoSnapshot: Codable, Equatable, Sendable {
     let qualityScore: Double
     /// photos/ 目录中的文件名（{uuid}.jpg）。
     let photoFileName: String
+    /// 原始入库时间（保留导入顺序，恢复后排序一致）。
+    let createdAt: Date
 }
 
 /// 宠物事件导出投影。

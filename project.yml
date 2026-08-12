@@ -68,6 +68,23 @@ targets:
         # M1 权限文案收敛：CFBundleDisplayName / NSPhotoLibraryUsageDescription /
         # NSPhotoLibraryAddUsageDescription 的唯一事实来源是 InfoPlist.xcstrings
         # （Xcode 15+ 构建时自动注入 Info.plist），此处不再重复维护。
+        # 离线备份（ADR-0010 §8）：注册 .milensbackup 文档类型 + 开启 Files/iTunes 访问
+        UIFileSharingEnabled: true
+        LSSupportsOpeningDocumentsInPlace: true
+        UTExportedTypeDeclarations:
+          - UTTypeIdentifier: com.milens.backup
+            UTTypeDescription: "MiLens 备份文件"
+            UTTypeConformsTo:
+              - public.archive
+            UTTypeTagSpecification:
+              public.filename-extension:
+                - milensbackup
+        CFBundleDocumentTypes:
+          - CFBundleTypeName: "MiLens 备份"
+            CFBundleTypeRole: Viewer
+            LSHandlerRank: Owner
+            LSItemContentTypes:
+              - com.milens.backup
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.milens.app

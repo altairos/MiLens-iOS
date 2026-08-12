@@ -50,8 +50,14 @@
 - [x] `MiLensApp`（`@main`）组合根 + `scenePhase` 生命周期骨架；`ModelContainer` 待 P1.2 SwiftData `@Model` 接入
 - [x] TabView 壳（首页/宠物/创作/我的）+ 路由枚举 `Route` + `AppTab`（`@AppStorage` 持久化选中项）
 - [x] Figma Direction D「Memory Orbit」底部导航落地：350×70 浮层、四套固定矢量路径、无可见文字、浅/深色 token、VoiceOver Selected 状态与稳定 UI Test 标识；页面生命周期仍由系统 `TabView` 管理
-- [ ] 按 2026-08-11 Figma 定稿更新 `MemoryOrbitTabBar`：悬浮胶囊改为贴底安全区材质平面；选中短刻度改为精确深铜红直线；圆形轨道以三层矢量弧实现右深粗、左浅细的锥度和约 0.34–0.38s 描边动效；Reduce Motion 直接显示最终态，并补 iPhone/iPad、浅/深色截图测试
-- [ ] 将 Core Flow 主按钮实现为 `PrimaryActionMaterialStyle`（名称可随代码结构调整）及三种语义变体：`.contactProof` 仅用于照片扫描/导入，`.focusDial` 用于加入记忆与保存记忆，`.darkroomPulse` 用于生成拼豆与高清导出；按 [UI-DESIGN.md §5.5](UI-DESIGN.md#55-容器微语法precision-fold-material) 落实动作专属矢量图形、44pt 最小触控区、浅/深色 token、Reduce Motion 与 iPhone/iPad 截图测试，禁止回退到统一书脊尾块、全圆胶囊、缺角按钮、装订点或手绘装饰线
+- [x] Figma 可复用组件库定稿（2026-08-12）：主行动、`Navigation/Memory Orbit`、偏好行、拼豆控件，以及 `Data/Archive Stat`、`Surface/Archive Panel`、`Surface/Identity Strip` 共 12 组组件已建立变量、变体、可编辑属性和使用边界，并以实例回写 Release Candidate / Dark Mode / Applied / Core Flow / iPad Adaptive Layout；节点与代码映射见 [UI-DESIGN.md §5.6](UI-DESIGN.md#56-figma-可复用组件契约2026-08-12)
+- [x] Figma iPad 自适应参考稿完成（2026-08-12）：[`13 · Adaptive Layout · iPad`](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=306-669) 包含档案双栏、拼豆设置双栏、拼豆结果检查器及结果深色稿；834×1194pt 画板均显式保留顶部 24pt / 底部 20pt 参考安全区，组件与内容无越界。代码仍须使用实时 safe area、size class 与可用宽度决策
+- [x] Figma 重点流程精修与字号审计完成（2026-08-12）：Paywall、Bead Studio / Generating、Core Flow Precision / Add Memory 的浅色/深色共 6 张画板已统一为生命档案纸、显影记录和精确输入轨语法；交付范围 743 个文本节点中仅两枚装饰完成符号为 9pt，正文/交互文字不小于 11pt；目标画板无越界或截断，顶部 47pt、底部 34pt iPhone 参考安全区已校正。节点与实现边界见 [UI-DESIGN.md §5.7](UI-DESIGN.md#57-重点流程精修与字号验收2026-08-12)
+- [ ] 按 2026-08-12 Figma 组件 [`Navigation/Memory Orbit`](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=272-582) 更新 `MemoryOrbitTabBar`：悬浮胶囊改为贴底安全区材质平面；选中短刻度改为精确深铜红直线；圆形轨道以三层矢量弧实现右深粗、左浅细的锥度和约 0.34–0.38s 描边动效；Reduce Motion 直接显示最终态，并补 iPhone/iPad、浅/深色截图测试
+- [ ] 按 2026-08-12 Figma Action 组件实现 `PrimaryActionMaterialStyle`（名称可随代码结构调整）及三种语义变体：`.contactProof` 仅用于照片扫描/导入，`.focusDial` 用于加入记忆与保存记忆，`.darkroomPulse` 用于生成拼豆与高清导出；按 [UI-DESIGN.md §5.5–§5.6](UI-DESIGN.md#55-容器微语法precision-fold-material) 落实动作专属矢量图形、44pt 最小触控区、浅/深色 token、Reduce Motion 与 iPhone/iPad 截图测试，禁止回退到统一书脊尾块、全圆胶囊、缺角按钮、装订点或手绘装饰线
+- [ ] 将设置页 01–02 落实为 `PreferenceRow`（Toggle On/Off、Disclosure），保持 03–04「支持与版本」独立分组；Switch 使用 SwiftUI 原生行为与 44pt 点击语义，不实现手绘圈线或装饰性假开关
+- [ ] 按 Figma Studio 控件组件校准 `BeadSettingsPanelView` / `BeadPatternResultView`：效果选择使用 `StudioEffectProof`，尺寸保持 15/29/52/78 固定四档，彩色/字母编号只改变预览，缩放使用连续 Slider 且不改变导出分辨率；补浅/深色、Dynamic Type、VoiceOver 和 44pt 命中区截图/交互测试
+- [ ] 按 Figma Surface/Media 组件落实 `ArchiveStatView`、`ArchivePanel` 与 `IdentityStrip`：档案页保持连续纸面阅读顺序，拼豆原图/方案条共享接触印、登记轨和精确折角；图片走可访问性标签与异步缩略图，文字支持 Dynamic Type，iPad 上按可用宽度重排而非等比放大 390pt 画板
 - [x] v1 主题 token 已代码化；[UI Rework v2.0](UI-DESIGN.md) 已重新审计并修订动作色、字体边界、响应式和组件规格。**v2 迁移已落地（2026-08-09）**：v2 token（`ActionPrimary`/`AccentSoft`/`Border` 等）已代码化进 `Color+Theme.swift`，首页/创作/设置/引导页均按 v2 重构（git bea5b2f/bf23ce2/f85e22f），操作层用系统字体、文楷仅作稀缺情感标题
 - [x] 本地化 String Catalog（`Localizable.xcstrings` + `InfoPlist.xcstrings`，源语言简中，结构支持任意语言；`String(localized:)` API）；`tools/localization.py` 导出/导入/校验工具；App Icon / 占位图待源端资源整理后补
 
@@ -419,3 +425,39 @@ P1 核心可靠性与性能六项修复全部落地（实现记录见状态摘�
   **验证**：WSL2 Swift 6.1.3 `swift test` **761/761 通过**（本轮新增 138 用例全绿，零回归；预存 2 个 Linux 专属失败为 DecorationCatalog JSON 字段名测试，macOS 上全绿）。App 层编译/渲染/真机验证需 Mac（见 [docs/情感触点-Mac待办备忘.md](docs/情感触点-Mac待办备忘.md)）。附带修复：`DecorationCatalogCodableTests.swift:116` `.utf8` → `String.Encoding.utf8`（解锁 WSL2/Linux 测试编译）。UI-DESIGN.md §1.2/§6.6 创作 Tab 项目清单已同步更新。
 
   **待完成（需 Mac）**：①App 编译验证 + 类型/并发修复（P0 阻塞）；②新增本地化 key（`pet.card.birthdayYears`/`memory.kind.*`/`businessCard.template.*`/`redpacket.guide.*` 等）；③NotifyService 里程碑通知调度（用 MilestoneLogic.upcomingMilestones 预排）；④RecapView + TimelineExportCanvas ExportQuality 扩展；⑤指标埋点接入各触点；⑥红包封面真机验证（导出 PNG 上传 cover.weixin.qq.com 规格校验 + PNG→JPEG 降级链）。
+
+---
+
+## 数据安全与跨设备迁移（2026-08-12 规划）
+
+### 背景
+
+MiLens 是纯本地 App，照片副本与档案数据存于沙盒，对用户具有极强情感意义。换机、丢机、删 App 场景下，若用户未开启系统 iCloud 备份，数据将永久丢失且应用内无自救手段。审计确认 [ADR-0010 §8](docs/adr/0010-commercialization-and-emotion-triggers.md) 规划的 `BackupService` 仅为接口占位（`UnavailableBackupService`），实际打包/恢复逻辑未实现——这是换机数据安全的唯一重大缺口。
+
+### 风险评估
+
+| 场景 | 现状 | 风险 |
+|---|---|---|
+| 应用更新 | SwiftData Schema 迁移框架就绪（V1 冻结 + `MiLensMigrationPlan`） | 低 ✅ |
+| 换机（开启 iCloud 备份） | 数据库 + Edits + 游标可恢复；导入副本被 `isExcludedFromBackup` 排除（设计假设可从系统相册重建） | 中（依赖相册原图仍在 + 同 Apple ID） |
+| 换机（未开启 iCloud 备份） | 数据库 + 编辑产物 + 游标全部丢失，应用内无自救 | **高** ❌ |
+| 删 App / 手机丢失 | 同上 | **高** ❌ |
+
+### 任务
+
+1. **实现 `BackupService` 导出/恢复（本次实施）**：将照片原图 + 编辑产物 + 完整元数据（Pet/Photo/PetEvent 的 Codable 快照）打包为 `.milensbackup`（ZIP），通过 ShareSheet 导出到 Files/iCloud Drive/AirDrop；恢复经 DocumentPicker 选择备份文件，校验 `manifest.schemaVersion` 后合并导入（同 ID 跳过，不覆盖现有数据）。
+   - ZIP 能力：MiLensKit 新增纯 Swift `ZIPArchive`（store 模式，无第三方依赖，可在 WSL2 测试）。
+   - 实现 `ZipBackupService` 替换 `UnavailableBackupService`；接入 `AppDependencies` 依赖图。
+   - Pro 门控：导出为 Pro 专属（`ProFeature.offlineBackup`）；恢复对所有用户开放。
+
+2. **引导用户开启备份/主动导出**：在设置页「数据与隐私」分区增加备份导出/恢复入口；首选项或引导流提示「为防止换机/丢机丢失，建议开启 iCloud 备份或定期导出 `.milensbackup`」。不强制、不联网、不读取账户信息。
+
+3. **导入副本排除备份策略的用户可控性**：当前 `Documents/MiPhotos/` 导入副本被 `isExcludedFromBackup` 主动排除（设计假设可从系统相册重建）。考虑增加用户开关（云空间优先 vs. 数据安全优先），或导出备份时强制包含导入副本，避免「系统相册已清/换 Apple ID」时出现「DB 记录在、图片文件永久缺失」。此项为后续增强，V1 先以任务 1 的完整备份兜底。
+
+### 验收标准
+
+- [ ] 任务 1：`ZIPArchive` 纯逻辑测试（WSL2 全绿）+ `ZipBackupService` 服务测试（待 Mac）。
+- [ ] 任务 1：设置页备份导出/恢复入口可用（ShareSheet 导出 + DocumentPicker 导入）。
+- [ ] 任务 2：引导提示文案与入口就位。
+- [ ] 任务 3：策略评估（是否给开关或强制导出含导入副本）。
+- [ ] 真机验证：完整导出 → 删 App → 重装 → 恢复，数据（宠物档案 + 照片 + 编辑产物 + 事件）完整还原。

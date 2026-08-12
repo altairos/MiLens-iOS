@@ -28,6 +28,8 @@ final class AppDependencies {
     let storeService: any StoreService
     /// 应用级权益状态（proStatusUpdates 唯一消费者，功能门控统一判定源）
     let proEntitlement: ProEntitlementStore
+    /// 离线备份服务（导出/恢复，ADR-0010 §8）
+    let backupService: any BackupService
     /// 页面 ViewModel 组合工厂（分层收敛：View 不再直连 Repository/Service）
     let viewModelFactory: ViewModelFactory
 
@@ -45,6 +47,7 @@ final class AppDependencies {
          onboardingViewModel: OnboardingViewModel,
          storeService: any StoreService,
          proEntitlement: ProEntitlementStore,
+         backupService: any BackupService,
          viewModelFactory: ViewModelFactory) {
         self.container = container
         self.petRepo = petRepo
@@ -60,6 +63,7 @@ final class AppDependencies {
         self.onboardingViewModel = onboardingViewModel
         self.storeService = storeService
         self.proEntitlement = proEntitlement
+        self.backupService = backupService
         self.viewModelFactory = viewModelFactory
     }
 
@@ -122,6 +126,15 @@ final class AppDependencies {
         let storeService: any StoreService = isTesting ? MockStoreService() : StoreKit2StoreService()
         // 应用级权益：唯一流消费者，页面/ViewModel 经它读权益（P2 广播语义收口）。
         let proEntitlement = ProEntitlementStore(store: storeService)
+        // 离线备份：ZIP 打包导出/恢复（ADR-0010 §8）。appVersion 写入 manifest 供兼容性诊断。
+        let appVersion = (Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String) ?? "0"
+        let backupService: any BackupService = ZipBackupService(
+            petRepo: petRepo,
+            photoRepo: photoRepo,
+            fileStorage: fileStorage,
+            sandboxDir: sandboxDir,
+            appVersion: appVersion
+        )
         // 页面 ViewModel 组合工厂（分层收敛）：View 经 @Environment(\.viewModelFactory)
         // 取 VM/数据，不再直连 Repository 或拼装 sandboxDir 等基础设施细节。
         let viewModelFactory = ViewModelFactory(
@@ -152,6 +165,7 @@ final class AppDependencies {
             onboardingViewModel: onboardingViewModel,
             storeService: storeService,
             proEntitlement: proEntitlement,
+            backupService: backupService,
             viewModelFactory: viewModelFactory
         )
     }

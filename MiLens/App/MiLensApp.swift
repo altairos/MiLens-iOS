@@ -70,6 +70,7 @@ struct MiLensApp: App {
                 .environment(\.notifyService, dependencies.notifyService)
                 .environment(\.storeService, dependencies.storeService)
                 .environment(\.proEntitlement, dependencies.proEntitlement)
+                .environment(\.backupService, dependencies.backupService)
                 .environment(\.viewModelFactory, dependencies.viewModelFactory)
                 .preferredColorScheme(preferredScheme)
                 .task {

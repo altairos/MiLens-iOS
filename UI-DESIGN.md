@@ -134,6 +134,8 @@ Fraunces 不进入常规 App 界面；仅可用于英文营销物料或最终 wo
 
 所有样式必须基于 Dynamic Type；最大辅助字号时允许标题换行、横向按钮改为纵向、统计行改为两列或单列。自定义字体缺字时回退系统字体，不显示方框字。
 
+Figma 紧凑画板的可读性下限按内容职责区分：正文、说明、表单值和交互标签不得小于 11pt，常规正文仍以 15–17pt 为主；10pt 只用于 overline、色号、极短技术标识等非关键元信息；9pt 只允许作为状态圆内部的纯装饰字形，且外层命中区不得小于 44×44pt。代码不得把这些静态 pt 值硬编码为 Dynamic Type 上限，仍需使用语义字体并在辅助功能字号下重排。
+
 ### 4.2 文案语气
 
 - 情感但不拟人过度：“一年前的今天”优于“AI 为你唤醒珍贵回忆”。
@@ -151,7 +153,7 @@ Fraunces 不进入常规 App 界面；仅可用于英文营销物料或最终 wo
 |---|---:|---:|---|
 | iPhone compact | 全宽 | 20 | 单列；照片网格 3 列，最小单元 96 |
 | iPhone landscape | 全宽 | 24 | 内容与工具可并排 |
-| iPad portrait | 最大 760 | 32 | 居中单列或 2 栏 |
+| iPad portrait | 最大 786 | 24–32 | 居中单列或 2 栏；档案、工作室优先双栏 |
 | iPad landscape | 最大 1180 | 40 | Sidebar/Content/Inspector 或 2 栏 |
 
 间距采用 4pt 基线：`4 / 8 / 12 / 16 / 20 / 24 / 32 / 40 / 48`。正文最大可读宽度 680pt；设置表单最大宽度 620pt；全屏照片与编辑器不受该限制。
@@ -165,7 +167,7 @@ Fraunces 不进入常规 App 界面；仅可用于英文营销物料或最终 wo
 
 ### 5.3 核心组件清单
 
-1. `PrimaryButton`：高度至少 50pt，单屏原则上一个；加载时保留宽度并显示进度。
+1. `PrimaryActionMaterial`：按场景使用 `Focus Dial`、`Contact Proof`、`Darkroom Pulse`，不得收敛成一个万能胶囊；加载时保留宽度与材质轮廓。
 2. `SecondaryButton`：描边或无底色；不得与主按钮同权重。
 3. `FilterChip`：44pt 最小触控区，选中时同时改变填充、文字/图标和 VoiceOver 状态。
 4. `PhotoTile`：图片、选择状态、收藏状态、质量/重复标记；状态不可只靠颜色。
@@ -175,8 +177,10 @@ Fraunces 不进入常规 App 界面；仅可用于英文营销物料或最终 wo
 8. `TimelineNode`：时间线、节点、日期、标题、代表照片；无照片仍保持结构。
 9. `StateView`：加载、空、拒绝权限、失败、离线/资源缺失五类，均提供明确下一步。
 10. `BottomActionBar`：编辑器/导出等沉浸页使用，处理安全区和键盘。
+11. `MemoryOrbitTabBar`：四项无文字底部导航，包含精确选中刻度、渐变记忆轨道、56pt 点击区与底部安全区。
+12. `PreferenceRow`：54pt 高；布尔项使用 44×26pt 系统 Switch 语义，枚举项使用当前值 + Chevron；帮助与版本信息不复用该组件。
 
-所有组件都要定义 Default、Pressed、Disabled、Loading、Error、Selected（如适用）和 Dark/High Contrast 状态。
+组件按行为定义适用状态：动作组件至少覆盖 Default、Pressed、Disabled；导航覆盖四个 Selected 变体；开关覆盖 On/Off；页面级 Loading、Error 不得硬塞入原子控件。全部组件仍需验证 Dark、High Contrast、Dynamic Type 与 Reduce Motion（如有动效）。
 
 ### 5.4 底部主导航：Memory Orbit
 
@@ -199,6 +203,34 @@ Fraunces 不进入常规 App 界面；仅可用于英文营销物料或最终 wo
 - 折页只用于一处重点内容或纸张隐喻，尺寸约 14–16pt；不在每张卡片重复，也不把主按钮切成缺角形。
 - 不用无业务意义的 `01/02/03` 编号制造“编辑感”。编号只在确有顺序、进度或可引用条目时出现。
 - 设置页把可调整偏好与帮助、关于、版本信息分组；布尔项使用可识别的系统 Switch，枚举项使用当前值 + Chevron，不以装饰圈或下划线冒充控件状态。
+
+### 5.6 Figma 可复用组件契约（2026-08-12）
+
+Figma 定稿组件集中在 [12 · Design System · Components](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=253-272)，基础变量与样式在 [11 · Design System · Foundations](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=252-272)。产品页面必须使用实例，不再复制矢量散件。
+
+| Figma 组件 | Node | 变体/属性 | SwiftUI 落实边界 |
+|---|---|---|---|
+| `Action/Focus Dial` | [`259:344`](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=259-344) | `Intent=Add/Save` × `State=Default/Pressed/Disabled`；Add/Save 文案可覆盖 | `PrimaryActionMaterialStyle.focusDial`；加入记忆、保存档案 |
+| `Action/Contact Proof` | [`262:314`](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=262-314) | `State=Default/Pressed/Disabled`；文案可覆盖 | `.contactProof`；仅扫描/导入照片 |
+| `Action/Darkroom Pulse` | [`263:368`](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=263-368) | `Context=Generate/Export` × 三态；两类文案可覆盖 | `.darkroomPulse`；拼豆生成与高清导出 |
+| `Navigation/Memory Orbit` | [`272:582`](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=272-582) | `Active=Home/Pets/Create/Settings` | `MemoryOrbitTabBar`；390pt 稿高 105pt，其中 86pt 导航内容 + 34pt 重叠安全区洗白，代码必须读取真实 safe area，不能硬编码 390pt |
+| `Control/Preference Row` | [`275:522`](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=275-522) | `Mode=Toggle On/Toggle Off/Disclosure`；索引、标签、当前值可覆盖 | `PreferenceRow`；Toggle 仍使用 SwiftUI 原生行为，Disclosure 使用 Button/NavigationLink 语义 |
+| `Control/Studio Size Selector` | [`285:597`](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=285-597) | `Active=15/29/52/78` | `BeadSettingsPanelView` 固定四档尺寸 Picker；不得伪装成任意连续尺寸 |
+| `Control/Studio Effect Proof` | [`309:777`](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=309-777) | `State=Selected/Default`；名称、说明与推荐标记可覆盖 | `StudioEffectProof`；效果选择使用色珠接触校样和精确顶部索引，不回退到同质胶囊/卡片 |
+| `Control/Studio View Mode` | [`286:564`](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=286-564) | `Active=Color/Letter` | `BeadPatternResultView` 彩色/字母编号 Picker；只改变显示方式 |
+| `Control/Studio Range` | [`287:574`](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=287-574) | `Value=Min/Default/Max` | `BeadPatternResultView` 连续预览 Slider；减号/加号具备独立 44pt 命中区，不改变导出分辨率 |
+| `Data/Archive Stat` | [`295:587`](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=295-587) | `Value`、`Label` 文本属性；宽度可按统计带等分 | `ArchiveStatView`；保持开放报表排版，不把每个读数包装成小卡 |
+| `Surface/Archive Panel` | [`296:629`](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=296-629) | 档案引言、置顶记忆、时间线入口等文本属性；嵌套 `Archive Stat`，照片由实例覆盖 | `ArchivePanel`；统计、记忆与近期照片属于同一张连续档案纸，不拆成同质圆角容器 |
+| `Surface/Identity Strip` | [`299:615`](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=299-615) | `Context=Source/Recipe`；`Label`、`Meta`、`Action` 可覆盖，照片由实例覆盖 | `IdentityStrip`；用于拼豆原图与方案上下文，保留接触印、铜色登记轨和 12pt 精确折角，不泛化为普通设置行 |
+
+上述 12 组组件均绑定 `MiLens · Semantic` / `MiLens · Metrics` 变量，并已用实例回写 Release Candidate、Dark Mode、Applied、Core Flow 或 iPad Adaptive Layout 中的适用页面。Figma 的 `Pressed`、`Min/Default/Max` 等变体只记录视觉验收态；SwiftUI 还需实现弹簧、路径描边、连续 Slider 值、取消与 Reduce Motion。Code Connect 只在代码侧形成一一对应组件后添加，禁止把多个页面私有 View 强行映射到同一 Figma 组件。
+
+### 5.7 重点流程精修与字号验收（2026-08-12）
+
+- [`Paywall` 58:25](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=58-25) / [`Dark 79:712`](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=79-712)：下半区改为连续生命档案纸，权益使用开放登记轨，套餐使用票据层级，购买动作保留独立确认印记；不再堆叠通用权益卡片。
+- [`Bead Studio / Generating` 91:366](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=91-366) / [`Dark 84:365`](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=84-365)：以照片、曝光门、逐步显影的色珠矩阵和开放式显影记录表达真实生成过程；状态、取消和进度不再使用同质圆角卡片。
+- [`Core Flow Precision / Add Memory` 211:340](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=211-340) / [`Dark 79:380`](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=79-380)：类型切换使用精确分段轨，日期与照片证据收拢到一张连续档案纸；标题、长记忆和保存动作分别使用登记轨、折页纸面与 `Focus Dial`，保持清晰的输入层级。
+- 本轮对 Release Candidate、Dark Mode、iPad、Foundations 和 Components 范围共 743 个文本节点做了字号审计：仅两枚生成步骤完成态的装饰 `✓` 为 9pt；其余最小字号为 10pt 的辅助 overline/标识，正文和交互文字均不小于 11pt。上述六张 390×844pt 画板无文字越界或截断，顶部关键内容退出 47pt 状态栏区，底部交互和法律入口退出 34pt Home Indicator 区；SwiftUI 仍必须读取设备实时 safe area。
 
 ## 6. 关键页面规格
 
@@ -330,9 +362,12 @@ Hero 比例 iPhone 为 4:5 或 3:4，iPad 最大高度 560pt；用图像焦点�
 
 V1 的 iPad 目标不是把 iPhone 页面拉宽：
 
+Figma 参考画板集中在 [13 · Adaptive Layout · iPad](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=306-669)：834×1194pt 只作为 portrait 验收基准，顶部预留 24pt、底部预留 20pt 系统安全区；SwiftUI 必须读取实时 safe area，不能硬编码这些参考值。档案页使用肖像/档案纸双栏；拼豆设置使用来源工作区/参数检查器；拼豆结果使用大画布/导出检查器，并提供同结构深色稿验证语义变量。
+
 - 伙伴与设置采用 Sidebar + Detail。
 - 相册采用可变列网格，详情可在右侧打开。
 - 拼豆与编辑器采用 Canvas + Inspector。
+- 主 Tab 在 portrait 可使用全宽贴底材质面内居中的 `Memory Orbit`；可用宽度不足或进入多窗口窄态时回到 compact 布局，不把 390pt 组件横向拉伸。
 - Modal 表单限制最大宽度，不全屏铺开；键盘出现后主操作仍可见。
 - 支持横竖屏、Split View 和 Stage Manager 的可变窗口宽度；以 size class 与实际宽度决策，不按设备型号判断。
 

@@ -1806,6 +1806,116 @@
         }
       }
     },
+    "settings.backup.export" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "备份导出"
+          }
+        }
+      }
+    },
+    "settings.backup.exportReady" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "备份已生成"
+          }
+        }
+      }
+    },
+    "settings.backup.exportReadyHint" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "选择保存位置：文件 App、iCloud 云盘或隔空投送到电脑。建议妥善保存，防止换机或丢机时数据丢失。"
+          }
+        }
+      }
+    },
+    "settings.backup.failed" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "操作失败"
+          }
+        }
+      }
+    },
+    "settings.backup.ok" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "好"
+          }
+        }
+      }
+    },
+    "settings.backup.proOnly" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pro 专属功能"
+          }
+        }
+      }
+    },
+    "settings.backup.restore" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "备份恢复"
+          }
+        }
+      }
+    },
+    "settings.backup.restoreComplete" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "恢复完成"
+          }
+        }
+      }
+    },
+    "settings.backup.restoreSummary %lld %lld %lld %lld" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "已导入 %1$lld 个档案、%2$lld 张照片、%3$lld 个事件（%4$lld 项已存在跳过）"
+          }
+        }
+      }
+    },
+    "settings.backup.share" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "保存或分享备份"
+          }
+        }
+      }
+    },
     "settings.notifications.denied.message" : {
       "extractionState" : "manual",
       "localizations" : {

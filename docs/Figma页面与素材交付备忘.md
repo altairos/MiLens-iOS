@@ -1,15 +1,19 @@
 # MiLens Figma 页面与素材交付备忘
 
-> 核对日期：2026-08-10（二次核对 2026-08-10：文案规范同步——伙伴 / 男孩子·女孩子 / 喵星人·汪星人 / 无 Emoji）  
+> 核对日期：2026-08-12（12 组可复用组件、重点流程浅深色精修、Surface/Media、iPad 自适应与字号/安全区审计）
 > 用途：作为 Figma 高保真设计、页面拆帧、视觉素材制作和 iOS 交付排期的工作清单。  
 > 事实来源：当前 SwiftUI 路由与页面代码、`UI-DESIGN.md`、`DESIGN.md`、`PLAN.md`、ADR-0008/0010。  
 > 状态口径：**已有** = 当前代码已有可运行页面或交互骨架；**待打磨** = 页面/能力存在，但还需要高保真视觉和完整状态设计；**待交付** = 只有规划、协议或算法接口，尚未形成可用页面/素材。
 
-> Figma 框架进度（2026-08-10）：已在连接文件建立 `00 · Cover & Status` 至 `11 · Export & Handoff` 共 12 个 Page，并在各 Page 放置交付板；首次闭环、首页、相册导入、照片详情、编辑器、伙伴档案、时间线、创作和伙伴卡片的第一批主帧已落位，核心主帧已使用 `ui_draft` 伙伴摄影素材验证裁切、圆角、照片层级和珊瑚色行动按钮。当前口径为“框架已搭建、主稿已落位、逐帧状态与素材仍待精修”，不等同于 iOS 已交付。
+> Figma 框架进度（2026-08-12）：连接文件已收敛到 `MiLens V1 · Product Screens` 页面，以编号 Section 管理主页面、Applied、Core Flow、探索稿和 Design System。`11 · Design System · Foundations` / `12 · Design System · Components` 已建立；主行动、底部导航、偏好行、拼豆控件、档案面板、档案读数和身份条共 12 组组件已定稿并回写 Release Candidate / Dark Mode / Applied / Core Flow。`13 · Adaptive Layout · iPad` 已补档案双栏、拼豆设置/结果与结果深色稿；Paywall、Bead Studio / Generating、Core Flow Precision / Add Memory 的浅色/深色稿也已完成重点精修和安全区校正。当前仍缺完整异常状态和 SwiftUI 对应实现，不等同于 iOS 已交付。
 
 > 2026-08-12 视觉定稿节点：[08 · Applied Refinement · Micro Grammar](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=140-292) 与 [09 · Core Flow · Precision Continuity](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=211-240)。功能代码落地以这两个节点和 [UI-DESIGN.md §5.4–§5.5](../UI-DESIGN.md#54-底部主导航memory-orbit) 为准；横向主行动采用 `Focus Dial`（加入/保存记忆）、`Contact Proof`（仅照片扫描/导入）和 `Darkroom Pulse`（拼豆生成/高清导出）三种语义变体，不再参考旧的 `Archive Spine Action`、悬浮 Tab、全圆胶囊、缺角主按钮、装订点、手绘装饰线或文本化 Core Flow 探索稿。
 
 > 主行动取舍与备选稿保留在 [Primary Action Studies](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=222-272)；最终五个实例均位于 Core Flow 节点。既有主页面没有需要强行套用横向主按钮的入口，时间线圆形新增记忆按钮及其他快捷动作继续使用各自的紧凑控件语法。
+
+> 可复用组件节点：[`Action/Focus Dial` 259:344](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=259-344)、[`Action/Contact Proof` 262:314](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=262-314)、[`Action/Darkroom Pulse` 263:368](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=263-368)、[`Navigation/Memory Orbit` 272:582](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=272-582)、[`Control/Preference Row` 275:522](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=275-522)、[`Control/Studio Effect Proof` 309:777](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=309-777)、[`Control/Studio Size Selector` 285:597](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=285-597)、[`Control/Studio View Mode` 286:564](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=286-564)、[`Control/Studio Range` 287:574](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=287-574)、[`Data/Archive Stat` 295:587](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=295-587)、[`Surface/Archive Panel` 296:629](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=296-629)、[`Surface/Identity Strip` 299:615](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=299-615)。iPad 参考画板见 [`13 · Adaptive Layout · iPad` 306:669](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=306-669)；组件变体、尺寸 token、动效和 SwiftUI 映射以 [UI-DESIGN.md §5.6](../UI-DESIGN.md#56-figma-可复用组件契约2026-08-12) 为唯一说明。
+
+> 重点精修节点：[`Paywall` 58:25](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=58-25)、[`Bead Studio / Generating` 91:366](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=91-366)、[`Core Flow Precision / Add Memory` 211:340](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=211-340)，对应深色节点为 `79:712`、`84:365`、`79:380`。本轮审计 Release Candidate、Dark Mode、iPad、Foundations 与 Components 共 743 个文本节点：仅两枚纯装饰完成符号为 9pt，正文/交互文字不小于 11pt；六张目标画板无文字越界或截断，顶部 47pt、底部 34pt iPhone 参考安全区已校正。详细规则见 [UI-DESIGN.md §4.1 与 §5.7](../UI-DESIGN.md#57-重点流程精修与字号验收2026-08-12)。
 
 ## 1. 先记住的边界
 

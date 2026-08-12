@@ -16,10 +16,18 @@ struct LockScreenEntry: TimelineEntry {
     let snapshot: WidgetSnapshot?
     let petID: UUID?
     let selection: UpcomingDaySelection?
+    /// 用户指定了某个纪念日但它已不在快照中，且连自动回退也找不到候选。
+    /// 为 true 时 Circular 的 empty 状态使用「该纪念日已不存在」文案。
+    var specifiedDayMissing: Bool = false
+    /// 当前 selection 是否为用户指定的纪念日（true=指定命中，false=自动/回退）。
+    /// 决定点击深链是否携带纪念日定位（anniversary vs pet）。锁屏 Rectangular
+    /// 使用自动模式，该值为 false。
+    var isSpecifiedMatch: Bool = false
 }
 
 // MARK: - 共享 Timeline Provider
 
+/// 锁屏·一段回忆 Rectangular 的 Provider：自动取最近纪念日，不支持指定。
 struct LockScreenProvider: AppIntentTimelineProvider {
     func placeholder(in context: Context) -> LockScreenEntry {
         LockScreenEntry(date: Date(), snapshot: nil, petID: nil, selection: nil)
@@ -62,13 +70,19 @@ struct LockScreenCircularProvider: AppIntentTimelineProvider {
     func snapshot(for configuration: SelectAnniversaryIntent, in context: Context) async -> LockScreenEntry {
         let now = Date()
         let snapshot = WidgetSnapshotReader.read()
+        let dayID = configuration.anniversary.dayID
         let selection = snapshot.flatMap {
             WidgetSelectionLogic.upcomingDay(
                 snapshot: $0, petID: configuration.pet.petID,
-                dayID: configuration.anniversary.dayID, now: now
+                dayID: dayID, now: now
             )
         }
-        return LockScreenEntry(date: now, snapshot: snapshot, petID: configuration.pet.petID, selection: selection)
+        var entry = LockScreenEntry(date: now, snapshot: snapshot, petID: configuration.pet.petID, selection: selection)
+        entry.specifiedDayMissing = (dayID != nil
+            && (snapshot?.upcomingDays.contains { $0.id == dayID } == false)
+            && selection == nil)
+        entry.isSpecifiedMatch = (dayID != nil && selection?.day.id == dayID)
+        return entry
     }
 
     func timeline(for configuration: SelectAnniversaryIntent, in context: Context) async -> Timeline<LockScreenEntry> {
@@ -77,6 +91,8 @@ struct LockScreenCircularProvider: AppIntentTimelineProvider {
         let entryDates = WidgetTimelineLogic.upcomingDayEntries(now: now)
         let petID = configuration.pet.petID
         let dayID = configuration.anniversary.dayID
+        let missing = dayID != nil
+            && (snapshot?.upcomingDays.contains { $0.id == dayID } == false)
 
         let entries: [LockScreenEntry] = entryDates.map { entryDate in
             let selection = snapshot.flatMap {
@@ -84,7 +100,10 @@ struct LockScreenCircularProvider: AppIntentTimelineProvider {
                     snapshot: $0, petID: petID, dayID: dayID, now: entryDate
                 )
             }
-            return LockScreenEntry(date: entryDate, snapshot: snapshot, petID: petID, selection: selection)
+            var entry = LockScreenEntry(date: entryDate, snapshot: snapshot, petID: petID, selection: selection)
+            entry.specifiedDayMissing = missing && selection == nil
+            entry.isSpecifiedMatch = (dayID != nil && selection?.day.id == dayID)
+            return entry
         }
         let policy: TimelineReloadPolicy = .after(entryDates.last ?? now.addingTimeInterval(3600))
         return Timeline(entries: entries, policy: policy)
@@ -142,10 +161,10 @@ struct LockScreenCircularView: View {
                     }
                 }
             }
-            .widgetURL(WidgetDeepLinkBuilder.pet(selection.day.petID))
+            .widgetURL(deepLink(for: selection))
         } else {
-            // empty 状态：只显示图标
-            Image(systemName: "pawprint")
+            // empty 状态：只显示图标。若用户指定过的纪念日被删除，用问号圈提示。
+            Image(systemName: entry.specifiedDayMissing ? "questionmark.circle" : "pawprint")
                 .font(.system(size: 18))
                 .opacity(0.6)
         }
@@ -153,6 +172,13 @@ struct LockScreenCircularView: View {
 
     private func countdownText(_ selection: UpcomingDaySelection) -> String {
         selection.daysUntil == 0 ? "今天" : "\(selection.daysUntil)"
+    }
+
+    /// 点击深链：指定命中时携带纪念日定位（anniversary），自动/回退时跳伙伴档案（pet）。
+    private func deepLink(for selection: UpcomingDaySelection) -> URL? {
+        entry.isSpecifiedMatch
+            ? WidgetDeepLinkBuilder.anniversary(petID: selection.day.petID, dayID: selection.day.id)
+            : WidgetDeepLinkBuilder.pet(selection.day.petID)
     }
 }
 

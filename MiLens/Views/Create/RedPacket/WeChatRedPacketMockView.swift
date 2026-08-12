@@ -61,7 +61,7 @@ struct WeChatRedPacketMockView: View {
                             .overlay {
                                 Text("開")
                                     .font(.system(size: w * 0.07, weight: .bold))
-                                    .foregroundStyle(.red.opacity(0.85))
+                                    .foregroundStyle(Color.milensRedPacketRed.opacity(0.85))
                             }
                     }
                     .padding(.bottom, h * 0.08)
@@ -119,7 +119,7 @@ struct WeChatRedPacketMockView: View {
                 .foregroundStyle(.white)
                 .padding(.horizontal, Spacing.xxl)
                 .padding(.vertical, Spacing.md)
-                .background(Color.red.opacity(0.8))
+                .background(Color.milensRedPacketRed.opacity(0.8))
                 .clipShape(Capsule())
                 .padding(.bottom, Spacing.lg)
         }
@@ -148,7 +148,7 @@ struct WeChatRedPacketMockView: View {
                 }
                 .padding(.horizontal, Spacing.sm)
                 .padding(.vertical, Spacing.xs)
-                .background(Color.red.opacity(0.85))
+                .background(Color.milensRedPacketRed.opacity(0.85))
             }
             .clipShape(RoundedRectangle(cornerRadius: Radius.small, style: .continuous))
 

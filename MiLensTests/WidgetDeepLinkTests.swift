@@ -8,6 +8,7 @@ import XCTest
 //  - pet/{uuid} → .petProfile
 //  - timeline → .timeline
 //  - bead/{uuid} → .beadPattern
+//  - anniversary/{petUUID}?day={dayID} → .petProfile（dayID 预留）
 //  - 无效 scheme / host / UUID → nil（安全回退）
 
 final class WidgetDeepLinkTests: XCTestCase {
@@ -36,6 +37,23 @@ final class WidgetDeepLinkTests: XCTestCase {
         let url = URL(string: "milens://bead/550e8400-e29b-41d4-a716-446655440000")!
         let route = WidgetDeepLink.route(from: url)
         XCTAssertEqual(route, .beadPattern(photoID: testUUID))
+    }
+
+    // MARK: - 纪念日深链
+
+    func testAnniversaryDeepLink() {
+        // anniversary 带合法 petUUID + day query → petProfile
+        let url = URL(string: "milens://anniversary/550e8400-e29b-41d4-a716-446655440000?day=birthday:abc")!
+        let route = WidgetDeepLink.route(from: url)
+        XCTAssertEqual(route, .petProfile(petID: testUUID),
+                       "anniversary 深链应解析为 petProfile（day query 预留不消费）")
+    }
+
+    func testAnniversaryDeepLink_invalidUUID_returnsNil() {
+        // petUUID 无效时安全回退 nil（query 存在不影响判定）
+        let url = URL(string: "milens://anniversary/not-a-uuid?day=birthday:abc")!
+        let route = WidgetDeepLink.route(from: url)
+        XCTAssertNil(route, "anniversary 路径 petUUID 无效应返回 nil")
     }
 
     func testHomeDeepLink_returnsNil() {

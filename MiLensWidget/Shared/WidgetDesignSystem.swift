@@ -223,6 +223,16 @@ enum WidgetDeepLinkBuilder {
     static func bead(_ id: UUID) -> URL? {
         URL(string: "\(WidgetSharedConfig.deepLinkScheme)://bead/\(id.uuidString)")
     }
+
+    /// 纪念日 Widget 点击深链：定位到该纪念日所属伙伴的档案页，并通过 query
+    /// 携带 `day` 参数以备未来定位到具体事件。当前 App 端解析为 `petProfile`
+    /// （与 `pet` 行为一致），`day` 参数为预留扩展。
+    /// - Parameters:
+    ///   - petID: 该纪念日的所属伙伴 ID
+    ///   - dayID: 纪念日稳定 id（`UpcomingDayProjection.id`）
+    static func anniversary(petID: UUID, dayID: String) -> URL? {
+        URL(string: "\(WidgetSharedConfig.deepLinkScheme)://anniversary/\(petID.uuidString)?day=\(dayID)")
+    }
 }
 
 // MARK: - 日历工具

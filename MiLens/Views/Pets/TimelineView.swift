@@ -610,7 +610,7 @@ private struct TextMemoryCard: View {
             .padding(.vertical, 18)
             Spacer()
         }
-        .background(Color(red: 0.988, green: 0.910, blue: 0.875)) // #FCE8DF
+        .background(Color.milensAccentWash)
         .clipShape(RoundedRectangle(cornerRadius: 4, style: .continuous))
     }
 }

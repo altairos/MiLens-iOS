@@ -138,31 +138,58 @@ struct AnniversaryEntity: AppEntity {
 }
 
 /// 从共享快照读取纪念日候选供用户选择（不打开 SwiftData store）。
+///
+/// 通过 `@IntentParameterDependency` 读取同 Intent 中「伙伴」参数的当前值：
+/// 用户选了指定伙伴时，候选列表只显示该伙伴的纪念日；选「全部伙伴」或依赖
+/// 尚未就绪（系统首次渲染配置面板）时返回全部。参考 WWDC23「Explore
+/// enhancements to App Intents」的 BusRouteQuery 模式。
 struct AnniversaryEntityQuery: EntityQuery {
+    /// 依赖 `SelectAnniversaryIntent` 的 `pet` 参数，使候选列表随伙伴选择联动。
+    @IntentParameterDependency<SelectAnniversaryIntent>(\.$pet)
+    var selectAnniversaryIntent
+
     func entities(for identifiers: [String]) async throws -> [AnniversaryEntity] {
         let all = allEntities()
         return identifiers.compactMap { id in all.first { $0.id == id } }
     }
 
     func suggestedEntities() async throws -> [AnniversaryEntity] {
-        allEntities()
+        // 依赖未就绪（系统首次渲染）或用户选「全部伙伴」时，返回全部候选。
+        // `pet.petID == nil` 表示「全部伙伴」。
+        suggestedEntities(petID: selectAnniversaryIntent?.pet.petID)
     }
 
     func defaultResult() async -> AnniversaryEntity {
         AnniversaryEntity(id: "auto", displayName: "自动（最近）")
     }
 
-    /// 「自动（最近）」选项 + 快照中的全部纪念日候选。
-    private func allEntities() -> [AnniversaryEntity] {
+    /// 「自动（最近）」选项 + 按伙伴过滤后的纪念日候选。
+    /// `petID == nil` 表示「全部伙伴」，返回全部候选。
+    private func suggestedEntities(petID: UUID?) -> [AnniversaryEntity] {
         var entities: [AnniversaryEntity] = [
             AnniversaryEntity(id: "auto", displayName: "自动（最近）")
         ]
-        if let snapshot = WidgetSnapshotReader.read() {
-            entities.append(contentsOf: snapshot.upcomingDays.map {
-                AnniversaryEntity(id: $0.id, displayName: $0.title)
-            })
-        }
+        guard let snapshot = WidgetSnapshotReader.read() else { return entities }
+
+        let candidates = petID == nil
+            ? snapshot.upcomingDays
+            : snapshot.upcomingDays.filter { $0.petID == petID }
+        entities.append(contentsOf: candidates.map {
+            AnniversaryEntity(id: $0.id, displayName: Self.displayTitle($0))
+        })
         return entities
+    }
+
+    /// 所有可选纪念日（含「自动」），不受伙伴过滤。用于 `entities(for:)` 的 id 解析
+    /// （被选中的纪念日可能因伙伴切换后不在过滤集内，仍需能被 id 找回以渲染当前值）。
+    private func allEntities() -> [AnniversaryEntity] {
+        suggestedEntities(petID: nil)
+    }
+
+    /// 统一的候选展示标题：「宠物名 · 纪念日标题」。
+    /// 始终携带宠物名，避免多宠物场景下「成为家人的日子」这类不含名字的标题不可区分。
+    static func displayTitle(_ day: UpcomingDayProjection) -> String {
+        "\(day.petName) · \(day.title)"
     }
 }
 

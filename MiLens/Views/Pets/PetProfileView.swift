@@ -90,7 +90,7 @@ struct PetProfileView: View {
 
             // 底部渐变（对照 Portrait Gradient #319:1097）
             LinearGradient(
-                colors: [Color.black.opacity(0), Color(red: 0.02, green: 0.02, blue: 0.02).opacity(0.7)],
+                colors: [Color.black.opacity(0), Color.milensHeroGradientEnd.opacity(0.7)],
                 startPoint: .top,
                 endPoint: .bottom
             )

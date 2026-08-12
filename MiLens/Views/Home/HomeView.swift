@@ -93,7 +93,7 @@ private struct HomeHero: View {
             LinearGradient(
                 colors: [
                     Color.black.opacity(0),
-                    Color(red: 0.04, green: 0.03, blue: 0.03).opacity(0.82)
+                    Color.milensHeroGradientEnd.opacity(0.82)
                 ],
                 startPoint: .top,
                 endPoint: .bottom

@@ -67,12 +67,19 @@ extension Color {
     /// 狗狗主题色（浅：#57A5E3 / 深：#5B96D0）
     static let milensDogAccent = Color("DogAccent")
 
-    // MARK: - Separator 分隔
+    // MARK: - Wash / Gradient 专用表面
 
-    /// 分隔线（浅：#ECE7E1 / 深：#2E2823）
-    static let milensSeparator = Color("Separator")
-    /// 卡片描边/输入框边（浅：#E5DFD8 / 深：#383129）
-    static let milensBorder = Color("Border")
+    /// 珊瑚浅粉 wash（浅：#FCE8DF / 深：#3A241C）—— 文本记忆卡片底、隐私徽章 wash
+    static let milensAccentWash = Color("AccentWash")
+    /// Hero 渐变终点暖黑（#060606）—— 出血 Hero 底部渐变
+    static let milensHeroGradientEnd = Color("HeroGradientEnd")
+
+    // MARK: - Pro 卡专用
+
+    /// Pro 卡深色底（浅：#14110F / 深：#2A2520）—— ProHeroCard 背景
+    static let milensProCardDark = Color("ProCardDark")
+    /// Pro 卡辅文暖灰（#B5A89C）—— ProHeroCard 副标题文字
+    static let milensProBody = Color(red: 0.71, green: 0.66, blue: 0.61)
 
     // MARK: - Brand 社交平台品牌色（仅用于分享引导行平台图标着色）
 
@@ -80,4 +87,11 @@ extension Color {
     static let milensBrandWechat = Color(red: 0.07, green: 0.60, blue: 0.52)
     /// 小红书品牌红（#F2446B 近似）
     static let milensBrandRedNote = Color(red: 0.95, green: 0.27, blue: 0.42)
+    /// 微信红包封面品牌红（#D1291E 近似）—— 仅 WeChatRedPacketMockView
+    static let milensRedPacketRed = Color("RedPacketRed")
+
+    /// 分隔线（浅：#ECE7E1 / 深：#2E2823）
+    static let milensSeparator = Color("Separator")
+    /// 卡片描边/输入框边（浅：#E5DFD8 / 深：#383129）
+    static let milensBorder = Color("Border")
 }

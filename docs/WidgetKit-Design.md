@@ -20,12 +20,17 @@
 | Widget | Family | 主内容 | 点击目标 |
 |---|---|---|---|
 | **相片回声 Photo Echo** | Small / Medium / Large | 今日照片、往日同日或最近一张照片；可配置为最近拼豆作品 | 照片详情 / 拼豆结果 |
-| **纪念日 Upcoming Day** | Small / Medium | 生日、领养日或用户纪念事件的倒计时与陪伴天数 | 对应伙伴档案 |
+| **纪念日 Upcoming Day** | Small / Medium | 生日、领养日或用户纪念事件的倒计时与陪伴天数；可指定某个具体纪念日，默认自动取最近 | 对应伙伴档案 |
 | **档案年轮 Life Archive** | Medium / Large | 照片数、记忆数、作品数、档案跨度与年份节点 | 生命时间线 |
-| **锁屏·倒计时** | Accessory Circular | 距下个纪念日的天数 | 对应伙伴档案 |
-| **锁屏·一段回忆** | Accessory Rectangular | 宠物名、回忆日期与一行标题 | 照片详情 |
+| **锁屏·倒计时** | Accessory Circular | 距某纪念日的天数；可指定具体纪念日，默认自动取最近 | 对应伙伴档案 |
+| **锁屏·一段回忆** | Accessory Rectangular | 下一个纪念日的宠物名、日期与标题（自动取最近，不可指定） | 对应伙伴档案 |
 
-桌面组件使用 `AppIntentConfiguration`：用户只配置「伙伴」与「内容类型」。没有伙伴时使用“全部伙伴”；内容不足时安全降级，不伪造回忆。
+桌面组件使用 `AppIntentConfiguration`，可配置维度按组件类型不同：
+- **伙伴**（全部组件）：全部伙伴或指定一只，没有伙伴时默认“全部伙伴”。
+- **内容源**（相片回声）：今日/往日回忆、最近照片或最近拼豆作品。
+- **纪念日**（纪念日 + 锁屏·倒计时）：自动取最近，或点名某个具体纪念日；候选列表随「伙伴」参数联动过滤（选指定伙伴只显示该伙伴的纪念日），指定的纪念日被删除时安全回退到「自动」，不出现空白。
+
+内容不足时安全降级，不伪造回忆。锁屏·一段回忆按设计只展示「下一个值得记住的日子」，不提供指定能力。
 
 ### 2.1 Figma 交付定位
 
@@ -118,9 +123,12 @@ Figma 当前包含 12 个命名组件与 12 个场景实例。最终审计结果
 
 ### 6.3 配置与深链
 
-- `SelectPetIntent`：全部伙伴或指定伙伴。
-- `PhotoEchoSource`：今日/往日回忆、最近照片、最近拼豆作品。
-- 深链建议：`milens://photo/{id}`、`milens://pet/{id}`、`milens://timeline?pet={id}`、`milens://bead/{id}`。
+- `SelectPetIntent`：全部伙伴或指定伙伴（全部组件通用）。
+- `SelectAnniversaryIntent`：纪念日 + 锁屏·倒计时专用，包含「伙伴」+「纪念日」两个参数；纪念日参数默认「自动（最近）」，候选列表 `AnniversaryEntityQuery` 从共享快照的 `upcomingDays` 读取。
+- `PhotoEchoSource`：今日/往日回忆、最近照片、最近拼豆作品（相片回声专用）。
+- 纪念日候选稳定性：每个 `UpcomingDayProjection` 带稳定 `id`（生日/领养日按 `petID` 派生，用户纪念事件按 `event.id`），用作 App Intents 实体主键；旧版本 App 写入的无 `id` 快照由解码端派生兜底，向后兼容。
+- 候选列表联动：`AnniversaryEntityQuery` 通过 `@IntentParameterDependency` 读取同 Intent 的「伙伴」参数，用户选指定伙伴时只列出该伙伴的纪念日（iOS 17 API，首次渲染依赖未就绪时回退全量）。候选展示标题统一为「宠物名 · 纪念日标题」，避免多宠物场景下不含名字的标题（如「成为家人的日子」）不可区分。
+- 深链建议：`milens://photo/{id}`、`milens://pet/{id}`、`milens://timeline?pet={id}`、`milens://bead/{id}`、`milens://anniversary/{petID}?day={dayID}`。纪念日 Widget 点击时：用户指定命中走 `anniversary` 深链（携带 dayID 定位），自动/回退走 `pet` 深链；App 端统一解析 `anniversary` 为 `petProfile`（dayID 预留给未来定位到具体事件区块）。
 - 主 App 统一解析 URL 并映射到类型安全 `Route`；无效、已删除或迁移后的 ID 回退到对应一级页面，不 crash。
 
 ## 7. 实现验收

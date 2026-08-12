@@ -18,25 +18,53 @@ struct UpcomingDayEntry: TimelineEntry {
     let petID: UUID?
     /// 选中的纪念日（已计算 daysUntil / daysTogether）。
     let selection: UpcomingDaySelection?
+    /// 用户指定了某个纪念日但它已不在快照中，且连自动回退也找不到候选。
+    /// 为 true 时 empty 状态使用「该纪念日已不存在」文案。
+    let specifiedDayMissing: Bool
+    /// 当前 selection 是否为用户指定的纪念日（true=指定命中，false=自动/回退）。
+    /// 决定点击深链是否携带纪念日定位（anniversary vs pet）。
+    let isSpecifiedMatch: Bool
+}
+
+/// 计算 entry 上的两个配置标志（依赖快照与用户配置，纯函数便于复用）。
+private enum UpcomingDayFlags {
+    /// 用户指定了非「自动」的纪念日，但该 id 在快照候选中不存在。
+    static func isMissing(dayID: String?, snapshot: WidgetSnapshot?) -> Bool {
+        guard let dayID else { return false }
+        return snapshot?.upcomingDays.contains { $0.id == dayID } == false
+    }
+
+    /// selection 是用户指定的那个纪念日（id 匹配）。
+    static func isSpecifiedMatch(dayID: String?, selection: UpcomingDaySelection?) -> Bool {
+        guard let dayID, let selection else { return false }
+        return selection.day.id == dayID
+    }
 }
 
 // MARK: - Timeline Provider
 
 struct UpcomingDayProvider: AppIntentTimelineProvider {
     func placeholder(in context: Context) -> UpcomingDayEntry {
-        UpcomingDayEntry(date: Date(), snapshot: nil, petID: nil, selection: nil)
+        UpcomingDayEntry(date: Date(), snapshot: nil, petID: nil, selection: nil,
+                         specifiedDayMissing: false, isSpecifiedMatch: false)
     }
 
     func snapshot(for configuration: SelectAnniversaryIntent, in context: Context) async -> UpcomingDayEntry {
         let now = Date()
         let snapshot = WidgetSnapshotReader.read()
+        let dayID = configuration.anniversary.dayID
         let selection = snapshot.flatMap {
             WidgetSelectionLogic.upcomingDay(
                 snapshot: $0, petID: configuration.pet.petID,
-                dayID: configuration.anniversary.dayID, now: now
+                dayID: dayID, now: now
             )
         }
-        return UpcomingDayEntry(date: now, snapshot: snapshot, petID: configuration.pet.petID, selection: selection)
+        return UpcomingDayEntry(
+            date: now, snapshot: snapshot, petID: configuration.pet.petID,
+            selection: selection,
+            specifiedDayMissing: UpcomingDayFlags.isMissing(dayID: dayID, snapshot: snapshot) && selection == nil,
+            isSpecifiedMatch: UpcomingDayFlags.isSpecifiedMatch(dayID: dayID, selection: selection)
+        )
     }
 
     func timeline(for configuration: SelectAnniversaryIntent, in context: Context) async -> Timeline<UpcomingDayEntry> {
@@ -45,6 +73,8 @@ struct UpcomingDayProvider: AppIntentTimelineProvider {
         let entryDates = WidgetTimelineLogic.upcomingDayEntries(now: now)
         let petID = configuration.pet.petID
         let dayID = configuration.anniversary.dayID
+        // 标志在整个 timeline 内不变（快照与配置固定），预先计算复用
+        let missing = UpcomingDayFlags.isMissing(dayID: dayID, snapshot: snapshot)
 
         let entries: [UpcomingDayEntry] = entryDates.map { entryDate in
             let selection = snapshot.flatMap {
@@ -52,7 +82,11 @@ struct UpcomingDayProvider: AppIntentTimelineProvider {
                     snapshot: $0, petID: petID, dayID: dayID, now: entryDate
                 )
             }
-            return UpcomingDayEntry(date: entryDate, snapshot: snapshot, petID: petID, selection: selection)
+            return UpcomingDayEntry(
+                date: entryDate, snapshot: snapshot, petID: petID, selection: selection,
+                specifiedDayMissing: missing && selection == nil,
+                isSpecifiedMatch: UpcomingDayFlags.isSpecifiedMatch(dayID: dayID, selection: selection)
+            )
         }
         // 最后一个 entry 后的策略：由主 App 主动 reload
         let policy: TimelineReloadPolicy = .after(entryDates.last ?? now.addingTimeInterval(3600))
@@ -99,7 +133,11 @@ struct UpcomingDayWidgetView: View {
         }
     }
 
+    /// empty 状态文案：用户指定过的纪念日被删除且无候选回退时，提示「该纪念日已不存在」。
     private var emptyMessage: String {
+        if entry.specifiedDayMissing {
+            return "该纪念日已不存在"
+        }
         let hasPets = !(entry.snapshot?.pets.isEmpty ?? true)
         return hasPets ? "还没有纪念日" : "先建立一份伙伴档案"
     }
@@ -112,11 +150,11 @@ struct UpcomingDayWidgetView: View {
         }
         switch family {
         case .systemSmall:
-            UpcomingDaySmallView(selection: selection, snapshot: entry.snapshot)
+            UpcomingDaySmallView(selection: selection, snapshot: entry.snapshot, isSpecifiedMatch: entry.isSpecifiedMatch)
         case .systemMedium:
-            UpcomingDayMediumView(selection: selection, snapshot: entry.snapshot)
+            UpcomingDayMediumView(selection: selection, snapshot: entry.snapshot, isSpecifiedMatch: entry.isSpecifiedMatch)
         default:
-            UpcomingDaySmallView(selection: selection, snapshot: entry.snapshot)
+            UpcomingDaySmallView(selection: selection, snapshot: entry.snapshot, isSpecifiedMatch: entry.isSpecifiedMatch)
         }
     }
 }
@@ -127,6 +165,8 @@ struct UpcomingDayWidgetView: View {
 struct UpcomingDaySmallView: View {
     let selection: UpcomingDaySelection
     let snapshot: WidgetSnapshot?
+    /// 是否用户指定命中（决定点击深链携带纪念日定位）。
+    let isSpecifiedMatch: Bool
 
     var body: some View {
         HStack(spacing: 8) {
@@ -161,7 +201,7 @@ struct UpcomingDaySmallView: View {
                 .clipShape(RoundedRectangle(cornerRadius: 6))
         }
         .padding(10)
-        .widgetURL(WidgetDeepLinkBuilder.pet(selection.day.petID))
+        .widgetURL(deepLink)
         .containerBackground(for: .widget) {
             WidgetPalette.paper
         }
@@ -173,6 +213,13 @@ struct UpcomingDaySmallView: View {
 
     private var countdownFont: Font {
         selection.daysUntil == 0 ? WidgetFont.editorialNumber : WidgetFont.editorialLarge
+    }
+
+    /// 点击深链：指定命中时携带纪念日定位（anniversary），自动/回退时跳伙伴档案（pet）。
+    private var deepLink: URL? {
+        isSpecifiedMatch
+            ? WidgetDeepLinkBuilder.anniversary(petID: selection.day.petID, dayID: selection.day.id)
+            : WidgetDeepLinkBuilder.pet(selection.day.petID)
     }
 
     @ViewBuilder
@@ -195,6 +242,8 @@ struct UpcomingDaySmallView: View {
 struct UpcomingDayMediumView: View {
     let selection: UpcomingDaySelection
     let snapshot: WidgetSnapshot?
+    /// 是否用户指定命中（决定点击深链携带纪念日定位）。
+    let isSpecifiedMatch: Bool
 
     var body: some View {
         HStack(spacing: 0) {
@@ -246,7 +295,7 @@ struct UpcomingDayMediumView: View {
             .frame(maxWidth: .infinity, alignment: .leading)
             .background(WidgetPalette.paper)
         }
-        .widgetURL(WidgetDeepLinkBuilder.pet(selection.day.petID))
+        .widgetURL(deepLink)
         .containerBackground(for: .widget) {
             WidgetPalette.paper
         }
@@ -254,6 +303,13 @@ struct UpcomingDayMediumView: View {
 
     private var countdownText: String {
         selection.daysUntil == 0 ? "今天" : "\(selection.daysUntil)"
+    }
+
+    /// 点击深链：指定命中时携带纪念日定位（anniversary），自动/回退时跳伙伴档案（pet）。
+    private var deepLink: URL? {
+        isSpecifiedMatch
+            ? WidgetDeepLinkBuilder.anniversary(petID: selection.day.petID, dayID: selection.day.id)
+            : WidgetDeepLinkBuilder.pet(selection.day.petID)
     }
 
     /// 开放时间轨「已陪伴 N 天 → 还有 N 天」。

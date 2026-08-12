@@ -185,7 +185,7 @@ struct ProHeroCard: View {
 
                 Text(String(localized: bodyKey))
                     .font(.system(size: 12))
-                    .foregroundStyle(Color(red: 0.71, green: 0.66, blue: 0.61))  // #B5A89C
+                    .foregroundStyle(Color.milensProBody)
                     .padding(.top, 12)
             }
             .padding(.leading, 20)
@@ -230,9 +230,7 @@ struct ProHeroCard: View {
 
     /// 深色模式下提亮暖黑，避免与页面底色融为一体。
     private var cardBackground: Color {
-        colorScheme == .dark
-            ? Color(red: 0.165, green: 0.145, blue: 0.125)  // #2A2520
-            : Color(red: 0.078, green: 0.067, blue: 0.059)  // #14110F
+        Color.milensProCardDark
     }
 }
 
@@ -249,7 +247,7 @@ struct PrivacyBadgeCard: View {
                 // 左侧 wash + rail（16pt 宽，对照 Privacy Rail Wash #145:407）
                 ZStack {
                     Rectangle()
-                        .fill(Color(red: 0.988, green: 0.910, blue: 0.875))  // #FCE8DF
+                        .fill(Color.milensAccentWash)
                     Rectangle()
                         .fill(Color.milensActionPrimary)
                         .frame(width: 3)

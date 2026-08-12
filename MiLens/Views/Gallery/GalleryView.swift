@@ -20,7 +20,7 @@ struct GalleryView: View {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
 
-    private let columns = [GridItem(.adaptive(minimum: 100), spacing: 2)]
+    private let columns = [GridItem(.flexible(), spacing: 4), GridItem(.flexible(), spacing: 4), GridItem(.flexible(), spacing: 4)]
 
     var body: some View {
         Group {
@@ -215,73 +215,31 @@ struct GalleryView: View {
     }
 
     private func galleryHeader(_ vm: GalleryViewModel) -> some View {
-        VStack(alignment: .leading, spacing: Spacing.sm) {
-            HStack(alignment: .bottom) {
-                VStack(alignment: .leading, spacing: Spacing.xs) {
-                    Text("照片里的日子")
-                        .font(.caption.weight(.semibold))
-                        .foregroundStyle(Color.milensTextSecondary)
-                    Text("相册")
-                        .font(.editorialSection)
-                        .foregroundStyle(Color.milensTextPrimary)
+        HStack(alignment: .bottom, spacing: Spacing.sm) {
+            // 文楷标题 + 张数（对照 Figma #211:247-248）
+            Text("照片")
+                .font(.custom("LXGWWenKai-Regular", size: 24, relativeTo: .largeTitle))
+                .foregroundStyle(Color.milensTextPrimary)
+            Text("\(vm.photos.count) 张")
+                .font(.system(size: 11))
+                .foregroundStyle(Color.milensTextSecondary)
+                .padding(.bottom, 2)
+            Spacer()
+            // 选择按钮（对照 Figma #211:249-250）
+            Button {
+                isManageMode.toggle()
+                if vm.isMultiSelectMode != isManageMode {
+                    vm.toggleMultiSelect()
                 }
-                Spacer()
-                Button("选择") {
-                    isManageMode.toggle()
-                    if vm.isMultiSelectMode != isManageMode {
-                        vm.toggleMultiSelect()
-                    }
-                }
-                .font(.bodyPrimary)
-                .foregroundStyle(Color.milensCopper)
+            } label: {
+                Text("选择")
+                    .font(.system(size: 12, weight: .medium))
+                    .foregroundStyle(Color.milensTextPrimary)
+                    .frame(width: 66, height: 44)
+                    .background(Color.milensGrouped)
+                    .clipShape(RoundedRectangle(cornerRadius: 17, style: .continuous))
             }
-
-            HStack(spacing: Spacing.lg) {
-                Button {
-                    isManageMode = false
-                    if vm.isMultiSelectMode { vm.toggleMultiSelect() }
-                } label: {
-                    Text("精选")
-                        .font(.bodySecondary.weight(.semibold))
-                        .foregroundStyle(isManageMode ? Color.milensTextSecondary : Color.milensTextPrimary)
-                        .padding(.horizontal, Spacing.md)
-                        .padding(.vertical, Spacing.sm)
-                        .background(isManageMode ? Color.clear : Color.milensGrouped)
-                        .clipShape(RoundedRectangle(cornerRadius: Radius.small, style: .continuous))
-                }
-                .buttonStyle(.plain)
-
-                Button {
-                    isManageMode = true
-                    if !vm.isMultiSelectMode { vm.toggleMultiSelect() }
-                } label: {
-                    Text("管理")
-                        .font(.bodySecondary.weight(.semibold))
-                        .foregroundStyle(isManageMode ? Color.milensTextPrimary : Color.milensTextSecondary)
-                        .padding(.horizontal, Spacing.md)
-                        .padding(.vertical, Spacing.sm)
-                        .background(isManageMode ? Color.milensGrouped : Color.clear)
-                        .clipShape(RoundedRectangle(cornerRadius: Radius.small, style: .continuous))
-                }
-                .buttonStyle(.plain)
-
-                Spacer()
-
-                Button {
-                    vm.startScan()
-                } label: {
-                    Image(systemName: "magnifyingglass")
-                        .foregroundStyle(Color.milensCopper)
-                        .frame(width: Sizing.touchTarget, height: Sizing.touchTarget)
-                }
-                .buttonStyle(.plain)
-                .disabled(vm.isScanning)
-            }
-            .overlay(alignment: .bottom) {
-                Rectangle()
-                    .fill(Color.milensBorder)
-                    .frame(height: 1)
-            }
+            .buttonStyle(.plain)
         }
         .padding(.horizontal, Spacing.pagePad)
         .padding(.top, Spacing.lg)
@@ -292,7 +250,7 @@ struct GalleryView: View {
         let pets = vm.pets.map { GalleryFilterPet(id: $0.id, name: $0.name) }
         let chips = GalleryFilterLogic.buildChips(pets: pets, selectedPetID: vm.selectedFilter.petID)
         ScrollView(.horizontal) {
-            HStack(spacing: Spacing.lg) {
+            HStack(spacing: Spacing.sm) {
                 ForEach(chips) { chip in
                     Button {
                         withAnimation(reduceMotion ? nil : .easeInOut(duration: Motion.durationFast)) {
@@ -300,16 +258,16 @@ struct GalleryView: View {
                         }
                     } label: {
                         Text(chip.title)
-                            .font(.bodySecondary.weight(chip.isSelected ? .semibold : .regular))
-                            .foregroundStyle(chip.isSelected ? Color.milensTextPrimary : Color.milensTextSecondary)
-                            .padding(.vertical, Spacing.sm)
-                            .overlay(alignment: .bottom) {
-                                if chip.isSelected {
-                                    Rectangle()
-                                        .fill(Color.milensCopper)
-                                        .frame(height: 2)
-                                }
-                            }
+                            .font(.system(size: 13, weight: .medium))
+                            .foregroundStyle(chip.isSelected ? Color.white : Color.milensTextSecondary)
+                            .padding(.horizontal, 12)
+                            .padding(.vertical, 8)
+                            .background(chip.isSelected ? Color.milensActionPrimary : Color.white)
+                            .overlay(
+                                Capsule()
+                                    .stroke(Color.milensBorder, lineWidth: chip.isSelected ? 0 : 1)
+                            )
+                            .clipShape(Capsule())
                     }
                     .buttonStyle(.plain)
                     .accessibilityAddTraits(chip.isSelected ? .isSelected : [])
@@ -419,13 +377,13 @@ private struct PhotoThumbnailCell: View {
                 ThumbnailImage(path: photo.thumbnailPath.isEmpty ? photo.uri : photo.thumbnailPath)
                     .aspectRatio(1, contentMode: .fill)
                     .clipped()
-                    .clipShape(Rectangle())
+                    .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
                     .matchedGeometryEffect(id: heroID, in: heroNamespace)
             } else {
                 ThumbnailImage(path: photo.thumbnailPath.isEmpty ? photo.uri : photo.thumbnailPath)
                     .aspectRatio(1, contentMode: .fill)
                     .clipped()
-                    .clipShape(Rectangle())
+                    .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
             }
             if isMultiSelect {
                 Image(systemName: isSelected ? "checkmark.circle.fill" : "circle")
@@ -433,10 +391,16 @@ private struct PhotoThumbnailCell: View {
                     .padding(4)
             }
             if photo.isFavorite {
-                Image(systemName: "heart.fill")
-                    .font(.system(size: 10))
-                    .foregroundStyle(Color.milensPrimary)
-                    .padding(4)
+                // 珊瑚圆形 badge（对照 Figma #211:258-259）
+                ZStack {
+                    Circle()
+                        .fill(Color.milensActionPrimary)
+                        .frame(width: 25, height: 25)
+                    Text("\u{2665}")
+                        .font(.system(size: 11, weight: .bold))
+                        .foregroundStyle(.white)
+                }
+                .padding(5)
             }
         }
         .aspectRatio(1, contentMode: .fit)

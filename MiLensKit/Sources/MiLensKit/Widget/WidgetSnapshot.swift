@@ -149,7 +149,13 @@ public struct PhotoProjection: Codable, Sendable, Equatable, Identifiable {
 /// `kind` 标注来源类型，决定「已陪伴天数」的文案语义（生日=出生至今 / 领养=已陪伴 /
 /// 纪念=已记录）。`originalDate` 是该纪念日的原始发生日期（如出生日），Widget 据此
 /// 推算下一次月日匹配与倒计时。
-public struct UpcomingDayProjection: Codable, Sendable, Equatable {
+///
+/// `id` 是该候选的稳定标识符（主 App 写入方生成），用作 App Intents 的实体主键，
+/// 让用户能在 Widget 配置中点名某个特定纪念日。未显式提供时由 `kind + petID +
+/// originalDate` 派生，保证同一次构建内唯一。
+public struct UpcomingDayProjection: Codable, Sendable, Equatable, Identifiable {
+    /// 该纪念日的稳定标识符（用作 App Intents 实体主键）。
+    public let id: String
     /// 纪念日来源类型。
     public let kind: Kind
     public let petID: UUID
@@ -159,7 +165,41 @@ public struct UpcomingDayProjection: Codable, Sendable, Equatable {
     /// 该纪念日的原始发生日期。
     public let originalDate: Date
 
-    public init(kind: Kind, petID: UUID, petName: String, title: String, originalDate: Date) {
+    /// - Parameters:
+    ///   - id: 稳定标识符；nil 时由 `deriveID` 派生（向后兼容旧调用点）。
+    public init(
+        kind: Kind, petID: UUID, petName: String, title: String, originalDate: Date,
+        id: String? = nil
+    ) {
+        self.id = id ?? UpcomingDayProjection.deriveID(kind: kind, petID: petID, originalDate: originalDate)
+        self.kind = kind
+        self.petID = petID
+        self.petName = petName
+        self.title = title
+        self.originalDate = originalDate
+    }
+
+    /// 由 kind + petID + originalDate 派生稳定 id（兜底用，保证唯一）。
+    public static func deriveID(kind: Kind, petID: UUID, originalDate: Date) -> String {
+        "\(kind.rawValue):\(petID.uuidString):\(Int(originalDate.timeIntervalSince1970))"
+    }
+
+    // MARK: 向后兼容的 Codable（旧快照无 id 字段时派生）
+
+    private enum CodingKeys: String, CodingKey {
+        case id, kind, petID, petName, title, originalDate
+    }
+
+    public init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        let kind = try c.decode(Kind.self, forKey: .kind)
+        let petID = try c.decode(UUID.self, forKey: .petID)
+        let petName = try c.decode(String.self, forKey: .petName)
+        let title = try c.decode(String.self, forKey: .title)
+        let originalDate = try c.decode(Date.self, forKey: .originalDate)
+        // 旧版本 App 写入的快照没有 id 字段，缺失时派生兜底（不阻塞 Widget 渲染）
+        self.id = try c.decodeIfPresent(String.self, forKey: .id)
+            ?? UpcomingDayProjection.deriveID(kind: kind, petID: petID, originalDate: originalDate)
         self.kind = kind
         self.petID = petID
         self.petName = petName

@@ -126,25 +126,32 @@ final class WidgetSnapshotWriter {
     }
 
     /// 从全部宠物构建纪念日候选（生日 / 领养日 / 用户纪念事件）。
+    ///
+    /// 每个候选带稳定 id，用作 App Intents 的实体主键，让用户能在 Widget 配置中
+    /// 指名某个特定纪念日：生日/领养日按 petID 派生（每只宠物各一个），纪念事件
+    /// 用 event.id 保证同宠物的多个事件互不冲突。
     private func buildUpcomingDays(from pets: [Pet]) -> [UpcomingDayProjection] {
         var days: [UpcomingDayProjection] = []
         for pet in pets {
             if let birthday = pet.birthday {
                 days.append(UpcomingDayProjection(
                     kind: .birthday, petID: pet.id, petName: pet.name,
-                    title: "\(pet.name)的生日", originalDate: birthday
+                    title: "\(pet.name)的生日", originalDate: birthday,
+                    id: "birthday:\(pet.id.uuidString)"
                 ))
             }
             if let adoption = pet.adoptionDay {
                 days.append(UpcomingDayProjection(
                     kind: .adoption, petID: pet.id, petName: pet.name,
-                    title: "成为家人的日子", originalDate: adoption
+                    title: "成为家人的日子", originalDate: adoption,
+                    id: "adoption:\(pet.id.uuidString)"
                 ))
             }
             for event in pet.events where event.sourceType != "user" {
                 days.append(UpcomingDayProjection(
                     kind: .memorial, petID: pet.id, petName: pet.name,
-                    title: event.title, originalDate: event.eventDate
+                    title: event.title, originalDate: event.eventDate,
+                    id: "memorial:\(event.id.uuidString)"
                 ))
             }
         }

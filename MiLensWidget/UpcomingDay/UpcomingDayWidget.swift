@@ -27,25 +27,32 @@ struct UpcomingDayProvider: AppIntentTimelineProvider {
         UpcomingDayEntry(date: Date(), snapshot: nil, petID: nil, selection: nil)
     }
 
-    func snapshot(for configuration: SelectPetIntent, in context: Context) async -> UpcomingDayEntry {
+    func snapshot(for configuration: SelectAnniversaryIntent, in context: Context) async -> UpcomingDayEntry {
         let now = Date()
         let snapshot = WidgetSnapshotReader.read()
         let selection = snapshot.flatMap {
-            WidgetSelectionLogic.nextUpcomingDay(snapshot: $0, petID: configuration.pet.petID, now: now)
+            WidgetSelectionLogic.upcomingDay(
+                snapshot: $0, petID: configuration.pet.petID,
+                dayID: configuration.anniversary.dayID, now: now
+            )
         }
         return UpcomingDayEntry(date: now, snapshot: snapshot, petID: configuration.pet.petID, selection: selection)
     }
 
-    func timeline(for configuration: SelectPetIntent, in context: Context) async -> Timeline<UpcomingDayEntry> {
+    func timeline(for configuration: SelectAnniversaryIntent, in context: Context) async -> Timeline<UpcomingDayEntry> {
         let now = Date()
         let snapshot = WidgetSnapshotReader.read()
         let entryDates = WidgetTimelineLogic.upcomingDayEntries(now: now)
+        let petID = configuration.pet.petID
+        let dayID = configuration.anniversary.dayID
 
         let entries: [UpcomingDayEntry] = entryDates.map { entryDate in
             let selection = snapshot.flatMap {
-                WidgetSelectionLogic.nextUpcomingDay(snapshot: $0, petID: configuration.pet.petID, now: entryDate)
+                WidgetSelectionLogic.upcomingDay(
+                    snapshot: $0, petID: petID, dayID: dayID, now: entryDate
+                )
             }
-            return UpcomingDayEntry(date: entryDate, snapshot: snapshot, petID: configuration.pet.petID, selection: selection)
+            return UpcomingDayEntry(date: entryDate, snapshot: snapshot, petID: petID, selection: selection)
         }
         // 最后一个 entry 后的策略：由主 App 主动 reload
         let policy: TimelineReloadPolicy = .after(entryDates.last ?? now.addingTimeInterval(3600))
@@ -61,13 +68,13 @@ struct UpcomingDayWidget: Widget {
     var body: some WidgetConfiguration {
         AppIntentConfiguration(
             kind: kind,
-            intent: SelectPetIntent.self,
+            intent: SelectAnniversaryIntent.self,
             provider: UpcomingDayProvider()
         ) { entry in
             UpcomingDayWidgetView(entry: entry)
         }
         .configurationDisplayName("纪念日")
-        .description("下一个值得记住的日子的倒计时")
+        .description("指定一个纪念日的倒计时，或自动取最近的一个")
         .supportedFamilies([.systemSmall, .systemMedium])
     }
 }

@@ -50,6 +50,47 @@ struct LockScreenProvider: AppIntentTimelineProvider {
     }
 }
 
+// MARK: - 锁屏·倒计时 Circular Provider（支持选纪念日）
+
+/// 锁屏倒计时的 Timeline Provider，支持用户指定某个纪念日（默认自动取最近）。
+/// 与桌面「纪念日」Widget 共用 `SelectAnniversaryIntent`，语义一致。
+struct LockScreenCircularProvider: AppIntentTimelineProvider {
+    func placeholder(in context: Context) -> LockScreenEntry {
+        LockScreenEntry(date: Date(), snapshot: nil, petID: nil, selection: nil)
+    }
+
+    func snapshot(for configuration: SelectAnniversaryIntent, in context: Context) async -> LockScreenEntry {
+        let now = Date()
+        let snapshot = WidgetSnapshotReader.read()
+        let selection = snapshot.flatMap {
+            WidgetSelectionLogic.upcomingDay(
+                snapshot: $0, petID: configuration.pet.petID,
+                dayID: configuration.anniversary.dayID, now: now
+            )
+        }
+        return LockScreenEntry(date: now, snapshot: snapshot, petID: configuration.pet.petID, selection: selection)
+    }
+
+    func timeline(for configuration: SelectAnniversaryIntent, in context: Context) async -> Timeline<LockScreenEntry> {
+        let now = Date()
+        let snapshot = WidgetSnapshotReader.read()
+        let entryDates = WidgetTimelineLogic.upcomingDayEntries(now: now)
+        let petID = configuration.pet.petID
+        let dayID = configuration.anniversary.dayID
+
+        let entries: [LockScreenEntry] = entryDates.map { entryDate in
+            let selection = snapshot.flatMap {
+                WidgetSelectionLogic.upcomingDay(
+                    snapshot: $0, petID: petID, dayID: dayID, now: entryDate
+                )
+            }
+            return LockScreenEntry(date: entryDate, snapshot: snapshot, petID: petID, selection: selection)
+        }
+        let policy: TimelineReloadPolicy = .after(entryDates.last ?? now.addingTimeInterval(3600))
+        return Timeline(entries: entries, policy: policy)
+    }
+}
+
 // MARK: - 锁屏·倒计时 Circular
 
 struct LockScreenCircularWidget: Widget {
@@ -58,14 +99,14 @@ struct LockScreenCircularWidget: Widget {
     var body: some WidgetConfiguration {
         AppIntentConfiguration(
             kind: kind,
-            intent: SelectPetIntent.self,
-            provider: LockScreenProvider()
+            intent: SelectAnniversaryIntent.self,
+            provider: LockScreenCircularProvider()
         ) { entry in
             LockScreenCircularView(entry: entry)
                 .containerBackground(.background, for: .widget)
         }
         .configurationDisplayName("倒计时")
-        .description("距下一个纪念日的天数")
+        .description("指定一个纪念日的倒计时，或自动取最近的一个")
         .supportedFamilies([.accessoryCircular])
     }
 }

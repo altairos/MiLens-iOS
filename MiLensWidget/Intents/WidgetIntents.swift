@@ -113,3 +113,78 @@ enum PhotoEchoSourceAppEnum: String, AppEnum, CaseIterable {
         PhotoEchoSource(rawValue: rawValue) ?? .todayOrRecent
     }
 }
+
+// MARK: - 纪念日实体
+
+/// 可配置的纪念日选项（自动取最近 或 指定某个具体纪念日）。
+///
+/// 对应 `WidgetSelectionLogic.upcomingDay` 的 dayID 参数：`id == "auto"` 时
+/// 由系统按伙伴自动取最近一个；其余 id 精确点名某个纪念日。
+struct AnniversaryEntity: AppEntity {
+    static var typeDisplayRepresentation: TypeDisplayRepresentation = "纪念日"
+    static var defaultQuery = AnniversaryEntityQuery()
+
+    let id: String           // "auto" 或纪念日 id
+    let displayName: String  // 「自动（最近）」/「小橘的生日」
+
+    var displayRepresentation: DisplayRepresentation {
+        DisplayRepresentation(title: "\(displayName)")
+    }
+
+    /// 转换为 WidgetSelectionLogic 所需的 dayID（nil = 自动取最近）。
+    var dayID: String? {
+        id == "auto" ? nil : id
+    }
+}
+
+/// 从共享快照读取纪念日候选供用户选择（不打开 SwiftData store）。
+struct AnniversaryEntityQuery: EntityQuery {
+    func entities(for identifiers: [String]) async throws -> [AnniversaryEntity] {
+        let all = allEntities()
+        return identifiers.compactMap { id in all.first { $0.id == id } }
+    }
+
+    func suggestedEntities() async throws -> [AnniversaryEntity] {
+        allEntities()
+    }
+
+    func defaultResult() async -> AnniversaryEntity {
+        AnniversaryEntity(id: "auto", displayName: "自动（最近）")
+    }
+
+    /// 「自动（最近）」选项 + 快照中的全部纪念日候选。
+    private func allEntities() -> [AnniversaryEntity] {
+        var entities: [AnniversaryEntity] = [
+            AnniversaryEntity(id: "auto", displayName: "自动（最近）")
+        ]
+        if let snapshot = WidgetSnapshotReader.read() {
+            entities.append(contentsOf: snapshot.upcomingDays.map {
+                AnniversaryEntity(id: $0.id, displayName: $0.title)
+            })
+        }
+        return entities
+    }
+}
+
+// MARK: - 纪念日倒计时配置 Intent
+
+/// 纪念日倒计时 Widget 的完整配置（伙伴 + 纪念日）。
+///
+/// 默认「自动（最近）」，与历史行为一致；用户可点名某个具体纪念日。当指定的纪念日
+/// 在当前快照中已不存在时，由 `WidgetSelectionLogic.upcomingDay` 安全回退到最近。
+struct SelectAnniversaryIntent: WidgetConfigurationIntent {
+    static var title: LocalizedStringResource = "纪念日设置"
+    static var description = IntentDescription("选择展示哪个伙伴的哪个纪念日倒计时")
+
+    @Parameter(title: "伙伴", default: PetEntity(id: "all", displayName: "全部伙伴"))
+    var pet: PetEntity
+
+    @Parameter(title: "纪念日", default: AnniversaryEntity(id: "auto", displayName: "自动（最近）"))
+    var anniversary: AnniversaryEntity
+
+    init() {}
+    init(pet: PetEntity, anniversary: AnniversaryEntity) {
+        self.pet = pet
+        self.anniversary = anniversary
+    }
+}

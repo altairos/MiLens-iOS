@@ -180,37 +180,258 @@ struct BeadPatternView: View {
         .clipped()
     }
 
-    /// 生成中覆盖层：可取消进度（UI-DESIGN.md §6.7）。
-    /// 已有图纸时的实时再生成很快，且取消后 VM 会停留在 generating 相
-    /// （cancelGeneration 只在无图纸时回到 idle），因此取消按钮仅在首次生成时提供。
+    /// 生成中覆盖层（对照 Figma「12·拼豆生成」#91:366）。
+    /// 暗色 Processing Visual（照片底 + 主体检测虚线框 + 扫描线 + Phase Badge） +
+    /// 四步生成步骤 + 取消按钮。
     private func generatingOverlay(_ vm: BeadViewModel) -> some View {
         ZStack {
-            Color.milensBackground.opacity(0.92)
-            VStack(spacing: Spacing.md) {
-                ProgressView()
-                    .controlSize(.large)
-                    .tint(Color.milensPrimary)
-                Text(beadPhaseTitle(vm.phase))
-                    .font(.bodySecondary)
-                    .foregroundStyle(Color.milensTextSecondary)
-                Text(beadPhaseSubtitle(vm.phase))
-                    .font(.caption)
-                    .foregroundStyle(Color.milensTextTertiary)
-                if vm.pattern == nil {
-                    Button("取消") {
-                        vm.cancelGeneration()
+            Color.milensBackground
+
+            ScrollView {
+                VStack(spacing: 14) {
+                    // Processing Visual（对照 #91:373-388）
+                    processingVisual(vm)
+
+                    // 标题 + 说明（对照 #91:389-390）
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text(String(localized: "bead.generating.title"))
+                            .font(.system(size: 19, weight: .bold))
+                            .foregroundStyle(Color.milensTextPrimary)
+                        Text(String(localized: "bead.generating.subtitle"))
+                            .font(.system(size: 12))
+                            .foregroundStyle(Color.milensTextSecondary)
                     }
-                    .font(.bodySecondary)
-                    .foregroundStyle(Color.milensTextPrimary)
-                    .frame(minHeight: Sizing.touchTarget)
-                    .padding(.horizontal, Spacing.xl)
-                    .background(Color.milensCard)
-                    .clipShape(Capsule())
-                    .overlay {
-                        Capsule().stroke(Color.milensBorder, lineWidth: 0.5)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+
+                    // Progress Track（对照 #91:391）
+                    progressTrack(vm)
+
+                    // 显影记录标题（对照 #332:692）
+                    Text(String(localized: "bead.generating.log"))
+                        .font(.system(size: 12))
+                        .foregroundStyle(Color.milensTextPrimary)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+
+                    // 四步生成步骤（对照 #91:393-409）
+                    generationSteps(vm)
+
+                    // 取消按钮（仅首次生成）
+                    if vm.pattern == nil {
+                        Button {
+                            vm.cancelGeneration()
+                        } label: {
+                            Text(String(localized: "bead.generating.cancel"))
+                                .font(.system(size: 14, weight: .medium))
+                                .foregroundStyle(Color.milensTextSecondary)
+                                .frame(maxWidth: .infinity)
+                                .frame(height: 48)
+                                .overlay(alignment: .top) {
+                                    Rectangle()
+                                        .fill(Color.milensBorder)
+                                        .frame(height: 1)
+                                }
+                        }
+                        .buttonStyle(.plain)
+                        .padding(.top, 20)
                     }
-                    .padding(.top, Spacing.xs)
                 }
+                .padding(.horizontal, 18)
+                .padding(.top, 8)
+            }
+            .scrollIndicators(.hidden)
+        }
+    }
+
+    // MARK: - Processing Visual（对照 #91:373-388）
+
+    private func processingVisual(_ vm: BeadViewModel) -> some View {
+        ZStack {
+            // 暗色画布底
+            RoundedRectangle(cornerRadius: 20, style: .continuous)
+                .fill(Color.milensInk)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 20, style: .continuous)
+                        .stroke(Color(red: 0.22, green: 0.19, blue: 0.16), lineWidth: 1) // #383129 ui-token:ok
+                )
+
+            // 来源照片底（半透明）
+            if !vm.thumbnailPath.isEmpty || !vm.photoURI.isEmpty {
+                ThumbnailImage(path: vm.thumbnailPath.isEmpty ? vm.photoURI : vm.thumbnailPath)
+                    .opacity(0.82)
+                    .clipShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
+            }
+
+            // 主体检测虚线框（对照 #91:376）
+            RoundedRectangle(cornerRadius: 4, style: .continuous)
+                .stroke(Color.milensActionPrimary, style: StrokeStyle(lineWidth: 1, dash: [8, 6]))
+                .opacity(0.55)
+                .padding(48)
+
+            // 裁角标记（对照 #91:377-384）
+            cropCornerMarks
+
+            // 扫描线（对照 #91:385，珊瑚色 + 发光）
+            scanLine
+
+            // Phase Badge（对照 #91:386-388，暗底 + 珊瑚描边）
+            VStack {
+                Spacer()
+                HStack(spacing: 8) {
+                    Circle()
+                        .fill(Color.milensActionPrimary)
+                        .frame(width: 8, height: 8)
+                    Text(beadPhaseTitle(vm.phase))
+                        .font(.system(size: 11, weight: .medium))
+                        .foregroundStyle(Color(red: 0.945, green: 0.847, blue: 0.792)) // #F1D8CA ui-token:ok
+                }
+                .padding(.horizontal, 16)
+                .padding(.vertical, 9)
+                .background(Color(red: 0.114, green: 0.094, blue: 0.082)) // #1D1815 ui-token:ok
+                .overlay(
+                    RoundedRectangle(cornerRadius: 10, style: .continuous)
+                        .stroke(Color.milensActionPrimary, lineWidth: 1)
+                )
+                .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+                .padding(.bottom, 26)
+            }
+        }
+        .frame(height: 350)
+    }
+
+    /// 裁角标记（照片四角的 L 形标记，对照 #91:377-384）
+    private var cropCornerMarks: some View {
+        GeometryReader { geo in
+            let w: CGFloat = 19
+            let h: CGFloat = 2
+            let padding: CGFloat = 58
+            let x = geo.size.width - padding
+            let y = geo.size.height - padding
+            // 左上
+            ZStack(alignment: .topLeading) {
+                Rectangle().fill(Color.milensActionPrimary).frame(width: w, height: h)
+                    .padding(.leading, padding).padding(.top, padding)
+                Rectangle().fill(Color.milensActionPrimary).frame(width: h, height: w)
+                    .padding(.leading, padding).padding(.top, padding)
+                // 右上
+                Rectangle().fill(Color.milensActionPrimary).frame(width: w, height: h)
+                    .padding(.leading, x - w).padding(.top, padding)
+                Rectangle().fill(Color.milensActionPrimary).frame(width: h, height: w)
+                    .padding(.leading, x).padding(.top, padding)
+                // 左下
+                Rectangle().fill(Color.milensActionPrimary).frame(width: w, height: h)
+                    .padding(.leading, padding).padding(.top, y)
+                Rectangle().fill(Color.milensActionPrimary).frame(width: h, height: w)
+                    .padding(.leading, padding).padding(.top, y - w)
+                // 右下
+                Rectangle().fill(Color.milensActionPrimary).frame(width: w, height: h)
+                    .padding(.leading, x - w).padding(.top, y)
+                Rectangle().fill(Color.milensActionPrimary).frame(width: h, height: w)
+                    .padding(.leading, x).padding(.top, y - w)
+            }
+        }
+        .allowsHitTesting(false)
+    }
+
+    /// 扫描线（珊瑚色 + 发光效果，对照 #91:385）
+    @State private var scanLineOffset: CGFloat = 0
+
+    private var scanLine: some View {
+        GeometryReader { geo in
+            Rectangle()
+                .fill(Color.milensActionPrimary)
+                .frame(width: geo.size.width - 148, height: 2)
+                .shadow(color: Color(red: 0.91, green: 0.52, blue: 0.37), radius: 4) // #E8845F glow ui-token:ok
+                .opacity(0.95)
+                .clipShape(RoundedRectangle(cornerRadius: 1))
+                .offset(x: 74, y: scanLineOffset)
+                .onAppear {
+                    withAnimation(.linear(duration: 2.0).repeatForever(autoreverses: true)) {
+                        scanLineOffset = geo.size.height - 170
+                    }
+                }
+        }
+        .allowsHitTesting(false)
+    }
+
+    // MARK: - Progress Track（对照 #91:391）
+
+    private func progressTrack(_ vm: BeadViewModel) -> some View {
+        GeometryReader { geo in
+            ZStack(alignment: .leading) {
+                Rectangle()
+                    .fill(Color.milensBorder)
+                    .frame(height: 4)
+                    .clipShape(RoundedRectangle(cornerRadius: 2))
+                Rectangle()
+                    .fill(Color.milensActionPrimary)
+                    .frame(width: geo.size.width * generationProgress(vm), height: 4)
+                    .clipShape(RoundedRectangle(cornerRadius: 2))
+            }
+        }
+        .frame(height: 4)
+    }
+
+    /// 从 phase 估算进度。
+    private func generationProgress(_ vm: BeadViewModel) -> Double {
+        guard case .generating = vm.phase else { return 0 }
+        return 0.42 // Figma 示意值
+    }
+
+    // MARK: - 四步生成步骤（对照 #91:393-409）
+
+    private func generationSteps(_ vm: BeadViewModel) -> some View {
+        let steps: [(String, String)] = [
+            (String(localized: "bead.generating.step1"), String(localized: "bead.step.done")),
+            (String(localized: "bead.generating.step2"), String(localized: "bead.step.inProgress")),
+            (String(localized: "bead.generating.step3"), String(localized: "bead.step.waiting")),
+            (String(localized: "bead.generating.step4"), String(localized: "bead.step.waiting")),
+        ]
+        return VStack(spacing: 0) {
+            ForEach(Array(steps.enumerated()), id: \.offset) { idx, step in
+                stepRow(index: idx, title: step.0, status: step.1, isLast: idx == steps.count - 1)
+            }
+        }
+    }
+
+    private func stepRow(index: Int, title: String, status: String, isLast: Bool) -> some View {
+        VStack(spacing: 0) {
+            HStack(spacing: 0) {
+                // 步骤点 + 连接线
+                ZStack {
+                    Circle()
+                        .fill(index == 0 ? Color.milensActionPrimary : Color.milensCard)
+                        .overlay(
+                            Circle()
+                                .stroke(index <= 1 ? Color.milensActionPrimary : Color.milensBorder,
+                                        lineWidth: index == 0 ? 1 : index == 1 ? 2 : 1)
+                        )
+                        .frame(width: 14, height: 14)
+                    if index == 0 {
+                        Text("\u{2713}")
+                            .font(.system(size: 10, weight: .bold))
+                            .foregroundStyle(.white)
+                    }
+                }
+                .frame(width: 32, alignment: .center)
+
+                Text(title)
+                    .font(.system(size: 12, weight: .medium))
+                    .foregroundStyle(Color.milensTextPrimary)
+
+                Spacer()
+                Text(status)
+                    .font(.system(size: 11))
+                    .foregroundStyle(index <= 1 ? Color.milensActionPrimary : Color.milensTextSecondary)
+            }
+            .padding(.vertical, 14)
+
+            if !isLast {
+                // 连接线 + 分隔线
+                Rectangle()
+                    .fill(Color.milensBorder)
+                    .frame(height: 1)
+                    .padding(.leading, 46)
+                    .opacity(0.65)
             }
         }
     }

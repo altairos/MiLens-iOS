@@ -203,15 +203,15 @@ cd MiLensKit && swift test
 | 01 | 首页 | `319:1026` | ✅ 已落地（出血 Hero + 宠物身份条 + 即将到来的日子） |
 | 02 | 伙伴档案 | `319:1095` | ✅ 已落地（出血肖像 + Archive Panel + 四列统计 + 置顶记忆 + 最近照片 + 时间线入口） |
 | 03 | 生命时间线 | `140:348` | ✅ 已落地（年份选择器 + 章节标记 + 三种记忆卡片 + 悬浮添加） |
-| 04 | 图库 | — | ⬜ 待落地 |
-| 05 | 创作 | `58:15` | ⬜ 待落地 |
-| 06 | MiLens Pro | `58:25` | ⬜ 待落地 |
+| 04 | 图库 | `211:243` | ✅ 已落地（文楷标题 + 胶囊筛选 chip + 固定 3 列圆角网格 + 珊瑚圆收藏 badge） |
+| 05 | 创作 | `58:15` | ✅ 已落地（暗色背景 + 5 个大尺寸 Hero 卡片 + 珊瑚打开按钮） |
+| 06 | MiLens Pro | `58:25` | ✅ 已落地（全屏暗色渐变背景 + 文楷标题 + 底部 Purchase Sheet + 珊瑚权益 rail + 暗色 CTA + 箭头印章） |
 | 07 | 我的 | `140:415` | ✅ 已落地（Ledger 账本式设计 + 暖黑 Pro 卡 + 隐私徽章卡） |
-| 08 | 照片详情 | — | ⬜ 待落地 |
-| 09 | 添加记忆 | — | ⬜ 待落地 |
-| 10 | 拼豆结果 | — | ⬜ 待落地 |
-| 11 | 拼豆设置 | — | ⬜ 待落地 |
-| 12 | 拼豆生成 | — | ⬜ 待落地 |
+| 08 | 照片详情 | `211:306` | ✅ 已落地（白色圆形按钮 + 底部 Information Sheet + 拨盘式 CTA + 快捷操作圆） |
+| 09 | 添加记忆 | `211:340` | ✅ 已落地（记忆类型 tab + Evidence Register + 珊瑚 rail 表单 + 拨盘式 CTA） |
+| 10 | 拼豆结果 | `211:492` | ✅ 已落地（Identity Strip + Pattern Workspace + 材料清单色板 + Export Dock + Darkroom Pulse 导出按钮） |
+| 11 | 拼豆设置 | `91:248` | ✅ 已落地（Identity Strip + 效果 Proof 卡片 + 四段尺寸选择器 + 高级设置面板 + Darkroom Pulse 生成按钮） |
+| 12 | 拼豆生成 | `91:366` | ✅ 已落地（暗色 Processing Visual + 主体检测框 + 扫描线 + Phase Badge + 四步生成步骤 + 取消按钮） |
 
 **数据模型扩展**：PetEvent SchemaV2（body/sourceType/isPinned/relatedPhotoID）+ TimelineLogic 新增 `.textNote`/`.workRecord` 类型 + lightweight migration。
 

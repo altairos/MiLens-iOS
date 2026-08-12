@@ -243,6 +243,87 @@ final class WidgetSelectionLogicUpcomingDayTests: XCTestCase {
         )
         XCTAssertNil(result)
     }
+
+    // MARK: 按指定纪念日 id 选取（upcomingDay）
+
+    func testUpcomingDay_autoNil_returnsClosest() {
+        // dayID==nil（自动）等价于 nextUpcomingDay，取最近的
+        let day1 = UpcomingDayProjection(
+            kind: .birthday, petID: WidgetTestSupport.petA, petName: "小橘",
+            title: "小橘的生日", originalDate: WidgetTestSupport.makeDate(2023, 12, 25)
+        )
+        let day2 = UpcomingDayProjection(
+            kind: .birthday, petID: WidgetTestSupport.petB, petName: "小花",
+            title: "小花的生日", originalDate: WidgetTestSupport.makeDate(2020, 8, 15)
+        )
+        let snap = WidgetSnapshot(
+            pets: [], photos: [],
+            upcomingDays: [day1, day2],
+            archiveStats: .empty, lastUpdated: WidgetTestSupport.now
+        )
+        let result = WidgetSelectionLogic.upcomingDay(
+            snapshot: snap, petID: nil, dayID: nil, now: WidgetTestSupport.now
+        )
+        XCTAssertEqual(result?.day.id, day2.id, "自动模式应取最近的（小花生日 8-15）")
+    }
+
+    func testUpcomingDay_specificID_returnsThatDayEvenIfNotClosest() {
+        // 指定 day1（12-25，较远），即使 day2（8-15，更近）也应返回 day1
+        let day1 = UpcomingDayProjection(
+            kind: .birthday, petID: WidgetTestSupport.petA, petName: "小橘",
+            title: "小橘的生日", originalDate: WidgetTestSupport.makeDate(2023, 12, 25),
+            id: "annv-1"
+        )
+        let day2 = UpcomingDayProjection(
+            kind: .adoption, petID: WidgetTestSupport.petA, petName: "小橘",
+            title: "领养日", originalDate: WidgetTestSupport.makeDate(2023, 8, 15),
+            id: "annv-2"
+        )
+        let snap = WidgetSnapshot(
+            pets: [], photos: [],
+            upcomingDays: [day1, day2],
+            archiveStats: .empty, lastUpdated: WidgetTestSupport.now
+        )
+        let result = WidgetSelectionLogic.upcomingDay(
+            snapshot: snap, petID: nil, dayID: "annv-1", now: WidgetTestSupport.now
+        )
+        XCTAssertEqual(result?.day.id, "annv-1", "指定 id 应返回该纪念日，即便不是最近")
+        XCTAssertEqual(result?.day.title, "小橘的生日")
+        XCTAssertGreaterThan(result!.daysUntil, 0, "12-25 距 8-12 尚有数月")
+    }
+
+    func testUpcomingDay_missingID_fallsBackToClosest() {
+        // 指定的 id 在快照中不存在（纪念日已被删除），安全回退到最近
+        let day1 = UpcomingDayProjection(
+            kind: .birthday, petID: WidgetTestSupport.petA, petName: "小橘",
+            title: "小橘的生日", originalDate: WidgetTestSupport.makeDate(2023, 12, 25)
+        )
+        let day2 = UpcomingDayProjection(
+            kind: .birthday, petID: WidgetTestSupport.petB, petName: "小花",
+            title: "小花的生日", originalDate: WidgetTestSupport.makeDate(2020, 8, 15)
+        )
+        let snap = WidgetSnapshot(
+            pets: [], photos: [],
+            upcomingDays: [day1, day2],
+            archiveStats: .empty, lastUpdated: WidgetTestSupport.now
+        )
+        let result = WidgetSelectionLogic.upcomingDay(
+            snapshot: snap, petID: nil, dayID: "deleted-id", now: WidgetTestSupport.now
+        )
+        XCTAssertEqual(result?.day.id, day2.id, "id 不存在时应回退到最近的")
+    }
+
+    func testUpcomingDay_emptyCandidates_returnsNil() {
+        let snap = WidgetSnapshot(
+            pets: [], photos: [],
+            upcomingDays: [],
+            archiveStats: .empty, lastUpdated: WidgetTestSupport.now
+        )
+        let result = WidgetSelectionLogic.upcomingDay(
+            snapshot: snap, petID: nil, dayID: "any", now: WidgetTestSupport.now
+        )
+        XCTAssertNil(result, "无候选且 id 不匹配时应返回 nil")
+    }
 }
 
 // MARK: - 档案统计

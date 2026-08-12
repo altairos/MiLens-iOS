@@ -175,34 +175,69 @@ public enum WidgetSelectionLogic {
             : snapshot.upcomingDays.filter { $0.petID == petID }
         guard !candidates.isEmpty else { return nil }
 
+        let selections = candidates.compactMap { computeSelection(for: $0, now: now) }
+        return selections.sorted { $0.daysUntil < $1.daysUntil }.first
+    }
+
+    /// 按用户配置选取纪念日（WidgetKit-Design.md §3.3 / §6.3）。
+    ///
+    /// - `dayID == nil`（「自动」）：等价于 `nextUpcomingDay`，取按 petID 过滤后最近的。
+    /// - `dayID` 指向某个具体纪念日：在快照候选中按 id 精确匹配并计算倒计时；若该 id
+    ///   在当前快照中已不存在（被删除或 petID 不匹配），安全回退到 `nextUpcomingDay`，
+    ///   不返回空内容（保证 Widget 始终有内容可展示）。
+    ///
+    /// `petID` 仅在自动模式或回退时参与过滤；指定了具体 dayID 时以该纪念日为准。
+    ///
+    /// - Parameters:
+    ///   - snapshot: 共享快照
+    ///   - petID: 指定伙伴；nil 表示全部（仅自动/回退时生效）
+    ///   - dayID: 用户指定的纪念日 id；nil 表示自动取最近
+    ///   - now: 当前时间
+    /// - Returns: 选中的纪念日；无候选返回 nil
+    public static func upcomingDay(
+        snapshot: WidgetSnapshot,
+        petID: UUID?,
+        dayID: String?,
+        now: Date
+    ) -> UpcomingDaySelection? {
+        if let dayID,
+           let matched = snapshot.upcomingDays.first(where: { $0.id == dayID }),
+           let selection = computeSelection(for: matched, now: now) {
+            return selection
+        }
+        return nextUpcomingDay(snapshot: snapshot, petID: petID, now: now)
+    }
+
+    /// 计算单个纪念日候选的倒计时与陪伴天数。
+    ///
+    /// 把 originalDate 推进到今年/明年的下一次月日匹配，得到 daysUntil（≥0）与
+    /// daysTogether（≥0）。日期无效时返回 nil。
+    private static func computeSelection(
+        for day: UpcomingDayProjection, now: Date
+    ) -> UpcomingDaySelection? {
         let cal = miLensUTCCalendar
         let nowYear = cal.component(.year, from: now)
 
-        let selections: [UpcomingDaySelection] = candidates.compactMap { day in
-            // 把 originalDate 推进到今年/明年的下一次月日匹配
-            let comp = cal.dateComponents([.month, .day], from: day.originalDate)
-            guard let month = comp.month, let dayNum = comp.day else { return nil }
+        let comp = cal.dateComponents([.month, .day], from: day.originalDate)
+        guard let month = comp.month, let dayNum = comp.day else { return nil }
 
-            var dc = DateComponents()
-            dc.year = nowYear
-            dc.month = month
-            dc.day = dayNum
-            guard let thisYear = cal.date(from: dc) else { return nil }
+        var dc = DateComponents()
+        dc.year = nowYear
+        dc.month = month
+        dc.day = dayNum
+        guard let thisYear = cal.date(from: dc) else { return nil }
 
-            let startOfToday = cal.startOfDay(for: now)
-            let target = thisYear >= startOfToday
-                ? thisYear
-                : {
-                    dc.year = nowYear + 1
-                    return cal.date(from: dc) ?? thisYear
-                }()
+        let startOfToday = cal.startOfDay(for: now)
+        let target = thisYear >= startOfToday
+            ? thisYear
+            : {
+                dc.year = nowYear + 1
+                return cal.date(from: dc) ?? thisYear
+            }()
 
-            let daysUntil = max(0, cal.dateComponents([.day], from: startOfToday, to: cal.startOfDay(for: target)).day ?? 0)
-            let daysTogether = max(0, cal.dateComponents([.day], from: day.originalDate, to: now).day ?? 0)
-            return UpcomingDaySelection(day: day, daysUntil: daysUntil, daysTogether: daysTogether)
-        }
-
-        return selections.sorted { $0.daysUntil < $1.daysUntil }.first
+        let daysUntil = max(0, cal.dateComponents([.day], from: startOfToday, to: cal.startOfDay(for: target)).day ?? 0)
+        let daysTogether = max(0, cal.dateComponents([.day], from: day.originalDate, to: now).day ?? 0)
+        return UpcomingDaySelection(day: day, daysUntil: daysUntil, daysTogether: daysTogether)
     }
 
     // MARK: 档案统计

@@ -1,7 +1,6 @@
-//  BeadSettingsPanelView —— 拼豆设置面板（对应源端 BeadSettingsPanel.ets）。
-//  工作室下半屏：风格选择 / 尺寸选择 / 当前方案摘要 / 高级设置 / 主按钮。
-//  已有图纸时主按钮切换为「查看图纸与导出」（参数变化由工作室防抖实时重渲染，
-//  无需手动重新生成）。
+//  BeadSettingsPanelView —— 拼豆设置面板（对照 Figma「11·拼豆设置」#91:248）。
+//  Identity Strip/Source + Effect Proof 卡片 + 四段尺寸选择器 + Current Recipe +
+//  Advanced Settings（颜色/过渡/轮廓/概括度） + Darkroom Pulse 生成按钮。
 //  纯决策（applyStylePreset / buildSummary / abstractionLevelLabel）在 MiLensKit。
 
 import SwiftUI
@@ -9,11 +8,9 @@ import MiLensKit
 
 struct BeadSettingsPanelView: View {
     @Bindable var vm: BeadViewModel
-    /// 打开导出全屏预览（仅 pattern != nil 时由主按钮触发）。
     let onExport: () -> Void
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
-    /// 风格选项数据（对应源端 StyleOption 列表）。
     private struct StyleOptionData: Identifiable {
         let key: String
         let title: String
@@ -24,380 +21,399 @@ struct BeadSettingsPanelView: View {
 
     private static let styleOptions: [StyleOptionData] = [
         StyleOptionData(key: "illustration_v1", title: "拼豆插画",
-                        description: "清爽、特征清楚，适合大多数照片", badge: "推荐"),
+                        description: "清爽主体", badge: "推荐"),
         StyleOptionData(key: "faithful_v1", title: "写实还原",
-                        description: "保留更多毛色与细节，制作难度较高", badge: ""),
+                        description: "保留毛色", badge: ""),
         StyleOptionData(key: "badge_v1", title: "清晰徽章",
-                        description: "颜色少、色块大，使用圆形裁切，适合挂件和小图", badge: ""),
+                        description: "圆形挂件", badge: ""),
         StyleOptionData(key: "full_photo_v1", title: "保留场景",
-                        description: "保留照片背景，适合有纪念意义的画面", badge: ""),
+                        description: "完整画面", badge: ""),
         StyleOptionData(key: "cute_v1", title: "Q版可爱",
-                        description: "极简色块、高对比、黑色轮廓，像表情包一样可爱", badge: ""),
+                        description: "极简色块", badge: ""),
     ]
 
-    /// 尺寸/颜色/过渡选项固定顺序（Dictionary 无序，需显式排序）。
     private static let sizeKeys = ["mini", "standard", "large", "jumbo"]
+    private static let sizeLabels = ["15\n迷你", "29\n标准", "52\n特大", "78\n超大"]
     private static let colorKeys = ["simple", "standard", "detailed", "realistic", "auto"]
+    private static let colorLabels = ["12\n简单", "24\n标准", "40\n细腻", "60\n还原", "auto\n自动"]
     private static let ditherKeys = ["none", "light", "medium"]
+    private static let ditherLabels = ["关闭", "轻微", "明显"]
 
     private var isGenerating: Bool {
         if case .generating = vm.phase { return true }
         return false
     }
 
-    @State private var selectedRailItem = "尺寸"
-    @State private var showingParameterSheet = false
-
     var body: some View {
         ScrollView {
-            VStack(spacing: 0) {
-                parameterRail
-                Spacer(minLength: Spacing.xxl)
-                compactAction
-                    .padding(.horizontal, Spacing.xl)
-                    .padding(.bottom, Spacing.xxl)
+            VStack(spacing: 14) {
+                identityStrip
+                effectSection
+                sizeSection
+                currentRecipe
+                advancedSection
+                generateButton
+                footerHint
             }
-            .frame(maxWidth: .infinity, minHeight: 250, alignment: .bottom)
+            .padding(.horizontal, 18)
+            .padding(.bottom, Spacing.xxl)
         }
-        .background(Color.milensStudioBackground)
-        .sheet(isPresented: $showingParameterSheet) {
-            NavigationStack {
-                ScrollView {
-                    settingsCard
-                        .padding(.horizontal, Spacing.lg)
-                        .padding(.vertical, Spacing.md)
-                }
-                .background(Color.milensStudioBackground)
-                .navigationTitle("调整参数")
-                .navigationBarTitleDisplayMode(.inline)
-                .toolbar {
-                    ToolbarItem(placement: .topBarTrailing) {
-                        Button("完成") { showingParameterSheet = false }
-                    }
-                }
-            }
-            .environment(\.colorScheme, .dark)
-            // iPad/regular 宽度下参数表单限宽居中（UI-DESIGN.md §8）
-            .modalContentWidth(background: .milensStudioBackground)
-        }
-    }
-
-    private var parameterRail: some View {
-        HStack(spacing: 0) {
-            railItem(value: "48", title: "尺寸", key: "尺寸")
-            railItem(value: "24", title: "色板", key: "色板")
-            railItem(value: "Ⅱ", title: "细节", key: "细节")
-            railItem(value: "◎", title: "预览", key: "预览")
-        }
-        .padding(.horizontal, Spacing.lg)
-        .padding(.top, Spacing.sm)
-        .padding(.bottom, Spacing.md)
-        .overlay(alignment: .bottom) {
-            Rectangle()
-                .fill(Color.milensBorder)
-                .frame(height: 1)
-        }
-    }
-
-    private func railItem(value: String, title: String, key: String) -> some View {
-        Button {
-            selectedRailItem = key
-            if key != "预览" {
-                showingParameterSheet = true
-            }
-        } label: {
-            VStack(spacing: Spacing.xs) {
-                Text(value)
-                    .font(.editorialNumber)
-                    .foregroundStyle(selectedRailItem == key ? Color.milensCopper : Color.milensTextSecondary)
-                Text(title)
-                    .font(.caption)
-                    .foregroundStyle(selectedRailItem == key ? Color.milensTextPrimary : Color.milensTextSecondary)
-            }
-            .frame(maxWidth: .infinity, minHeight: 64)
-            .background(selectedRailItem == key ? Color.milensStudioSurface : Color.clear)
-        }
-        .buttonStyle(.plain)
-    }
-
-    private var compactAction: some View {
-        VStack(spacing: Spacing.md) {
-            Button {
-                if vm.pattern != nil {
-                    onExport()
-                } else {
-                    vm.generate()
-                }
-            } label: {
-                Text(primaryButtonTitle)
-                    .font(.buttonLabel)
-                    .foregroundStyle(Color.milensInk)
-                    .frame(maxWidth: .infinity)
-                    .frame(height: 56)
-                    .background(Color.milensCopper)
-                    .clipShape(Rectangle())
-            }
-            .disabled(isGenerating)
-        }
-    }
-
-    // MARK: - 设置卡片
-
-    private var settingsCard: some View {
-        VStack(alignment: .leading, spacing: 0) {
-            HStack {
-                Text("选择效果")
-                    .font(.bodySecondary.weight(.medium))
-                    .foregroundStyle(Color.milensTextPrimary)
-                Spacer()
-                Text("推荐：拼豆插画")
-                    .font(.caption2)
-                    .foregroundStyle(Color.milensActionPrimary)
-            }
-            .padding(.bottom, Spacing.md)
-
-            ForEach(Self.styleOptions) { option in
-                styleOption(option)
-            }
-
-            Text("图纸尺寸")
-                .font(.caption)
-                .foregroundStyle(Color.milensTextTertiary)
-                .padding(.top, 18)
-                .padding(.bottom, 8)
-
-            HStack {
-                ForEach(Self.sizeKeys, id: \.self) { key in
-                    sizeChip(key)
-                }
-            }
-            .padding(.bottom, 16)
-
-            // 当前方案摘要
-            HStack {
-                Text("当前方案")
-                    .font(.caption2)
-                    .foregroundStyle(Color.milensTextTertiary)
-                Spacer()
-                Text(buildSummary(vm.settings))
-                    .font(.caption2)
-                    .foregroundStyle(Color.milensTextSecondary)
-            }
-            .padding(12)
-            .background(Color.milensGrouped)
-            .clipShape(RoundedRectangle(cornerRadius: 12))
-            .padding(.bottom, 12)
-
-            // 高级设置折叠
-            Button {
-                vm.showAdvancedSettings.toggle()
-            } label: {
-                HStack {
-                    Text(vm.showAdvancedSettings ? "收起高级设置" : "高级设置")
-                        .font(.subheadline)
-                        .foregroundStyle(Color.milensActionPrimary)
-                    Spacer()
-                    Image(systemName: vm.showAdvancedSettings ? "chevron.up" : "chevron.down")
-                        .font(.caption.weight(.semibold))
-                        .foregroundStyle(Color.milensActionPrimary)
-                }
-                .padding(.vertical, 8)
-            }
-
-            if vm.showAdvancedSettings {
-                advancedSettings
-            }
-
-            // 主按钮：无图纸时生成；已有图纸时进入导出（参数变化由工作室实时重渲染）
-            Button {
-                if vm.pattern != nil {
-                    onExport()
-                } else {
-                    vm.generate()
-                }
-            } label: {
-                Text(primaryButtonTitle)
-                    .font(.buttonLabel)
-                    .foregroundStyle(Color.milensTextOnActionPrimary)
-                    .frame(maxWidth: .infinity)
-                    .frame(height: 50)
-                    .background(Color.milensActionPrimary)
-                    .clipShape(RoundedRectangle(cornerRadius: Radius.small, style: .continuous))
-            }
-            .disabled(isGenerating)
-            .padding(.top, 16)
-
-            Text("启用\"只拼主体\"时会自动抠图；失败后仍会使用原图继续生成")
-                .font(.caption2)
-                .foregroundStyle(Color.milensTextTertiary)
-                .multilineTextAlignment(.center)
-                .frame(maxWidth: .infinity)
-                .padding(.top, 8)
-        }
-        .padding(Spacing.lg)
-        .background(Color.milensStudioBackground)
-        // 参数切换 spring（UI-DESIGN.md §7：Reduce Motion 下即时更新）
+        .scrollIndicators(.hidden)
+        .background(Color.milensBackground)
         .animation(reduceMotion ? nil : .spring(duration: Motion.durationFast, bounce: 0.2), value: vm.settings)
         .animation(reduceMotion ? nil : .spring(duration: Motion.durationFast, bounce: 0.2), value: vm.showAdvancedSettings)
     }
 
-    private var primaryButtonTitle: String {
-        if isGenerating { return "正在生成..." }
-        return vm.pattern != nil ? "导出图纸" : "生成拼豆图纸"
+    // MARK: - Identity Strip/Source（对照 #301:888）
+
+    private var identityStrip: some View {
+        HStack(spacing: 0) {
+            // Registration Rail
+            Rectangle()
+                .fill(Color.milensActionPrimary)
+                .frame(width: 3)
+                .padding(.vertical, 14)
+
+            // 来源照片 72×72
+            if !vm.thumbnailPath.isEmpty || !vm.photoURI.isEmpty {
+                ThumbnailImage(path: vm.thumbnailPath.isEmpty ? vm.photoURI : vm.thumbnailPath)
+                    .frame(width: 72, height: 72)
+                    .clipShape(RoundedRectangle(cornerRadius: 4, style: .continuous))
+                    .padding(.leading, 7)
+                    .padding(.vertical, 10)
+            }
+
+            VStack(alignment: .leading, spacing: 2) {
+                Text("原图")
+                    .font(.system(size: 10, weight: .medium))
+                    .tracking(0.4)
+                    .foregroundStyle(Color.milensActionPrimary)
+                Text(String(localized: "create.bead.source"))
+                    .font(.system(size: 14, weight: .medium))
+                    .foregroundStyle(Color.milensTextPrimary)
+            }
+            .padding(.leading, 14)
+
+            Spacer()
+
+            // Action（更换）
+            VStack(alignment: .trailing, spacing: 4) {
+                Text(String(localized: "create.bead.change"))
+                    .font(.system(size: 11, weight: .medium))
+                    .foregroundStyle(Color.milensActionPrimary)
+                Rectangle()
+                    .fill(Color.milensActionPrimary)
+                    .frame(width: 22, height: 1)
+            }
+            .padding(.trailing, 14)
+        }
+        .frame(minHeight: 92)
+        .background(Color.milensGrouped)
+        .overlay(
+            RoundedRectangle(cornerRadius: 8, style: .continuous)
+                .stroke(Color.milensBorder, lineWidth: 1)
+        )
+        .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
     }
 
-    // MARK: - 风格选项
+    // MARK: - 选择效果（对照 #91:261-353）
 
-    private func styleOption(_ option: StyleOptionData) -> some View {
+    private var effectSection: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack {
+                Text(String(localized: "create.bead.selectEffect"))
+                    .font(.system(size: 14, weight: .bold))
+                    .foregroundStyle(Color.milensTextPrimary)
+                Spacer()
+                Text(String(localized: "create.bead.effectCount \(Self.styleOptions.count)"))
+                    .font(.system(size: 11))
+                    .foregroundStyle(Color.milensActionPrimary)
+            }
+
+            // Effect Proof 卡片横排
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 8) {
+                    ForEach(Self.styleOptions) { option in
+                        effectProofCard(option)
+                    }
+                }
+            }
+        }
+    }
+
+    private func effectProofCard(_ option: StyleOptionData) -> some View {
         let selected = vm.settings.styleKey == option.key
         return Button {
             vm.applyPreset(option.key)
         } label: {
-            HStack {
-                VStack(alignment: .leading, spacing: 3) {
-                    HStack(spacing: 8) {
-                        Text(option.title)
-                            .font(.subheadline.weight(.medium))
-                            .foregroundStyle(selected ? Color.milensActionPrimary : Color.milensTextPrimary)
-                        if !option.badge.isEmpty {
-                            Text(option.badge)
-                                .font(.caption2)
-                                .foregroundStyle(Color.milensTextOnActionPrimary)
-                                .padding(.horizontal, 6)
-                                .padding(.vertical, 2)
-                                .background(Color.milensActionPrimary)
-                                .clipShape(Capsule())
-                        }
+            VStack(spacing: 0) {
+                // 暗色预览区
+                ZStack {
+                    RoundedRectangle(cornerRadius: 10, style: .continuous)
+                        .fill(Color.milensInk)
+                        .frame(width: 88, height: 44)
+
+                    if !option.badge.isEmpty {
+                        // Badge（对照 #309:753）
+                        Text(option.badge)
+                            .font(.system(size: 10, weight: .medium))
+                            .foregroundStyle(.white)
+                            .padding(.horizontal, 8)
+                            .padding(.vertical, 3)
+                            .background(Color.milensActionPrimary)
+                            .clipShape(Capsule())
+                            .padding(.top, 45)
+                            .padding(.leading, 56)
                     }
+                }
+                .frame(width: 88, height: 44)
+
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(option.title)
+                        .font(.system(size: 11, weight: .medium))
+                        .foregroundStyle(selected ? Color.milensActionPrimary : Color.milensTextPrimary)
                     Text(option.description)
-                        .font(.caption2)
+                        .font(.system(size: 11))
                         .foregroundStyle(Color.milensTextTertiary)
                 }
-                Spacer()
-                Text(selected ? "✓" : "")
-                    .font(.headline)
-                    .foregroundStyle(Color.milensActionPrimary)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.horizontal, 10)
+                .padding(.top, 10)
+                .padding(.bottom, 10)
             }
-            .padding(12)
-            .background(selected ? Color.milensAccentSoft : Color.milensGrouped)
+            .frame(width: 108, height: 106)
+            .background(selected ? Color.milensAccentSoft : Color.milensCard)
             .overlay(
-                RoundedRectangle(cornerRadius: 12)
+                RoundedRectangle(cornerRadius: 8, style: .continuous)
                     .stroke(selected ? Color.milensActionPrimary : Color.milensBorder,
-                            lineWidth: selected ? 1.5 : 0.5)
+                            lineWidth: selected ? 1.5 : 1)
             )
-            .clipShape(RoundedRectangle(cornerRadius: 12))
+            .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+            .overlay(alignment: .topLeading) {
+                // Proof Index（选中标记，对照 #309:755）
+                if selected {
+                    Rectangle()
+                        .fill(Color.milensActionPrimary)
+                        .frame(width: 22, height: 2)
+                        .padding(.leading, 10)
+                        .padding(.top, 0)
+                }
+            }
         }
         .buttonStyle(.plain)
-        .padding(.bottom, 8)
     }
 
-    // MARK: - 选择 chips
+    // MARK: - 图纸尺寸四段选择器（对照 #288:553）
 
-    private func sizeChip(_ key: String) -> some View {
+    private var sizeSection: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text(String(localized: "create.bead.boardSize"))
+                .font(.system(size: 13, weight: .bold))
+                .foregroundStyle(Color.milensTextPrimary)
+
+            HStack(spacing: 0) {
+                ForEach(Array(Self.sizeKeys.enumerated()), id: \.offset) { idx, key in
+                    sizeSegment(key: key, label: Self.sizeLabels[idx], index: idx)
+                }
+            }
+            .frame(height: 46)
+            .background(Color.milensGrouped)
+            .overlay(
+                RoundedRectangle(cornerRadius: 15, style: .continuous)
+                    .stroke(Color.milensBorder, lineWidth: 1)
+            )
+            .clipShape(RoundedRectangle(cornerRadius: 15, style: .continuous))
+        }
+    }
+
+    private func sizeSegment(key: String, label: String, index: Int) -> some View {
         let selected = vm.settings.sizeKey == key
-        let label = BEAD_SIZE_PRESETS[key]?.label ?? key
+        let parts = label.split(separator: "\n")
         return Button {
             vm.settings.sizeKey = key
         } label: {
-            Text(label)
-                .font(.caption)
-                .foregroundStyle(selected ? Color.milensTextOnActionPrimary : Color.milensTextSecondary)
-                .padding(.horizontal, 12)
-                .padding(.vertical, 6)
-                .background(selected ? Color.milensActionPrimary : Color.milensGrouped)
-                .clipShape(Capsule())
+            VStack(spacing: 1) {
+                Text(parts.first ?? "")
+                    .font(.system(size: 12, weight: selected ? .bold : .medium))
+                    .foregroundStyle(selected ? Color.white : Color.milensTextSecondary)
+                if parts.count > 1 {
+                    Text(parts[1])
+                        .font(.system(size: 11))
+                        .foregroundStyle(selected ? Color.white : Color.milensTextSecondary)
+                }
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .background(selected ? Color.milensActionPrimary : Color.clear)
+            .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+            .padding(.vertical, 4)
+            .padding(.horizontal, 2)
         }
         .buttonStyle(.plain)
     }
 
-    // MARK: - 高级设置
+    // MARK: - Current Recipe 行（对照 #91:324-327）
 
-    private var advancedSettings: some View {
+    private var currentRecipe: some View {
+        HStack(spacing: 0) {
+            VStack(alignment: .leading, spacing: 2) {
+                Text(String(localized: "create.bead.currentRecipe"))
+                    .font(.system(size: 10, weight: .medium))
+                    .tracking(0.4)
+                    .foregroundStyle(Color.milensTextTertiary)
+                Text(buildSummary(vm.settings))
+                    .font(.system(size: 11, weight: .medium))
+                    .foregroundStyle(Color.milensTextSecondary)
+            }
+            .padding(.leading, 14)
+            Spacer()
+            Text("\u{203A}")
+                .font(.system(size: 17, weight: .medium))
+                .foregroundStyle(Color.milensActionPrimary)
+                .padding(.trailing, 14)
+        }
+        .frame(height: 52)
+        .background(Color.milensCard)
+        .overlay(
+            RoundedRectangle(cornerRadius: 15, style: .continuous)
+                .stroke(Color.milensBorder, lineWidth: 1)
+        )
+        .clipShape(RoundedRectangle(cornerRadius: 15, style: .continuous))
+    }
+
+    // MARK: - 高级设置（对照 #91:328-360）
+
+    private var advancedSection: some View {
+        VStack(spacing: 8) {
+            // 标题行
+            HStack {
+                Text(String(localized: "create.bead.advanced"))
+                    .font(.system(size: 13, weight: .bold))
+                    .foregroundStyle(Color.milensTextPrimary)
+                Spacer()
+                Button {
+                    vm.showAdvancedSettings.toggle()
+                } label: {
+                    Text(vm.showAdvancedSettings
+                         ? String(localized: "create.bead.expanded")
+                         : String(localized: "create.bead.collapsed"))
+                        .font(.system(size: 10, weight: .medium))
+                        .tracking(0.4)
+                        .foregroundStyle(Color.milensActionPrimary)
+                }
+                .buttonStyle(.plain)
+            }
+
+            if vm.showAdvancedSettings {
+                advancedPanel
+            }
+        }
+    }
+
+    private var advancedPanel: some View {
         VStack(alignment: .leading, spacing: 0) {
-            Text("颜色数量")
-                .font(.caption2)
-                .foregroundStyle(Color.milensTextTertiary)
-                .padding(.bottom, 8)
-            HStack {
-                ForEach(Self.colorKeys, id: \.self) { key in
-                    colorChip(key)
+            // 颜色（对照 #91:331-339）
+            settingRow(label: String(localized: "create.bead.color")) {
+                HStack(spacing: 7) {
+                    ForEach(Array(Self.colorKeys.enumerated()), id: \.offset) { idx, key in
+                        chipButton(
+                            label: Self.colorLabels[idx].split(separator: "\n").first.map(String.init) ?? key,
+                            selected: vm.settings.colorKey == key
+                        ) {
+                            vm.settings.colorKey = key
+                        }
+                    }
                 }
             }
-            .padding(.bottom, 12)
+            divider
 
-            Text("颜色过渡")
-                .font(.caption2)
-                .foregroundStyle(Color.milensTextTertiary)
-                .padding(.bottom, 8)
-            HStack {
-                ForEach(Self.ditherKeys, id: \.self) { key in
-                    ditherChip(key)
+            // 过渡（对照 #91:340-346）
+            settingRow(label: String(localized: "create.bead.transition")) {
+                HStack(spacing: 7) {
+                    ForEach(Array(Self.ditherKeys.enumerated()), id: \.offset) { idx, key in
+                        chipButton(
+                            label: Self.ditherLabels[idx],
+                            selected: vm.settings.ditherKey == key
+                        ) {
+                            vm.settings.ditherKey = key
+                        }
+                    }
                 }
             }
-            .padding(.bottom, 12)
+            divider
 
-            HStack {
-                toggleChip("线条清晰", isOn: vm.settings.outline) { vm.settings.outline = $0 }
-                toggleChip("减少杂点", isOn: vm.settings.denoise) { vm.settings.denoise = $0 }
-                toggleChip("只拼主体", isOn: vm.settings.cutout) { vm.settings.cutout = $0 }
+            // 轮廓 toggle（对照 #91:347-356）
+            settingRow(label: String(localized: "create.bead.outline")) {
+                HStack(spacing: 16) {
+                    toggleChip(String(localized: "create.bead.denoise"), isOn: vm.settings.denoise) {
+                        vm.settings.denoise = $0
+                    }
+                    toggleChip(String(localized: "create.bead.cutoutOnly"), isOn: vm.settings.cutout) {
+                        vm.settings.cutout = $0
+                    }
+                }
             }
+            divider
 
-            VStack(alignment: .leading, spacing: 4) {
+            // 概括度 slider（对照 #91:356-360）
+            VStack(alignment: .leading, spacing: 8) {
                 HStack {
-                    Text("概括度")
-                        .font(.caption2)
-                        .foregroundStyle(Color.milensTextTertiary)
+                    Text(String(localized: "create.bead.abstraction"))
+                        .font(.system(size: 11))
+                        .foregroundStyle(Color.milensTextSecondary)
                     Spacer()
                     Text(abstractionLevelLabel(vm.settings.abstractLevel))
-                        .font(.caption2)
+                        .font(.system(size: 11))
                         .foregroundStyle(Color.milensActionPrimary)
                 }
                 Slider(value: $vm.settings.abstractLevel, in: 0...1, step: 0.1)
                     .tint(Color.milensActionPrimary)
             }
-            .padding(.top, 12)
+            .padding(.horizontal, 14)
+            .padding(.vertical, 14)
         }
-        .padding(12)
         .background(Color.milensGrouped)
-        .clipShape(RoundedRectangle(cornerRadius: 12))
-        .padding(.bottom, 4)
+        .overlay(
+            RoundedRectangle(cornerRadius: 18, style: .continuous)
+                .stroke(Color.milensBorder, lineWidth: 1)
+        )
+        .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
     }
 
-    private func colorChip(_ key: String) -> some View {
-        let selected = vm.settings.colorKey == key
-        let label = BEAD_COLOR_PRESETS[key]?.label ?? key
-        return Button {
-            vm.settings.colorKey = key
-        } label: {
+    private func settingRow<Content: View>(label: String, @ViewBuilder content: () -> Content) -> some View {
+        HStack(spacing: 0) {
             Text(label)
-                .font(.caption2)
-                .foregroundStyle(selected ? Color.milensTextOnActionPrimary : Color.milensTextSecondary)
-                .padding(.horizontal, 9)
-                .padding(.vertical, 6)
-                .background(selected ? Color.milensActionPrimary : Color.milensGrouped)
-                .clipShape(Capsule())
+                .font(.system(size: 11))
+                .foregroundStyle(Color.milensTextTertiary)
+                .frame(width: 56, alignment: .leading)
+            content()
+            Spacer(minLength: 0)
         }
-        .buttonStyle(.plain)
+        .padding(.horizontal, 14)
+        .padding(.vertical, 10)
     }
 
-    private func ditherChip(_ key: String) -> some View {
-        let selected = vm.settings.ditherKey == key
-        let label: String
-        switch key {
-        case "none": label = "关闭"
-        case "light": label = "轻微"
-        default: label = "明显"
-        }
-        return Button {
-            vm.settings.ditherKey = key
-        } label: {
+    private var divider: some View {
+        Rectangle()
+            .fill(Color.milensBorder)
+            .frame(height: 0.5)
+            .padding(.leading, 14)
+    }
+
+    // MARK: - chip 组件（对照 #91:332-339 白底 11px 圆角）
+
+    private func chipButton(label: String, selected: Bool, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
             Text(label)
-                .font(.caption2)
-                .foregroundStyle(selected ? Color.milensTextOnActionPrimary : Color.milensTextSecondary)
-                .padding(.horizontal, 14)
-                .padding(.vertical, 6)
-                .background(selected ? Color.milensActionPrimary : Color.milensGrouped)
-                .clipShape(Capsule())
+                .font(.system(size: 11))
+                .foregroundStyle(selected ? Color.milensActionPrimary : Color.milensTextSecondary)
+                .frame(minWidth: 58, minHeight: 30)
+                .background(selected ? Color.milensAccentSoft : Color.milensCard)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 11, style: .continuous)
+                        .stroke(selected ? Color.milensActionPrimary : Color.milensBorder,
+                                lineWidth: selected ? 1 : 1)
+                )
+                .clipShape(RoundedRectangle(cornerRadius: 11, style: .continuous))
         }
         .buttonStyle(.plain)
     }
@@ -407,18 +423,64 @@ struct BeadSettingsPanelView: View {
             onChange(!isOn)
         } label: {
             Text(label)
-                .font(.caption2)
+                .font(.system(size: 11))
                 .foregroundStyle(isOn ? Color.milensActionPrimary : Color.milensTextSecondary)
-                .padding(.horizontal, 12)
-                .padding(.vertical, 6)
-                .background(isOn ? Color.milensAccentSoft : Color.milensGrouped)
+                .frame(minWidth: 58, minHeight: 30)
+                .background(isOn ? Color.milensAccentSoft : Color.milensCard)
                 .overlay(
-                    RoundedRectangle(cornerRadius: 12)
+                    RoundedRectangle(cornerRadius: 11, style: .continuous)
                         .stroke(isOn ? Color.milensActionPrimary : Color.milensBorder,
-                                lineWidth: isOn ? 1 : 0.5)
+                                lineWidth: 1)
                 )
-                .clipShape(RoundedRectangle(cornerRadius: 12))
+                .clipShape(RoundedRectangle(cornerRadius: 11, style: .continuous))
         }
         .buttonStyle(.plain)
+    }
+
+    // MARK: - Darkroom Pulse 生成按钮（对照 #268:332）
+
+    private var generateButton: some View {
+        Button {
+            if vm.pattern != nil {
+                onExport()
+            } else {
+                vm.generate()
+            }
+        } label: {
+            Group {
+                if isGenerating {
+                    HStack(spacing: 8) {
+                        ProgressView()
+                            .tint(.white)
+                        Text(String(localized: "create.bead.generating"))
+                            .font(.system(size: 15, weight: .bold))
+                            .foregroundStyle(.white)
+                    }
+                } else {
+                    Text(primaryButtonTitle)
+                        .font(.system(size: 15, weight: .bold))
+                        .foregroundStyle(.white)
+                }
+            }
+            .frame(maxWidth: .infinity, minHeight: 52)
+            .background(Color.milensActionPrimary)
+            .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+        }
+        .buttonStyle(.plain)
+        .disabled(isGenerating)
+    }
+
+    private var primaryButtonTitle: String {
+        vm.pattern != nil
+            ? String(localized: "create.bead.viewExport")
+            : String(localized: "create.bead.generatePattern")
+    }
+
+    private var footerHint: some View {
+        Text(String(localized: "create.bead.localProcessHint"))
+            .font(.system(size: 11))
+            .foregroundStyle(Color.milensTextTertiary)
+            .multilineTextAlignment(.center)
+            .frame(maxWidth: .infinity)
     }
 }

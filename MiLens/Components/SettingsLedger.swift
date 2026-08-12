@@ -141,6 +141,68 @@ struct LedgerDisclosureRow: View {
     }
 }
 
+// MARK: - PreferenceRow（Figma Control/Preference Row [`275:522`]）
+
+/// PreferenceRow 模式：映射 Figma Mode=Toggle On/Toggle Off/Disclosure。
+enum PreferenceRowMode {
+    /// 布尔开关——开启态。使用 SwiftUI 原生 Toggle（44pt 点击语义）。
+    case toggleOn
+    /// 布尔开关——关闭态。
+    case toggleOff
+    /// 展示型导航行（当前值 + Chevron）。
+    case disclosure
+}
+
+/// 设置偏好行：编号 + 标签 + 虚线引导线 + 尾部控件。
+/// 对照 Figma Control/Preference Row：Mode=Toggle On/Toggle Off/Disclosure。
+///
+/// 设计纪律（UI-DESIGN.md §5.3/§5.6）：
+/// - 布尔项使用 SwiftUI 原生 Toggle，不实现手绘圈线或装饰性假开关；
+/// - 枚举项使用当前值 + Chevron，Disclosure 使用 Button/NavigationLink 语义；
+/// - 帮助与版本信息不复用该组件（独立分组）。
+struct PreferenceRow: View {
+    let index: String
+    let label: String
+    let mode: PreferenceRowMode
+    /// Disclosure 模式的当前值文案。
+    var valueText: String? = nil
+    /// Toggle 绑定（Toggle 模式必传）。
+    var isOn: Binding<Bool>? = nil
+    /// Disclosure 点击回调。
+    var onTap: (() -> Void)? = nil
+
+    var body: some View {
+        switch mode {
+        case .toggleOn, .toggleOff:
+            LedgerRow(index: index, label: label) {
+                Toggle("", isOn: isOn ?? .constant(mode == .toggleOn))
+                    .labelsHidden()
+                    .tint(Color.milensActionPrimary)
+            }
+        case .disclosure:
+            if let onTap {
+                Button(action: onTap) {
+                    LedgerRow(index: index, label: label) {
+                        HStack(spacing: 6) {
+                            if let valueText {
+                                Text(valueText)
+                                    .font(.system(size: 13))
+                                    .foregroundStyle(Color.milensTextSecondary)
+                            }
+                            Image(systemName: "chevron.right")
+                                .font(.system(size: 11, weight: .semibold))
+                                .foregroundStyle(Color.milensTextSecondary)
+                        }
+                    }
+                }
+                .buttonStyle(.plain)
+            } else {
+                LedgerDisclosureRow(index: index, label: label, trailingText: valueText)
+            }
+        }
+    }
+}
+
 // MARK: - Pro 暖黑卡片
 
 /// Pro 卡片：暖黑底 #14110F，4px 圆角，Fraunces 标题。

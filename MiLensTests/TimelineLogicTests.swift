@@ -430,4 +430,219 @@ final class TimelineLogicTests: XCTestCase {
         XCTAssertEqual(entries[0].type, .workRecord)
         XCTAssertEqual(entries[1].type, .photoNote)
     }
+
+    // MARK: - 生命档案增强：档案统计（computeArchiveStats）
+
+    func testComputeArchiveStatsCountsAllFields() {
+        let petID = UUID()
+        let events = [
+            TimelinePetEvent(id: UUID(), petID: petID, eventType: "birthday",
+                            eventDate: date(2024, 5, 1), title: "生日"),
+            TimelinePetEvent(id: UUID(), petID: petID, eventType: "adoption",
+                            eventDate: date(2024, 6, 1), title: "领养"),
+            TimelinePetEvent(id: UUID(), petID: petID, eventType: "custom",
+                            eventDate: date(2025, 1, 1), title: "记录",
+                            body: "一段记忆", sourceType: "user"),
+        ]
+        let photos = [
+            TimelinePhoto(id: UUID(), petID: petID, takenAt: date(2024, 5, 10),
+                          note: "", uri: "file://test.jpg", thumbnailPath: ""),
+        ]
+        let stats = TimelineLogic.computeArchiveStats(
+            photoCount: 1, events: events, photos: photos,
+            adoptionDay: date(2024, 6, 1), now: date(2026, 6, 1), calendar: cal)
+        XCTAssertEqual(stats.photoCount, 1)
+        XCTAssertEqual(stats.memoryCount, 3)
+        XCTAssertEqual(stats.importantDayCount, 3)
+        XCTAssertEqual(stats.archiveOriginDate, date(2024, 5, 1))
+    }
+
+    func testComputeArchiveStatsDaysTogetherFromAdoptionDay() {
+        let stats = TimelineLogic.computeArchiveStats(
+            photoCount: 0, events: [], photos: [],
+            adoptionDay: date(2026, 1, 1), now: date(2026, 1, 31), calendar: cal)
+        XCTAssertEqual(stats.daysTogether, 30)
+    }
+
+    func testComputeArchiveStatsDaysTogetherFallsBackToEarliestDate() {
+        let photo = TimelinePhoto(id: UUID(), petID: nil, takenAt: date(2026, 1, 1),
+                                  note: "", uri: "", thumbnailPath: "")
+        let stats = TimelineLogic.computeArchiveStats(
+            photoCount: 1, events: [], photos: [photo],
+            adoptionDay: nil, now: date(2026, 1, 11), calendar: cal)
+        XCTAssertEqual(stats.daysTogether, 10)
+    }
+
+    func testComputeArchiveStatsArchiveOriginNilForEmptyInput() {
+        let stats = TimelineLogic.computeArchiveStats(
+            photoCount: 0, events: [], photos: [],
+            adoptionDay: nil, now: date(2026, 1, 1), calendar: cal)
+        XCTAssertNil(stats.archiveOriginDate)
+        XCTAssertEqual(stats.daysTogether, 0)
+    }
+
+    // MARK: - 生命档案增强：置顶记忆选择（selectPinnedMemory）
+
+    func testSelectPinnedMemoryPrefersPinnedEvents() {
+        let pinnedID = UUID()
+        let pinnedEvent = TimelinePetEvent(
+            id: pinnedID, petID: nil, eventType: "custom",
+            eventDate: date(2026, 3, 1), title: "置顶记忆",
+            body: "重要的一天", sourceType: "user")
+        let userEvent = TimelinePetEvent(
+            id: UUID(), petID: nil, eventType: "custom",
+            eventDate: date(2026, 5, 1), title: "普通记忆",
+            body: "日常记录", sourceType: "user")
+        let result = TimelineLogic.selectPinnedMemory(
+            events: [pinnedEvent, userEvent],
+            pinnedEventIDs: [pinnedID], calendar: cal)
+        XCTAssertEqual(result?.entryID, pinnedID.uuidString)
+        XCTAssertEqual(result?.title, "置顶记忆")
+    }
+
+    func testSelectPinnedMemoryFallsBackToUserTextMemory() {
+        let userEvent = TimelinePetEvent(
+            id: UUID(), petID: nil, eventType: "custom",
+            eventDate: date(2026, 5, 1), title: "用户记忆",
+            body: "正文", sourceType: "user")
+        let result = TimelineLogic.selectPinnedMemory(
+            events: [userEvent], pinnedEventIDs: [], calendar: cal)
+        XCTAssertEqual(result?.entryID, userEvent.id.uuidString)
+        XCTAssertEqual(result?.sourceType, "user")
+    }
+
+    func testSelectPinnedMemoryReturnsNilForNoCandidates() {
+        let systemEvent = TimelinePetEvent(
+            id: UUID(), petID: nil, eventType: "birthday",
+            eventDate: date(2026, 1, 1), title: "生日")
+        let result = TimelineLogic.selectPinnedMemory(
+            events: [systemEvent], pinnedEventIDs: [], calendar: cal)
+        XCTAssertNil(result)
+    }
+
+    func testSelectPinnedMemoryPicksMostRecentWhenMultipleCandidates() {
+        let older = TimelinePetEvent(
+            id: UUID(), petID: nil, eventType: "custom",
+            eventDate: date(2025, 1, 1), title: "旧的",
+            body: "旧记忆", sourceType: "user")
+        let newer = TimelinePetEvent(
+            id: UUID(), petID: nil, eventType: "custom",
+            eventDate: date(2026, 1, 1), title: "新的",
+            body: "新记忆", sourceType: "user")
+        let result = TimelineLogic.selectPinnedMemory(
+            events: [older, newer], pinnedEventIDs: [], calendar: cal)
+        XCTAssertEqual(result?.title, "新的")
+    }
+
+    // MARK: - 生命档案增强：日期范围章节分组（buildDateRangeChapters）
+
+    func testBuildDateRangeChaptersGroupsByYear() {
+        let entries = [
+            TimelineEntry(id: "a", type: .photoNote, date: date(2024, 3, 1),
+                          title: "A", subtitle: "", petID: nil, petName: "",
+                          photoID: nil, photoURI: "", thumbnailPath: ""),
+            TimelineEntry(id: "b", type: .photoNote, date: date(2025, 6, 1),
+                          title: "B", subtitle: "", petID: nil, petName: "",
+                          photoID: nil, photoURI: "", thumbnailPath: ""),
+        ]
+        let chapters = TimelineLogic.buildDateRangeChapters(
+            entries: entries, now: date(2026, 1, 1), calendar: cal)
+        XCTAssertEqual(chapters.count, 2)
+        XCTAssertEqual(chapters[0].entries.count, 1)
+        XCTAssertEqual(chapters[1].entries.count, 1)
+        XCTAssertTrue(chapters[1].isLastChapter)
+        XCTAssertFalse(chapters[0].isLastChapter)
+    }
+
+    func testBuildDateRangeChaptersUsesCustomName() {
+        let entry = TimelineEntry(id: "a", type: .photoNote, date: date(2024, 3, 1),
+                                  title: "A", subtitle: "", petID: nil, petName: "",
+                                  photoID: nil, photoURI: "", thumbnailPath: "")
+        let chapters = TimelineLogic.buildDateRangeChapters(
+            entries: [entry], customNames: [2024: "我们的第一年"],
+            now: date(2026, 1, 1), calendar: cal)
+        XCTAssertEqual(chapters.count, 1)
+        XCTAssertEqual(chapters[0].title, "我们的第一年")
+    }
+
+    func testBuildDateRangeChaptersAutoDerivesTitleWhenNoCustomName() {
+        let entry = TimelineEntry(id: "a", type: .photoNote, date: date(2024, 3, 1),
+                                  title: "A", subtitle: "", petID: nil, petName: "",
+                                  photoID: nil, photoURI: "", thumbnailPath: "")
+        let chapters = TimelineLogic.buildDateRangeChapters(
+            entries: [entry], now: date(2026, 1, 1), calendar: cal)
+        XCTAssertEqual(chapters.count, 1)
+        // 自动推导标题不应为空
+        XCTAssertFalse(chapters[0].title.isEmpty)
+    }
+
+    func testBuildDateRangeChaptersEmptyEntriesReturnsEmpty() {
+        let chapters = TimelineLogic.buildDateRangeChapters(
+            entries: [], now: date(2026, 1, 1), calendar: cal)
+        XCTAssertTrue(chapters.isEmpty)
+    }
+
+    // MARK: - 生命档案增强：年度回看（buildYearlyRecap）
+
+    func testBuildYearlyRecapFiltersByYear() {
+        let entries = [
+            TimelineEntry(id: "a", type: .photoNote, date: date(2025, 3, 1),
+                          title: "2025", subtitle: "", petID: nil, petName: "",
+                          photoID: nil, photoURI: "", thumbnailPath: ""),
+            TimelineEntry(id: "b", type: .photoNote, date: date(2026, 6, 1),
+                          title: "2026", subtitle: "", petID: nil, petName: "",
+                          photoID: nil, photoURI: "", thumbnailPath: ""),
+        ]
+        let recap = TimelineLogic.buildYearlyRecap(entries: entries, year: 2026, calendar: cal)
+        XCTAssertEqual(recap.year, 2026)
+        XCTAssertEqual(recap.totalCount, 1)
+        XCTAssertEqual(recap.highlights.first?.title, "2026")
+    }
+
+    func testBuildYearlyRecapMonthlyPicksOnePerMonth() {
+        let entries = (1...3).map { m in
+            TimelineEntry(id: "m\(m)", type: .photoNote, date: date(2026, m, 15),
+                          title: "月\(m)", subtitle: "", petID: nil, petName: "",
+                          photoID: nil, photoURI: "", thumbnailPath: "")
+        }
+        let recap = TimelineLogic.buildYearlyRecap(entries: entries, year: 2026, calendar: cal)
+        XCTAssertEqual(recap.monthlyPicks.count, 3)
+        XCTAssertEqual(recap.monthlyPicks[1]?.title, "月1")
+        XCTAssertEqual(recap.monthlyPicks[2]?.title, "月2")
+        XCTAssertEqual(recap.monthlyPicks[3]?.title, "月3")
+    }
+
+    func testBuildYearlyRecapEmptyYearReturnsZeroCounts() {
+        let recap = TimelineLogic.buildYearlyRecap(entries: [], year: 2026, calendar: cal)
+        XCTAssertEqual(recap.totalCount, 0)
+        XCTAssertTrue(recap.monthlyPicks.isEmpty)
+    }
+
+    // MARK: - 生命档案增强：删除/取消关联边界
+
+    func testImportantDayCountAfterRemovalDecrements() {
+        let removedID = UUID()
+        let events = [
+            TimelinePetEvent(id: removedID, petID: nil, eventType: "custom",
+                            eventDate: date(2026, 1, 1), title: "将删除",
+                            body: "", sourceType: "user"),
+            TimelinePetEvent(id: UUID(), petID: nil, eventType: "birthday",
+                            eventDate: date(2026, 5, 1), title: "生日"),
+        ]
+        let count = TimelineLogic.importantDayCountAfterRemoval(
+            events: events, removedEventID: removedID)
+        XCTAssertEqual(count, 1)
+    }
+
+    func testImportantDayCountAfterRemovalWithNonExistentIDUnchanged() {
+        let events = [
+            TimelinePetEvent(id: UUID(), petID: nil, eventType: "birthday",
+                            eventDate: date(2026, 5, 1), title: "生日"),
+            TimelinePetEvent(id: UUID(), petID: nil, eventType: "adoption",
+                            eventDate: date(2026, 6, 1), title: "领养"),
+        ]
+        let count = TimelineLogic.importantDayCountAfterRemoval(
+            events: events, removedEventID: UUID())
+        XCTAssertEqual(count, 2)
+    }
 }

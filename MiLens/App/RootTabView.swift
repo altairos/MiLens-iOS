@@ -51,9 +51,6 @@ struct RootTabView: View {
         .toolbar(.hidden, for: .tabBar)
         .safeAreaInset(edge: .bottom, spacing: 0) {
             MemoryOrbitTabBar(selection: selectedTab)
-                .padding(.horizontal, Spacing.xl)
-                .padding(.vertical, Spacing.sm)
-                .frame(maxWidth: .infinity)
         }
         .onChange(of: scenePhase) { _, newPhase in
             handleScenePhase(newPhase)

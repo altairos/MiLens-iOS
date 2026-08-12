@@ -134,6 +134,135 @@ struct ContactProofButton: View {
     }
 }
 
+// MARK: - DarkroomPulseButton（Action/Darkroom Pulse [`263:368`]）
+
+/// Darkroom Pulse 上下文：区分「生成」与「导出」两种沉浸式创作动作。
+enum DarkroomPulseContext {
+    /// 拼豆生成。
+    case generate
+    /// 高清导出。
+    case export_
+}
+
+/// 暖黑动作面 + 精确珊瑚曝光边 + 微型直方图 + 动作图形。
+/// 对照 Figma Action/Darkroom Pulse（#263:368）：Context=Generate/Export × 三态。
+///
+/// 设计纪律（UI-DESIGN.md §5.5）：
+/// - 暖黑动作面（milensDarkroomBadge）+ 从弱到强的精确珊瑚曝光边；
+/// - 独立按钮高度 52pt，结果页紧凑导出位可用 44pt，触控区 ≥44×44pt；
+/// - 禁止回退到全圆胶囊、缺角大按钮、无语义尾块。
+struct DarkroomPulseButton: View {
+    let label: String
+    var context: DarkroomPulseContext = .generate
+    var isEnabled: Bool = true
+    var isLoading: Bool = false
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            HStack(spacing: 0) {
+                // 左侧文字标签区（暖黑动作面）
+                HStack(spacing: 8) {
+                    if isLoading {
+                        ProgressView()
+                            .tint(Color.milensDarkroomText)
+                    } else {
+                        Image(systemName: glyph)
+                            .font(.system(size: 16, weight: .semibold))
+                            .foregroundStyle(Color.milensDarkroomText)
+                    }
+                    Text(label)
+                        .font(.system(size: 15, weight: .bold))
+                        .foregroundStyle(Color.milensDarkroomText)
+                        .lineLimit(1)
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.leading, 18)
+
+                // 右侧珊瑚曝光边 + 微型直方图
+                exposureEdge
+                    .frame(width: 54, height: 52)
+                    .padding(.trailing, 2)
+            }
+            .frame(height: 52)
+            .background(
+                RoundedRectangle(cornerRadius: 14, style: .continuous)
+                    .fill(Color.milensDarkroomBadge)
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: 14, style: .continuous)
+                    .stroke(Color.milensActionPrimary.opacity(isEnabled ? 0.6 : 0.2), lineWidth: 1)
+            )
+            .opacity(isEnabled ? 1 : 0.4)
+        }
+        .buttonStyle(.plain)
+        .disabled(!isEnabled || isLoading)
+    }
+
+    /// 动作图形：generate=火花，export=向上箭头。
+    private var glyph: String {
+        context == .generate ? "sparkles" : "arrow.up"
+    }
+
+    /// 右侧珊瑚曝光边 + 微型直方图。
+    private var exposureEdge: some View {
+        ZStack {
+            // 珊瑚曝光边框
+            RoundedRectangle(cornerRadius: 10, style: .continuous)
+                .stroke(Color.milensActionPrimary.opacity(0.7), lineWidth: 1)
+                .padding(4)
+            // 微型直方图（3 根递增竖条）
+            HStack(alignment: .bottom, spacing: 3) {
+                Capsule()
+                    .fill(Color.milensActionPrimary.opacity(0.4))
+                    .frame(width: 3, height: 8)
+                Capsule()
+                    .fill(Color.milensActionPrimary.opacity(0.7))
+                    .frame(width: 3, height: 14)
+                Capsule()
+                    .fill(Color.milensActionPrimary)
+                    .frame(width: 3, height: 20)
+            }
+        }
+    }
+}
+
+// MARK: - PrimaryActionMaterialStyle（统一入口）
+
+/// 三种场景变体的语义标签，对应 Figma Action 组件集。
+/// 不收敛成一个万能胶囊；按场景选用（UI-DESIGN.md §5.3/§5.5）。
+enum PrimaryActionMaterialStyle {
+    /// 加入记忆、保存档案等全局确认动作。
+    case focusDial
+    /// 仅扫描/导入照片。
+    case contactProof
+    /// 拼豆生成与高清导出。
+    case darkroomPulse
+}
+
+/// PrimaryActionMaterial 统一分发器：按 style 路由到对应变体组件。
+/// 调用方通过此入口选择变体，避免直接引用具体按钮实现。
+struct PrimaryActionMaterial: View {
+    let style: PrimaryActionMaterialStyle
+    let label: String
+    var isEnabled: Bool = true
+    var isLoading: Bool = false
+    var darkroomContext: DarkroomPulseContext = .generate
+    var systemImage: String = "plus"
+    let action: () -> Void
+
+    var body: some View {
+        switch style {
+        case .focusDial:
+            FocusDialButton(label: label, systemImage: systemImage, isEnabled: isEnabled, action: action)
+        case .contactProof:
+            ContactProofButton(label: label, isEnabled: isEnabled, action: action)
+        case .darkroomPulse:
+            DarkroomPulseButton(label: label, context: darkroomContext, isEnabled: isEnabled, isLoading: isLoading, action: action)
+        }
+    }
+}
+
 // MARK: - EditorialSection
 
 /// 编辑式标题区：overline caption + 文楷 Section 标题 + 可选正文。

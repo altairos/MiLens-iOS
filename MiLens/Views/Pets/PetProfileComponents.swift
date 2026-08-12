@@ -167,19 +167,15 @@ struct TimelineContinuationCard: View {
 
 /// Archive Panel 四列统计的单项：大数字 + 小标签。
 /// 对照 Figma Archive Stat #I319:1101;296:617-626。
+/// 实现已收敛到可复用组件 ArchiveStatView（UI-DESIGN.md §5.6 契约），
+/// 此处保留为语义别名以便 PetProfileView 调用点不需改动。
 struct ArchiveStatItem: View {
     let value: String
     let label: String
+    /// 可选单位后缀。
+    var unit: String? = nil
 
     var body: some View {
-        VStack(spacing: 4) {
-            Text(value)
-                .font(.system(size: 28, weight: .bold))
-                .foregroundStyle(Color.milensTextPrimary)
-            Text(label)
-                .font(.system(size: 11))
-                .foregroundStyle(Color.milensTextSecondary)
-        }
-        .frame(maxWidth: .infinity)
+        ArchiveStatView(value: value, label: label, unit: unit)
     }
 }

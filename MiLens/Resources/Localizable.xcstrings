@@ -2279,6 +2279,39 @@
         }
       }
     },
+    "pet.profile.stat.importantDays" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "重要日子"
+          }
+        }
+      }
+    },
+    "pet.profile.archiveOrigin" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "档案起点"
+          }
+        }
+      }
+    },
+    "pet.profile.continueRecording" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "继续记录"
+          }
+        }
+      }
+    },
     "pet.profile.timelineLink" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -3881,6 +3914,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "来源照片"
+          }
+        }
+      }
+    },
+    "create.bead.sourceMeta" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "原图"
           }
         }
       }

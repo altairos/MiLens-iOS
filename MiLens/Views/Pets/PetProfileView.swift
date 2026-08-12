@@ -163,8 +163,9 @@ struct PetProfileView: View {
 
     // MARK: - Archive Panel
 
-    /// 浮起覆盖面板：Eyebrow + Intro + 四列统计 + 置顶记忆 + 最近照片 + 时间线入口。
+    /// 浮起覆盖面板：Eyebrow + Intro + 档案起点 + 统计 + 置顶记忆 + 最近照片 + 时间线入口 + 继续记录。
     /// 对照 Figma #319:1101（Surface/Archive Panel，32px 圆角）。
+    /// P3.6 增强：重要日子数 + 档案起点 + 继续记录入口（Life-Archive-Design.md §3）。
     private func archivePanel(_ pet: Pet) -> some View {
         VStack(alignment: .leading, spacing: 0) {
             // Eyebrow + Intro（对照 #I319:1101;296:588-589）
@@ -176,11 +177,19 @@ struct PetProfileView: View {
                 Text(String(localized: "pet.profile.intro"))
                     .font(.system(size: 15))
                     .foregroundStyle(Color.milensTextSecondary)
+                // P3.6：档案起点日期
+                if let originDate = archiveOriginDate(pet) {
+                    Text(String(localized: "pet.profile.archiveOrigin") + " " +
+                         originDate.formatted(.iso8601.year().month().day().dateSeparator(.dot)))
+                        .font(.system(size: 12))
+                        .foregroundStyle(Color.milensTextTertiary)
+                        .padding(.top, 2)
+                }
             }
             .padding(.horizontal, 24)
             .padding(.top, 30)
 
-            // 四列统计（对照 Archive Stat #I319:1101;296:617-626）
+            // 统计行（对照 Archive Stat #I319:1101;296:617-626）
             archiveStatsRow(pet)
                 .padding(.top, 20)
 
@@ -201,9 +210,14 @@ struct PetProfileView: View {
                     .padding(.top, 20)
             }
 
-            // 时间线入口（对照 #I319:1101;296:603-606）
+            // 时间线入口 + 继续记录（对照 #I319:1101;296:603-606）
             timelineLink(pet)
                 .padding(.top, 20)
+
+            // P3.6：继续记录入口（突出主 CTA，鼓励用户补写记忆）
+            continueRecordingEntry(pet)
+                .padding(.horizontal, 24)
+                .padding(.top, 12)
                 .padding(.bottom, 24)
 
             // 照片分类网格（保留现有功能）
@@ -226,17 +240,30 @@ struct PetProfileView: View {
         .clipShape(RoundedRectangle(cornerRadius: 32, style: .continuous))
     }
 
-    // MARK: - 四列统计
+    // MARK: - 档案起点日期
+
+    /// 计算档案起点日期：最早的事件日期或照片拍摄日期。
+    private func archiveOriginDate(_ pet: Pet) -> Date? {
+        let eventDates = pet.events.map { $0.eventDate }
+        let photoDates = photos.compactMap { $0.takenAt }
+        return (eventDates + photoDates).min()
+    }
+
+    // MARK: - 统计行
 
     private func archiveStatsRow(_ pet: Pet) -> some View {
         let workCount = photos.filter { PetPhotoCategoryLogic.isEditedPhoto($0) }.count
         let memoryCount = pet.events.count
+        // P3.6：重要日子数 = 生日 + 领养日 + 用户标记事件
+        let importantDayCount = pet.events.filter {
+            $0.sourceType == "user" || $0.eventType == "birthday" || $0.eventType == "adoption"
+        }.count
 
         return HStack(spacing: 0) {
             ArchiveStatItem(value: "\(pet.photoCount)", label: String(localized: "pet.profile.stat.photos"))
             ArchiveStatItem(value: "\(memoryCount)", label: String(localized: "pet.profile.stat.memories"))
             ArchiveStatItem(value: "\(PetDisplayLogic.daysTogether(from: pet.adoptionDay))", label: String(localized: "pet.profile.stat.days"))
-            ArchiveStatItem(value: "\(workCount)", label: String(localized: "pet.profile.stat.works"))
+            ArchiveStatItem(value: "\(importantDayCount)", label: String(localized: "pet.profile.stat.importantDays"))
         }
         .padding(.horizontal, 24)
     }
@@ -370,48 +397,41 @@ struct PetProfileView: View {
 
     // MARK: - 时间线入口
 
-    /// 珊瑚色「查看完整生命时间线 →」+ baseline + arrow + 「添加记忆」入口。
+    /// 珊瑚色「查看完整生命时间线 →」+ baseline + arrow。
     /// 对照 #I319:1101;296:603-606。
     private func timelineLink(_ pet: Pet) -> some View {
-        VStack(spacing: 0) {
-            NavigationLink(value: Route.timeline) {
-                HStack(spacing: 6) {
-                    Text(String(localized: "pet.profile.timelineLink"))
-                        .font(.system(size: 14, weight: .medium))
-                        .foregroundStyle(Color.milensActionPrimary)
-                    Spacer()
-                    Image(systemName: "arrow.right")
-                        .font(.system(size: 14, weight: .semibold))
-                        .foregroundStyle(Color.milensActionPrimary)
-                }
-                .padding(.horizontal, 24)
-                .overlay(alignment: .bottom) {
-                    Rectangle()
-                        .fill(Color.milensBorder)
-                        .frame(height: 1)
-                        .padding(.leading, 152)
-                }
+        NavigationLink(value: Route.timeline) {
+            HStack(spacing: 6) {
+                Text(String(localized: "pet.profile.timelineLink"))
+                    .font(.system(size: 14, weight: .medium))
+                    .foregroundStyle(Color.milensActionPrimary)
+                Spacer()
+                Image(systemName: "arrow.right")
+                    .font(.system(size: 14, weight: .semibold))
+                    .foregroundStyle(Color.milensActionPrimary)
             }
-            .buttonStyle(.plain)
-
-            // 添加记忆入口（Life-Archive-Design.md §3.3）
-            Button {
-                showAddMemorySheet = true
-            } label: {
-                HStack(spacing: 6) {
-                    Text(String(localized: "pet.profile.addMemory"))
-                        .font(.system(size: 14, weight: .medium))
-                        .foregroundStyle(Color.milensTextSecondary)
-                    Spacer()
-                    Image(systemName: "plus")
-                        .font(.system(size: 14, weight: .semibold))
-                        .foregroundStyle(Color.milensTextSecondary)
-                }
-                .padding(.horizontal, 24)
-                .padding(.top, 12)
+            .padding(.horizontal, 24)
+            .overlay(alignment: .bottom) {
+                Rectangle()
+                    .fill(Color.milensBorder)
+                    .frame(height: 1)
+                    .padding(.leading, 152)
             }
-            .buttonStyle(.plain)
         }
+        .buttonStyle(.plain)
+    }
+
+    // MARK: - 继续记录入口（P3.6）
+
+    /// 突出的主 CTA：鼓励用户补写记忆（Life-Archive-Design.md §3.3）。
+    /// 使用 Focus Dial 风格的主动作按钮，呼应编辑式设计语言。
+    private func continueRecordingEntry(_ pet: Pet) -> some View {
+        FocusDialButton(
+            label: String(localized: "pet.profile.continueRecording"),
+            systemImage: "plus",
+            isEnabled: true,
+            action: { showAddMemorySheet = true }
+        )
     }
 
     // MARK: - 照片分类网格（保留现有功能）

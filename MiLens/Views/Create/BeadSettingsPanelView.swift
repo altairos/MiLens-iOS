@@ -78,56 +78,24 @@ struct BeadSettingsPanelView: View {
         footerHint
     }
 
-    // MARK: - Identity Strip/Source（对照 #301:888）
+    // MARK: - Identity Strip/Source（对照 #301:888 / Figma Surface/Identity Strip #299:615）
+    //  复用可复用 IdentityStrip 组件（UI-DESIGN.md §5.6 契约）。
 
     private var identityStrip: some View {
-        HStack(spacing: 0) {
-            // Registration Rail
-            Rectangle()
-                .fill(Color.milensActionPrimary)
-                .frame(width: 3)
-                .padding(.vertical, 14)
-
-            // 来源照片 72×72
+        IdentityStrip(
+            context: .source,
+            meta: String(localized: "create.bead.sourceMeta"),
+            label: String(localized: "create.bead.source"),
+            action: String(localized: "create.bead.change"),
+            onAction: {}
+        ) {
             if !vm.thumbnailPath.isEmpty || !vm.photoURI.isEmpty {
                 ThumbnailImage(path: vm.thumbnailPath.isEmpty ? vm.photoURI : vm.thumbnailPath)
-                    .frame(width: 72, height: 72)
-                    .clipShape(RoundedRectangle(cornerRadius: 4, style: .continuous))
-                    .padding(.leading, 7)
-                    .padding(.vertical, 10)
+                    .scaledToFill()
+            } else {
+                Color.milensAccentSoft
             }
-
-            VStack(alignment: .leading, spacing: 2) {
-                Text("原图")
-                    .font(.system(size: 10, weight: .medium))
-                    .tracking(0.4)
-                    .foregroundStyle(Color.milensActionPrimary)
-                Text(String(localized: "create.bead.source"))
-                    .font(.system(size: 14, weight: .medium))
-                    .foregroundStyle(Color.milensTextPrimary)
-            }
-            .padding(.leading, 14)
-
-            Spacer()
-
-            // Action（更换）
-            VStack(alignment: .trailing, spacing: 4) {
-                Text(String(localized: "create.bead.change"))
-                    .font(.system(size: 11, weight: .medium))
-                    .foregroundStyle(Color.milensActionPrimary)
-                Rectangle()
-                    .fill(Color.milensActionPrimary)
-                    .frame(width: 22, height: 1)
-            }
-            .padding(.trailing, 14)
         }
-        .frame(minHeight: 92)
-        .background(Color.milensGrouped)
-        .overlay(
-            RoundedRectangle(cornerRadius: 8, style: .continuous)
-                .stroke(Color.milensBorder, lineWidth: 1)
-        )
-        .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
     }
 
     // MARK: - 选择效果（对照 #91:261-353）
@@ -451,37 +419,23 @@ struct BeadSettingsPanelView: View {
         .buttonStyle(.plain)
     }
 
-    // MARK: - Darkroom Pulse 生成按钮（对照 #268:332）
+    // MARK: - Darkroom Pulse 生成按钮（对照 #268:332 / Figma Action/Darkroom Pulse #263:368）
 
     private var generateButton: some View {
-        Button {
-            if vm.pattern != nil {
-                onExport()
-            } else {
-                vm.generate()
-            }
-        } label: {
-            Group {
-                if isGenerating {
-                    HStack(spacing: 8) {
-                        ProgressView()
-                            .tint(.white)
-                        Text(String(localized: "create.bead.generating"))
-                            .font(.system(size: 15, weight: .bold))
-                            .foregroundStyle(.white)
-                    }
+        DarkroomPulseButton(
+            label: primaryButtonTitle,
+            context: vm.pattern != nil ? .export_ : .generate,
+            isEnabled: !isGenerating,
+            isLoading: isGenerating,
+            action: {
+                if vm.pattern != nil {
+                    onExport()
                 } else {
-                    Text(primaryButtonTitle)
-                        .font(.system(size: 15, weight: .bold))
-                        .foregroundStyle(.white)
+                    vm.generate()
                 }
             }
-            .frame(maxWidth: .infinity, minHeight: 52)
-            .background(Color.milensActionPrimary)
-            .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
-        }
-        .buttonStyle(.plain)
-        .disabled(isGenerating)
+        )
+        .animation(reduceMotion ? nil : .easeInOut(duration: Motion.durationFast), value: isGenerating)
     }
 
     private var primaryButtonTitle: String {

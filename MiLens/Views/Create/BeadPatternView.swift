@@ -146,7 +146,7 @@ struct BeadPatternView: View {
                         // 参数标题（对照 #310:924-925）
                         VStack(alignment: .leading, spacing: 4) {
                             Text("PATTERN PARAMETERS")
-                                .font(.custom("Jacques Francois", size: 10))
+                                .font(.custom("JacquesFrancois-Regular", size: 10))
                                 .tracking(0.4)
                                 .foregroundStyle(Color.milensActionPrimary)
                             Text("图纸参数")

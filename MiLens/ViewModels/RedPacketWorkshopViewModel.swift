@@ -56,6 +56,8 @@ final class RedPacketWorkshopViewModel {
     var cutoutPhase: RedPacketCutoutPhase = .idle
     /// 宠物名。
     var petName = ""
+    /// 撤销/重做历史状态。
+    var history: RedPacketHistoryState = RedPacketHistoryState()
 
     // MARK: - 初始化
 
@@ -94,6 +96,11 @@ final class RedPacketWorkshopViewModel {
     var textContent: String {
         draft.layers.first { $0.kind == .text }?.text ?? ""
     }
+
+    /// 是否可撤销。
+    var canUndo: Bool { history.canUndo }
+    /// 是否可重做。
+    var canRedo: Bool { history.canRedo }
 
     // MARK: - 加载
 
@@ -139,6 +146,9 @@ final class RedPacketWorkshopViewModel {
             )
 
             // 自动抠图
+            // 初始化历史状态
+            history = RedPacketHistoryLogic.initialState(draft: draft)
+
             await performCutout()
 
         } catch {
@@ -239,12 +249,14 @@ final class RedPacketWorkshopViewModel {
 
     func deleteActive() {
         guard let id = activeLayerID else { return }
+        pushSnapshot()
         draft.layers = rpDeleteLayer(draft.layers, id: id)
         activeLayerID = nil
     }
 
     func centerActive() {
         guard let id = activeLayerID else { return }
+        pushSnapshot()
         draft.layers = rpUpdateLayer(draft.layers, id: id) { layer in
             let centered = rpCenterLayer(layer)
             layer.x = centered.x
@@ -254,6 +266,7 @@ final class RedPacketWorkshopViewModel {
 
     func resetActive() {
         guard let id = activeLayerID else { return }
+        pushSnapshot()
         draft.layers = rpUpdateLayer(draft.layers, id: id) { layer in
             let reset = rpResetLayerToDefault(layer, template: template)
             layer.x = reset.x
@@ -265,20 +278,71 @@ final class RedPacketWorkshopViewModel {
 
     func updateText(_ text: String) {
         guard let textLayer = draft.layers.first(where: { $0.kind == .text }) else { return }
+        pushSnapshot()
         let truncated = String(text.prefix(WeChatRedPacketSpec.coverTitleMaxLength))
         draft.layers = rpUpdateLayer(draft.layers, id: textLayer.id) { $0.text = truncated }
         draft.coverTitle = truncated
+    }
+
+    /// 切换活动文本层的预置风格。
+    func applyTextStyle(_ preset: RedPacketTextStylePreset) {
+        guard let id = activeLayerID, activeLayer?.kind == .text else { return }
+        pushSnapshot()
+        draft.layers = rpUpdateLayer(draft.layers, id: id) { $0.styleID = preset.rawValue }
+    }
+
+    /// 添加配饰图层（Phase 2 基础配饰）。
+    func addAccessory(resourceRef: String, x: Double? = nil, y: Double? = nil) {
+        pushSnapshot()
+        let posX = x ?? (rpCanvasWidth * 0.5)
+        let posY = y ?? (rpCanvasHeight * 0.5)
+        var accessory = makeRedPacketTextLayer(text: "", x: posX, y: posY, width: 120, height: 120)
+        accessory.kind = .accessory
+        accessory.resourceRef = resourceRef
+        accessory.zIndex = 150
+        draft.layers.append(accessory)
+        activeLayerID = accessory.id
     }
 
     // MARK: - 模板切换
 
     func switchTemplate(to newTemplateID: String) {
         guard let newTemplate = RedPacketTemplateCatalog.find(id: newTemplateID) else { return }
+        pushSnapshot()
         template = newTemplate
         draft.layers = rpSwitchTemplate(oldLayers: draft.layers, newTemplate: newTemplate)
         draft.templateID = newTemplate.id
         draft.templateRevision = newTemplate.revision
         draft.updatedAt = Date()
+    }
+
+    // MARK: - 撤销 / 重做
+
+    /// 在用户操作前记录快照。
+    private func pushSnapshot() {
+        history = RedPacketHistoryLogic.push(current: history, draft: draft)
+    }
+
+    func undo() {
+        let (newState, restored) = RedPacketHistoryLogic.undo(history)
+        history = newState
+        if let restored {
+            draft = restored
+            if let t = RedPacketTemplateCatalog.find(id: restored.templateID) {
+                template = t
+            }
+        }
+    }
+
+    func redo() {
+        let (newState, restored) = RedPacketHistoryLogic.redo(history)
+        history = newState
+        if let restored {
+            draft = restored
+            if let t = RedPacketTemplateCatalog.find(id: restored.templateID) {
+                template = t
+            }
+        }
     }
 
     // MARK: - 草稿持久化

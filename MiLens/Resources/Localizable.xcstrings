@@ -6466,6 +6466,50 @@
         }
       }
     },
+    "redpacket.workshop.templateSwitcher" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "切换模板"
+          }
+        }
+      }
+    },
+    "redpacket.workshop.cutoutHint" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "选中后进入工作室，将自动进行智能抠图"
+          }
+        }
+      }
+    },
+    "redpacket.workshop.textStyle" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "文字风格"
+          }
+        }
+      }
+    },
+    "redpacket.workshop.tool.template" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "模板"
+          }
+        }
+      }
+    },
     "upload.title" : {
       "extractionState" : "manual",
       "localizations" : {

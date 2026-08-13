@@ -61,7 +61,7 @@ struct AlbumImportSuccessView: View {
 
                     VStack(alignment: .leading, spacing: 0) {
                         Text("LIFE LOG ARCHIVE")
-                            .font(.custom("Jacques Francois", size: 10))
+                            .font(.custom("JacquesFrancois-Regular", size: 10))
                             .tracking(0.4)
                             .foregroundStyle(Color.milensActionPrimary)
                             .padding(.top, 18)
@@ -123,7 +123,7 @@ struct AlbumImportSuccessView: View {
 
             VStack(alignment: .leading, spacing: 0) {
                 Text("LOCAL ARCHIVE")
-                    .font(.custom("Jacques Francois", size: 10))
+                    .font(.custom("JacquesFrancois-Regular", size: 10))
                     .tracking(0.4)
                     .foregroundStyle(Color.milensActionPrimary)
                     .padding(.top, 16)

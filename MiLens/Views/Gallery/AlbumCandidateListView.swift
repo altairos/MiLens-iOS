@@ -162,7 +162,7 @@ struct AlbumCandidateListView: View {
                 .frame(width: 3)
             VStack(alignment: .leading, spacing: 2) {
                 Text("FREE ARCHIVE")
-                    .font(.custom("Jacques Francois", size: 10))
+                    .font(.custom("JacquesFrancois-Regular", size: 10))
                     .tracking(0.4)
                     .foregroundStyle(Color.milensActionPrimary)
                 Text("50 / 50")

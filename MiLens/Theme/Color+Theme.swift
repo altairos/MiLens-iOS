@@ -88,7 +88,7 @@ extension Color {
 
     /// 猫咪主题色（同品牌 #FD8663 / 深：#E8845F）
     static let milensCatAccent = Color("CatAccent")
-    /// 狗狗主题色（浅：#57A5E3 / 深：#5B96D0）
+    /// 狗狗主题色（浅：#DCA54A / 深：#D19E43）—— 温柔金黄，避免冷蓝破坏暖色体系
     static let milensDogAccent = Color("DogAccent")
 
     // MARK: - Wash / Gradient 专用表面

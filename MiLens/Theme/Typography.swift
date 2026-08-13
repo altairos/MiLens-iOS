@@ -1,9 +1,11 @@
 //  字体层级 —— UI-DESIGN.md §2.2。
 //
-//  自定义字体（霞鹜文楷 LXGW WenKai + Fraunces，均 SIL OFL，子集化嵌入）。
+//  自定义字体（霞鹜文楷 LXGW WenKai + Fraunces + Jacques Francois，均 SIL OFL，子集化嵌入）。
 //  - 中文 display：霞鹜文楷 Regular（PostScript: LXGWWenKai-Regular），仅引入 Regular
 //    一个字重——楷书 Regular 已有足够分量感，display 大/中标题靠字号区分而非字重。
 //  - 英文 display：Fraunces（衬线，Bold/Semibold 两个字重），供纯英文大标题/品牌名使用。
+//  - 编辑式衬线 overline：Jacques Francois Regular（PostScript: JacquesFrancois-Regular），
+//    10pt 小标（「LIFE 02 · …」「ARCHIVE OUTPUT」），调用方配 .tracking(0.4)。
 //  - 正文/UI/数字：系统字体（SF Pro + PingFang），零体积成本，保持原生感。
 //
 //  Figma UI 文本样式（MiLens/UI/Title、/Body Strong、/Overline、/Metadata）标注字体为
@@ -14,7 +16,7 @@
 //  SwiftUI `.custom` 不自动按字符切栈：中文标题用 displayLarge（文楷），纯英文标题手动
 //  用 displayLargeEN/displayMediumEN（Fraunces）。文楷自带基础拉丁可做回退。
 //
-//  字体体积见 Resources/Fonts/README.md（合计 ~3.31 MB）。
+//  字体体积见 Resources/Fonts/README.md（合计 ~3.37 MB）。
 
 import SwiftUI
 

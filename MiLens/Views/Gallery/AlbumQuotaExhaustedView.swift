@@ -40,7 +40,7 @@ struct AlbumQuotaExhaustedView: View {
 
             VStack(alignment: .leading, spacing: 0) {
                 Text("免费照片额度")
-                    .font(.custom("Jacques Francois", size: 10))
+                    .font(.custom("JacquesFrancois-Regular", size: 10))
                     .tracking(0.4)
                     .foregroundStyle(Color.milensActionPrimary)
                     .padding(.top, 18)
@@ -125,7 +125,7 @@ struct AlbumQuotaExhaustedView: View {
     private var resilienceRegister: some View {
         VStack(alignment: .leading, spacing: 0) {
             Text("RESILIENCE / LOCAL")
-                .font(.custom("Jacques Francois", size: 10))
+                .font(.custom("JacquesFrancois-Regular", size: 10))
                 .tracking(0.4)
                 .foregroundStyle(Color.milensActionPrimary)
 

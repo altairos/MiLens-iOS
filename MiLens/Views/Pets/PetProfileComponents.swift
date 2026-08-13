@@ -101,7 +101,7 @@ struct ArchiveContinuityNote: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             Text("LIFE 02 · \(PetDisplayLogic.daysTogether(from: pet.adoptionDay)) DAYS")
-                .font(.custom("Jacques Francois", size: 10))
+                .font(.custom("JacquesFrancois-Regular", size: 10))
                 .tracking(0.4)
                 .foregroundStyle(Color.milensActionPrimary)
             Text("将散落的记忆，\n装订成流动的时间之河")
@@ -129,7 +129,7 @@ struct TimelineContinuationCard: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             Text("NEXT LEAF · 2026.06")
-                .font(.custom("Jacques Francois", size: 10))
+                .font(.custom("JacquesFrancois-Regular", size: 10))
                 .tracking(0.4)
                 .foregroundStyle(Color.milensActionPrimary)
             Text("06. 18")

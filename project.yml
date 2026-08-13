@@ -69,11 +69,12 @@ targets:
             CFBundleURLSchemes:
               - milens
         ITSAppUsesNonExemptEncryption: false
-        # 自定义字体（霞鹜文楷 GB2312 子集 + Fraunces，均 SIL OFL）
+        # 自定义字体（霞鹜文楷 GB2312 子集 + Fraunces + Jacques Francois，均 SIL OFL）
         UIAppFonts:
           - LXGWWenKaiGB-Regular.ttf
           - Fraunces-Bold.ttf
           - Fraunces-Semibold.ttf
+          - JacquesFrancois-Regular.ttf
         # M1 权限文案收敛：CFBundleDisplayName / NSPhotoLibraryUsageDescription /
         # NSPhotoLibraryAddUsageDescription 的唯一事实来源是 InfoPlist.xcstrings
         # （Xcode 15+ 构建时自动注入 Info.plist），此处不再重复维护。

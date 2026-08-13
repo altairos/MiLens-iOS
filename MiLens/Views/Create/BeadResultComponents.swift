@@ -15,7 +15,7 @@ struct BeadResultOutputPanel: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             Text("ARCHIVE OUTPUT")
-                .font(.custom("Jacques Francois", size: 10))
+                .font(.custom("JacquesFrancois-Regular", size: 10))
                 .tracking(0.4)
                 .foregroundStyle(Color.milensActionPrimary)
                 .padding(.horizontal, 16)

@@ -108,11 +108,21 @@ struct RedPacketCoverRenderer: View {
         case .text:
             textView(layer, scaleX: scaleX, scaleY: scaleY)
         case .accessory:
-            // Phase 1 配饰占位（Phase 2 实现配饰渲染）
-            EmptyView()
+            accessoryView(layer, scaleX: scaleX, scaleY: scaleY)
         default:
             EmptyView()
         }
+    }
+
+    @ViewBuilder
+    private func accessoryView(_ layer: RedPacketLayer, scaleX: Double, scaleY: Double) -> some View {
+        // Phase 2：配饰用 emoji 渲染（resourceRef 映射 emoji）
+        let emoji = RedPacketAccessoryEmoji.emoji(for: layer.resourceRef)
+        Text(emoji)
+            .font(.system(size: min(layer.width, layer.height) * scaleX * CGFloat(layer.scale)))
+            .rotationEffect(.degrees(layer.rotation))
+            .opacity(layer.opacity)
+            .position(x: layer.x * scaleX, y: layer.y * scaleY)
     }
 
     @ViewBuilder
@@ -305,5 +315,24 @@ extension Color {
             blue: Double(b) / 255,
             opacity: Double(a) / 255
         )
+    }
+}
+
+// MARK: - 配饰 Emoji 映射
+
+/// 配饰 resourceRef 到 emoji 的映射（Phase 2 程序化占位）。
+enum RedPacketAccessoryEmoji {
+    static func emoji(for resourceRef: String) -> String {
+        switch resourceRef {
+        case "acc_lantern":     return "🏮"
+        case "acc_firecracker": return "🧨"
+        case "acc_coin":        return "🪙"
+        case "acc_flower":      return "🌸"
+        case "acc_paw":         return "🐾"
+        case "acc_heart":       return "❤️"
+        case "acc_star":        return "⭐"
+        case "acc_bow":         return "🎀"
+        default:                return "✨"
+        }
     }
 }

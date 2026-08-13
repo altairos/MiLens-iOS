@@ -195,9 +195,12 @@ struct RedPacketUploadGuideView: View {
         guard let image else { return nil }
         let w = WeChatRedPacketSpec.coverImageWidth
         let h = WeChatRedPacketSpec.coverImageHeight
-        let artwork = RedPacketCoverArtwork(
-            image: image,
-            coverTitle: coverTitle,
+        let template = RedPacketTemplateCatalog.firstFreeTemplate
+        let layers = rpDefaultLayers(for: template, petName: petName)
+        let artwork = RedPacketCoverRenderer(
+            template: template,
+            layers: layers,
+            petImage: image,
             includeWatermark: !entitlement.isPro
         )
             .frame(width: CGFloat(w), height: CGFloat(h))

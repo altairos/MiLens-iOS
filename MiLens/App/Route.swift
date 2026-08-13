@@ -22,9 +22,11 @@ enum Route: Hashable {
     // 宠物名片卡（创作 Tab 新增项目，信息导向社交分享）
     case businessCardPicker
     case businessCard(petID: UUID)
-    // 微信红包封面（创作 Tab 新增项目，导出规格素材 + 场景预览）
-    case redPacketCoverPicker
-    case redPacketCover(photoID: UUID, petID: UUID?)
+    // 微信红包封面工作室（创作 Tab 新增项目，模板→照片抠图→编辑→导出）
+    case redPacketTemplatePicker
+    case redPacketPhotoPicker(templateID: String)
+    case redPacketWorkshop(templateID: String, photoID: UUID, petID: UUID?)
+    case redPacketExport(draftID: UUID)
     case redPacketUploadGuide(photoID: UUID, petID: UUID?)
     // 月度精选 / 年度回忆册（情感触点系统 Stage 3）
     case recap(year: Int?)

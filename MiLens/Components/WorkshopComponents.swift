@@ -106,7 +106,7 @@ struct WorkshopValueRail: View {
     var body: some View {
         HStack(spacing: Spacing.md) {
             Text(label)
-                .font(state == .changed ? .system(size: 14, weight: .semibold) : .system(size: 14))
+                .font(state == .changed ? Font.bodySecondary.weight(.semibold) : Font.bodySecondary)
                 .foregroundStyle(labelColor)
                 .frame(width: 44, alignment: .leading)
 

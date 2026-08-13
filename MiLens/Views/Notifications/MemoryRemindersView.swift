@@ -102,7 +102,7 @@ struct MemoryRemindersView: View {
             Rectangle()
                 .fill(Color.milensPrimary)
                 .frame(width: 3, height: 16)
-                .cornerRadius(1.5)
+                .cornerRadius(Radius.accentRail)
             Text(title)
                 .font(.bodySecondary)
                 .foregroundStyle(Color.milensTextSecondary)

@@ -281,7 +281,7 @@ struct CreateView: View {
     // MARK: - 05 红包封面（珊瑚横条）
 
     private var redPacketEntry: some View {
-        NavigationLink(value: Route.redPacketCoverPicker) {
+        NavigationLink(value: Route.redPacketTemplatePicker) {
             redPacketCard
         }
         .buttonStyle(.plain)

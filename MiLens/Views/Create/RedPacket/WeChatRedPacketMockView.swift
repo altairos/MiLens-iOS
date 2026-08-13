@@ -12,11 +12,29 @@ import SwiftUI
 import UIKit
 import MiLensKit
 
+/// 红包场景类型（原定义于 RedPacketCoverView，随工作室重构迁移至此）。
+enum RedPacketScene: String, CaseIterable, Identifiable {
+    case open      // 拆红包页（最完整展示）
+    case send      // 发红包页
+    case bubble    // 消息气泡
+    case detail    // 详情页
+
+    var id: String { rawValue }
+    var displayName: String {
+        switch self {
+        case .open:   return "拆红包页"
+        case .send:   return "发红包页"
+        case .bubble: return "消息气泡"
+        case .detail: return "详情页"
+        }
+    }
+}
+
 /// 红包场景模拟预览（4 个场景切换）。
 struct WeChatRedPacketMockView: View {
     let image: UIImage
     let coverTitle: String
-    let scene: RedPacketCoverView.RedPacketScene
+    let scene: RedPacketScene
     let isPro: Bool
 
     var body: some View {

@@ -170,6 +170,28 @@ final class ViewModelFactory {
         try petRepo.getAllPets()
     }
 
+    // MARK: - 红包工作室
+
+    /// 红包草稿目录（Documents/RedPacketDrafts）。
+    var redPacketDraftsDir: URL {
+        URL.documentsDirectory.appendingPathComponent("RedPacketDrafts", isDirectory: true)
+    }
+
+    /// 红包工作室 ViewModel。
+    func makeRedPacketWorkshopViewModel(
+        templateID: String, photoID: UUID, petID: UUID?, isPro: Bool
+    ) -> RedPacketWorkshopViewModel {
+        RedPacketWorkshopViewModel(
+            templateID: templateID,
+            photoID: photoID,
+            petID: petID,
+            isPro: isPro,
+            photoRepo: photoRepo,
+            vision: vision,
+            draftStore: RedPacketDraftStore(draftsDir: redPacketDraftsDir)
+        )
+    }
+
     // MARK: - 候选缩略图（AlbumScanFlow 候选页）
 
     /// 加载系统相册候选照片的缩略图（256px JPEG Data → UIImage）。

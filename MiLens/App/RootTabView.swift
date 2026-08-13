@@ -141,9 +141,13 @@ struct RootTabView: View {
                 GrowthCompareView(earlyPhotoID: earlyPhotoID, latePhotoID: latePhotoID, petID: petID)
             case .businessCardPicker: BusinessCardPickerView()
             case .businessCard(let petID): BusinessCardView(petID: petID)
-            case .redPacketCoverPicker: RedPacketCoverPickerView()
-            case .redPacketCover(let photoID, let petID):
-                RedPacketCoverView(photoID: photoID, petID: petID)
+            case .redPacketTemplatePicker: RedPacketTemplatePickerView()
+            case .redPacketPhotoPicker(let templateID):
+                RedPacketPhotoPickerView(templateID: templateID)
+            case .redPacketWorkshop(let templateID, let photoID, let petID):
+                RedPacketWorkshopView(templateID: templateID, photoID: photoID, petID: petID)
+            case .redPacketExport(let draftID):
+                RedPacketExportView(draftID: draftID)
             case .redPacketUploadGuide(let photoID, let petID):
                 RedPacketUploadGuideView(photoID: photoID, petID: petID)
             case .recap(let year):

@@ -27,7 +27,8 @@ final class RedPacketWorkshopViewModelTests: XCTestCase {
             isPro: false,
             photoRepo: photoRepo,
             vision: vision,
-            draftStore: draftStore
+            draftStore: draftStore,
+            imageQualityAnalyzer: CoreGraphicsRedPacketImageQualityAnalyzer()
         )
     }
 

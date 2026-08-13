@@ -50,6 +50,17 @@ final class RedPacketQualityLogicTests: XCTestCase {
         XCTAssertEqual(item.level, .warning)
     }
 
+    func testBrightnessClippingWarning() {
+        let input = makeInput(brightness: 0.5, shadowClipping: 0.4)
+        XCTAssertEqual(RedPacketQualityLogic.evaluateBrightness(input).level, .warning)
+    }
+
+    func testImageMetricsUnavailableIsDiagnosable() {
+        let input = makeInput(imageMetricsAvailable: false)
+        XCTAssertEqual(RedPacketQualityLogic.evaluateClarity(input).level, .error)
+        XCTAssertEqual(RedPacketQualityLogic.evaluateBrightness(input).level, .error)
+    }
+
     // MARK: - 构图
 
     func testCompositionPass() {
@@ -70,6 +81,11 @@ final class RedPacketQualityLogicTests: XCTestCase {
         XCTAssertEqual(item.level, .error)
     }
 
+    func testCompositionClippedSubjectIsError() {
+        let input = makeInput(petCanvasVisible: 0.7)
+        XCTAssertEqual(RedPacketQualityLogic.evaluateComposition(input).level, .error)
+    }
+
     // MARK: - 抠图
 
     func testCutoutPass() {
@@ -84,6 +100,21 @@ final class RedPacketQualityLogicTests: XCTestCase {
         XCTAssertEqual(item.level, .warning)
     }
 
+    func testCutoutUnavailableIsError() {
+        let input = makeInput(cutoutMetricsAvailable: false)
+        XCTAssertEqual(RedPacketQualityLogic.evaluateCutout(input).level, .error)
+    }
+
+    func testCutoutFragmentedIsWarning() {
+        let input = makeInput(cutoutFragmentation: 0.3)
+        XCTAssertEqual(RedPacketQualityLogic.evaluateCutout(input).level, .warning)
+    }
+
+    func testCutoutBoundaryContactIsWarning() {
+        let input = makeInput(cutoutBoundaryTouch: 0.3)
+        XCTAssertEqual(RedPacketQualityLogic.evaluateCutout(input).level, .warning)
+    }
+
     // MARK: - 可读性
 
     func testReadabilityPassWithNoText() {
@@ -93,19 +124,19 @@ final class RedPacketQualityLogicTests: XCTestCase {
     }
 
     func testReadabilityPassWithGoodContrast() {
-        let input = makeInput(textContent: "恭喜", textContrast: 0.8, textInSafeZone: true)
+        let input = makeInput(textContent: "恭喜", textInSafeZone: true, textContrast: 0.8)
         let item = RedPacketQualityLogic.evaluateReadability(input)
         XCTAssertEqual(item.level, .pass)
     }
 
     func testReadabilityContrastWarning() {
-        let input = makeInput(textContent: "恭喜", textContrast: 0.2, textInSafeZone: true)
+        let input = makeInput(textContent: "恭喜", textInSafeZone: true, textContrast: 0.2)
         let item = RedPacketQualityLogic.evaluateReadability(input)
         XCTAssertEqual(item.level, .warning)
     }
 
     func testReadabilityOutOfSafeZoneError() {
-        let input = makeInput(textContent: "恭喜", textContrast: 0.8, textInSafeZone: false)
+        let input = makeInput(textContent: "恭喜", textInSafeZone: false, textContrast: 0.8)
         let item = RedPacketQualityLogic.evaluateReadability(input)
         XCTAssertEqual(item.level, .error)
     }
@@ -162,7 +193,13 @@ final class RedPacketQualityLogicTests: XCTestCase {
         imageHeight: Int = 1080,
         textContent: String = "",
         textInSafeZone: Bool = true,
-        textContrast: Double = 0.6
+        textContrast: Double = 0.6,
+        imageMetricsAvailable: Bool = true,
+        shadowClipping: Double = 0,
+        petCanvasVisible: Double = 1,
+        cutoutMetricsAvailable: Bool = true,
+        cutoutFragmentation: Double = 0,
+        cutoutBoundaryTouch: Double = 0
     ) -> RedPacketQualityInput {
         RedPacketQualityInput(
             imageWidth: imageWidth, imageHeight: imageHeight,
@@ -170,7 +207,13 @@ final class RedPacketQualityLogicTests: XCTestCase {
             petCoverageRatio: petCoverage, cutoutEdgeRoughness: cutoutRoughness,
             petInSafeZone: petInSafeZone,
             textContent: textContent, textInSafeZone: textInSafeZone,
-            textContrast: textContrast
+            textContrast: textContrast,
+            imageMetricsAvailable: imageMetricsAvailable,
+            shadowClippingRatio: shadowClipping,
+            petCanvasVisibleRatio: petCanvasVisible,
+            cutoutMetricsAvailable: cutoutMetricsAvailable,
+            cutoutFragmentationRatio: cutoutFragmentation,
+            cutoutBoundaryTouchRatio: cutoutBoundaryTouch
         )
     }
 }

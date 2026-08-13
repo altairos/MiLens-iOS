@@ -192,7 +192,7 @@ public enum RedPacketTemplateCatalog {
         displayNameKey: "redpacket.template.newYearRed.title",
         descriptionKey: "redpacket.template.newYearRed.desc",
         background: .decorated(
-            base: .GradientBase(colors: ["#C8102E", "#8B0000"], angle: 135),
+            base: .init(colors: ["#C8102E", "#8B0000"], angle: 135),
             pattern: "circles",
             patternColorHex: "#FFD700"
         ),
@@ -242,7 +242,7 @@ public enum RedPacketTemplateCatalog {
         displayNameKey: "redpacket.template.floralSpring.title",
         descriptionKey: "redpacket.template.floralSpring.desc",
         background: .decorated(
-            base: .GradientBase(colors: ["#FFE4E1", "#FFB6C1"], angle: 120),
+            base: .init(colors: ["#FFE4E1", "#FFB6C1"], angle: 120),
             pattern: "dots",
             patternColorHex: "#FF69B4"
         ),

@@ -116,6 +116,24 @@ public struct RedPacketQualityInput: Equatable, Sendable {
     public var textInSafeZone: Bool
     /// 文字颜色与背景对比度（0–1，越高越好）。
     public var textContrast: Double
+    /// 原图像素指标是否成功提取。失败时不得用默认值伪装为通过。
+    public var imageMetricsAvailable: Bool
+    /// 阴影剪切比例（亮度 <= 8%）。
+    public var shadowClippingRatio: Double
+    /// 高光剪切比例（亮度 >= 95%）。
+    public var highlightClippingRatio: Double
+    /// 宠物图层旋转外接框仍在画布内的比例。
+    public var petCanvasVisibleRatio: Double
+    /// 宠物图层旋转外接框与模板安全区的覆盖比例。
+    public var petSafeZoneCoverageRatio: Double
+    /// 抠图蒙版指标是否成功提取。
+    public var cutoutMetricsAvailable: Bool
+    /// 蒙版前景占比。
+    public var cutoutForegroundRatio: Double
+    /// 蒙版中不属于最大连通主体的比例。
+    public var cutoutFragmentationRatio: Double
+    /// 前景接触蒙版边界的比例。
+    public var cutoutBoundaryTouchRatio: Double
 
     public init(
         imageWidth: Int,
@@ -127,7 +145,16 @@ public struct RedPacketQualityInput: Equatable, Sendable {
         petInSafeZone: Bool,
         textContent: String,
         textInSafeZone: Bool,
-        textContrast: Double
+        textContrast: Double,
+        imageMetricsAvailable: Bool = true,
+        shadowClippingRatio: Double = 0,
+        highlightClippingRatio: Double = 0,
+        petCanvasVisibleRatio: Double = 1,
+        petSafeZoneCoverageRatio: Double = 1,
+        cutoutMetricsAvailable: Bool = true,
+        cutoutForegroundRatio: Double = 0.4,
+        cutoutFragmentationRatio: Double = 0,
+        cutoutBoundaryTouchRatio: Double = 0
     ) {
         self.imageWidth = imageWidth
         self.imageHeight = imageHeight
@@ -139,6 +166,15 @@ public struct RedPacketQualityInput: Equatable, Sendable {
         self.textContent = textContent
         self.textInSafeZone = textInSafeZone
         self.textContrast = textContrast
+        self.imageMetricsAvailable = imageMetricsAvailable
+        self.shadowClippingRatio = shadowClippingRatio
+        self.highlightClippingRatio = highlightClippingRatio
+        self.petCanvasVisibleRatio = petCanvasVisibleRatio
+        self.petSafeZoneCoverageRatio = petSafeZoneCoverageRatio
+        self.cutoutMetricsAvailable = cutoutMetricsAvailable
+        self.cutoutForegroundRatio = cutoutForegroundRatio
+        self.cutoutFragmentationRatio = cutoutFragmentationRatio
+        self.cutoutBoundaryTouchRatio = cutoutBoundaryTouchRatio
     }
 }
 
@@ -159,10 +195,21 @@ public enum RedPacketQualityLogic {
     public static let brightnessDarkThreshold: Double = 0.2
     /// 亮度过曝阈值（> 此值）。
     public static let brightnessBrightThreshold: Double = 0.85
+    /// 阴影/高光大面积剪切阈值。
+    public static let clippingWarningMax: Double = 0.22
     /// 宠物面积过小阈值（< 此值）。
     public static let petCoverageMin: Double = 0.15
+    /// 主体至少有多少比例仍在画布内。
+    public static let petCanvasVisibleMin: Double = 0.92
     /// 抠图边缘破碎度阈值（> 此值）。
     public static let cutoutRoughnessMax: Double = 0.3
+    /// 抠图蒙版中碎片像素占比上限。
+    public static let cutoutFragmentationMax: Double = 0.12
+    /// 抠图主体接触图像边缘的比例上限。
+    public static let cutoutBoundaryTouchMax: Double = 0.18
+    /// 蒙版前景合理占比范围。
+    public static let cutoutForegroundMin: Double = 0.03
+    public static let cutoutForegroundMax: Double = 0.92
     /// 文本对比度阈值（< 此值，可读性差）。
     public static let textContrastMin: Double = 0.4
 
@@ -184,6 +231,14 @@ public enum RedPacketQualityLogic {
 
     /// 清晰度检测：原图分辨率、主体有效像素、模糊程度。
     public static func evaluateClarity(_ input: RedPacketQualityInput) -> RedPacketQualityItem {
+        guard input.imageMetricsAvailable else {
+            return RedPacketQualityItem(
+                dimension: .clarity,
+                level: .error,
+                detail: "无法读取原图像素，尚未完成清晰度检查",
+                suggestionKey: "redpacket.quality.clarity.unavailable"
+            )
+        }
         let pixels = input.imageWidth * input.imageHeight
 
         // 分辨率过低
@@ -228,6 +283,14 @@ public enum RedPacketQualityLogic {
 
     /// 亮度检测：主体过暗、过曝、背景与主体亮度差。
     public static func evaluateBrightness(_ input: RedPacketQualityInput) -> RedPacketQualityItem {
+        guard input.imageMetricsAvailable else {
+            return RedPacketQualityItem(
+                dimension: .brightness,
+                level: .error,
+                detail: "无法读取原图像素，尚未完成亮度检查",
+                suggestionKey: "redpacket.quality.brightness.unavailable"
+            )
+        }
         if input.averageBrightness < brightnessDarkThreshold {
             return RedPacketQualityItem(
                 dimension: .brightness,
@@ -246,6 +309,24 @@ public enum RedPacketQualityLogic {
             )
         }
 
+        if input.shadowClippingRatio > clippingWarningMax {
+            return RedPacketQualityItem(
+                dimension: .brightness,
+                level: .warning,
+                detail: "暗部细节较少（阴影剪切 (Int(input.shadowClippingRatio * 100))%），建议适度提亮",
+                suggestionKey: "redpacket.quality.brightness.dark"
+            )
+        }
+
+        if input.highlightClippingRatio > clippingWarningMax {
+            return RedPacketQualityItem(
+                dimension: .brightness,
+                level: .warning,
+                detail: "高光细节较少（高光剪切 (Int(input.highlightClippingRatio * 100))%），建议降低曝光",
+                suggestionKey: "redpacket.quality.brightness.overexposed"
+            )
+        }
+
         return RedPacketQualityItem(
             dimension: .brightness,
             level: .pass,
@@ -258,6 +339,15 @@ public enum RedPacketQualityLogic {
 
     /// 构图检测：主体过小、被裁切、偏离安全区。
     public static func evaluateComposition(_ input: RedPacketQualityInput) -> RedPacketQualityItem {
+        if input.petCanvasVisibleRatio < petCanvasVisibleMin {
+            return RedPacketQualityItem(
+                dimension: .composition,
+                level: .error,
+                detail: "宠物主体有 (Int((1 - input.petCanvasVisibleRatio) * 100))% 超出画布，可能被裁切",
+                suggestionKey: "redpacket.quality.composition.clipped"
+            )
+        }
+
         // 主体过小
         if input.petCoverageRatio < petCoverageMin {
             return RedPacketQualityItem(
@@ -273,8 +363,8 @@ public enum RedPacketQualityLogic {
             return RedPacketQualityItem(
                 dimension: .composition,
                 level: .error,
-                detail: "宠物主体偏离安全区，在红包场景中可能被遮挡",
-                suggestionKey: "redpacket.quality.composition.safwzone"
+                detail: "宠物主体仅有 (Int(input.petSafeZoneCoverageRatio * 100))% 位于安全区，红包控件可能遮挡主体",
+                suggestionKey: "redpacket.quality.composition.safezone"
             )
         }
 
@@ -290,6 +380,51 @@ public enum RedPacketQualityLogic {
 
     /// 抠图检测：边缘破碎、透明区域异常、主体不完整。
     public static func evaluateCutout(_ input: RedPacketQualityInput) -> RedPacketQualityItem {
+        guard input.cutoutMetricsAvailable else {
+            return RedPacketQualityItem(
+                dimension: .cutout,
+                level: .error,
+                detail: "尚未获得有效抠图蒙版，请重新抠图",
+                suggestionKey: "redpacket.quality.cutout.unavailable"
+            )
+        }
+
+        if input.cutoutForegroundRatio < cutoutForegroundMin {
+            return RedPacketQualityItem(
+                dimension: .cutout,
+                level: .error,
+                detail: "识别到的主体过少（(Int(input.cutoutForegroundRatio * 100))%），抠图可能失败",
+                suggestionKey: "redpacket.quality.cutout.retry"
+            )
+        }
+
+        if input.cutoutForegroundRatio > cutoutForegroundMax {
+            return RedPacketQualityItem(
+                dimension: .cutout,
+                level: .warning,
+                detail: "前景覆盖 (Int(input.cutoutForegroundRatio * 100))%，可能混入较多背景",
+                suggestionKey: "redpacket.quality.cutout.background"
+            )
+        }
+
+        if input.cutoutFragmentationRatio > cutoutFragmentationMax {
+            return RedPacketQualityItem(
+                dimension: .cutout,
+                level: .warning,
+                detail: "抠图包含较多零散区域（(Int(input.cutoutFragmentationRatio * 100))%），建议重试",
+                suggestionKey: "redpacket.quality.cutout.fragmented"
+            )
+        }
+
+        if input.cutoutBoundaryTouchRatio > cutoutBoundaryTouchMax {
+            return RedPacketQualityItem(
+                dimension: .cutout,
+                level: .warning,
+                detail: "主体与画面边缘接触较多（(Int(input.cutoutBoundaryTouchRatio * 100))%），请确认耳朵或尾巴是否完整",
+                suggestionKey: "redpacket.quality.cutout.incomplete"
+            )
+        }
+
         if input.cutoutEdgeRoughness > cutoutRoughnessMax {
             return RedPacketQualityItem(
                 dimension: .cutout,

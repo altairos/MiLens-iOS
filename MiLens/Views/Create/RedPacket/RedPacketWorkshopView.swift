@@ -1,11 +1,32 @@
 //  RedPacketWorkshopView —— 红包工作室主页（对应红包封面开发计划 §3）。
 //
-//  顶部导航头（含撤销/重做）+ 画布（957×1278 比例）+ 底部四工具栏（照片/配饰/文字/优化）。
-//  Phase 2：模板切换 sheet、配饰面板、文本风格切换、撤销/重做。
-//  智能优化仍为占位禁用（Phase 3 实现）。
+//  顶部导航头（含撤销/重做）+ 画布（957×1278 比例）+ 三通道图层底栏。
+//  模板、换图与画面检查收进更多菜单，底栏只承担画布内容选择。
 
 import SwiftUI
 import MiLensKit
+
+private enum RedPacketEditingChannel: String, CaseIterable {
+    case pet
+    case accessory
+    case blessing
+
+    var icon: String {
+        switch self {
+        case .pet: return "pawprint"
+        case .accessory: return "sparkles"
+        case .blessing: return "textformat"
+        }
+    }
+
+    var label: String {
+        switch self {
+        case .pet: return String(localized: "redpacket.workshop.channel.pet")
+        case .accessory: return String(localized: "redpacket.workshop.channel.accessory")
+        case .blessing: return String(localized: "redpacket.workshop.channel.blessing")
+        }
+    }
+}
 
 struct RedPacketWorkshopView: View {
     let templateID: String
@@ -20,6 +41,7 @@ struct RedPacketWorkshopView: View {
     @State private var showTemplateSwitcher = false
     @State private var showAccessoryPicker = false
     @State private var showQualityReport = false
+    @State private var selectedChannel: RedPacketEditingChannel = .pet
 
     var body: some View {
         Group {
@@ -90,6 +112,8 @@ struct RedPacketWorkshopView: View {
                     }
                     .disabled(!vm.canRedo)
 
+                    workshopMenu(vm: vm)
+
                     // 导出
                     NavigationLink(value: Route.redPacketExport(draftID: vm.draft.id)) {
                         Text(String(localized: "redpacket.workshop.export"))
@@ -121,8 +145,18 @@ struct RedPacketWorkshopView: View {
                     .background(Color.milensSealSurface)
             }
 
-            // 底部工具栏
-            toolbar(vm: vm)
+            // 底部图层通道
+            channelDock(vm: vm)
+        }
+        .onChange(of: vm.activeLayerID) { _, layerID in
+            guard let layerID,
+                  let layer = vm.layers.first(where: { $0.id == layerID }) else { return }
+            switch layer.kind {
+            case .pet: selectedChannel = .pet
+            case .accessory: selectedChannel = .accessory
+            case .text: selectedChannel = .blessing
+            default: break
+            }
         }
     }
 
@@ -162,84 +196,125 @@ struct RedPacketWorkshopView: View {
         .background(Color.milensSealSurface)
     }
 
-    // MARK: - 底部工具栏
+    // MARK: - 更多菜单
 
-    private func toolbar(vm: RedPacketWorkshopViewModel) -> some View {
-        HStack(spacing: 0) {
-            toolbarButton(
-                icon: "rectangle.grid.2x2",
-                label: String(localized: "redpacket.workshop.tool.template"),
-                isEnabled: true
-            ) {
+    private func workshopMenu(vm: RedPacketWorkshopViewModel) -> some View {
+        Menu {
+            Button {
                 showTemplateSwitcher = true
+            } label: {
+                Label(String(localized: "redpacket.workshop.tool.template"), systemImage: "rectangle.grid.2x2")
             }
-
-            toolbarButton(
-                icon: "photo",
-                label: String(localized: "redpacket.workshop.tool.photo"),
-                isEnabled: true
-            ) {
+            Button {
                 dismiss()
+            } label: {
+                Label(String(localized: "redpacket.workshop.tool.photo"), systemImage: "photo")
             }
-
-            toolbarButton(
-                icon: "sticker",
-                label: String(localized: "redpacket.workshop.tool.accessory"),
-                isEnabled: true
-            ) {
-                showAccessoryPicker = true
+            Button {
+                vm.evaluateQuality()
+                showQualityReport = true
+            } label: {
+                Label(String(localized: "redpacket.quality.title"), systemImage: "checkmark.shield")
             }
-
-            toolbarButton(
-                icon: "textformat",
-                label: String(localized: "redpacket.workshop.tool.text"),
-                isEnabled: true
-            ) {
-                if let textLayer = vm.layers.first(where: { $0.kind == .text }) {
-                    vm.activeLayerID = textLayer.id
+        } label: {
+            ZStack(alignment: .topTrailing) {
+                Image(systemName: "ellipsis.circle")
+                    .font(.system(size: 17))
+                    .foregroundStyle(Color.milensTextPrimary)
+                if vm.hasQualityIssues {
+                    Circle()
+                        .fill(Color.milensActionPrimary)
+                        .frame(width: 6, height: 6)
+                        .offset(x: 2, y: -2)
                 }
             }
+        }
+    }
 
-            // 智能优化（Phase 3 启用）
-            toolbarButton(
-                icon: "wand.and.stars",
-                label: String(localized: "redpacket.workshop.tool.optimize"),
-                isEnabled: true,
-                badge: vm.hasQualityIssues
-            ) {
-                showQualityReport = true
+    // MARK: - 三通道底栏
+
+    private func channelDock(vm: RedPacketWorkshopViewModel) -> some View {
+        GeometryReader { geometry in
+            let columnWidth = geometry.size.width / CGFloat(RedPacketEditingChannel.allCases.count)
+            ZStack(alignment: .topLeading) {
+                Path { path in
+                    path.move(to: CGPoint(x: columnWidth / 2, y: 12))
+                    path.addLine(to: CGPoint(x: geometry.size.width - columnWidth / 2, y: 12))
+                }
+                .stroke(Color.milensSeparator, lineWidth: 1)
+
+                ForEach(Array(RedPacketEditingChannel.allCases.enumerated()), id: \.element) { index, channel in
+                    let isSelected = selectedChannel == channel
+                    channelButton(channel, isSelected: isSelected) {
+                        select(channel: channel, viewModel: vm)
+                    }
+                    .frame(width: columnWidth, height: 72)
+                    .position(
+                        x: columnWidth * (CGFloat(index) + 0.5),
+                        y: 36
+                    )
+                }
             }
         }
-        .padding(.vertical, 8)
+        .frame(height: 72)
+        .padding(.horizontal, Spacing.pagePad)
         .background(Color.milensSealSurface)
     }
 
-    private func toolbarButton(
-        icon: String, label: String, isEnabled: Bool,
-        badge: Bool = false,
+    private func channelButton(
+        _ channel: RedPacketEditingChannel,
+        isSelected: Bool,
         action: @escaping () -> Void
     ) -> some View {
         Button(action: action) {
             VStack(spacing: 4) {
-                ZStack(alignment: .topTrailing) {
-                    Image(systemName: icon)
-                        .font(.system(size: 20))
-                        .foregroundStyle(isEnabled ? Color.milensActionPrimary : Color.milensTextSecondary.opacity(0.4))
-                    if badge {
-                        Circle()
-                            .fill(Color.red)
-                            .frame(width: 6, height: 6)
-                            .offset(x: 4, y: -4)
-                    }
+                ZStack {
+                    Circle()
+                        .fill(isSelected ? Color.milensActionPrimary.opacity(0.14) : Color.milensSealSurface)
+                        .frame(width: 34, height: 34)
+                    Circle()
+                        .fill(isSelected ? Color.milensActionPrimary : Color.milensSeparator)
+                        .frame(width: 5, height: 5)
+                        .offset(y: -17)
+                    Image(systemName: channel.icon)
+                        .font(.system(size: 17, weight: isSelected ? .semibold : .regular))
+                        .foregroundStyle(isSelected ? Color.milensActionPrimary : Color.milensTextSecondary)
                 }
-                Text(label)
+                .frame(width: 34, height: 34)
+
+                Text(channel.label)
                     .font(.editorialMetadata)
-                    .foregroundStyle(isEnabled ? Color.milensTextPrimary : Color.milensTextSecondary.opacity(0.4))
+                    .foregroundStyle(isSelected ? Color.milensTextPrimary : Color.milensTextSecondary)
+                .frame(height: 16)
             }
-            .frame(maxWidth: .infinity)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .overlay(alignment: .top) {
+                if isSelected {
+                    Capsule()
+                        .fill(Color.milensActionPrimary)
+                        .frame(width: 20, height: 3)
+                }
+            }
+            .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
-        .disabled(!isEnabled)
+        .accessibilityLabel(channel.label)
+        .accessibilityAddTraits(isSelected ? .isSelected : [])
+    }
+
+    private func select(
+        channel: RedPacketEditingChannel,
+        viewModel: RedPacketWorkshopViewModel
+    ) {
+        selectedChannel = channel
+        switch channel {
+        case .pet:
+            viewModel.activeLayerID = viewModel.layers.first { $0.kind == .pet }?.id
+        case .accessory:
+            showAccessoryPicker = true
+        case .blessing:
+            viewModel.activeLayerID = viewModel.layers.first { $0.kind == .text }?.id
+        }
     }
 
     // MARK: - 模板切换 Sheet

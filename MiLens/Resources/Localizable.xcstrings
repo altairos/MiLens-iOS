@@ -6191,6 +6191,39 @@
         }
       }
     },
+    "redpacket.workshop.channel.accessory" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "配饰"
+          }
+        }
+      }
+    },
+    "redpacket.workshop.channel.blessing" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "祝福语"
+          }
+        }
+      }
+    },
+    "redpacket.workshop.channel.pet" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "伙伴"
+          }
+        }
+      }
+    },
     "redpacket.workshop.tool.photo" : {
       "extractionState" : "manual",
       "localizations" : {

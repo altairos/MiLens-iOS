@@ -29,7 +29,7 @@
 | `milensElevated` | `#FFFFFF` | `#2C2722` | FAB / 弹层 |
 | `milensTextPrimary` | `#1F1B18` | `#F2EBE3` | 标题 / 正文主色 |
 | `milensTextSecondary` | `#6B625B` | `#B5A89C` | 副标题 / 说明 |
-| `milensTextTertiary` | `#A89F97` | `#7A6F64` | 占位 / 时间戳 / 最弱 |
+| `milensTextTertiary` | `#A89F97` | `#9B8B80` | 占位 / 时间戳 / 最弱 |
 | `milensPrimary` | `#FD8663` | `#E8845F` | 纯装饰（记忆圆点 / 收藏心 / 品牌瞬间） |
 | `milensActionPrimary` | `#BC4727` | `#E8845F` | **所有交互强调**（按钮 / tint / 选中） |
 | `milensAccentSoft` | `#FDEEE6` | `#3A241C` | 选中卡片底 / 标签底 |

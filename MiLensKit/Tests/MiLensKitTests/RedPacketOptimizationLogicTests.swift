@@ -54,7 +54,7 @@ final class RedPacketOptimizationLogicTests: XCTestCase {
 
     func testRepositionPetOutOfSafeZone() {
         let report = RedPacketQualityReport(items: [
-            RedPacketQualityItem(dimension: .composition, level: .error, detail: "", suggestionKey: "redpacket.quality.composition.safwzone"),
+            RedPacketQualityItem(dimension: .composition, level: .error, detail: "", suggestionKey: "redpacket.quality.composition.safezone"),
         ])
 
         let petLayer = makeRedPacketPetLayer(x: 10, y: 1200) // 偏离安全区

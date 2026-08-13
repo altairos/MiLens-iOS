@@ -188,7 +188,8 @@ final class ViewModelFactory {
             isPro: isPro,
             photoRepo: photoRepo,
             vision: vision,
-            draftStore: RedPacketDraftStore(draftsDir: redPacketDraftsDir)
+            draftStore: RedPacketDraftStore(draftsDir: redPacketDraftsDir),
+            imageQualityAnalyzer: CoreGraphicsRedPacketImageQualityAnalyzer()
         )
     }
 

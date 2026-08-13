@@ -21,9 +21,9 @@
 | TextPrimary on SurfaceGrouped | `#F2EBE3` | `#1C1916` | 14.82 | 通过 | 通过 | ✅ |
 | TextSecondary on SurfaceBackground | `#B5A89C` | `#161311` | 7.97 | 通过 | 通过 | ✅ |
 | TextSecondary on SurfaceCard | `#B5A89C` | `#221E1A` | 7.13 | 通过 | 通过 | ✅ |
-| TextTertiary on SurfaceBackground | `#7A6F64` | `#161311` | 3.77 | 不通过 | 通过 | ⚠️ |
-| TextTertiary on SurfaceCard | `#7A6F64` | `#221E1A` | 3.38 | 不通过 | 通过 | ⚠️ |
-| TextTertiary on SurfaceElevated | `#7A6F64` | `#2C2722` | 3.02 | 不通过 | 临界 | ❌ |
+| TextTertiary on SurfaceBackground | `#9B8B80` | `#161311` | 5.64 | 通过 | 通过 | ✅ |
+| TextTertiary on SurfaceCard | `#9B8B80` | `#221E1A` | 5.04 | 通过 | 通过 | ✅ |
+| TextTertiary on SurfaceElevated | `#9B8B80` | `#2C2722` | 4.50 | 通过 | 通过 | ✅ |
 | TextOnActionPrimary on ActionPrimary | `#161311` | `#E8845F` | 6.96 | 通过 | 通过 | ✅ |
 | TextOnAccent on AccentColor | `#FFFFFF` | `#E8845F` | 2.66 | 不通过 | 不通过 | ❌ |
 | AccentColor on SurfaceBackground | `#E8845F` | `#161311` | 6.96 | 通过 | 通过 | ✅ |
@@ -47,10 +47,10 @@
 
 ## 结论
 
-- 正文、次文字、动作色、语义色全部达标。
+- 正文、次文字、三级文字、动作色、语义色全部达标。
 - **Light 唯一不达标**：`BrandCoral`（`#FD8663`）配白字 2.40:1 → 已按 §3.1 拆分为纯装饰 `BrandCoral` 与交互 `ActionPrimary #BC4727`（白字 5.16:1）。
-- **Dark 两处不达标**：
-  1. `TextTertiary #7A6F64` 在所有暗面上低于 4.5:1（最差 `SurfaceElevated` 3.02，逼近 3:1 大字底线）→ 建议暗侧调亮至 `#97897E`（约 4.4:1）或 `#9B8B80`（稳定 >4.5），或将 TextTertiary 限定为大字号 / 装饰性文本。
-  2. 白字 on `AccentColor #E8845F` 2.66:1 → 与 Light 同类债；白字永不落在珊瑚上，交互改用 `ActionPrimary` 或暗字。
+- **Dark 一处不达标**：
+  1. 白字 on `AccentColor #E8845F` 2.66:1 → 与 Light 同类债；白字永不落在珊瑚上，交互改用 `ActionPrimary` 或暗字。
+- `TextTertiary` 暗侧已由 `#7A6F64` 调亮至 `#9B8B80`，SurfaceBackground 5.64 / SurfaceCard 5.04 / SurfaceElevated 4.50，全部 ≥4.5 达标。
 - `Border` / `Separator` 暗侧 1.44 / 1.14:1 属装饰性结构、可接受；但任何依赖边框色单独表达的状态（选中 / 错误）需另加非颜色提示。
 - 常暗编辑面（Studio / Darkroom / Dial / Seal / Paywall）全部达标，`DogAccent` 金黄在暗侧 6.85:1 达标。

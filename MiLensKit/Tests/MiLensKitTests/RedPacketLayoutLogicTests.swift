@@ -214,6 +214,30 @@ final class RedPacketLayoutLogicTests: XCTestCase {
         XCTAssertFalse(rpIsLayerInSafeZone(layer, template: template))
     }
 
+    func testCanvasVisibleRatioDetectsClippedLayer() {
+        let layer = makeRedPacketPetLayer(
+            x: 30, y: rpCanvasHeight / 2, width: 300, height: 300
+        )
+        let ratio = rpLayerCanvasVisibleRatio(layer)
+        XCTAssertLessThan(ratio, 0.7)
+        XCTAssertGreaterThan(ratio, 0)
+    }
+
+    func testSafeZoneCoverageUsesWholeRotatedBounds() {
+        var layer = makeRedPacketPetLayer(
+            x: defaultTemplate.defaultPetTransform.x,
+            y: defaultTemplate.defaultPetTransform.y,
+            width: 300,
+            height: 300
+        )
+        let centered = rpLayerSafeZoneCoverageRatio(layer, template: defaultTemplate)
+        layer.rotation = 45
+        let rotated = rpLayerSafeZoneCoverageRatio(layer, template: defaultTemplate)
+
+        XCTAssertEqual(centered, 1, accuracy: 0.001)
+        XCTAssertLessThanOrEqual(rotated, centered)
+    }
+
     // MARK: - 图层操作
 
     func testCenterLayer() {

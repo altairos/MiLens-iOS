@@ -38,6 +38,25 @@ public struct RedPacketLocalPoint: Equatable, Sendable {
     }
 }
 
+/// 图层旋转后的轴对齐外接框（画布坐标）。
+public struct RedPacketLayerBounds: Equatable, Sendable {
+    public var minX: Double
+    public var minY: Double
+    public var maxX: Double
+    public var maxY: Double
+
+    public init(minX: Double, minY: Double, maxX: Double, maxY: Double) {
+        self.minX = minX
+        self.minY = minY
+        self.maxX = maxX
+        self.maxY = maxY
+    }
+
+    public var width: Double { max(0, maxX - minX) }
+    public var height: Double { max(0, maxY - minY) }
+    public var area: Double { width * height }
+}
+
 // MARK: - 缩放/位置约束
 
 /// 把 scale clamp 到 [RP_MIN_LAYER_SCALE, RP_MAX_LAYER_SCALE]。
@@ -92,6 +111,54 @@ public func rpIsPointInLayer(_ layer: RedPacketLayer, tapX: Double, tapY: Double
         rotationDeg: layer.rotation, tapX: tapX, tapY: tapY
     )
     return abs(local.localX) <= half.halfW && abs(local.localY) <= half.halfH
+}
+
+/// 计算图层旋转后的轴对齐外接框。
+public func rpLayerBounds(_ layer: RedPacketLayer) -> RedPacketLayerBounds {
+    let half = rpComputeLayerHalfSize(layer)
+    let radians = (layer.rotation.isFinite ? layer.rotation : 0) * .pi / 180
+    let cosValue = abs(cos(radians))
+    let sinValue = abs(sin(radians))
+    let rotatedHalfWidth = half.halfW * cosValue + half.halfH * sinValue
+    let rotatedHalfHeight = half.halfW * sinValue + half.halfH * cosValue
+    return RedPacketLayerBounds(
+        minX: layer.x - rotatedHalfWidth,
+        minY: layer.y - rotatedHalfHeight,
+        maxX: layer.x + rotatedHalfWidth,
+        maxY: layer.y + rotatedHalfHeight
+    )
+}
+
+/// 图层旋转外接框仍位于导出画布内的比例。
+public func rpLayerCanvasVisibleRatio(_ layer: RedPacketLayer) -> Double {
+    let canvas = RedPacketLayerBounds(
+        minX: 0, minY: 0, maxX: rpCanvasWidth, maxY: rpCanvasHeight
+    )
+    return rpIntersectionRatio(bounds: rpLayerBounds(layer), container: canvas)
+}
+
+/// 图层旋转外接框位于模板安全区内的比例。
+public func rpLayerSafeZoneCoverageRatio(
+    _ layer: RedPacketLayer, template: RedPacketTemplate
+) -> Double {
+    let zone = template.safeZone
+    let safeBounds = RedPacketLayerBounds(
+        minX: zone.x * rpCanvasWidth,
+        minY: zone.y * rpCanvasHeight,
+        maxX: (zone.x + zone.width) * rpCanvasWidth,
+        maxY: (zone.y + zone.height) * rpCanvasHeight
+    )
+    return rpIntersectionRatio(bounds: rpLayerBounds(layer), container: safeBounds)
+}
+
+private func rpIntersectionRatio(
+    bounds: RedPacketLayerBounds, container: RedPacketLayerBounds
+) -> Double {
+    guard bounds.area > 0 else { return 0 }
+    let intersectionWidth = max(0, min(bounds.maxX, container.maxX) - max(bounds.minX, container.minX))
+    let intersectionHeight = max(0, min(bounds.maxY, container.maxY) - max(bounds.minY, container.minY))
+    let ratio = intersectionWidth * intersectionHeight / bounds.area
+    return max(0, min(1, ratio.isFinite ? ratio : 0))
 }
 
 // MARK: - 命中测试

@@ -55,7 +55,7 @@ extension Color {
     static let milensTextPrimary = Color("TextPrimary")
     /// 说明/副标题（浅：#6B625B / 深：#B5A89C）
     static let milensTextSecondary = Color("TextSecondary")
-    /// 占位/时间戳/最弱信息（浅：#A89F97 / 深：#7A6F64）
+    /// 占位/时间戳/最弱信息（浅：#A89F97 / 深：#9B8B80）
     static let milensTextTertiary = Color("TextTertiary")
     /// 记忆轨道未选中端点（浅：#8E837A / 深：#91857A）
     static let milensMemoryMarker = Color("MemoryMarker")

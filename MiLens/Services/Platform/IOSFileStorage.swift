@@ -12,6 +12,7 @@
 
 import Foundation
 import os
+import MiLensKit
 
 /// FileManager 沙盒文件操作实现。
 final class IOSFileStorage: FileStorage, @unchecked Sendable {
@@ -86,6 +87,28 @@ final class IOSFileStorage: FileStorage, @unchecked Sendable {
         }.map(\.path)
     }
 
+    func makeOutputStream(at path: String) async throws -> any ZipOutputStream {
+        try ensureParentDirectory(of: path)
+        // 创建空文件供 FileHandle 打开写入
+        FileManager.default.createFile(atPath: path, contents: nil)
+        guard let handle = FileHandle(forWritingAtPath: path) else {
+            throw FileStorageError.fileNotFound(path)
+        }
+        return IOSFileOutputStream(handle: handle, path: path, fileStorage: self)
+    }
+
+    func makeInputStream(at path: String) async throws -> any ZipInputStream {
+        guard fileExists(at: path) else {
+            throw FileStorageError.fileNotFound(path)
+        }
+        guard let handle = FileHandle(forReadingFrom: URL(fileURLWithPath: path)) else {
+            throw FileStorageError.fileNotFound(path)
+        }
+        let attrs = try handle.attributes()
+        let size = (attrs[.size] as? Int64) ?? 0
+        return IOSFileInputStream(handle: handle, size: size)
+    }
+
     // MARK: - 私有
 
     private func ensureParentDirectory(of path: String) throws {
@@ -101,7 +124,7 @@ final class IOSFileStorage: FileStorage, @unchecked Sendable {
     /// 目录属性不向新建文件传播，因此写入时逐文件设置；失败仅记日志不阻断写入
     /// （备份排除是优化项，不应让文件操作失败）。
     /// 用户可在设置页切换为 dataSafe 模式——此时不排除导入副本（纳入系统备份）。
-    private func applyBackupExclusionIfNeeded(at path: String) {
+    fileprivate func applyBackupExclusionIfNeeded(at path: String) {
         guard excludePhotosFromBackup(),
               path.contains("/Documents/\(ScanConfig.sandboxDirName)/"),
               !path.contains("/\(ScanConfig.sandboxDirName)/\(ScanConfig.editsDirName)/") else {
@@ -159,4 +182,66 @@ final class IOSFileStorage: FileStorage, @unchecked Sendable {
         }
         logger.info("reapplyBackupExclusion: 已重新标记 \(reapplied) 个文件（exclude=\(exclude)）")
     }
+}
+
+// MARK: - 流式文件实现（大备份流式读写用）
+
+/// 基于 FileHandle 的流式输出（追加写，跟踪偏移）。
+/// close 时关闭句柄并按需标记备份排除（与 write 整块写语义一致）。
+/// @unchecked Sendable：FileHandle 本身非线程安全，调用方保证同一流不被并发访问。
+final class IOSFileOutputStream: ZipOutputStream, @unchecked Sendable {
+    private let handle: FileHandle
+    private let path: String
+    private weak var fileStorage: IOSFileStorage?
+    private(set) var offset: Int64 = 0
+    private var closed = false
+
+    init(handle: FileHandle, path: String, fileStorage: IOSFileStorage) {
+        self.handle = handle
+        self.path = path
+        self.fileStorage = fileStorage
+    }
+
+    func write(_ data: Data) async throws {
+        guard !closed else { throw FileStorageError.fileNotFound(path) }
+        try handle.write(contentsOf: data)
+        offset += Int64(data.count)
+    }
+
+    func close() async throws {
+        guard !closed else { return }
+        closed = true
+        try handle.close()
+        fileStorage?.applyBackupExclusionIfNeeded(at: path)
+    }
+
+    deinit { if !closed { try? handle.close() } }
+}
+
+/// 基于 FileHandle 的随机访问输入流（按偏移读取）。
+/// @unchecked Sendable：同上，调用方保证同一流不被并发访问。
+final class IOSFileInputStream: ZipInputStream, @unchecked Sendable {
+    private let handle: FileHandle
+    let size: Int64
+    private var closed = false
+
+    init(handle: FileHandle, size: Int64) {
+        self.handle = handle
+        self.size = size
+    }
+
+    func read(offset: Int64, length: Int) async throws -> Data {
+        guard !closed else { throw FileStorageError.fileNotFound("stream closed") }
+        try handle.seek(toOffset: UInt64(offset))
+        let data = try handle.read(upToCount: length)
+        return data
+    }
+
+    func close() async throws {
+        guard !closed else { return }
+        closed = true
+        try handle.close()
+    }
+
+    deinit { if !closed { try? handle.close() } }
 }

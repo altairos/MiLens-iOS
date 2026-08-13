@@ -217,6 +217,127 @@ final class ZIPArchiveTests: XCTestCase {
             maxEntryCount: 10, maxSingleEntrySize: 500))
     }
 
+    // MARK: - 流式读写（writeArchive / readCentralDirectory / copyEntry）
+
+    func testWriteArchiveStreamingRoundTrip() async throws {
+        let entries = [
+            ZipStreamEntry(path: "a.txt") { Data("alpha".utf8) },
+            ZipStreamEntry(path: "b.dat") { Data([0x00, 0xFF, 0x7F, 0x80]) },
+            ZipStreamEntry(path: "nested/c.txt") { Data("gamma".utf8) },
+        ]
+        let output = TestDataOutputStream()
+        try await ZipWriter.writeArchive(entries: entries, to: output)
+        try await output.close()
+
+        // 用旧 extract 解出验证格式一致
+        let extracted = try ZipReader.extract(output.buffer)
+        XCTAssertEqual(extracted.count, 3)
+        XCTAssertEqual(extracted.map(\.path), ["a.txt", "b.dat", "nested/c.txt"])
+        XCTAssertEqual(extracted[0].data, Data("alpha".utf8))
+        XCTAssertEqual(extracted[1].data, Data([0x00, 0xFF, 0x7F, 0x80]))
+        XCTAssertEqual(extracted[2].data, Data("gamma".utf8))
+    }
+
+    func testReadCentralDirectoryMatchesExtract() async throws {
+        let entries = [
+            ZipEntry(path: "a.txt", data: Data("alpha".utf8)),
+            ZipEntry(path: "b.dat", data: Data([0x00, 0xFF])),
+        ]
+        let zip = ZipWriter.archive(entries: entries)
+        let input = TestDataInputStream(data: zip)
+
+        let records = try await ZipReader.readCentralDirectory(from: input)
+        XCTAssertEqual(records.count, 2)
+        XCTAssertEqual(records.map(\.path), ["a.txt", "b.dat"])
+        XCTAssertEqual(records[0].uncompSize, 5)
+        XCTAssertEqual(records[1].uncompSize, 2)
+        // CRC 须与旧 extract 一致
+        XCTAssertEqual(records[0].crc, CRC32.compute(Data("alpha".utf8)))
+        XCTAssertEqual(records[1].crc, CRC32.compute(Data([0x00, 0xFF])))
+        try await input.close()
+    }
+
+    func testCopyEntryPreservesDataAndCRC() async throws {
+        let original = Data((0..<1000).map { UInt8($0 & 0xFF) })
+        let zip = ZipWriter.archive(entries: [
+            ZipEntry(path: "big.dat", data: original)
+        ])
+        let input = TestDataInputStream(data: zip)
+
+        let records = try await ZipReader.readCentralDirectory(from: input)
+        let output = TestDataOutputStream()
+        try await ZipReader.copyEntry(records[0], from: input, to: output, chunkSize: 64)
+        try await output.close()
+        try await input.close()
+
+        XCTAssertEqual(output.buffer, original, "流式拷贝数据须与原数据一致")
+    }
+
+    func testCopyEntryDetectsCorruptCRC() async throws {
+        let zip = ZipWriter.archive(entries: [
+            ZipEntry(path: "x.dat", data: Data([0xAB, 0xCD, 0xEF]))
+        ])
+        var corrupt = zip
+        // 篡改数据区首字节（local header 30 + 文件名 5 = 偏移 35）
+        corrupt[35] = corrupt[35] ^ 0xFF
+
+        let input = TestDataInputStream(data: corrupt)
+        let records = try await ZipReader.readCentralDirectory(from: input)
+        let output = TestDataOutputStream()
+
+        do {
+            try await ZipReader.copyEntry(records[0], from: input, to: output)
+            XCTFail("篡改数据应抛 crcMismatch")
+        } catch let error as ZipArchiveError {
+            guard case .crcMismatch = error else {
+                return XCTFail("应抛 crcMismatch，实际：\(error)")
+            }
+        }
+        try await input.close()
+    }
+
+    func testReadEntryDataPreservesData() async throws {
+        let payload = Data("{\"v\":1}".utf8)
+        let zip = ZipWriter.archive(entries: [
+            ZipEntry(path: "manifest.json", data: payload)
+        ])
+        let input = TestDataInputStream(data: zip)
+
+        let records = try await ZipReader.readCentralDirectory(from: input)
+        let data = try await ZipReader.readEntryData(records[0], from: input)
+        try await input.close()
+
+        XCTAssertEqual(data, payload, "readEntryData 须返回完整数据")
+    }
+
+    func testWriteArchiveStreamingEmptyEntries() async throws {
+        let output = TestDataOutputStream()
+        try await ZipWriter.writeArchive(entries: [], to: output)
+        try await output.close()
+
+        let extracted = try ZipReader.extract(output.buffer)
+        XCTAssertEqual(extracted, [])
+    }
+
+    func testWriteArchiveStreamingLargeEntry() async throws {
+        // 256KB 数据，验证大 entry 流式往返
+        let data = Data((0..<(256 * 1024)).map { UInt8($0 & 0xFF) })
+        let entries = [ZipStreamEntry(path: "big.jpg") { data }]
+        let output = TestDataOutputStream()
+        try await ZipWriter.writeArchive(entries: entries, to: output)
+        try await output.close()
+
+        // 流式读回
+        let input = TestDataInputStream(data: output.buffer)
+        let records = try await ZipReader.readCentralDirectory(from: input)
+        let copyOutput = TestDataOutputStream()
+        try await ZipReader.copyEntry(records[0], from: input, to: copyOutput, chunkSize: 4096)
+        try await copyOutput.close()
+        try await input.close()
+
+        XCTAssertEqual(copyOutput.buffer, data, "大 entry 流式往返数据须一致")
+    }
+
     // MARK: - 辅助
 
     /// 测试专用：复刻 reader 的 EOCD 定位逻辑以取得偏移（避免暴露内部 API）。
@@ -246,4 +367,43 @@ extension Data {
             | (UInt32(self[offset + 2]) << 16)
             | (UInt32(self[offset + 3]) << 24)
     }
+}
+
+// MARK: - 测试用内存流实现
+
+/// 测试用内存输出流：追加写到 Data buffer。
+final class TestDataOutputStream: ZipOutputStream, @unchecked Sendable {
+    private(set) var buffer = Data()
+    private(set) var offset: Int64 = 0
+    private var closed = false
+
+    func write(_ data: Data) async throws {
+        guard !closed else { throw ZipArchiveError.offsetOutOfBounds }
+        buffer.append(data)
+        offset += Int64(data.count)
+    }
+
+    func close() async throws { closed = true }
+}
+
+/// 测试用内存输入流：基于 Data 提供随机访问。
+final class TestDataInputStream: ZipInputStream, @unchecked Sendable {
+    private let data: Data
+    let size: Int64
+
+    init(data: Data) {
+        self.data = data
+        self.size = Int64(data.count)
+    }
+
+    func read(offset: Int64, length: Int) async throws -> Data {
+        let start = Int(offset)
+        guard start >= 0, start <= data.count else {
+            throw ZipArchiveError.offsetOutOfBounds
+        }
+        let end = min(start + length, data.count)
+        return data.subdata(in: start..<end)
+    }
+
+    func close() async throws {}
 }

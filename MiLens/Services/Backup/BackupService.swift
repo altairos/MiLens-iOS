@@ -356,12 +356,14 @@ enum BackupConfig {
     static let metadataFileName = "metadata.json"
 
     // MARK: - 内存上限（防御性限制，避免大图库 OOM）
-    /// 备份包全部条目解压后总字节数上限（2 GB）。
+    /// 备份包全部条目解压后总字节数上限（2 GB，恢复侧 records 总量校验用）。
     static let maxBackupSizeBytes = 2 * 1024 * 1024 * 1024
     /// 备份包内最大条目数（manifest + metadata + 照片 + 头像 + 事件，以照片为主）。
     static let maxEntryCount = 50_000
     /// 单个条目解压后最大字节数（单张照片上限，200 MB）。
     static let maxSingleEntrySizeBytes = 200 * 1024 * 1024
+    /// 流式恢复分块大小（64 KB，copyEntry 峰值内存缓冲）。
+    static let backupChunkSizeBytes = 65_536
 }
 
 // MARK: - V1 占位实现

@@ -526,6 +526,79 @@ final class ZipBackupServiceTests: XCTestCase {
                        "恢复不得覆盖已存在的文件")
     }
 
+    // MARK: - 流式读写验证（重构后行为不变 + 大 entry 正确性）
+
+    func testStreamingRoundTripMultiPhotoPreservesData() async throws {
+        // 多照片往返：验证流式导出+恢复后每张照片文件字节一致。
+        let sharedFS = MockFileStorage()
+        let pet = Pet(name: "小橘", species: .cat)
+        let photoData = [
+            Data("photo-alpha-bytes".utf8),
+            Data("photo-beta-bytes".utf8),
+            Data([0x00, 0x01, 0x02, 0x03, 0xFF]),
+        ]
+        let photos = (0..<3).map { i in
+            Photo(uri: "/src/\(i).jpg", originalURI: "L0/00\(i)", pet: pet)
+        }
+        let (source, _, _, _, _) = makeService(pets: [pet], photos: photos, fileStorage: sharedFS)
+        for (i, data) in photoData.enumerated() {
+            sharedFS.preset(data, at: "/src/\(i).jpg")
+        }
+
+        let backup = try await source.exportBackup(petIDs: nil, progress: { _ in })
+
+        // 目标空库流式恢复
+        let (target, tPetRepo, tPhotoRepo, tFs, _) = makeService(fileStorage: sharedFS)
+        let result = try await target.importBackup(from: backup.fileURL, progress: { _ in })
+        XCTAssertEqual(result.importedPhotos, 3)
+
+        // 验证每张照片文件字节一致
+        let restored = try tPhotoRepo.getPhotosPage(offset: 0, limit: 10)
+        for photo in restored {
+            XCTAssertTrue(tFs.fileExists(at: photo.uri), "恢复后照片文件须存在")
+            let data = try await tFs.read(at: photo.uri)
+            XCTAssertTrue(photoData.contains(data), "恢复的照片数据须与原数据一致")
+        }
+    }
+
+    func testStreamingHandlesLargePhotoEntry() async throws {
+        // 大照片文件（100KB）往返：验证流式分块拷贝正确。
+        let sharedFS = MockFileStorage()
+        let pet = Pet(name: "小橘", species: .cat)
+        let bigData = Data((0..<(100 * 1024)).map { UInt8($0 & 0xFF) })
+        let photo = Photo(uri: "/src/big.jpg", originalURI: "L0/BIG", pet: pet)
+        let (source, _, _, _, _) = makeService(pets: [pet], photos: [photo], fileStorage: sharedFS)
+        sharedFS.preset(bigData, at: "/src/big.jpg")
+
+        let backup = try await source.exportBackup(petIDs: nil, progress: { _ in })
+
+        let (target, _, tPhotoRepo, tFs, _) = makeService(fileStorage: sharedFS)
+        _ = try await target.importBackup(from: backup.fileURL, progress: { _ in })
+
+        let restored = try tPhotoRepo.getPhotosPage(offset: 0, limit: 10).first!
+        let data = try await tFs.read(at: restored.uri)
+        XCTAssertEqual(data, bigData, "大文件流式往返数据须完全一致")
+    }
+
+    func testStreamingExportProducesValidZIP() async throws {
+        // 流式导出的备份包须是合法 ZIP，可被旧 extract 解出。
+        let sharedFS = MockFileStorage()
+        let pet = Pet(name: "小橘", species: .cat)
+        let photo = Photo(uri: "/src/a.jpg", originalURI: "L0/001", pet: pet)
+        let (source, _, _, _, _) = makeService(pets: [pet], photos: [photo], fileStorage: sharedFS)
+        sharedFS.preset(Data([0x01, 0x02, 0x03]), at: "/src/a.jpg")
+
+        let result = try await source.exportBackup(petIDs: nil, progress: { _ in })
+        let zipData = try await sharedFS.read(at: result.fileURL.path)
+
+        // 旧 extract 须能解出——格式与旧 archive 兼容
+        let entries = try ZipReader.extract(zipData)
+        let paths = Set(entries.map(\.path))
+        XCTAssertTrue(paths.contains(BackupConfig.manifestFileName))
+        XCTAssertTrue(paths.contains(BackupConfig.metadataFileName))
+        XCTAssertTrue(paths.contains(where: { $0.hasPrefix("\(BackupConfig.photosDirName)/") }))
+    }
+
     // MARK: - 版本校验
 
     func testImportUnsupportedVersionThrows() async throws {

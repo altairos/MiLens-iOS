@@ -92,52 +92,64 @@ final class ZipBackupService: BackupService, @unchecked Sendable {
         await progress(BackupProgress(current: 0, total: 1, phase: .collectingMetadata))
         let bundle = try await collectExportBundle(petIDs: petIDs)
 
-        // 构建 ZipEntry：manifest + metadata + 全部文件
+        // 流式导出：逐 entry 读取数据（闭包）→ 算 CRC → 写 local header + data → 释放。
+        // 峰值内存≈最大单个 entry（单张照片），不再一次性加载全部照片数据。
         await progress(BackupProgress(current: 0, total: bundle.files.count, phase: .copyingPhotos))
-        var entries: [ZipEntry] = [
-            ZipEntry(path: BackupConfig.manifestFileName,
-                     data: try Self.encoder.encode(bundle.manifest)),
-            ZipEntry(path: BackupConfig.metadataFileName,
-                     data: try Self.encoder.encode(bundle.metadata)),
+
+        let manifestData = try Self.encoder.encode(bundle.manifest)
+        let metadataData = try Self.encoder.encode(bundle.metadata)
+
+        var streamEntries: [ZipStreamEntry] = [
+            ZipStreamEntry(path: BackupConfig.manifestFileName) { manifestData },
+            ZipStreamEntry(path: BackupConfig.metadataFileName) { metadataData },
         ]
 
-        // 内存上限校验：导出时累计照片数据总量，超限提前拒绝（避免 OOM）。
-        var totalEntrySize = entries.reduce(0) { $0 + $1.data.count }
+        // 进度计数器（writeArchive 顺序处理 entries，counter 顺序递增）
+        let progressCounter = StreamProgressCounter(total: bundle.files.count)
 
-        var copied = 0
         for file in bundle.files {
-            if Task.isCancelled { throw BackupServiceError.cancelled }
-            if fileStorage.fileExists(at: file.sourcePath) {
-                let data = try await fileStorage.read(at: file.sourcePath)
+            guard fileStorage.fileExists(at: file.sourcePath) else {
+                // 文件缺失：跳过（DB 是事实源；元数据已记录，恢复时按缺失处理）
+                _ = progressCounter.next()
+                let current = progressCounter.value
+                await progress(BackupProgress(current: current, total: progressCounter.total, phase: .copyingPhotos))
+                continue
+            }
+            let sourcePath = file.sourcePath
+            let zipPath = file.zipPath
+            let fileStorageRef = fileStorage
+            streamEntries.append(ZipStreamEntry(path: zipPath) {
+                if Task.isCancelled { throw BackupServiceError.cancelled }
+                let data = try await fileStorageRef.read(at: sourcePath)
                 // 单文件大小检查
                 guard data.count <= BackupConfig.maxSingleEntrySizeBytes else {
                     throw BackupServiceError.backupTooLarge
                 }
-                totalEntrySize += data.count
-                // 总量检查
-                guard totalEntrySize <= BackupConfig.maxBackupSizeBytes else {
-                    throw BackupServiceError.backupTooLarge
-                }
-                entries.append(ZipEntry(path: file.zipPath, data: data))
-            }
-            // 文件缺失：跳过（DB 是事实源；元数据已记录，恢复时按缺失处理）
-            copied += 1
-            await progress(BackupProgress(current: copied, total: bundle.files.count, phase: .copyingPhotos))
+                let current = progressCounter.next()
+                await progress(BackupProgress(current: current, total: progressCounter.total, phase: .copyingPhotos))
+                return data
+            })
         }
 
-        // 条目数检查
-        guard entries.count <= BackupConfig.maxEntryCount else {
+        // 条目数检查（导出侧无总量上限——流式无总量内存压力）
+        guard streamEntries.count <= BackupConfig.maxEntryCount else {
             throw BackupServiceError.backupTooLarge
         }
-
-        await progress(BackupProgress(current: 0, total: 1, phase: .compressing))
-        let zipData = ZipWriter.archive(entries: entries)
 
         // 写临时文件供 ShareSheet 分享
         let fileName = "MiLens-Backup-\(Self.dateStamp()).\(BackupConfig.fileExtension)"
         let fileURL = URL(fileURLWithPath: temporaryDirectory)
             .appendingPathComponent(fileName)
-        try await fileStorage.write(zipData, to: fileURL.path)
+
+        await progress(BackupProgress(current: 0, total: 1, phase: .compressing))
+        let output = try await fileStorage.makeOutputStream(at: fileURL.path)
+        do {
+            try await ZipWriter.writeArchive(entries: streamEntries, to: output)
+            try await output.close()
+        } catch {
+            try? await output.close()
+            throw error
+        }
 
         await progress(BackupProgress(current: 1, total: 1, phase: .done))
         return BackupResult(fileURL: fileURL, manifest: bundle.manifest, metadata: bundle.metadata)
@@ -236,63 +248,65 @@ final class ZipBackupService: BackupService, @unchecked Sendable {
         let didStartAccess = url.startAccessingSecurityScopedResource()
         defer { if didStartAccess { url.stopAccessingSecurityScopedResource() } }
 
-        let data: Data
+        // 流式输入：不一次性加载整个 ZIP，用 InputStream 随机访问。
+        let input: any ZipInputStream
         do {
-            data = try await fileStorage.read(at: url.path)
+            input = try await fileStorage.makeInputStream(at: url.path)
         } catch {
             throw BackupServiceError.readFailed(error.localizedDescription)
         }
-
-        // 内存上限预校验：只读 central directory 统计条目数与解压后总大小，
-        // 超限提前拒绝，避免一次性解出全部条目造成 OOM。
-        do {
-            try ZipReader.validateSizes(
-                in: data,
-                maxTotalUncompressedSize: BackupConfig.maxBackupSizeBytes,
-                maxEntryCount: BackupConfig.maxEntryCount,
-                maxSingleEntrySize: BackupConfig.maxSingleEntrySizeBytes)
-        } catch let error as ZipArchiveError {
-            throw BackupServiceError.restoreTooLarge("\(error)")
-        }
-
-        let entries = try ZipReader.extract(data)
-
-        await progress(RestoreProgress(current: 0, total: 1, phase: .validating))
-        // 重复 entry 安全：外部/损坏 ZIP 可能含同名条目，Dictionary(uniqueKeysWithValues:)
-        // 遇重复 key 会 fatalError。保留首次出现，静默忽略后续重复（不崩溃）。
-        let entryMap = Dictionary(
-            entries.map { ($0.path, $0.data) },
-            uniquingKeysWith: { first, _ in first })
-
-        guard let manifestData = entryMap[BackupConfig.manifestFileName] else {
-            throw BackupServiceError.invalidFormat
-        }
-        let manifest = try Self.decoder.decode(BackupManifest.self, from: manifestData)
-        guard manifest.schemaVersion == BackupConfig.currentSchemaVersion else {
-            throw BackupServiceError.unsupportedVersion(
-                found: manifest.schemaVersion,
-                supported: BackupConfig.currentSchemaVersion)
-        }
-
-        guard let metadataData = entryMap[BackupConfig.metadataFileName] else {
-            throw BackupServiceError.invalidFormat
-        }
-        let metadata = try Self.decoder.decode(BackupMetadata.self, from: metadataData)
-
-        // 预校验（MainActor）：在写文件前确定哪些照片/宠物会被实际导入。
-        // 避免为重复记录写入孤儿文件、覆盖已有文件、或清理时误删原有文件。
-        let prevalidated = try await prevalidateImport(metadata: metadata)
 
         // 原子性保证：跟踪本次写入的所有文件路径，任意阶段失败时统一清理，
         // 避免文件已写入但数据库未完成、或数据库只恢复了一部分留下孤儿文件。
         var writtenPaths: [String] = []
 
-        await progress(RestoreProgress(current: 0, total: metadata.photos.count, phase: .copyingFiles))
-        var photoPathByID: [UUID: String] = [:]
-        var written = 0
         do {
-            // 先复制照片文件（IO），再 MainActor 合并元数据——合并是事实源写入，放最后。
-            // 仅复制预校验通过的照片文件；目标已存在时跳过写入（保留已有文件）。
+            // 流式读取 central directory：只读索引，不加载条目数据
+            let records = try await ZipReader.readCentralDirectory(from: input)
+
+            // 基于 records 做大小校验（不加载数据本体）
+            try Self.validateRecords(
+                records,
+                maxTotalUncompressedSize: BackupConfig.maxBackupSizeBytes,
+                maxEntryCount: BackupConfig.maxEntryCount,
+                maxSingleEntrySize: BackupConfig.maxSingleEntrySizeBytes)
+
+            // 构建路径 → record 映射（保留首次出现，静默忽略重复，不崩溃）
+            var recordMap: [String: ZipReader.ZipEntryRecord] = [:]
+            for record in records {
+                if recordMap[record.path] == nil {
+                    recordMap[record.path] = record
+                }
+            }
+
+            await progress(RestoreProgress(current: 0, total: 1, phase: .validating))
+
+            // 读 manifest + metadata（小条目，直接读入内存）
+            guard let manifestRecord = recordMap[BackupConfig.manifestFileName] else {
+                throw BackupServiceError.invalidFormat
+            }
+            let manifestData = try await ZipReader.readEntryData(manifestRecord, from: input)
+            let manifest = try Self.decoder.decode(BackupManifest.self, from: manifestData)
+            guard manifest.schemaVersion == BackupConfig.currentSchemaVersion else {
+                throw BackupServiceError.unsupportedVersion(
+                    found: manifest.schemaVersion,
+                    supported: BackupConfig.currentSchemaVersion)
+            }
+
+            guard let metadataRecord = recordMap[BackupConfig.metadataFileName] else {
+                throw BackupServiceError.invalidFormat
+            }
+            let metadataData = try await ZipReader.readEntryData(metadataRecord, from: input)
+            let metadata = try Self.decoder.decode(BackupMetadata.self, from: metadataData)
+
+            // 预校验（MainActor）：在写文件前确定哪些照片/宠物会被实际导入。
+            let prevalidated = try await prevalidateImport(metadata: metadata)
+
+            await progress(RestoreProgress(current: 0, total: metadata.photos.count, phase: .copyingFiles))
+            var photoPathByID: [UUID: String] = [:]
+            var written = 0
+
+            // 流式拷贝照片文件：分块读写（峰值≈64KB），不一次性加载全部条目数据。
             for photoSnap in metadata.photos {
                 if Task.isCancelled { throw BackupServiceError.cancelled }
                 guard prevalidated.photos.contains(photoSnap.id) else {
@@ -300,16 +314,23 @@ final class ZipBackupService: BackupService, @unchecked Sendable {
                     await progress(RestoreProgress(current: written, total: metadata.photos.count, phase: .copyingFiles))
                     continue
                 }
-                // 路径穿越防御：photoFileName 来自外部备份，直接拼接到沙盒路径可越权写入。
-                // 拒绝非纯文件名（含分隔符 / `..`），跳过该照片（元数据仍按缺失处理）。
+                // 路径穿越防御：拒绝非纯文件名
                 if Self.isSafeFileName(photoSnap.photoFileName) {
                     let zipPath = "\(BackupConfig.photosDirName)/\(photoSnap.photoFileName)"
-                    if let fileData = entryMap[zipPath] {
+                    if let record = recordMap[zipPath] {
                         let dest = "\(sandboxDir)/\(photoSnap.photoFileName)"
-                        // 目标已存在时不覆盖：避免跨平台备份中不同 originalURI
-                        // 但同文件名的冲突覆盖已有文件。
+                        // 目标已存在时不覆盖
                         if !fileStorage.fileExists(at: dest) {
-                            try await fileStorage.write(fileData, to: dest)
+                            let output = try await fileStorage.makeOutputStream(at: dest)
+                            do {
+                                try await ZipReader.copyEntry(
+                                    record, from: input, to: output,
+                                    chunkSize: BackupConfig.backupChunkSizeBytes)
+                                try await output.close()
+                            } catch {
+                                try? await output.close()
+                                throw error
+                            }
                             writtenPaths.append(dest)
                         }
                         photoPathByID[photoSnap.id] = dest
@@ -319,22 +340,33 @@ final class ZipBackupService: BackupService, @unchecked Sendable {
                 await progress(RestoreProgress(current: written, total: metadata.photos.count, phase: .copyingFiles))
             }
 
-            // 复制头像文件（导出时写入 avatars/ 目录，恢复时须写回沙盒，否则 avatarPath 悬空）。
-            // 仅复制预校验通过（将被导入）的宠物头像；同样需校验 avatarFileName 防路径穿越。
+            // 流式拷贝头像文件
             for petSnap in metadata.pets {
                 if Task.isCancelled { throw BackupServiceError.cancelled }
                 guard prevalidated.pets.contains(petSnap.id),
                       let avatarName = petSnap.avatarFileName,
                       Self.isSafeFileName(avatarName) else { continue }
                 let zipPath = "\(avatarsDirName)/\(avatarName)"
-                if let fileData = entryMap[zipPath] {
+                if let record = recordMap[zipPath] {
                     let dest = "\(sandboxDir)/\(avatarsDirName)/\(avatarName)"
                     if !fileStorage.fileExists(at: dest) {
-                        try await fileStorage.write(fileData, to: dest)
+                        let output = try await fileStorage.makeOutputStream(at: dest)
+                        do {
+                            try await ZipReader.copyEntry(
+                                record, from: input, to: output,
+                                chunkSize: BackupConfig.backupChunkSizeBytes)
+                            try await output.close()
+                        } catch {
+                            try? await output.close()
+                            throw error
+                        }
                         writtenPaths.append(dest)
                     }
                 }
             }
+
+            // 所有文件读取完成，关闭输入流后再合并元数据
+            try? await input.close()
 
             await progress(RestoreProgress(current: 0, total: 1, phase: .importingMetadata))
             let result = try await applyImport(metadata: metadata, photoPathByID: photoPathByID)
@@ -342,11 +374,34 @@ final class ZipBackupService: BackupService, @unchecked Sendable {
             await progress(RestoreProgress(current: 1, total: 1, phase: .done))
             return result
         } catch {
-            // 失败时清理本次写入的所有文件，避免孤儿文件残留
+            // 关闭输入流 + 清理本次写入的文件，避免孤儿残留
+            try? await input.close()
             for path in writtenPaths {
                 try? await fileStorage.removeItem(at: path)
             }
             throw error
+        }
+    }
+
+    /// 基于 central directory records 做大小校验（不加载数据本体，防 OOM）。
+    private static func validateRecords(
+        _ records: [ZipReader.ZipEntryRecord],
+        maxTotalUncompressedSize: Int,
+        maxEntryCount: Int,
+        maxSingleEntrySize: Int
+    ) throws {
+        guard records.count <= maxEntryCount else {
+            throw BackupServiceError.restoreTooLarge("条目数超限（\(records.count) > \(maxEntryCount)）")
+        }
+        var total = 0
+        for record in records {
+            guard record.uncompSize <= maxSingleEntrySize else {
+                throw BackupServiceError.restoreTooLarge("单条目超限（\(record.path)：\(record.uncompSize) > \(maxSingleEntrySize)）")
+            }
+            total += record.uncompSize
+            guard total <= maxTotalUncompressedSize else {
+                throw BackupServiceError.restoreTooLarge("总大小超限（\(total) > \(maxTotalUncompressedSize)）")
+            }
         }
     }
 
@@ -660,4 +715,29 @@ private struct ExportBundle {
     let manifest: BackupManifest
     let metadata: BackupMetadata
     let files: [(zipPath: String, sourcePath: String)]
+}
+
+/// 线程安全进度计数器（流式导出闭包按序递增，供进度回调使用）。
+/// writeArchive 顺序处理 entries，但闭包是 @Sendable，需保证计数器本身线程安全。
+final class StreamProgressCounter: @unchecked Sendable {
+    private let lock = NSLock()
+    private var _value = 0
+    let total: Int
+
+    init(total: Int) { self.total = total }
+
+    var value: Int {
+        lock.lock()
+        defer { lock.unlock() }
+        return _value
+    }
+
+    @discardableResult
+    func next() -> Int {
+        lock.lock()
+        _value += 1
+        let result = _value
+        lock.unlock()
+        return result
+    }
 }

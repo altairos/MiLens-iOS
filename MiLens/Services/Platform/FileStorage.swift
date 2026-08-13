@@ -4,6 +4,7 @@
 //  DESIGN.md §9 平台适配层。
 
 import Foundation
+import MiLensKit
 
 /// 文件存储错误。
 enum FileStorageError: Error, Equatable {
@@ -22,6 +23,10 @@ protocol FileStorage: Sendable {
     func removeItem(at path: String) async throws
     /// 列出目录下的文件路径（不含子目录递归，仅直接子项）。孤儿审计用。
     func listFiles(in directory: String) -> [String]
+    /// 构造流式输出流（追加写，大备份导出用）。
+    func makeOutputStream(at path: String) async throws -> any ZipOutputStream
+    /// 构造随机访问输入流（大备份恢复用）。
+    func makeInputStream(at path: String) async throws -> any ZipInputStream
 }
 
 // MARK: - Mock（对应源端 FakeFileService）
@@ -76,4 +81,65 @@ final class MockFileStorage: FileStorage, @unchecked Sendable {
             return path.dropFirst(prefix.count).firstIndex(of: "/") == nil
         }
     }
+
+    func makeOutputStream(at path: String) async throws -> any OutputStream {
+        MockOutputStream(parent: self, path: path)
+    }
+
+    func makeInputStream(at path: String) async throws -> any InputStream {
+        guard let data = files[path] else {
+            throw FileStorageError.fileNotFound(path)
+        }
+        return MockInputStream(data: data)
+    }
+}
+
+// MARK: - 内存流式实现（测试用）
+
+/// 内存输出流：write 追加到内部 Data，close 时写回 MockFileStorage.files。
+final class MockOutputStream: ZipOutputStream, @unchecked Sendable {
+    private let parent: MockFileStorage
+    private let path: String
+    private var buffer = Data()
+    private(set) var offset: Int64 = 0
+    private var closed = false
+
+    init(parent: MockFileStorage, path: String) {
+        self.parent = parent
+        self.path = path
+    }
+
+    func write(_ data: Data) async throws {
+        guard !closed else { throw FileStorageError.fileNotFound(path) }
+        buffer.append(data)
+        offset += Int64(data.count)
+    }
+
+    func close() async throws {
+        guard !closed else { return }
+        closed = true
+        parent.preset(buffer, at: path)
+    }
+}
+
+/// 内存输入流：基于 Data 切片提供随机访问读取。
+final class MockInputStream: ZipInputStream, @unchecked Sendable {
+    private let data: Data
+    let size: Int64
+
+    init(data: Data) {
+        self.data = data
+        self.size = Int64(data.count)
+    }
+
+    func read(offset: Int64, length: Int) async throws -> Data {
+        let start = Int(offset)
+        let end = min(start + length, data.count)
+        guard start >= 0, start <= data.count else {
+            throw ZipArchiveError.offsetOutOfBounds
+        }
+        return data.subdata(in: start..<end)
+    }
+
+    func close() async throws {}
 }

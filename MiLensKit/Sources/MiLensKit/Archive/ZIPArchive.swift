@@ -28,6 +28,20 @@ public struct ZipEntry: Sendable, Equatable {
     }
 }
 
+/// 流式归档条目：路径 + 数据提供闭包（按需读取，避免一次性加载全部数据）。
+/// 闭包在归档写入时被调用，读出的数据写出后即释放，峰值内存≈最大单个 entry。
+public struct ZipStreamEntry: Sendable {
+    /// 归档内相对路径（正斜杠分隔）。
+    public let path: String
+    /// 按需提供条目数据（流式写入时调用一次，算 CRC + 写出后释放）。
+    public let provideData: @Sendable () async throws -> Data
+
+    public init(path: String, provideData: @escaping @Sendable () async throws -> Data) {
+        self.path = path
+        self.provideData = provideData
+    }
+}
+
 /// ZIP 归档读写错误。
 public enum ZipArchiveError: Error, Equatable, Sendable {
     /// 数据过短，不是有效 ZIP。
@@ -48,6 +62,30 @@ public enum ZipArchiveError: Error, Equatable, Sendable {
     case totalSizeExceeded(max: Int)
     /// 单个条目解压后大小超过上限（防御性限制，避免大文件 OOM）。
     case singleEntrySizeExceeded(max: Int)
+}
+
+// MARK: - 流式 IO 协议（大备份流式读写用，避免一次性加载全部数据）
+
+/// 流式输出（追加写，跟踪当前写入偏移）。
+/// 由 FileStorage.makeOutputStream 构造真实文件实现（FileHandle）或测试内存实现。
+public protocol ZipOutputStream: Sendable {
+    /// 追加写入数据并推进偏移。
+    func write(_ data: Data) async throws
+    /// 当前写入偏移（已写入字节数）。
+    var offset: Int64 { get }
+    /// 关闭流，释放底层资源。
+    func close() async throws
+}
+
+/// 随机访问输入流（按偏移读取，已知总大小）。
+/// 由 FileStorage.makeInputStream 构造真实文件实现（FileHandle）或测试内存实现。
+public protocol ZipInputStream: Sendable {
+    /// 从指定偏移读取指定长度的数据。
+    func read(offset: Int64, length: Int) async throws -> Data
+    /// 数据总大小（字节）。
+    var size: Int64 { get }
+    /// 关闭流，释放底层资源。
+    func close() async throws
 }
 
 // MARK: - Writer
@@ -126,6 +164,88 @@ public enum ZipWriter {
         out.appendLE(UInt16(0))                       // comment length
 
         return out
+    }
+
+    /// 流式打包归档：逐 entry 读取数据（闭包）→ 算 CRC → 写 local header + data → 释放，
+    /// 全部完成后写 central directory + EOCD。峰值内存≈最大单个 entry。
+    /// - Parameters:
+    ///   - entries: 流式条目列表（数据由闭包按需提供）。
+    ///   - output: 流式输出目标（追加写）。
+    ///   - modificationDate: 所有条目统一使用的修改时间。
+    public static func writeArchive(
+        entries: [ZipStreamEntry],
+        to output: any ZipOutputStream,
+        modificationDate: Date = Date()
+    ) async throws {
+        let dosTime = DOSTime.modification(for: modificationDate)
+        // 记录每个条目的 CRC + local header 偏移 + size + name，供 central directory 使用
+        var records: [(localOffset: Int64, crc: UInt32, size: Int, nameBytes: [UInt8])] = []
+
+        for entry in entries {
+            if Task.isCancelled { throw CancellationError() }
+            let data = try await entry.provideData()
+            let nameBytes = Array(entry.path.utf8)
+            let crc = CRC32.compute(data)
+            let localOffset = output.offset
+
+            // Local file header（30 字节固定 + 文件名）
+            var header = Data()
+            header.appendLE(Self.localFileHeaderSignature)
+            header.appendLE(UInt16(20))             // version needed: 2.0
+            header.appendLE(UInt16(0x0800))         // flags: UTF-8 文件名
+            header.appendLE(UInt16(0))              // method: store
+            header.appendLE(dosTime.time)
+            header.appendLE(dosTime.date)
+            header.appendLE(crc)
+            header.appendLE(UInt32(data.count))     // compressed size = uncompressed (store)
+            header.appendLE(UInt32(data.count))     // uncompressed size
+            header.appendLE(UInt16(nameBytes.count))
+            header.appendLE(UInt16(0))              // extra field length
+            header.append(contentsOf: nameBytes)
+            try await output.write(header)
+            // 数据（store：原样写出后释放）
+            try await output.write(data)
+
+            records.append((localOffset, crc, data.count, nameBytes))
+        }
+
+        // Central directory
+        let cdStart = output.offset
+        for record in records {
+            var cdHeader = Data()
+            cdHeader.appendLE(Self.centralDirectoryHeaderSignature)
+            cdHeader.appendLE(UInt16(20))           // version made by
+            cdHeader.appendLE(UInt16(20))           // version needed
+            cdHeader.appendLE(UInt16(0x0800))       // flags: UTF-8 文件名
+            cdHeader.appendLE(UInt16(0))            // method: store
+            cdHeader.appendLE(dosTime.time)
+            cdHeader.appendLE(dosTime.date)
+            cdHeader.appendLE(record.crc)
+            cdHeader.appendLE(UInt32(record.size))  // compressed size
+            cdHeader.appendLE(UInt32(record.size))  // uncompressed size
+            cdHeader.appendLE(UInt16(record.nameBytes.count))
+            cdHeader.appendLE(UInt16(0))            // extra field length
+            cdHeader.appendLE(UInt16(0))            // comment length
+            cdHeader.appendLE(UInt16(0))            // disk number start
+            cdHeader.appendLE(UInt16(0))            // internal file attributes
+            cdHeader.appendLE(UInt32(0))            // external file attributes
+            cdHeader.appendLE(UInt32(record.localOffset))
+            cdHeader.append(contentsOf: record.nameBytes)
+            try await output.write(cdHeader)
+        }
+        let cdSize = output.offset - cdStart
+
+        // End of central directory record（22 字节）
+        var eocd = Data()
+        eocd.appendLE(Self.endOfCentralDirectorySignature)
+        eocd.appendLE(UInt16(0))                   // number of this disk
+        eocd.appendLE(UInt16(0))                   // disk where CD starts
+        eocd.appendLE(UInt16(records.count))       // entries on this disk
+        eocd.appendLE(UInt16(records.count))       // total entries
+        eocd.appendLE(UInt32(cdSize))              // size of central directory
+        eocd.appendLE(UInt32(cdStart))             // offset of start of CD
+        eocd.appendLE(UInt16(0))                   // comment length
+        try await output.write(eocd)
     }
 
     private static let localFileHeaderSignature: UInt32 = 0x04034b50
@@ -249,6 +369,153 @@ public enum ZipReader {
         }
     }
 
+    // MARK: - 流式读（基于 ZipInputStream 随机访问，不一次性加载全部数据）
+
+    /// central directory 解析后的单条记录（不含数据本体，延迟按需读取）。
+    public struct ZipEntryRecord: Sendable {
+        /// 归档内相对路径。
+        public let path: String
+        /// 数据区起始偏移（跳过 local header）。
+        public let dataOffset: Int64
+        /// 解压后大小（store 模式 = 压缩大小）。
+        public let uncompSize: Int
+        /// central directory 记录的 CRC-32。
+        public let crc: UInt32
+
+        public init(path: String, dataOffset: Int64, uncompSize: Int, crc: UInt32) {
+            self.path = path
+            self.dataOffset = dataOffset
+            self.uncompSize = uncompSize
+            self.crc = crc
+        }
+    }
+
+    /// 流式读取 central directory：只读索引和元数据，不加载条目数据。
+    ///
+    /// 逐条解析 CD 记录并跳转 local header 计算数据偏移。返回 records 供
+    /// `copyEntry` 按需流式拷贝，或 `readEntryData` 读小条目到内存。
+    /// - Parameter input: 随机访问输入流。
+    /// - Returns: 条目记录列表（按 central directory 顺序）。
+    public static func readCentralDirectory(
+        from input: any ZipInputStream
+    ) async throws -> [ZipEntryRecord] {
+        let totalSize = Int(input.size)
+        guard totalSize >= 22 else { throw ZipArchiveError.truncated }
+
+        // 读尾部找 EOCD（注释最多 65535 字节）
+        let tailLen = min(totalSize, 22 + 65535)
+        let tailStart = totalSize - tailLen
+        let tail = try await input.read(offset: Int64(tailStart), length: tailLen)
+
+        var eocdInTail = -1
+        var i = tail.count - 22
+        while i >= 0 {
+            if tail.readUInt32LE(at: i) == 0x06054b50 {
+                eocdInTail = i
+                break
+            }
+            i -= 1
+        }
+        guard eocdInTail >= 0 else { throw ZipArchiveError.endOfCentralDirectoryNotFound }
+
+        let totalEntries = Int(tail.readUInt16LE(at: eocdInTail + 10))
+        let cdOffset = Int(tail.readUInt32LE(at: eocdInTail + 16))
+
+        var records: [ZipEntryRecord] = []
+        records.reserveCapacity(totalEntries)
+
+        var cursor = cdOffset
+        for _ in 0..<totalEntries {
+            // 读 46 字节 CD 固定头
+            let cdData = try await input.read(offset: Int64(cursor), length: 46)
+            guard cdData.count == 46 else { throw ZipArchiveError.offsetOutOfBounds }
+            guard cdData.readUInt32LE(at: 0) == 0x02014b50 else {
+                throw ZipArchiveError.invalidSignature
+            }
+            let method = cdData.readUInt16LE(at: 10)
+            guard method == 0 else { throw ZipArchiveError.unsupportedCompression(method: method) }
+
+            let crc = cdData.readUInt32LE(at: 16)
+            let uncompSize = Int(cdData.readUInt32LE(at: 24))
+            let nameLen = Int(cdData.readUInt16LE(at: 28))
+            let extraLen = Int(cdData.readUInt16LE(at: 30))
+            let commentLen = Int(cdData.readUInt16LE(at: 32))
+            let localOffset = Int(cdData.readUInt32LE(at: 42))
+
+            // 读文件名
+            let nameData = try await input.read(offset: Int64(cursor + 46), length: nameLen)
+            let name = String(decoding: nameData, as: UTF8.self)
+
+            // 推进到下一个 CD 条目
+            cursor = cursor + 46 + nameLen + extraLen + commentLen
+
+            // 跳转 local header 计算数据起点（local header 的 extra 可能与 CD 不同）
+            let localHeader = try await input.read(offset: Int64(localOffset), length: 30)
+            guard localHeader.count == 30 else { throw ZipArchiveError.offsetOutOfBounds }
+            guard localHeader.readUInt32LE(at: 0) == 0x04034b50 else {
+                throw ZipArchiveError.invalidSignature
+            }
+            let localNameLen = Int(localHeader.readUInt16LE(at: 26))
+            let localExtraLen = Int(localHeader.readUInt16LE(at: 28))
+            let dataOffset = Int64(localOffset + 30 + localNameLen + localExtraLen)
+
+            records.append(ZipEntryRecord(
+                path: name, dataOffset: dataOffset,
+                uncompSize: uncompSize, crc: crc))
+        }
+        return records
+    }
+
+    /// 流式拷贝单个条目数据到输出（分块读写 + CRC 校验，峰值≈chunkSize）。
+    /// - Parameters:
+    ///   - record: 条目记录（来自 readCentralDirectory）。
+    ///   - input: 随机访问输入流。
+    ///   - output: 流式输出目标。
+    ///   - chunkSize: 分块大小（默认 64KB）。
+    public static func copyEntry(
+        _ record: ZipEntryRecord,
+        from input: any ZipInputStream,
+        to output: any ZipOutputStream,
+        chunkSize: Int = 65_536
+    ) async throws {
+        var remaining = record.uncompSize
+        var offset = record.dataOffset
+        var crc = CRC32.initial
+
+        while remaining > 0 {
+            if Task.isCancelled { throw CancellationError() }
+            let toRead = min(chunkSize, remaining)
+            let chunk = try await input.read(offset: offset, length: toRead)
+            guard chunk.count == toRead else { throw ZipArchiveError.offsetOutOfBounds }
+            try await output.write(chunk)
+            crc = CRC32.update(crc, with: chunk)
+            offset += Int64(toRead)
+            remaining -= toRead
+        }
+
+        let actualCRC = CRC32.finalize(crc)
+        guard actualCRC == record.crc else {
+            throw ZipArchiveError.crcMismatch(expected: record.crc, actual: actualCRC)
+        }
+    }
+
+    /// 读取单个小条目的完整数据到内存（manifest/metadata 等小文件用）。
+    public static func readEntryData(
+        _ record: ZipEntryRecord,
+        from input: any ZipInputStream
+    ) async throws -> Data {
+        let data = try await input.read(offset: record.dataOffset, length: record.uncompSize)
+        guard data.count == record.uncompSize else {
+            throw ZipArchiveError.offsetOutOfBounds
+        }
+        // CRC 校验（确保小条目完整性）
+        guard CRC32.compute(data) == record.crc else {
+            throw ZipArchiveError.crcMismatch(
+                expected: record.crc, actual: CRC32.compute(data))
+        }
+        return data
+    }
+
     /// 从尾部向前扫描 End Of Central Directory 签名（兼容尾部带注释的 ZIP）。
     private static func findEndOfCentralDirectory(in data: Data) throws -> Int {
         // EOCD 最小 22 字节，注释最多 65535。
@@ -279,13 +546,26 @@ enum CRC32 {
         return table
     }()
 
+    /// 初始 CRC 状态（计算前预置）。
+    static let initial: UInt32 = 0xFFFFFFFF
+
     static func compute(_ data: Data) -> UInt32 {
-        var crc: UInt32 = 0xFFFFFFFF
+        finalize(update(initial, with: data))
+    }
+
+    /// 增量更新 CRC 状态（分块读取时逐块更新，避免一次性加载全部数据）。
+    static func update(_ crc: UInt32, with data: Data) -> UInt32 {
+        var crc = crc
         for byte in data {
             let idx = Int((crc ^ UInt32(byte)) & 0xff)
             crc = (crc >> 8) ^ table[idx]
         }
-        return crc ^ 0xFFFFFFFF
+        return crc
+    }
+
+    /// 完成计算，返回最终 CRC 值。
+    static func finalize(_ crc: UInt32) -> UInt32 {
+        crc ^ 0xFFFFFFFF
     }
 }
 

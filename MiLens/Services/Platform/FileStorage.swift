@@ -19,6 +19,8 @@ protocol FileStorage: Sendable {
     func read(at path: String) async throws -> Data
     func write(_ data: Data, to path: String) async throws
     func fileExists(at path: String) -> Bool
+    /// 读取文件大小（字节），文件不存在返回 nil。备份分卷预估用，避免依赖可能过期的 DB fileSize。
+    func fileSize(at path: String) -> Int64?
     func createDirectory(at path: String) async throws
     func removeItem(at path: String) async throws
     /// 列出目录下的文件路径（不含子目录递归，仅直接子项）。孤儿审计用。
@@ -62,6 +64,10 @@ final class MockFileStorage: FileStorage, @unchecked Sendable {
 
     func fileExists(at path: String) -> Bool {
         files[path] != nil || directories.contains(path)
+    }
+
+    func fileSize(at path: String) -> Int64? {
+        files[path].map { Int64($0.count) }
     }
 
     func createDirectory(at path: String) async throws {

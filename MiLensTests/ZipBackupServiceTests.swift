@@ -13,10 +13,12 @@ import MiLensKit
 final class ZipBackupServiceTests: XCTestCase {
 
     /// 构造服务。fileStorage 可注入——往返用例共享同一实例。
+    /// volumeSplitConfig 可注入——多卷测试用小阈值触发分卷。
     private func makeService(
         pets: [Pet] = [],
         photos: [Photo] = [],
-        fileStorage: MockFileStorage = MockFileStorage()
+        fileStorage: MockFileStorage = MockFileStorage(),
+        volumeSplitConfig: VolumeSplitConfig = .default
     ) -> (service: ZipBackupService, petRepo: InMemoryPetRepository, photoRepo: InMemoryPhotoRepository, fs: MockFileStorage, sandboxDir: String) {
         let petRepo = InMemoryPetRepository(pets: pets)
         let photoRepo = InMemoryPhotoRepository(photos: photos)
@@ -27,7 +29,8 @@ final class ZipBackupServiceTests: XCTestCase {
             fileStorage: fileStorage,
             sandboxDir: sandboxDir,
             appVersion: "1.0.0",
-            temporaryDirectory: "/test-tmp-\(UUID().uuidString)")
+            temporaryDirectory: "/test-tmp-\(UUID().uuidString)",
+            volumeSplitConfig: volumeSplitConfig)
         return (service, petRepo, photoRepo, fileStorage, sandboxDir)
     }
 
@@ -974,24 +977,24 @@ final class ZipBackupServiceTests: XCTestCase {
     // MARK: - 多卷分卷导出
 
     func testMultiVolumeExportProducesMultipleFiles() async throws {
-        // 构造预估超过 2GB 的照片集 → 触发多卷导出
+        // 构造真实文件超过小阈值的多卷阈值 → 触发多卷导出（基于 stat 真实大小）
         let sharedFS = MockFileStorage()
         let pet = Pet(name: "小橘", species: .cat)
-        // 每张照片 fileSize = 1GB（Int64），3 张 = 3GB > 2GB → 多卷
-        let bigSize: Int64 = 1_000_000_000
+        // 每张照片真实文件 64 字节，3 张 = 192 字节 + overhead > 200 触发多卷
         let photos = (0..<3).map { i in
-            Photo(uri: "/src/p\(i).jpg", originalURI: "L0/00\(i)", pet: pet, fileSize: bigSize)
+            Photo(uri: "/src/p\(i).jpg", originalURI: "L0/00\(i)", pet: pet)
         }
+        let smallConfig = VolumeSplitConfig(multiVolumeThreshold: 200, volumeTargetSizeBytes: 200)
         let (source, _, _, fs, _) = makeService(
-            pets: [pet], photos: photos, fileStorage: sharedFS)
-        // 实际文件数据很小（测试无法真填 3GB），但预估基于 fileSize 触发分卷
+            pets: [pet], photos: photos, fileStorage: sharedFS,
+            volumeSplitConfig: smallConfig)
         for i in 0..<3 {
-            sharedFS.preset(Data("photo\(i)".utf8), at: "/src/p\(i).jpg")
+            sharedFS.preset(Data("photo-\(i)-padding-bytes".utf8), at: "/src/p\(i).jpg")
         }
 
         let result = try await source.exportBackup(petIDs: nil, progress: { _ in })
 
-        XCTAssertGreaterThan(result.fileURLs.count, 1, "超过 2GB 须生成多个分卷文件")
+        XCTAssertGreaterThan(result.fileURLs.count, 1, "超过多卷阈值须生成多个分卷文件")
         // 每个文件须实际存在
         for url in result.fileURLs {
             XCTAssertTrue(fs.fileExists(at: url.path), "分卷文件须存在：\(url.lastPathComponent)")
@@ -1005,17 +1008,18 @@ final class ZipBackupServiceTests: XCTestCase {
     }
 
     func testMultiVolumeRoundTripRestoresAllPhotos() async throws {
-        // 多卷往返：全部照片须恢复成功
+        // 多卷往返：全部照片须恢复成功（基于 stat 真实大小 + 小阈值触发分卷）
         let sharedFS = MockFileStorage()
         let pet = Pet(name: "小橘", species: .cat)
-        let bigSize: Int64 = 1_000_000_000
         let photos = (0..<3).map { i in
-            Photo(uri: "/src/p\(i).jpg", originalURI: "L0/00\(i)", pet: pet, fileSize: bigSize)
+            Photo(uri: "/src/p\(i).jpg", originalURI: "L0/00\(i)", pet: pet)
         }
+        let smallConfig = VolumeSplitConfig(multiVolumeThreshold: 200, volumeTargetSizeBytes: 200)
         let (source, _, _, _, _) = makeService(
-            pets: [pet], photos: photos, fileStorage: sharedFS)
+            pets: [pet], photos: photos, fileStorage: sharedFS,
+            volumeSplitConfig: smallConfig)
         for i in 0..<3 {
-            sharedFS.preset(Data("photo\(i)".utf8), at: "/src/p\(i).jpg")
+            sharedFS.preset(Data("photo-\(i)-padding-bytes".utf8), at: "/src/p\(i).jpg")
         }
 
         let result = try await source.exportBackup(petIDs: nil, progress: { _ in })
@@ -1032,14 +1036,15 @@ final class ZipBackupServiceTests: XCTestCase {
         // 缺少一卷时须抛 incompleteVolumeSet
         let sharedFS = MockFileStorage()
         let pet = Pet(name: "小橘", species: .cat)
-        let bigSize: Int64 = 1_000_000_000
         let photos = (0..<3).map { i in
-            Photo(uri: "/src/p\(i).jpg", originalURI: "L0/00\(i)", pet: pet, fileSize: bigSize)
+            Photo(uri: "/src/p\(i).jpg", originalURI: "L0/00\(i)", pet: pet)
         }
+        let smallConfig = VolumeSplitConfig(multiVolumeThreshold: 200, volumeTargetSizeBytes: 200)
         let (source, _, _, _, _) = makeService(
-            pets: [pet], photos: photos, fileStorage: sharedFS)
+            pets: [pet], photos: photos, fileStorage: sharedFS,
+            volumeSplitConfig: smallConfig)
         for i in 0..<3 {
-            sharedFS.preset(Data("photo\(i)".utf8), at: "/src/p\(i).jpg")
+            sharedFS.preset(Data("photo-\(i)-padding-bytes".utf8), at: "/src/p\(i).jpg")
         }
 
         let result = try await source.exportBackup(petIDs: nil, progress: { _ in })
@@ -1063,20 +1068,22 @@ final class ZipBackupServiceTests: XCTestCase {
         // 混入不同 backupID 的卷时须抛 mismatchedBackupID
         let sharedFS = MockFileStorage()
         let pet = Pet(name: "小橘", species: .cat)
-        let bigSize: Int64 = 1_000_000_000
         let photos1 = (0..<3).map { i in
-            Photo(uri: "/src/a\(i).jpg", originalURI: "A/00\(i)", pet: pet, fileSize: bigSize)
+            Photo(uri: "/src/a\(i).jpg", originalURI: "A/00\(i)", pet: pet)
         }
         let photos2 = (0..<3).map { i in
-            Photo(uri: "/src/b\(i).jpg", originalURI: "B/00\(i)", pet: pet, fileSize: bigSize)
+            Photo(uri: "/src/b\(i).jpg", originalURI: "B/00\(i)", pet: pet)
         }
+        let smallConfig = VolumeSplitConfig(multiVolumeThreshold: 200, volumeTargetSizeBytes: 200)
         let (source1, _, _, _, _) = makeService(
-            pets: [pet], photos: photos1, fileStorage: sharedFS)
+            pets: [pet], photos: photos1, fileStorage: sharedFS,
+            volumeSplitConfig: smallConfig)
         let (source2, _, _, _, _) = makeService(
-            pets: [pet], photos: photos2, fileStorage: sharedFS)
+            pets: [pet], photos: photos2, fileStorage: sharedFS,
+            volumeSplitConfig: smallConfig)
         for i in 0..<3 {
-            sharedFS.preset(Data("a\(i)".utf8), at: "/src/a\(i).jpg")
-            sharedFS.preset(Data("b\(i)".utf8), at: "/src/b\(i).jpg")
+            sharedFS.preset(Data("a\(i)-padding-bytes-test".utf8), at: "/src/a\(i).jpg")
+            sharedFS.preset(Data("b\(i)-padding-bytes-test".utf8), at: "/src/b\(i).jpg")
         }
 
         let result1 = try await source1.exportBackup(petIDs: nil, progress: { _ in })
@@ -1093,6 +1100,147 @@ final class ZipBackupServiceTests: XCTestCase {
                 return XCTFail("应抛 mismatchedBackupID，实际：\(error)")
             }
         }
+    }
+
+    // MARK: - P1：分卷基于真实文件大小（stat）而非过期 DB fileSize
+
+    func testMultiVolumeSplitUsesActualFileSizesNotStaleFileSize() async throws {
+        // 照片 DB fileSize=0 但真实文件存在且超过多卷阈值 → 仍须按真实大小分卷。
+        // 修复前：基于 fileSize=0 预估为 0，误判单卷，写到中途才抛 backupTooLarge。
+        let sharedFS = MockFileStorage()
+        let pet = Pet(name: "小橘", species: .cat)
+        let photos = (0..<3).map { i in
+            Photo(uri: "/src/p\(i).jpg", originalURI: "L0/00\(i)", pet: pet, fileSize: 0)
+        }
+        let smallConfig = VolumeSplitConfig(multiVolumeThreshold: 200, volumeTargetSizeBytes: 200)
+        let (source, _, _, _, _) = makeService(
+            pets: [pet], photos: photos, fileStorage: sharedFS,
+            volumeSplitConfig: smallConfig)
+        for i in 0..<3 {
+            sharedFS.preset(Data("photo-\(i)-padding-bytes".utf8), at: "/src/p\(i).jpg")
+        }
+
+        let result = try await source.exportBackup(petIDs: nil, progress: { _ in })
+
+        XCTAssertGreaterThan(result.fileURLs.count, 1,
+                       "DB fileSize=0 但真实文件超过阈值时须按真实大小分卷")
+    }
+
+    // MARK: - P2：多卷导出进度回调
+
+    func testMultiVolumeExportReportsCopyProgress() async throws {
+        // 多卷导出须发出 copyingPhotos 进度回调（修复前传空闭包，用户只能转圈）。
+        let sharedFS = MockFileStorage()
+        let pet = Pet(name: "小橘", species: .cat)
+        let photos = (0..<3).map { i in
+            Photo(uri: "/src/p\(i).jpg", originalURI: "L0/00\(i)", pet: pet)
+        }
+        let smallConfig = VolumeSplitConfig(multiVolumeThreshold: 200, volumeTargetSizeBytes: 200)
+        let (source, _, _, _, _) = makeService(
+            pets: [pet], photos: photos, fileStorage: sharedFS,
+            volumeSplitConfig: smallConfig)
+        for i in 0..<3 {
+            sharedFS.preset(Data("photo-\(i)-padding-bytes".utf8), at: "/src/p\(i).jpg")
+        }
+
+        var copyProgressValues: [Int] = []
+        let result = try await source.exportBackup(petIDs: nil, progress: { p in
+            if p.phase == .copyingPhotos {
+                copyProgressValues.append(p.current)
+            }
+        })
+
+        XCTAssertGreaterThan(result.fileURLs.count, 1, "须是多卷导出")
+        XCTAssertFalse(copyProgressValues.isEmpty, "多卷导出须发出 copyingPhotos 进度回调")
+        // 进度值须单调递增
+        var prev = -1
+        for v in copyProgressValues {
+            XCTAssertGreaterThanOrEqual(v, prev, "进度值须单调递增")
+            prev = v
+        }
+    }
+
+    // MARK: - P2：BackupResult.manifest 与卷 1 文件内部一致
+
+    func testMultiVolumeResultManifestMatchesVolumeOneFile() async throws {
+        // 多卷导出后 BackupResult.manifest 须与卷 1 文件内的 manifest 一致
+        // （修复前 result 重建为全库 photoCount，与卷 1 文件的本卷 photoCount 不符）。
+        let sharedFS = MockFileStorage()
+        let pet = Pet(name: "小橘", species: .cat)
+        let photos = (0..<3).map { i in
+            Photo(uri: "/src/p\(i).jpg", originalURI: "L0/00\(i)", pet: pet)
+        }
+        let smallConfig = VolumeSplitConfig(multiVolumeThreshold: 200, volumeTargetSizeBytes: 200)
+        let (source, _, _, _, _) = makeService(
+            pets: [pet], photos: photos, fileStorage: sharedFS,
+            volumeSplitConfig: smallConfig)
+        for i in 0..<3 {
+            sharedFS.preset(Data("photo-\(i)-padding-bytes".utf8), at: "/src/p\(i).jpg")
+        }
+
+        let result = try await source.exportBackup(petIDs: nil, progress: { _ in })
+
+        // 读取卷 1 文件内的 manifest
+        let zipData = try await sharedFS.read(at: result.fileURLs[0].path)
+        let entries = try ZipReader.extract(zipData)
+        let manifestEntry = try XCTUnwrap(
+            entries.first { $0.path == BackupConfig.manifestFileName },
+            "卷 1 须含 manifest.json")
+        let decoder = JSONDecoder()
+        decoder.dateDecodingStrategy = .iso8601
+        let volumeOneManifest = try decoder.decode(
+            BackupManifest.self, from: manifestEntry.data)
+
+        // photoCount 须一致（卷 1 实际照片数），而非全库数
+        XCTAssertEqual(result.manifest.photoCount, volumeOneManifest.photoCount,
+                       "BackupResult.manifest.photoCount 须与卷 1 文件内一致")
+        XCTAssertEqual(result.manifest.volumeNumber, volumeOneManifest.volumeNumber)
+        XCTAssertEqual(result.manifest.totalVolumes, volumeOneManifest.totalVolumes)
+        XCTAssertEqual(result.manifest.backupID, volumeOneManifest.backupID)
+    }
+
+    // MARK: - P1：多卷恢复拷贝阶段失败时清理文件 + 关闭输入流
+
+    func testMultiVolumeRestoreCleansUpOnCopyFailure() async throws {
+        // 多卷 + CRC 篡改：拷贝阶段失败时须清理已写入文件（输入流关闭由代码 + deinit 守护）。
+        let sharedFS = MockFileStorage()
+        let pet = Pet(name: "小橘", species: .cat)
+        let photos = (0..<3).map { i in
+            Photo(uri: "/src/p\(i).jpg", originalURI: "L0/00\(i)", pet: pet)
+        }
+        let smallConfig = VolumeSplitConfig(multiVolumeThreshold: 200, volumeTargetSizeBytes: 200)
+        let (source, _, _, _, _) = makeService(
+            pets: [pet], photos: photos, fileStorage: sharedFS,
+            volumeSplitConfig: smallConfig)
+        for i in 0..<3 {
+            sharedFS.preset(Data("photo-\(i)-padding-bytes".utf8), at: "/src/p\(i).jpg")
+        }
+
+        let result = try await source.exportBackup(petIDs: nil, progress: { _ in })
+
+        // 篡改卷 1 中首个 photo entry 的数据首字节 → CRC 不匹配
+        var zipData = try await sharedFS.read(at: result.fileURLs[0].path)
+        let records = try await ZipReader.readCentralDirectory(
+            from: MockInputStream(data: zipData))
+        let photoRecord = try XCTUnwrap(
+            records.first { $0.path.hasPrefix("\(BackupConfig.photosDirName)/") },
+            "卷 1 须含 photo entry")
+        let dataOffset = Int(photoRecord.dataOffset)
+        zipData[dataOffset] ^= 0xFF
+        try await sharedFS.write(zipData, to: result.fileURLs[0].path)
+
+        let (target, _, _, _, sandboxDir) = makeService(fileStorage: sharedFS)
+        do {
+            _ = try await target.importBackup(from: result.fileURLs, progress: { _ in })
+            XCTFail("CRC 不匹配时应抛错")
+        } catch {
+            // 预期抛错
+        }
+
+        // 拷贝失败后沙盒目录不应残留文件
+        let writtenFiles = sharedFS.listFiles(in: sandboxDir)
+        XCTAssertEqual(writtenFiles.count, 0,
+                       "多卷拷贝失败时已写入文件须清理，避免孤儿残留")
     }
 }
 

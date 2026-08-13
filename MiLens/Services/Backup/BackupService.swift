@@ -419,6 +419,10 @@ enum BackupConfig {
     static let backupChunkSizeBytes = 65_536
     /// 多卷分卷时每卷目标字节数（约 1.8 GB，为 ZIP header/CD 留余量）。
     static let volumeTargetSizeBytes: Int = 1_800_000_000
+    /// 每个 ZIP 条目的固定开销预算（local header + central directory record + 该照片在
+    /// metadata.json 中贡献的 JSON 余量）。分卷预估时叠加到每张照片字节数上，
+    /// 避免实际写入超出单卷硬上限后才触发 backupTooLarge。
+    static let zipEntryOverheadBytes: Int = 768
 }
 
 // MARK: - V1 占位实现

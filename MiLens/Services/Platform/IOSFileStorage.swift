@@ -50,6 +50,13 @@ final class IOSFileStorage: FileStorage, @unchecked Sendable {
         FileManager.default.fileExists(atPath: path)
     }
 
+    func fileSize(at path: String) -> Int64? {
+        guard let attrs = try? FileManager.default.attributesOfItem(atPath: path) else {
+            return nil
+        }
+        return attrs[.size] as? Int64
+    }
+
     func createDirectory(at path: String) async throws {
         try FileManager.default.createDirectory(
             at: URL(fileURLWithPath: path),

@@ -26,6 +26,43 @@ struct BackupManifest: Codable, Equatable, Sendable {
     let photoCount: Int
     /// 宠物总数。
     let petCount: Int
+    /// 分卷集合标识（同一 backupID 的多个卷属于同一次导出）。
+    /// 旧版备份包无此字段 → 解码为 nil（向后兼容，按旧格式单卷处理）。
+    let backupID: String?
+    /// 卷号（1-based）；nil = 旧格式单卷备份。
+    let volumeNumber: Int?
+    /// 总卷数；nil = 旧格式单卷备份。
+    let totalVolumes: Int?
+
+    /// 成员构造器（导出端 + 测试用）。
+    init(schemaVersion: Int, appVersion: String, platform: String?,
+         exportDate: Date, photoCount: Int, petCount: Int,
+         backupID: String? = nil, volumeNumber: Int? = nil,
+         totalVolumes: Int? = nil) {
+        self.schemaVersion = schemaVersion
+        self.appVersion = appVersion
+        self.platform = platform
+        self.exportDate = exportDate
+        self.photoCount = photoCount
+        self.petCount = petCount
+        self.backupID = backupID
+        self.volumeNumber = volumeNumber
+        self.totalVolumes = totalVolumes
+    }
+
+    /// 自定义解码：旧版备份包缺 backupID/volumeNumber/totalVolumes 时回退为 nil，避免解码失败。
+    init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        schemaVersion = try c.decode(Int.self, forKey: .schemaVersion)
+        appVersion = try c.decode(String.self, forKey: .appVersion)
+        platform = try c.decodeIfPresent(String.self, forKey: .platform)
+        exportDate = try c.decode(Date.self, forKey: .exportDate)
+        photoCount = try c.decode(Int.self, forKey: .photoCount)
+        petCount = try c.decode(Int.self, forKey: .petCount)
+        backupID = try c.decodeIfPresent(String.self, forKey: .backupID)
+        volumeNumber = try c.decodeIfPresent(Int.self, forKey: .volumeNumber)
+        totalVolumes = try c.decodeIfPresent(Int.self, forKey: .totalVolumes)
+    }
 }
 
 /// 宠物导出投影（脱离 SwiftData @Model，便于 Codable 序列化）。
@@ -223,8 +260,8 @@ struct BackupProgress: Equatable, Sendable {
 
 /// 备份导出结果。
 struct BackupResult: Equatable, Sendable {
-    /// 生成的备份文件临时路径（供 ShareSheet 分享）。
-    let fileURL: URL
+    /// 生成的备份文件临时路径列表（单卷为 1 个，多卷为 N 个，供 ShareSheet 分享）。
+    let fileURLs: [URL]
     let manifest: BackupManifest
     let metadata: BackupMetadata
 }
@@ -272,6 +309,10 @@ enum BackupServiceError: Error, LocalizedError, Sendable {
     case backupTooLarge
     /// 备份恢复文件大小超过上限（解压后总量过大）。
     case restoreTooLarge(String)
+    /// 多卷备份恢复时卷数不完整（选择文件数与期望不符）。
+    case incompleteVolumeSet(found: Int, expected: Int)
+    /// 多卷备份恢复时 backupID 不一致（混入了不同导出的卷）。
+    case mismatchedBackupID
 
     var errorDescription: String? {
         switch self {
@@ -285,6 +326,9 @@ enum BackupServiceError: Error, LocalizedError, Sendable {
         case .cancelled:                     return "操作已取消"
         case .backupTooLarge:                return "备份内容过大，请减少导出范围后重试"
         case .restoreTooLarge(let msg):      return "备份文件过大：\(msg)"
+        case .incompleteVolumeSet(let f, let e):
+            return "分卷不完整（已选 \(f) 个，共需 \(e) 个），请选择全部 \(e) 个分卷文件后重试"
+        case .mismatchedBackupID:            return "选中的分卷不属于同一次导出，请检查后重选"
         }
     }
 }
@@ -297,6 +341,8 @@ struct BackupEstimate: Equatable, Sendable {
     let petCount: Int
     /// 将导出的照片数。
     let photoCount: Int
+    /// 预计导出字节数（基于照片 fileSize 之和，供 UI 展示预计大小）。
+    let estimatedBytes: Int64
 }
 
 // MARK: - 协议
@@ -329,12 +375,13 @@ protocol BackupService: Sendable {
 
     /// 从备份文件恢复。
     /// - Parameters:
-    ///   - url: 用户通过 DocumentPicker 选择的备份文件 URL。
+    ///   - urls: 用户通过 DocumentPicker 选择的备份文件 URL 列表
+    ///     （单卷为 1 个，多卷为全部分卷）。
     ///   - progress: 进度回调（主线程）。
     /// - Returns: 恢复结果统计。
     /// - Note: 合并导入，不覆盖现有数据（同 ID 跳过）。
     func importBackup(
-        from url: URL,
+        from urls: [URL],
         progress: @Sendable @MainActor (RestoreProgress) -> Void
     ) async throws -> RestoreResult
 }
@@ -370,6 +417,8 @@ enum BackupConfig {
     static let maxSingleEntrySizeBytes = 200 * 1024 * 1024
     /// 流式恢复分块大小（64 KB，copyEntry 峰值内存缓冲）。
     static let backupChunkSizeBytes = 65_536
+    /// 多卷分卷时每卷目标字节数（约 1.8 GB，为 ZIP header/CD 留余量）。
+    static let volumeTargetSizeBytes: Int = 1_800_000_000
 }
 
 // MARK: - V1 占位实现
@@ -393,7 +442,7 @@ final class UnavailableBackupService: BackupService {
     }
 
     func importBackup(
-        from url: URL,
+        from urls: [URL],
         progress: @Sendable @MainActor (RestoreProgress) -> Void
     ) async throws -> RestoreResult {
         throw BackupServiceError.serviceUnavailable

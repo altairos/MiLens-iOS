@@ -45,7 +45,7 @@ final class ZipBackupService: BackupService, @unchecked Sendable {
 
     // MARK: - 预估
 
-    /// 预估将导出的内容规模（仅统计计数，不读取照片文件、不打包）。
+    /// 预估将导出的内容规模（仅统计计数与字节数，不读取照片文件、不打包）。
     /// 与 collectExportBundle 同样的 petIDs 过滤语义，保证预估与实际导出一致。
     func estimateBackup(petIDs: [UUID]?) async throws -> BackupEstimate {
         let allPets = try petRepo.getAllPets()
@@ -57,15 +57,21 @@ final class ZipBackupService: BackupService, @unchecked Sendable {
             selectedPets = allPets
         }
 
-        let photoCount: Int
+        let photos: [Photo]
         if petIDs != nil {
-            photoCount = try selectedPets.reduce(0) { acc, pet in
-                acc + (try photoRepo.getPhotosByPet(pet)).count
+            var tempPhotos: [Photo] = []
+            for pet in selectedPets {
+                tempPhotos.append(contentsOf: try photoRepo.getPhotosByPet(pet))
             }
+            photos = tempPhotos
         } else {
-            photoCount = try photoRepo.countAllPhotos()
+            photos = try await collectAllPhotos()
         }
-        return BackupEstimate(petCount: selectedPets.count, photoCount: photoCount)
+        let totalBytes = photos.reduce(Int64(0)) { $0 + $1.fileSize }
+        return BackupEstimate(
+            petCount: selectedPets.count,
+            photoCount: photos.count,
+            estimatedBytes: totalBytes)
     }
 
     // MARK: - JSON 编解码（ISO8601 日期，键排序保证 manifest 可 diff）
@@ -92,30 +98,201 @@ final class ZipBackupService: BackupService, @unchecked Sendable {
         await progress(BackupProgress(current: 0, total: 1, phase: .collectingMetadata))
         let bundle = try await collectExportBundle(petIDs: petIDs)
 
-        // 流式导出：逐 entry 读取数据（闭包）→ 算 CRC → 写 local header + data → 释放。
-        // 峰值内存≈最大单个 entry（单张照片），不再一次性加载全部照片数据。
-        await progress(BackupProgress(current: 0, total: bundle.files.count, phase: .copyingPhotos))
+        // 分卷决策：预估总字节数超过单卷上限时自动拆分。
+        let totalEstimated = Int(bundle.estimatedPhotoBytes)
+        let needsMultiVolume = totalEstimated > BackupConfig.maxTotalExportSizeBytes
 
-        let manifestData = try Self.encoder.encode(bundle.manifest)
-        let metadataData = try Self.encoder.encode(bundle.metadata)
+        let backupID = UUID().uuidString
+        let dateStamp = Self.dateStamp()
+        let idSuffix = String(backupID.prefix(8))
+
+        if !needsMultiVolume {
+            // 单卷导出
+            let fileName = "MiLens-Backup-\(dateStamp)-\(idSuffix).\(BackupConfig.fileExtension)"
+            let fileURL = URL(fileURLWithPath: temporaryDirectory)
+                .appendingPathComponent(fileName)
+            let manifest = BackupManifest(
+                schemaVersion: BackupConfig.currentSchemaVersion,
+                appVersion: appVersion,
+                platform: "ios",
+                exportDate: Date(),
+                photoCount: bundle.photoSnaps.count,
+                petCount: bundle.petSnaps.count,
+                backupID: backupID,
+                volumeNumber: 1,
+                totalVolumes: 1)
+            let metadata = BackupMetadata(
+                pets: bundle.petSnaps,
+                photos: bundle.photoSnaps,
+                petEvents: bundle.eventSnaps)
+            try await writeSingleVolume(
+                manifest: manifest,
+                metadata: metadata,
+                photoFiles: bundle.photoFiles,
+                avatarFiles: bundle.avatarFiles,
+                to: fileURL,
+                progress: progress)
+            await progress(BackupProgress(current: 1, total: 1, phase: .done))
+            return BackupResult(fileURLs: [fileURL], manifest: manifest, metadata: metadata)
+        }
+
+        // 多卷导出：按 volumeTargetSizeBytes 贪心分组照片
+        let volumeGroups = Self.splitPhotoFilesIntoVolumes(
+            bundle.photoFiles,
+            bundle.photoSnaps,
+            target: BackupConfig.volumeTargetSizeBytes)
+        let totalVolumes = volumeGroups.count
+
+        await progress(BackupProgress(
+            current: 0, total: bundle.photoFiles.count, phase: .copyingPhotos))
+
+        var generatedURLs: [URL] = []
+        let globalProgressCounter = StreamProgressCounter(total: bundle.photoFiles.count)
+
+        do {
+            for (volIndex, group) in volumeGroups.enumerated() {
+                let volumeNumber = volIndex + 1
+                let fileName = "MiLens-Backup-\(dateStamp)-\(idSuffix)-part\(volumeNumber)of\(totalVolumes).\(BackupConfig.fileExtension)"
+                let fileURL = URL(fileURLWithPath: temporaryDirectory)
+                    .appendingPathComponent(fileName)
+
+                let manifest = BackupManifest(
+                    schemaVersion: BackupConfig.currentSchemaVersion,
+                    appVersion: appVersion,
+                    platform: "ios",
+                    exportDate: Date(),
+                    photoCount: group.snaps.count,
+                    petCount: bundle.petSnaps.count,
+                    backupID: backupID,
+                    volumeNumber: volumeNumber,
+                    totalVolumes: totalVolumes)
+                // 多卷：pets/events 全集在每卷重复（供恢复时从任一卷读取），
+                // photos 仅本卷子集。
+                let metadata = BackupMetadata(
+                    pets: bundle.petSnaps,
+                    photos: group.snaps,
+                    petEvents: bundle.eventSnaps)
+                // 头像只在卷 1 包含（体积小，集中管理）
+                let avatarFilesForVolume = volumeNumber == 1 ? bundle.avatarFiles : []
+                try await writeSingleVolume(
+                    manifest: manifest,
+                    metadata: metadata,
+                    photoFiles: group.files,
+                    avatarFiles: avatarFilesForVolume,
+                    to: fileURL,
+                    progress: { _ in },
+                    sharedProgressCounter: globalProgressCounter)
+                generatedURLs.append(fileURL)
+            }
+        } catch {
+            // 原子性：任一卷失败 → 删除全部已生成的卷文件
+            for url in generatedURLs {
+                try? await fileStorage.removeItem(at: url.path)
+            }
+            throw error
+        }
+
+        await progress(BackupProgress(current: 1, total: 1, phase: .done))
+        // manifest/metadata 取卷 1 的（全集）
+        let firstManifest = BackupManifest(
+            schemaVersion: BackupConfig.currentSchemaVersion,
+            appVersion: appVersion,
+            platform: "ios",
+            exportDate: Date(),
+            photoCount: bundle.photoSnaps.count,
+            petCount: bundle.petSnaps.count,
+            backupID: backupID,
+            volumeNumber: 1,
+            totalVolumes: totalVolumes)
+        let firstMetadata = BackupMetadata(
+            pets: bundle.petSnaps,
+            photos: bundle.photoSnaps,
+            petEvents: bundle.eventSnaps)
+        return BackupResult(fileURLs: generatedURLs, manifest: firstManifest, metadata: firstMetadata)
+    }
+
+    /// 将照片文件+快照按目标字节数贪心分组为多个卷。
+    /// 单张超大照片独占一卷（仍受 maxTotalExportSizeBytes 守卫）。
+    private static func splitPhotoFilesIntoVolumes(
+        _ photoFiles: [(zipPath: String, sourcePath: String)],
+        _ photoSnaps: [PhotoSnapshot],
+        target: Int
+    ) -> [(files: [(zipPath: String, sourcePath: String)], snaps: [PhotoSnapshot])] {
+        guard !photoFiles.isEmpty else {
+            return []
+        }
+        // photoFiles 与 photoSnaps 顺序一致（collectExportBundle 中同步生成）
+        var volumes: [(files: [(zipPath: String, sourcePath: String)], snaps: [PhotoSnapshot])] = []
+        var currentFiles: [(zipPath: String, sourcePath: String)] = []
+        var currentSnaps: [PhotoSnapshot] = []
+        var currentSize = 0
+
+        for (index, file) in photoFiles.enumerated() {
+            let snap = photoSnaps[index]
+            let snapSize = Int(snap.fileSize)
+            // 单张超大照片独占一卷
+            if snapSize > target {
+                // 先刷新当前卷
+                if !currentFiles.isEmpty {
+                    volumes.append((currentFiles, currentSnaps))
+                    currentFiles = []
+                    currentSnaps = []
+                    currentSize = 0
+                }
+                volumes.append(([file], [snap]))
+                continue
+            }
+            if currentSize + snapSize > target {
+                // 当前卷已满，开启新卷
+                volumes.append((currentFiles, currentSnaps))
+                currentFiles = [file]
+                currentSnaps = [snap]
+                currentSize = snapSize
+            } else {
+                currentFiles.append(file)
+                currentSnaps.append(snap)
+                currentSize += snapSize
+            }
+        }
+        if !currentFiles.isEmpty {
+            volumes.append((currentFiles, currentSnaps))
+        }
+        return volumes
+    }
+
+    /// 写入单个卷（单卷/多卷共用）。
+    /// `sharedProgressCounter` 非 nil 时用于多卷导出全局进度（跨卷累加）。
+    private func writeSingleVolume(
+        manifest: BackupManifest,
+        metadata: BackupMetadata,
+        photoFiles: [(zipPath: String, sourcePath: String)],
+        avatarFiles: [(zipPath: String, sourcePath: String)],
+        to fileURL: URL,
+        progress: @Sendable @MainActor (BackupProgress) -> Void,
+        sharedProgressCounter: StreamProgressCounter? = nil
+    ) async throws {
+        let manifestData = try Self.encoder.encode(manifest)
+        let metadataData = try Self.encoder.encode(metadata)
 
         var streamEntries: [ZipStreamEntry] = [
             ZipStreamEntry(path: BackupConfig.manifestFileName) { manifestData },
             ZipStreamEntry(path: BackupConfig.metadataFileName) { metadataData },
         ]
 
-        // 进度计数器（writeArchive 顺序处理 entries，counter 顺序递增）
-        let progressCounter = StreamProgressCounter(total: bundle.files.count)
-        // 导出总量守卫：防止大图库生成超 ZIP32 4GB 地址范围的不可恢复备份。
-        // manifest/metadata 体积极小，此处主要累计照片数据。
+        let allFiles = avatarFiles + photoFiles
+        let progressCounter = sharedProgressCounter ?? StreamProgressCounter(total: allFiles.count)
+        // 多卷模式由调用方控制进度，单卷模式在此发进度。
+        let isStandaloneProgress = sharedProgressCounter == nil
+
         let sizeGuard = ExportSizeGuard(maxBytes: BackupConfig.maxTotalExportSizeBytes)
 
-        for file in bundle.files {
+        for file in allFiles {
             guard fileStorage.fileExists(at: file.sourcePath) else {
-                // 文件缺失：跳过（DB 是事实源；元数据已记录，恢复时按缺失处理）
                 _ = progressCounter.next()
-                let current = progressCounter.value
-                await progress(BackupProgress(current: current, total: progressCounter.total, phase: .copyingPhotos))
+                if isStandaloneProgress {
+                    let current = progressCounter.value
+                    await progress(BackupProgress(current: current, total: progressCounter.total, phase: .copyingPhotos))
+                }
                 continue
             }
             let sourcePath = file.sourcePath
@@ -124,44 +301,38 @@ final class ZipBackupService: BackupService, @unchecked Sendable {
             streamEntries.append(ZipStreamEntry(path: zipPath) {
                 if Task.isCancelled { throw BackupServiceError.cancelled }
                 let data = try await fileStorageRef.read(at: sourcePath)
-                // 单文件大小检查
                 guard data.count <= BackupConfig.maxSingleEntrySizeBytes else {
                     throw BackupServiceError.backupTooLarge
                 }
-                // 总量检查（含 header/CD 开销的近似余量已留在 maxTotalExportSizeBytes 内）
                 try sizeGuard.add(data.count)
                 let current = progressCounter.next()
-                await progress(BackupProgress(current: current, total: progressCounter.total, phase: .copyingPhotos))
+                if isStandaloneProgress {
+                    await progress(BackupProgress(current: current, total: progressCounter.total, phase: .copyingPhotos))
+                }
                 return data
             })
         }
 
-        // 条目数检查（总量上限由 ExportSizeGuard 在逐条目累计时守护）
         guard streamEntries.count <= BackupConfig.maxEntryCount else {
             throw BackupServiceError.backupTooLarge
         }
 
-        // 写临时文件供 ShareSheet 分享。
-        // 时间戳 + UUID：同秒内连续导出不会得到相同路径，避免覆盖。
-        let fileName = "MiLens-Backup-\(Self.dateStamp())-\(UUID().uuidString.prefix(8)).\(BackupConfig.fileExtension)"
-        let fileURL = URL(fileURLWithPath: temporaryDirectory)
-            .appendingPathComponent(fileName)
-
-        await progress(BackupProgress(current: 0, total: 1, phase: .compressing))
+        if isStandaloneProgress {
+            await progress(BackupProgress(current: 0, total: 1, phase: .compressing))
+        }
         let output = try await fileStorage.makeOutputStream(at: fileURL.path)
         do {
             try await ZipWriter.writeArchive(entries: streamEntries, to: output)
             try await output.close()
         } catch {
             try? await output.close()
+            try? await fileStorage.removeItem(at: fileURL.path)
             throw error
         }
-
-        await progress(BackupProgress(current: 1, total: 1, phase: .done))
-        return BackupResult(fileURL: fileURL, manifest: bundle.manifest, metadata: bundle.metadata)
     }
 
     /// 收集元数据快照与待打包文件清单（MainActor——SwiftData ModelContext 隔离）。
+    /// 分卷导出/单卷导出共用此结果；卷分割在外层按 estimatedPhotoBytes 决策。
     @MainActor
     private func collectExportBundle(petIDs: [UUID]?) async throws -> ExportBundle {
         let allPets = try petRepo.getAllPets()
@@ -174,13 +345,13 @@ final class ZipBackupService: BackupService, @unchecked Sendable {
         }
 
         var petSnaps: [PetSnapshot] = []
-        var files: [(zipPath: String, sourcePath: String)] = []
+        var avatarFiles: [(zipPath: String, sourcePath: String)] = []
 
         for pet in selectedPets {
             let avatar = Self.resolveAvatar(for: pet, fileExists: { fileStorage.fileExists(at: $0) })
             petSnaps.append(Self.snapshot(pet: pet, avatarFileName: avatar?.fileName))
             if let avatar {
-                files.append((zipPath: "\(avatarsDirName)/\(avatar.fileName)",
+                avatarFiles.append((zipPath: "\(avatarsDirName)/\(avatar.fileName)",
                               sourcePath: avatar.sourcePath))
             }
         }
@@ -194,11 +365,14 @@ final class ZipBackupService: BackupService, @unchecked Sendable {
         }
 
         var photoSnaps: [PhotoSnapshot] = []
+        var photoFiles: [(zipPath: String, sourcePath: String)] = []
+        var estimatedPhotoBytes: Int64 = 0
         for photo in photos {
             let fileName = "\(photo.id.uuidString).\(Self.fileExtension(for: photo.uri))"
             photoSnaps.append(Self.snapshot(photo: photo, petID: photo.pet?.id, fileName: fileName))
-            files.append((zipPath: "\(BackupConfig.photosDirName)/\(fileName)",
+            photoFiles.append((zipPath: "\(BackupConfig.photosDirName)/\(fileName)",
                           sourcePath: photo.uri))
+            estimatedPhotoBytes += photo.fileSize
         }
 
         // 事件：选中宠物的全部纪念事件（含 notify/body/sourceType/isPinned/relatedPhotoID）
@@ -213,16 +387,13 @@ final class ZipBackupService: BackupService, @unchecked Sendable {
             }
         }
 
-        let manifest = BackupManifest(
-            schemaVersion: BackupConfig.currentSchemaVersion,
-            appVersion: appVersion,
-            platform: "ios",
-            exportDate: Date(),
-            photoCount: photoSnaps.count,
-            petCount: petSnaps.count)
-
-        let metadata = BackupMetadata(pets: petSnaps, photos: photoSnaps, petEvents: eventSnaps)
-        return ExportBundle(manifest: manifest, metadata: metadata, files: files)
+        return ExportBundle(
+            petSnaps: petSnaps,
+            eventSnaps: eventSnaps,
+            photoSnaps: photoSnaps,
+            photoFiles: photoFiles,
+            avatarFiles: avatarFiles,
+            estimatedPhotoBytes: estimatedPhotoBytes)
     }
 
     /// 分页拉取全部照片（避免改 Repository 协议新增 getAllPhotos）。
@@ -244,22 +415,25 @@ final class ZipBackupService: BackupService, @unchecked Sendable {
     // MARK: - 恢复
 
     func importBackup(
-        from url: URL,
+        from urls: [URL],
         progress: @Sendable @MainActor (RestoreProgress) -> Void
     ) async throws -> RestoreResult {
 
-        await progress(RestoreProgress(current: 0, total: 1, phase: .decompressing))
-        // security-scoped resource：DocumentPicker 选择的 iCloud/Files 文件需先获取访问权。
-        // startAccessing 返回 false 表示无需（本地沙盒文件），defer 守卫避免误 stop。
-        let didStartAccess = url.startAccessingSecurityScopedResource()
-        defer { if didStartAccess { url.stopAccessingSecurityScopedResource() } }
+        guard !urls.isEmpty else {
+            throw BackupServiceError.invalidFormat
+        }
 
-        // 流式输入：不一次性加载整个 ZIP，用 InputStream 随机访问。
-        let input: any ZipInputStream
-        do {
-            input = try await fileStorage.makeInputStream(at: url.path)
-        } catch {
-            throw BackupServiceError.readFailed(error.localizedDescription)
+        await progress(RestoreProgress(current: 0, total: 1, phase: .decompressing))
+
+        // security-scoped resource：DocumentPicker 选择的 iCloud/Files 文件需先获取访问权。
+        var didStartAccesses: [Bool] = []
+        for url in urls {
+            didStartAccesses.append(url.startAccessingSecurityScopedResource())
+        }
+        defer {
+            for (url, didStart) in zip(urls, didStartAccesses) where didStart {
+                url.stopAccessingSecurityScopedResource()
+            }
         }
 
         // 原子性保证：跟踪本次写入的所有文件路径，任意阶段失败时统一清理，
@@ -267,82 +441,90 @@ final class ZipBackupService: BackupService, @unchecked Sendable {
         var writtenPaths: [String] = []
 
         do {
-            // 流式读取 central directory：只读索引，不加载条目数据
-            let records = try await ZipReader.readCentralDirectory(from: input)
+            // 阶段 1：读取并校验全部卷的元数据
+            let volumes = try await readAndValidateVolumes(urls: urls, progress: progress)
 
-            // 基于 records 做大小校验（不加载数据本体）
-            try Self.validateRecords(
-                records,
-                maxTotalUncompressedSize: BackupConfig.maxBackupSizeBytes,
-                maxEntryCount: BackupConfig.maxEntryCount,
-                maxSingleEntrySize: BackupConfig.maxSingleEntrySizeBytes)
-
-            // 构建路径 → record 映射（保留首次出现，静默忽略重复，不崩溃）
-            var recordMap: [String: ZipReader.ZipEntryRecord] = [:]
-            for record in records {
-                if recordMap[record.path] == nil {
-                    recordMap[record.path] = record
-                }
-            }
-
-            await progress(RestoreProgress(current: 0, total: 1, phase: .validating))
-
-            // 读 manifest + metadata（小条目，直接读入内存）
-            guard let manifestRecord = recordMap[BackupConfig.manifestFileName] else {
-                throw BackupServiceError.invalidFormat
-            }
-            let manifestData = try await ZipReader.readEntryData(manifestRecord, from: input)
-            let manifest = try Self.decoder.decode(BackupManifest.self, from: manifestData)
-            guard manifest.schemaVersion == BackupConfig.currentSchemaVersion else {
-                throw BackupServiceError.unsupportedVersion(
-                    found: manifest.schemaVersion,
-                    supported: BackupConfig.currentSchemaVersion)
-            }
-
-            guard let metadataRecord = recordMap[BackupConfig.metadataFileName] else {
-                throw BackupServiceError.invalidFormat
-            }
-            let metadataData = try await ZipReader.readEntryData(metadataRecord, from: input)
-            let metadata = try Self.decoder.decode(BackupMetadata.self, from: metadataData)
+            // 合并 metadata：photos 取并集，pets/events 取任一卷（每卷重复包含全集）。
+            let mergedPhotos = volumes.flatMap { $0.metadata.photos }
+            let mergedPets = volumes.first?.metadata.pets ?? []
+            let mergedEvents = volumes.first?.metadata.petEvents ?? []
+            let mergedMetadata = BackupMetadata(
+                pets: mergedPets, photos: mergedPhotos, petEvents: mergedEvents)
 
             // 预校验（MainActor）：在写文件前确定哪些照片/宠物会被实际导入。
-            let prevalidated = try await prevalidateImport(metadata: metadata)
+            let prevalidated = try await prevalidateImport(metadata: mergedMetadata)
 
-            await progress(RestoreProgress(current: 0, total: metadata.photos.count, phase: .copyingFiles))
+            await progress(RestoreProgress(
+                current: 0, total: mergedPhotos.count, phase: .copyingFiles))
             var photoPathByID: [UUID: String] = [:]
             var written = 0
-
-            // 流式拷贝照片文件：分块读写（峰值≈64KB），不一次性加载全部条目数据。
-            // processedPhotoIDs 防止备份内部重复 id 的第二条也写文件
-            //（prevalidated.photos 是 Set<UUID>，重复 id 只存一份，
-            // 但遍历 metadata.photos 会遇到两条同 id 记录）。
             var processedPhotoIDs: Set<UUID> = []
-            for photoSnap in metadata.photos {
+
+            // 阶段 2：按卷拷贝照片文件
+            for volume in volumes {
                 if Task.isCancelled { throw BackupServiceError.cancelled }
-                guard prevalidated.photos.contains(photoSnap.id) else {
+                let input = volume.input
+                let recordMap = volume.recordMap
+
+                for photoSnap in volume.metadata.photos {
+                    if Task.isCancelled { throw BackupServiceError.cancelled }
+                    guard prevalidated.photos.contains(photoSnap.id) else {
+                        written += 1
+                        await progress(RestoreProgress(
+                            current: written, total: mergedPhotos.count, phase: .copyingFiles))
+                        continue
+                    }
+                    // 备份内部重复 id → 只为首条写文件
+                    guard !processedPhotoIDs.contains(photoSnap.id) else {
+                        written += 1
+                        await progress(RestoreProgress(
+                            current: written, total: mergedPhotos.count, phase: .copyingFiles))
+                        continue
+                    }
+                    processedPhotoIDs.insert(photoSnap.id)
+                    // 路径穿越防御：拒绝非纯文件名
+                    if Self.isSafeFileName(photoSnap.photoFileName) {
+                        let zipPath = "\(BackupConfig.photosDirName)/\(photoSnap.photoFileName)"
+                        if let record = recordMap[zipPath] {
+                            let dest = "\(sandboxDir)/\(photoSnap.photoFileName)"
+                            if !fileStorage.fileExists(at: dest) {
+                                let output = try await fileStorage.makeOutputStream(at: dest)
+                                writtenPaths.append(dest)
+                                do {
+                                    try await ZipReader.copyEntry(
+                                        record, from: input, to: output,
+                                        chunkSize: BackupConfig.backupChunkSizeBytes)
+                                    try await output.close()
+                                } catch {
+                                    try? await output.close()
+                                    throw error
+                                }
+                                photoPathByID[photoSnap.id] = dest
+                            }
+                        }
+                    }
                     written += 1
-                    await progress(RestoreProgress(current: written, total: metadata.photos.count, phase: .copyingFiles))
-                    continue
+                    await progress(RestoreProgress(
+                        current: written, total: mergedPhotos.count, phase: .copyingFiles))
                 }
-                // 备份内部重复 id → 只为首条写文件（第二条由 applyImport 的 DB 检查跳过）
-                guard !processedPhotoIDs.contains(photoSnap.id) else {
-                    written += 1
-                    await progress(RestoreProgress(current: written, total: metadata.photos.count, phase: .copyingFiles))
-                    continue
-                }
-                processedPhotoIDs.insert(photoSnap.id)
-                // 路径穿越防御：拒绝非纯文件名
-                if Self.isSafeFileName(photoSnap.photoFileName) {
-                    let zipPath = "\(BackupConfig.photosDirName)/\(photoSnap.photoFileName)"
+            }
+
+            // 头像拷贝：只需从任意包含头像的卷读取（多卷时仅卷 1）
+            for volume in volumes {
+                if Task.isCancelled { throw BackupServiceError.cancelled }
+                let input = volume.input
+                let recordMap = volume.recordMap
+
+                for petSnap in mergedMetadata.pets {
+                    guard prevalidated.pets.contains(petSnap.id),
+                          let avatarName = petSnap.avatarFileName,
+                          prevalidated.validAvatarFileNames.contains(avatarName),
+                          Self.isSafeFileName(avatarName) else { continue }
+                    let zipPath = "\(avatarsDirName)/\(avatarName)"
                     if let record = recordMap[zipPath] {
-                        let dest = "\(sandboxDir)/\(photoSnap.photoFileName)"
-                        // 目标已存在时不覆盖，且不绑定到该未知文件——
-                        // 先前文件的内容不可信（可能是上一轮恢复残留或跨平台冲突），
-                        // 将 uri 留空由 DB 事实源 + auditOrphans 占位处理。
+                        let dest = "\(sandboxDir)/\(avatarsDirName)/\(avatarName)"
                         if !fileStorage.fileExists(at: dest) {
                             let output = try await fileStorage.makeOutputStream(at: dest)
-                            // 创建输出流后立即记录路径：copyEntry 中途失败时 output.close()
-                            // 仍会保留已写入的部分文件，必须纳入清理列表避免孤儿残留。
                             writtenPaths.append(dest)
                             do {
                                 try await ZipReader.copyEntry(
@@ -353,56 +535,159 @@ final class ZipBackupService: BackupService, @unchecked Sendable {
                                 try? await output.close()
                                 throw error
                             }
-                            // 仅在本次实际写入后才记录路径，确保 DB 绑定到可信内容。
-                            photoPathByID[photoSnap.id] = dest
                         }
                     }
                 }
-                written += 1
-                await progress(RestoreProgress(current: written, total: metadata.photos.count, phase: .copyingFiles))
+                // 头像只在卷 1，拷贝完跳出
+                break
             }
 
-            // 流式拷贝头像文件
-            for petSnap in metadata.pets {
-                if Task.isCancelled { throw BackupServiceError.cancelled }
-                guard prevalidated.pets.contains(petSnap.id),
-                      let avatarName = petSnap.avatarFileName,
-                      Self.isSafeFileName(avatarName) else { continue }
-                let zipPath = "\(avatarsDirName)/\(avatarName)"
-                if let record = recordMap[zipPath] {
-                    let dest = "\(sandboxDir)/\(avatarsDirName)/\(avatarName)"
-                    if !fileStorage.fileExists(at: dest) {
-                        let output = try await fileStorage.makeOutputStream(at: dest)
-                        // 创建输出流后立即记录路径（与照片路径一致，防半截文件残留）。
-                        writtenPaths.append(dest)
-                        do {
-                            try await ZipReader.copyEntry(
-                                record, from: input, to: output,
-                                chunkSize: BackupConfig.backupChunkSizeBytes)
-                            try await output.close()
-                        } catch {
-                            try? await output.close()
-                            throw error
-                        }
-                    }
-                }
+            // 关闭全部输入流后再合并元数据
+            for volume in volumes {
+                try? await volume.input.close()
             }
-
-            // 所有文件读取完成，关闭输入流后再合并元数据
-            try? await input.close()
 
             await progress(RestoreProgress(current: 0, total: 1, phase: .importingMetadata))
-            let result = try await applyImport(metadata: metadata, photoPathByID: photoPathByID)
+            let result = try await applyImport(
+                metadata: mergedMetadata,
+                photoPathByID: photoPathByID,
+                importablePhotoIDs: prevalidated.photos,
+                validAvatarFileNames: prevalidated.validAvatarFileNames)
 
             await progress(RestoreProgress(current: 1, total: 1, phase: .done))
             return result
         } catch {
-            // 关闭输入流 + 清理本次写入的文件，避免孤儿残留
-            try? await input.close()
+            // 清理本次写入的文件，避免孤儿残留
             for path in writtenPaths {
                 try? await fileStorage.removeItem(at: path)
             }
             throw error
+        }
+    }
+
+    /// 读取并校验全部卷：打开输入流、读 CD、校验大小、读 manifest+metadata、验证卷集完整性。
+    /// 返回按卷号排序的卷信息列表（含仍打开的输入流，供后续文件拷贝使用）。
+    private func readAndValidateVolumes(
+        urls: [URL],
+        progress: @Sendable @MainActor (RestoreProgress) -> Void
+    ) async throws -> [RestoreVolume] {
+        struct RawVolume {
+            let url: URL
+            let manifest: BackupManifest
+            let metadata: BackupMetadata
+            let input: any ZipInputStream
+            let recordMap: [String: ZipReader.ZipEntryRecord]
+        }
+
+        var rawVolumes: [RawVolume] = []
+        for url in urls {
+            let input: any ZipInputStream
+            do {
+                input = try await fileStorage.makeInputStream(at: url.path)
+            } catch {
+                throw BackupServiceError.readFailed(error.localizedDescription)
+            }
+            do {
+                let records = try await ZipReader.readCentralDirectory(from: input)
+                try Self.validateRecords(
+                    records,
+                    maxTotalUncompressedSize: BackupConfig.maxBackupSizeBytes,
+                    maxEntryCount: BackupConfig.maxEntryCount,
+                    maxSingleEntrySize: BackupConfig.maxSingleEntrySizeBytes)
+
+                var recordMap: [String: ZipReader.ZipEntryRecord] = [:]
+                for record in records {
+                    if recordMap[record.path] == nil {
+                        recordMap[record.path] = record
+                    }
+                }
+
+                await progress(RestoreProgress(current: 0, total: urls.count, phase: .validating))
+
+                guard let manifestRecord = recordMap[BackupConfig.manifestFileName] else {
+                    throw BackupServiceError.invalidFormat
+                }
+                let manifestData = try await ZipReader.readEntryData(manifestRecord, from: input)
+                let manifest = try Self.decoder.decode(BackupManifest.self, from: manifestData)
+                guard manifest.schemaVersion == BackupConfig.currentSchemaVersion else {
+                    throw BackupServiceError.unsupportedVersion(
+                        found: manifest.schemaVersion,
+                        supported: BackupConfig.currentSchemaVersion)
+                }
+
+                guard let metadataRecord = recordMap[BackupConfig.metadataFileName] else {
+                    throw BackupServiceError.invalidFormat
+                }
+                let metadataData = try await ZipReader.readEntryData(metadataRecord, from: input)
+                let metadata = try Self.decoder.decode(BackupMetadata.self, from: metadataData)
+
+                rawVolumes.append(RawVolume(
+                    url: url, manifest: manifest, metadata: metadata,
+                    input: input, recordMap: recordMap))
+            } catch {
+                try? await input.close()
+                // 清理已打开的输入流
+                for v in rawVolumes { try? await v.input.close() }
+                throw error
+            }
+        }
+
+        // 卷集完整性校验
+        guard let first = rawVolumes.first else {
+            throw BackupServiceError.invalidFormat
+        }
+
+        let isMultiVolume = first.manifest.backupID != nil
+            && first.manifest.totalVolumes != nil
+            && first.manifest.totalVolumes! > 1
+
+        if isMultiVolume {
+            // 多卷模式：先校验 backupID 一致，再校验卷号完整覆盖。
+            // 先查 backupID 可让用户区分「选错了导出」与「少选了卷」两种错误。
+            let backupID = first.manifest.backupID!
+            let expectedTotal = first.manifest.totalVolumes!
+            for v in rawVolumes {
+                guard v.manifest.backupID == backupID else {
+                    throw BackupServiceError.mismatchedBackupID
+                }
+            }
+            guard rawVolumes.count == expectedTotal else {
+                throw BackupServiceError.incompleteVolumeSet(
+                    found: rawVolumes.count, expected: expectedTotal)
+            }
+            var seenVolumeNumbers = Set<Int>()
+            for v in rawVolumes {
+                guard let volNum = v.manifest.volumeNumber,
+                      volNum >= 1, volNum <= expectedTotal else {
+                    throw BackupServiceError.invalidFormat
+                }
+                guard !seenVolumeNumbers.contains(volNum) else {
+                    throw BackupServiceError.invalidFormat
+                }
+                seenVolumeNumbers.insert(volNum)
+            }
+            // 卷号须覆盖 1...expectedTotal
+            guard seenVolumeNumbers.count == expectedTotal,
+                  (1...expectedTotal).allSatisfy({ seenVolumeNumbers.contains($0) }) else {
+                throw BackupServiceError.incompleteVolumeSet(
+                    found: seenVolumeNumbers.count, expected: expectedTotal)
+            }
+            // 按卷号排序
+            rawVolumes.sort { ($0.manifest.volumeNumber ?? 0) < ($1.manifest.volumeNumber ?? 0) }
+        } else {
+            // 单卷模式（旧格式无 backupID，或新格式 volumeNumber=1/totalVolumes=1）
+            // urls.count 必须为 1
+            guard rawVolumes.count == 1 else {
+                throw BackupServiceError.invalidFormat
+            }
+        }
+
+        return rawVolumes.map {
+            RestoreVolume(
+                manifest: $0.manifest,
+                metadata: $0.metadata,
+                input: $0.input,
+                recordMap: $0.recordMap)
         }
     }
 
@@ -431,22 +716,32 @@ final class ZipBackupService: BackupService, @unchecked Sendable {
     /// 预校验：在写文件前确定哪些照片/宠物会被实际导入（MainActor）。
     ///
     /// 双层去重：
-    /// 1. **备份包内部**——同一备份中出现重复 id / originalURI / photoFileName 时，
-    ///    只取首条导入。防止第二条记录写入文件后因重复被跳过留下孤儿文件，
+    /// 1. **备份包内部**——同一备份中出现重复 id / originalURI / photoFileName / avatarFileName
+    ///    时，只取首条导入。防止第二条记录写入文件后因重复被跳过留下孤儿文件，
     ///    或多条 Photo 共用同一文件路径导致删除一条误删另一条。
     /// 2. **与现有 DB**——同 id 宠物 / 同 id 或同 originalURI 照片已存在时跳过。
     ///
     /// 返回可导入集合——文件复制阶段仅写入这些记录的文件。
+    /// `importablePhotoIDs` 也传给 applyImport，确保被预校验过滤的照片不会被插入 DB（P1 修复）。
+    /// `validAvatarFileNames` 防止两宠物共用同一头像路径（P1/P2 修复）。
     @MainActor
     private func prevalidateImport(
         metadata: BackupMetadata
-    ) async throws -> (photos: Set<UUID>, pets: Set<UUID>) {
+    ) async throws -> PrevalidationResult {
         var importablePets: Set<UUID> = []
+        var validAvatarFileNames: Set<String> = []
         var seenPetIDs: Set<UUID> = []
+        var seenAvatarFileNames: Set<String> = []
         for petSnap in metadata.pets {
             // 备份内部重复 pet id → 只导入首条
             guard !seenPetIDs.contains(petSnap.id) else { continue }
             seenPetIDs.insert(petSnap.id)
+            // 备份内部重复 avatarFileName → 只让首条宠物使用（防两宠物指向同一头像文件）
+            if let avatarName = petSnap.avatarFileName, !avatarName.isEmpty {
+                guard !seenAvatarFileNames.contains(avatarName) else { continue }
+                seenAvatarFileNames.insert(avatarName)
+                validAvatarFileNames.insert(avatarName)
+            }
             if try petRepo.getPet(id: petSnap.id) == nil {
                 importablePets.insert(petSnap.id)
             }
@@ -471,15 +766,23 @@ final class ZipBackupService: BackupService, @unchecked Sendable {
             if try photoRepo.getPhotoByOriginalURI(photoSnap.originalURI) != nil { continue }
             importablePhotos.insert(photoSnap.id)
         }
-        return (importablePhotos, importablePets)
+        return PrevalidationResult(
+            photos: importablePhotos,
+            pets: importablePets,
+            validAvatarFileNames: validAvatarFileNames)
     }
 
     /// 合并导入元数据（MainActor）。同 id 宠物 / 同 id 或同 originalURI 照片跳过，不覆盖。
     /// 原子性：任意阶段失败时回滚已插入的记录，避免半成品残留。
+    ///
+    /// `importablePhotoIDs` 确保被预校验过滤的照片（重复 photoFileName 等）不会插入 DB（P1 修复）。
+    /// `validAvatarFileNames` 确保冲突头像不会绑定到错误宠物（P1/P2 修复）。
     @MainActor
     private func applyImport(
         metadata: BackupMetadata,
-        photoPathByID: [UUID: String]
+        photoPathByID: [UUID: String],
+        importablePhotoIDs: Set<UUID>,
+        validAvatarFileNames: Set<String>
     ) async throws -> RestoreResult {
         var importedPets = 0
         var importedPhotos = 0
@@ -499,7 +802,9 @@ final class ZipBackupService: BackupService, @unchecked Sendable {
                     skipped += 1
                     continue
                 }
-                let pet = Self.recreate(pet: petSnap, sandboxDir: sandboxDir)
+                let pet = Self.recreate(
+                    pet: petSnap, sandboxDir: sandboxDir,
+                    validAvatarFileNames: validAvatarFileNames)
                 try petRepo.insertPet(pet)
                 petByID[petSnap.id] = pet
                 insertedPets.append(pet)
@@ -535,6 +840,11 @@ final class ZipBackupService: BackupService, @unchecked Sendable {
             var affectedPetIDs: Set<UUID> = []
             for photoSnap in metadata.photos {
                 if Task.isCancelled { throw BackupServiceError.cancelled }
+                // 预校验过滤的照片（重复 photoFileName 等）不插入 DB（P1 修复）。
+                guard importablePhotoIDs.contains(photoSnap.id) else {
+                    skipped += 1
+                    continue
+                }
                 // 双重校验（安全网）：预校验已过滤，但 applyImport 独立调用时仍需保护
                 if try photoRepo.getPhoto(id: photoSnap.id) != nil
                     || try photoRepo.getPhotoByOriginalURI(photoSnap.originalURI) != nil {
@@ -693,11 +1003,15 @@ final class ZipBackupService: BackupService, @unchecked Sendable {
             isBest: photo.isBest)
     }
 
-    private static func recreate(pet snap: PetSnapshot, sandboxDir: String) -> Pet {
+    private static func recreate(
+        pet snap: PetSnapshot, sandboxDir: String,
+        validAvatarFileNames: Set<String>
+    ) -> Pet {
         let species = Self.parseSpecies(snap.species)
         let gender = Self.parseGender(snap.gender)
         let avatarPath: String
         if let avatarName = snap.avatarFileName,
+           validAvatarFileNames.contains(avatarName),
            Self.isSafeFileName(avatarName) {
             avatarPath = "\(sandboxDir)/\(avatarsDirName)/\(avatarName)"
         } else {
@@ -765,10 +1079,33 @@ final class ZipBackupService: BackupService, @unchecked Sendable {
 
 // MARK: - 导出包内部模型
 
+/// 导出收集结果：宠物/事件快照（全集）+ 照片快照（全集）+ 文件清单。
+/// 分卷导出时按 volumePhotoGroups 分割照片，头像只在卷 1 包含。
 private struct ExportBundle {
+    let petSnaps: [PetSnapshot]
+    let eventSnaps: [PetEventSnapshot]
+    let photoSnaps: [PhotoSnapshot]
+    /// 照片文件清单（zipPath → sourcePath）。
+    let photoFiles: [(zipPath: String, sourcePath: String)]
+    /// 头像文件清单（每卷都包含，体积小）。
+    let avatarFiles: [(zipPath: String, sourcePath: String)]
+    /// 所有照片的预估总字节数（基于 Photo.fileSize）。
+    let estimatedPhotoBytes: Int64
+}
+
+/// 预校验结果：确定哪些照片/宠物会被实际导入，以及有效的头像文件名集合。
+struct PrevalidationResult: Sendable {
+    let photos: Set<UUID>
+    let pets: Set<UUID>
+    let validAvatarFileNames: Set<String>
+}
+
+/// 恢复时单个卷的读取结果（输入流保持打开，供后续文件拷贝使用）。
+struct RestoreVolume {
     let manifest: BackupManifest
     let metadata: BackupMetadata
-    let files: [(zipPath: String, sourcePath: String)]
+    let input: any ZipInputStream
+    let recordMap: [String: ZipReader.ZipEntryRecord]
 }
 
 /// 线程安全进度计数器（流式导出闭包按序递增，供进度回调使用）。

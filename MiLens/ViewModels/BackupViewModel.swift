@@ -31,7 +31,7 @@ final class BackupViewModel {
         case estimating
         case readyToExport(BackupEstimate)  // 预估完成，待用户确认
         case inProgress(Double, BackupPhase) // fraction 0…1 + 当前阶段
-        case done(URL)                       // 临时备份文件，待 ShareSheet 分享
+        case done([URL])                    // 临时备份文件列表，待 ShareSheet 分享
         case failed(String)
     }
 
@@ -115,7 +115,7 @@ final class BackupViewModel {
             }
             // 记录成功导出时间，供设置页副标题 / 首页横幅 / 定期通知判断使用。
             defaults.set(Date(), forKey: Self.lastBackupDateKey)
-            exportState = .done(result.fileURL)
+            exportState = .done(result.fileURLs)
         } catch {
             exportState = .failed(error.localizedDescription)
         }
@@ -125,11 +125,11 @@ final class BackupViewModel {
 
     // MARK: - 恢复
 
-    func importBackup(from url: URL) async {
+    func importBackup(from urls: [URL]) async {
         guard !isRestoring, !isExporting else { return }
         restoreState = .inProgress(0, .decompressing)
         do {
-            let result = try await backupService.importBackup(from: url) { [weak self] progress in
+            let result = try await backupService.importBackup(from: urls) { [weak self] progress in
                 self?.restoreState = .inProgress(progress.fraction, progress.phase)
             }
             restoreState = .done(result)

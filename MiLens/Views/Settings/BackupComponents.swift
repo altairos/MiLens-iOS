@@ -5,11 +5,15 @@ import SwiftUI
 
 // MARK: - 备份导出确认对话框
 
-/// 导出前展示预估规模（N 个档案、M 张照片），让用户确认后再打包。
+/// 导出前展示预估规模（N 个档案、M 张照片、预计大小），让用户确认后再打包。
 /// 避免大库无声产出巨大 ZIP，用户毫无预期。
 struct BackupConfirmSheet: View {
     let estimate: BackupEstimate
     let onConfirm: () -> Void
+
+    private var formattedSize: String {
+        ByteCountFormatter.string(fromByteCount: estimate.estimatedBytes, countStyle: .file)
+    }
 
     var body: some View {
         NavigationStack {
@@ -32,6 +36,12 @@ struct BackupConfirmSheet: View {
                         Image(systemName: "photo.on.rectangle")
                             .foregroundStyle(Color.milensTextSecondary)
                         Text(String(localized: "settings.backup.confirmPhotos \(estimate.photoCount)"))
+                        Spacer()
+                    }
+                    HStack(spacing: Spacing.sm) {
+                        Image(systemName: "externaldrive")
+                            .foregroundStyle(Color.milensTextSecondary)
+                        Text(String(localized: "settings.backup.confirmSize \(formattedSize)"))
                         Spacer()
                     }
                 }
@@ -106,9 +116,11 @@ struct ExportProgressOverlay: View {
 // MARK: - 备份导出分享面板
 
 /// 导出完成后展示：提供 ShareLink 让用户选择保存位置（Files/iCloud Drive/AirDrop）。
-/// 不联网——系统 ShareSheet 完全由用户掌控。
+/// 不联网——系统 ShareSheet 完全由用户掌控。多卷时一次分享全部文件。
 struct BackupShareSheet: View {
-    let url: URL
+    let urls: [URL]
+
+    private var isMultiVolume: Bool { urls.count > 1 }
 
     var body: some View {
         NavigationStack {
@@ -124,13 +136,22 @@ struct BackupShareSheet: View {
                     .foregroundStyle(Color.milensTextSecondary)
                     .multilineTextAlignment(.center)
 
+                // 多卷提示：告知用户须保存全部分卷文件
+                if isMultiVolume {
+                    Text(String(localized: "settings.backup.multiVolumeHint \(urls.count)"))
+                        .font(.caption)
+                        .foregroundStyle(Color.milensWarning)
+                        .multilineTextAlignment(.center)
+                        .padding(.top, Spacing.xs)
+                }
+
                 // 导出完成也提示：电脑上改名 .zip 即可解压查看照片和元数据
                 Text(String(localized: "settings.backup.zipHint"))
                     .font(.caption2)
                     .foregroundStyle(Color.milensTextTertiary)
                     .multilineTextAlignment(.center)
                     .padding(.top, Spacing.xs)
-                ShareLink(item: url) {
+                ShareLink(items: urls) {
                     Label(String(localized: "settings.backup.share"), systemImage: "square.and.arrow.up")
                         .frame(maxWidth: .infinity)
                 }

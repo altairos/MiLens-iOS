@@ -3551,6 +3551,17 @@
         }
       }
     },
+    "settings.backup.confirmSize %@" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "预计大小：%1$@"
+          }
+        }
+      }
+    },
     "settings.backup.confirmTitle" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -3569,6 +3580,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "备份导出"
+          }
+        }
+      }
+    },
+    "settings.backup.multiVolumeHint %lld" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "本次导出分为 %1$lld 个分卷文件，请全部保存"
           }
         }
       }

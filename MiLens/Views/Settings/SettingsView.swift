@@ -142,8 +142,8 @@ struct SettingsView: View {
             get: { if case .done = backupVM?.exportState { return true } else { return false } },
             set: { if !$0 { backupVM?.resetExport() } }
         )) {
-            if case .done(let url) = backupVM?.exportState {
-                BackupShareSheet(url: url)
+            if case .done(let urls) = backupVM?.exportState {
+                BackupShareSheet(urls: urls)
             }
         }
         // 导出失败提示
@@ -163,14 +163,15 @@ struct SettingsView: View {
             }
         }
         // 恢复文件选择器（限定 .milensbackup；.item 作为兑底以便旧版系统）
+        // allowsMultipleSelection=true：支持多卷分卷备份选择全部分卷文件
         .fileImporter(
             isPresented: $showRestoreImporter,
             allowedContentTypes: [milensBackupType, .item],
-            allowsMultipleSelection: false
+            allowsMultipleSelection: true
         ) { result in
             switch result {
             case .success(let urls):
-                if let url = urls.first { Task { await backupVM?.importBackup(from: url) } }
+                if !urls.isEmpty { Task { await backupVM?.importBackup(from: urls) } }
             case .failure:
                 break
             }

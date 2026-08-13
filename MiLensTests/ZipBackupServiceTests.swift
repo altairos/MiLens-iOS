@@ -100,8 +100,8 @@ final class ZipBackupServiceTests: XCTestCase {
         let (service, _, _, fs, _) = makeService(pets: [pet])
         let result = try await service.exportBackup(petIDs: nil, progress: { _ in })
 
-        XCTAssertTrue(fs.fileExists(at: result.fileURL.path), "导出后临时文件必须存在")
-        let data = try await fs.read(at: result.fileURL.path)
+        XCTAssertTrue(fs.fileExists(at: result.fileURLs[0].path), "导出后临时文件必须存在")
+        let data = try await fs.read(at: result.fileURLs[0].path)
         XCTAssertFalse(data.isEmpty, "备份文件不得为空")
         XCTAssertEqual(result.manifest.petCount, 1)
         XCTAssertEqual(result.manifest.schemaVersion, BackupConfig.currentSchemaVersion)
@@ -115,8 +115,8 @@ final class ZipBackupServiceTests: XCTestCase {
         // 同秒内连续导出两次——文件名含 UUID 后缀不得冲突
         let result1 = try await service.exportBackup(petIDs: nil, progress: { _ in })
         let result2 = try await service.exportBackup(petIDs: nil, progress: { _ in })
-        XCTAssertNotEqual(result1.fileURL.lastPathComponent,
-                          result2.fileURL.lastPathComponent,
+        XCTAssertNotEqual(result1.fileURLs[0].lastPathComponent,
+                          result2.fileURLs[0].lastPathComponent,
                           "同秒内连续导出须得到不同文件名（含 UUID 后缀）")
     }
 
@@ -127,7 +127,7 @@ final class ZipBackupServiceTests: XCTestCase {
         fs.preset(Data([0x01, 0x02, 0x03]), at: "/src/a.jpg")
 
         let result = try await service.exportBackup(petIDs: nil, progress: { _ in })
-        let zipData = try await fs.read(at: result.fileURL.path)
+        let zipData = try await fs.read(at: result.fileURLs[0].path)
         let entries = try ZipReader.extract(zipData)
         let paths = Set(entries.map(\.path))
 
@@ -154,7 +154,7 @@ final class ZipBackupServiceTests: XCTestCase {
 
         // 目标空库恢复（共享 fs 才能读到导出的备份文件）
         let (target, tPetRepo, tPhotoRepo, tFs, _) = makeService(fileStorage: sharedFS)
-        let restoreResult = try await target.importBackup(from: result.fileURL, progress: { _ in })
+        let restoreResult = try await target.importBackup(from: [result.fileURLs[0]], progress: { _ in })
 
         XCTAssertEqual(restoreResult.importedPets, 1)
         XCTAssertEqual(restoreResult.importedPhotos, 1)
@@ -192,7 +192,7 @@ final class ZipBackupServiceTests: XCTestCase {
         let result = try await source.exportBackup(petIDs: nil, progress: { _ in })
 
         let (target, tPetRepo, _, _, _) = makeService(fileStorage: sharedFS)
-        _ = try await target.importBackup(from: result.fileURL, progress: { _ in })
+        _ = try await target.importBackup(from: [result.fileURLs[0]], progress: { _ in })
 
         let restoredEvent = try tPetRepo.getAllPets().first?.events.first
         XCTAssertNotNil(restoredEvent)
@@ -223,7 +223,7 @@ final class ZipBackupServiceTests: XCTestCase {
         let result = try await source.exportBackup(petIDs: nil, progress: { _ in })
 
         let (target, _, tPhotoRepo, _, _) = makeService(fileStorage: sharedFS)
-        _ = try await target.importBackup(from: result.fileURL, progress: { _ in })
+        _ = try await target.importBackup(from: [result.fileURLs[0]], progress: { _ in })
 
         let restoredPhoto = try tPhotoRepo.getPhotosPage(offset: 0, limit: 10).first
         XCTAssertNotNil(restoredPhoto)
@@ -299,7 +299,7 @@ final class ZipBackupServiceTests: XCTestCase {
             temporaryDirectory: "/test-tmp-\(UUID().uuidString)")
 
         do {
-            _ = try await target.importBackup(from: result.fileURL, progress: { _ in })
+            _ = try await target.importBackup(from: [result.fileURLs[0]], progress: { _ in })
             XCTFail("DB 失败时应抛错")
         } catch {
             // 预期抛错——验证文件已清理
@@ -336,7 +336,7 @@ final class ZipBackupServiceTests: XCTestCase {
             temporaryDirectory: "/test-tmp-\(UUID().uuidString)")
 
         do {
-            _ = try await target.importBackup(from: result.fileURL, progress: { _ in })
+            _ = try await target.importBackup(from: [result.fileURLs[0]], progress: { _ in })
             XCTFail("事件持久化（updatePet）失败时应抛错")
         } catch {
             // 预期抛错
@@ -366,7 +366,7 @@ final class ZipBackupServiceTests: XCTestCase {
         let result = try await source.exportBackup(petIDs: nil, progress: { _ in })
 
         // 读取 ZIP 数据，定位 photo 数据区偏移
-        var zipData = try await sharedFS.read(at: result.fileURL.path)
+        var zipData = try await sharedFS.read(at: result.fileURLs[0].path)
         let records = try await ZipReader.readCentralDirectory(
             from: MockInputStream(data: zipData))
         let photoRecord = try XCTUnwrap(
@@ -375,12 +375,12 @@ final class ZipBackupServiceTests: XCTestCase {
         // 篡改 photo 数据首字节（保持长度不变）→ CRC 不匹配 → copyEntry 抛 crcMismatch
         let dataOffset = Int(photoRecord.dataOffset)
         zipData[dataOffset] ^= 0xFF
-        try await sharedFS.write(zipData, to: result.fileURL.path)
+        try await sharedFS.write(zipData, to: result.fileURLs[0].path)
 
         // 目标空库恢复：copyEntry 失败时应清理半截文件
         let (target, _, _, _, sandboxDir) = makeService(fileStorage: sharedFS)
         do {
-            _ = try await target.importBackup(from: result.fileURL, progress: { _ in })
+            _ = try await target.importBackup(from: [result.fileURLs[0]], progress: { _ in })
             XCTFail("CRC 不匹配时应抛错")
         } catch {
             // 预期抛错
@@ -404,7 +404,7 @@ final class ZipBackupServiceTests: XCTestCase {
         let result = try await source.exportBackup(petIDs: nil, progress: { _ in })
 
         // 备份包须含头像条目
-        let zipData = try await sharedFS.read(at: result.fileURL.path)
+        let zipData = try await sharedFS.read(at: result.fileURLs[0].path)
         let entries = try ZipReader.extract(zipData)
         let avatarEntry = entries.first { $0.path.hasPrefix("avatars/") }
         XCTAssertNotNil(avatarEntry, "备份包须含头像文件")
@@ -412,7 +412,7 @@ final class ZipBackupServiceTests: XCTestCase {
 
         // 目标空库恢复（共享 fs 才能读到导出的备份文件）
         let (target, tPetRepo, _, tFs, sandboxDir) = makeService(fileStorage: sharedFS)
-        let restoreResult = try await target.importBackup(from: result.fileURL, progress: { _ in })
+        let restoreResult = try await target.importBackup(from: [result.fileURLs[0]], progress: { _ in })
         XCTAssertEqual(restoreResult.importedPets, 1)
 
         let restoredPet = try tPetRepo.getAllPets().first!
@@ -435,7 +435,7 @@ final class ZipBackupServiceTests: XCTestCase {
         let result = try await source.exportBackup(petIDs: nil, progress: { _ in })
 
         // 篡改 metadata：把 photoFileName 改为穿越路径
-        let zipData = try await sharedFS.read(at: result.fileURL.path)
+        let zipData = try await sharedFS.read(at: result.fileURLs[0].path)
         var entries = try ZipReader.extract(zipData)
         let metaIdx = entries.firstIndex { $0.path == BackupConfig.metadataFileName }!
         let decoder = JSONDecoder()
@@ -458,10 +458,10 @@ final class ZipBackupServiceTests: XCTestCase {
         encoder.dateEncodingStrategy = .iso8601
         entries[metaIdx] = ZipEntry(path: BackupConfig.metadataFileName,
                                      data: try encoder.encode(metadata))
-        try await sharedFS.write(ZipWriter.archive(entries: entries), to: result.fileURL.path)
+        try await sharedFS.write(ZipWriter.archive(entries: entries), to: result.fileURLs[0].path)
 
         let (target, _, _, tFs, sandboxDir) = makeService(fileStorage: sharedFS)
-        _ = try await target.importBackup(from: result.fileURL, progress: { _ in })
+        _ = try await target.importBackup(from: [result.fileURLs[0]], progress: { _ in })
 
         // 恶意文件名不得被写入：直接拼接的穿越目标路径不应存在。
         let maliciousDest = "\(sandboxDir)/\(maliciousName)"
@@ -481,7 +481,7 @@ final class ZipBackupServiceTests: XCTestCase {
         let existing = Pet(id: pet.id, name: "已存在", species: .dog)
         let (target, tPetRepo, _, _, _) = makeService(pets: [existing], fileStorage: sharedFS)
 
-        let result = try await target.importBackup(from: backup.fileURL, progress: { _ in })
+        let result = try await target.importBackup(from: [backup.fileURLs[0]], progress: { _ in })
 
         XCTAssertEqual(result.importedPets, 0)
         XCTAssertEqual(result.skipped, 1)
@@ -503,7 +503,7 @@ final class ZipBackupServiceTests: XCTestCase {
         let existingPhoto = Photo(uri: "/existing/a.jpg", originalURI: "L0/001", pet: targetPet)
         let (target, _, tPhotoRepo, _, _) = makeService(pets: [targetPet], photos: [existingPhoto], fileStorage: sharedFS)
 
-        let result = try await target.importBackup(from: backup.fileURL, progress: { _ in })
+        let result = try await target.importBackup(from: [backup.fileURLs[0]], progress: { _ in })
 
         XCTAssertEqual(result.importedPhotos, 0, "相同 originalURI 照片须跳过")
         let photos = try tPhotoRepo.getPhotosPage(offset: 0, limit: 10)
@@ -527,7 +527,7 @@ final class ZipBackupServiceTests: XCTestCase {
         let existingPhoto = Photo(uri: "/existing/a.jpg", originalURI: "L0/001", pet: targetPet)
         let (target, _, _, tFs, sandboxDir) = makeService(pets: [targetPet], photos: [existingPhoto], fileStorage: sharedFS)
 
-        _ = try await target.importBackup(from: backup.fileURL, progress: { _ in })
+        _ = try await target.importBackup(from: [backup.fileURLs[0]], progress: { _ in })
 
         // 沙盒目录不应有任何新写入的照片文件（预校验拦截，跳过写入）
         let sandboxFiles = tFs.listFiles(in: sandboxDir)
@@ -548,7 +548,7 @@ final class ZipBackupServiceTests: XCTestCase {
         let existingPhoto = Photo(id: photo.id, uri: "/existing/a.jpg", originalURI: "L0/DIFFERENT", pet: targetPet)
         let (target, _, tPhotoRepo, _, _) = makeService(pets: [targetPet], photos: [existingPhoto], fileStorage: sharedFS)
 
-        let result = try await target.importBackup(from: backup.fileURL, progress: { _ in })
+        let result = try await target.importBackup(from: [backup.fileURLs[0]], progress: { _ in })
 
         XCTAssertEqual(result.importedPhotos, 0, "相同 id 照片须跳过")
         let photos = try tPhotoRepo.getPhotosPage(offset: 0, limit: 10)
@@ -571,7 +571,7 @@ final class ZipBackupServiceTests: XCTestCase {
         let destPath = "\(sandboxDir)/\(photoFileName)"
         sharedFS.preset(Data("pre-existing".utf8), at: destPath)
 
-        _ = try await target.importBackup(from: backup.fileURL, progress: { _ in })
+        _ = try await target.importBackup(from: [backup.fileURLs[0]], progress: { _ in })
 
         // 原有文件应保留，不被备份包中的数据覆盖
         XCTAssertTrue(tFs.fileExists(at: destPath), "目标路径应存在")
@@ -602,7 +602,7 @@ final class ZipBackupServiceTests: XCTestCase {
 
         // 目标空库流式恢复
         let (target, tPetRepo, tPhotoRepo, tFs, _) = makeService(fileStorage: sharedFS)
-        let result = try await target.importBackup(from: backup.fileURL, progress: { _ in })
+        let result = try await target.importBackup(from: [backup.fileURLs[0]], progress: { _ in })
         XCTAssertEqual(result.importedPhotos, 3)
 
         // 验证每张照片文件字节一致
@@ -626,7 +626,7 @@ final class ZipBackupServiceTests: XCTestCase {
         let backup = try await source.exportBackup(petIDs: nil, progress: { _ in })
 
         let (target, _, tPhotoRepo, tFs, _) = makeService(fileStorage: sharedFS)
-        _ = try await target.importBackup(from: backup.fileURL, progress: { _ in })
+        _ = try await target.importBackup(from: [backup.fileURLs[0]], progress: { _ in })
 
         let restored = try tPhotoRepo.getPhotosPage(offset: 0, limit: 10).first!
         let data = try await tFs.read(at: restored.uri)
@@ -642,7 +642,7 @@ final class ZipBackupServiceTests: XCTestCase {
         sharedFS.preset(Data([0x01, 0x02, 0x03]), at: "/src/a.jpg")
 
         let result = try await source.exportBackup(petIDs: nil, progress: { _ in })
-        let zipData = try await sharedFS.read(at: result.fileURL.path)
+        let zipData = try await sharedFS.read(at: result.fileURLs[0].path)
 
         // 旧 extract 须能解出——格式与旧 archive 兼容
         let entries = try ZipReader.extract(zipData)
@@ -660,7 +660,7 @@ final class ZipBackupServiceTests: XCTestCase {
         let backup = try await source.exportBackup(petIDs: nil, progress: { _ in })
 
         // 篡改 manifest 的 schemaVersion 为不兼容值
-        let zipData = try await sharedFS.read(at: backup.fileURL.path)
+        let zipData = try await sharedFS.read(at: backup.fileURLs[0].path)
         var entries = try ZipReader.extract(zipData)
         let manifestIdx = entries.firstIndex { $0.path == BackupConfig.manifestFileName }!
         let tampered = BackupManifest(
@@ -672,10 +672,10 @@ final class ZipBackupServiceTests: XCTestCase {
             petCount: 0)
         entries[manifestIdx] = ZipEntry(path: BackupConfig.manifestFileName, data: JSONEncoder().encode(tampered))
         let tamperedZip = ZipWriter.archive(entries: entries)
-        try await sharedFS.write(tamperedZip, to: backup.fileURL.path)
+        try await sharedFS.write(tamperedZip, to: backup.fileURLs[0].path)
 
         let (target, _, _, _, _) = makeService(fileStorage: sharedFS)
-        XCTAssertThrowsError(try await target.importBackup(from: backup.fileURL, progress: { _ in })) { error in
+        XCTAssertThrowsError(try await target.importBackup(from: [backup.fileURLs[0]], progress: { _ in })) { error in
             guard case .unsupportedVersion = error as? BackupServiceError else {
                 return XCTFail("应抛 unsupportedVersion，实际：\(error)")
             }
@@ -688,12 +688,12 @@ final class ZipBackupServiceTests: XCTestCase {
         let backup = try await source.exportBackup(petIDs: nil, progress: { _ in })
 
         // 删除 manifest，制造无效格式
-        let zipData = try await sharedFS.read(at: backup.fileURL.path)
+        let zipData = try await sharedFS.read(at: backup.fileURLs[0].path)
         let entries = try ZipReader.extract(zipData).filter { $0.path != BackupConfig.manifestFileName }
-        try await sharedFS.write(ZipWriter.archive(entries: entries), to: backup.fileURL.path)
+        try await sharedFS.write(ZipWriter.archive(entries: entries), to: backup.fileURLs[0].path)
 
         let (target, _, _, _, _) = makeService(fileStorage: sharedFS)
-        XCTAssertThrowsError(try await target.importBackup(from: backup.fileURL, progress: { _ in })) { error in
+        XCTAssertThrowsError(try await target.importBackup(from: [backup.fileURLs[0]], progress: { _ in })) { error in
             XCTAssertEqual(error as? BackupServiceError, .invalidFormat)
         }
     }
@@ -716,7 +716,7 @@ final class ZipBackupServiceTests: XCTestCase {
         let destPath = "\(sandboxDir)/\(photoFileName)"
         sharedFS.preset(Data("pre-existing-unrelated".utf8), at: destPath)
 
-        _ = try await target.importBackup(from: backup.fileURL, progress: { _ in })
+        _ = try await target.importBackup(from: [backup.fileURLs[0]], progress: { _ in })
 
         // 原有文件保留
         XCTAssertTrue(tFs.fileExists(at: destPath))
@@ -740,7 +740,7 @@ final class ZipBackupServiceTests: XCTestCase {
         let backup = try await source.exportBackup(petIDs: nil, progress: { _ in })
 
         // 篡改 metadata：把 photo2 的 id 改为 photo1 的 id（制造备份内部重复 id）
-        let zipData = try await sharedFS.read(at: backup.fileURL.path)
+        let zipData = try await sharedFS.read(at: backup.fileURLs[0].path)
         var entries = try ZipReader.extract(zipData)
         let metaIdx = entries.firstIndex { $0.path == BackupConfig.metadataFileName }!
         let decoder = JSONDecoder(); decoder.dateDecodingStrategy = .iso8601
@@ -758,10 +758,10 @@ final class ZipBackupServiceTests: XCTestCase {
         metadata = BackupMetadata(pets: metadata.pets, photos: [snap1, snap2], petEvents: metadata.petEvents)
         let encoder = JSONEncoder(); encoder.dateEncodingStrategy = .iso8601
         entries[metaIdx] = ZipEntry(path: BackupConfig.metadataFileName, data: try encoder.encode(metadata))
-        try await sharedFS.write(ZipWriter.archive(entries: entries), to: backup.fileURL.path)
+        try await sharedFS.write(ZipWriter.archive(entries: entries), to: backup.fileURLs[0].path)
 
         let (target, _, tPhotoRepo, tFs, sandboxDir) = makeService(fileStorage: sharedFS)
-        let result = try await target.importBackup(from: backup.fileURL, progress: { _ in })
+        let result = try await target.importBackup(from: [backup.fileURLs[0]], progress: { _ in })
 
         // 只导入 1 张照片（重复 id 的第二条被跳过）
         XCTAssertEqual(result.importedPhotos, 1, "备份内部重复 id 的照片只导入首条")
@@ -785,7 +785,7 @@ final class ZipBackupServiceTests: XCTestCase {
         let backup = try await source.exportBackup(petIDs: nil, progress: { _ in })
 
         // 篡改 metadata：把 photo2 的 originalURI 改为 photo1 的
-        let zipData = try await sharedFS.read(at: backup.fileURL.path)
+        let zipData = try await sharedFS.read(at: backup.fileURLs[0].path)
         var entries = try ZipReader.extract(zipData)
         let metaIdx = entries.firstIndex { $0.path == BackupConfig.metadataFileName }!
         let decoder = JSONDecoder(); decoder.dateDecodingStrategy = .iso8601
@@ -803,10 +803,10 @@ final class ZipBackupServiceTests: XCTestCase {
         metadata = BackupMetadata(pets: metadata.pets, photos: [snap1, snap2], petEvents: metadata.petEvents)
         let encoder = JSONEncoder(); encoder.dateEncodingStrategy = .iso8601
         entries[metaIdx] = ZipEntry(path: BackupConfig.metadataFileName, data: try encoder.encode(metadata))
-        try await sharedFS.write(ZipWriter.archive(entries: entries), to: backup.fileURL.path)
+        try await sharedFS.write(ZipWriter.archive(entries: entries), to: backup.fileURLs[0].path)
 
         let (target, _, tPhotoRepo, _, _) = makeService(fileStorage: sharedFS)
-        let result = try await target.importBackup(from: backup.fileURL, progress: { _ in })
+        let result = try await target.importBackup(from: [backup.fileURLs[0]], progress: { _ in })
 
         XCTAssertEqual(result.importedPhotos, 1, "备份内部重复 originalURI 的照片只导入首条")
         let photos = try tPhotoRepo.getPhotosPage(offset: 0, limit: 10)
@@ -852,12 +852,247 @@ final class ZipBackupServiceTests: XCTestCase {
         let targetPet = Pet(id: pet.id, name: "小橘", species: .cat)
         let (target, tPetRepo, _, _, _) = makeService(pets: [targetPet], fileStorage: sharedFS)
 
-        let result = try await target.importBackup(from: backup.fileURL, progress: { _ in })
+        let result = try await target.importBackup(from: [backup.fileURLs[0]], progress: { _ in })
         XCTAssertEqual(result.importedPhotos, 2)
 
         // photoCount 须刷新为实际照片数（2），不能保持旧缓存值 0
         let restoredPet = try tPetRepo.getPet(id: pet.id)!
         XCTAssertEqual(restoredPet.photoCount, 2, "恢复后 photoCount 须与实际照片关系一致")
+    }
+
+    // MARK: - Bug 1（P1）：重复 photoFileName 不再导入空 uri 记录
+
+    func testImportDuplicatePhotoFileNameSkipsSecondRecord() async throws {
+        // 两条照片 photoFileName 相同但 id/originalURI 不同 →
+        // 修复前：第二条因 photoFileName 重复被预校验过滤，但 applyImport 仍插入（uri=""）。
+        // 修复后：applyImport 受 importablePhotoIDs 守卫，第二条不插入 DB。
+        let sharedFS = MockFileStorage()
+        let pet = Pet(name: "小橘", species: .cat)
+        let photo1 = Photo(uri: "/src/p1.jpg", originalURI: "L0/001", pet: pet)
+        let photo2 = Photo(uri: "/src/p2.jpg", originalURI: "L0/002", pet: pet)
+        let (source, _, _, _, _) = makeService(pets: [pet], photos: [photo1, photo2], fileStorage: sharedFS)
+        sharedFS.preset(Data("p1".utf8), at: "/src/p1.jpg")
+        sharedFS.preset(Data("p2".utf8), at: "/src/p2.jpg")
+        let backup = try await source.exportBackup(petIDs: nil, progress: { _ in })
+
+        // 篡改 metadata：把 photo2 的 photoFileName 改为 photo1 的（制造重复 photoFileName）
+        let zipData = try await sharedFS.read(at: backup.fileURLs[0].path)
+        var entries = try ZipReader.extract(zipData)
+        let metaIdx = entries.firstIndex { $0.path == BackupConfig.metadataFileName }!
+        let decoder = JSONDecoder(); decoder.dateDecodingStrategy = .iso8601
+        var metadata = try decoder.decode(BackupMetadata.self, from: entries[metaIdx].data)
+        let snap1 = metadata.photos[0]
+        var snap2 = metadata.photos[1]
+        snap2 = PhotoSnapshot(
+            id: snap2.id, originalURI: snap2.originalURI, petID: snap2.petID,
+            takenAt: snap2.takenAt, latitude: snap2.latitude, longitude: snap2.longitude,
+            placeName: snap2.placeName, note: snap2.note, isFavorite: snap2.isFavorite,
+            eventNotify: snap2.eventNotify, width: snap2.width, height: snap2.height,
+            fileSize: snap2.fileSize, category: snap2.category, subCategory: snap2.subCategory,
+            phash: snap2.phash, qualityScore: snap2.qualityScore,
+            photoFileName: snap1.photoFileName, createdAt: snap2.createdAt)
+        metadata = BackupMetadata(pets: metadata.pets, photos: [snap1, snap2], petEvents: metadata.petEvents)
+        let encoder = JSONEncoder(); encoder.dateDecodingStrategy = .iso8601
+        entries[metaIdx] = ZipEntry(path: BackupConfig.metadataFileName, data: try encoder.encode(metadata))
+        try await sharedFS.write(ZipWriter.archive(entries: entries), to: backup.fileURLs[0].path)
+
+        let (target, _, tPhotoRepo, _, _) = makeService(fileStorage: sharedFS)
+        let result = try await target.importBackup(from: [backup.fileURLs[0]], progress: { _ in })
+
+        // 只导入 1 张照片（重复 photoFileName 的第二条不插入 DB）
+        XCTAssertEqual(result.importedPhotos, 1, "重复 photoFileName 的照片不应导入第二条")
+        let photos = try tPhotoRepo.getPhotosPage(offset: 0, limit: 10)
+        XCTAssertEqual(photos.count, 1, "不应存在空 uri 的第二条记录")
+    }
+
+    // MARK: - Bug 2（P1/P2）：头像文件名冲突
+
+    func testImportDuplicateAvatarFileNameOnlyFirstGetsAvatar() async throws {
+        // 两宠物 avatarFileName 相同 → 只有第一个宠物获得头像，第二个 avatarPath 为空。
+        let sharedFS = MockFileStorage()
+        let pet1 = Pet(name: "猫一", species: .cat, avatarPath: "/src/a1.jpg")
+        let pet2 = Pet(name: "猫二", species: .cat, avatarPath: "/src/a2.jpg")
+        let (source, _, _, _, _) = makeService(pets: [pet1, pet2], fileStorage: sharedFS)
+        sharedFS.preset(Data("avatar1".utf8), at: "/src/a1.jpg")
+        sharedFS.preset(Data("avatar2".utf8), at: "/src/a2.jpg")
+        let backup = try await source.exportBackup(petIDs: nil, progress: { _ in })
+
+        // 篡改 metadata：把 pet2 的 avatarFileName 改为 pet1 的
+        let zipData = try await sharedFS.read(at: backup.fileURLs[0].path)
+        var entries = try ZipReader.extract(zipData)
+        let metaIdx = entries.firstIndex { $0.path == BackupConfig.metadataFileName }!
+        let decoder = JSONDecoder(); decoder.dateDecodingStrategy = .iso8601
+        var metadata = try decoder.decode(BackupMetadata.self, from: entries[metaIdx].data)
+        let snap1 = metadata.pets[0]
+        var snap2 = metadata.pets[1]
+        snap2 = PetSnapshot(
+            id: snap2.id, name: snap2.name, species: snap2.species, breed: snap2.breed,
+            gender: snap2.gender, birthday: snap2.birthday, adoptionDay: snap2.adoptionDay,
+            avatarFileName: snap1.avatarFileName, notes: snap2.notes,
+            photoCount: snap2.photoCount, createdAt: snap2.createdAt)
+        metadata = BackupMetadata(pets: [snap1, snap2], photos: metadata.photos, petEvents: metadata.petEvents)
+        let encoder = JSONEncoder(); encoder.dateDecodingStrategy = .iso8601
+        entries[metaIdx] = ZipEntry(path: BackupConfig.metadataFileName, data: try encoder.encode(metadata))
+        try await sharedFS.write(ZipWriter.archive(entries: entries), to: backup.fileURLs[0].path)
+
+        let (target, tPetRepo, _, _, _) = makeService(fileStorage: sharedFS)
+        _ = try await target.importBackup(from: [backup.fileURLs[0]], progress: { _ in })
+
+        let pets = try tPetRepo.getAllPets().sorted { $0.createdAt < $1.createdAt }
+        XCTAssertEqual(pets.count, 2)
+        XCTAssertFalse(pets[0].avatarPath.isEmpty, "第一个宠物应获得头像")
+        XCTAssertTrue(pets[1].avatarPath.isEmpty, "第二个宠物的 avatarPath 须为空（头像冲突时不绑定错误文件）")
+    }
+
+    // MARK: - estimatedBytes 预估
+
+    func testEstimateIncludesEstimatedBytes() async throws {
+        let pet = Pet(name: "小橘", species: .cat)
+        let photo1 = Photo(uri: "/src/p1.jpg", originalURI: "L0/001", pet: pet, fileSize: 1024)
+        let photo2 = Photo(uri: "/src/p2.jpg", originalURI: "L0/002", pet: pet, fileSize: 2048)
+        let (service, _, _, _, _) = makeService(pets: [pet], photos: [photo1, photo2])
+
+        let estimate = try await service.estimateBackup(petIDs: nil)
+
+        XCTAssertEqual(estimate.estimatedBytes, 3072, "estimatedBytes 须等于照片 fileSize 之和")
+    }
+
+    // MARK: - 单卷新格式向后兼容
+
+    func testSingleVolumeNewFormatHasVolumeInfo() async throws {
+        // 新格式单卷须包含 backupID + volumeNumber=1 + totalVolumes=1
+        let pet = Pet(name: "小橘", species: .cat)
+        let (source, _, _, _, _) = makeService(pets: [pet])
+        let result = try await source.exportBackup(petIDs: nil, progress: { _ in })
+
+        XCTAssertNotNil(result.manifest.backupID, "新格式单卷须包含 backupID")
+        XCTAssertEqual(result.manifest.volumeNumber, 1)
+        XCTAssertEqual(result.manifest.totalVolumes, 1)
+        XCTAssertEqual(result.fileURLs.count, 1)
+    }
+
+    // MARK: - 多卷分卷导出
+
+    func testMultiVolumeExportProducesMultipleFiles() async throws {
+        // 构造预估超过 2GB 的照片集 → 触发多卷导出
+        let sharedFS = MockFileStorage()
+        let pet = Pet(name: "小橘", species: .cat)
+        // 每张照片 fileSize = 1GB（Int64），3 张 = 3GB > 2GB → 多卷
+        let bigSize: Int64 = 1_000_000_000
+        let photos = (0..<3).map { i in
+            Photo(uri: "/src/p\(i).jpg", originalURI: "L0/00\(i)", pet: pet, fileSize: bigSize)
+        }
+        let (source, _, _, fs, _) = makeService(
+            pets: [pet], photos: photos, fileStorage: sharedFS)
+        // 实际文件数据很小（测试无法真填 3GB），但预估基于 fileSize 触发分卷
+        for i in 0..<3 {
+            sharedFS.preset(Data("photo\(i)".utf8), at: "/src/p\(i).jpg")
+        }
+
+        let result = try await source.exportBackup(petIDs: nil, progress: { _ in })
+
+        XCTAssertGreaterThan(result.fileURLs.count, 1, "超过 2GB 须生成多个分卷文件")
+        // 每个文件须实际存在
+        for url in result.fileURLs {
+            XCTAssertTrue(fs.fileExists(at: url.path), "分卷文件须存在：\(url.lastPathComponent)")
+        }
+        // 文件名须含 part{N}of{M}
+        for url in result.fileURLs {
+            let name = url.lastPathComponent
+            XCTAssertTrue(name.contains("part"), "多卷文件名须含 part 标识：\(name)")
+            XCTAssertTrue(name.contains("of"), "多卷文件名须含 of 总卷数：\(name)")
+        }
+    }
+
+    func testMultiVolumeRoundTripRestoresAllPhotos() async throws {
+        // 多卷往返：全部照片须恢复成功
+        let sharedFS = MockFileStorage()
+        let pet = Pet(name: "小橘", species: .cat)
+        let bigSize: Int64 = 1_000_000_000
+        let photos = (0..<3).map { i in
+            Photo(uri: "/src/p\(i).jpg", originalURI: "L0/00\(i)", pet: pet, fileSize: bigSize)
+        }
+        let (source, _, _, _, _) = makeService(
+            pets: [pet], photos: photos, fileStorage: sharedFS)
+        for i in 0..<3 {
+            sharedFS.preset(Data("photo\(i)".utf8), at: "/src/p\(i).jpg")
+        }
+
+        let result = try await source.exportBackup(petIDs: nil, progress: { _ in })
+
+        let (target, _, tPhotoRepo, _, _) = makeService(fileStorage: sharedFS)
+        let restoreResult = try await target.importBackup(from: result.fileURLs, progress: { _ in })
+
+        XCTAssertEqual(restoreResult.importedPhotos, 3, "多卷往返后全部照片须恢复")
+        let restored = try tPhotoRepo.getPhotosPage(offset: 0, limit: 10)
+        XCTAssertEqual(restored.count, 3)
+    }
+
+    func testMultiVolumeRestoreRejectsIncompleteSet() async throws {
+        // 缺少一卷时须抛 incompleteVolumeSet
+        let sharedFS = MockFileStorage()
+        let pet = Pet(name: "小橘", species: .cat)
+        let bigSize: Int64 = 1_000_000_000
+        let photos = (0..<3).map { i in
+            Photo(uri: "/src/p\(i).jpg", originalURI: "L0/00\(i)", pet: pet, fileSize: bigSize)
+        }
+        let (source, _, _, _, _) = makeService(
+            pets: [pet], photos: photos, fileStorage: sharedFS)
+        for i in 0..<3 {
+            sharedFS.preset(Data("photo\(i)".utf8), at: "/src/p\(i).jpg")
+        }
+
+        let result = try await source.exportBackup(petIDs: nil, progress: { _ in })
+        let totalVolumes = result.fileURLs.count
+        XCTAssertGreaterThan(totalVolumes, 1)
+
+        // 只选择前 totalVolumes - 1 个卷（缺少最后一卷）
+        let incompleteURLs = Array(result.fileURLs.dropLast())
+        let (target, _, _, _, _) = makeService(fileStorage: sharedFS)
+
+        XCTAssertThrowsError(
+            try await target.importBackup(from: incompleteURLs, progress: { _ in })
+        ) { error in
+            guard case .incompleteVolumeSet = error as? BackupServiceError else {
+                return XCTFail("应抛 incompleteVolumeSet，实际：\(error)")
+            }
+        }
+    }
+
+    func testMultiVolumeRestoreRejectsMismatchedBackupID() async throws {
+        // 混入不同 backupID 的卷时须抛 mismatchedBackupID
+        let sharedFS = MockFileStorage()
+        let pet = Pet(name: "小橘", species: .cat)
+        let bigSize: Int64 = 1_000_000_000
+        let photos1 = (0..<3).map { i in
+            Photo(uri: "/src/a\(i).jpg", originalURI: "A/00\(i)", pet: pet, fileSize: bigSize)
+        }
+        let photos2 = (0..<3).map { i in
+            Photo(uri: "/src/b\(i).jpg", originalURI: "B/00\(i)", pet: pet, fileSize: bigSize)
+        }
+        let (source1, _, _, _, _) = makeService(
+            pets: [pet], photos: photos1, fileStorage: sharedFS)
+        let (source2, _, _, _, _) = makeService(
+            pets: [pet], photos: photos2, fileStorage: sharedFS)
+        for i in 0..<3 {
+            sharedFS.preset(Data("a\(i)".utf8), at: "/src/a\(i).jpg")
+            sharedFS.preset(Data("b\(i)".utf8), at: "/src/b\(i).jpg")
+        }
+
+        let result1 = try await source1.exportBackup(petIDs: nil, progress: { _ in })
+        let result2 = try await source2.exportBackup(petIDs: nil, progress: { _ in })
+
+        // 混合两份导出的第一卷
+        let mixedURLs = [result1.fileURLs[0], result2.fileURLs[0]]
+        let (target, _, _, _, _) = makeService(fileStorage: sharedFS)
+
+        XCTAssertThrowsError(
+            try await target.importBackup(from: mixedURLs, progress: { _ in })
+        ) { error in
+            guard case .mismatchedBackupID = error as? BackupServiceError else {
+                return XCTFail("应抛 mismatchedBackupID，实际：\(error)")
+            }
+        }
     }
 }
 

@@ -136,12 +136,12 @@ struct OnboardingFullScanStep: View {
                     .fill(Color.milensPrimary)
                     .frame(width: 9, height: 9)
                 Text(viewModel.isScanning ? "本机扫描 · 正在比较" : "本机扫描 · 已完成")
-                    .font(.system(size: 15, weight: .medium))
+                    .font(.uiBodyStrong)
                     .foregroundStyle(Color.milensTextPrimary)
                 Spacer()
                 if viewModel.isScanning && viewModel.scanTotal > 0 {
                     Text("\(viewModel.scanScanned) / \(viewModel.scanTotal)")
-                        .font(.system(size: 12))
+                        .font(.bodySecondary)
                         .foregroundStyle(Color.milensTextSecondary)
                 }
             }
@@ -158,18 +158,18 @@ struct OnboardingFullScanStep: View {
             HStack(spacing: 0) {
                 VStack(alignment: .leading, spacing: 4) {
                     Text("当前相似候选")
-                        .font(.system(size: 15, weight: .medium))
+                        .font(.uiBodyStrong)
                         .foregroundStyle(Color.milensTextPrimary)
                     Text("扫描完成后由你确认")
-                        .font(.system(size: 12))
+                        .font(.bodySecondary)
                         .foregroundStyle(Color.milensTextSecondary)
                 }
                 Spacer()
                 Text("\(viewModel.scanFoundCount)")
-                    .font(.system(size: 28, weight: .bold))
+                    .font(.numberStat)
                     .foregroundStyle(Color.milensActionPrimary)
                 Text("张")
-                    .font(.system(size: 12))
+                    .font(.bodySecondary)
                     .foregroundStyle(Color.milensTextSecondary)
                     .padding(.leading, 2)
             }
@@ -188,11 +188,11 @@ struct OnboardingFullScanStep: View {
                 .frame(width: 2)
             HStack {
                 Text("读取系统图库缩略图")
-                    .font(.system(size: 15, weight: .medium))
+                    .font(.uiBodyStrong)
                     .foregroundStyle(Color.milensTextPrimary)
                 Spacer()
                 Text(viewModel.isScanning ? "进行中" : "已完成")
-                    .font(.system(size: 12))
+                    .font(.bodySecondary)
                     .foregroundStyle(viewModel.isScanning ? Color.milensActionPrimary : Color.milensTextSecondary)
             }
             .padding(.leading, 14)

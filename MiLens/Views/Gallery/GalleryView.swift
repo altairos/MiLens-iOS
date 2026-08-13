@@ -184,7 +184,7 @@ struct GalleryView: View {
     private func emptyDefaultView(_ vm: GalleryViewModel) -> some View {
         VStack(spacing: 16) {
             Image(systemName: "pawprint.fill")
-                .font(.system(size: 60))
+                .font(.system(size: 60)) // ui-token:ok 空态装饰大图标
                 .foregroundStyle(Color.milensTextSecondary)
             Text("还没有照片")
                 .font(.displayMedium)
@@ -210,7 +210,7 @@ struct GalleryView: View {
     private var emptyFilteredView: some View {
         VStack(spacing: 12) {
             Image(systemName: "photo.on.ribbon.angled")
-                .font(.system(size: 48))
+                .font(.system(size: 48)) // ui-token:ok 空态装饰大图标
                 .foregroundStyle(Color.milensTextSecondary)
             Text("没有符合条件的照片")
                 .font(.bodyPrimary)
@@ -277,7 +277,7 @@ struct GalleryView: View {
                 .font(.custom("LXGWWenKai-Regular", size: 24, relativeTo: .largeTitle))
                 .foregroundStyle(Color.milensTextPrimary)
             Text("\(vm.totalPhotoCount) 张")
-                .font(.system(size: 11))
+                .font(.editorialMetadata)
                 .foregroundStyle(Color.milensTextSecondary)
                 .padding(.bottom, 2)
             Spacer()
@@ -289,7 +289,7 @@ struct GalleryView: View {
                 }
             } label: {
                 Text("选择")
-                    .font(.system(size: 12, weight: .medium))
+                    .font(.bodySecondary)
                     .foregroundStyle(Color.milensTextPrimary)
                     .frame(width: 66, height: 44)
                     .background(Color.milensGrouped)
@@ -335,7 +335,7 @@ struct GalleryView: View {
                         }
                     } label: {
                         Text(chip.title)
-                            .font(.system(size: 13, weight: .medium))
+                            .font(.bodySecondary)
                             .foregroundStyle(chip.isSelected ? Color.white : Color.milensTextSecondary)
                             .padding(.horizontal, 12)
                             .padding(.vertical, 8)

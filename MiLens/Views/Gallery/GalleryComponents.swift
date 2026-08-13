@@ -53,7 +53,7 @@ struct PhotoThumbnailCell: View {
                         .fill(Color.milensActionPrimary)
                         .frame(width: 25, height: 25)
                     Text("\u{2665}")
-                        .font(.system(size: 11, weight: .bold))
+                        .font(.editorialMetadata)
                         .foregroundStyle(.white)
                 }
                 .padding(5)
@@ -100,7 +100,7 @@ struct LockedPhotoThumbnailCell: View {
 
             // 居中锁标
             Image(systemName: "lock.fill")
-                .font(.system(size: 18, weight: .medium))
+                .font(.system(size: Sizing.iconMd, weight: .medium))
                 .foregroundStyle(.white)
 
             // 右上角 Pro 角标
@@ -108,7 +108,7 @@ struct LockedPhotoThumbnailCell: View {
                 HStack {
                     Spacer()
                     Text(String(localized: "quota.locked.badge"))
-                        .font(.system(size: 9, weight: .bold))
+                        .font(.system(size: 9, weight: .bold)) // ui-token:ok 微型角标
                         .foregroundStyle(.white)
                         .padding(.horizontal, 6)
                         .padding(.vertical, 3)
@@ -179,7 +179,7 @@ struct ScanCompleteSheet: View {
         NavigationStack {
             VStack(spacing: 20) {
                 Image(systemName: viewModel.scanFailed ? "exclamationmark.triangle.fill" : "checkmark.seal.fill")
-                    .font(.system(size: 48))
+                    .font(.system(size: 48)) // ui-token:ok 结果态装饰大图标
                     .foregroundStyle(viewModel.scanFailed ? Color.milensWarning : Color.milensPrimary)
 
                 Text(viewModel.scanFailed ? "扫描未完成" : "扫描完成")
@@ -257,7 +257,7 @@ struct GalleryBatchBar: View {
                     .font(.bodySecondary.weight(.semibold))
             }
             .buttonStyle(.borderedProminent)
-            .tint(Color.red)
+            .tint(Color.milensDanger)
             .disabled(selectedCount == 0)
         }
         .padding(.horizontal, Spacing.pagePad)

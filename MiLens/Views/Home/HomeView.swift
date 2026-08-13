@@ -238,7 +238,7 @@ private struct HomeHero: View {
                             .font(.custom("Fraunces-Semibold", size: 24))
                             .foregroundStyle(.white)
                         Text(heroDateString)
-                            .font(.system(size: 12, weight: .medium))
+                            .font(.bodySecondary)
                             .foregroundStyle(.white.opacity(0.92))
                     }
                     Spacer()
@@ -249,7 +249,7 @@ private struct HomeHero: View {
                         onBellTap()
                     } label: {
                         Image(systemName: "bell")
-                            .font(.system(size: 18))
+                            .font(.system(size: Sizing.iconMd))
                             .foregroundStyle(.white)
                             .frame(width: 44, height: 44)
                             .rotationEffect(.degrees(bellAnimating ? 6 : -6))
@@ -272,7 +272,7 @@ private struct HomeHero: View {
                 VStack(alignment: .leading, spacing: Spacing.sm) {
                     // 小标签
                     Text(String(localized: "home.hero.todayLabel"))
-                        .font(.system(size: 13, weight: .medium))
+                        .font(.bodySecondary)
                         .foregroundStyle(.white)
 
                     // 文楷大标题（对照 #319:1036，37pt 文楷）
@@ -314,7 +314,7 @@ private struct HomeHero: View {
 
             // 名字 · 年龄
             Text(petIdentityText(pet))
-                .font(.system(size: 12, weight: .medium))
+                .font(.bodySecondary)
                 .foregroundStyle(.white)
 
             Spacer()
@@ -325,7 +325,7 @@ private struct HomeHero: View {
                     .fill(Color.milensActionPrimary)
                     .frame(width: 36, height: 36)
                 Image(systemName: "arrow.right")
-                    .font(.system(size: 14, weight: .semibold))
+                    .font(.system(size: Sizing.iconSm, weight: .semibold))
                     .foregroundStyle(.white)
             }
         }
@@ -369,24 +369,24 @@ private struct UpcomingDaySection: View {
                 Rectangle()
                     .fill(Color.milensPrimary)
                     .frame(width: 4)
-                    .cornerRadius(2)
+                    .cornerRadius(Radius.accentRail)
 
                 // 文案区
                 VStack(alignment: .leading, spacing: Spacing.xs) {
                     Text(String(localized: "home.upcoming.sectionLabel"))
-                        .font(.system(size: 12, weight: .medium))
+                        .font(.bodySecondary)
                         .foregroundStyle(Color.milensTextSecondary)
 
                     Text(upcoming.title)
-                        .font(.system(size: 20, weight: .medium))
+                        .font(.uiTitle)
                         .foregroundStyle(Color.milensTextPrimary)
 
                     Text(daysTogetherText(upcoming))
-                        .font(.system(size: 13))
+                        .font(.bodySecondary)
                         .foregroundStyle(Color.milensTextSecondary)
 
                     Text(String(localized: "home.upcoming.lookBack"))
-                        .font(.system(size: 13, weight: .medium))
+                        .font(.bodySecondary)
                         .foregroundStyle(Color.milensActionPrimary)
                 }
                 .padding(.leading, 21)
@@ -566,12 +566,12 @@ private struct YearlyRecapEntry: View {
                     .font(.custom("LXGWWenKai-Regular", size: 17, relativeTo: .headline))
                     .foregroundStyle(Color.milensTextPrimary)
                 Text(String(localized: "home.yearlyRecap.body"))
-                    .font(.system(size: 12))
+                    .font(.bodySecondary)
                     .foregroundStyle(Color.milensTextSecondary)
             }
             Spacer()
             Image(systemName: "chevron.right")
-                .font(.system(size: 14))
+                .font(.system(size: Sizing.iconSm))
                 .foregroundStyle(Color.milensTextSecondary)
         }
         .padding(16)
@@ -599,17 +599,17 @@ private struct BackupReminderBanner: View {
             VStack(alignment: .leading, spacing: 0) {
                 HStack(spacing: 8) {
                     Image(systemName: "externaldrive.badge.timemachine")
-                        .font(.system(size: 14))
+                        .font(.system(size: Sizing.iconSm))
                         .foregroundStyle(Color.milensActionPrimary)
                     Text(String(localized: "home.backup.banner.title"))
-                        .font(.system(size: 14, weight: .semibold))
+                        .font(.bodyPrimary)
                         .foregroundStyle(Color.milensTextPrimary)
                     Spacer()
                     Button {
                         onClose()
                     } label: {
                         Image(systemName: "xmark")
-                            .font(.system(size: 12, weight: .medium))
+                            .font(.system(size: 12, weight: .medium)) // ui-token:ok SF Symbol 光学图标尺寸
                             .foregroundStyle(Color.milensTextTertiary)
                             .frame(width: 28, height: 28)
                             .contentShape(Rectangle())
@@ -619,7 +619,7 @@ private struct BackupReminderBanner: View {
                 .padding(.top, 14)
 
                 Text(String(localized: "home.backup.banner.body \(photoCount)"))
-                    .font(.system(size: 12))
+                    .font(.bodySecondary)
                     .foregroundStyle(Color.milensTextSecondary)
                     .fixedSize(horizontal: false, vertical: true)
                     .padding(.top, 4)
@@ -628,7 +628,7 @@ private struct BackupReminderBanner: View {
                     onTap()
                 } label: {
                     Text(String(localized: "home.backup.banner.action"))
-                        .font(.system(size: 13, weight: .medium))
+                        .font(.bodySecondary)
                         .foregroundStyle(Color.milensActionPrimary)
                 }
                 .buttonStyle(.plain)

@@ -29,7 +29,7 @@ struct OnboardingPrivacyStep: View {
 
                 // 底部说明
                 Text("稍后也可以在系统设置中调整照片访问范围。")
-                    .font(.system(size: 13))
+                    .font(.bodySecondary)
                     .foregroundStyle(Color.milensTextTertiary)
                     .padding(.top, Spacing.xl)
 
@@ -79,12 +79,12 @@ struct OnboardingPrivacyStep: View {
                     }
                     VStack(alignment: .leading, spacing: 4) {
                         Text("ON DEVICE")
-                            .font(.system(size: 12))
+                            .font(.editorialOverline)
                             .tracking(0.1)
                             .foregroundStyle(Color.milensActionPrimary)
                             .textCase(.uppercase)
                         Text("只在本机整理")
-                            .font(.system(size: 20, weight: .medium))
+                            .font(.uiTitle)
                             .foregroundStyle(Color.milensTextPrimary)
                     }
                     Spacer()
@@ -92,7 +92,7 @@ struct OnboardingPrivacyStep: View {
                 .padding(.top, 22)
 
                 Text("不上传照片；不在云端留副本。")
-                    .font(.system(size: 16))
+                    .font(.bodyPrimary)
                     .foregroundStyle(Color.milensTextSecondary)
                     .padding(.top, 8)
 
@@ -100,7 +100,7 @@ struct OnboardingPrivacyStep: View {
                     .padding(.top, 14)
 
                 Text("本机特征基准 · 由你命名")
-                    .font(.system(size: 13))
+                    .font(.bodySecondary)
                     .foregroundStyle(Color.milensTextTertiary)
                     .padding(.top, 6)
                     .padding(.bottom, 22)
@@ -132,15 +132,15 @@ struct OnboardingPrivacyStep: View {
         VStack(alignment: .leading, spacing: 0) {
             HStack(alignment: .top, spacing: 6) {
                 Text(number)
-                    .font(.system(size: 13))
+                    .font(.bodySecondary)
                     .foregroundStyle(Color.milensActionPrimary)
                     .frame(width: 28, alignment: .leading)
                 VStack(alignment: .leading, spacing: 2) {
                     Text(title)
-                        .font(.system(size: 15, weight: .medium))
+                        .font(.uiBodyStrong)
                         .foregroundStyle(Color.milensTextPrimary)
                     Text(subtitle)
-                        .font(.system(size: 13))
+                        .font(.bodySecondary)
                         .foregroundStyle(Color.milensTextSecondary)
                 }
                 Spacer()

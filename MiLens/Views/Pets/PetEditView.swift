@@ -171,7 +171,7 @@ struct PetEditView: View {
                             .clipShape(Circle())
                     } else {
                         Text(PetProfileLogic.speciesEmoji(vm.form.species))
-                            .font(.system(size: 32))
+                            .font(.system(size: 32)) // ui-token:ok 头像占位 emoji
                     }
                 }
                 VStack(alignment: .leading, spacing: Spacing.xs) {
@@ -362,7 +362,7 @@ struct PetEditView: View {
             ForEach(Array(bindable.form.noteItems.enumerated()), id: \.offset) { index, note in
                 HStack {
                     Image(systemName: "circle.fill")
-                        .font(.system(size: 5))
+                        .font(.system(size: 5)) // ui-token:ok 列表项目符号圆点
                         .foregroundStyle(Color.milensPrimary)
                     Text(note)
                         .font(.bodyPrimary)

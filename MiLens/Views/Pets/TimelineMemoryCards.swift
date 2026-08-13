@@ -43,7 +43,7 @@ struct PhotoMemoryCard: View {
                             .fill(Color.milensActionPrimary)
                             .frame(width: 22, height: 2)
                         Text(String(localized: "timeline.memoryType.photo"))
-                            .font(.system(size: 10, weight: .medium))
+                            .font(.editorialOverline)
                             .foregroundStyle(Color.milensActionPrimary)
                     }
                     .padding(.leading, 14)
@@ -53,7 +53,7 @@ struct PhotoMemoryCard: View {
 
                 // 日期（珊瑚）
                 Text(entry.subtitle)
-                    .font(.system(size: 11, weight: .medium))
+                    .font(.editorialMetadata)
                     .foregroundStyle(Color.milensActionPrimary)
 
                 // 文楷标题
@@ -66,7 +66,7 @@ struct PhotoMemoryCard: View {
                 // 正文（对照 #140:367，13pt regular secondary）
                 if !entry.bodyText.isEmpty {
                     Text(entry.bodyText)
-                        .font(.system(size: 13))
+                        .font(.bodySecondary)
                         .foregroundStyle(Color.milensTextSecondary)
                 }
             }
@@ -91,16 +91,16 @@ struct TextMemoryCard: View {
             // 内容区
             VStack(alignment: .leading, spacing: Spacing.xs) {
                 Text(entry.subtitle)
-                    .font(.system(size: 11, weight: .bold))
+                    .font(.editorialMetadata)
                     .foregroundStyle(Color.milensActionPrimary)
                 if !entry.title.isEmpty {
                     Text(entry.title)
-                        .font(.system(size: 14, weight: .bold))
+                        .font(.bodyPrimary)
                         .foregroundStyle(Color.milensTextPrimary)
                 }
                 if !entry.bodyText.isEmpty {
                     Text(entry.bodyText)
-                        .font(.system(size: 14))
+                        .font(.bodyPrimary)
                         .foregroundStyle(Color.milensTextPrimary)
                 }
             }
@@ -141,25 +141,25 @@ struct WorkRecordCard: View {
                             .fill(Color.milensActionPrimary)
                             .frame(width: 22, height: 2)
                         Text(String(localized: "timeline.memoryType.work"))
-                            .font(.system(size: 10, weight: .medium))
+                            .font(.editorialOverline)
                             .foregroundStyle(Color.milensActionPrimary)
                     }
                     Text(entry.title)
-                        .font(.system(size: 14, weight: .bold))
+                        .font(.bodyPrimary)
                         .foregroundStyle(Color.milensTextPrimary)
                     // 日期（珊瑚）
                     Text(entry.subtitle)
-                        .font(.system(size: 11))
+                        .font(.editorialMetadata)
                         .foregroundStyle(Color.milensActionPrimary)
                     // 来源说明：优先正文，其次「由一张照片生成」
                     if !entry.bodyText.isEmpty {
                         Text(entry.bodyText)
-                            .font(.system(size: 11))
+                            .font(.editorialMetadata)
                             .foregroundStyle(Color.milensTextSecondary)
                             .lineLimit(2)
                     } else if entry.photoID != nil {
                         Text(String(localized: "timeline.work.fromPhoto"))
-                            .font(.system(size: 11))
+                            .font(.editorialMetadata)
                             .foregroundStyle(Color.milensTextSecondary)
                     }
                 }

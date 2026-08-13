@@ -87,7 +87,7 @@ struct BusinessCardPickerView: View {
                         .clipShape(Circle())
                 } else {
                     Text(PetProfileLogic.speciesEmoji(pet.species))
-                        .font(.system(size: 24))
+                        .font(.system(size: 24)) // ui-token:ok 头像占位 emoji
                 }
             }
 

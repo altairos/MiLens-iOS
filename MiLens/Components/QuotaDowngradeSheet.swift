@@ -22,7 +22,7 @@ struct QuotaDowngradeSheet: View {
 
                 // 锁标图标
                 Image(systemName: "lock.fill")
-                    .font(.system(size: 48))
+                    .font(.system(size: 48)) // ui-token:ok 页头装饰大图标
                     .foregroundStyle(Color.milensActionPrimary)
 
                 Text(String(localized: "quota.locked.sheet.title"))

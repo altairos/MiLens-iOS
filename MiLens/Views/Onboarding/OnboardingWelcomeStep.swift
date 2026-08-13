@@ -14,7 +14,7 @@ struct OnboardingWelcomeStep: View {
             VStack(alignment: .leading, spacing: 0) {
                 // MARK: overline + 品牌名 + Hero
                 Text("FIRST LIGHT · 欢迎")
-                    .font(.system(size: 12))
+                    .font(.editorialOverline)
                     .tracking(0.1)
                     .foregroundStyle(Color.milensTextSecondary)
                     .textCase(.uppercase)
@@ -72,7 +72,7 @@ struct OnboardingWelcomeStep: View {
             VStack(alignment: .leading, spacing: 0) {
                 // EMPTY ARCHIVE / 00 caption
                 Text("EMPTY ARCHIVE / 00")
-                    .font(.system(size: 12))
+                    .font(.editorialMetadata)
                     .foregroundStyle(Color.milensTextTertiary)
                     .padding(.top, 22)
                     .padding(.leading, 22)
@@ -105,13 +105,13 @@ struct OnboardingWelcomeStep: View {
 
                 // 「等待一位伙伴」
                 Text("等待第一位伙伴")
-                    .font(.system(size: 20, weight: .medium))
+                    .font(.uiTitle)
                     .foregroundStyle(Color.milensTextPrimary)
                     .padding(.top, 4)
                     .padding(.leading, 22)
 
                 Text("档案现在是空的。\n从第一段相伴开始。")
-                    .font(.system(size: 16))
+                    .font(.bodyPrimary)
                     .foregroundStyle(Color.milensTextSecondary)
                     .padding(.top, 4)
                     .padding(.leading, 22)
@@ -124,7 +124,7 @@ struct OnboardingWelcomeStep: View {
 
                 // 底部说明
                 Text("照片留在设备上，记录由你命名。")
-                    .font(.system(size: 13))
+                    .font(.bodySecondary)
                     .foregroundStyle(Color.milensTextTertiary)
                     .padding(.top, 6)
                     .padding(.leading, 22)
@@ -141,7 +141,7 @@ struct OnboardingWelcomeStep: View {
             Rectangle()
                 .fill(viewModel.privacyAgreed ? Color.milensActionPrimary : Color.clear)
                 .frame(width: 3, height: 22)
-                .cornerRadius(2)
+                .cornerRadius(Radius.accentRail)
 
             Toggle(isOn: Binding(
                 get: { viewModel.privacyAgreed },
@@ -149,11 +149,11 @@ struct OnboardingWelcomeStep: View {
             )) {
                 HStack(spacing: 4) {
                     Text("我已阅读并同意")
-                        .font(.system(size: 15))
+                        .font(.bodyPrimary)
                         .foregroundStyle(Color.milensTextSecondary)
                     if let url = URL(string: SettingsLogic.Links.privacyPolicy) {
                         Link("《隐私政策》", destination: url)
-                            .font(.system(size: 15))
+                            .font(.bodyPrimary)
                             .foregroundStyle(Color.milensActionPrimary)
                     }
                 }
@@ -166,7 +166,7 @@ struct OnboardingWelcomeStep: View {
 
             // → 箭头
             Text("\u{2192}")
-                .font(.system(size: 15, weight: .medium))
+                .font(.uiBodyStrong)
                 .foregroundStyle(Color.milensActionPrimary)
                 .opacity(viewModel.privacyAgreed ? 1 : 0.3)
         }

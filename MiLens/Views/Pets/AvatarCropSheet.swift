@@ -87,7 +87,7 @@ struct AvatarCropSheet: View {
                     .font(.caption)
                     .foregroundStyle(.white)
                     .padding()
-                    .background(Color.red.opacity(0.8))
+                    .background(Color.milensDanger.opacity(0.8))
                     .clipShape(RoundedRectangle(cornerRadius: 8))
                     .padding(.bottom, 100)
             }

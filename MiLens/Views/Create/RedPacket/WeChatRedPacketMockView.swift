@@ -99,7 +99,7 @@ struct WeChatRedPacketMockView: View {
                     .font(.caption)
                     .foregroundStyle(Color.milensTextSecondary)
                 Text("¥ _ _ _ . _ _")
-                    .font(.system(size: 28, weight: .light))
+                    .font(.system(size: 28, weight: .light)) // ui-token:ok 红包金额占位字符
                     .foregroundStyle(Color.milensTextPrimary)
                 Divider()
                     .padding(.vertical, Spacing.xs)

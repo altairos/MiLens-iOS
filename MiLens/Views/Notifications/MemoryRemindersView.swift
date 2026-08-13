@@ -104,7 +104,7 @@ struct MemoryRemindersView: View {
                 .frame(width: 3, height: 16)
                 .cornerRadius(1.5)
             Text(title)
-                .font(.system(size: 13, weight: .medium))
+                .font(.bodySecondary)
                 .foregroundStyle(Color.milensTextSecondary)
         }
         .padding(.horizontal, Spacing.pagePad)
@@ -116,7 +116,7 @@ struct MemoryRemindersView: View {
     private var remindersEmptyState: some View {
         VStack(spacing: Spacing.lg) {
             Image(systemName: "bell.slash")
-                .font(.system(size: 36))
+                .font(.system(size: 36)) // ui-token:ok 空态装饰大图标
                 .foregroundStyle(Color.milensTextTertiary)
 
             Text(String(localized: "reminders.empty.title"))
@@ -140,7 +140,7 @@ struct MemoryRemindersView: View {
     private func remindersErrorState(message: String, retry: @escaping () -> Void) -> some View {
         VStack(spacing: Spacing.lg) {
             Image(systemName: "exclamationmark.triangle")
-                .font(.system(size: 36))
+                .font(.system(size: 36)) // ui-token:ok 错误态装饰大图标
                 .foregroundStyle(Color.milensTextTertiary)
             Text(message)
                 .font(.bodyPrimary)
@@ -188,18 +188,18 @@ private struct TodayReminderCard: View {
                     .fill(Color.milensAccentSoft)
                     .frame(width: 40, height: 40)
                 Image(systemName: iconName)
-                    .font(.system(size: 16))
+                    .font(.system(size: Sizing.iconSm))
                     .foregroundStyle(Color.milensActionPrimary)
             }
 
             VStack(alignment: .leading, spacing: 2) {
                 Text(item.title)
-                    .font(.system(size: 16, weight: .medium))
+                    .font(.bodyPrimary)
                     .foregroundStyle(Color.milensTextPrimary)
                     .lineLimit(2)
                 if !item.subtitle.isEmpty {
                     Text(item.subtitle)
-                        .font(.system(size: 13))
+                        .font(.bodySecondary)
                         .foregroundStyle(Color.milensTextSecondary)
                         .lineLimit(2)
                 }
@@ -240,14 +240,14 @@ private struct UpcomingReminderRow: View {
                 Rectangle()
                     .fill(Color.milensPrimary)
                     .frame(width: 4)
-                    .cornerRadius(2)
+                    .cornerRadius(Radius.accentRail)
 
                 VStack(alignment: .leading, spacing: 4) {
                     Text(item.title)
-                        .font(.system(size: 16, weight: .medium))
+                        .font(.bodyPrimary)
                         .foregroundStyle(Color.milensTextPrimary)
                     Text(countdownText)
-                        .font(.system(size: 13))
+                        .font(.bodySecondary)
                         .foregroundStyle(Color.milensTextSecondary)
                 }
                 .padding(.leading, 21)
@@ -261,7 +261,7 @@ private struct UpcomingReminderRow: View {
                         .font(.custom("Fraunces-Semibold", size: 22))
                         .foregroundStyle(Color.milensActionPrimary)
                     Text(countdownLabel)
-                        .font(.system(size: 11))
+                        .font(.editorialMetadata)
                         .foregroundStyle(Color.milensTextTertiary)
                 }
                 .padding(.trailing, Spacing.sm)

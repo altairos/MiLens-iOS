@@ -6,6 +6,11 @@
 //  - 英文 display：Fraunces（衬线，Bold/Semibold 两个字重），供纯英文大标题/品牌名使用。
 //  - 正文/UI/数字：系统字体（SF Pro + PingFang），零体积成本，保持原生感。
 //
+//  Figma UI 文本样式（MiLens/UI/Title、/Body Strong、/Overline、/Metadata）标注字体为
+//  「Noto Sans SC Medium」，iOS 不打包 Noto Sans SC，统一回退系统字体（简中 PingFang /
+//  拉丁 SF Pro），分别对应 uiTitle / uiBodyStrong / editorialOverline / editorialMetadata。
+//  详见 UI-DESIGN.md §4.1「Figma UI 文本样式 → iOS 字体映射（已知替换）」。
+//
 //  SwiftUI `.custom` 不自动按字符切栈：中文标题用 displayLarge（文楷），纯英文标题手动
 //  用 displayLargeEN/displayMediumEN（Fraunces）。文楷自带基础拉丁可做回退。
 //
@@ -77,21 +82,21 @@ extension Font {
     /// Overline 小标（「CREATION DARKROOM」「READY TO KEEP」）。
     /// Figma `MiLens/UI/Overline`：10pt Medium + letterSpacing 0.04em。
     /// 文字间距通过调用方 `.tracking(0.4)` 补足（SwiftUI tracking 单位为 pt）。
-    static let editorialOverline = Font.system(size: 10, weight: .medium)
+    static let editorialOverline = Font.system(size: 10, weight: .medium, relativeTo: .caption)
 
     /// Metadata 元信息（「图纸 · 色号 · 用量」「2021.04.18」）。
     /// Figma `MiLens/UI/Metadata`：11pt Regular。
-    static let editorialMetadata = Font.system(size: 11)
+    static let editorialMetadata = Font.system(size: 11, relativeTo: .caption)
 
     /// 项目编号 / 步骤编号（「01」「02」「03」）。
     /// Figma `MiLens/Number/Index`：Fraunces-Bold 12pt。
-    static let editorialNumberIndex = Font.custom("Fraunces-Bold", size: 12)
+    static let editorialNumberIndex = Font.custom("Fraunces-Bold", size: 12, relativeTo: .caption)
 
     /// UI Title（「成品预览」「拼豆工作室」「选择两段时光」）。
     /// Figma `MiLens/UI/Title`：20pt Medium + letterSpacing -0.01em。
-    static let uiTitle = Font.system(size: 20, weight: .medium)
+    static let uiTitle = Font.system(size: 20, weight: .medium, relativeTo: .title3)
 
     /// UI Body Strong（「从生命档案选择」「窗边观察员」）。
     /// Figma `MiLens/UI/Body Strong`：15pt Medium。
-    static let uiBodyStrong = Font.system(size: 15, weight: .medium)
+    static let uiBodyStrong = Font.system(size: 15, weight: .medium, relativeTo: .body)
 }

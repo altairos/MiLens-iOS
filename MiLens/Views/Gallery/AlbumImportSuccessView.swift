@@ -45,7 +45,7 @@ struct AlbumImportSuccessView: View {
 
                 // 日期标签
                 Text("\(petName) · \(Date(), format: .dateTime.year().month())")
-                    .font(.system(size: 11))
+                    .font(.editorialMetadata)
                     .foregroundStyle(Color.milensDarkroomText)
                     .padding(.leading, 18)
                     .padding(.bottom, 16)
@@ -72,7 +72,7 @@ struct AlbumImportSuccessView: View {
                             .padding(.top, 8)
 
                         Text("已加入「\(petName)」的档案")
-                            .font(.system(size: 12))
+                            .font(.bodySecondary)
                             .foregroundStyle(Color.milensTextSecondary)
                             .padding(.top, 4)
 
@@ -129,12 +129,12 @@ struct AlbumImportSuccessView: View {
                     .padding(.top, 16)
 
                 Text("只在这台设备上")
-                    .font(.system(size: 15, weight: .medium))
+                    .font(.uiBodyStrong)
                     .foregroundStyle(Color.milensTextPrimary)
                     .padding(.top, 8)
 
                 Text("照片不会上传；已有内容也不会被移动。")
-                    .font(.system(size: 12))
+                    .font(.bodySecondary)
                     .foregroundStyle(Color.milensTextSecondary)
                     .padding(.top, 2)
 
@@ -172,7 +172,7 @@ struct AlbumImportSuccessView: View {
                 .font(.custom("Fraunces-Bold", size: 12))
                 .foregroundStyle(Color.milensTextPrimary)
             Text(label)
-                .font(.system(size: 11))
+                .font(.editorialMetadata)
                 .foregroundStyle(Color.milensTextSecondary)
                 .padding(.top, 4)
         }
@@ -187,7 +187,7 @@ struct AlbumImportSuccessView: View {
                 .frame(width: 196, height: 2)
                 .clipShape(RoundedRectangle(cornerRadius: 1))
             Text("归档完成 · 你仍可随时删除或重新分配照片")
-                .font(.system(size: 12))
+                .font(.editorialMetadata)
                 .foregroundStyle(Color.milensTextTertiary)
         }
         .frame(maxWidth: .infinity)
@@ -200,7 +200,7 @@ struct AlbumImportSuccessView: View {
         Button(action: onViewPhotos) {
             HStack {
                 Text("查看\(petName)的照片")
-                    .font(.system(size: 15, weight: .bold))
+                    .font(.buttonLabel)
                     .foregroundStyle(Color.milensActionPrimary)
                 Spacer()
                 ZStack {
@@ -208,7 +208,7 @@ struct AlbumImportSuccessView: View {
                         .stroke(Color.milensActionPrimary, lineWidth: 1)
                         .frame(width: 42, height: 32)
                     Text("\u{2192}")
-                        .font(.system(size: 20))
+                        .font(.system(size: 20)) // ui-token:ok 装饰箭头字符
                         .foregroundStyle(Color.milensActionPrimary)
                 }
             }

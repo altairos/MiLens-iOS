@@ -65,7 +65,7 @@ struct PetsView: View {
     private func emptyState(_ vm: PetProfileViewModel) -> some View {
         VStack(spacing: Spacing.lg) {
             Image(systemName: "pawprint")
-                .font(.system(size: 44, weight: .light))
+                .font(.system(size: 44, weight: .light)) // ui-token:ok 空态装饰大图标
                 .foregroundStyle(Color.milensTextSecondary)
             Text("还没有伙伴档案")
                 .font(.displayMedium)
@@ -166,7 +166,7 @@ private struct PetCard: View {
                     .clipShape(Circle())
             } else {
                 Text(PetProfileLogic.speciesEmoji(pet.species))
-                    .font(.system(size: 28))
+                    .font(.system(size: 28)) // ui-token:ok 头像占位 emoji
             }
         }
         .frame(width: 56, height: 56)
@@ -228,7 +228,7 @@ private struct EasterEggOverlay: View {
                 .onTapGesture { onClose() }
             VStack(spacing: Spacing.lg) {
                 Text("🎂")
-                    .font(.system(size: 40))
+                    .font(.system(size: 40)) // ui-token:ok 生日弹层装饰 emoji
                 Text("特别的缘分")
                     .font(.displayMedium)
                     .foregroundStyle(Color.milensTextPrimary)

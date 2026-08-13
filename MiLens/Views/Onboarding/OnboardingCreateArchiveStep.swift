@@ -28,7 +28,7 @@ struct OnboardingCreateArchiveStep: View {
 
                 // 名字字段
                 Text("伙伴叫什么名字？")
-                    .font(.system(size: 15, weight: .medium))
+                    .font(.uiBodyStrong)
                     .foregroundStyle(Color.milensTextPrimary)
                     .padding(.top, Spacing.xxl)
 
@@ -37,7 +37,7 @@ struct OnboardingCreateArchiveStep: View {
 
                 // 种类选择
                 Text("选择伙伴类型")
-                    .font(.system(size: 15, weight: .medium))
+                    .font(.uiBodyStrong)
                     .foregroundStyle(Color.milensTextPrimary)
                     .padding(.top, Spacing.xl)
 
@@ -92,13 +92,13 @@ struct OnboardingCreateArchiveStep: View {
 
                 VStack(alignment: .leading, spacing: 6) {
                     Text("ARCHIVE 001")
-                        .font(.system(size: 12))
+                        .font(.bodySecondary)
                         .foregroundStyle(Color.milensTextSecondary)
                     Text("等待一位伙伴")
-                        .font(.system(size: 20, weight: .medium))
+                        .font(.uiTitle)
                         .foregroundStyle(Color.milensTextPrimary)
                     Text("肖像会在注册照片后\n由你确认。")
-                        .font(.system(size: 12))
+                        .font(.bodySecondary)
                         .foregroundStyle(Color.milensTextSecondary)
                 }
                 Spacer()
@@ -117,7 +117,7 @@ struct OnboardingCreateArchiveStep: View {
                 .fill(Color.milensActionPrimary)
                 .frame(width: 2)
             TextField("小满", text: $viewModel.petName)
-                .font(.system(size: 16))
+                .font(.bodyPrimary)
                 .foregroundStyle(Color.milensTextPrimary)
                 .focused($nameFocused)
                 .submitLabel(.done)
@@ -156,7 +156,7 @@ struct OnboardingCreateArchiveStep: View {
             viewModel.petSpecies = species
         } label: {
             Text(title)
-                .font(.system(size: 15, weight: .medium))
+                .font(.uiBodyStrong)
                 .foregroundStyle(isSelected ? Color.milensActionPrimary : Color.milensTextSecondary)
                 .frame(width: width, height: 42)
                 .background(isSelected ? Color.milensAccentWash : Color.milensCard)
@@ -178,7 +178,7 @@ struct OnboardingCreateArchiveStep: View {
                     .fill(Color.milensActionPrimary)
                     .frame(width: 2)
                 Text("先有档案，后有特征基准；\n扫描结果不会自动进入档案。")
-                    .font(.system(size: 12))
+                    .font(.bodySecondary)
                     .foregroundStyle(Color.milensTextSecondary)
                     .padding(.leading, 14)
                     .padding(.vertical, 14)

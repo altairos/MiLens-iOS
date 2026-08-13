@@ -371,7 +371,7 @@ private struct BeadExampleVisual: View {
                     .aspectRatio(contentMode: .fill)
             } else {
                 Image(systemName: "circle.grid.3x3.fill")
-                    .font(.system(size: 28, weight: .light))
+                    .font(.system(size: 28, weight: .light)) // ui-token:ok 占位装饰图标
                     .foregroundStyle(Color.milensTextTertiary)
             }
         }
@@ -416,7 +416,7 @@ private struct PetCardExampleVisual: View {
                     .aspectRatio(contentMode: .fill)
             } else {
                 Image(systemName: "photo.artframe")
-                    .font(.system(size: 28, weight: .light))
+                    .font(.system(size: 28, weight: .light)) // ui-token:ok 占位装饰图标
                     .foregroundStyle(Color.milensTextTertiary)
             }
             LinearGradient(
@@ -427,7 +427,7 @@ private struct PetCardExampleVisual: View {
             .frame(maxHeight: .infinity, alignment: .bottom)
 
             Text("\u{1F43E}")
-                .font(.system(size: 18))
+                .font(.system(size: 18)) // ui-token:ok 装饰爪印 emoji
                 .padding(.leading, Spacing.md)
                 .padding(.bottom, Spacing.sm)
         }

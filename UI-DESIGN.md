@@ -85,24 +85,24 @@ App 图标、空态插画与商店截图需要单独产出；未有品牌插画�
 
 原品牌珊瑚 `#FD8663` 与白色文字对比度约 2.40:1，不能作为白字主按钮背景；它与浅色页面背景的对比度也不足以承载小字或关键状态。因此拆分“品牌色”和“动作色”。
 
-| Token | Light | Dark | 用途 |
-|---|---|---|---|
-| `SurfaceCanvas` | `#FAF8F5` | `#161311` | 页面画布 |
-| `SurfacePrimary` | `#FFFFFF` | `#221E1A` | 独立内容表面 |
-| `SurfaceSecondary` | `#F2EFEA` | `#1C1916` | 输入、分组、占位骨架 |
-| `SurfaceElevated` | `#FFFFFF` | `#2C2722` | Sheet、浮层、吸底栏 |
-| `TextPrimary` | `#1F1B18` | `#F2EBE3` | 主文字 |
-| `TextSecondary` | `#6B625B` | `#B5A89C` | 次文字 |
-| `TextMuted` | `#776D65` | `#91857A` | 辅助文字；仍需逐场景检查 |
-| `BrandCoral` | `#FD8663` | `#FD9A79` | Logo、装饰点、非文字品牌瞬间 |
-| `ActionPrimary` | `#BC4727` | `#E8845F` | 主按钮、选中态、可交互图标 |
-| `OnActionPrimary` | `#FFFFFF` | `#161311` | 主按钮文字 |
-| `AccentSoft` | `#FCE8DF` | `#3A241C` | 轻选中底色 |
-| `BorderSubtle` | `#E5DFD8` | `#383129` | 0.5–1pt 边界 |
-| `Separator` | `#ECE7E1` | `#2E2823` | 非交互分隔 |
-| `Success` | `#2F7D57` | `#72C998` | 成功 |
-| `Warning` | `#9A5B00` | `#F0B85A` | 警告 |
-| `Danger` | `#B33A36` | `#EF7D76` | 删除、失败 |
+| Token | Light | OKLCh (Light) | Dark | OKLCh (Dark) | 用途 |
+|---|---|---|---|---|---|
+| `SurfaceCanvas` | `#FAF8F5` | `oklch(0.980 0.005 78.3)` | `#161311` | `oklch(0.190 0.006 56.0)` | 页面画布 |
+| `SurfacePrimary` | `#FFFFFF` | `oklch(1.000 0.000 89.9)` | `#221E1A` | `oklch(0.238 0.010 67.3)` | 独立内容表面 |
+| `SurfaceSecondary` | `#F2EFEA` | `oklch(0.953 0.007 80.7)` | `#1C1916` | `oklch(0.216 0.007 67.4)` | 输入、分组、占位骨架 |
+| `SurfaceElevated` | `#FFFFFF` | `oklch(1.000 0.000 89.9)` | `#2C2722` | `oklch(0.276 0.012 67.3)` | Sheet、浮层、吸底栏 |
+| `TextPrimary` | `#1F1B18` | `oklch(0.226 0.008 59.2)` | `#F2EBE3` | `oklch(0.943 0.013 71.3)` | 主文字 |
+| `TextSecondary` | `#6B625B` | `oklch(0.502 0.016 60.3)` | `#B5A89C` | `oklch(0.739 0.023 65.2)` | 次文字 |
+| `TextMuted` | `#776D65` | `oklch(0.542 0.018 61.1)` | `#91857A` | `oklch(0.624 0.022 65.0)` | 辅助文字；仍需逐场景检查 |
+| `BrandCoral` | `#FD8663` | `oklch(0.746 0.153 37.2)` | `#FD9A79` | `oklch(0.781 0.128 39.2)` | Logo、装饰点、非文字品牌瞬间 |
+| `ActionPrimary` | `#BC4727` | `oklch(0.553 0.158 35.9)` | `#E8845F` | `oklch(0.714 0.133 40.8)` | 主按钮、选中态、可交互图标 |
+| `OnActionPrimary` | `#FFFFFF` | `oklch(1.000 0.000 89.9)` | `#161311` | `oklch(0.190 0.006 56.0)` | 主按钮文字 |
+| `AccentSoft` | `#FCE8DF` | `oklch(0.945 0.025 45.9)` | `#3A241C` | `oklch(0.286 0.037 40.8)` | 轻选中底色 |
+| `BorderSubtle` | `#E5DFD8` | `oklch(0.906 0.012 71.9)` | `#383129` | `oklch(0.318 0.017 70.9)` | 0.5–1pt 边界 |
+| `Separator` | `#ECE7E1` | `oklch(0.930 0.010 72.7)` | `#2E2823` | `oklch(0.282 0.013 62.1)` | 非交互分隔 |
+| `Success` | `#2F7D57` | `oklch(0.531 0.098 159.0)` | `#72C998` | `oklch(0.768 0.111 157.7)` | 成功 |
+| `Warning` | `#9A5B00` | `oklch(0.531 0.119 65.1)` | `#F0B85A` | `oklch(0.816 0.128 78.2)` | 警告 |
+| `Danger` | `#B33A36` | `oklch(0.524 0.158 26.0)` | `#EF7D76` | `oklch(0.717 0.141 24.9)` | 删除、失败 |
 
 实施规则：
 
@@ -131,6 +131,8 @@ App 图标、空态插画与商店截图需要单独产出；未有品牌插画�
 | `button` | 系统字体 Semibold | body | 按钮 |
 
 Fraunces 不进入常规 App 界面；仅可用于英文营销物料或最终 wordmark。这样常规页面最多出现系统字体与一套中文情感字体，避免三种视觉声线竞争。
+
+**Figma UI 文本样式 → iOS 字体映射（已知替换）。** Figma 中名为 `MiLens/UI/Title`、`MiLens/UI/Body Strong`、`MiLens/UI/Overline`、`MiLens/UI/Metadata` 等 UI 文本样式标注字体为 **Noto Sans SC Medium**，iOS 实现统一回退**系统字体**（简体中文 PingFang SC / 拉丁 SF Pro），对应 `Typography` 的 `uiTitle` / `uiBodyStrong` / `editorialOverline` / `editorialMetadata` token。理由：零包体积、保持原生字体感、Dynamic Type 全程参与缩放。Figma 节点引用（如 `458:1145`、`422:845`）保留原文「Noto Sans SC Medium」作为设计稿出处，映射规则集中在本节——iOS 不打包 Noto Sans SC 是有意的产品决策，非缺陷。
 
 字体选择由区域差异化模型 `MarketProfile.usesWenKaiDisplay` 控制（`MiLens/ViewModels/MarketProfile.swift`）：仅 zh-Hans 使用霞鹜文楷，zh-Hant/ja/ko 等语言回退系统衬线字体——文楷子集仅覆盖 GB2312 简体字符，其他语言使用会缺字。详见 [docs/Localization-Plan.md](docs/Localization-Plan.md) §4.8。
 

@@ -136,7 +136,7 @@ struct PhotoViewView: View {
                         .fill(.white)
                         .frame(width: 44, height: 44)
                     Image(systemName: "chevron.left")
-                        .font(.system(size: 14, weight: .semibold))
+                        .font(.system(size: Sizing.iconSm, weight: .semibold))
                         .foregroundStyle(Color.milensInk)
                 }
             }
@@ -155,7 +155,7 @@ struct PhotoViewView: View {
                             .fill(.white)
                             .frame(width: 44, height: 44)
                         Image(systemName: photo.isFavorite ? "heart.fill" : "heart")
-                            .font(.system(size: 16))
+                            .font(.system(size: Sizing.iconSm))
                             .foregroundStyle(photo.isFavorite ? Color.milensActionPrimary : Color.milensInk)
                     }
                 }
@@ -173,13 +173,13 @@ struct PhotoViewView: View {
             // 日期 + 标题 + 元数据（对照 #211:317-319）
             VStack(alignment: .leading, spacing: 6) {
                 Text(dateLabel)
-                    .font(.system(size: 11, weight: .bold))
+                    .font(.editorialMetadata)
                     .foregroundStyle(Color.milensActionPrimary)
                 Text(titleText)
                     .font(.custom("LXGWWenKai-Regular", size: 25, relativeTo: .title2))
                     .foregroundStyle(Color.milensTextPrimary)
                 Text(metadataText)
-                    .font(.custom("Fraunces-Regular", size: 12))
+                    .font(.editorialMetadata)
                     .foregroundStyle(Color.milensTextSecondary)
             }
             .padding(.horizontal, Spacing.pagePad)
@@ -209,7 +209,7 @@ struct PhotoViewView: View {
         } label: {
             HStack {
                 Text(String(localized: "photo.detail.addToMemory"))
-                    .font(.system(size: 15, weight: .bold))
+                    .font(.buttonLabel)
                     .foregroundStyle(Color.milensDarkroomText)
                 Spacer()
                 // 暗色拨盘圆
@@ -221,7 +221,7 @@ struct PhotoViewView: View {
                         .stroke(Color.milensDarkroomText, lineWidth: 1)
                         .frame(width: 44, height: 44)
                     Image(systemName: "plus")
-                        .font(.system(size: 18, weight: .bold))
+                        .font(.system(size: Sizing.iconMd, weight: .bold))
                         .foregroundStyle(Color.milensDarkroomText)
                 }
             }
@@ -275,11 +275,11 @@ struct PhotoViewView: View {
                         .fill(Color.milensGrouped)
                         .frame(width: 46, height: 46)
                     Image(systemName: icon)
-                        .font(.system(size: 20))
+                        .font(.system(size: Sizing.iconMd))
                         .foregroundStyle(Color.milensInk)
                 }
                 Text(label)
-                    .font(.system(size: 11, weight: .medium))
+                    .font(.editorialMetadata)
                     .foregroundStyle(Color.milensTextSecondary)
             }
         }

@@ -145,7 +145,7 @@ struct SharePreviewSheet: View {
                             .fill(.white)
                             .frame(width: 36, height: 36)
                         Image(systemName: "xmark")
-                            .font(.system(size: 13, weight: .semibold))
+                            .font(.system(size: 13, weight: .semibold)) // ui-token:ok SF Symbol 光学图标尺寸
                             .foregroundStyle(Color.milensInk)
                     }
                 }
@@ -223,7 +223,7 @@ struct SharePreviewSheet: View {
                     .elevation(.medium)
                     .overlay(alignment: .bottomTrailing) {
                         Image(systemName: "plus.magnifyingglass")
-                            .font(.system(size: 12))
+                            .font(.system(size: 12)) // ui-token:ok SF Symbol 光学图标尺寸
                             .foregroundStyle(.white)
                             .padding(6)
                             .background(Color.black.opacity(0.4), in: Circle())

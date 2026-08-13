@@ -53,12 +53,12 @@ struct BeadResultOutputPanel: View {
                         HStack(spacing: 8) {
                             ProgressView().tint(.white)
                             Text(String(localized: "create.bead.exporting"))
-                                .font(.system(size: 15, weight: .bold))
+                                .font(.buttonLabel)
                                 .foregroundStyle(.white)
                         }
                     } else {
                         Text(String(localized: "create.bead.saveHd"))
-                            .font(.system(size: 15, weight: .bold))
+                            .font(.buttonLabel)
                             .foregroundStyle(.white)
                     }
                 }
@@ -84,16 +84,16 @@ struct BeadResultOutputPanel: View {
             HStack(spacing: 0) {
                 VStack(alignment: .leading, spacing: 3) {
                     Text(title)
-                        .font(.system(size: 13, weight: .medium))
+                        .font(.bodySecondary)
                         .foregroundStyle(Color.milensTextPrimary)
                     Text(desc)
-                        .font(.system(size: 10))
+                        .font(.editorialOverline)
                         .foregroundStyle(Color.milensTextTertiary)
                 }
                 Spacer()
                 if let badge {
                     Text(badge)
-                        .font(.system(size: 11, weight: .medium))
+                        .font(.editorialMetadata)
                         .foregroundStyle(Color.milensActionPrimary)
                         .padding(.horizontal, 10)
                         .padding(.vertical, 4)

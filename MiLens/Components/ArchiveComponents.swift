@@ -141,16 +141,16 @@ struct ArchiveStatView: View {
         VStack(spacing: 4) {
             HStack(alignment: .firstTextBaseline, spacing: 2) {
                 Text(value)
-                    .font(.system(size: 28, weight: .bold))
+                    .font(.numberStat)
                     .foregroundStyle(Color.milensTextPrimary)
                 if let unit {
                     Text(unit)
-                        .font(.system(size: 13))
+                        .font(.bodySecondary)
                         .foregroundStyle(Color.milensTextSecondary)
                 }
             }
             Text(label)
-                .font(.system(size: 11))
+                .font(.editorialMetadata)
                 .foregroundStyle(Color.milensTextSecondary)
         }
         .frame(maxWidth: .infinity)
@@ -231,11 +231,11 @@ struct IdentityStrip<Thumbnail: View>: View {
             // 右侧文本列
             VStack(alignment: .leading, spacing: 2) {
                 Text(meta)
-                    .font(.system(size: 10, weight: .medium))
+                    .font(.editorialOverline)
                     .tracking(0.4)
                     .foregroundStyle(Color.milensActionPrimary)
                 Text(label)
-                    .font(.system(size: 14, weight: .medium))
+                    .font(.bodyPrimary)
                     .foregroundStyle(Color.milensTextPrimary)
                     .lineLimit(1)
             }
@@ -248,7 +248,7 @@ struct IdentityStrip<Thumbnail: View>: View {
                 VStack(alignment: .trailing, spacing: 4) {
                     Button(action: onAction) {
                         Text(action)
-                            .font(.system(size: 11, weight: .medium))
+                            .font(.editorialMetadata)
                             .foregroundStyle(Color.milensActionPrimary)
                     }
                     .buttonStyle(.plain)

@@ -346,7 +346,7 @@ struct RedPacketCoverView: View {
     private var loadFailedView: some View {
         VStack(spacing: Spacing.md) {
             Image(systemName: "exclamationmark.triangle")
-                .font(.system(size: 40))
+                .font(.system(size: 40)) // ui-token:ok 错误态装饰大图标
                 .foregroundStyle(Color.milensTextSecondary)
             Text("照片加载失败")
                 .font(.bodyPrimary)

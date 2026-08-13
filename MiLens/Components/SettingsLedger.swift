@@ -21,7 +21,7 @@ struct SettingsSectionLabel: View {
 
     var body: some View {
         Text(title)
-            .font(.system(size: 12, weight: .medium))
+            .font(.bodySecondary)
             .foregroundStyle(Color.milensTextSecondary)
             .frame(maxWidth: .infinity, alignment: .leading)
     }
@@ -102,7 +102,7 @@ struct LedgerRow<Trailing: View>: View {
                 .foregroundStyle(Color.milensActionPrimary)
 
             Text(label)
-                .font(.system(size: 15, weight: .regular))
+                .font(.bodyPrimary)
                 .foregroundStyle(Color.milensTextPrimary)
                 .fixedSize(horizontal: true, vertical: false)
 
@@ -130,11 +130,11 @@ struct LedgerDisclosureRow: View {
             HStack(spacing: 6) {
                 if let trailingText {
                     Text(trailingText)
-                        .font(.system(size: 13))
+                        .font(.bodySecondary)
                         .foregroundStyle(Color.milensTextSecondary)
                 }
                 Image(systemName: "chevron.right")
-                    .font(.system(size: 11, weight: .semibold))
+                    .font(.system(size: 11, weight: .semibold)) // ui-token:ok SF Symbol 光学图标尺寸
                     .foregroundStyle(Color.milensTextSecondary)
             }
         }
@@ -186,11 +186,11 @@ struct PreferenceRow: View {
                         HStack(spacing: 6) {
                             if let valueText {
                                 Text(valueText)
-                                    .font(.system(size: 13))
+                                    .font(.bodySecondary)
                                     .foregroundStyle(Color.milensTextSecondary)
                             }
                             Image(systemName: "chevron.right")
-                                .font(.system(size: 11, weight: .semibold))
+                                .font(.system(size: 11, weight: .semibold)) // ui-token:ok SF Symbol 光学图标尺寸
                                 .foregroundStyle(Color.milensTextSecondary)
                         }
                     }
@@ -235,18 +235,18 @@ struct ProHeroCard: View {
                     // 已激活：成功色徽章做视觉确认
                     if isPro {
                         Image(systemName: "checkmark.seal.fill")
-                            .font(.system(size: 16))
+                            .font(.system(size: Sizing.iconSm))
                             .foregroundStyle(Color.milensSuccess)
                     }
                 }
 
                 Text(String(localized: headlineKey))
-                    .font(.system(size: 22, weight: .bold))
+                    .font(.numberStat)
                     .foregroundStyle(Color.white)
                     .padding(.top, 11)
 
                 Text(String(localized: bodyKey))
-                    .font(.system(size: 12))
+                    .font(.bodySecondary)
                     .foregroundStyle(Color.milensProBody)
                     .padding(.top, 12)
             }
@@ -256,7 +256,7 @@ struct ProHeroCard: View {
             HStack {
                 Spacer()
                 Text(String(localized: ctaKey))
-                    .font(.system(size: 12))
+                    .font(.bodySecondary)
                     .foregroundStyle(Color.white)
             }
             .padding(.trailing, 25)
@@ -323,7 +323,7 @@ struct PrivacyBadgeCard: View {
                     .frame(width: 40, height: 40)
                     .overlay(
                         Image(systemName: "lock.fill")
-                            .font(.system(size: 16))
+                            .font(.system(size: Sizing.iconSm))
                             .foregroundStyle(Color.white)
                     )
                     .padding(.leading, 16)
@@ -331,17 +331,17 @@ struct PrivacyBadgeCard: View {
                 // 右侧文案
                 VStack(alignment: .leading, spacing: 7) {
                     Text(String(localized: "settings.privacy.badge.title"))
-                        .font(.system(size: 15, weight: .bold))
+                        .font(.bodyPrimary)
                         .foregroundStyle(Color.milensTextPrimary)
                     Text(String(localized: "settings.privacy.badge.body"))
-                        .font(.system(size: 11))
+                        .font(.editorialMetadata)
                         .foregroundStyle(Color.milensTextSecondary)
                 }
                 .padding(.leading, 16)
                 .frame(maxWidth: .infinity, alignment: .leading)
 
                 Image(systemName: "chevron.right")
-                    .font(.system(size: 11, weight: .semibold))
+                    .font(.system(size: 11, weight: .semibold)) // ui-token:ok SF Symbol 光学图标尺寸
                     .foregroundStyle(Color.milensTextSecondary)
                     .padding(.trailing, 16)
             }
@@ -368,7 +368,7 @@ struct PrivacyBadgeCard: View {
 struct SettingsFooter: View {
     var body: some View {
         Text(String(localized: "settings.footer.privacy"))
-            .font(.system(size: 11))
+            .font(.editorialMetadata)
             .foregroundStyle(Color.milensTextTertiary)
             .multilineTextAlignment(.center)
             .frame(maxWidth: .infinity)
@@ -392,10 +392,10 @@ struct SettingsFooter: View {
                 LedgerRow(index: "02", label: "外观") {
                     HStack(spacing: 6) {
                         Text("跟随系统")
-                            .font(.system(size: 13))
+                            .font(.bodySecondary)
                             .foregroundStyle(Color.milensTextSecondary)
                         Image(systemName: "chevron.right")
-                            .font(.system(size: 11, weight: .semibold))
+                            .font(.system(size: 11, weight: .semibold)) // ui-token:ok SF Symbol 光学图标尺寸
                             .foregroundStyle(Color.milensTextSecondary)
                     }
                 }

@@ -265,7 +265,7 @@ struct CreationActionBar: View {
             // 主按钮（右半，铜色板）
             Button(action: primaryAction) {
                 Text(primaryLabel)
-                    .font(.system(size: 15, weight: .semibold))
+                    .font(.buttonLabel)
                     .foregroundStyle(Color.milensTextOnActionPrimary)
                     .frame(maxWidth: .infinity)
                     .frame(height: 60)
@@ -309,7 +309,7 @@ struct WorkshopNavHeader<Trailing: View>: View {
         HStack(spacing: 0) {
             Button(action: onBack) {
                 Image(systemName: "chevron.left")
-                    .font(.system(size: 24, weight: .semibold))
+                    .font(.system(size: Sizing.iconLg, weight: .semibold))
                     .foregroundStyle(Color.milensTextPrimary)
                     .frame(width: Sizing.touchTarget, height: Sizing.touchTarget)
                     .contentShape(Rectangle())
@@ -367,7 +367,7 @@ struct WorkshopSourceBar<ImageContent: View>: View {
 
             if let onChange {
                 Button(String(localized: "source.change"), action: onChange)
-                    .font(.system(size: 13))
+                    .font(.bodySecondary)
                     .foregroundStyle(Color.milensActionPrimary)
             }
         }
@@ -415,7 +415,7 @@ struct WorkshopTemplateTab: View {
                         .foregroundStyle(indexColor)
                     if state == .locked {
                         Text("PRO")
-                            .font(.system(size: 8, weight: .bold))
+                            .font(.system(size: 8, weight: .bold)) // ui-token:ok 微型角标
                             .foregroundStyle(.white)
                             .padding(.horizontal, 4)
                             .padding(.vertical, 2)
@@ -425,7 +425,7 @@ struct WorkshopTemplateTab: View {
                     }
                 }
                 Text(label)
-                    .font(.system(size: 12, weight: .medium))
+                    .font(.bodySecondary)
                     .foregroundStyle(labelColor)
             }
             .frame(width: 78, height: 50)

@@ -10,7 +10,7 @@ MiLens（咪Lens）iOS 版是宠物家庭的数字生命档案。基于 `docs/Mi
 
 页面原型是早期叙事材料；当前 UI 执行规格以 [UI-DESIGN.md](UI-DESIGN.md) v2.0 为准。现有 SwiftUI 页面与 v1 token 不代表视觉完成度。
 
-V1.0 范围：首页（今日/回忆/提醒）、宠物档案、创作（拼豆图纸 + 宠物卡片）、**完整图片编辑器**、扫描增强（质量评分 + 重复分组）、我的（订阅/主题/隐私）；适配 iPhone + iPad。范围详见 [ADR-0008](docs/adr/0008-v1-scope-decision.md)。
+V1.0 范围：首页（今日/回忆/提醒）、宠物档案、创作（拼豆图纸 + 宠物卡片 + 红包封面）、**完整图片编辑器**、扫描增强（质量评分 + 重复分组）、我的（订阅/主题/隐私）；适配 iPhone + iPad。红包封面编辑器的专项计划见 [docs/红包封面开发计划.md](docs/红包封面开发计划.md)。范围详见 [ADR-0008](docs/adr/0008-v1-scope-decision.md)。
 V1.0 不含：手表、健康管理、社区、云账号、商城、家庭局域网备份、AI 写真/回忆视频（详见评估报告 §5、[ADR-0008](docs/adr/0008-v1-scope-decision.md)）。
 
 ## 2. 技术栈
@@ -209,6 +209,6 @@ App 不会主动上传照片；编辑产物可能随用户启用的系统备份�
 - AI 推理框架已定案：方案 A 全转换（CLIP + RTMPose → Core ML，INT8 量化）+ Vision 原生分割。详见 [ADR-0007](docs/adr/0007-ios-ai-inference-route.md)。
 - 质量评分（Laplacian 方差清晰度）+ 重复分组（pHash 视觉哈希）**已实现**（P2，[ADR-0008](docs/adr/0008-v1-scope-decision.md)）；完整图片编辑器**已实现**（P4，裁切/旋转/翻转/调色/锐化/文字/抠图）。CLIP embedding 相似度增强、RTMPose 精度需 iPhone 真机验证（模型已转换，推理质量待实测）。
 - 家庭局域网备份后置 V1.x（离线备份接口已预留：ADR-0010 §8，`BackupService` 协议 + ZIP 打包 + ShareSheet，不联网）；AI 写真/回忆视频 V1.0 不做（无源端参照，需独立产品+技术方案），仅 V1.x 重新评估。
-- 商业化强化方案见 [ADR-0010](docs/adr/0010-commercialization-and-emotion-triggers.md)：照片配额（含降级后「可见但锁定」场景 §10.1.1）、导出水印、买断降价、分享增强、卡片多模板、时间线导出已实现；离线备份、相簿模式、实体打印、编辑器装饰接口已预留。
+- 商业化强化方案见 [ADR-0010](docs/adr/0010-commercialization-and-emotion-triggers.md)：照片配额（含降级后「可见但锁定」场景 §10.1.1）、导出水印、买断降价、分享增强、卡片多模板、时间线导出已实现；红包封面编辑器与聊天语境导出预览按 [docs/红包封面开发计划.md](docs/红包封面开发计划.md) 分期落地；离线备份、相簿模式、实体打印、编辑器装饰接口已预留。
 - **区域差异化基础设施已落地**：`MarketProfile`（`ViewModels/MarketProfile.swift`）作为按市场/地区差异的单一入口，当前承载字体策略与隐私叙事强度两个维度；新增维度时在该模型追加字段 + 纯逻辑 + 单测，UI 层从 `@Environment(\.marketProfile)` 消费，不在 View 内散写 `if Locale` 判断。
 - 编译与单元测试已在本机 macOS 验证通过（严格并发 `complete` 下 BUILD SUCCEEDED，MiLensKit 594 + App 604 + UI 2 全绿）；真机调试、模拟器 UI 人工验证、Instruments 性能分析仍需 Mac + iPhone 真机。

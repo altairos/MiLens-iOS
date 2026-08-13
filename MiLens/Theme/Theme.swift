@@ -29,6 +29,9 @@ enum Radius {
     static let large: CGFloat = 20
     /// 缩略图
     static let thumb: CGFloat = 12
+    /// 强调竖线（rail）半宽圆角——4pt 宽珊瑚竖线/分隔条的 2pt 端圆角。
+    /// 装饰性 rail 不属于容器圆角语义，独立于 small/medium/large。
+    static let accentRail: CGFloat = 2
 
     // 向后兼容（P1.1 旧命名）—— 指向新三档
     static let card: CGFloat = large

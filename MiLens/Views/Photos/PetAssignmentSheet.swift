@@ -114,7 +114,7 @@ struct PetAssignmentSheet: View {
                         .clipShape(Circle())
                 } else {
                     Text(PetProfileLogic.speciesEmoji(pet.species))
-                        .font(.system(size: 22))
+                        .font(.system(size: 22)) // ui-token:ok 头像占位 emoji
                 }
             }
             .frame(width: 44, height: 44)
@@ -144,7 +144,7 @@ struct PetAssignmentSheet: View {
     private var emptyState: some View {
         VStack(spacing: Spacing.sm) {
             Image(systemName: "pawprint.fill")
-                .font(.system(size: 48))
+                .font(.system(size: 48)) // ui-token:ok 空态装饰大图标
                 .foregroundStyle(Color.milensTextSecondary)
             Text(String(localized: "photo.assign.empty"))
                 .font(.bodyPrimary)

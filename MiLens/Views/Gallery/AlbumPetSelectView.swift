@@ -53,10 +53,10 @@ struct AlbumPetSelectView: View {
                     // 张数
                     HStack(alignment: .firstTextBaseline, spacing: 2) {
                         Text("\(selectedCount)")
-                            .font(.system(size: 28, weight: .bold))
+                            .font(.numberStat)
                             .foregroundStyle(Color.milensTextPrimary)
                         Text("张")
-                            .font(.system(size: 12))
+                            .font(.bodySecondary)
                             .foregroundStyle(Color.milensTextSecondary)
                     }
                     .padding(.leading, 8)
@@ -81,7 +81,7 @@ struct AlbumPetSelectView: View {
     private var sectionDivider: some View {
         VStack(alignment: .leading, spacing: 0) {
             Text("伙伴档案")
-                .font(.system(size: 12))
+                .font(.bodySecondary)
                 .foregroundStyle(Color.milensTextPrimary)
                 .padding(.horizontal, Spacing.lg)
                 .padding(.top, Spacing.lg)
@@ -146,24 +146,24 @@ struct AlbumPetSelectView: View {
                             .frame(width: 56, height: 56)
                             .overlay(
                                 Text(PetProfileLogic.speciesEmoji(pet.species))
-                                    .font(.system(size: 28))
+                                    .font(.system(size: 28)) // ui-token:ok 头像占位 emoji
                             )
                     }
                 }
 
                 VStack(alignment: .leading, spacing: 2) {
                     Text(pet.name)
-                        .font(.system(size: 15, weight: .medium))
+                        .font(.uiBodyStrong)
                         .foregroundStyle(Color.milensTextPrimary)
                     Text("\(PetDisplayLogic.speciesDisplayName(pet.species)) · \(pet.photoCount) 张照片")
-                        .font(.system(size: 11))
+                        .font(.editorialMetadata)
                         .foregroundStyle(Color.milensTextSecondary)
                 }
 
                 Spacer()
 
                 Text(isSelected ? "已选择" : "\u{2192}")
-                    .font(.system(size: 12))
+                    .font(.bodySecondary)
                     .foregroundStyle(isSelected ? Color.milensActionPrimary : Color.milensTextTertiary)
                     .padding(.trailing, 12)
             }
@@ -187,23 +187,23 @@ struct AlbumPetSelectView: View {
                     .frame(width: 56, height: 56)
                     .overlay(
                         Text("\u{FF0B}")
-                            .font(.system(size: 20, weight: .medium))
+                            .font(.system(size: 20, weight: .medium)) // ui-token:ok 新建占位字符
                             .foregroundStyle(Color.milensActionPrimary)
                     )
 
                 VStack(alignment: .leading, spacing: 2) {
                     Text("新建伙伴档案")
-                        .font(.system(size: 15, weight: .medium))
+                        .font(.uiBodyStrong)
                         .foregroundStyle(Color.milensTextPrimary)
                     Text("由你填写名字和资料")
-                        .font(.system(size: 11))
+                        .font(.editorialMetadata)
                         .foregroundStyle(Color.milensTextSecondary)
                 }
 
                 Spacer()
 
                 Text("\u{2192}")
-                    .font(.system(size: 12))
+                    .font(.bodySecondary)
                     .foregroundStyle(Color.milensTextTertiary)
                     .padding(.trailing, 12)
             }
@@ -231,16 +231,16 @@ struct AlbumPetSelectView: View {
 
                 HStack(alignment: .firstTextBaseline, spacing: 4) {
                     Text("\(selectedCount)")
-                        .font(.system(size: 28, weight: .bold))
+                        .font(.numberStat)
                         .foregroundStyle(Color.milensTextPrimary)
                     Text("加入「\(petName)」的档案")
-                        .font(.system(size: 15, weight: .medium))
+                        .font(.uiBodyStrong)
                         .foregroundStyle(Color.milensTextPrimary)
                 }
                 .padding(.top, 7)
 
                 Text("确认后才会写入；导入后免费额度 \(vm.totalPhotoCount + selectedCount) / \(CommercialRules.freePhotoLimit)")
-                    .font(.system(size: 12))
+                    .font(.bodySecondary)
                     .foregroundStyle(Color.milensTextSecondary)
                     .padding(.top, 14)
                     .padding(.bottom, 16)
@@ -267,7 +267,7 @@ struct AlbumPetSelectView: View {
         return Button(action: onConfirm) {
             HStack {
                 Text(label)
-                    .font(.system(size: 15, weight: .bold))
+                    .font(.buttonLabel)
                     .foregroundStyle(Color.milensActionPrimary)
                 Spacer()
                 ZStack {
@@ -275,7 +275,7 @@ struct AlbumPetSelectView: View {
                         .stroke(Color.milensActionPrimary, lineWidth: 1)
                         .frame(width: 42, height: 32)
                     Text("\u{2192}")
-                        .font(.system(size: 20))
+                        .font(.system(size: 20)) // ui-token:ok 装饰箭头字符
                         .foregroundStyle(Color.milensActionPrimary)
                 }
             }

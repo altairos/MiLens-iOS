@@ -114,13 +114,13 @@ struct PaywallView: View {
                     .padding(.top, Spacing.lg)
 
                 Text(String(localized: "paywall.hero.subtitle"))
-                    .font(.system(size: 12))
+                    .font(.bodySecondary)
                     .foregroundStyle(Color.milensPaywallSubtitle)
                     .padding(.top, Spacing.lg)
 
                 // 副标题（对照 Figma #37:29）
                 Text("更多伙伴 · 完整回顾 · 高质量导出")
-                    .font(.system(size: 12))
+                    .font(.bodySecondary)
                     .foregroundStyle(Color.milensDarkroomText)
                     .padding(.top, 4)
 
@@ -141,7 +141,7 @@ struct PaywallView: View {
                     .fill(.white)
                     .frame(width: 44, height: 44)
                 Image(systemName: "xmark")
-                    .font(.system(size: 14, weight: .semibold))
+                    .font(.system(size: Sizing.iconSm, weight: .semibold))
                     .foregroundStyle(Color.milensInk)
             }
         }
@@ -154,7 +154,7 @@ struct PaywallView: View {
         VStack(alignment: .leading, spacing: 0) {
             // 标题
             Text(String(localized: "paywall.purchase.title"))
-                .font(.system(size: 20, weight: .medium))
+                .font(.uiTitle)
                 .foregroundStyle(Color.milensTextPrimary)
                 .padding(.horizontal, Spacing.pagePad)
                 .padding(.top, Spacing.xl)
@@ -225,10 +225,10 @@ struct PaywallView: View {
                 .padding(.top, 4)
             VStack(alignment: .leading, spacing: 4) {
                 Text(title)
-                    .font(.system(size: 14, weight: .bold))
+                    .font(.bodyPrimary)
                     .foregroundStyle(Color.milensTextPrimary)
                 Text(desc)
-                    .font(.system(size: 12))
+                    .font(.bodySecondary)
                     .foregroundStyle(Color.milensTextSecondary)
             }
         }
@@ -279,7 +279,7 @@ struct PaywallView: View {
 
                 // 方案名称
                 Text(planName(for: product))
-                    .font(.system(size: 14, weight: isSelected ? .bold : .medium))
+                    .font(.bodyPrimary)
                     .foregroundStyle(Color.milensTextPrimary)
 
                 Spacer()
@@ -288,11 +288,11 @@ struct PaywallView: View {
                 VStack(alignment: .trailing, spacing: 2) {
                     if isSelected, let trial = product.trialDays, trial > 0 {
                         Text(String(localized: "paywall.trial.hint \(trial)"))
-                            .font(.system(size: 11))
+                            .font(.editorialMetadata)
                             .foregroundStyle(Color.milensTextSecondary)
                     }
                     Text("从 App Store 获取")
-                        .font(.system(size: 11))
+                        .font(.editorialMetadata)
                         .foregroundStyle(Color.milensTextSecondary)
                 }
             }
@@ -320,7 +320,7 @@ struct PaywallView: View {
         if model.proStatus.isActive {
             // 已解锁状态
             Label(String(localized: "paywall.pro.owned"), systemImage: "checkmark.seal.fill")
-                .font(.system(size: 15, weight: .bold))
+                .font(.buttonLabel)
                 .foregroundStyle(Color.milensSuccess)
                 .frame(maxWidth: .infinity, minHeight: 58)
                 .background(RoundedRectangle(cornerRadius: 12).stroke(Color.milensBorder, lineWidth: 0.5))
@@ -331,7 +331,7 @@ struct PaywallView: View {
             } label: {
                 HStack {
                     Text(ctaTitle(for: model))
-                        .font(.system(size: 15, weight: .bold))
+                        .font(.buttonLabel)
                         .foregroundStyle(Color.milensDarkroomText)
                     Spacer()
                     // 箭头印章（对照 Purchase Seal #328:693）
@@ -343,7 +343,7 @@ struct PaywallView: View {
                             .stroke(Color.milensActionPrimary, lineWidth: 2)
                             .frame(width: 36, height: 36)
                         Image(systemName: "arrow.right")
-                            .font(.system(size: 14, weight: .medium))
+                            .font(.system(size: Sizing.iconSm, weight: .medium))
                             .foregroundStyle(Color.milensDarkroomText)
                     }
                 }
@@ -430,7 +430,7 @@ struct PaywallView: View {
                 Link(String(localized: "paywall.link.privacy"), destination: url)
             }
         }
-        .font(.system(size: 11))
+        .font(.editorialMetadata)
         .foregroundStyle(Color.milensTextSecondary)
         .frame(maxWidth: .infinity)
     }
@@ -474,7 +474,7 @@ private struct PaywallLoadFailedState: View {
             Color.milensStudioBackground.ignoresSafeArea()
             VStack(spacing: Spacing.lg) {
                 Image(systemName: "arrow.clockwise.circle")
-                    .font(.system(size: 40, weight: .light))
+                    .font(.system(size: 40, weight: .light)) // ui-token:ok 错误态装饰大图标
                     .foregroundStyle(Color.milensPaper.opacity(0.5))
                 Text(String(localized: "paywall.load.failed"))
                     .font(.bodyPrimary)

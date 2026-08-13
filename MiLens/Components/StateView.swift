@@ -27,7 +27,7 @@ struct StateView: View {
     var body: some View {
         VStack(spacing: Spacing.lg) {
             Image(systemName: icon)
-                .font(.system(size: 48, weight: .light))
+                .font(.system(size: 48, weight: .light)) // ui-token:ok 空态装饰大图标
                 .foregroundStyle(Color.milensTextSecondary)
             Text(title)
                 .font(.displayMedium)

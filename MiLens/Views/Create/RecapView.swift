@@ -161,7 +161,7 @@ struct RecapView: View {
                         }
                     } label: {
                         Text(String(year))
-                            .font(.system(size: 16, weight: selectedYear == year ? .bold : .medium))
+                            .font(.bodyPrimary)
                             .foregroundStyle(selectedYear == year ? Color.milensActionPrimary : Color.milensTextSecondary)
                             .padding(.horizontal, 16)
                             .padding(.vertical, 8)
@@ -201,7 +201,7 @@ struct RecapView: View {
                     .fill(Color.milensActionPrimary)
                     .frame(width: 3, height: 16)
                 Text(MemoryRecapLogic.monthlyTitle(year: month.year, month: month.month))
-                    .font(.system(size: 15, weight: .semibold))
+                    .font(.uiBodyStrong)
                     .foregroundStyle(Color.milensTextPrimary)
                 Spacer()
                 Text(String(localized: "recap.monthCount \(month.totalPhotoCount)"))
@@ -232,7 +232,7 @@ struct RecapView: View {
     private var emptyState: some View {
         VStack(spacing: Spacing.lg) {
             Image(systemName: "photo.on.rectangle.angled")
-                .font(.system(size: 40, weight: .light))
+                .font(.system(size: 40, weight: .light)) // ui-token:ok 空态装饰大图标
                 .foregroundStyle(Color.milensTextSecondary)
             Text(String(localized: "recap.empty.title"))
                 .font(.displayMedium)
@@ -467,7 +467,7 @@ private struct RecapExportCanvas: View {
                     .fill(Color.milensActionPrimary)
                     .frame(width: 3 * scale, height: 20 * scale)
                 Text(MemoryRecapLogic.monthlyTitle(year: month.year, month: month.month))
-                    .font(.system(size: 26 * scale, weight: .semibold))
+                    .font(.system(size: 26 * scale, weight: .semibold)) // ui-token:ok 动态缩放标题
                     .foregroundStyle(Color.milensTextPrimary)
             }
 

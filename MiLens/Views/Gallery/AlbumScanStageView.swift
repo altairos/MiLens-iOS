@@ -20,7 +20,7 @@ struct AlbumScanStageView: View {
 
                 // 进度文本
                 Text(isImport ? "正在把照片写入档案" : "正在寻找可能属于伙伴的照片")
-                    .font(.system(size: 19, weight: .bold))
+                    .font(.titleStandard)
                     .foregroundStyle(Color.milensTextPrimary)
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(.horizontal, Spacing.lg)
@@ -29,7 +29,7 @@ struct AlbumScanStageView: View {
                 Text(isImport
                      ? "复制原片并建立缩略图，全程不离开设备。"
                      : "只读取缩略图；候选仍需要你逐张确认。")
-                    .font(.system(size: 12))
+                    .font(.bodySecondary)
                     .foregroundStyle(Color.milensTextSecondary)
                     .padding(.horizontal, Spacing.lg)
                     .padding(.top, 4)
@@ -41,7 +41,7 @@ struct AlbumScanStageView: View {
 
                 // 步骤标题
                 Text(isImport ? "归档记录" : "扫描记录")
-                    .font(.system(size: 12))
+                    .font(.bodySecondary)
                     .foregroundStyle(Color.milensTextPrimary)
                     .padding(.horizontal, Spacing.lg)
                     .padding(.top, Spacing.xl)
@@ -64,7 +64,7 @@ struct AlbumScanStageView: View {
                     }
                 } label: {
                     Text(isImport ? "取消导入" : "停止扫描")
-                        .font(.system(size: 15, weight: .medium))
+                        .font(.uiBodyStrong)
                         .foregroundStyle(Color.milensTextSecondary)
                         .frame(maxWidth: .infinity)
                         .frame(height: 48)
@@ -131,7 +131,7 @@ struct AlbumScanStageView: View {
                 .frame(width: 8, height: 8)
             Text(isImport ? "写入本地档案 · \(vm.lastImportResult?.imported ?? 0) 张"
                  : "本地浏览 · 正在筛选候选")
-                .font(.system(size: 11, weight: .medium))
+                .font(.editorialMetadata)
                 .foregroundStyle(Color.milensDarkroomText)
         }
         .padding(.horizontal, 16)
@@ -225,19 +225,19 @@ struct AlbumScanStageView: View {
                         .frame(width: 14, height: 14)
                     if index == 0 {
                         Text("\u{2713}")
-                            .font(.system(size: 10, weight: .bold))
+                            .font(.editorialOverline)
                             .foregroundStyle(.white)
                     }
                 }
                 .frame(width: 32, alignment: .center)
 
                 Text(title)
-                    .font(.system(size: 12, weight: .medium))
+                    .font(.bodySecondary)
                     .foregroundStyle(Color.milensTextPrimary)
 
                 Spacer()
                 Text(status)
-                    .font(.system(size: 11))
+                    .font(.editorialMetadata)
                     .foregroundStyle(index <= 1 ? Color.milensActionPrimary : Color.milensTextSecondary)
             }
             .padding(.vertical, 14)

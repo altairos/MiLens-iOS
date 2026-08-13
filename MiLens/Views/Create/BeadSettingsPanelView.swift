@@ -104,11 +104,11 @@ struct BeadSettingsPanelView: View {
         VStack(alignment: .leading, spacing: 8) {
             HStack {
                 Text(String(localized: "create.bead.selectEffect"))
-                    .font(.system(size: 14, weight: .bold))
+                    .font(.bodyPrimary)
                     .foregroundStyle(Color.milensTextPrimary)
                 Spacer()
                 Text(String(localized: "create.bead.effectCount \(Self.styleOptions.count)"))
-                    .font(.system(size: 11))
+                    .font(.editorialMetadata)
                     .foregroundStyle(Color.milensActionPrimary)
             }
 
@@ -138,7 +138,7 @@ struct BeadSettingsPanelView: View {
                     if !option.badge.isEmpty {
                         // Badge（对照 #309:753）
                         Text(option.badge)
-                            .font(.system(size: 10, weight: .medium))
+                            .font(.editorialOverline)
                             .foregroundStyle(.white)
                             .padding(.horizontal, 8)
                             .padding(.vertical, 3)
@@ -152,10 +152,10 @@ struct BeadSettingsPanelView: View {
 
                 VStack(alignment: .leading, spacing: 2) {
                     Text(option.title)
-                        .font(.system(size: 11, weight: .medium))
+                        .font(.editorialMetadata)
                         .foregroundStyle(selected ? Color.milensActionPrimary : Color.milensTextPrimary)
                     Text(option.description)
-                        .font(.system(size: 11))
+                        .font(.editorialMetadata)
                         .foregroundStyle(Color.milensTextTertiary)
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
@@ -190,7 +190,7 @@ struct BeadSettingsPanelView: View {
     private var sizeSection: some View {
         VStack(alignment: .leading, spacing: 8) {
             Text(String(localized: "create.bead.boardSize"))
-                .font(.system(size: 13, weight: .bold))
+                .font(.bodyPrimary)
                 .foregroundStyle(Color.milensTextPrimary)
 
             HStack(spacing: 0) {
@@ -216,11 +216,11 @@ struct BeadSettingsPanelView: View {
         } label: {
             VStack(spacing: 1) {
                 Text(parts.first ?? "")
-                    .font(.system(size: 12, weight: selected ? .bold : .medium))
+                    .font(.bodySecondary)
                     .foregroundStyle(selected ? Color.white : Color.milensTextSecondary)
                 if parts.count > 1 {
                     Text(parts[1])
-                        .font(.system(size: 11))
+                        .font(.editorialMetadata)
                         .foregroundStyle(selected ? Color.white : Color.milensTextSecondary)
                 }
             }
@@ -239,17 +239,17 @@ struct BeadSettingsPanelView: View {
         HStack(spacing: 0) {
             VStack(alignment: .leading, spacing: 2) {
                 Text(String(localized: "create.bead.currentRecipe"))
-                    .font(.system(size: 10, weight: .medium))
+                    .font(.editorialOverline)
                     .tracking(0.4)
                     .foregroundStyle(Color.milensTextTertiary)
                 Text(buildSummary(vm.settings))
-                    .font(.system(size: 11, weight: .medium))
+                    .font(.editorialMetadata)
                     .foregroundStyle(Color.milensTextSecondary)
             }
             .padding(.leading, 14)
             Spacer()
             Text("\u{203A}")
-                .font(.system(size: 17, weight: .medium))
+                .font(.system(size: 17, weight: .medium)) // ui-token:ok 装饰箭头字符
                 .foregroundStyle(Color.milensActionPrimary)
                 .padding(.trailing, 14)
         }
@@ -269,7 +269,7 @@ struct BeadSettingsPanelView: View {
             // 标题行
             HStack {
                 Text(String(localized: "create.bead.advanced"))
-                    .font(.system(size: 13, weight: .bold))
+                    .font(.bodyPrimary)
                     .foregroundStyle(Color.milensTextPrimary)
                 Spacer()
                 Button {
@@ -278,7 +278,7 @@ struct BeadSettingsPanelView: View {
                     Text(vm.showAdvancedSettings
                          ? String(localized: "create.bead.expanded")
                          : String(localized: "create.bead.collapsed"))
-                        .font(.system(size: 10, weight: .medium))
+                        .font(.editorialOverline)
                         .tracking(0.4)
                         .foregroundStyle(Color.milensActionPrimary)
                 }
@@ -340,11 +340,11 @@ struct BeadSettingsPanelView: View {
             VStack(alignment: .leading, spacing: 8) {
                 HStack {
                     Text(String(localized: "create.bead.abstraction"))
-                        .font(.system(size: 11))
+                        .font(.editorialMetadata)
                         .foregroundStyle(Color.milensTextSecondary)
                     Spacer()
                     Text(abstractionLevelLabel(vm.settings.abstractLevel))
-                        .font(.system(size: 11))
+                        .font(.editorialMetadata)
                         .foregroundStyle(Color.milensActionPrimary)
                 }
                 Slider(value: $vm.settings.abstractLevel, in: 0...1, step: 0.1)
@@ -364,7 +364,7 @@ struct BeadSettingsPanelView: View {
     private func settingRow<Content: View>(label: String, @ViewBuilder content: () -> Content) -> some View {
         HStack(spacing: 0) {
             Text(label)
-                .font(.system(size: 11))
+                .font(.editorialMetadata)
                 .foregroundStyle(Color.milensTextTertiary)
                 .frame(width: 56, alignment: .leading)
             content()
@@ -386,7 +386,7 @@ struct BeadSettingsPanelView: View {
     private func chipButton(label: String, selected: Bool, action: @escaping () -> Void) -> some View {
         Button(action: action) {
             Text(label)
-                .font(.system(size: 11))
+                .font(.editorialMetadata)
                 .foregroundStyle(selected ? Color.milensActionPrimary : Color.milensTextSecondary)
                 .frame(minWidth: 58, minHeight: 30)
                 .background(selected ? Color.milensAccentSoft : Color.milensCard)
@@ -405,7 +405,7 @@ struct BeadSettingsPanelView: View {
             onChange(!isOn)
         } label: {
             Text(label)
-                .font(.system(size: 11))
+                .font(.editorialMetadata)
                 .foregroundStyle(isOn ? Color.milensActionPrimary : Color.milensTextSecondary)
                 .frame(minWidth: 58, minHeight: 30)
                 .background(isOn ? Color.milensAccentSoft : Color.milensCard)
@@ -446,7 +446,7 @@ struct BeadSettingsPanelView: View {
 
     private var footerHint: some View {
         Text(String(localized: "create.bead.localProcessHint"))
-            .font(.system(size: 11))
+            .font(.editorialMetadata)
             .foregroundStyle(Color.milensTextTertiary)
             .multilineTextAlignment(.center)
             .frame(maxWidth: .infinity)

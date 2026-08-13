@@ -229,7 +229,7 @@ struct SettingsView: View {
             .font(.custom("Fraunces-Semibold", size: 12))
             .foregroundStyle(Color.milensTextSecondary)
         + Text(String(localized: "settings.subtitle.suffix"))
-            .font(.system(size: 12))
+            .font(.bodySecondary)
             .foregroundStyle(Color.milensTextSecondary)
     }
 
@@ -573,10 +573,10 @@ struct SettingsView: View {
             Spacer()
             Text(String(format: String(localized: "settings.storage.count %lld %lld"),
                          photoCount, limit == Int.max ? 9999 : limit))
-                .font(.system(size: 13))
+                .font(.bodySecondary)
                 .foregroundStyle(isOverLimit ? Color.milensActionPrimary : Color.milensTextSecondary)
             Image(systemName: "chevron.right")
-                .font(.system(size: 11, weight: .semibold))
+                .font(.system(size: 11, weight: .semibold)) // ui-token:ok SF Symbol 光学图标尺寸
                 .foregroundStyle(Color.milensTextTertiary)
         }
         .frame(minHeight: Sizing.touchTarget)

@@ -152,10 +152,10 @@ struct BeadPatternResultView: View {
             // 标签 + Meta
             VStack(alignment: .leading, spacing: 3) {
                 Text(String(localized: "create.bead.title"))
-                    .font(.system(size: 13, weight: .medium))
+                    .font(.bodySecondary)
                     .foregroundStyle(Color.milensTextPrimary)
                 Text(identityMeta(pattern))
-                    .font(.system(size: 11))
+                    .font(.editorialMetadata)
                     .foregroundStyle(Color.milensActionPrimary)
             }
             .padding(.leading, 10)
@@ -168,7 +168,7 @@ struct BeadPatternResultView: View {
                     dismiss()
                 } label: {
                     Text(String(localized: "create.bead.adjust"))
-                        .font(.system(size: 11, weight: .medium))
+                        .font(.editorialMetadata)
                         .foregroundStyle(Color.milensActionPrimary)
                 }
                 .buttonStyle(.plain)
@@ -197,7 +197,7 @@ struct BeadPatternResultView: View {
         VStack(spacing: 0) {
             // 统计行（对照 #211:504）
             Text(beadStatsLine(pattern))
-                .font(.system(size: 11))
+                .font(.editorialMetadata)
                 .foregroundStyle(Color.milensTextSecondary)
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(.horizontal, 16)
@@ -247,7 +247,7 @@ struct BeadPatternResultView: View {
             vm.setViewMode(mode)
         } label: {
             Text(label)
-                .font(.system(size: 11, weight: selected ? .bold : .medium))
+                .font(.editorialMetadata)
                 .foregroundStyle(selected ? Color.white : Color.milensTextSecondary)
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .background(selected ? Color.milensActionPrimary : Color.clear)
@@ -285,7 +285,7 @@ struct BeadPatternResultView: View {
                 vm.stepCanvasScale(-0.25)
             } label: {
                 Text("\u{2212}")
-                    .font(.system(size: 13))
+                    .font(.bodySecondary)
                     .foregroundStyle(Color.milensActionPrimary)
                     .frame(width: 24, height: 24)
             }
@@ -315,7 +315,7 @@ struct BeadPatternResultView: View {
                 vm.stepCanvasScale(0.25)
             } label: {
                 Text("+")
-                    .font(.system(size: 13))
+                    .font(.bodySecondary)
                     .foregroundStyle(Color.milensActionPrimary)
                     .frame(width: 24, height: 24)
             }
@@ -332,14 +332,14 @@ struct BeadPatternResultView: View {
             // 标题行
             HStack(alignment: .firstTextBaseline) {
                 Text(String(localized: "create.bead.materialList"))
-                    .font(.system(size: 14, weight: .bold))
+                    .font(.bodyPrimary)
                     .foregroundStyle(Color.milensTextPrimary)
                 Text("\(pattern.score.colorCount) 色 · 按用量排序")
-                    .font(.system(size: 11))
+                    .font(.editorialMetadata)
                     .foregroundStyle(Color.milensTextTertiary)
                 Spacer()
                 Text(String(localized: "create.bead.viewAll"))
-                    .font(.system(size: 11))
+                    .font(.editorialMetadata)
                     .foregroundStyle(Color.milensActionPrimary)
             }
             .padding(.horizontal, 16)
@@ -361,7 +361,7 @@ struct BeadPatternResultView: View {
                                         Circle().stroke(Color.milensInk.opacity(0.7), lineWidth: 0.7)
                                     )
                                 Text("\(row.letter)\(row.symbol)")
-                                    .font(.system(size: 10, weight: .medium))
+                                    .font(.editorialOverline)
                                     .foregroundStyle(Color.milensTextTertiary)
                             }
                         }
@@ -385,13 +385,13 @@ struct BeadPatternResultView: View {
     private var exportDock: some View {
         VStack(alignment: .leading, spacing: 0) {
             Text(String(localized: "create.bead.export.title"))
-                .font(.system(size: 12, weight: .medium))
+                .font(.bodySecondary)
                 .foregroundStyle(Color.milensTextPrimary)
                 .padding(.horizontal, 16)
                 .padding(.top, 13)
 
             Text(String(localized: "create.bead.export.desc"))
-                .font(.system(size: 11))
+                .font(.editorialMetadata)
                 .foregroundStyle(Color.milensTextTertiary)
                 .padding(.horizontal, 16)
                 .padding(.top, 5)
@@ -407,7 +407,7 @@ struct BeadPatternResultView: View {
                             ProgressView().tint(.white)
                         } else {
                             Text(String(localized: "create.bead.saveHd"))
-                                .font(.system(size: 15, weight: .bold))
+                                .font(.buttonLabel)
                                 .foregroundStyle(.white)
                         }
                     }
@@ -429,7 +429,7 @@ struct BeadPatternResultView: View {
                             )
                             .frame(width: 44, height: 44)
                         Image(systemName: "square.and.arrow.up")
-                            .font(.system(size: 16, weight: .medium))
+                            .font(.system(size: Sizing.iconSm, weight: .medium))
                             .foregroundStyle(Color.milensActionPrimary)
                     }
                 }

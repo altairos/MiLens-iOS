@@ -95,7 +95,7 @@ struct AddMemorySheet: View {
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     Text(String(localized: "memory.draft"))
-                        .font(.system(size: 11))
+                        .font(.editorialMetadata)
                         .foregroundStyle(Color.milensTextSecondary)
                 }
             }
@@ -155,7 +155,7 @@ struct AddMemorySheet: View {
             }
         } label: {
             Text(String(localized: String.LocalizationValue(type.labelKey)))
-                .font(.system(size: 12, weight: .medium))
+                .font(.bodySecondary)
                 .foregroundStyle(isSelected ? Color.milensActionPrimary : Color.milensTextPrimary)
                 .frame(width: 88, height: 36)
                 .background(isSelected ? Color.milensAccentSoft : Color.clear)
@@ -177,7 +177,7 @@ struct AddMemorySheet: View {
                 HStack {
                     VStack(alignment: .leading, spacing: 2) {
                         Text(String(localized: "memory.occurredAt"))
-                            .font(.system(size: 11, weight: .medium))
+                            .font(.editorialMetadata)
                             .foregroundStyle(Color.milensTextSecondary)
                         DatePicker(
                             "",
@@ -185,12 +185,12 @@ struct AddMemorySheet: View {
                             displayedComponents: [.date, .hourAndMinute]
                         )
                         .labelsHidden()
-                        .font(.system(size: 14, weight: .medium))
+                        .font(.bodyPrimary)
                         .foregroundStyle(Color.milensTextPrimary)
                     }
                     Spacer()
                     Image(systemName: "chevron.right")
-                        .font(.system(size: 16))
+                        .font(.system(size: Sizing.iconSm))
                         .foregroundStyle(Color.milensTextSecondary)
                 }
                 .padding(.leading, 14)
@@ -203,7 +203,7 @@ struct AddMemorySheet: View {
                 if !candidatePhotos.isEmpty {
                     VStack(alignment: .leading, spacing: 8) {
                         Text(String(localized: "memory.photoEvidence"))
-                            .font(.system(size: 11, weight: .medium))
+                            .font(.editorialMetadata)
                             .foregroundStyle(Color.milensTextSecondary)
                         ScrollView(.horizontal, showsIndicators: false) {
                             HStack(spacing: 8) {
@@ -229,10 +229,10 @@ struct AddMemorySheet: View {
                                 } label: {
                                     VStack(spacing: 4) {
                                         Image(systemName: "plus")
-                                            .font(.system(size: 20))
+                                            .font(.system(size: Sizing.iconMd))
                                             .foregroundStyle(Color.milensTextSecondary)
                                         Text(String(localized: "memory.addMore"))
-                                            .font(.system(size: 11))
+                                            .font(.editorialMetadata)
                                             .foregroundStyle(Color.milensTextSecondary)
                                     }
                                     .frame(width: 92, height: 80)
@@ -263,13 +263,13 @@ struct AddMemorySheet: View {
     private var titleField: some View {
         VStack(alignment: .leading, spacing: Spacing.xs) {
             Text(String(localized: "memory.titleLabel"))
-                .font(.system(size: 12, weight: .medium))
+                .font(.bodySecondary)
                 .foregroundStyle(Color.milensTextSecondary)
             TextField(
                 String(localized: "timeline.addMemory.titlePlaceholder"),
                 text: $title
             )
-            .font(.system(size: 15))
+            .font(.bodyPrimary)
             .foregroundStyle(Color.milensTextPrimary)
             .padding(.horizontal, 14)
             .padding(.vertical, 16)
@@ -287,14 +287,14 @@ struct AddMemorySheet: View {
     private var noteField: some View {
         VStack(alignment: .leading, spacing: Spacing.xs) {
             Text(String(localized: "memory.bodyLabel"))
-                .font(.system(size: 12, weight: .medium))
+                .font(.bodySecondary)
                 .foregroundStyle(Color.milensTextSecondary)
             ZStack(alignment: .bottomTrailing) {
                 TextField(
                     String(localized: "timeline.addMemory.bodyPlaceholder"),
                     text: $note, axis: .vertical
                 )
-                .font(.system(size: 15))
+                .font(.bodyPrimary)
                 .foregroundStyle(Color.milensTextPrimary)
                 .lineLimit(2...5)
                 .padding(.horizontal, 14)
@@ -302,7 +302,7 @@ struct AddMemorySheet: View {
 
                 // 字数计数（对照 #211:372）
                 Text("\(note.count) / 300")
-                    .font(.system(size: 11))
+                    .font(.editorialMetadata)
                     .foregroundStyle(Color.milensTextSecondary)
                     .padding(.trailing, 14)
                     .padding(.bottom, 8)
@@ -324,7 +324,7 @@ struct AddMemorySheet: View {
                 .fill(Color.milensActionPrimary)
                 .frame(width: 6, height: 6)
             Text(String(localized: "memory.archiveHint"))
-                .font(.system(size: 11))
+                .font(.editorialMetadata)
                 .foregroundStyle(Color.milensTextSecondary)
             Spacer()
         }
@@ -336,7 +336,7 @@ struct AddMemorySheet: View {
         Button { submit() } label: {
             HStack {
                 Text(String(localized: "memory.saveToPet \(selectedPet?.name ?? "")"))
-                    .font(.system(size: 15, weight: .bold))
+                    .font(.buttonLabel)
                     .foregroundStyle(Color.milensDarkroomText)
                 Spacer()
                 // 暗色拨盘圆
@@ -348,7 +348,7 @@ struct AddMemorySheet: View {
                         .stroke(Color.milensDarkroomText, lineWidth: 1)
                         .frame(width: 44, height: 44)
                     Image(systemName: "checkmark")
-                        .font(.system(size: 18, weight: .bold))
+                        .font(.system(size: Sizing.iconMd, weight: .bold))
                         .foregroundStyle(Color.milensDarkroomText)
                 }
             }

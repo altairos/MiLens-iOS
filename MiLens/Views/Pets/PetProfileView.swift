@@ -171,17 +171,17 @@ struct PetProfileView: View {
             // Eyebrow + Intro（对照 #I319:1101;296:588-589）
             VStack(alignment: .leading, spacing: 4) {
                 Text(String(localized: "pet.profile.eyebrow"))
-                    .font(.system(size: 10, weight: .medium))
+                    .font(.editorialOverline)
                     .tracking(0.4)
                     .foregroundStyle(Color.milensActionPrimary)
                 Text(String(localized: "pet.profile.intro"))
-                    .font(.system(size: 15))
+                    .font(.bodyPrimary)
                     .foregroundStyle(Color.milensTextSecondary)
                 // P3.6：档案起点日期
                 if let originDate = archiveOriginDate(pet) {
                     Text(String(localized: "pet.profile.archiveOrigin") + " " +
                          originDate.formatted(.iso8601.year().month().day().dateSeparator(.dot)))
-                        .font(.system(size: 12))
+                        .font(.editorialMetadata)
                         .foregroundStyle(Color.milensTextTertiary)
                         .padding(.top, 2)
                 }
@@ -324,7 +324,7 @@ struct PetProfileView: View {
         VStack(alignment: .leading, spacing: 8) {
             // Section 标签（独立头部行，对照 #I319:1101;296:595）
             Text(String(localized: "pet.profile.pinned.section"))
-                .font(.system(size: 12, weight: .medium))
+                .font(.bodySecondary)
                 .foregroundStyle(Color.milensTextSecondary)
                 .padding(.horizontal, 24)
 
@@ -334,12 +334,12 @@ struct PetProfileView: View {
                 Rectangle()
                     .fill(Color.milensActionPrimary)
                     .frame(width: 4)
-                    .cornerRadius(2)
+                    .cornerRadius(Radius.accentRail)
 
                 VStack(alignment: .leading, spacing: 6) {
                     // 日期 overline（对照 #I319:1101;296:608）
                     Text(pinned.dateLabel)
-                        .font(.system(size: 10, weight: .medium))
+                        .font(.editorialOverline)
                         .tracking(0.4)
                         .foregroundStyle(Color.milensActionPrimary)
                     // 文楷标题（对照 #I319:1101;296:597）
@@ -349,7 +349,7 @@ struct PetProfileView: View {
                     // 正文（对照 #I319:1101;296:598）
                     if !pinned.note.isEmpty {
                         Text(pinned.note)
-                            .font(.system(size: 13))
+                            .font(.bodySecondary)
                             .foregroundStyle(Color.milensTextSecondary)
                     }
                 }
@@ -375,7 +375,7 @@ struct PetProfileView: View {
     private var recentPhotosSection: some View {
         VStack(alignment: .leading, spacing: 12) {
             Text(String(localized: "pet.profile.recentPhotos"))
-                .font(.system(size: 12, weight: .medium))
+                .font(.bodySecondary)
                 .foregroundStyle(Color.milensTextSecondary)
                 .padding(.horizontal, 24)
 
@@ -403,11 +403,11 @@ struct PetProfileView: View {
         NavigationLink(value: Route.timeline) {
             HStack(spacing: 6) {
                 Text(String(localized: "pet.profile.timelineLink"))
-                    .font(.system(size: 14, weight: .medium))
+                    .font(.bodyPrimary)
                     .foregroundStyle(Color.milensActionPrimary)
                 Spacer()
                 Image(systemName: "arrow.right")
-                    .font(.system(size: 14, weight: .semibold))
+                    .font(.system(size: Sizing.iconSm, weight: .semibold))
                     .foregroundStyle(Color.milensActionPrimary)
             }
             .padding(.horizontal, 24)
@@ -488,7 +488,7 @@ struct PetProfileView: View {
                         .overlay(alignment: .topTrailing) {
                             if PetPhotoCategoryLogic.isEditedPhoto(photo) {
                                 Image(systemName: "paintbrush.pointed.fill")
-                                    .font(.system(size: 10))
+                                    .font(.system(size: 10)) // ui-token:ok 网格角标小图标
                                     .foregroundStyle(.white)
                                     .padding(4)
                                     .background(Color.milensActionPrimary.opacity(0.85))
@@ -546,7 +546,7 @@ struct PetProfileView: View {
             ForEach(Array(parsedNotes.enumerated()), id: \.offset) { _, note in
                 HStack(spacing: Spacing.sm) {
                     Image(systemName: "circle.fill")
-                        .font(.system(size: 5))
+                        .font(.system(size: 5)) // ui-token:ok 列表项目符号圆点
                         .foregroundStyle(Color.milensPrimary)
                     Text(note)
                         .font(.bodyPrimary)

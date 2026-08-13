@@ -185,7 +185,7 @@ struct EditorCropPanelView: View {
         } label: {
             VStack(spacing: 4) {
                 Text(label)
-                    .font(.system(size: 14))
+                    .font(.bodyPrimary)
                     .foregroundStyle(isSelected ? Color.milensActionPrimary : Color.milensTextPrimary)
                 Rectangle()
                     .fill(isSelected ? Color.milensActionPrimary : Color.clear)
@@ -350,7 +350,7 @@ struct EditorAdjustPanelView: View {
                 }
 
                 Text(NSLocalizedString(preset.nameKey, comment: ""))
-                    .font(.system(size: 12))
+                    .font(.bodySecondary)
                     .foregroundStyle(isSelected ? Color.milensActionPrimary : Color.milensTextSecondary)
                     .lineLimit(1)
             }
@@ -367,12 +367,12 @@ struct EditorAdjustPanelView: View {
         } label: {
             HStack(spacing: Spacing.xs) {
                 Image(systemName: "slider.horizontal.3")
-                    .font(.system(size: 13))
+                    .font(.system(size: 13)) // ui-token:ok SF Symbol 光学图标尺寸
                 Text(String(localized: "editor.adjust.manual"))
                     .font(.editorialMetadata)
                 Spacer()
                 Image(systemName: adjustVM.isSlidersExpanded ? "chevron.up" : "chevron.down")
-                    .font(.system(size: 11, weight: .semibold))
+                    .font(.system(size: 11, weight: .semibold)) // ui-token:ok SF Symbol 光学图标尺寸
             }
             .foregroundStyle(Color.milensTextSecondary)
             .padding(.horizontal, Spacing.lg)

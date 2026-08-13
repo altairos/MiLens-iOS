@@ -11,7 +11,7 @@ struct PlaceholderTabView: View {
     var body: some View {
         VStack(spacing: Spacing.lg) {
             Image(systemName: systemImage)
-                .font(.system(size: 56))
+                .font(.system(size: 56)) // ui-token:ok 占位页装饰大图标
                 .foregroundStyle(Color.milensPrimary)
             Text(title)
                 .font(.title2.bold())

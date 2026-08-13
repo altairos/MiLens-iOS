@@ -70,7 +70,7 @@ struct OnboardingImportStep: View {
                         .frame(width: 12, height: 12)
                         .offset(x: 0, y: -76)
                     Text("\(Int(viewModel.importPercent * 100))%")
-                        .font(.system(size: 28, weight: .bold))
+                        .font(.numberStat)
                         .foregroundStyle(Color.milensActionPrimary)
                 }
                 .frame(maxWidth: .infinity)
@@ -78,7 +78,7 @@ struct OnboardingImportStep: View {
                 .padding(.top, 22)
 
                 Text("正在写入生命档案")
-                    .font(.system(size: 12))
+                    .font(.bodySecondary)
                     .foregroundStyle(Color.milensTextSecondary)
                     .padding(.bottom, 22)
             }
@@ -131,11 +131,11 @@ struct OnboardingImportStep: View {
                           : (isActive ? Color.milensPrimary : Color.milensSeparator))
                     .frame(width: 8, height: 8)
                 Text(title)
-                    .font(.system(size: 15, weight: .medium))
+                    .font(.uiBodyStrong)
                     .foregroundStyle(Color.milensTextPrimary)
                 Spacer()
                 Text(status)
-                    .font(.system(size: 12))
+                    .font(.editorialMetadata)
                     .foregroundStyle(status == "已完成" ? Color.milensActionPrimary
                                      : (isActive ? Color.milensActionPrimary : Color.milensTextSecondary))
             }
@@ -189,7 +189,7 @@ struct OnboardingImportStep: View {
                     .frame(maxHeight: .infinity, alignment: .bottom)
 
                 Text("\(viewModel.petName) · \(Date(), format: .dateTime.year().month())")
-                    .font(.system(size: 11))
+                    .font(.editorialMetadata)
                     .foregroundStyle(Color.milensDarkroomText)
                     .padding(.leading, 18)
                     .padding(.bottom, 16)
@@ -204,7 +204,7 @@ struct OnboardingImportStep: View {
 
                     VStack(alignment: .leading, spacing: 0) {
                         Text("LIFE LONG ARCHIVE")
-                            .font(.system(size: 12))
+                            .font(.editorialOverline)
                             .tracking(0.1)
                             .foregroundStyle(Color.milensActionPrimary)
                             .padding(.top, 18)
@@ -215,7 +215,7 @@ struct OnboardingImportStep: View {
                             .padding(.top, 8)
 
                         Text("\(viewModel.petName)的第一段照片记忆已经就位")
-                            .font(.system(size: 12))
+                            .font(.bodySecondary)
                             .foregroundStyle(Color.milensTextSecondary)
                             .padding(.top, 4)
 
@@ -262,18 +262,18 @@ struct OnboardingImportStep: View {
 
             VStack(alignment: .leading, spacing: 0) {
                 Text("LOCAL ARCHIVE")
-                    .font(.system(size: 12))
+                    .font(.editorialOverline)
                     .tracking(0.1)
                     .foregroundStyle(Color.milensActionPrimary)
                     .padding(.top, 16)
 
                 Text("只在这台设备上")
-                    .font(.system(size: 15, weight: .medium))
+                    .font(.uiBodyStrong)
                     .foregroundStyle(Color.milensTextPrimary)
                     .padding(.top, 8)
 
                 Text("照片不会上传；已有内容也不会被移动。")
-                    .font(.system(size: 12))
+                    .font(.bodySecondary)
                     .foregroundStyle(Color.milensTextSecondary)
                     .padding(.top, 2)
 
@@ -309,7 +309,7 @@ struct OnboardingImportStep: View {
                 .font(.custom("Fraunces-Bold", size: 12))
                 .foregroundStyle(Color.milensTextPrimary)
             Text(label)
-                .font(.system(size: 11))
+                .font(.editorialMetadata)
                 .foregroundStyle(Color.milensTextSecondary)
                 .padding(.top, 4)
         }
@@ -329,22 +329,22 @@ struct OnboardingImportStep: View {
             VStack(alignment: .leading, spacing: 0) {
                 HStack(spacing: 8) {
                     Image(systemName: "externaldrive.badge.timemachine")
-                        .font(.system(size: 14))
+                        .font(.system(size: Sizing.iconSm))
                         .foregroundStyle(Color.milensActionPrimary)
                     Text("MEMORY SAFEKEEPING")
-                        .font(.system(size: 12))
+                        .font(.editorialOverline)
                         .tracking(0.1)
                         .foregroundStyle(Color.milensActionPrimary)
                 }
                 .padding(.top, 16)
 
                 Text("把这份珍贵的回忆好好留存")
-                    .font(.system(size: 15, weight: .medium))
+                    .font(.uiBodyStrong)
                     .foregroundStyle(Color.milensTextPrimary)
                     .padding(.top, 8)
 
                 Text("你和小伙伴的每一天都值得被完整记住。MiLens 可以把这些日子打包成一份专属的备份文件，无论时光怎样流转，温暖的瞬间都不会走散。")
-                    .font(.system(size: 12))
+                    .font(.bodySecondary)
                     .foregroundStyle(Color.milensTextSecondary)
                     .padding(.top, 4)
                     .fixedSize(horizontal: false, vertical: true)
@@ -370,7 +370,7 @@ struct OnboardingImportStep: View {
                 .frame(width: 196, height: 2)
                 .clipShape(RoundedRectangle(cornerRadius: 1))
             Text("归档完成 · 你仍可随时删除或重新分配照片")
-                .font(.system(size: 12))
+                .font(.editorialMetadata)
                 .foregroundStyle(Color.milensTextTertiary)
         }
         .frame(maxWidth: .infinity)

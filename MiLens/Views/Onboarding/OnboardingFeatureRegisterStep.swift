@@ -49,10 +49,10 @@ struct OnboardingFeatureRegisterStep: View {
                     trailing: AnyView(
                         VStack(alignment: .trailing, spacing: 0) {
                             Text("\(loadedImageDatas.count)")
-                                .font(.system(size: 28, weight: .bold, design: .default))
+                                .font(.numberStat)
                                 .foregroundStyle(Color.milensActionPrimary)
                             Text("/ \(PetFormConstants.maxRegistrationPhotos)")
-                                .font(.system(size: 12))
+                                .font(.bodySecondary)
                                 .foregroundStyle(Color.milensTextSecondary)
                         }
                     )
@@ -88,7 +88,7 @@ struct OnboardingFeatureRegisterStep: View {
                     HStack {
                         Text(loadedImageDatas.isEmpty ? "选择 8–15 张照片"
                              : "重新选择（已选 \(loadedImageDatas.count) 张）")
-                            .font(.system(size: 15, weight: .bold))
+                            .font(.buttonLabel)
                             .foregroundStyle(Color.milensActionPrimary)
                         Spacer()
                         ZStack {
@@ -96,7 +96,7 @@ struct OnboardingFeatureRegisterStep: View {
                                 .stroke(Color.milensActionPrimary, lineWidth: 1)
                                 .frame(width: 42, height: 32)
                             Text("\u{2192}")
-                                .font(.system(size: 20))
+                                .font(.system(size: 20)) // ui-token:ok 装饰箭头字符
                                 .foregroundStyle(Color.milensActionPrimary)
                         }
                     }
@@ -148,12 +148,12 @@ struct OnboardingFeatureRegisterStep: View {
 
                     HStack {
                         Text("\(PetFormConstants.minRegistrationPhotos)")
-                            .font(.system(size: 28, weight: .bold))
+                            .font(.numberStat)
                             .foregroundStyle(Color.milensActionPrimary)
                         Spacer()
                         VStack(alignment: .trailing, spacing: 0) {
                             Text("特征基准")
-                                .font(.system(size: 12))
+                                .font(.bodySecondary)
                                 .foregroundStyle(Color.milensTextSecondary)
                             Rectangle()
                                 .fill(Color.milensActionPrimary)
@@ -211,15 +211,15 @@ struct OnboardingFeatureRegisterStep: View {
         VStack(alignment: .leading, spacing: 0) {
             HStack(alignment: .top, spacing: 6) {
                 Text(number)
-                    .font(.system(size: 12))
+                    .font(.bodySecondary)
                     .foregroundStyle(Color.milensActionPrimary)
                     .frame(width: 28, alignment: .leading)
                 VStack(alignment: .leading, spacing: 2) {
                     Text(title)
-                        .font(.system(size: 15, weight: .medium))
+                        .font(.uiBodyStrong)
                         .foregroundStyle(Color.milensTextPrimary)
                     Text(subtitle)
-                        .font(.system(size: 12))
+                        .font(.bodySecondary)
                         .foregroundStyle(Color.milensTextSecondary)
                 }
                 Spacer()
@@ -240,10 +240,10 @@ struct OnboardingFeatureRegisterStep: View {
                 .frame(width: 2)
             VStack(alignment: .leading, spacing: 2) {
                 Text("\(loadedImageDatas.count) 张已准备好")
-                    .font(.system(size: 15, weight: .medium))
+                    .font(.uiBodyStrong)
                     .foregroundStyle(Color.milensActionPrimary)
                 Text("只用来建立\(viewModel.petName)的本机特征基准。")
-                    .font(.system(size: 12))
+                    .font(.bodySecondary)
                     .foregroundStyle(Color.milensTextSecondary)
             }
             .padding(.leading, 14)
@@ -314,7 +314,7 @@ struct OnboardingFeatureRegisterStep: View {
                         .offset(x: 0, y: -76)
                     // 百分比数字
                     Text("\(Int(viewModel.featureRegisterPercent * 100))%")
-                        .font(.system(size: 28, weight: .bold))
+                        .font(.numberStat)
                         .foregroundStyle(Color.milensActionPrimary)
                 }
                 .frame(maxWidth: .infinity)
@@ -322,7 +322,7 @@ struct OnboardingFeatureRegisterStep: View {
                 .padding(.top, 22)
 
                 Text("正在汇总特征基准")
-                    .font(.system(size: 12))
+                    .font(.bodySecondary)
                     .foregroundStyle(Color.milensTextSecondary)
                     .padding(.bottom, 22)
             }
@@ -374,11 +374,11 @@ struct OnboardingFeatureRegisterStep: View {
                           : (isActive ? Color.milensPrimary : Color.milensSeparator))
                     .frame(width: 8, height: 8)
                 Text(title)
-                    .font(.system(size: 15, weight: .medium))
+                    .font(.uiBodyStrong)
                     .foregroundStyle(Color.milensTextPrimary)
                 Spacer()
                 Text(status)
-                    .font(.system(size: 12))
+                    .font(.bodySecondary)
                     .foregroundStyle(status == "已完成" ? Color.milensActionPrimary
                                      : (isActive ? Color.milensActionPrimary : Color.milensTextSecondary))
             }
@@ -433,16 +433,16 @@ struct OnboardingFeatureRegisterStep: View {
 
                 VStack(alignment: .leading, spacing: 6) {
                     Text("FEATURE BASELINE")
-                        .font(.system(size: 12))
+                        .font(.bodySecondary)
                         .foregroundStyle(Color.milensTextSecondary)
                     Text(viewModel.petName)
-                        .font(.system(size: 20, weight: .medium))
+                        .font(.uiTitle)
                         .foregroundStyle(Color.milensTextPrimary)
                     Text("\(loadedImageDatas.count) 张注册照片")
-                        .font(.system(size: 15, weight: .medium))
+                        .font(.uiBodyStrong)
                         .foregroundStyle(Color.milensTextPrimary)
                     Text("仅保存在本机")
-                        .font(.system(size: 12))
+                        .font(.bodySecondary)
                         .foregroundStyle(Color.milensTextSecondary)
                     HStack {
                         Spacer()
@@ -452,7 +452,7 @@ struct OnboardingFeatureRegisterStep: View {
                                 .fill(Color.milensActionPrimary)
                                 .frame(width: 44, height: 44)
                             Text("\u{2713}")
-                                .font(.system(size: 20, weight: .bold))
+                                .font(.system(size: 20, weight: .bold)) // ui-token:ok 印章装饰字符
                                 .foregroundStyle(Color.milensTextOnActionPrimary)
                         }
                     }
@@ -482,13 +482,13 @@ struct OnboardingFeatureRegisterStep: View {
                 .frame(width: 2)
             VStack(alignment: .leading, spacing: 4) {
                 Text("下一步：全面扫描系统图库")
-                    .font(.system(size: 15, weight: .medium))
+                    .font(.uiBodyStrong)
                     .foregroundStyle(Color.milensTextPrimary)
                 Text("需要在系统面板允许访问全部照片。\n扫描只会生成候选，不会自动导入。")
-                    .font(.system(size: 16))
+                    .font(.bodyPrimary)
                     .foregroundStyle(Color.milensTextSecondary)
                 Text("你仍可随时停止扫描或撤回权限。")
-                    .font(.system(size: 12))
+                    .font(.bodySecondary)
                     .foregroundStyle(Color.milensTextSecondary)
                     .padding(.top, 4)
             }

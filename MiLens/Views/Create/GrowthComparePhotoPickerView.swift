@@ -114,7 +114,7 @@ struct GrowthComparePhotoPickerView: View {
             Spacer()
             // 交换图标
             Image(systemName: "arrow.left.arrow.right")
-                .font(.system(size: 14))
+                .font(.system(size: Sizing.iconSm))
                 .foregroundStyle(Color.milensTextTertiary)
                 .frame(width: 20, height: 20)
             Spacer()
@@ -145,7 +145,7 @@ struct GrowthComparePhotoPickerView: View {
                     .font(.editorialNumberIndex)
                     .foregroundStyle(Color.milensActionPrimary)
                 Text(photo.pet?.name ?? String(localized: "picker.compare.fromArchive"))
-                    .font(.system(size: 12, weight: .medium))
+                    .font(.bodySecondary)
                     .foregroundStyle(Color.milensTextPrimary)
                     .lineLimit(1)
                 Text(formatDate(photo.takenAt))
@@ -186,7 +186,7 @@ struct GrowthComparePhotoPickerView: View {
     private func filterChip(label: String, isActive: Bool) -> some View {
         VStack(spacing: 4) {
             Text(label)
-                .font(.system(size: 13))
+                .font(.bodySecondary)
                 .foregroundStyle(isActive ? Color.milensActionPrimary : Color.milensTextSecondary)
             Rectangle()
                 .fill(isActive ? Color.milensActionPrimary : Color.clear)

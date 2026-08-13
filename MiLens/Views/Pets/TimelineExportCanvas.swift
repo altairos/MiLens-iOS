@@ -49,7 +49,7 @@ struct TimelineExportCanvas: View {
     private var exportHeader: some View {
         VStack(alignment: .leading, spacing: 16 * scale) {
             Text(String(localized: "timeline.title"))
-                .font(.system(size: 20 * scale, weight: .medium))
+                .font(.system(size: 20 * scale, weight: .medium)) // ui-token:ok 导出画布动态缩放
                 .foregroundStyle(Color.milensTextSecondary)
 
             Text(data.title)
@@ -58,13 +58,13 @@ struct TimelineExportCanvas: View {
 
             HStack(spacing: 12 * scale) {
                 Text(data.dateRangeText)
-                    .font(.system(size: 22 * scale, weight: .regular, design: .rounded))
+                    .font(.system(size: 22 * scale, weight: .regular, design: .rounded)) // ui-token:ok 导出画布动态缩放
                     .foregroundStyle(Color.milensTextSecondary)
                 Text("·")
-                    .font(.system(size: 22 * scale))
+                    .font(.system(size: 22 * scale)) // ui-token:ok 导出画布动态缩放
                     .foregroundStyle(Color.milensTextTertiary)
                 Text(String(localized: "timeline.export.entryCount \(data.entryCount)"))
-                    .font(.system(size: 22 * scale, weight: .regular, design: .rounded))
+                    .font(.system(size: 22 * scale, weight: .regular, design: .rounded)) // ui-token:ok 导出画布动态缩放
                     .foregroundStyle(Color.milensTextSecondary)
             }
         }
@@ -110,11 +110,11 @@ struct TimelineExportCanvas: View {
 
             VStack(alignment: .leading, spacing: 6 * scale) {
                 Text(entry.title)
-                    .font(.system(size: 24 * scale, weight: .medium, design: .rounded))
+                    .font(.system(size: 24 * scale, weight: .medium, design: .rounded)) // ui-token:ok 导出画布动态缩放
                     .foregroundStyle(Color.milensTextPrimary)
                 if !entry.subtitle.isEmpty {
                     Text(entry.subtitle)
-                        .font(.system(size: 18 * scale, weight: .regular, design: .rounded))
+                        .font(.system(size: 18 * scale, weight: .regular, design: .rounded)) // ui-token:ok 导出画布动态缩放
                         .foregroundStyle(Color.milensTextSecondary)
                 }
             }
@@ -129,10 +129,10 @@ struct TimelineExportCanvas: View {
             Spacer()
             VStack(alignment: .trailing, spacing: 6 * scale) {
                 Text(String(localized: "timeline.export.watermark"))
-                    .font(.system(size: 18 * scale, weight: .medium, design: .rounded))
+                    .font(.system(size: 18 * scale, weight: .medium, design: .rounded)) // ui-token:ok 导出画布动态缩放
                     .foregroundStyle(Color.milensTextTertiary)
                 Text("milens.app")
-                    .font(.system(size: 16 * scale, weight: .regular, design: .rounded))
+                    .font(.system(size: 16 * scale, weight: .regular, design: .rounded)) // ui-token:ok 导出画布动态缩放
                     .foregroundStyle(Color.milensTextTertiary)
             }
         }

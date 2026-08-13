@@ -42,7 +42,7 @@ struct OnboardingCandidatesStep: View {
                 .font(.editorialSection)
                 .foregroundStyle(Color.milensTextPrimary)
             Text("这些只是与\(viewModel.petName)特征基准相近的候选；请逐张确认。")
-                .font(.system(size: 12))
+                .font(.bodySecondary)
                 .foregroundStyle(Color.milensTextSecondary)
             Rectangle()
                 .fill(Color.milensActionPrimary)
@@ -61,13 +61,13 @@ struct OnboardingCandidatesStep: View {
         let pending = total - selected
         return HStack(spacing: 24) {
             Text("全部 \(total)")
-                .font(.system(size: 12))
+                .font(.editorialMetadata)
                 .foregroundStyle(Color.milensTextPrimary)
             Text("已选 \(selected)")
-                .font(.system(size: 12))
+                .font(.editorialMetadata)
                 .foregroundStyle(Color.milensActionPrimary)
             Text("待确认 \(pending)")
-                .font(.system(size: 12))
+                .font(.editorialMetadata)
                 .foregroundStyle(Color.milensTextTertiary)
             Spacer()
         }
@@ -104,7 +104,7 @@ struct OnboardingCandidatesStep: View {
                                 .fill(Color.milensActionPrimary)
                                 .frame(width: 20, height: 20)
                             Text("\u{2713}")
-                                .font(.system(size: 11))
+                                .font(.editorialMetadata)
                                 .foregroundStyle(.white)
                         }
                         .padding(8)
@@ -120,7 +120,7 @@ struct OnboardingCandidatesStep: View {
                             .font(.custom("Fraunces-Bold", size: 12))
                             .foregroundStyle(Color.milensActionPrimary)
                         Text(isSelected ? "已选" : "待确认")
-                            .font(.system(size: 11))
+                            .font(.editorialMetadata)
                             .foregroundStyle(isSelected ? Color.milensActionPrimary : Color.milensTextSecondary)
                     }
                     .padding(.leading, 8)

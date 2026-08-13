@@ -50,18 +50,18 @@ struct AlbumQuotaExhaustedView: View {
                         .font(.custom("LXGWWenKai-Regular", size: 40, relativeTo: .largeTitle))
                         .foregroundStyle(Color.milensTextPrimary)
                     Text("/ \(CommercialRules.freePhotoLimit)")
-                        .font(.system(size: 20, weight: .medium))
+                        .font(.uiTitle)
                         .foregroundStyle(Color.milensTextSecondary)
                 }
                 .padding(.top, 18)
 
                 Text("已全部使用")
-                    .font(.system(size: 15, weight: .medium))
+                    .font(.uiBodyStrong)
                     .foregroundStyle(Color.milensTextPrimary)
                     .padding(.top, 18)
 
                 Text("现有档案仍在设备上")
-                    .font(.system(size: 12))
+                    .font(.bodySecondary)
                     .foregroundStyle(Color.milensTextSecondary)
                     .padding(.top, 2)
 
@@ -114,7 +114,7 @@ struct AlbumQuotaExhaustedView: View {
                 .font(.custom("LXGWWenKai-Regular", size: 28, relativeTo: .title2))
                 .foregroundStyle(Color.milensTextPrimary)
             Text("升级后可以继续导入；不升级也不会影响已经保存的内容。")
-                .font(.system(size: 12))
+                .font(.bodySecondary)
                 .foregroundStyle(Color.milensTextSecondary)
                 .fixedSize(horizontal: false, vertical: true)
         }
@@ -166,10 +166,10 @@ struct AlbumQuotaExhaustedView: View {
                 .frame(width: 20, alignment: .leading)
             VStack(alignment: .leading, spacing: 2) {
                 Text(title)
-                    .font(.system(size: 15, weight: .medium))
+                    .font(.uiBodyStrong)
                     .foregroundStyle(Color.milensTextPrimary)
                 Text(desc)
-                    .font(.system(size: 11))
+                    .font(.editorialMetadata)
                     .foregroundStyle(Color.milensTextSecondary)
             }
         }
@@ -192,7 +192,7 @@ struct AlbumQuotaExhaustedView: View {
             } label: {
                 HStack {
                     Text("查看 MiLens Pro")
-                        .font(.system(size: 15, weight: .bold))
+                        .font(.buttonLabel)
                         .foregroundStyle(Color.milensActionPrimary)
                     Spacer()
                     ZStack {
@@ -200,7 +200,7 @@ struct AlbumQuotaExhaustedView: View {
                             .stroke(Color.milensActionPrimary, lineWidth: 1)
                             .frame(width: 42, height: 32)
                         Text("\u{2192}")
-                            .font(.system(size: 20))
+                            .font(.system(size: 20)) // ui-token:ok 装饰箭头字符
                             .foregroundStyle(Color.milensActionPrimary)
                     }
                 }
@@ -215,7 +215,7 @@ struct AlbumQuotaExhaustedView: View {
             Button("暂不升级") {
                 onDismiss()
             }
-            .font(.system(size: 12))
+            .font(.bodySecondary)
             .foregroundStyle(Color.milensTextTertiary)
         }
         .padding(.horizontal, Spacing.lg)

@@ -19,7 +19,7 @@ struct BackupConfirmSheet: View {
         NavigationStack {
             VStack(spacing: Spacing.lg) {
                 Image(systemName: "externaldrive.badge.timemachine")
-                    .font(.system(size: 48))
+                    .font(.system(size: 48)) // ui-token:ok 页头装饰大图标
                     .foregroundStyle(Color.milensActionPrimary)
                 Text(String(localized: "settings.backup.confirmTitle"))
                     .font(.headline)
@@ -126,7 +126,7 @@ struct BackupShareSheet: View {
         NavigationStack {
             VStack(spacing: Spacing.lg) {
                 Image(systemName: "checkmark.seal.fill")
-                    .font(.system(size: 48))
+                    .font(.system(size: 48)) // ui-token:ok 页头装饰大图标
                     .foregroundStyle(Color.milensSuccess)
                 Text(String(localized: "settings.backup.exportReady"))
                     .font(.headline)

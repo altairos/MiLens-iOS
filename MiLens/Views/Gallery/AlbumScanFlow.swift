@@ -121,7 +121,7 @@ struct AlbumScanFlowView: View {
                     .tracking(0.4)
                     .foregroundStyle(Color.milensTextSecondary)
                 Text(title)
-                    .font(.system(size: 20, weight: .medium))
+                    .font(.uiTitle)
                     .foregroundStyle(Color.milensTextPrimary)
             }
 
@@ -129,7 +129,7 @@ struct AlbumScanFlowView: View {
 
             if !rightText.isEmpty {
                 Text(rightText)
-                    .font(.system(size: 12, weight: .bold))
+                    .font(.buttonLabel)
                     .foregroundStyle(Color.milensActionPrimary)
             }
         }

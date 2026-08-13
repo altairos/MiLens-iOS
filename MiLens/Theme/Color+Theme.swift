@@ -1,40 +1,42 @@
 //  语义颜色 token —— 包装 Asset Catalog 颜色集（Any/Dark Appearance 自动适配）。
 //  色值规范见 UI-DESIGN.md §1.2（中性画廊 + 暖色点睛，暖黑深色）。
 //  命名统一 milens 前缀，避免与 SwiftUI 内置 Color（.primary/.secondary 等）冲突。
+//  所有场景色（editorial/darkroom/studio/brand）均为 Asset Catalog colorset 单值，
+//  不引入暗色变体——这些色用于固定场景底面（暗房/studio），改暗色行为需另行评审。
 
 import SwiftUI
 
 extension Color {
-    // MARK: - Editorial palette（内联视觉稿）
+    // MARK: - Editorial palette（Asset Catalog colorset 单值）
 
     /// 奶油纸张底色、深棕黑文字和铜橙强调色。
-    static let milensPaper = Color(red: 0.955, green: 0.934, blue: 0.895)
-    static let milensInk = Color(red: 0.105, green: 0.085, blue: 0.072)
-    static let milensCopper = Color(red: 0.690, green: 0.255, blue: 0.145)
-    static let milensStudioBackground = Color(red: 0.085, green: 0.070, blue: 0.062)
-    static let milensStudioSurface = Color(red: 0.135, green: 0.115, blue: 0.100)
+    static let milensPaper = Color("EditorialPaper")
+    static let milensInk = Color("EditorialInk")
+    static let milensCopper = Color("EditorialCopper")
+    static let milensStudioBackground = Color("StudioBackground")
+    static let milensStudioSurface = Color("StudioSurface")
 
     // MARK: - Darkroom 暗房专用色（Focus Dial / Processing / Paywall Seal）
     //  仅用于暗房强暗色底面上的叠层文字、拨盘、徽章与印章。
 
     /// 暗房上的浅暖文字色（#F1D8CA）—— Focus Dial 文字、暗房 Badge 文字。
-    static let milensDarkroomText = Color(red: 0.945, green: 0.847, blue: 0.792)
-    /// Focus Dial 拨盘圆底色（#7C3F30）—— 加入记忆/购买印章内拨盘。
-    static let milensDialSurface = Color(red: 0.486, green: 0.247, blue: 0.188)
+    static let milensDarkroomText = Color("DarkroomText")
+    /// Focus Dial 拨盘圆底色（#7C3F30 / Figma `color/material/studio/copper`）—— 加入记忆/购买印章内拨盘。
+    static let milensDialSurface = Color("DialSurface")
     /// 暗房 Phase Badge 底色（#1D1815）—— 生成进度徽章暗底。
-    static let milensDarkroomBadge = Color(red: 0.114, green: 0.094, blue: 0.082)
+    static let milensDarkroomBadge = Color("DarkroomBadge")
     /// 暗房描边色（#383129）—— 暗房画布描边。
-    static let milensDarkroomBorder = Color(red: 0.22, green: 0.19, blue: 0.16)
+    static let milensDarkroomBorder = Color("DarkroomBorder")
     /// 购买印章拨盘底（#2A201C）—— Paywall 购买按钮内印章。
-    static let milensSealSurface = Color(red: 0.165, green: 0.125, blue: 0.110)
+    static let milensSealSurface = Color("SealSurface")
     /// Paywall 副标题暖灰（#D4CBC4）—— Paywall Hero 副文。
-    static let milensPaywallSubtitle = Color(red: 0.83, green: 0.80, blue: 0.77)
+    static let milensPaywallSubtitle = Color("PaywallSubtitle")
     /// 品牌珊瑚发光色（#E8845F）—— 扫描线发光 / 按钮发光。
-    static let milensCopperGlow = Color(red: 0.91, green: 0.52, blue: 0.37)
+    static let milensCopperGlow = Color("CopperGlow")
     /// Paywall Hero 渐变起点（#0D0A09 近似）—— Pro 卡片暗色渐变。
-    static let milensPaywallGradientStart = Color(red: 0.05, green: 0.04, blue: 0.035)
+    static let milensPaywallGradientStart = Color("PaywallGradientStart")
     /// Paywall Hero 渐变终点（#050403 近似）—— Pro 卡片暗色渐变。
-    static let milensPaywallGradientEnd = Color(red: 0.02, green: 0.015, blue: 0.012)
+    static let milensPaywallGradientEnd = Color("PaywallGradientEnd")
 
     // MARK: - Surface 表面
 
@@ -100,15 +102,15 @@ extension Color {
 
     /// Pro 卡深色底（浅：#14110F / 深：#2A2520）—— ProHeroCard 背景
     static let milensProCardDark = Color("ProCardDark")
-    /// Pro 卡辅文暖灰（#B5A89C）—— ProHeroCard 副标题文字
-    static let milensProBody = Color(red: 0.71, green: 0.66, blue: 0.61)
+    /// Pro 卡辅文暖灰（#B5A89C）—— ProHeroCard 副标题文字。
+    static let milensProBody = Color("ProBody")
 
     // MARK: - Brand 社交平台品牌色（仅用于分享引导行平台图标着色）
 
     /// 微信/朋友圈品牌绿（#11B5A0 近似）
-    static let milensBrandWechat = Color(red: 0.07, green: 0.60, blue: 0.52)
+    static let milensBrandWechat = Color("BrandWechat")
     /// 小红书品牌红（#F2446B 近似）
-    static let milensBrandRedNote = Color(red: 0.95, green: 0.27, blue: 0.42)
+    static let milensBrandRedNote = Color("BrandRedNote")
     /// 微信红包封面品牌红（#D1291E 近似）—— 仅 WeChatRedPacketMockView
     static let milensRedPacketRed = Color("RedPacketRed")
 

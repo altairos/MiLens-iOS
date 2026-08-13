@@ -37,7 +37,7 @@ struct PortraitHero: View {
                     .frame(height: height)
                     .overlay(
                         Text(emojiPlaceholder)
-                            .font(.system(size: 72))
+                            .font(.system(size: 72)) // ui-token:ok 肖像占位装饰大字
                     )
             }
 
@@ -57,7 +57,7 @@ struct PortraitHero: View {
                                   relativeTo: .largeTitle))
                     .foregroundStyle(.white)
                 subtitle
-                    .font(.system(size: 13))
+                    .font(.bodySecondary)
                     .foregroundStyle(.white.opacity(0.92))
             }
             .padding(.leading, 28)
@@ -77,7 +77,7 @@ struct PortraitHero: View {
                             .frame(width: 44, height: 44)
                             .overlay(
                                 Image(systemName: "ellipsis")
-                                    .font(.system(size: 16, weight: .semibold))
+                                    .font(.system(size: Sizing.iconSm, weight: .semibold))
                                     .foregroundStyle(Color.milensInk)
                             )
                     }
@@ -108,7 +108,7 @@ struct ArchiveContinuityNote: View {
                 .font(.custom("LXGWWenKai-Regular", size: 28, relativeTo: .title2))
                 .foregroundStyle(Color.milensTextPrimary)
             Text("从第一张照片、第一次出门，到每天微小的变化；所有片段都回到它发生的时间里。")
-                .font(.system(size: 14))
+                .font(.bodyPrimary)
                 .foregroundStyle(Color.milensTextSecondary)
                 .fixedSize(horizontal: false, vertical: true)
             Rectangle()
@@ -139,7 +139,7 @@ struct TimelineContinuationCard: View {
                 .font(.custom("LXGWWenKai-Regular", size: 20))
                 .foregroundStyle(Color.milensTextPrimary)
             Text("一条风很大的路，一次主动跑进海水里的勇气。")
-                .font(.system(size: 13))
+                .font(.bodySecondary)
                 .foregroundStyle(Color.milensTextSecondary)
             Rectangle()
                 .fill(Color.milensBorder)
@@ -147,10 +147,10 @@ struct TimelineContinuationCard: View {
             NavigationLink(value: Route.timeline) {
                 HStack(spacing: 4) {
                     Text("打开完整生命时间线")
-                        .font(.system(size: 14, weight: .medium))
+                        .font(.bodyPrimary)
                         .foregroundStyle(Color.milensActionPrimary)
                     Image(systemName: "arrow.right")
-                        .font(.system(size: 14, weight: .semibold))
+                        .font(.system(size: Sizing.iconSm, weight: .semibold))
                         .foregroundStyle(Color.milensActionPrimary)
                 }
             }

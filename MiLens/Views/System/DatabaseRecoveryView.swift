@@ -25,7 +25,7 @@ struct DatabaseRecoveryView: View {
     var body: some View {
         VStack(spacing: Spacing.lg) {
             Image(systemName: "externaldrive.badge.exclamationmark")
-                .font(.system(size: 48))
+                .font(.system(size: 48)) // ui-token:ok 错误态装饰大图标
                 .foregroundStyle(Color.milensTextSecondary)
             Text("本地数据无法加载")
                 .font(.displayMedium)

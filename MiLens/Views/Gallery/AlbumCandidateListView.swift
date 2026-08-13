@@ -39,7 +39,7 @@ struct AlbumCandidateListView: View {
                 .font(.custom("LXGWWenKai-Regular", size: 28, relativeTo: .title2))
                 .foregroundStyle(Color.milensTextPrimary)
             Text("以下只是候选，请由你确认后再导入。")
-                .font(.system(size: 12))
+                .font(.bodySecondary)
                 .foregroundStyle(Color.milensTextSecondary)
             Rectangle()
                 .fill(Color.milensActionPrimary)
@@ -58,13 +58,13 @@ struct AlbumCandidateListView: View {
         let pending = total - selected
         return HStack(spacing: 24) {
             Text("全部 \(total)")
-                .font(.system(size: 12))
+                .font(.editorialMetadata)
                 .foregroundStyle(Color.milensTextPrimary)
             Text("已选 \(selected)")
-                .font(.system(size: 12))
+                .font(.editorialMetadata)
                 .foregroundStyle(Color.milensActionPrimary)
             Text("待确认 \(pending)")
-                .font(.system(size: 12))
+                .font(.editorialMetadata)
                 .foregroundStyle(Color.milensTextTertiary)
         }
         .padding(.horizontal, Spacing.lg)
@@ -117,7 +117,7 @@ struct AlbumCandidateListView: View {
                                 .fill(Color.milensActionPrimary)
                                 .frame(width: 20, height: 20)
                             Text("\u{2713}")
-                                .font(.system(size: 11))
+                                .font(.editorialMetadata)
                                 .foregroundStyle(.white)
                         }
                         .padding(8)
@@ -134,7 +134,7 @@ struct AlbumCandidateListView: View {
                             .font(.custom("Fraunces-Bold", size: 12))
                             .foregroundStyle(Color.milensActionPrimary)
                         Text(isSelected ? "已选" : "待确认")
-                            .font(.system(size: 11))
+                            .font(.editorialMetadata)
                             .foregroundStyle(isSelected ? Color.milensActionPrimary : Color.milensTextSecondary)
                     }
                     .padding(.leading, 8)
@@ -166,12 +166,12 @@ struct AlbumCandidateListView: View {
                     .tracking(0.4)
                     .foregroundStyle(Color.milensActionPrimary)
                 Text("50 / 50")
-                    .font(.system(size: 20, weight: .medium))
+                    .font(.uiTitle)
                     .foregroundStyle(Color.milensTextPrimary)
             }
             Spacer()
             Text("更大容量，请使用 MiLens Pro")
-                .font(.system(size: 12, weight: .bold))
+                .font(.buttonLabel)
                 .foregroundStyle(Color.milensActionPrimary)
                 .multilineTextAlignment(.trailing)
         }
@@ -190,7 +190,7 @@ struct AlbumCandidateListView: View {
         Button(action: onContinue) {
             HStack {
                 Text("继续确认归属 · \(selectedIdentifiers.count) 张")
-                    .font(.system(size: 15, weight: .bold))
+                    .font(.buttonLabel)
                     .foregroundStyle(Color.milensActionPrimary)
                 Spacer()
                 ZStack {
@@ -198,7 +198,7 @@ struct AlbumCandidateListView: View {
                         .stroke(Color.milensActionPrimary, lineWidth: 1)
                         .frame(width: 42, height: 32)
                     Text("\u{2192}")
-                        .font(.system(size: 20))
+                        .font(.system(size: 20)) // ui-token:ok 装饰箭头字符
                         .foregroundStyle(Color.milensActionPrimary)
                 }
             }

@@ -182,7 +182,7 @@ struct TimelineView: View {
     private var emptyState: some View {
         VStack(spacing: Spacing.lg) {
             Image(systemName: "calendar.badge.exclamationmark")
-                .font(.system(size: 40, weight: .light))
+                .font(.system(size: 40, weight: .light)) // ui-token:ok 空态装饰大图标
                 .foregroundStyle(Color.milensTextSecondary)
             Text(String(localized: "timeline.empty.title"))
                 .font(.displayMedium)
@@ -241,7 +241,7 @@ struct TimelineView: View {
     private var lockedHistoryEmptyState: some View {
         VStack(spacing: Spacing.lg) {
             Image(systemName: "lock.fill")
-                .font(.system(size: 40, weight: .light))
+                .font(.system(size: 40, weight: .light)) // ui-token:ok 锁定态装饰大图标
                 .foregroundStyle(Color.milensActionPrimary)
             Text(String(localized: "timeline.lockedEmptyTitle"))
                 .font(.displayMedium)
@@ -437,7 +437,7 @@ struct TimelineView: View {
                         .font(.custom("LXGWWenKai-Regular", size: 19, relativeTo: .title3))
                         .foregroundStyle(Color.milensTextPrimary)
                     Text(String(localized: "timeline.chapter.subtitle"))
-                        .font(.system(size: 12))
+                        .font(.bodySecondary)
                         .foregroundStyle(Color.milensTextSecondary)
                 }
                 .offset(x: -30) // 向左拉到 rail 位置
@@ -475,7 +475,7 @@ struct TimelineView: View {
             // 月份小标题（非年份首月才显示）
             if !month.isYearStart {
                 Text(monthLabel(month.month))
-                    .font(.system(size: 14, weight: .medium))
+                    .font(.bodyPrimary)
                     .foregroundStyle(Color.milensTextSecondary)
                     .padding(.leading, 4)
             }
@@ -540,7 +540,7 @@ private struct TimelineAddButton: View {
                     .fill(Color.milensActionPrimary)
                     .frame(width: 56, height: 56)
                 Image(systemName: "plus")
-                    .font(.system(size: 24, weight: .semibold))
+                    .font(.system(size: Sizing.iconLg, weight: .semibold))
                     .foregroundStyle(Color.white)
             }
             .shadow(color: .black.opacity(0.15), radius: 8, y: 4)

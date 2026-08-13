@@ -32,7 +32,7 @@ struct FocusDialButton: View {
             HStack(spacing: 0) {
                 // 左侧文字标签区（铜红 surface）
                 Text(label)
-                    .font(.system(size: 15, weight: .bold))
+                    .font(.buttonLabel)
                     .foregroundStyle(Color.milensDarkroomText)
                     .lineLimit(1)
                     .frame(maxWidth: .infinity, alignment: .leading)
@@ -74,7 +74,7 @@ struct FocusDialButton: View {
             precisionArc(start: 165, end: 200, opacity: 0.42)
             // 中央 glyph
             Image(systemName: systemImage)
-                .font(.system(size: 18, weight: .semibold))
+                .font(.system(size: Sizing.iconMd, weight: .semibold))
                 .foregroundStyle(Color.milensDarkroomText)
         }
     }
@@ -105,7 +105,7 @@ struct ContactProofButton: View {
         Button(action: action) {
             HStack {
                 Text(label)
-                    .font(.system(size: 15, weight: .bold))
+                    .font(.buttonLabel)
                     .foregroundStyle(Color.milensActionPrimary)
                     .lineLimit(1)
                 Spacer()
@@ -128,7 +128,7 @@ struct ContactProofButton: View {
                 .stroke(Color.milensActionPrimary, lineWidth: 1)
                 .frame(width: 42, height: 32)
             Text("\u{2192}")
-                .font(.system(size: 20))
+                .font(.system(size: 20)) // ui-token:ok 装饰箭头字符
                 .foregroundStyle(Color.milensActionPrimary)
         }
     }
@@ -168,11 +168,11 @@ struct DarkroomPulseButton: View {
                             .tint(Color.milensDarkroomText)
                     } else {
                         Image(systemName: glyph)
-                            .font(.system(size: 16, weight: .semibold))
+                            .font(.system(size: Sizing.iconSm, weight: .semibold))
                             .foregroundStyle(Color.milensDarkroomText)
                     }
                     Text(label)
-                        .font(.system(size: 15, weight: .bold))
+                        .font(.buttonLabel)
                         .foregroundStyle(Color.milensDarkroomText)
                         .lineLimit(1)
                 }
@@ -277,7 +277,7 @@ struct EditorialSection: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
             Text(overline)
-                .font(.system(size: 12))
+                .font(.editorialOverline)
                 .tracking(0.1)
                 .foregroundStyle(Color.milensTextSecondary)
                 .textCase(.uppercase)
@@ -293,7 +293,7 @@ struct EditorialSection: View {
 
             if let body {
                 Text(body)
-                    .font(.system(size: 16))
+                    .font(.bodyPrimary)
                     .foregroundStyle(Color.milensTextSecondary)
             }
         }
@@ -383,7 +383,7 @@ struct WaypointRow: View {
                 .fill(Color.milensActionPrimary)
                 .frame(width: 7, height: 7)
             Text(text)
-                .font(.system(size: 13))
+                .font(.bodySecondary)
                 .foregroundStyle(Color.milensTextSecondary)
         }
         .frame(maxWidth: .infinity, alignment: .leading)

@@ -236,10 +236,10 @@ struct BeadPatternView: View {
                     // 标题 + 说明（对照 #91:389-390）
                     VStack(alignment: .leading, spacing: 4) {
                         Text(String(localized: "bead.generating.title"))
-                            .font(.system(size: 19, weight: .bold))
+                            .font(.titleStandard)
                             .foregroundStyle(Color.milensTextPrimary)
                         Text(String(localized: "bead.generating.subtitle"))
-                            .font(.system(size: 12))
+                            .font(.bodySecondary)
                             .foregroundStyle(Color.milensTextSecondary)
                     }
                     .frame(maxWidth: .infinity, alignment: .leading)
@@ -249,7 +249,7 @@ struct BeadPatternView: View {
 
                     // 显影记录标题（对照 #332:692）
                     Text(String(localized: "bead.generating.log"))
-                        .font(.system(size: 12))
+                        .font(.bodySecondary)
                         .foregroundStyle(Color.milensTextPrimary)
                         .frame(maxWidth: .infinity, alignment: .leading)
 
@@ -262,7 +262,7 @@ struct BeadPatternView: View {
                             vm.cancelGeneration()
                         } label: {
                             Text(String(localized: "bead.generating.cancel"))
-                                .font(.system(size: 14, weight: .medium))
+                                .font(.bodyPrimary)
                                 .foregroundStyle(Color.milensTextSecondary)
                                 .frame(maxWidth: .infinity)
                                 .frame(height: 48)
@@ -322,7 +322,7 @@ struct BeadPatternView: View {
                         .fill(Color.milensActionPrimary)
                         .frame(width: 8, height: 8)
                     Text(beadPhaseTitle(vm.phase))
-                        .font(.system(size: 11, weight: .medium))
+                        .font(.editorialMetadata)
                         .foregroundStyle(Color.milensDarkroomText)
                 }
                 .padding(.horizontal, 16)
@@ -449,19 +449,19 @@ struct BeadPatternView: View {
                         .frame(width: 14, height: 14)
                     if index == 0 {
                         Text("\u{2713}")
-                            .font(.system(size: 10, weight: .bold))
+                            .font(.editorialOverline)
                             .foregroundStyle(.white)
                     }
                 }
                 .frame(width: 32, alignment: .center)
 
                 Text(title)
-                    .font(.system(size: 12, weight: .medium))
+                    .font(.bodySecondary)
                     .foregroundStyle(Color.milensTextPrimary)
 
                 Spacer()
                 Text(status)
-                    .font(.system(size: 11))
+                    .font(.editorialMetadata)
                     .foregroundStyle(index <= 1 ? Color.milensActionPrimary : Color.milensTextSecondary)
             }
             .padding(.vertical, 14)

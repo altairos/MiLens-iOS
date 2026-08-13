@@ -87,6 +87,8 @@ final class GalleryViewModel {
 
     private let pageSize = 60
     private var scanTask: Task<Void, Never>?
+    /// 导入任务引用——「取消导入」需取消真正在跑的 Task（文件写入会优雅中断）。
+    private var importTask: Task<Void, Never>?
 
     init(photoRepo: any PhotoRepositoryProtocol,
          petRepo: any PetRepositoryProtocol,
@@ -362,6 +364,13 @@ final class GalleryViewModel {
         scanProgressText = ""
     }
 
+    /// 取消正在进行的导入任务（对应「取消导入」按钮）。
+    /// ImportService 内部检测 Task.isCancelled 后优雅中断当前照片处理，
+    /// 已写文件不丢弃（避免孤儿）；isImporting 由导入 Task 自然结束时复位。
+    func cancelImport() {
+        importTask?.cancel()
+    }
+
     // MARK: - AlbumScanFlow 便捷接口
 
     /// 合并未归属 + 预匹配的候选 URI 列表（供候选页使用）。
@@ -378,7 +387,7 @@ final class GalleryViewModel {
         unassignedPetUris = []
         matchedPetUris = []
 
-        Task { [weak self] in
+        importTask = Task { [weak self] in
             guard let self else { return }
             let service = ImportService(
                 photoLibrary: self.photoLibrary, fileStorage: self.fileStorage,
@@ -439,7 +448,7 @@ final class GalleryViewModel {
         matchedPetUris = []
         showScanCompleteDialog = false
 
-        Task { [weak self] in
+        importTask = Task { [weak self] in
             guard let self else { return }
             let service = ImportService(
                 photoLibrary: self.photoLibrary, fileStorage: self.fileStorage,

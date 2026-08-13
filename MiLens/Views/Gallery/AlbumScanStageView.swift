@@ -54,7 +54,9 @@ struct AlbumScanStageView: View {
                 // 停止/取消按钮
                 Button {
                     if isImport {
-                        // 导入无法中途取消（文件写入中），关闭流程
+                        // 取消导入任务（ImportService 检测取消后优雅中断当前照片，
+                        // 已写文件不丢弃），再关闭页面。
+                        vm.cancelImport()
                         dismiss()
                     } else {
                         vm.cancelScan()

@@ -106,6 +106,9 @@ final class ZipBackupService: BackupService, @unchecked Sendable {
 
         // 进度计数器（writeArchive 顺序处理 entries，counter 顺序递增）
         let progressCounter = StreamProgressCounter(total: bundle.files.count)
+        // 导出总量守卫：防止大图库生成超 ZIP32 4GB 地址范围的不可恢复备份。
+        // manifest/metadata 体积极小，此处主要累计照片数据。
+        let sizeGuard = ExportSizeGuard(maxBytes: BackupConfig.maxTotalExportSizeBytes)
 
         for file in bundle.files {
             guard fileStorage.fileExists(at: file.sourcePath) else {
@@ -125,19 +128,22 @@ final class ZipBackupService: BackupService, @unchecked Sendable {
                 guard data.count <= BackupConfig.maxSingleEntrySizeBytes else {
                     throw BackupServiceError.backupTooLarge
                 }
+                // 总量检查（含 header/CD 开销的近似余量已留在 maxTotalExportSizeBytes 内）
+                try sizeGuard.add(data.count)
                 let current = progressCounter.next()
                 await progress(BackupProgress(current: current, total: progressCounter.total, phase: .copyingPhotos))
                 return data
             })
         }
 
-        // 条目数检查（导出侧无总量上限——流式无总量内存压力）
+        // 条目数检查（总量上限由 ExportSizeGuard 在逐条目累计时守护）
         guard streamEntries.count <= BackupConfig.maxEntryCount else {
             throw BackupServiceError.backupTooLarge
         }
 
-        // 写临时文件供 ShareSheet 分享
-        let fileName = "MiLens-Backup-\(Self.dateStamp()).\(BackupConfig.fileExtension)"
+        // 写临时文件供 ShareSheet 分享。
+        // 时间戳 + UUID：同秒内连续导出不会得到相同路径，避免覆盖。
+        let fileName = "MiLens-Backup-\(Self.dateStamp())-\(UUID().uuidString.prefix(8)).\(BackupConfig.fileExtension)"
         let fileURL = URL(fileURLWithPath: temporaryDirectory)
             .appendingPathComponent(fileName)
 
@@ -307,6 +313,10 @@ final class ZipBackupService: BackupService, @unchecked Sendable {
             var written = 0
 
             // 流式拷贝照片文件：分块读写（峰值≈64KB），不一次性加载全部条目数据。
+            // processedPhotoIDs 防止备份内部重复 id 的第二条也写文件
+            //（prevalidated.photos 是 Set<UUID>，重复 id 只存一份，
+            // 但遍历 metadata.photos 会遇到两条同 id 记录）。
+            var processedPhotoIDs: Set<UUID> = []
             for photoSnap in metadata.photos {
                 if Task.isCancelled { throw BackupServiceError.cancelled }
                 guard prevalidated.photos.contains(photoSnap.id) else {
@@ -314,14 +324,26 @@ final class ZipBackupService: BackupService, @unchecked Sendable {
                     await progress(RestoreProgress(current: written, total: metadata.photos.count, phase: .copyingFiles))
                     continue
                 }
+                // 备份内部重复 id → 只为首条写文件（第二条由 applyImport 的 DB 检查跳过）
+                guard !processedPhotoIDs.contains(photoSnap.id) else {
+                    written += 1
+                    await progress(RestoreProgress(current: written, total: metadata.photos.count, phase: .copyingFiles))
+                    continue
+                }
+                processedPhotoIDs.insert(photoSnap.id)
                 // 路径穿越防御：拒绝非纯文件名
                 if Self.isSafeFileName(photoSnap.photoFileName) {
                     let zipPath = "\(BackupConfig.photosDirName)/\(photoSnap.photoFileName)"
                     if let record = recordMap[zipPath] {
                         let dest = "\(sandboxDir)/\(photoSnap.photoFileName)"
-                        // 目标已存在时不覆盖
+                        // 目标已存在时不覆盖，且不绑定到该未知文件——
+                        // 先前文件的内容不可信（可能是上一轮恢复残留或跨平台冲突），
+                        // 将 uri 留空由 DB 事实源 + auditOrphans 占位处理。
                         if !fileStorage.fileExists(at: dest) {
                             let output = try await fileStorage.makeOutputStream(at: dest)
+                            // 创建输出流后立即记录路径：copyEntry 中途失败时 output.close()
+                            // 仍会保留已写入的部分文件，必须纳入清理列表避免孤儿残留。
+                            writtenPaths.append(dest)
                             do {
                                 try await ZipReader.copyEntry(
                                     record, from: input, to: output,
@@ -331,9 +353,9 @@ final class ZipBackupService: BackupService, @unchecked Sendable {
                                 try? await output.close()
                                 throw error
                             }
-                            writtenPaths.append(dest)
+                            // 仅在本次实际写入后才记录路径，确保 DB 绑定到可信内容。
+                            photoPathByID[photoSnap.id] = dest
                         }
-                        photoPathByID[photoSnap.id] = dest
                     }
                 }
                 written += 1
@@ -351,6 +373,8 @@ final class ZipBackupService: BackupService, @unchecked Sendable {
                     let dest = "\(sandboxDir)/\(avatarsDirName)/\(avatarName)"
                     if !fileStorage.fileExists(at: dest) {
                         let output = try await fileStorage.makeOutputStream(at: dest)
+                        // 创建输出流后立即记录路径（与照片路径一致，防半截文件残留）。
+                        writtenPaths.append(dest)
                         do {
                             try await ZipReader.copyEntry(
                                 record, from: input, to: output,
@@ -360,7 +384,6 @@ final class ZipBackupService: BackupService, @unchecked Sendable {
                             try? await output.close()
                             throw error
                         }
-                        writtenPaths.append(dest)
                     }
                 }
             }
@@ -407,23 +430,43 @@ final class ZipBackupService: BackupService, @unchecked Sendable {
 
     /// 预校验：在写文件前确定哪些照片/宠物会被实际导入（MainActor）。
     ///
-    /// 检查现有 DB 中是否已存在同 id 宠物、同 id 或同 originalURI 照片。
-    /// 返回可导入集合——文件复制阶段仅写入这些记录的文件，
-    /// 避免为重复记录写入孤儿文件或覆盖已有文件。
+    /// 双层去重：
+    /// 1. **备份包内部**——同一备份中出现重复 id / originalURI / photoFileName 时，
+    ///    只取首条导入。防止第二条记录写入文件后因重复被跳过留下孤儿文件，
+    ///    或多条 Photo 共用同一文件路径导致删除一条误删另一条。
+    /// 2. **与现有 DB**——同 id 宠物 / 同 id 或同 originalURI 照片已存在时跳过。
+    ///
+    /// 返回可导入集合——文件复制阶段仅写入这些记录的文件。
     @MainActor
     private func prevalidateImport(
         metadata: BackupMetadata
     ) async throws -> (photos: Set<UUID>, pets: Set<UUID>) {
         var importablePets: Set<UUID> = []
+        var seenPetIDs: Set<UUID> = []
         for petSnap in metadata.pets {
+            // 备份内部重复 pet id → 只导入首条
+            guard !seenPetIDs.contains(petSnap.id) else { continue }
+            seenPetIDs.insert(petSnap.id)
             if try petRepo.getPet(id: petSnap.id) == nil {
                 importablePets.insert(petSnap.id)
             }
         }
 
         var importablePhotos: Set<UUID> = []
+        var seenPhotoIDs: Set<UUID> = []
+        var seenOriginalURIs: Set<String> = []
+        var seenPhotoFileNames: Set<String> = []
         for photoSnap in metadata.photos {
-            // 同 id 或同 originalURI 已存在 → 跳过（不导入、不写文件）
+            // 备份内部重复 id → 跳过（防孤儿文件：第二条写文件后因重复 id 被 applyImport 跳过）
+            guard !seenPhotoIDs.contains(photoSnap.id) else { continue }
+            seenPhotoIDs.insert(photoSnap.id)
+            // 备份内部重复 originalURI → 跳过（防共用文件路径 / 删除一条误删另一条）
+            guard !seenOriginalURIs.contains(photoSnap.originalURI) else { continue }
+            seenOriginalURIs.insert(photoSnap.originalURI)
+            // 备份内部重复 photoFileName → 跳过（防多张照片写同一 dest 路径）
+            guard !seenPhotoFileNames.contains(photoSnap.photoFileName) else { continue }
+            seenPhotoFileNames.insert(photoSnap.photoFileName)
+            // 同 id 或同 originalURI 已在 DB 中存在 → 跳过（不导入、不写文件）
             if try photoRepo.getPhoto(id: photoSnap.id) != nil { continue }
             if try photoRepo.getPhotoByOriginalURI(photoSnap.originalURI) != nil { continue }
             importablePhotos.insert(photoSnap.id)
@@ -488,6 +531,8 @@ final class ZipBackupService: BackupService, @unchecked Sendable {
             }
 
             // 3) 照片（关联宠物，写文件路径）
+            // 跟踪被新增照片影响的宠物，末尾统一刷新 photoCount 缓存。
+            var affectedPetIDs: Set<UUID> = []
             for photoSnap in metadata.photos {
                 if Task.isCancelled { throw BackupServiceError.cancelled }
                 // 双重校验（安全网）：预校验已过滤，但 applyImport 独立调用时仍需保护
@@ -497,20 +542,29 @@ final class ZipBackupService: BackupService, @unchecked Sendable {
                     continue
                 }
                 let pet = photoSnap.petID.flatMap { try petRepo.getPet(id: $0) }
-                // 文件未写入（缺失或文件名不安全）时，uri 留空——DB 是事实源，
-                // 缺失文件按 auditOrphans 占位处理；不得拼接潜在穿越路径进 DB。
-                let uri = photoPathByID[photoSnap.id]
-                    ?? (Self.isSafeFileName(photoSnap.photoFileName)
-                        ? "\(sandboxDir)/\(photoSnap.photoFileName)"
-                        : "")
+                // uri 仅取本次实际写入的路径——文件未写入（缺失、文件名不安全、
+                // 目标已存在但非本次写入）时留空。DB 是事实源，缺失文件按
+                // auditOrphans 占位处理；不得绑定到未经校验的未知文件。
+                let uri = photoPathByID[photoSnap.id] ?? ""
                 let photo = Self.recreate(
                     photo: photoSnap, uri: uri, pet: pet)
                 try photoRepo.insertPhoto(photo)
                 insertedPhotos.append(photo)
                 if let pet {
                     try photoRepo.assignPhoto(photo, to: pet)
+                    affectedPetIDs.insert(pet.id)
                 }
                 importedPhotos += 1
+            }
+
+            // 4) 刷新受影响宠物的 photoCount 缓存。
+            // assignPhoto 只更新关系不更新计数——合并到已有宠物时缓存会过期；
+            // 新导入宠物的 photoCount 来自快照，部分照片被跳过时也会偏高。
+            // 统一按实际 photos 关系重新计数，保证与 DB 一致。
+            for petID in affectedPetIDs {
+                if let pet = try petRepo.getPet(id: petID) {
+                    try petRepo.refreshPhotoCount(for: pet)
+                }
             }
 
             return RestoreResult(
@@ -739,5 +793,28 @@ final class StreamProgressCounter: @unchecked Sendable {
         let result = _value
         lock.unlock()
         return result
+    }
+}
+
+/// 导出总量守卫（线程安全累计器）。
+///
+/// `ZipWriter.writeArchive` 顺序处理 entries，但闭包是 @Sendable，累计器本身
+/// 需保证线程安全。每次 `add` 累计字节数，超限时抛 `backupTooLarge` 阻止
+/// 生成超 ZIP32 4GB 地址范围的不可恢复备份。
+final class ExportSizeGuard: @unchecked Sendable {
+    private let lock = NSLock()
+    private var _total = 0
+    private let maxBytes: Int
+
+    init(maxBytes: Int) { self.maxBytes = maxBytes }
+
+    func add(_ bytes: Int) throws {
+        lock.lock()
+        _total += bytes
+        let total = _total
+        lock.unlock()
+        guard total <= maxBytes else {
+            throw BackupServiceError.backupTooLarge
+        }
     }
 }

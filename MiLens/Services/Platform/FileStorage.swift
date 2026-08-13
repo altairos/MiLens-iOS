@@ -82,11 +82,11 @@ final class MockFileStorage: FileStorage, @unchecked Sendable {
         }
     }
 
-    func makeOutputStream(at path: String) async throws -> any OutputStream {
+    func makeOutputStream(at path: String) async throws -> any ZipOutputStream {
         MockOutputStream(parent: self, path: path)
     }
 
-    func makeInputStream(at path: String) async throws -> any InputStream {
+    func makeInputStream(at path: String) async throws -> any ZipInputStream {
         guard let data = files[path] else {
             throw FileStorageError.fileNotFound(path)
         }

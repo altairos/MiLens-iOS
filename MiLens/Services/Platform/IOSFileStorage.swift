@@ -89,11 +89,14 @@ final class IOSFileStorage: FileStorage, @unchecked Sendable {
 
     func makeOutputStream(at path: String) async throws -> any ZipOutputStream {
         try ensureParentDirectory(of: path)
-        // 创建空文件供 FileHandle 打开写入
+        // 创建空文件供 FileHandle 打开写入。
+        // createFile 在文件已存在时会截断为空（contents: nil），但同路径复用场景下
+        // 显式 truncate(atOffset: 0) 双保险，避免较短的新输出残留旧文件尾部数据。
         FileManager.default.createFile(atPath: path, contents: nil)
         guard let handle = FileHandle(forWritingAtPath: path) else {
             throw FileStorageError.fileNotFound(path)
         }
+        try handle.truncate(atOffset: 0)
         return IOSFileOutputStream(handle: handle, path: path, fileStorage: self)
     }
 

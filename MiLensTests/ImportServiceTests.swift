@@ -328,6 +328,59 @@ final class ImportServiceTests: XCTestCase {
         XCTAssertEqual(result.matched, 0)
     }
 
+    // MARK: - 自动归属批量原子性（P2 修复：多张匹配同一宠物计数一致）
+
+    func testImportAutoMatchBatchAssignsMultiplePhotosConsistentCount() async throws {
+        // 三张同特征照片匹配到同一宠物——批量归属（batchAssignPhotos）后
+        // photoCount 须与实际关系一致，避免逐张 assignPhoto + refreshPhotoCount
+        // 部分失败导致计数漂移。
+        let clip = MockClipInference()
+        let (_, petRepo, photoRepo, container) = makeAutoMatchService(
+            assets: [asset("a"), asset("b"), asset("c")],
+            imageDataOverrides: [
+                "a": makeSolidPNG(width: 64, height: 64, r: 255, g: 120, b: 60),
+                "b": makeSolidPNG(width: 64, height: 64, r: 255, g: 120, b: 60),
+                "c": makeSolidPNG(width: 64, height: 64, r: 255, g: 120, b: 60),
+            ],
+            clip: clip
+        )
+        let pet = Pet(name: "小橘")
+        try petRepo.insertPet(pet)
+        let matcher = PetMatcher(
+            petRepo: petRepo, clipService: clip,
+            executor: AnalysisExecutor(maxConcurrent: 1))
+        let images = (0..<8).map { _ in makeSolidPNG(width: 64, height: 64, r: 255, g: 120, b: 60) }
+        XCTAssertTrue(await matcher.registerPetFeatures(petID: pet.id, imageDatas: images))
+
+        let service2 = ImportService(
+            photoLibrary: MockPhotoLibraryAccess(
+                assets: [asset("a"), asset("b"), asset("c")],
+                imageDataOverrides: [
+                    "a": makeSolidPNG(width: 64, height: 64, r: 255, g: 120, b: 60),
+                    "b": makeSolidPNG(width: 64, height: 64, r: 255, g: 120, b: 60),
+                    "c": makeSolidPNG(width: 64, height: 64, r: 255, g: 120, b: 60),
+                ]),
+            fileStorage: MockFileStorage(),
+            photoRepo: photoRepo, mediaLifecycle: MediaLifecycleService(
+                photoRepo: photoRepo, petRepo: petRepo,
+                fileStorage: MockFileStorage(), sandboxDir: "/documents/MiPhotos"),
+            sandboxDir: "/documents/MiPhotos", petRepo: petRepo,
+            clipService: clip
+        )
+
+        let result = await service2.importPhotos(identifiers: ["a", "b", "c"])
+        XCTAssertEqual(result.imported, 3)
+        XCTAssertEqual(result.matched, 3, "三张同特征照片应全部匹配到同一宠物")
+        // 批量归属后 photoCount 须与实际归属照片数一致（验证 batchAssignPhotos 原子写入）
+        XCTAssertEqual(try petRepo.getPet(id: pet.id)?.photoCount, 3,
+                       "批量归属后计数须一致，不得逐张漂移")
+        let photos = try photoRepo.getPhotosPage(offset: 0, limit: 10)
+        XCTAssertEqual(photos.count, 3)
+        for photo in photos {
+            XCTAssertEqual(photo.pet?.id, pet.id, "所有照片须归属到目标宠物")
+        }
+    }
+
     // MARK: - 失败可观测（H4）
 
     func testImportCountsPartialFailures() async {

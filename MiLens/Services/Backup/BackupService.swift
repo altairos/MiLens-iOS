@@ -358,6 +358,12 @@ enum BackupConfig {
     // MARK: - 内存上限（防御性限制，避免大图库 OOM）
     /// 备份包全部条目解压后总字节数上限（2 GB，恢复侧 records 总量校验用）。
     static let maxBackupSizeBytes = 2 * 1024 * 1024 * 1024
+    /// 导出侧累计字节数上限（ZIP32 安全边界）。
+    ///
+    /// ZIP32 使用 UInt32 记录 local header 偏移、条目大小和 central directory 偏移
+    ///（上限 ~4 GB）。超过后 `UInt32(truncatingBitPattern:)` 会静默截断，生成不可
+    /// 恢复的备份。此处与恢复侧一致限制为 2 GB，为 header/CD 开销留充足余量。
+    static let maxTotalExportSizeBytes = 2 * 1024 * 1024 * 1024
     /// 备份包内最大条目数（manifest + metadata + 照片 + 头像 + 事件，以照片为主）。
     static let maxEntryCount = 50_000
     /// 单个条目解压后最大字节数（单张照片上限，200 MB）。

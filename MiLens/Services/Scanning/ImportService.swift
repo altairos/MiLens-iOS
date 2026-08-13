@@ -195,17 +195,24 @@ final class ImportService {
                 importedPhotoIDs.append(contentsOf: photos.map(\.id))
                 // quotaRemaining 已在加入 pending 时即时递减，此处不再扣减（避免双重扣减）
                 // 自动归属（对应源端 importPhotos 中 matchFromEmbedding → assignPhotoToPet）：
-                // 仅对成功入库的照片执行；提取/匹配失败不影响导入
-                for (index, photo) in photos.enumerated() {
-                    if let matcher, let match = await resolveAutoMatch(matcher: matcher, imageData: batch[index].data) {
+                // 仅对成功入库的照片执行；提取/匹配失败不影响导入。
+                // 先按目标宠物分组收集匹配结果，再用 batchAssignPhotos 原子提交
+                // （与手动归属/引导归属统一：单次事务内关系 + 计数原子写入，
+                //   避免逐张 assignPhoto + refreshPhotoCount 部分失败导致计数不一致）。
+                if let matcher {
+                    var matchesByPet: [UUID: [Photo]] = [:]
+                    for (index, photo) in photos.enumerated() {
+                        guard let match = await resolveAutoMatch(
+                            matcher: matcher, imageData: batch[index].data) else { continue }
+                        matchesByPet[match.petID, default: []].append(photo)
+                    }
+                    for (petID, photosForPet) in matchesByPet {
+                        guard let pet = try? petRepo.getPet(id: petID) else { continue }
                         do {
-                            if let pet = try petRepo.getPet(id: match.petID) {
-                                try photoRepo.assignPhoto(photo, to: pet)
-                                try petRepo.refreshPhotoCount(for: pet)
-                                matched += 1
-                            }
+                            try photoRepo.batchAssignPhotos(photosForPet, to: pet)
+                            matched += photosForPet.count
                         } catch {
-                            logger.warning("importPhotos: 自动归属写入失败（\(error.localizedDescription)）")
+                            logger.warning("importPhotos: 自动归属批量写入失败（\(error.localizedDescription)）")
                         }
                     }
                 }

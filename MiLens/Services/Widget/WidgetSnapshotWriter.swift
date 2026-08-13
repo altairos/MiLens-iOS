@@ -72,8 +72,8 @@ final class WidgetSnapshotWriter {
             writeGeneration += 1
             let generation = writeGeneration
 
-            // 代数检查闭包：供 copyThumbnails 在每次文件写入前调用，
-            // 防止旧代任务的 downsampleAndCopy 覆盖新代任务已写入的同名缩略图。
+            // 代数检查闭包：供 copyThumbnails 在降采样前和写入前各调用一次，
+            // 防止旧代任务的降采样结果覆盖新代任务已写入的同名缩略图。
             // 同时检查 Task.isCancelled 与 generation，任一过期即返回 true。
             let isStale: @Sendable () async -> Bool = { [weak self] in
                 guard !Task.isCancelled else { return true }
@@ -232,32 +232,37 @@ final class WidgetSnapshotWriter {
 
         let scale = await MainActor.run { UIScreen.main.scale }
         for source in sources {
-            // 每次写入前检查代数：防止旧代 downsampleAndCopy 覆盖新代已写入的同名缩略图
+            // 降采样前检查代数：旧代任务提前中止
             if await isStale() { return }
             guard !source.sourcePath.isEmpty,
                   fm.fileExists(atPath: source.sourcePath) else { continue }
             let destURL = thumbDir.appendingPathComponent(source.destName)
-            downsampleAndCopy(
-                sourcePath: source.sourcePath, destURL: destURL,
+            // 先降采样（CPU 密集，不写磁盘），拿到 JPEG 数据后再检查代数。
+            guard let data = downsample(
+                sourcePath: source.sourcePath,
                 maxPixelSize: maxSize * scale
-            )
+            ) else { continue }
+            // 写入前二次检查代数：旧代降采样完成后可能已被新代取代，
+            // 此时写入会覆盖新代结果。检查失败则中止，不写磁盘。
+            if await isStale() { return }
+            try? data.write(to: destURL, options: .atomic)
         }
     }
 
-    /// 用 ImageIO 降采样源图片并写入目标路径。
-    nonisolated static func downsampleAndCopy(
-        sourcePath: String, destURL: URL, maxPixelSize: CGFloat
-    ) {
-        guard let source = CGImageSourceCreateWithURL(URL(fileURLWithPath: sourcePath) as CFURL, nil) else { return }
+    /// 用 ImageIO 降采样源图片为 JPEG 数据（不写磁盘）。
+    /// 与文件写入分离，使调用方能在降采样完成、写入前插入代数检查。
+    nonisolated static func downsample(
+        sourcePath: String, maxPixelSize: CGFloat
+    ) -> Data? {
+        guard let source = CGImageSourceCreateWithURL(URL(fileURLWithPath: sourcePath) as CFURL, nil) else { return nil }
         let options: [CFString: Any] = [
             kCGImageSourceCreateThumbnailFromImageAlways: true,
             kCGImageSourceShouldCacheImmediately: true,
             kCGImageSourceThumbnailMaxPixelSize: maxPixelSize,
         ]
-        guard let cgImage = CGImageSourceCreateThumbnailAtIndex(source, 0, options as CFDictionary) else { return }
+        guard let cgImage = CGImageSourceCreateThumbnailAtIndex(source, 0, options as CFDictionary) else { return nil }
         let uiImage = UIImage(cgImage: cgImage)
-        guard let data = uiImage.jpegData(compressionQuality: 0.8) else { return }
-        try? data.write(to: destURL, options: .atomic)
+        return uiImage.jpegData(compressionQuality: 0.8)
     }
 
     // MARK: - JSON 写入

@@ -55,6 +55,11 @@ protocol PhotoLibraryAccess: Sendable {
     /// 照片总数（对应源端 getPhotoAssetCount）。
     func photoCount() async throws -> Int
 
+    /// 统计系统图库中 creationDate >= date 的照片数量（新照片提醒用，毫秒级计数不解码）。
+    /// date 为 nil 时返回全库 count（首次无游标场景兜底）。
+    /// 诚实标注：iOS 无公开「加入系统图库时间」API，以 creationDate 近似。
+    func countPhotosAddedSince(_ date: Date?) async throws -> Int
+
     /// 按 identifier 查询单张照片元数据，不存在返回 nil（对应源端 getAssetByUri）。
     func metadata(forIdentifier identifier: String) async throws -> PhotoAssetMetadata?
 
@@ -93,6 +98,9 @@ final class MockPhotoLibraryAccess: PhotoLibraryAccess, @unchecked Sendable {
     var metadataError: Error?
     /// 失败注入：loadImageData(forIdentifier:) 按 identifier 抛错（H4 导入失败计数测试用）
     var imageDataErrors: [String: Error] = [:]
+    /// 可注入的新照片计数（默认按 assets 的 dateAdded/creationDate 过滤；
+    /// 测试可直接赋值固定结果，简化 ViewModel 测试）。
+    var newPhotoCountOverride: Int? = nil
 
     init(assets: [PhotoAssetMetadata] = [], imageDataOverrides: [String: Data] = [:]) {
         self.assets = assets
@@ -111,6 +119,14 @@ final class MockPhotoLibraryAccess: PhotoLibraryAccess, @unchecked Sendable {
 
     func photoCount() async throws -> Int {
         if let photoCountError { throw photoCountError }
+        return assets.count
+    }
+
+    func countPhotosAddedSince(_ date: Date?) async throws -> Int {
+        if let newPhotoCountOverride { return newPhotoCountOverride }
+        if let date {
+            return assets.filter { ($0.dateAdded ?? $0.dateTaken) ?? .distantPast >= date }.count
+        }
         return assets.count
     }
 

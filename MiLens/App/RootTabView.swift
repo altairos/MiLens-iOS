@@ -33,6 +33,10 @@ struct RootTabView: View {
     @State private var showPaywall = false
     /// 跨 Tab 请求进入 Gallery 存储管理模式（与 SettingsView/GalleryView 共享）
     @AppStorage("storageManageRequested") private var storageManageRequested = false
+    /// 跨 Tab 请求进入设置页备份导出（首页横幅 / 通知 tap 与 SettingsView 共享）
+    @AppStorage("backupExportRequested") private var backupExportRequested = false
+    /// 跨 Tab 请求进入相册扫描流程（铃铛确认窗 / 选择菜单 / 通知 tap 共用）
+    @AppStorage("newPhotoScanRequested") private var newPhotoScanRequested = false
 
     var body: some View {
         TabView(selection: selectedTab) {
@@ -65,6 +69,20 @@ struct RootTabView: View {
             showPaywall = true
         }
         .onChange(of: storageManageRequested) { _, requested in
+            if requested {
+                selectedTabRaw = AppTab.home.rawValue
+                homePath.append(Route.gallery)
+            }
+        }
+        .onChange(of: backupExportRequested) { _, requested in
+            // 首页备份横幅 / 备份提醒通知 tap → 切到「我的」Tab（SettingsView 消费并触发导出）
+            if requested {
+                selectedTabRaw = AppTab.settings.rawValue
+            }
+        }
+        .onChange(of: newPhotoScanRequested) { _, requested in
+            // 铃铛确认窗 / 选择菜单 / 新照片通知 tap → 切到首页 Tab 并 push 相册页
+            // （GalleryView onAppear/onChange 消费 newPhotoScanRequested 触发扫描流程）
             if requested {
                 selectedTabRaw = AppTab.home.rawValue
                 homePath.append(Route.gallery)

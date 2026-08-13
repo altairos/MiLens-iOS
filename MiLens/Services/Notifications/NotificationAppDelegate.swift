@@ -14,6 +14,10 @@ final class NotificationAppDelegate: NSObject, UIApplicationDelegate, Observable
 
     /// 待处理的通知 tap 目的地（非 nil 时 MiLensApp 消费并清空）。
     @Published var pendingDestination: NotificationTapDestination?
+    /// 备份提醒通知 tap 标记（true 时 MiLensApp 消费并清空 → 跳转设置页备份导出）。
+    @Published var pendingBackupTap = false
+    /// 新照片提醒通知 tap 标记（true 时 MiLensApp 消费并清空 → 跳转相册页扫描流程）。
+    @Published var pendingNewPhotoScanTap = false
 
     func application(
         _ application: UIApplication,
@@ -36,12 +40,20 @@ extension NotificationAppDelegate: UNUserNotificationCenterDelegate {
         [.banner, .sound]
     }
 
-    /// 用户 tap 通知 → 解析标识符 → 发布待路由目的地。
+    /// 用户 tap 通知 → 解析标识符 → 发布待路由目的地（里程碑）或备份提醒 tap 标记。
     func userNotificationCenter(
         _ center: UNUserNotificationCenter,
         didReceive response: UNNotificationResponse
     ) async {
-        pendingDestination = NotificationDeepLink.destination(
-            fromIdentifier: response.notification.request.identifier)
+        let identifier = response.notification.request.identifier
+        if NotificationDeepLink.isBackupReminder(identifier: identifier) {
+            pendingBackupTap = true
+            return
+        }
+        if NotificationDeepLink.isNewPhotoReminder(identifier: identifier) {
+            pendingNewPhotoScanTap = true
+            return
+        }
+        pendingDestination = NotificationDeepLink.destination(fromIdentifier: identifier)
     }
 }

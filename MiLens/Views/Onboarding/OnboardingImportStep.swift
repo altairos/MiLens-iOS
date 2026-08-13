@@ -154,6 +154,8 @@ struct OnboardingImportStep: View {
                 archiveEntryCard
                 localArchiveProof
                     .padding(.top, 24)
+                backupKeepCard
+                    .padding(.top, 16)
                 privacyNote
                     .padding(.top, 16)
             }
@@ -311,6 +313,52 @@ struct OnboardingImportStep: View {
                 .foregroundStyle(Color.milensTextSecondary)
                 .padding(.top, 4)
         }
+    }
+
+    // MARK: - 备份留存引导卡片（导入成功后种下认知）
+
+    /// 情感化备份引导：强调记忆的珍贵与完整保存，不使用「换机丢失」这类表述
+    /// （产品定位是记忆本身的安全感，而非对设备风险的恐惧）。
+    /// 纯展示卡片——Onboarding 完成后才进主界面，进入后首页横幅会再次引导。
+    private var backupKeepCard: some View {
+        HStack(spacing: 0) {
+            Rectangle()
+                .fill(Color.milensActionPrimary)
+                .frame(width: 3)
+
+            VStack(alignment: .leading, spacing: 0) {
+                HStack(spacing: 8) {
+                    Image(systemName: "externaldrive.badge.timemachine")
+                        .font(.system(size: 14))
+                        .foregroundStyle(Color.milensActionPrimary)
+                    Text("MEMORY SAFEKEEPING")
+                        .font(.system(size: 12))
+                        .tracking(0.1)
+                        .foregroundStyle(Color.milensActionPrimary)
+                }
+                .padding(.top, 16)
+
+                Text("把这份珍贵的回忆好好留存")
+                    .font(.system(size: 15, weight: .medium))
+                    .foregroundStyle(Color.milensTextPrimary)
+                    .padding(.top, 8)
+
+                Text("你和小伙伴的每一天都值得被完整记住。MiLens 可以把这些日子打包成一份专属的备份文件，无论时光怎样流转，温暖的瞬间都不会走散。")
+                    .font(.system(size: 12))
+                    .foregroundStyle(Color.milensTextSecondary)
+                    .padding(.top, 4)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .padding(.bottom, 16)
+            }
+            .padding(.leading, 13)
+            .padding(.trailing, 16)
+        }
+        .background(Color.milensCard)
+        .overlay(
+            RoundedRectangle(cornerRadius: 16, style: .continuous)
+                .stroke(Color.milensBorder, lineWidth: 1)
+        )
+        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
     }
 
     // MARK: - 隐私说明

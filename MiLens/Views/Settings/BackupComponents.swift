@@ -48,6 +48,14 @@ struct BackupConfirmSheet: View {
                     .multilineTextAlignment(.center)
                     .frame(maxWidth: .infinity)
 
+                // 跨平台提示：告知用户备份包是标准 ZIP，电脑上改名即可解压查看
+                Text(String(localized: "settings.backup.zipHint"))
+                    .font(.caption2)
+                    .foregroundStyle(Color.milensTextTertiary)
+                    .multilineTextAlignment(.center)
+                    .frame(maxWidth: .infinity)
+                    .padding(.top, Spacing.xs)
+
                 Spacer()
 
                 Button {
@@ -115,6 +123,13 @@ struct BackupShareSheet: View {
                     .font(.caption)
                     .foregroundStyle(Color.milensTextSecondary)
                     .multilineTextAlignment(.center)
+
+                // 导出完成也提示：电脑上改名 .zip 即可解压查看照片和元数据
+                Text(String(localized: "settings.backup.zipHint"))
+                    .font(.caption2)
+                    .foregroundStyle(Color.milensTextTertiary)
+                    .multilineTextAlignment(.center)
+                    .padding(.top, Spacing.xs)
                 ShareLink(item: url) {
                     Label(String(localized: "settings.backup.share"), systemImage: "square.and.arrow.up")
                         .frame(maxWidth: .infinity)

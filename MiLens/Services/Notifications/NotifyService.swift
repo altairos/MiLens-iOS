@@ -27,6 +27,10 @@ final class NotifyService {
     static let anniversaryIdentifierPrefix = "anniversary-"
     /// 相处里程碑通知标识符前缀：`milestone-<petID>-<days>`。
     static let milestoneIdentifierPrefix = "milestone-"
+    /// 定期备份提醒通知标识符（固定单值，撤销/覆盖按此定位）。
+    static let backupReminderIdentifier = "backup-reminder"
+    /// 新照片提醒通知标识符（固定单值，撤销/覆盖按此定位）。
+    static let newPhotoReminderIdentifier = "new-photo-reminder"
     /// 提醒触发时间（固定 09:00，P1 不引入可配置时间 UI）。
     static let reminderHour = 9
     static let reminderMinute = 0
@@ -36,17 +40,29 @@ final class NotifyService {
     private let poster: any NotificationPosting
     /// 随机源（时光机选片/文案模板，测试注入固定种子）
     private let randomSource: () -> Int
+    /// 上次备份时间查询（读 UserDefaults；测试注入固定值）
+    private let lastBackupDateProvider: () -> Date?
+    /// 最近添加照片时间查询（读 photoRepo.max(createdAt)；测试注入固定值）。
+    private let lastAddedPhotoDateProvider: @MainActor () -> Date?
+    /// 系统图库增量新照片计数（读 PhotoLibraryAccess.countPhotosAddedSince；测试注入固定值）。
+    private let newPhotoCountProvider: @MainActor () async -> Int
 
     init(
         photoRepo: any PhotoRepositoryProtocol,
         petRepo: any PetRepositoryProtocol,
         poster: any NotificationPosting,
-        randomSource: @escaping () -> Int = { Int.random(in: 0..<Int.max) }
+        randomSource: @escaping () -> Int = { Int.random(in: 0..<Int.max) },
+        lastBackupDateProvider: @escaping () -> Date? = { nil },
+        lastAddedPhotoDateProvider: @escaping @MainActor () -> Date? = { nil },
+        newPhotoCountProvider: @escaping @MainActor () async -> Int = { 0 }
     ) {
         self.photoRepo = photoRepo
         self.petRepo = petRepo
         self.poster = poster
         self.randomSource = randomSource
+        self.lastBackupDateProvider = lastBackupDateProvider
+        self.lastAddedPhotoDateProvider = lastAddedPhotoDateProvider
+        self.newPhotoCountProvider = newPhotoCountProvider
     }
 
     // MARK: - 授权（设置开关路径用；调度本身不请求授权）
@@ -73,6 +89,8 @@ final class NotifyService {
         await schedulePetAnniversaries(pets: nil, calendar: calendar)
         await schedulePetMilestones(pets: nil, now: now, calendar: calendar)
         await scheduleTimeMachine(now: now, calendar: calendar)
+        await scheduleBackupReminder(now: now, calendar: calendar)
+        await scheduleNewPhotoReminder(now: now, calendar: calendar)
     }
 
     // MARK: - 宠物局部更新
@@ -267,6 +285,83 @@ final class NotifyService {
             )
         } catch {
             logger.error("scheduleTimeMachine: 调度失败（\(error.localizedDescription)）")
+        }
+    }
+
+    // MARK: - 定期备份提醒（用户久未备份时温柔提醒，次日 09:00 单次通知）
+
+    /// 调度定期备份提醒。复用纪念提醒开关（不单独引入开关）。
+    /// - 满足条件（从未备份 OR 距上次备份 ≥ reminderStaleDays）：先撤销旧的备份提醒，
+    ///   再调度一条「次日 09:00」单次通知（用户当日不打开 App 时次日送达）。
+    /// - 不满足（刚备份过）：仅撤销旧的备份提醒通知（清理）。
+    /// 每次重调度都撤销重建——活跃用户每天打开 App 会反复重建，通知实际服务「不常打开 App」的用户。
+    private func scheduleBackupReminder(now: Date, calendar: Calendar) async {
+        let identifier = Self.backupReminderIdentifier
+        // 幂等：无论是否调度都先撤销旧的备份提醒通知
+        await poster.removeNotifications(identifiers: [identifier])
+
+        let should = BackupReminderLogic.shouldScheduleBackupReminder(
+            lastBackupDate: lastBackupDateProvider(), now: now, calendar: calendar)
+        guard should else { return }
+
+        // 调度「次日 09:00」单次通知
+        guard let tomorrow = calendar.date(
+            byAdding: .day, value: 1, to: calendar.startOfDay(for: now)
+        ) else { return }
+        var trigger = calendar.dateComponents([.year, .month, .day], from: tomorrow)
+        trigger.hour = Self.reminderHour
+        trigger.minute = Self.reminderMinute
+
+        let title = String(localized: "notify.backup.title")
+        let body = String(localized: "notify.backup.body")
+        do {
+            try await poster.schedule(
+                title: title, body: body,
+                identifier: identifier,
+                dateComponents: trigger, repeats: false
+            )
+        } catch {
+            logger.error("scheduleBackupReminder: 调度失败（\(error.localizedDescription)）")
+        }
+    }
+
+    // MARK: - 新照片提醒（系统图库有新照片或久未添加时温柔提醒，次日 09:00 单次通知）
+
+    /// 调度新照片提醒。复用纪念提醒开关（不单独引入开关）。
+    /// - 满足条件（系统图库有新照片 OR 距上次添加 ≥ staleDays）：先撤销旧的新照片提醒，
+    ///   再调度一条「次日 09:00」单次通知（文案按 ReminderKind 区分新照片/久未添加）。
+    /// - 不满足：仅撤销旧的新照片提醒通知（清理）。
+    private func scheduleNewPhotoReminder(now: Date, calendar: Calendar) async {
+        let identifier = Self.newPhotoReminderIdentifier
+        // 幂等：无论是否调度都先撤销旧的新照片提醒通知
+        await poster.removeNotifications(identifiers: [identifier])
+
+        let lastAdded = lastAddedPhotoDateProvider()
+        let newCount = await newPhotoCountProvider()
+        let kind = NewPhotoReminderLogic.resolveKind(
+            newPhotoCount: newCount, lastAddedDate: lastAdded, now: now, calendar: calendar)
+        guard kind != .none else { return }
+
+        // 调度「次日 09:00」单次通知
+        guard let tomorrow = calendar.date(
+            byAdding: .day, value: 1, to: calendar.startOfDay(for: now)
+        ) else { return }
+        var trigger = calendar.dateComponents([.year, .month, .day], from: tomorrow)
+        trigger.hour = Self.reminderHour
+        trigger.minute = Self.reminderMinute
+
+        let title = String(localized: "notify.newPhoto.title")
+        // 文案按提醒子类型区分：有新照片 → 「找找看」；仅久未添加 → 「最近有拍新的吗」
+        let bodyKey = (kind == .staleInput) ? "notify.newPhoto.body.stale" : "notify.newPhoto.body.new"
+        let body = String(localized: String.LocalizationValue(bodyKey))
+        do {
+            try await poster.schedule(
+                title: title, body: body,
+                identifier: identifier,
+                dateComponents: trigger, repeats: false
+            )
+        } catch {
+            logger.error("scheduleNewPhotoReminder: 调度失败（\(error.localizedDescription)）")
         }
     }
 

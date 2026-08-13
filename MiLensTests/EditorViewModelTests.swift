@@ -253,6 +253,57 @@ final class EditorViewModelTests: XCTestCase {
         XCTAssertTrue(vm.canUndo)
     }
 
+    // MARK: - 预设滤镜（iOS 端新增）
+
+    func testApplyPresetSyncsStateAndLayer() async {
+        let vm = await makeLoadedVM()
+        vm.selectTool(.adjust)
+        let vivid = PRESET_FILTERS.first { $0.id == "vivid" }!
+        vm.adjustVM.applyPreset(vivid)
+        // state 从图层回读，等于预设值即证明图层已写入
+        XCTAssertEqual(vm.adjustVM.state.contrast, 20)
+        XCTAssertEqual(vm.adjustVM.state.saturation, 30)
+        XCTAssertEqual(vm.adjustVM.state.sharpness, 0)
+        XCTAssertEqual(vm.adjustVM.selectedFilterID, "vivid")
+        XCTAssertTrue(vm.canUndo)
+    }
+
+    func testManualSliderChangeClearsFilterHighlight() async {
+        let vm = await makeLoadedVM()
+        vm.selectTool(.adjust)
+        vm.adjustVM.applyPreset(PRESET_FILTERS.first { $0.id == "vivid" }!)
+        XCTAssertEqual(vm.adjustVM.selectedFilterID, "vivid")
+        // 手动微调对比度（偏离 vivid 预设的 20）→ 自动取消高亮
+        vm.adjustVM.onSliderChange(.contrast, value: 21, phase: .click)
+        XCTAssertNil(vm.adjustVM.selectedFilterID)
+    }
+
+    func testOriginalPresetEqualsReset() async {
+        let vm = await makeLoadedVM()
+        vm.selectTool(.adjust)
+        vm.adjustVM.applyPreset(PRESET_FILTERS.first { $0.id == "warm" }!)
+        XCTAssertEqual(vm.adjustVM.selectedFilterID, "warm")
+        // 选原图预设 = 回到中性
+        vm.adjustVM.applyPreset(ORIGINAL_PRESET_FILTER)
+        XCTAssertTrue(isAdjustNeutral(vm.adjustVM.state))
+        XCTAssertEqual(vm.adjustVM.selectedFilterID, "original")
+    }
+
+    func testSlidersCollapsedByDefault() async {
+        let vm = await makeLoadedVM()
+        vm.selectTool(.adjust)
+        XCTAssertFalse(vm.adjustVM.isSlidersExpanded)
+        vm.adjustVM.toggleSlidersExpanded()
+        XCTAssertTrue(vm.adjustVM.isSlidersExpanded)
+    }
+
+    func testEnterAdjustHighlightsOriginalWhenNeutral() async {
+        let vm = await makeLoadedVM()
+        vm.selectTool(.adjust)
+        // 进入调色时参数中性 → 高亮原图
+        XCTAssertEqual(vm.adjustVM.selectedFilterID, "original")
+    }
+
     // MARK: - 文字
 
     func testAddTextCreatesActiveLayer() async {

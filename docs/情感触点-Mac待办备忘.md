@@ -112,6 +112,26 @@ Stage 1/2 + 名片卡 + 红包封面的 App 层集成代码在 Windows 上无法
 
 **验证**：schema 迁移测试 + 离世态 UI 真机走查。
 
+## 7. 离线备份引导体系（P0–P3）[需 Mac 编译验证]
+
+2026-08-13 落地 4 级备份引导触达，纯决策逻辑已 WSL2 验证（`BackupReminderLogic` 13 用例，852/852 全绿）。App 层渲染集成需 Mac 编译验证：
+
+- [ ] `BackupViewModel` 导出成功后写 `lastBackupDate`（UserDefaults），设置页副标题展示「上次备份 X 月 X 日」/「尚未备份」
+- [ ] `OnboardingImportStep.successView` 备份留存卡片（`MEMORY SAFEKEEPING`）渲染与排版
+- [ ] `HomeView` `BackupReminderBanner` 横幅渲染 + × 关闭 + 跨 Tab 跳转（`backupExportRequested` 通道）
+- [ ] `NotifyService.scheduleBackupReminder` 通知调度真机验证（次日 09:00 单次通知送达 + tap 跳转设置备份区）
+- [ ] 6 个新增本地化 key + 2 个文案修正的 zh-Hans 展示走查（en/de/fr 随多语言批次补）
+
+## 8. 备份包跨平台友好化 [需 Mac 编译验证]
+
+2026-08-13 落地枚举语义化 + 平台标识 + Windows 解压提示。需 Mac 验证：
+
+- [ ] `BackupManifest` 新增 `platform` 字段后，导出/恢复往返测试（`ZipBackupServiceTests` 篡改用例已补参数，完整往返需 App 编译）
+- [ ] `PetSnapshot.species/gender` 语义字符串导出后 metadata.json 人工抽查（`"cat"`/`"male"` 而非 `"1"`）
+- [ ] 旧版数字字符串备份包向后兼容恢复验证（用旧包恢复仍能正确还原 species/gender）
+- [ ] `BackupConfirmSheet` / `BackupShareSheet` 的 `zipHint` 提示行排版（caption2 tertiary 色，不抢主视觉）
+- [ ] 新增 `settings.backup.zipHint` 本地化 key zh-Hans 展示走查
+
 ## 附带修复（已在本轮完成）
 
 - `MiLensKit/Tests/MiLensKitTests/DecorationCatalogCodableTests.swift:116` — `.utf8` → `String.Encoding.utf8`（解锁 WSL2/Linux 测试编译，macOS 行为不变）

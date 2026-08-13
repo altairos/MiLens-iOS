@@ -79,4 +79,22 @@ final class NotificationDeepLinkTests: XCTestCase {
     func testMilestonePrefixOnlyReturnsNil() {
         XCTAssertNil(NotificationDeepLink.destination(fromIdentifier: "milestone-"))
     }
+
+    // MARK: - 备份提醒与新照片提醒标识符判定
+
+    func testIsBackupReminderMatches() {
+        XCTAssertTrue(NotificationDeepLink.isBackupReminder(identifier: NotifyService.backupReminderIdentifier))
+    }
+
+    func testIsBackupReminderDoesNotMatchOthers() {
+        XCTAssertFalse(NotificationDeepLink.isBackupReminder(identifier: NotifyService.newPhotoReminderIdentifier))
+    }
+
+    func testIsNewPhotoReminderMatches() {
+        XCTAssertTrue(NotificationDeepLink.isNewPhotoReminder(identifier: NotifyService.newPhotoReminderIdentifier))
+    }
+
+    func testIsNewPhotoReminderDoesNotMatchOthers() {
+        XCTAssertFalse(NotificationDeepLink.isNewPhotoReminder(identifier: NotifyService.backupReminderIdentifier))
+    }
 }

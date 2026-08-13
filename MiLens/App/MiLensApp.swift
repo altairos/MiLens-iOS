@@ -57,6 +57,10 @@ struct MiLensApp: App {
     }
 
     @State private var pendingWidgetRoute: Route?
+    /// 备份提醒通知 tap → 跨 Tab 跳转设置页备份导出（与首页横幅 / RootTabView / SettingsView 共享）
+    @AppStorage("backupExportRequested") private var backupExportRequested = false
+    /// 新照片提醒通知 tap → 跨 Tab 跳转相册扫描流程（与铃铛确认窗 / RootTabView / GalleryView 共享）
+    @AppStorage("newPhotoScanRequested") private var newPhotoScanRequested = false
 
     @ViewBuilder
     private var content: some View {
@@ -93,6 +97,18 @@ struct MiLensApp: App {
                         pendingWidgetRoute = resolveNotificationRoute(destination)
                         notificationDelegate.pendingDestination = nil
                     }
+                }
+                .onReceive(notificationDelegate.$pendingBackupTap) { tapped in
+                    // 定期备份提醒 tap → 切到「我的」Tab 并触发备份导出（backupExportRequested 通道）
+                    guard tapped else { return }
+                    backupExportRequested = true
+                    notificationDelegate.pendingBackupTap = false
+                }
+                .onReceive(notificationDelegate.$pendingNewPhotoScanTap) { tapped in
+                    // 新照片提醒 tap → 切到相册 Tab 并触发扫描流程（newPhotoScanRequested 通道）
+                    guard tapped else { return }
+                    newPhotoScanRequested = true
+                    notificationDelegate.pendingNewPhotoScanTap = false
                 }
                 .task {
                     // 启动孤儿审计：清理上一次崩溃/回滚残留的媒体文件（仅生产环境）。

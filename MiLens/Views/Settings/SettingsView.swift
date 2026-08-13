@@ -6,6 +6,7 @@
 
 import SwiftUI
 import UniformTypeIdentifiers
+import MiLensKit
 
 struct SettingsView: View {
     @AppStorage("reminderNotificationsEnabled") private var remindersEnabled = false
@@ -26,6 +27,10 @@ struct SettingsView: View {
     @State private var showRestoreImporter = false
     /// 照片总数（onAppear / scenePhase active 时刷新）
     @State private var photoCount = 0
+    /// 跨 Tab 请求进入备份导出（首页横幅 / 通知 tap 触发；与 RootTabView 共享）
+    @AppStorage("backupExportRequested") private var backupExportRequested = false
+    /// 铃铛晃动模式（四选一，与 HomeView 共享）
+    @AppStorage("bellShakeMode") private var bellShakeModeRaw = BellShakeLogic.ShakeMode.all.rawValue
 
     /// `.milensbackup` 文件类型（project.yml UTExportedTypeDeclarations 声明为本 App 导出类型）。
     private var milensBackupType: UTType { UTType(exportedAs: "com.milens.backup") }
@@ -54,6 +59,11 @@ struct SettingsView: View {
                 backupVM = BackupViewModel(backupService: backupService)
             }
             photoCount = (try? photoRepo.countAllPhotos()) ?? 0
+            // 首页横幅 / 通知 tap 发起的跨 Tab 备份请求（Tab 首次 appear 时 onChange 不可靠，onAppear 兜底）
+            handleBackupExportRequest()
+        }
+        .onChange(of: backupExportRequested) { _, _ in
+            handleBackupExportRequest()
         }
         .task {
             await entitlement.refresh()
@@ -196,6 +206,19 @@ struct SettingsView: View {
             Button(String(localized: "settings.backup.ok"), role: .cancel) {}
         } message: {
             Text(String(localized: "settings.backup.modeUpdatedMessage"))
+        }
+    }
+
+    /// 消费跨 Tab 备份导出请求：服务可用 + Pro → 预估导出；可用 + 非 Pro → 付费墙。
+    /// 不可用时不处理（入口本身已禁用）。
+    private func handleBackupExportRequest() {
+        guard backupExportRequested, let backupVM else { return }
+        backupExportRequested = false
+        guard backupVM.isServiceAvailable else { return }
+        if entitlement.isPro {
+            Task { await backupVM.prepareExport() }
+        } else {
+            showPaywall = true
         }
     }
 
@@ -407,19 +430,41 @@ struct SettingsView: View {
                 .labelsHidden()
                 .tint(Color.milensActionPrimary)
             }
+            ArchiveDivider().padding(.leading, 32)
+
+            // 03 铃铛提醒
+            LedgerRow(index: "03", label: String(localized: "settings.bellShake.title")) {
+                Picker("", selection: $bellShakeModeRaw) {
+                    ForEach(BellShakeLogic.ShakeMode.allCases, id: \.rawValue) { mode in
+                        Text(bellShakeLabel(for: mode)).tag(mode.rawValue)
+                    }
+                }
+                .labelsHidden()
+                .tint(Color.milensActionPrimary)
+            }
         }
     }
 
-    // MARK: - 支持与版本（编号 03/04）
+    /// 铃铛晃动模式文案
+    private func bellShakeLabel(for mode: BellShakeLogic.ShakeMode) -> String {
+        switch mode {
+        case .off: return String(localized: "settings.bellShake.off")
+        case .newPhotoOnly: return String(localized: "settings.bellShake.newPhotoOnly")
+        case .anniversaryOnly: return String(localized: "settings.bellShake.anniversaryOnly")
+        case .all: return String(localized: "settings.bellShake.all")
+        }
+    }
+
+    // MARK: - 支持与版本（编号 04/05）
 
     private func supportContent(_ model: SettingsViewModel) -> some View {
         LedgerSection {
-            // 03 帮助
+            // 04 帮助
             NavigationLink {
                 HelpView()
             } label: {
                 LedgerDisclosureRow(
-                    index: "03",
+                    index: "04",
                     label: String(localized: "settings.support.help")
                 )
             }
@@ -427,12 +472,12 @@ struct SettingsView: View {
 
             ArchiveDivider().padding(.leading, 32)
 
-            // 04 关于
+            // 05 关于
             NavigationLink {
                 AboutView(marketing: model.versionMarketing, build: model.versionBuild)
             } label: {
                 LedgerDisclosureRow(
-                    index: "04",
+                    index: "05",
                     label: String(localized: "settings.about.entry"),
                     trailingText: "\(model.versionMarketing)"
                 )
@@ -536,7 +581,9 @@ struct SettingsView: View {
 
     // MARK: - 备份状态文案辅助
 
-    /// 导出入口副标题：服务不可用 →「即将上线」；未解锁 →「Pro 专属功能」；否则不显示。
+    /// 导出入口副标题：
+    /// 服务不可用 →「即将上线」；未解锁 →「Pro 专属功能」；
+    /// 已解锁 → 展示上次备份时间（「上次备份 8 月 3 日」）或「尚未备份」温柔引导。
     private var backupExportSubtitle: String? {
         if backupVM?.isServiceAvailable == false {
             return String(localized: "settings.backup.comingSoon")
@@ -544,7 +591,12 @@ struct SettingsView: View {
         if !entitlement.isPro {
             return String(localized: "settings.backup.proOnly")
         }
-        return nil
+        // 已解锁 Pro：展示上次备份时间，让用户感知自己的备份状态
+        if let lastDate = backupVM?.lastBackupDate {
+            let dateText = lastDate.formatted(.dateTime.year().month().day())
+            return String(localized: "settings.backup.lastBackup \(dateText)")
+        }
+        return String(localized: "settings.backup.neverBackup")
     }
 
     /// 导出中当前阶段的本地化文案（仅导出进行中返回非空）。

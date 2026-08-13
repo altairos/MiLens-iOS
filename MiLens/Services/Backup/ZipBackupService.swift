@@ -178,6 +178,7 @@ final class ZipBackupService: BackupService, @unchecked Sendable {
         let manifest = BackupManifest(
             schemaVersion: BackupConfig.currentSchemaVersion,
             appVersion: appVersion,
+            platform: "ios",
             exportDate: Date(),
             photoCount: photoSnaps.count,
             petCount: petSnaps.count)
@@ -389,15 +390,55 @@ final class ZipBackupService: BackupService, @unchecked Sendable {
         PetSnapshot(
             id: pet.id,
             name: pet.name,
-            species: String(pet.species.rawValue),
+            species: Self.semanticSpecies(for: pet.species),
             breed: pet.breed,
-            gender: String(pet.gender.rawValue),
+            gender: Self.semanticGender(for: pet.gender),
             birthday: pet.birthday,
             adoptionDay: pet.adoptionDay,
             avatarFileName: avatarFileName,
             notes: pet.notes,
             photoCount: pet.photoCount,
             createdAt: pet.createdAt)
+    }
+
+    // MARK: - 枚举语义化（跨平台可读）
+
+    /// 导出端：Species → 语义字符串（"cat" / "dog" / "unknown"）。
+    private static func semanticSpecies(for species: Species) -> String {
+        switch species {
+        case .unknown: return "unknown"
+        case .cat: return "cat"
+        case .dog: return "dog"
+        }
+    }
+
+    /// 导出端：Gender → 语义字符串（"male" / "female" / "unknown"）。
+    private static func semanticGender(for gender: Gender) -> String {
+        switch gender {
+        case .unknown: return "unknown"
+        case .male: return "male"
+        case .female: return "female"
+        }
+    }
+
+    /// 恢复端：语义字符串 → Species。
+    /// 向后兼容：旧版备份包存数字字符串（"0"/"1"/"2"），自动回退解析。
+    private static func parseSpecies(_ raw: String) -> Species {
+        switch raw.lowercased() {
+        case "cat", "1": return .cat
+        case "dog", "2": return .dog
+        default: return .unknown   // "unknown" / "0" / 未知值
+        }
+    }
+
+    /// 恢复端：语义字符串 → Gender。
+    /// 向后兼容：旧版备份包存数字字符串（"0"/"1"/"2"），自动回退解析。
+    private static func parseGender(_ raw: String) -> Gender {
+        switch raw.lowercased() {
+        case "male", "1": return .male
+        case "female", "2": return .female
+        default: return .unknown   // "unknown" / "0" / 未知值
+        }
     }
 
     private static func snapshot(photo: Photo, petID: UUID?, fileName: String) -> PhotoSnapshot {
@@ -424,8 +465,8 @@ final class ZipBackupService: BackupService, @unchecked Sendable {
     }
 
     private static func recreate(pet snap: PetSnapshot, sandboxDir: String) -> Pet {
-        let species = Species(rawValue: Int(snap.species)) ?? .unknown
-        let gender = Gender(rawValue: Int(snap.gender)) ?? .unknown
+        let species = Self.parseSpecies(snap.species)
+        let gender = Self.parseGender(snap.gender)
         let avatarPath: String
         if let avatarName = snap.avatarFileName,
            Self.isSafeFileName(avatarName) {

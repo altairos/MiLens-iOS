@@ -4,10 +4,35 @@
 //  HomeViewModel（@Observable）驱动：选片、问候、回忆和纪念日倒计时。
 
 import SwiftUI
+import MiLensKit
 
 struct HomeView: View {
     @Environment(\.viewModelFactory) private var factory
     @State private var viewModel: HomeViewModel?
+    /// 跨 Tab 请求进入设置页备份导出（与 RootTabView/SettingsView 共享）
+    @AppStorage("backupExportRequested") private var backupExportRequested = false
+    /// 跨 Tab 请求进入相册扫描流程（铃铛确认窗/选择菜单/推送 tap 共用）
+    @AppStorage("newPhotoScanRequested") private var newPhotoScanRequested = false
+    /// 铃铛晃动模式（设置页配置，四选一）
+    @AppStorage("bellShakeMode") private var bellShakeModeRaw = BellShakeLogic.ShakeMode.all.rawValue
+
+    /// 铃铛确认窗/选择菜单/回忆中心 push 状态
+    @State private var showNewPhotoConfirm = false
+    @State private var showBellChoiceMenu = false
+    @State private var pushReminders = false
+
+    private var bellShakeMode: BellShakeLogic.ShakeMode {
+        BellShakeLogic.ShakeMode(rawValue: bellShakeModeRaw) ?? .all
+    }
+
+    /// 铃铛触发原因（经开关过滤后的最终状态）
+    private var bellTriggerReason: BellShakeLogic.TriggerReason {
+        guard let viewModel else { return .none }
+        return BellShakeLogic.resolveReason(
+            hasAnniversary: viewModel.hasTodayContent,
+            hasNewPhoto: viewModel.hasNewPhotoReminder,
+            mode: bellShakeMode)
+    }
 
     var body: some View {
         Group {
@@ -20,11 +45,81 @@ struct HomeView: View {
         }
         .background(Color.milensBackground)
         .toolbar(.hidden, for: .navigationBar)
+        .navigationDestination(isPresented: $pushReminders) {
+            MemoryRemindersView()
+        }
+        // 新照片确认窗（仅 .newPhoto 触发）
+        .alert(
+            confirmAlertTitle,
+            isPresented: $showNewPhotoConfirm
+        ) {
+            Button(String(localized: "bell.confirm.confirm")) {
+                newPhotoScanRequested = true
+            }
+            Button(String(localized: "bell.confirm.cancel"), role: .cancel) {}
+        } message: {
+            Text(confirmAlertMessage)
+        }
+        // 选择菜单（仅 .both 触发）
+        .confirmationDialog(
+            String(localized: "bell.menu.title"),
+            isPresented: $showBellChoiceMenu,
+            titleVisibility: .visible
+        ) {
+            Button(String(localized: "bell.menu.memories")) {
+                pushReminders = true
+            }
+            Button(String(localized: "bell.menu.newPhoto")) {
+                newPhotoScanRequested = true
+            }
+            Button(String(localized: "bell.confirm.cancel"), role: .cancel) {}
+        }
         .onAppear {
             guard viewModel == nil else { return }
             let model = factory.makeHomeViewModel()
             model.load()
             viewModel = model
+        }
+        .task {
+            // load 后异步刷新新照片提醒（不阻塞首页主加载）
+            await viewModel?.refreshNewPhotoReminder()
+        }
+    }
+
+    // MARK: - 确认窗文案（按 ReminderKind 区分）
+
+    private var confirmAlertTitle: String {
+        guard let viewModel else { return "" }
+        switch viewModel.newPhotoReminderKind {
+        case .staleInput:
+            return String(localized: "bell.confirm.title.stale")
+        default:
+            return String(localized: "bell.confirm.title.new")
+        }
+    }
+
+    private var confirmAlertMessage: String {
+        guard let viewModel else { return "" }
+        switch viewModel.newPhotoReminderKind {
+        case .staleInput:
+            return String(localized: "bell.confirm.body.stale")
+        default:
+            return String(localized: "bell.confirm.body.new")
+        }
+    }
+
+    // MARK: - 铃铛点击分流
+
+    /// 按触发原因执行不同的点击行为。
+    /// .none/.anniversary → 进回忆提醒中心；.newPhoto → 弹确认窗；.both → 弹选择菜单。
+    private func handleBellTap() {
+        switch bellTriggerReason {
+        case .none, .anniversary:
+            pushReminders = true
+        case .newPhoto:
+            showNewPhotoConfirm = true
+        case .both:
+            showBellChoiceMenu = true
         }
     }
 
@@ -43,10 +138,26 @@ struct HomeView: View {
                     // Hero 区
                     if let photo = model.heroPhoto {
                         NavigationLink(value: Route.photoView(photoID: photo.id)) {
-                            HomeHero(photo: photo, model: model)
+                            HomeHero(
+                                photo: photo,
+                                model: model,
+                                bellTriggerReason: bellTriggerReason,
+                                onBellTap: { handleBellTap() }
+                            )
                         }
                         .buttonStyle(.plain)
                         .accessibilityLabel(String(localized: "a11y.home.openPhoto \(model.heroCaption)"))
+                    }
+
+                    // 备份提醒横幅（数据量达标且久未备份时展示）
+                    if model.shouldShowBackupBanner {
+                        BackupReminderBanner(photoCount: model.photoTotalCount) {
+                            backupExportRequested = true
+                        } onClose: {
+                            model.dismissBackupBanner()
+                        }
+                        .padding(.horizontal, Spacing.pagePad)
+                        .padding(.top, Spacing.lg)
                     }
 
                     // 即将到来的日子
@@ -90,8 +201,12 @@ struct HomeView: View {
 private struct HomeHero: View {
     let photo: Photo
     let model: HomeViewModel
+    /// 铃铛触发原因（经开关过滤后的最终状态，决定晃动与否）。
+    let bellTriggerReason: BellShakeLogic.TriggerReason
+    /// 铃铛点击回调（由 HomeView 按 reason 分流处理）。
+    let onBellTap: () -> Void
 
-    /// 铃铛摇晃动效状态：今日有命中内容时启动温和摆动（±6°，周期 1.2s）。
+    /// 铃铛摇晃动效状态：有提醒命中时启动温和摆动（±6°，周期 1.2s）。
     @State private var bellAnimating = false
 
     var body: some View {
@@ -127,8 +242,12 @@ private struct HomeHero: View {
                             .foregroundStyle(.white.opacity(0.92))
                     }
                     Spacer()
-                    // 铃铛：今日有回忆时轻微摇晃，点击进入回忆提醒中心
-                    NavigationLink(value: Route.memoryReminders) {
+                    // 铃铛：有提醒时轻微摇晃，点击按触发原因分流（回忆中心/确认窗/选择菜单）
+                    Button {
+                        Haptics.light()
+                        bellAnimating = false
+                        onBellTap()
+                    } label: {
                         Image(systemName: "bell")
                             .font(.system(size: 18))
                             .foregroundStyle(.white)
@@ -142,10 +261,6 @@ private struct HomeHero: View {
                             )
                     }
                     .buttonStyle(.plain)
-                    .simultaneousGesture(TapGesture().onEnded {
-                        Haptics.light()
-                        bellAnimating = false
-                    })
                     .accessibilityLabel(String(localized: "a11y.home.bell"))
                 }
                 .padding(.leading, 32)
@@ -182,10 +297,10 @@ private struct HomeHero: View {
         .frame(height: 589)
         .clipped()
         .onAppear {
-            bellAnimating = model.hasTodayContent
+            bellAnimating = BellShakeLogic.shouldAnimate(bellTriggerReason)
         }
-        .onChange(of: model.hasTodayContent) { _, hasContent in
-            bellAnimating = hasContent
+        .onChange(of: bellTriggerReason) { _, reason in
+            bellAnimating = BellShakeLogic.shouldAnimate(reason)
         }
     }
 
@@ -462,6 +577,73 @@ private struct YearlyRecapEntry: View {
         .padding(16)
         .background(Color.milensCard)
         .clipShape(RoundedRectangle(cornerRadius: Radius.medium, style: .continuous))
+    }
+}
+
+// MARK: - 备份提醒横幅
+
+/// 首页备份提醒横幅：数据量达标且久未备份时温柔引导用户导出备份。
+/// 强调记忆的珍贵与完整保存，不使用「换机丢失」类表述。
+/// 点击「去导出备份」触发跨 Tab 跳转（backupExportRequested）；× 关闭本次会话不再展示。
+private struct BackupReminderBanner: View {
+    let photoCount: Int
+    let onTap: () -> Void
+    let onClose: () -> Void
+
+    var body: some View {
+        HStack(spacing: 0) {
+            Rectangle()
+                .fill(Color.milensActionPrimary)
+                .frame(width: 3)
+
+            VStack(alignment: .leading, spacing: 0) {
+                HStack(spacing: 8) {
+                    Image(systemName: "externaldrive.badge.timemachine")
+                        .font(.system(size: 14))
+                        .foregroundStyle(Color.milensActionPrimary)
+                    Text(String(localized: "home.backup.banner.title"))
+                        .font(.system(size: 14, weight: .semibold))
+                        .foregroundStyle(Color.milensTextPrimary)
+                    Spacer()
+                    Button {
+                        onClose()
+                    } label: {
+                        Image(systemName: "xmark")
+                            .font(.system(size: 12, weight: .medium))
+                            .foregroundStyle(Color.milensTextTertiary)
+                            .frame(width: 28, height: 28)
+                            .contentShape(Rectangle())
+                    }
+                    .buttonStyle(.plain)
+                }
+                .padding(.top, 14)
+
+                Text(String(localized: "home.backup.banner.body \(photoCount)"))
+                    .font(.system(size: 12))
+                    .foregroundStyle(Color.milensTextSecondary)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .padding(.top, 4)
+
+                Button {
+                    onTap()
+                } label: {
+                    Text(String(localized: "home.backup.banner.action"))
+                        .font(.system(size: 13, weight: .medium))
+                        .foregroundStyle(Color.milensActionPrimary)
+                }
+                .buttonStyle(.plain)
+                .padding(.top, 10)
+                .padding(.bottom, 14)
+            }
+            .padding(.leading, 13)
+            .padding(.trailing, 10)
+        }
+        .background(Color.milensCard)
+        .overlay(
+            RoundedRectangle(cornerRadius: 16, style: .continuous)
+                .stroke(Color.milensBorder, lineWidth: 1)
+        )
+        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
     }
 }
 

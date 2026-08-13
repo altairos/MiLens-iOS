@@ -295,6 +295,7 @@ final class ZipBackupServiceTests: XCTestCase {
         let tampered = BackupManifest(
             schemaVersion: BackupConfig.currentSchemaVersion + 1,
             appVersion: "9.9.9",
+            platform: "ios",
             exportDate: Date(),
             photoCount: 0,
             petCount: 0)

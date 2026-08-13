@@ -111,6 +111,16 @@ final class IOSPhotoLibraryAccess: PhotoLibraryAccess, @unchecked Sendable {
         PHAsset.fetchAssets(with: .image, options: nil).count
     }
 
+    func countPhotosAddedSince(_ date: Date?) async throws -> Int {
+        let options = PHFetchOptions()
+        if let date {
+            // 以 creationDate 近似「加入系统图库时间」（iOS 无公开 API，诚实标注）。
+            // 仅计数不加载/解码，毫秒级完成。
+            options.predicate = NSPredicate(format: "creationDate >= %@", date as NSDate)
+        }
+        return PHAsset.fetchAssets(with: .image, options: options).count
+    }
+
     // MARK: - 元数据查询
 
     func metadata(forIdentifier identifier: String) async throws -> PhotoAssetMetadata? {

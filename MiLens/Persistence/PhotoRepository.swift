@@ -40,6 +40,9 @@ protocol PhotoRepositoryProtocol {
     func getAllPhotoURIs() throws -> Set<String>
     /// 照片总数（H2：替代 getAllPhotoURIs().count 的全表计数）。
     func countAllPhotos() throws -> Int
+    /// 最近添加照片的入库时间（取 max(createdAt)），用于「久未添加」提醒判定。
+    /// nil 表示空库（从未导入）。
+    func getLatestPhotoDate() throws -> Date?
     /// 相册分页（按拍摄时间倒序，对应源端 getPhotosPage）。
     func getPhotosPage(offset: Int, limit: Int) throws -> [Photo]
     /// 某宠物的全部照片（对应源端 getPhotosByPetId）。
@@ -124,6 +127,15 @@ final class SwiftDataPhotoRepository: PhotoRepositoryProtocol {
     func countAllPhotos() throws -> Int {
         // fetchCount 只回行数，不物化任何对象（替代 getAllPhotoURIs().count）
         try context.fetchCount(FetchDescriptor<Photo>())
+    }
+
+    func getLatestPhotoDate() throws -> Date? {
+        var descriptor = FetchDescriptor<Photo>(
+            sortBy: [SortDescriptor(\.createdAt, order: .reverse)]
+        )
+        descriptor.fetchLimit = 1
+        descriptor.propertiesToFetch = [\Photo.createdAt]
+        return try context.fetch(descriptor).first?.createdAt
     }
 
     func getPhotosPage(offset: Int, limit: Int) throws -> [Photo] {

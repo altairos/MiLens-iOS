@@ -51,20 +51,35 @@ final class HomeViewModel {
     var memoryItems: [MemoryItem] = []
     var isLoading = true
     var loadError: String?
+    /// 照片总数（load 时填充，供备份横幅阈值判断）。
+    var photoTotalCount = 0
+    /// 本次会话内备份横幅是否已被用户关闭（进程级，不持久化）。
+    var backupBannerDismissed = false
 
     private let photoRepository: any PhotoRepositoryProtocol
     private let petRepository: any PetRepositoryProtocol
+    /// 系统图库访问（新照片提醒增量计数用）。
+    private let photoLibrary: any PhotoLibraryAccess?
+    /// 扫描游标（新照片提醒增量基准）。
+    private let scanCursorStore: any ScanCursorStore?
     private let now: () -> Date
     /// hero 回退选片的随机种子；在 load() 时固定，避免计算属性每次重算都换一张。
     private var heroRandomIndex: Int = 0
 
+    /// 新照片提醒子类型（load 后异步刷新；nil 相关分支不阻塞首页加载）。
+    private(set) var newPhotoReminderKind: NewPhotoReminderLogic.ReminderKind = .none
+
     init(
         photoRepository: any PhotoRepositoryProtocol,
         petRepository: any PetRepositoryProtocol,
+        photoLibrary: any PhotoLibraryAccess? = nil,
+        scanCursorStore: any ScanCursorStore? = nil,
         now: @escaping () -> Date = Date.init
     ) {
         self.photoRepository = photoRepository
         self.petRepository = petRepository
+        self.photoLibrary = photoLibrary
+        self.scanCursorStore = scanCursorStore
         self.now = now
     }
 
@@ -123,6 +138,7 @@ final class HomeViewModel {
             // 首页只需要最近一批照片，同时覆盖回忆区；不会把整个图库读入内存。
             photos = try photoRepository.getPhotosPage(offset: 0, limit: 500)
             pets = try petRepository.getAllPets()
+            photoTotalCount = (try? photoRepository.countAllPhotos()) ?? photos.count
 
             let photoProjections = photos.map {
                 HomeMemoryPhoto(id: $0.id, takenAt: $0.takenAt, note: $0.note, petID: $0.pet?.id)
@@ -159,6 +175,45 @@ final class HomeViewModel {
         heroRandomIndex = Int.random(in: 1...max(1, photos.count))
 
         isLoading = false
+    }
+
+    // MARK: - 新照片提醒
+
+    /// 是否有新照片提醒（驱动铃铛晃动判定）。
+    var hasNewPhotoReminder: Bool {
+        newPhotoReminderKind != .none
+    }
+
+    /// 异步刷新新照片提醒状态（在 load() 后调用；不阻塞首页主加载）。
+    /// 查询系统图库增量计数 + 最近添加时间，经纯逻辑判定 ReminderKind。
+    func refreshNewPhotoReminder() async {
+        guard let photoLibrary, let scanCursorStore else {
+            newPhotoReminderKind = .none
+            return
+        }
+        let cursor = scanCursorStore.lastSuccessfulScan
+        let newCount = (try? await photoLibrary.countPhotosAddedSince(cursor)) ?? 0
+        let lastAdded = try? photoRepository.getLatestPhotoDate()
+        newPhotoReminderKind = NewPhotoReminderLogic.resolveKind(
+            newPhotoCount: newCount, lastAddedDate: lastAdded, now: now())
+    }
+
+    // MARK: - 备份提醒横幅
+
+    /// 是否应展示备份提醒横幅。
+    /// 决策下沉 BackupReminderLogic（MiLensKit）：照片量达标 + 久未备份（含从未备份）。
+    /// 用户手动关闭后本次会话不再打扰（backupBannerDismissed）。
+    var shouldShowBackupBanner: Bool {
+        guard !backupBannerDismissed else { return false }
+        let lastBackup = UserDefaults.standard.object(
+            forKey: BackupViewModel.lastBackupDateKey) as? Date
+        return BackupReminderLogic.shouldShowHomeBanner(
+            lastBackupDate: lastBackup, photoCount: photoTotalCount, now: now())
+    }
+
+    /// 用户手动关闭备份横幅（本次会话不再展示）。
+    func dismissBackupBanner() {
+        backupBannerDismissed = true
     }
 
     // MARK: - 即将到来的纪念日

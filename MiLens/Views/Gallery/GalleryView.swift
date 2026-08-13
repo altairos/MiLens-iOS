@@ -24,6 +24,8 @@ struct GalleryView: View {
     @State private var showScanFlow = false
     /// 从设置页/降级 sheet 跳转来的「存储管理」请求标志。
     @AppStorage("storageManageRequested") private var storageManageRequested = false
+    /// 铃铛确认窗/选择菜单/通知 tap 触发的扫描流程请求（与 RootTabView/HomeView 共享）
+    @AppStorage("newPhotoScanRequested") private var newPhotoScanRequested = false
     @Namespace private var photoHeroNamespace
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
@@ -52,6 +54,11 @@ struct GalleryView: View {
                 viewModel?.enterStorageManageMode()
                 isManageMode = true
             }
+            // 铃铛确认窗/通知 tap：触发扫描流程
+            if newPhotoScanRequested {
+                newPhotoScanRequested = false
+                showScanFlow = true
+            }
         }
         .onChange(of: entitlement.isPro) { _, isPro in
             viewModel?.updateProStatus(isPro)
@@ -61,6 +68,12 @@ struct GalleryView: View {
                 storageManageRequested = false
                 viewModel?.enterStorageManageMode()
                 isManageMode = true
+            }
+        }
+        .onChange(of: newPhotoScanRequested) { _, requested in
+            if requested {
+                newPhotoScanRequested = false
+                showScanFlow = true
             }
         }
         .sheet(isPresented: Binding(

@@ -17,6 +17,9 @@ struct BackupManifest: Codable, Equatable, Sendable {
     let schemaVersion: Int
     /// App 版本号（语义化版本，诊断兼容性用）。
     let appVersion: String
+    /// 导出端平台标识（"ios" / "harmony" / "android"），供跨平台转换器路由。
+    /// 旧版备份包无此字段 → 解码为 nil（向后兼容，按 ios 处理）。
+    let platform: String?
     /// 备份导出时间。
     let exportDate: Date
     /// 照片总数。
@@ -27,6 +30,9 @@ struct BackupManifest: Codable, Equatable, Sendable {
 
 /// 宠物导出投影（脱离 SwiftData @Model，便于 Codable 序列化）。
 /// CLIP featureData 不导出（可从照片重新生成）。
+///
+/// species / gender 存语义字符串（"cat" / "dog" / "unknown"，"male" / "female" / "unknown"），
+/// 跨平台可读；恢复端兼容旧版数字字符串（"0" / "1" / "2"）自动回退解析。
 struct PetSnapshot: Codable, Equatable, Sendable {
     let id: UUID
     let name: String

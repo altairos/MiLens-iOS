@@ -38,4 +38,16 @@ enum NotificationDeepLink {
         guard let petID = UUID(uuidString: petIDString) else { return nil }
         return NotificationTapDestination(petID: petID, kind: .milestone)
     }
+
+    /// 是否为定期备份提醒通知 tap。
+    /// 备份提醒 tap 路由到设置页备份导出（与首页横幅共用 backupExportRequested 通道）。
+    static func isBackupReminder(identifier: String) -> Bool {
+        identifier == NotifyService.backupReminderIdentifier
+    }
+
+    /// 是否为新照片提醒通知 tap。
+    /// 新照片提醒 tap 路由到相册页扫描流程（与铃铛确认窗共用 newPhotoScanRequested 通道）。
+    static func isNewPhotoReminder(identifier: String) -> Bool {
+        identifier == NotifyService.newPhotoReminderIdentifier
+    }
 }

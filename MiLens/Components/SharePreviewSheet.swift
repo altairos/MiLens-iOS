@@ -47,6 +47,12 @@ struct SharePreviewSheet: View {
     var onDismiss: () -> Void
 
     @State private var showSystemShare = false
+    /// 沉浸式查看状态
+    @State private var showImmersive = false
+    @State private var immersiveScale: CGFloat = 1
+    @State private var immersiveLastScale: CGFloat = 1
+    @State private var immersiveOffset: CGSize = .zero
+    @State private var immersiveLastOffset: CGSize = .zero
 
     var body: some View {
         VStack(spacing: 0) {
@@ -59,6 +65,108 @@ struct SharePreviewSheet: View {
             ShareSheet(items: shareItems)
         }
         .onAppear { MetricsRecorder().record(.shareSheetOpened) }
+        .overlay {
+            if showImmersive {
+                immersiveViewer
+                    .transition(.opacity)
+            }
+        }
+        .animation(.easeInOut(duration: Motion.durationNormal), value: showImmersive)
+    }
+
+    // MARK: - 沉浸式查看器
+
+    /// 全屏暗色查看器：双击缩放、捏合缩放、拖拽平移（放大时）/ 下滑关闭（原尺寸时）。
+    private var immersiveViewer: some View {
+        GeometryReader { geo in
+            ZStack {
+                Color.black.ignoresSafeArea()
+
+                Image(uiImage: previewImage)
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: geo.size.width, height: geo.size.height)
+                    .scaleEffect(immersiveScale)
+                    .offset(immersiveOffset)
+                    .gesture(
+                        MagnifyGesture()
+                            .onChanged { value in
+                                immersiveScale = PhotoViewGestureMath.clampScale(immersiveLastScale * value.magnification)
+                            }
+                            .onEnded { _ in
+                                immersiveLastScale = immersiveScale
+                                if immersiveScale <= 1 { resetImmersive() }
+                            }
+                    )
+                    .gesture(
+                        DragGesture()
+                            .onChanged { value in
+                                if immersiveScale > 1 {
+                                    let maxPan = PhotoViewGestureMath.computeMaxPanOffset(
+                                        containerWidth: geo.size.width, imageScale: immersiveScale)
+                                    immersiveOffset = CGSize(
+                                        width: PhotoViewGestureMath.clampPanOffset(
+                                            immersiveLastOffset.width + value.translation.width, maxPan: maxPan),
+                                        height: PhotoViewGestureMath.clampPanOffset(
+                                            immersiveLastOffset.height + value.translation.height, maxPan: maxPan))
+                                } else {
+                                    immersiveOffset = CGSize(width: 0, height: value.translation.height)
+                                }
+                            }
+                            .onEnded { value in
+                                if immersiveScale > 1 {
+                                    immersiveLastOffset = immersiveOffset
+                                } else if value.translation.height > 100 {
+                                    closeImmersive()
+                                } else {
+                                    withAnimation(.spring(duration: Motion.durationNormal)) {
+                                        immersiveOffset = .zero
+                                    }
+                                }
+                            }
+                    )
+                    .onTapGesture(count: 2) {
+                        withAnimation(.spring(duration: Motion.durationNormal)) {
+                            if immersiveScale > 1 {
+                                resetImmersive()
+                            } else {
+                                immersiveScale = 2.5
+                                immersiveLastScale = 2.5
+                            }
+                        }
+                    }
+            }
+            .overlay(alignment: .topLeading) {
+                Button {
+                    closeImmersive()
+                } label: {
+                    ZStack {
+                        Circle()
+                            .fill(.white)
+                            .frame(width: 36, height: 36)
+                        Image(systemName: "xmark")
+                            .font(.system(size: 13, weight: .semibold))
+                            .foregroundStyle(Color.milensInk)
+                    }
+                }
+                .padding(.leading, Spacing.lg)
+                .padding(.top, 12)
+            }
+        }
+    }
+
+    private func resetImmersive() {
+        immersiveScale = 1
+        immersiveLastScale = 1
+        immersiveOffset = .zero
+        immersiveLastOffset = .zero
+    }
+
+    private func closeImmersive() {
+        withAnimation(.easeInOut(duration: Motion.durationNormal)) {
+            showImmersive = false
+            resetImmersive()
+        }
     }
 
     // MARK: - 预览区
@@ -98,18 +206,31 @@ struct SharePreviewSheet: View {
             .padding(.horizontal, Spacing.pagePad)
             .padding(.top, Spacing.lg)
 
-            // 成品卡片预览（居中 + 大阴影）
-            Image(uiImage: previewImage)
-                .resizable()
-                .scaledToFit()
-                .frame(maxWidth: 210, maxHeight: 263)
-                .clipShape(RoundedRectangle(cornerRadius: 4, style: .continuous))
-                .overlay(
-                    RoundedRectangle(cornerRadius: 4, style: .continuous)
-                        .stroke(Color.milensSeparator, lineWidth: 0.5)
-                )
-                .elevation(.medium)
-                .padding(.top, Spacing.xl)
+            // 成品卡片预览（居中 + 大阴影；点击进入沉浸式查看）
+            Button {
+                showImmersive = true
+                Haptics.light()
+            } label: {
+                Image(uiImage: previewImage)
+                    .resizable()
+                    .scaledToFit()
+                    .frame(maxWidth: 210, maxHeight: 263)
+                    .clipShape(RoundedRectangle(cornerRadius: 4, style: .continuous))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 4, style: .continuous)
+                            .stroke(Color.milensSeparator, lineWidth: 0.5)
+                    )
+                    .elevation(.medium)
+                    .overlay(alignment: .bottomTrailing) {
+                        Image(systemName: "plus.magnifyingglass")
+                            .font(.system(size: 12))
+                            .foregroundStyle(.white)
+                            .padding(6)
+                            .background(Color.black.opacity(0.4), in: Circle())
+                    }
+            }
+            .buttonStyle(.plain)
+            .padding(.top, Spacing.xl)
 
             Spacer(minLength: Spacing.lg)
         }
@@ -145,22 +266,6 @@ struct SharePreviewSheet: View {
                 .overlay(Color.milensSeparator)
                 .padding(.top, Spacing.sm)
 
-            // 系统分享目标
-            Text(String(localized: "share.panel.destinations"))
-                .font(.editorialMetadata)
-                .foregroundStyle(Color.milensTextSecondary)
-                .padding(.horizontal, Spacing.lg)
-                .padding(.top, Spacing.md)
-
-            HStack(spacing: 0) {
-                shareDestination(icon: "shareplay", label: "AirDrop")
-                shareDestination(icon: "message.fill", label: String(localized: "share.platform.wechat"), tint: .milensBrandWechat)
-                shareDestination(icon: "message", label: "iMessage")
-                shareDestination(icon: "ellipsis", label: String(localized: "share.panel.more"))
-            }
-            .padding(.horizontal, Spacing.lg)
-            .padding(.top, Spacing.sm)
-
             // 隐私说明
             Text(String(localized: "share.panel.privacy"))
                 .font(.editorialMetadata)
@@ -182,27 +287,6 @@ struct SharePreviewSheet: View {
         }
         .background(Color.milensCard)
         .clipShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
-    }
-
-    // MARK: - 分享目标
-
-    @ViewBuilder
-    private func shareDestination(icon: String, label: String, tint: Color = .milensTextSecondary) -> some View {
-        Button { showSystemShare = true } label: {
-            VStack(spacing: Spacing.xs) {
-                Image(systemName: icon)
-                    .font(.system(size: 22))
-                    .foregroundStyle(tint)
-                    .frame(width: 48, height: 48)
-                    .background(tint.opacity(0.1))
-                    .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
-                Text(label)
-                    .font(.editorialMetadata)
-                    .foregroundStyle(Color.milensTextSecondary)
-            }
-            .frame(maxWidth: .infinity)
-        }
-        .buttonStyle(.plain)
     }
 
     // MARK: - 动作

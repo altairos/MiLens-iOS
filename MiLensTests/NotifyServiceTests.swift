@@ -279,4 +279,73 @@ final class NotifyServiceTests: XCTestCase {
         XCTAssertFalse(granted)
         XCTAssertEqual(poster.authorizationRequestCount, 1)
     }
+
+    // MARK: - 新照片提醒调度
+
+    /// 构造带新照片提醒 provider 的服务
+    private func makeServiceWithNewPhoto(
+        lastAddedDate: Date?,
+        newPhotoCount: Int
+    ) -> (NotifyService, MockNotificationPoster) {
+        let photoRepo = InMemoryPhotoRepository()
+        let petRepo = InMemoryPetRepository()
+        let poster = MockNotificationPoster()
+        let service = NotifyService(
+            photoRepo: photoRepo, petRepo: petRepo, poster: poster,
+            lastAddedPhotoDateProvider: { lastAddedDate },
+            newPhotoCountProvider: { newPhotoCount }
+        )
+        return (service, poster)
+    }
+
+    func testNewPhotoReminderScheduledWhenNewPhotosExist() async {
+        let now = date(2026, 8, 13)
+        let lastAdded = date(2026, 8, 10)  // 3 天前
+        let (service, poster) = makeServiceWithNewPhoto(lastAddedDate: lastAdded, newPhotoCount: 5)
+
+        await service.rescheduleAllReminders(now: now, calendar: calendar)
+
+        let npr = poster.scheduled.first {
+            $0.identifier == NotifyService.newPhotoReminderIdentifier
+        }
+        XCTAssertNotNil(npr, "有新照片时应调度提醒")
+        XCTAssertEqual(npr?.repeats, false)
+    }
+
+    func testNewPhotoReminderScheduledWhenStale() async {
+        let now = date(2026, 8, 13)
+        let lastAdded = date(2026, 7, 1)  // 43 天前
+        let (service, poster) = makeServiceWithNewPhoto(lastAddedDate: lastAdded, newPhotoCount: 0)
+
+        await service.rescheduleAllReminders(now: now, calendar: calendar)
+
+        let npr = poster.scheduled.first {
+            $0.identifier == NotifyService.newPhotoReminderIdentifier
+        }
+        XCTAssertNotNil(npr, "久未添加时应调度提醒")
+    }
+
+    func testNewPhotoReminderNotScheduledWhenNoConditions() async {
+        let now = date(2026, 8, 13)
+        let lastAdded = date(2026, 8, 10)  // 3 天前
+        let (service, poster) = makeServiceWithNewPhoto(lastAddedDate: lastAdded, newPhotoCount: 0)
+
+        await service.rescheduleAllReminders(now: now, calendar: calendar)
+
+        let npr = poster.scheduled.first {
+            $0.identifier == NotifyService.newPhotoReminderIdentifier
+        }
+        XCTAssertNil(npr, "无新照片且未过期时不应调度")
+    }
+
+    func testNewPhotoReminderRemovesOldBeforeSchedule() async {
+        let now = date(2026, 8, 13)
+        let (service, poster) = makeServiceWithNewPhoto(lastAddedDate: nil, newPhotoCount: 3)
+
+        await service.rescheduleAllReminders(now: now, calendar: calendar)
+
+        // 幂等性验证：先撤销旧的通知（removeNotifications 调用过 newPhotoReminderIdentifier）
+        XCTAssertTrue(poster.removedIdentifiers.contains(NotifyService.newPhotoReminderIdentifier),
+                      "重调度时应先撤销旧的新照片提醒")
+    }
 }

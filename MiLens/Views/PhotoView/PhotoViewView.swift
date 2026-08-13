@@ -39,6 +39,7 @@ struct PhotoViewView: View {
     @State private var isDismissing = false
     @State private var showAssignment = false
     @State private var showAddMemorySheet = false
+    @State private var shareItem: ShareItem?
     private let timelineAccessStore: any TimelineAccessStore = UserDefaultsTimelineAccessStore()
 
     private let doubleTapScale: CGFloat = 2.5
@@ -113,6 +114,9 @@ struct PhotoViewView: View {
                     prefilledPhotoID: photo.id
                 )
             }
+        }
+        .sheet(item: $shareItem) { item in
+            ShareSheet(items: [item.url])
         }
         .task {
             await loadData()
@@ -256,7 +260,8 @@ struct PhotoViewView: View {
                 icon: "square.and.arrow.up",
                 label: String(localized: "photo.detail.share")
             ) {
-                // 分享入口（后续接入）
+                guard let photo else { return }
+                shareItem = ShareItem(url: URL(fileURLWithPath: photo.uri))
             }
         }
         .padding(.horizontal, Spacing.pagePad)

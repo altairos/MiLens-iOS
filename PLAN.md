@@ -272,6 +272,7 @@ P1 核心可靠性与性能六项修复全部落地（实现记录见状态摘�
 - [x] XCTest：编辑器 ViewModel 决策
 - [x] Image Workshop 第一批视觉重做（2026-08-13）：对照 Figma 422:801，编辑器从全黑沉浸式重做为浅色编辑式语言（铜索引条 + WorkshopValueRail 数值滑杆 + 校准线 + Transform Rail）；创作首页改为浅色编号网格；分享预览改为编辑式全屏页 + 系统分享面板。新增 `WorkshopComponents.swift` 组件库与 `.flip` 工具模式。
 - [x] Image Workshop 第二批成品系列（2026-08-13）：对照 Figma 422:801 第二批，重做 02 Picker（A/B 角色双选）、07–10 四个成品页（Source 条 + TemplateRail + FieldRow + CreationActionBar）+ 11 上传指引新页（时间线步骤）。新增 `WorkshopNavHeader`/`WorkshopSourceBar`/`WorkshopTemplateTab`/`WorkshopFieldRow`/`WorkshopTimelineStep` 共享组件。12 页全部落地。
+- [x] 调色预设滤镜（iOS 端增强，2026-08-13）：调色面板顶部新增 6 款预设滤镜横滚条（原图/鲜明/暖阳/冷调/柔和/黑白），复用 `EditorColorAdjustments` + CIFilter 管线（零新增渲染）；手动 5 滑块默认折叠于「手动调整」入口。预设数据下沉 MiLensKit `EditorFilterPresets`（纯逻辑 + 单测），`matchPresetFilter` 精确匹配回算高亮（手动微调偏离预设自动取消选中）。
 
 ### 验收标准
 
@@ -434,6 +435,30 @@ P1 核心可靠性与性能六项修复全部落地（实现记录见状态摘�
   **验证**：WSL2 Swift 6.1.3 `swift test` **761/761 通过**（本轮新增 138 用例全绿，零回归；预存 2 个 Linux 专属失败为 DecorationCatalog JSON 字段名测试，macOS 上全绿）。App 层编译/渲染/真机验证需 Mac（见 [docs/情感触点-Mac待办备忘.md](docs/情感触点-Mac待办备忘.md)）。附带修复：`DecorationCatalogCodableTests.swift:116` `.utf8` → `String.Encoding.utf8`（解锁 WSL2/Linux 测试编译）。UI-DESIGN.md §1.2/§6.6 创作 Tab 项目清单已同步更新。
 
   **待完成（需 Mac）**：①App 编译验证 + 类型/并发修复（P0 阻塞）；②新增本地化 key（`pet.card.birthdayYears`/`memory.kind.*`/`businessCard.template.*`/`redpacket.guide.*` 等）；③NotifyService 里程碑通知调度（用 MilestoneLogic.upcomingMilestones 预排）；④RecapView + TimelineExportCanvas ExportQuality 扩展；⑤指标埋点接入各触点；⑥红包封面真机验证（导出 PNG 上传 cover.weixin.qq.com 规格校验 + PNG→JPEG 降级链）。
+
+- 2026-08-13：**备份包跨平台友好化 + Windows 解压提示**——针对「species/gender 存数字字符串跨平台不可读」「Windows 电脑不识别 .milensbackup 后缀」两项发现，完成格式语义化与用户提示。备份包现在是跨平台就绪状态：标准 ZIP + JSON + 语义化枚举 + 平台标识。
+
+  **枚举语义化**：`PetSnapshot.species/gender` 从数字字符串（`"1"`/`"2"`）改为语义字符串（`"cat"`/`"dog"`/`"unknown"`、`"male"`/`"female"`/`"unknown"`）。导出端 `semanticSpecies`/`semanticGender` 转语义；恢复端 `parseSpecies`/`parseGender` 向后兼容（优先语义解析，回退数字字符串），旧版备份包仍可正常恢复。
+
+  **平台标识**：`BackupManifest` 新增 `platform: String?`（导出端写 `"ios"`，旧版包解码为 nil 按 ios 处理）。供未来跨平台转换器路由（鸿蒙/安卓导入时据此判断来源格式）。
+
+  **Windows 解压提示**：`BackupConfirmSheet`（导出前确认）与 `BackupShareSheet`（导出完成分享）均新增 `settings.backup.zipHint` 提示行（caption2 tertiary 色）：「备份包是标准 ZIP 格式。在 Windows 电脑上把后缀 .milensbackup 改成 .zip 即可解压查看照片与元数据。」
+
+  **验证**：WSL2 Swift 6.1.3 `swift test` **894/894 全绿**（零回归）；xcstrings 673 key JSON 合法 + `localization.py check` 通过；`ZipBackupServiceTests` 篡改 manifest 用例已同步补 `platform` 参数。**未执行**：App 编译/UI 预览/真机验证（依赖 iOS SDK，待 Mac）。
+
+- 2026-08-13：**离线备份引导体系补齐（ADR-0010 §8 引导增强）**——针对「操作内引导充分，主动触达缺失」的评估结论，完成 4 级引导触达（P0–P3）。文案一律避开「换机丢失」表述，转而强调记忆的珍贵与完整保存。决策逻辑下沉 MiLensKit（WSL2 852/852 全绿），App 层渲染集成待 Mac。
+
+  **P0 上次备份时间感知**：`BackupViewModel` 导出成功后持久化 `lastBackupDate`（UserDefaults，key 与首页横幅 / 定期通知共享）；`SettingsView` 导出入口副标题已解锁 Pro 时展示「上次备份 X 月 X 日」或「尚未备份，把记忆完整留存」温柔引导（新增 `settings.backup.lastBackup %@` / `settings.backup.neverBackup`）。
+
+  **P1 Onboarding 首次引导**：`OnboardingImportStep.successView` 在「本地隐私证明」与页脚间新增情感化备份留存卡片（`MEMORY SAFEKEEPING · 把这份珍贵的回忆好好留存」），种下「备份功能存在」的认知，文案强调「无论时光怎样流转，温暖的瞬间都不会走散」。
+
+  **P2 首页数据量增长提醒横幅**：`HomeViewModel` 增加 `shouldShowBackupBanner`（决策下沉 `BackupReminderLogic.shouldShowHomeBanner`，照片≥20 + 30 天未备份/从未备份触发）+ 会话级关闭；`HomeView` Hero 下方新增 `BackupReminderBanner`（珊瑚竖线卡片 + × 关闭 +「去导出备份」CTA）；跨 Tab 跳转经 `backupExportRequested` @AppStorage 通道（RootTabView 切「我的」Tab + SettingsView `onAppear`/`onChange` 兑底触发导出/付费墙）。
+
+  **P3 定期备份提醒通知**：`NotifyService` 注入 `lastBackupDateProvider` 闭包 + `rescheduleAllReminders` 调用 `scheduleBackupReminder`（`shouldScheduleBackupReminder` 判断 60 天未备份/从未备份 → 先撤销旧通知再调度「次日 09:00」单次通知；刚备份过则仅清理）；通知 tap 经 `NotificationDeepLink.isBackupReminder` 识别 → `AppDelegate.pendingBackupTap` → MiLensApp 设 `backupExportRequested` 跳转设置备份区。
+
+  **文案修正**：将设置页常驻提示与导出完成分享面板文案中的「防止换机或丢机时数据丢失」改为情感化表述（「让珍贵的记忆多一份守护」/「让温暖的故事无论何时都在」），避免暗示换机丢数据、质疑 App 功能性。
+
+  **纯逻辑**：`MiLensKit/Sources/MiLensKit/Backup/BackupReminderLogic.swift`（阈值常量 bannerStaleDays=30 / bannerMinPhotos=20 / reminderStaleDays=60 + daysSinceLastBackup / shouldShowHomeBanner / shouldScheduleBackupReminder 纯函数，13 用例）。**验证**：WSL2 Swift 6.1.3 `swift test` **852/852 全绿**（新增 13 用例零回归）；xcstrings 665 key JSON 合法 + `localization.py check` 通过。**未执行**：App 编译/UI 预览/真机验证（依赖 iOS SDK，待 Mac）。
 
 - 2026-08-12：**本地导出功能体验补强（ADR-0010 §8 落地增强 + 创作页反馈一致性）**——针对备份导出与作品导出两条链路体验缺口，完成 6 项修复（Windows 本地代码就绪，编译/测试待 Mac）。
 

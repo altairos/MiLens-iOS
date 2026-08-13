@@ -1,6 +1,6 @@
 //  EditorToolPanels —— 编辑器底部面板（对应源端 EditorPage.ets 底部工具区）。
 //  结构：底部 dock（调整/智能/装饰三组）→ 组内工具行（group != .none 时）→ 工具面板（tool 激活时）。
-//  工具面板：裁剪（比例 chips + 取消/确认）、旋转/翻转、调色（5 滑块 + 重置）、
+//  工具面板：裁剪（比例 chips + 取消/确认）、旋转/翻转、调色（预设滤镜横滚条 + 手动 5 滑块）、
 //  文字（添加/选中编辑）、抠图（状态 + 开始/重试）。
 //  V1.0 差异：贴纸/相框无素材资源不展示；拼豆（bead）工具由图纸页并行实现，本编辑器不重复入口。
 
@@ -289,21 +289,97 @@ struct EditorAdjustPanelView: View {
                     .opacity(isAdjustNeutral(adjustVM.state) ? 0.4 : 1)
             }
 
-            ScrollView(.vertical, showsIndicators: false) {
-                VStack(spacing: 2) {
-                    valueRail(field: .brightness, label: "亮度", value: adjustVM.state.brightness, range: -100...100)
-                    valueRail(field: .contrast, label: "对比度", value: adjustVM.state.contrast, range: -100...100)
-                    valueRail(field: .saturation, label: "饱和度", value: adjustVM.state.saturation, range: -100...100)
-                    valueRail(field: .temperature, label: "色温", value: adjustVM.state.temperature, range: -100...100, bipolar: true)
-                    valueRail(field: .sharpness, label: "锐化", value: adjustVM.state.sharpness, range: 0...100)
+            // 预设滤镜横滚条（主交互入口）
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: Spacing.md) {
+                    ForEach(PRESET_FILTERS) { preset in
+                        filterCell(preset, adjustVM: adjustVM)
+                    }
                 }
                 .padding(.horizontal, Spacing.lg)
                 .padding(.top, Spacing.sm)
-                .padding(.bottom, Spacing.sm)
+                .padding(.bottom, Spacing.xs)
             }
-            .frame(maxHeight: 200)
+            .overlay(alignment: .bottom) { Divider().overlay(Color.milensSeparator) }
+
+            // 手动调整入口（默认折叠，点开才显示 5 滑块）
+            manualAdjustToggle(adjustVM: adjustVM)
+
+            if adjustVM.isSlidersExpanded {
+                ScrollView(.vertical, showsIndicators: false) {
+                    VStack(spacing: 2) {
+                        valueRail(field: .brightness, label: "亮度", value: adjustVM.state.brightness, range: -100...100)
+                        valueRail(field: .contrast, label: "对比度", value: adjustVM.state.contrast, range: -100...100)
+                        valueRail(field: .saturation, label: "饱和度", value: adjustVM.state.saturation, range: -100...100)
+                        valueRail(field: .temperature, label: "色温", value: adjustVM.state.temperature, range: -100...100, bipolar: true)
+                        valueRail(field: .sharpness, label: "锐化", value: adjustVM.state.sharpness, range: 0...100)
+                    }
+                    .padding(.horizontal, Spacing.lg)
+                    .padding(.top, Spacing.xs)
+                    .padding(.bottom, Spacing.sm)
+                }
+                .frame(maxHeight: 200)
+            }
         }
         .background(Color.milensBackground)
+    }
+
+    /// 预设滤镜单元：缩略图(54×54) + 名称，选中态铜色描边。
+    private func filterCell(_ preset: PresetFilter, adjustVM: EditorAdjustPanelVM) -> some View {
+        let isSelected = adjustVM.selectedFilterID == preset.id
+        return Button {
+            adjustVM.applyPreset(preset)
+        } label: {
+            VStack(spacing: 4) {
+                Group {
+                    if let thumb = adjustVM.filterThumbnail(for: preset) {
+                        Image(uiImage: thumb)
+                            .resizable()
+                            .scaledToFill()
+                    } else {
+                        RoundedRectangle(cornerRadius: 6, style: .continuous)
+                            .fill(Color.milensGrouped)
+                    }
+                }
+                .frame(width: 54, height: 54)
+                .clipShape(RoundedRectangle(cornerRadius: 6, style: .continuous))
+                .overlay {
+                    RoundedRectangle(cornerRadius: 6, style: .continuous)
+                        .stroke(isSelected ? Color.milensActionPrimary : Color.milensBorder,
+                                lineWidth: isSelected ? 2 : 0.5)
+                }
+
+                Text(NSLocalizedString(preset.nameKey, comment: ""))
+                    .font(.system(size: 12))
+                    .foregroundStyle(isSelected ? Color.milensActionPrimary : Color.milensTextSecondary)
+                    .lineLimit(1)
+            }
+            .frame(width: 62)
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel(NSLocalizedString(preset.nameKey, comment: ""))
+    }
+
+    /// 手动调整折叠入口：点击展开 / 收起 5 滑块。
+    private func manualAdjustToggle(adjustVM: EditorAdjustPanelVM) -> some View {
+        Button {
+            adjustVM.toggleSlidersExpanded()
+        } label: {
+            HStack(spacing: Spacing.xs) {
+                Image(systemName: "slider.horizontal.3")
+                    .font(.system(size: 13))
+                Text(String(localized: "editor.adjust.manual"))
+                    .font(.editorialMetadata)
+                Spacer()
+                Image(systemName: adjustVM.isSlidersExpanded ? "chevron.up" : "chevron.down")
+                    .font(.system(size: 11, weight: .semibold))
+            }
+            .foregroundStyle(Color.milensTextSecondary)
+            .padding(.horizontal, Spacing.lg)
+            .padding(.vertical, Spacing.xs)
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
     }
 
     private func valueRail(field: EditorAdjustField, label: String, value: Double, range: ClosedRange<Double>, bipolar: Bool = false) -> some View {

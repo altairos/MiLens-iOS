@@ -115,11 +115,24 @@ final class AppDependencies {
         )
         // 扫描游标：UserDefaults 持久化上次成功扫描时刻（增量扫描过滤基准）。
         let scanCursorStore = UserDefaultsScanCursorStore()
-        // 纪念提醒：真调度（周年、相处里程碑 + 时光机）。测试环境不构造，避免触发通知授权。
+        // 纪念提醒：真调度（周年、相处里程碑 + 时光机 + 定期备份提醒 + 新照片提醒）。
+        // 测试环境不构造，避免触发通知授权。
+        // 定期备份提醒读上次备份时间（与 BackupViewModel 共享 key）。
+        // 新照片提醒读最近添加时间 + 系统图库增量计数（与 ScanCursorStore 共享游标）。
         let notifyService = isTesting ? nil : NotifyService(
             photoRepo: photoRepo,
             petRepo: petRepo,
-            poster: IOSNotificationCenter()
+            poster: IOSNotificationCenter(),
+            lastBackupDateProvider: {
+                UserDefaults.standard.object(forKey: BackupViewModel.lastBackupDateKey) as? Date
+            },
+            lastAddedPhotoDateProvider: { [photoRepo] in
+                try? photoRepo.getLatestPhotoDate()
+            },
+            newPhotoCountProvider: { [photoLibrary, scanCursorStore] in
+                let cursor = scanCursorStore.lastSuccessfulScan
+                return (try? await photoLibrary.countPhotosAddedSince(cursor)) ?? 0
+            }
         )
         // 首次启动引导状态机（onFinish 置位持久化标记，触发 @AppStorage 切换主界面）。
         // 导入执行器：复用 ImportService 链路，把已确认候选写入档案 + 强制归属到刚创建的宠物。

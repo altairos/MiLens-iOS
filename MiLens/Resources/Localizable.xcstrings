@@ -223,6 +223,17 @@
         }
       }
     },
+    "editor.adjust.manual" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "手动调整"
+          }
+        }
+      }
+    },
     "editor.adjust.reset" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -230,6 +241,72 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "重置"
+          }
+        }
+      }
+    },
+    "editor.filter.cool" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "冷调"
+          }
+        }
+      }
+    },
+    "editor.filter.mono" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "黑白"
+          }
+        }
+      }
+    },
+    "editor.filter.original" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "原图"
+          }
+        }
+      }
+    },
+    "editor.filter.soft" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "柔和"
+          }
+        }
+      }
+    },
+    "editor.filter.vivid" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "鲜明"
+          }
+        }
+      }
+    },
+    "editor.filter.warm" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "暖阳"
           }
         }
       }
@@ -575,6 +652,105 @@
         }
       }
     },
+    "bell.confirm.body.new" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "系统图库里有待确认的新照片，要现在添加吗？"
+          }
+        }
+      }
+    },
+    "bell.confirm.body.stale" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "已经两周没有添加新照片了"
+          }
+        }
+      }
+    },
+    "bell.confirm.cancel" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "以后再说"
+          }
+        }
+      }
+    },
+    "bell.confirm.confirm" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "去添加"
+          }
+        }
+      }
+    },
+    "bell.confirm.title.new" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "可能多了新照片"
+          }
+        }
+      }
+    },
+    "bell.confirm.title.stale" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "该记录新照片了"
+          }
+        }
+      }
+    },
+    "bell.menu.memories" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "查看今日回忆"
+          }
+        }
+      }
+    },
+    "bell.menu.newPhoto" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "去添加新照片"
+          }
+        }
+      }
+    },
+    "bell.menu.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "有新的提醒"
+          }
+        }
+      }
+    },
     "common.back" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -736,6 +912,39 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "今晚，留一会儿给\n它"
+          }
+        }
+      }
+    },
+    "home.backup.banner.action" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "去导出备份"
+          }
+        }
+      }
+    },
+    "home.backup.banner.body %lld" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "已记录 %1$lld 张珍贵的瞬间，导出一份备份，让这些温暖的故事完整保留。"
+          }
+        }
+      }
+    },
+    "home.backup.banner.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "给记忆多一层守护"
           }
         }
       }
@@ -1150,6 +1359,28 @@
         }
       }
     },
+    "notify.backup.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "记忆值得妥善珍藏"
+          }
+        }
+      }
+    },
+    "notify.backup.body" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "你和小伙伴的故事越来越长，导出一份备份，让每个温暖的瞬间都安然无恙。"
+          }
+        }
+      }
+    },
     "notify.memory.title" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -1208,6 +1439,39 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "%@已经来到这个家%lld天了"
+          }
+        }
+      }
+    },
+    "notify.newPhoto.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "系统图库里有新照片"
+          }
+        }
+      }
+    },
+    "notify.newPhoto.body.new" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "可能多了伙伴的新照片，找找看？"
+          }
+        }
+      }
+    },
+    "notify.newPhoto.body.stale" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "有两周没添新照片了，最近有拍新的吗？"
           }
         }
       }
@@ -3177,6 +3441,61 @@
         }
       }
     },
+    "settings.bellShake.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "铃铛提醒"
+          }
+        }
+      }
+    },
+    "settings.bellShake.off" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "不晃动"
+          }
+        }
+      }
+    },
+    "settings.bellShake.newPhotoOnly" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "仅新照片"
+          }
+        }
+      }
+    },
+    "settings.bellShake.anniversaryOnly" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "仅纪念日"
+          }
+        }
+      }
+    },
+    "settings.bellShake.all" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "全部"
+          }
+        }
+      }
+    },
     "settings.backup.comingSoon" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -3271,7 +3590,7 @@
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "选择保存位置：文件 App、iCloud 云盘或隔空投送到电脑。建议妥善保存，防止换机或丢机时数据丢失。"
+            "value" : "选择保存位置：文件 App、iCloud 云盘或隔空投送到电脑。把这份记忆好好保存，让温暖的故事无论何时都在。"
           }
         }
       }
@@ -3283,6 +3602,28 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "操作失败"
+          }
+        }
+      }
+    },
+    "settings.backup.lastBackup %@" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "上次备份 %1$@"
+          }
+        }
+      }
+    },
+    "settings.backup.neverBackup" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "尚未备份，把记忆完整留存"
           }
         }
       }
@@ -3370,7 +3711,7 @@
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "为防止换机或丢机时数据丢失，建议定期使用「备份导出」生成 .milensbackup 文件，保存到 iCloud 云盘或隔空投送到电脑。"
+            "value" : "你和小伙伴的每一天都值得被完整留住。建议定期使用「备份导出」生成 .milensbackup 文件，保存到 iCloud 云盘或隔空投送到电脑，让珍贵的记忆多一份守护。"
           }
         }
       }
@@ -3437,6 +3778,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "照片副本纳入系统备份"
+          }
+        }
+      }
+    },
+    "settings.backup.zipHint" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "备份包是标准 ZIP 格式。在 Windows 电脑上把后缀 .milensbackup 改成 .zip 即可解压查看照片与元数据。"
           }
         }
       }

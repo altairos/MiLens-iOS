@@ -27,6 +27,7 @@ final class InMemoryPhotoRepository: PhotoRepositoryProtocol {
     func getAllOriginalURIs() throws -> Set<String> { Set(photos.map(\.originalURI)) }
     func getAllPhotoURIs() throws -> Set<String> { Set(photos.map(\.uri)) }
     func countAllPhotos() throws -> Int { photos.count }
+    func getLatestPhotoDate() throws -> Date? { photos.map(\.createdAt).max() }
     func getPhotosPage(offset: Int, limit: Int) throws -> [Photo] {
         Array(photos.sorted { ($0.takenAt ?? .distantPast) > ($1.takenAt ?? .distantPast) }.dropFirst(offset).prefix(limit))
     }

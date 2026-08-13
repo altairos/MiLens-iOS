@@ -67,7 +67,12 @@ final class ViewModelFactory {
     // MARK: - ViewModel 构造
 
     func makeHomeViewModel() -> HomeViewModel {
-        HomeViewModel(photoRepository: photoRepo, petRepository: petRepo)
+        HomeViewModel(
+            photoRepository: photoRepo,
+            petRepository: petRepo,
+            photoLibrary: photoLibrary,
+            scanCursorStore: cursorStore
+        )
     }
 
     /// 回忆提醒中心 ViewModel（首页铃铛入口，复用 photoRepo/petRepo）。

@@ -243,4 +243,25 @@ final class PhotoRepositoryTests: XCTestCase {
         try repo.insertPhoto(Photo(uri: "next", originalURI: "ok"))
         XCTAssertNotNil(try repo.getPhotoByURI("next"))
     }
+
+    // MARK: - getLatestPhotoDate
+
+    func testGetLatestPhotoDateNilWhenEmpty() throws {
+        let (repo, _) = makeRepo()
+        XCTAssertNil(try repo.getLatestPhotoDate())
+    }
+
+    func testGetLatestPhotoDateReturnsMaxCreatedAt() throws {
+        let (repo, _) = makeRepo()
+        let early = Photo(uri: "early")
+        early.createdAt = Date(timeIntervalSince1970: 1000)
+        try repo.insertPhoto(early)
+
+        let late = Photo(uri: "late")
+        late.createdAt = Date(timeIntervalSince1970: 2000)
+        try repo.insertPhoto(late)
+
+        let result = try repo.getLatestPhotoDate()
+        XCTAssertEqual(result, Date(timeIntervalSince1970: 2000))
+    }
 }

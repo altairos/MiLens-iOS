@@ -10,8 +10,13 @@
 //     长任务时用户能看到「卡在哪一步」。
 //
 //  幂等保护：预估/导出/恢复进行中时重复触发直接忽略，避免并发写临时文件或重复导入。
+//
+//  上次备份时间（lastBackupDate）：导出成功后持久化到 UserDefaults，
+//  供设置页副标题展示「上次备份 X 月 X 日」、首页横幅与定期通知判断「多久没备份」。
+//  引导触达时机决策下沉 BackupReminderLogic（MiLensKit），本层只读写时间戳。
 
 import Foundation
+import MiLensKit
 import Observation
 
 @MainActor
@@ -36,7 +41,12 @@ final class BackupViewModel {
         case failed(String)
     }
 
+    /// 上次备份时间在 UserDefaults 的存储 key（首页横幅 / 定期通知复用）。
+    static let lastBackupDateKey = "lastBackupDate"
+
     private let backupService: any BackupService
+    /// 上次备份时间的读写后端（默认 UserDefaults；测试可注入 mock）。
+    private let defaults: UserDefaults
 
     var exportState: ExportState = .idle
     var restoreState: RestoreState = .idle
@@ -59,8 +69,23 @@ final class BackupViewModel {
         return false
     }
 
-    init(backupService: any BackupService) {
+    init(backupService: any BackupService, defaults: UserDefaults = .standard) {
         self.backupService = backupService
+        self.defaults = defaults
+    }
+
+    // MARK: - 上次备份时间
+
+    /// 上次成功导出备份的时间；nil 表示从未备份。
+    /// 供设置页副标题、首页横幅、定期通知判断「距上次备份多久」。
+    var lastBackupDate: Date? {
+        defaults.object(forKey: Self.lastBackupDateKey) as? Date
+    }
+
+    /// 距上次备份的整天数；从未备份返回 nil。
+    var daysSinceLastBackup: Int? {
+        BackupReminderLogic.daysSinceLastBackup(
+            lastBackupDate: lastBackupDate, now: Date())
     }
 
     // MARK: - 导出
@@ -86,6 +111,8 @@ final class BackupViewModel {
             let result = try await backupService.exportBackup(petIDs: nil) { [weak self] progress in
                 self?.exportState = .inProgress(progress.fraction, progress.phase)
             }
+            // 记录成功导出时间，供设置页副标题 / 首页横幅 / 定期通知判断使用。
+            defaults.set(Date(), forKey: Self.lastBackupDateKey)
             exportState = .done(result.fileURL)
         } catch {
             exportState = .failed(error.localizedDescription)

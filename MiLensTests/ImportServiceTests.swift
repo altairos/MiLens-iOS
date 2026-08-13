@@ -66,6 +66,49 @@ final class ImportServiceTests: XCTestCase {
         XCTAssertEqual(photos.count, 3)
     }
 
+    // MARK: - importedPhotoIDs（P1 修复：返回实际导入照片 ID）
+
+    func testImportResultContainsActualPhotoIDs() async {
+        let (service, photoRepo, _, _) = makeService(assets: [asset("a"), asset("b"), asset("c")])
+        let result = await service.importPhotos(identifiers: ["a", "b", "c"])
+        XCTAssertEqual(result.importedPhotoIDs.count, 3, "importedPhotoIDs 须与导入数量一致")
+
+        // 每个返回的 ID 都能在 DB 中查到对应的 Photo 记录
+        for photoID in result.importedPhotoIDs {
+            let photo = try! photoRepo.getPhoto(id: photoID)
+            XCTAssertNotNil(photo, "importedPhotoIDs 中的 ID 须对应实际入库记录")
+        }
+    }
+
+    func testImportResultPhotoIDsMatchDBRecords() async {
+        let (service, photoRepo, _, _) = makeService(assets: [asset("a"), asset("b")])
+        let result = await service.importPhotos(identifiers: ["a", "b"])
+
+        let dbPhotos = Set(try! photoRepo.getPhotosPage(offset: 0, limit: 10).map(\.id))
+        XCTAssertEqual(Set(result.importedPhotoIDs), dbPhotos,
+                       "importedPhotoIDs 须与 DB 中的照片 ID 完全一致")
+    }
+
+    func testImportResultPhotoIDsEmptyOnNoImport() async {
+        let (service, _, _, _) = makeService(assets: [])
+        let result = await service.importPhotos(identifiers: [])
+        XCTAssertTrue(result.importedPhotoIDs.isEmpty, "空导入时 importedPhotoIDs 须为空")
+    }
+
+    func testImportResultPhotoIDsExcludesFailed() async {
+        // a 加载失败、b 正常 → importedPhotoIDs 只含 b 的 ID
+        let library = MockPhotoLibraryAccess(assets: [asset("a"), asset("b")])
+        library.imageDataErrors = ["a": ImportTestError.loadFailed]
+        let (service, photoRepo, _, _) = makeService(assets: [asset("a"), asset("b")], library: library)
+
+        let result = await service.importPhotos(identifiers: ["a", "b"])
+        XCTAssertEqual(result.imported, 1)
+        XCTAssertEqual(result.importedPhotoIDs.count, 1, "失败照片的 ID 不应出现在 importedPhotoIDs")
+
+        let photo = try! photoRepo.getPhoto(id: result.importedPhotoIDs[0])
+        XCTAssertEqual(photo?.originalURI, "b")
+    }
+
     // MARK: - 去重（originalURI 为主键，P0 修复）
 
     func testImportSkipsAlreadyImportedIdentifiers() async {

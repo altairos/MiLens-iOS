@@ -434,6 +434,53 @@ final class EditorViewModelTests: XCTestCase {
         XCTAssertNil(vm.errorMessage)
     }
 
+    func testSaveResetsDirtyBaseline() async {
+        let vm = await makeLoadedVM()
+        processor.renderExportResult = Data([1, 2, 3])
+
+        vm.flip(.horizontal)
+        XCTAssertTrue(vm.canUndo, "编辑后应有可撤销状态")
+        XCTAssertTrue(vm.hasUnsavedChanges)
+
+        await vm.save()
+
+        XCTAssertNil(vm.errorMessage)
+        XCTAssertFalse(vm.canUndo, "保存成功后历史基线应重置")
+        XCTAssertFalse(vm.hasUnsavedChanges, "保存后不应再提示未保存修改")
+    }
+
+    func testSaveClearsStaleErrorBeforeAttempt() async {
+        let vm = await makeLoadedVM()
+        processor.renderExportResult = Data([1, 2, 3])
+
+        // 第一次保存失败（导出失败）
+        processor.renderExportFails = true
+        await vm.save()
+        XCTAssertEqual(vm.errorMessage, "导出失败，请重试")
+
+        // 第二次保存成功：旧错误应被清理，不应残留
+        processor.renderExportFails = false
+        await vm.save()
+        XCTAssertNil(vm.errorMessage, "保存开始时应清理旧错误")
+    }
+
+    func testSaveAndBackExitsEvenAfterPriorFailure() async {
+        let vm = await makeLoadedVM()
+        processor.renderExportResult = Data([1, 2, 3])
+
+        // 先制造一个失败的保存
+        processor.renderExportFails = true
+        await vm.save()
+        XCTAssertNotNil(vm.errorMessage)
+
+        // 再成功保存并返回：saveAndBack 应退出
+        processor.renderExportFails = false
+        await vm.saveAndBack()
+
+        XCTAssertTrue(vm.shouldDismiss, "旧错误清理后 saveAndBack 应正常退出")
+        XCTAssertNil(vm.errorMessage)
+    }
+
     func testRequestSaveOnlyWhenPhotoLoaded() async {
         // 用真实 JPEG 文件，保证 load 成功（假文件会使 photoLoaded=false，测不到弹窗）。
         let url = URL(fileURLWithPath: NSTemporaryDirectory())

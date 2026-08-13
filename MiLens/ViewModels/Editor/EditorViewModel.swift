@@ -167,11 +167,9 @@ final class EditorViewModel {
             return
         }
         let path = photo.uri
+        let maxPixels = Self.editorMaxPixelDimension
         let decoded = await Task.detached(priority: .userInitiated) { () -> CGImage? in
-            guard let source = CGImageSourceCreateWithURL(URL(fileURLWithPath: path) as CFURL, nil) else {
-                return nil
-            }
-            return CGImageSourceCreateImageAtIndex(source, 0, nil)
+            Self.downsampledImage(at: path, maxPixelDimension: maxPixels)
         }.value
         guard let decoded else {
             isPhotoLoading = false
@@ -315,6 +313,9 @@ final class EditorViewModel {
     func save() async {
         guard canStartSave(saveSnapshot()), let baseImage, let photo else { return }
         isSaving = true
+        // 清理旧错误：saveAndBack 依赖 errorMessage == nil 判断是否退出，
+        // 旧错误残留会导致保存成功后仍不退出。
+        errorMessage = nil
         defer { isSaving = false }
 
         let format = saveFormat
@@ -333,6 +334,10 @@ final class EditorViewModel {
                 photo, data: data, decision: format,
                 width: baseImage.width, height: baseImage.height
             )
+            // 保存成功：重置历史基线，使 hasUnsavedChanges（document.canUndo）回到 false。
+            // 否则保存后返回仍提示「有未保存修改」。
+            document.resetHistory()
+            syncState()
         } catch {
             errorMessage = "保存失败，请重试"
         }
@@ -456,6 +461,28 @@ final class EditorViewModel {
     /// 抠图分割失败日志（cutoutVM 协作接口）。
     func logCutoutFailure(_ error: Error) {
         logger.error("startCutout: 主体分割失败（\(error.localizedDescription)）")
+    }
+
+    // MARK: - 图像解码
+
+    /// 编辑器解码最大边长（像素）。导入流程通常限制到 1024px，但编辑器面对
+    /// 旧数据或外部大图时无防御性约束，可能导致高内存甚至 OOM。
+    /// 4096px 允许高质量编辑同时防止超大原图（如 100MP DSLR）撑爆内存。
+    private static let editorMaxPixelDimension: CGFloat = 4096
+
+    /// 用 ImageIO 降采样解码图片，最大边长不超过 maxPixelDimension。
+    /// 低于上限的图片按原始尺寸解码（不放大）。
+    /// 遵循 DESIGN.md §3「解码缓冲有上限」资源生命周期纪律。
+    static func downsampledImage(at path: String, maxPixelDimension: CGFloat) -> CGImage? {
+        guard let source = CGImageSourceCreateWithURL(URL(fileURLWithPath: path) as CFURL, nil) else {
+            return nil
+        }
+        let options: [CFString: Any] = [
+            kCGImageSourceCreateThumbnailFromImageAlways: true,
+            kCGImageSourceShouldCacheImmediately: true,
+            kCGImageSourceThumbnailMaxPixelSize: maxPixelDimension,
+        ]
+        return CGImageSourceCreateThumbnailAtIndex(source, 0, options as CFDictionary)
     }
 }
 

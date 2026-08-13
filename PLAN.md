@@ -297,6 +297,13 @@ P1 核心可靠性与性能六项修复全部落地（实现记录见状态摘�
 - [ ] 性能基准：大图库（5000+）滚动/内存
 - [ ] iPhone/iPad 适配（[ADR-0008](docs/adr/0008-v1-scope-decision.md)：iPad 为 V1.0 目标）+ 深色模式 + Dynamic Type 检查
 - [ ] **全球首发多语言（7 语言：zh-Hans/zh-Hant/ja/ko/en/fr/de）**——计划与各国市场注意要点见 [docs/Localization-Plan.md](docs/Localization-Plan.md)：knownRegions 追加 + **区域差异化基础设施已落地**（`MarketProfile` 模型 + `@Environment(\.marketProfile)` 注入，承载字体策略与 GDPR 区隐私叙事强度；5 处硬编码 `zh_CN` 已清理）+ 260+3 key × 6 语言翻译（动态文案 10 类已收口 8 类，见 §3.6 收口进度；固定 locale 快照测试待补 #7.7b）+ 术语表定稿 + 商店元数据/订阅描述/审核备注/隐私政策多语言 + 截图本地化；`localization.py check` 补每语言缺译断言并接入 CI
+- [ ] **UI 测试扩展（发布前质量门禁）**——`MiLensUITests` 当前仅 2 个冒烟用例（冷启动 4 Tab + 空状态导航），未覆盖核心用户路径与错误态。目标用例：
+  - **导入流程**：Onboarding 扫描发现 → 手动导入 → 入库后图库渲染（验证照片出现在网格 + 计数更新）
+  - **编辑器**：照片进入编辑 → 裁切/标注等关键操作 → 保存回写（验证编辑产物标记 `category=="edited"` + 出现在「作品」分类）
+  - **备份导出/恢复**：设置页导出入口 → 预估确认 → ShareSheet 出现；恢复入口 → 文件选择 → 版本校验 → 成功态（数据出现）/ 失败态（版本不兼容/格式无效错误提示）
+  - **错误态**：付费墙触发（Pro 功能入口未解锁）、配额降级锁定蒙层（第 51 张照片锁定不可进大图）、导入失败提示、空库引导文案渲染
+  - **基础设施前置**：现有 `launchApp()` 已注入 `XCTestConfigurationFilePath` 走 in-memory 容器 + 跳过 onboarding + mock Store；导入/编辑/备份用例需扩展 mock 数据注入（预置宠物/照片/事件）——可能需新增 launchEnvironment 开关或 test scheme 配置
+  - **环境约束**：依赖 iOS 模拟器，无法在 Windows 验证；建议 Mac 环境按「先补 mock 数据注入基础设施 → 逐路径补用例」推进
 
 ### 上架（免 Mac 云端一条龙）
 
@@ -435,6 +442,16 @@ P1 核心可靠性与性能六项修复全部落地（实现记录见状态摘�
   **验证**：WSL2 Swift 6.1.3 `swift test` **761/761 通过**（本轮新增 138 用例全绿，零回归；预存 2 个 Linux 专属失败为 DecorationCatalog JSON 字段名测试，macOS 上全绿）。App 层编译/渲染/真机验证需 Mac（见 [docs/情感触点-Mac待办备忘.md](docs/情感触点-Mac待办备忘.md)）。附带修复：`DecorationCatalogCodableTests.swift:116` `.utf8` → `String.Encoding.utf8`（解锁 WSL2/Linux 测试编译）。UI-DESIGN.md §1.2/§6.6 创作 Tab 项目清单已同步更新。
 
   **待完成（需 Mac）**：①App 编译验证 + 类型/并发修复（P0 阻塞）；②新增本地化 key（`pet.card.birthdayYears`/`memory.kind.*`/`businessCard.template.*`/`redpacket.guide.*` 等）；③NotifyService 里程碑通知调度（用 MilestoneLogic.upcomingMilestones 预排）；④RecapView + TimelineExportCanvas ExportQuality 扩展；⑤指标埋点接入各触点；⑥红包封面真机验证（导出 PNG 上传 cover.weixin.qq.com 规格校验 + PNG→JPEG 降级链）。
+
+- 2026-08-13：**测试质量三项缺口修复（覆盖率加权 + 备份事件字段 + 恢复回滚）**——针对「UI 测试仅 2 冒烟用例」「ZipBackupServiceTests 缺部分失败回滚/事件字段完整性/孤儿文件清理」「check-coverage.sh 等权平均高估覆盖率」三项评审发现推进。
+
+  **① 覆盖率脚本权重修正**（`tools/check-coverage.sh`，WSL2 `--selftest` 验证通过）：line 覆盖率从「文件级等权算术平均」改为「行数加权」（`Σ已覆盖行 / Σ可执行行`，用 `coveredLines`/`uncoveredLines`）——修复「2000 行低覆盖文件与 10 行高覆盖文件权重相同、整体被稀释高估」问题；xccov 未提供行数时回退算术平均并打印 `[note]`。新增倒数 5 个最差文件报告（可执行行 ≥ `FILE_MIN_LINES`，默认 50）+ 可选单文件行覆盖下限（`APP_FILE_MIN`/`KIT_FILE_MIN`，默认 0=关闭）。selftest fixture 现含行数数据，断言「加权 0.30 ≠ 算术 0.5667」，防加权误回退算术。CI 调用契约不变（`--selftest` + 解析 xcresult + 退出码）。[DEVELOPMENT.md](DEVELOPMENT.md) §1.2/§2.2 同步更新。
+
+  **② 备份事件字段完整性**（`PetEventSnapshot` + `ZipBackupService`）：`PetEventSnapshot` 从 5 字段扩展为 9 字段（补 `notify`/`body`/`sourceType`/`isPinned`/`relatedPhotoID`），自定义 `init(from:)` 用 `decodeIfPresent` 向后兼容旧版备份包（缺省回退 `PetEvent` 默认值）。修复用户置顶的记忆正文 `body`、来源标签、关联照片经备份往返后静默丢失缺陷。测试守护：`testRoundTripPreservesPetEventAllFields`（全字段往返）+ `testOldBackupWithoutNewFieldsDecodesWithDefaults`（旧包向后兼容）。
+
+  **③ 恢复回滚 + 孤儿文件清理**（`ZipBackupService.importBackup`/`applyImport`）：`importBackup` 跟踪 `writtenPaths`，任意阶段失败时 catch 清理已写文件（防孤儿）；`applyImport` 跟踪 `insertedPets`/`insertedPhotos`，失败时 catch `deletePhoto`/`deletePet` 回滚已入库记录（防半成品）；多处 `Task.isCancelled` 支持取消。测试守护：`testRestoreCleansUpFilesOnDBFailure`（文件清理）+ `testRestoreRollsBackInsertedRecordsOnLateFailure`（`PartiallyThrowingPetRepository` insertPet 成功/updatePet 抛错，覆盖「部分入库后回滚」分支——`ThrowingPetRepository` 立即抛错无法触达）。
+
+  **验证**：WSL2 Swift 6.1.3 MiLensKit `swift test` **894/894 全绿**（零回归）；覆盖率脚本 `--selftest` PASS（行数加权生效 + App=基线 PASS / Kit<基线 FAIL）；行数缺失回退分支单测通过。**未执行**：App target XCTest（含新增 3 用例）需 Mac（依赖 iOS SDK）；真实 xcresult 加权数值待首次 CI 实测校准基线。UI 测试扩展已记入 P5 待办。
 
 - 2026-08-13：**备份包跨平台友好化 + Windows 解压提示**——针对「species/gender 存数字字符串跨平台不可读」「Windows 电脑不识别 .milensbackup 后缀」两项发现，完成格式语义化与用户提示。备份包现在是跨平台就绪状态：标准 ZIP + JSON + 语义化枚举 + 平台标识。
 

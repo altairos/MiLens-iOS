@@ -76,7 +76,7 @@ apt-get install -y --no-install-recommends \
 
 1. `MiLensKit (Linux)`——ubuntu-24.04 上 `swift build/test`，约 50s。
 2. `Lint (UI tokens + i18n)`——ubuntu-24.04 上 `check-ui-tokens.py`（色值硬门禁）+ `localization.py check`（key 完整性），约 10s。
-3. `MiLens App (macOS)`——macos-15 runner 上 `tools/fetch-models.sh`（从 Release 下载生产模型 + SHA256 校验，`actions/cache` 缓存 `MiLens/Resources/Models`，命中则幂等跳过）→ **再** `xcodegen generate`（顺序约束：XcodeGen 生成工程时模型必须已存在，否则 `.mlpackage` 不会进入 Resources Build Phase，正式包会静默降级到 Vision）→ `xcodebuild build` → **产物断言**（`tools/assert-built-models.sh` 校验 `.app` 内含编译后 `.mlmodelc`，防静默降级）→ `xcodebuild test`（含覆盖率，`-resultBundlePath build/TestResult.xcresult`）→ **覆盖率门禁**（`tools/check-coverage.sh --selftest` 固定 fixture 自测 + 解析 xcresult，按 MiLens/MiLensKit 目标与基线比较，任一指标不达标即失败；基线为占位值，首次实测后校准，见脚本头注释），约 4-5 分钟（依赖 MiLensKit + Lint 作业通过）。
+3. `MiLens App (macOS)`——macos-15 runner 上 `tools/fetch-models.sh`（从 Release 下载生产模型 + SHA256 校验，`actions/cache` 缓存 `MiLens/Resources/Models`，命中则幂等跳过）→ **再** `xcodegen generate`（顺序约束：XcodeGen 生成工程时模型必须已存在，否则 `.mlpackage` 不会进入 Resources Build Phase，正式包会静默降级到 Vision）→ `xcodebuild build` → **产物断言**（`tools/assert-built-models.sh` 校验 `.app` 内含编译后 `.mlmodelc`，防静默降级）→ `xcodebuild test`（含覆盖率，`-resultBundlePath build/TestResult.xcresult`）→ **覆盖率门禁**（`tools/check-coverage.sh --selftest` 固定 fixture 自测 + 解析 xcresult，line 覆盖率按行数加权（非等权平均，避免大文件低覆盖被小高覆盖文件稀释高估），按 MiLens/MiLensKit 目标与基线比较，任一指标不达标即失败；基线为占位值，首次实测后校准，见脚本头注释），约 4-5 分钟（依赖 MiLensKit + Lint 作业通过）。
 
 查看：`gh run list --repo altairos/MiLens-iOS` 或 https://github.com/altairos/MiLens-iOS/actions。
 
@@ -142,9 +142,13 @@ xcodebuild ... test -enableCodeCoverage YES
 # 结果在 DerivedData/.../*.xcresult，用 xcrun xcresulttool 或 Xcode Report Navigator 查看
 
 # CI 覆盖率门禁（与 .github/workflows/ci.yml 同用法；基线可用环境变量覆盖）
+# line 覆盖率为行数加权（Σ已覆盖行/Σ可执行行）；xccov 未提供行数时回退文件级算术
+# 平均并打印 [note]。另打印倒数 5 个最差文件报告（可执行行 ≥ FILE_MIN_LINES）。
 tools/check-coverage.sh build/TestResult.xcresult
 #   APP_LINE_MIN/APP_FUNCTION_MIN/APP_BRANCH_MIN   MiLens (App) 基线，默认 30/25/30
 #   KIT_LINE_MIN/KIT_FUNCTION_MIN/KIT_BRANCH_MIN   MiLensKit 基线，默认 47/50/44（占位）
+#   FILE_MIN_LINES    最差文件报告忽略小文件的阈值（可执行行，默认 50）
+#   APP_FILE_MIN/KIT_FILE_MIN   可选单文件行覆盖下限（百分数，默认 0=关闭）
 ```
 
 ## 3. 项目结构约定

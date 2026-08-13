@@ -12,14 +12,15 @@
 
 import Foundation
 import StoreKit
+import os
 
-/// 非隔离 + @unchecked Sendable：可变状态 productsByID 只在调用方（MainActor ViewModel）
-/// 串行访问；Transaction.updates 监听任务只触碰线程安全的 AsyncStream.Continuation，
-/// 不读写 productsByID。避免 MainActor 隔离见证非隔离协议的跨隔离告警（Swift 6 为错误）。
+/// 非隔离 + @unchecked Sendable：可变状态 productsByID 由 OSAllocatedUnfairLock 保护，
+/// 可安全跨并发域读写。updatesTask 仅在 init 写入、deinit 读取（不并发），
+/// statusStream/statusContinuation 为不可变 let。
 final class StoreKit2StoreService: StoreService, @unchecked Sendable {
 
-    /// 已加载产品缓存（purchase 需要 Product 实例）
-    private var productsByID: [String: Product] = [:]
+    /// 已加载产品缓存（purchase 需要 Product 实例）；由锁保护防止并发数据竞争。
+    private let productsByID = OSAllocatedUnfairLock(initialState: [String: Product]())
 
     private let statusContinuation: AsyncStream<ProStatus>.Continuation
     private let statusStream: AsyncStream<ProStatus>
@@ -42,7 +43,7 @@ final class StoreKit2StoreService: StoreService, @unchecked Sendable {
         let products = try await Product.products(for: MiLensProducts.allIDs)
         var infos: [StoreProductInfo] = []
         for product in products {
-            productsByID[product.id] = product
+            productsByID.withLock { $0[product.id] = product }
             infos.append(await Self.makeInfo(for: product))
         }
         return infos
@@ -111,12 +112,12 @@ final class StoreKit2StoreService: StoreService, @unchecked Sendable {
     }
 
     private func product(for productID: String) async throws -> Product {
-        if let cached = productsByID[productID] { return cached }
+        if let cached = productsByID.withLock({ $0[productID] }) { return cached }
         let products = try await Product.products(for: [productID])
         guard let product = products.first else {
             throw StoreServiceError.productNotFound(productID)
         }
-        productsByID[productID] = product
+        productsByID.withLock { $0[productID] = product }
         return product
     }
 

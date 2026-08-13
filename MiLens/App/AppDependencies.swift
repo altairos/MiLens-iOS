@@ -148,11 +148,18 @@ final class AppDependencies {
                 onProgress(Double(progress.current) / Double(max(progress.total, 1)))
             }
             // 强制归属到刚创建的宠物（覆盖自动匹配结果）
+            // 使用本次实际导入的照片 ID 精确归属，避免按「未分配照片」推断
+            // （自动匹配成功的照片已非未分配状态，旧逻辑无法覆盖）。
             if let petID = targetPetID,
                let pet = try? petRepo.getPet(id: petID) {
-                let recent = (try? photoRepo.getUnassignedPhotos(limit: result.imported)) ?? []
-                for photo in recent {
-                    try? photoRepo.assignPhoto(photo, to: pet)
+                for photoID in result.importedPhotoIDs {
+                    guard let photo = try? photoRepo.getPhoto(id: photoID) else { continue }
+                    do {
+                        try photoRepo.assignPhoto(photo, to: pet)
+                    } catch {
+                        // 归属失败不静默吞掉，记录日志保证可观测
+                        // （旧 try? 会吞掉部分归属失败，造成静默不完整）
+                    }
                 }
                 try? petRepo.refreshPhotoCount(for: pet)
             }

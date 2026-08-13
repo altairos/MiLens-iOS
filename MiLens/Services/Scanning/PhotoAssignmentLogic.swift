@@ -43,9 +43,21 @@ enum PhotoAssignmentLogic {
             affectedPetIDs.insert(targetPet.id)
         }
 
-        // 逐张归属写入（仓储设置 Photo.pet 关系，SwiftData 自动维护 Pet.photos 双向关系）
-        for photo in photos {
-            try photoRepo.assignPhoto(photo, to: targetPet)
+        // 记录原始归属，用于中途失败时回滚到一致的已写入状态。
+        let originalPets = photos.map(\.pet)
+
+        // 逐张归属写入（仓储设置 Photo.pet 关系，SwiftData 自动维护 Pet.photos 双向关系）。
+        // 中途失败 → 回滚已修改的照片，避免部分已转移、部分未转移的不一致状态。
+        for (index, photo) in photos.enumerated() {
+            do {
+                try photoRepo.assignPhoto(photo, to: targetPet)
+            } catch {
+                // 回滚 index 之前的所有照片到原始归属
+                for rollbackIndex in 0..<index {
+                    try? photoRepo.assignPhoto(photos[rollbackIndex], to: originalPets[rollbackIndex])
+                }
+                throw error
+            }
         }
 
         // 刷新受影响宠物的 photoCount 缓存（对应源端 updatePetPhotoCount）

@@ -30,12 +30,17 @@ struct ImportResult: Equatable, Sendable {
     /// 因免费版配额上限被拦截的数量（ADR-0010）。
     /// > 0 表示有照片因配额未导入，调用方应引导付费墙。
     let quotaBlocked: Int
+    /// 本次实际导入入库的照片 ID（精确归属用，避免按「未分配照片/列表前 N 条」推断）。
+    /// 调用方应据此对精确记录执行批量归属，而非按数量猜测。
+    let importedPhotoIDs: [UUID]
 
-    init(imported: Int, matched: Int, failed: Int, quotaBlocked: Int = 0) {
+    init(imported: Int, matched: Int, failed: Int, quotaBlocked: Int = 0,
+        importedPhotoIDs: [UUID] = []) {
         self.imported = imported
         self.matched = matched
         self.failed = failed
         self.quotaBlocked = quotaBlocked
+        self.importedPhotoIDs = importedPhotoIDs
     }
 
     /// 是否因配额被拦截（需调用方引导付费）。
@@ -165,6 +170,7 @@ final class ImportService {
         var imported = 0
         var matched = 0
         var failed = 0
+        var importedPhotoIDs: [UUID] = []
         let total = batchCandidates.count
 
         // L2 分批提交：逐张加载/写文件，攒够一批统一入库（替代逐张 save）。
@@ -182,6 +188,7 @@ final class ImportService {
             do {
                 try await mediaLifecycle.commitImportBatch(photos: photos, paths: paths)
                 imported += photos.count
+                importedPhotoIDs.append(contentsOf: photos.map(\.id))
                 // quotaRemaining 已在加入 pending 时即时递减，此处不再扣减（避免双重扣减）
                 // 自动归属（对应源端 importPhotos 中 matchFromEmbedding → assignPhotoToPet）：
                 // 仅对成功入库的照片执行；提取/匹配失败不影响导入
@@ -273,7 +280,8 @@ final class ImportService {
         taskOutcome = Task.isCancelled ? .canceled : .success
         taskSummary = "requested=\(identifiers.count) imported=\(imported) failed=\(failed) matched=\(matched) quotaBlocked=\(quotaBlocked)"
         logger.info("importPhotos: imported=\(imported), failed=\(failed), matched=\(matched), quotaBlocked=\(quotaBlocked)")
-        return ImportResult(imported: imported, matched: matched, failed: failed, quotaBlocked: quotaBlocked)
+        return ImportResult(imported: imported, matched: matched, failed: failed,
+                            quotaBlocked: quotaBlocked, importedPhotoIDs: importedPhotoIDs)
     }
 
     /// 自动归属判定：提取 embedding + 颜色签名 → PetMatcher 匹配。

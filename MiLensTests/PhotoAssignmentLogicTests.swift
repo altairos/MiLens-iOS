@@ -200,4 +200,81 @@ final class PhotoAssignmentLogicTests: XCTestCase {
         XCTAssertEqual(affected.count, 1, "无旧归属时只返回目标宠物")
         XCTAssertEqual(affected.first?.id, pet.id)
     }
+
+    // MARK: - 原子性回滚
+
+    func testRollbackOnPartialFailure() throws {
+        let petA = Pet(name: "小橘")
+        let petB = Pet(name: "黑黑")
+        let p1 = Photo(uri: "/test/1.jpg", originalURI: "1", pet: petA)
+        let p2 = Photo(uri: "/test/2.jpg", originalURI: "2", pet: petA)
+        let p3 = Photo(uri: "/test/3.jpg", originalURI: "3", pet: petA)
+        let photoRepo = InMemoryPhotoRepository()
+        let petRepo = InMemoryPetRepository(pets: [petA, petB])
+        try photoRepo.insertPhoto(p1)
+        try photoRepo.insertPhoto(p2)
+        try photoRepo.insertPhoto(p3)
+
+        // 包装 InMemoryPhotoRepository：第 2 次 assignPhoto 调用时抛错
+        let failingRepo = PartialFailingPhotoRepository(wrapping: photoRepo, failOnAssignCount: 2)
+
+        XCTAssertThrowsError(
+            try PhotoAssignmentLogic.assign(
+                photos: [p1, p2, p3], to: petB,
+                photoRepo: failingRepo, petRepo: petRepo)
+        )
+
+        // 回滚后：所有照片应保持原始归属（petA），不应有部分转移
+        XCTAssertEqual(p1.pet?.id, petA.id, "p1 应回滚到原始归属")
+        XCTAssertEqual(p2.pet?.id, petA.id, "p2 应未被修改（在第 2 次写入时失败）")
+        XCTAssertEqual(p3.pet?.id, petA.id, "p3 应未被修改")
+    }
+}
+
+/// 包装一个 InMemoryPhotoRepository，在第 failOnAssignCount 次 assignPhoto 调用时抛错。
+@MainActor
+private final class PartialFailingPhotoRepository: PhotoRepositoryProtocol {
+    private let wrapped: InMemoryPhotoRepository
+    private let failOnAssignCount: Int
+    private var assignCallCount = 0
+
+    init(wrapping: InMemoryPhotoRepository, failOnAssignCount: Int) {
+        self.wrapped = wrapping
+        self.failOnAssignCount = failOnAssignCount
+    }
+
+    func assignPhoto(_ photo: Photo, to pet: Pet?) throws {
+        assignCallCount += 1
+        if assignCallCount == failOnAssignCount {
+            throw NSError(domain: "test", code: 99, userInfo: [NSLocalizedDescriptionKey: "模拟写入失败"])
+        }
+        try wrapped.assignPhoto(photo, to: pet)
+    }
+
+    // 以下方法全部委托给 wrapped
+    func getPhoto(id: UUID) throws -> Photo? { try wrapped.getPhoto(id: id) }
+    func getPhotoByURI(_ uri: String) throws -> Photo? { try wrapped.getPhotoByURI(uri) }
+    func getPhotoByOriginalURI(_ originalURI: String) throws -> Photo? { try wrapped.getPhotoByOriginalURI(originalURI) }
+    func getAllOriginalURIs() throws -> Set<String> { try wrapped.getAllOriginalURIs() }
+    func getAllPhotoURIs() throws -> Set<String> { try wrapped.getAllPhotoURIs() }
+    func countAllPhotos() throws -> Int { try wrapped.countAllPhotos() }
+    func getLatestPhotoDate() throws -> Date? { try wrapped.getLatestPhotoDate() }
+    func getPhotosPage(offset: Int, limit: Int) throws -> [Photo] { try wrapped.getPhotosPage(offset: offset, limit: limit) }
+    func getPhotosByPet(_ pet: Pet) throws -> [Photo] { try wrapped.getPhotosByPet(pet) }
+    func getUnassignedPhotos(limit: Int) throws -> [Photo] { try wrapped.getUnassignedPhotos(limit: limit) }
+    func getAnniversaryPhotos(month: Int, day: Int, excludeYear: Int?) throws -> [Photo] {
+        try wrapped.getAnniversaryPhotos(month: month, day: day, excludeYear: excludeYear)
+    }
+    func insertPhoto(_ photo: Photo) throws { try wrapped.insertPhoto(photo) }
+    func insertPhotos(_ photos: [Photo]) throws { try wrapped.insertPhotos(photos) }
+    func deletePhoto(_ photo: Photo) throws { try wrapped.deletePhoto(photo) }
+    func updatePhoto(_ photo: Photo) throws { try wrapped.updatePhoto(photo) }
+    func setFavorite(_ photo: Photo, favorite: Bool) throws { try wrapped.setFavorite(photo, favorite: favorite) }
+    func updateNote(_ photo: Photo, note: String) throws { try wrapped.updateNote(photo, note: note) }
+    func getPendingQualityScorePhotos(limit: Int) throws -> [Photo] { try wrapped.getPendingQualityScorePhotos(limit: limit) }
+    func getDuplicateCandidates() throws -> [Photo] { try wrapped.getDuplicateCandidates() }
+    func updateQualityData(_ photo: Photo, sharpness: Double, qualityScore: Double, phash: String) throws {
+        try wrapped.updateQualityData(photo, sharpness: sharpness, qualityScore: qualityScore, phash: phash)
+    }
+    func replaceDuplicateMarks(_ groups: [DuplicateMarkGroup]) throws { try wrapped.replaceDuplicateMarks(groups) }
 }

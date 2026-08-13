@@ -73,12 +73,56 @@ struct PhotoSnapshot: Codable, Equatable, Sendable {
 }
 
 /// 宠物事件导出投影。
+/// 包含 PetEvent 全部字段（notify/body/sourceType/isPinned/relatedPhotoID），
+/// 确保备份恢复后记忆正文、置顶、来源和关联照片不丢失。
+/// 新增字段使用 decodeIfPresent 向后兼容旧版备份包（缺省为 PetEvent 默认值）。
 struct PetEventSnapshot: Codable, Equatable, Sendable {
     let id: UUID
     let petID: UUID
     let eventType: String
     let eventDate: Date
     let title: String
+    /// 是否启用通知提醒（对应 PetEvent.notify）。
+    let notify: Bool
+    /// 用户记录正文（对应 PetEvent.body）。
+    let body: String
+    /// 来源标签（对应 PetEvent.sourceType）。
+    let sourceType: String
+    /// 是否置顶（对应 PetEvent.isPinned）。
+    let isPinned: Bool
+    /// 关联照片 ID（对应 PetEvent.relatedPhotoID）。
+    let relatedPhotoID: UUID?
+
+    /// 成员构造器（导出端 + 测试用）。
+    init(id: UUID, petID: UUID, eventType: String, eventDate: Date, title: String,
+         notify: Bool = true, body: String = "", sourceType: String = "system",
+         isPinned: Bool = false, relatedPhotoID: UUID? = nil) {
+        self.id = id
+        self.petID = petID
+        self.eventType = eventType
+        self.eventDate = eventDate
+        self.title = title
+        self.notify = notify
+        self.body = body
+        self.sourceType = sourceType
+        self.isPinned = isPinned
+        self.relatedPhotoID = relatedPhotoID
+    }
+
+    /// 自定义解码：旧版备份包缺新字段时回退为 PetEvent 默认值，避免解码失败。
+    init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        id = try c.decode(UUID.self, forKey: .id)
+        petID = try c.decode(UUID.self, forKey: .petID)
+        eventType = try c.decode(String.self, forKey: .eventType)
+        eventDate = try c.decode(Date.self, forKey: .eventDate)
+        title = try c.decode(String.self, forKey: .title)
+        notify = try c.decodeIfPresent(Bool.self, forKey: .notify) ?? true
+        body = try c.decodeIfPresent(String.self, forKey: .body) ?? ""
+        sourceType = try c.decodeIfPresent(String.self, forKey: .sourceType) ?? "system"
+        isPinned = try c.decodeIfPresent(Bool.self, forKey: .isPinned) ?? false
+        relatedPhotoID = try c.decodeIfPresent(UUID.self, forKey: .relatedPhotoID)
+    }
 }
 
 /// 完整备份元数据（metadata.json）。

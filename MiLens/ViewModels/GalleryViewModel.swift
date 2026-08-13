@@ -409,12 +409,14 @@ final class GalleryViewModel {
         }
     }
 
-    /// 将最近导入的照片归属到指定宠物。
+    /// 将本次导入的照片精确归属到指定宠物。
+    /// 使用 ImportResult.importedPhotoIDs（实际入库的照片 ID），
+    /// 避免按列表前 N 条推断（旧逻辑在自动匹配/排序变化时会错归属）。
     private func assignImportedPhotos(to petID: UUID) {
         guard let pet = try? petRepo.getPet(id: petID) else { return }
-        // 取最新导入的照片（loadInitial 已刷新 photos 列表，前 N 张为最新）
-        let recentPhotos = Array(photos.prefix(lastImportResult?.imported ?? 0))
-        for photo in recentPhotos {
+        let photoIDs = lastImportResult?.importedPhotoIDs ?? []
+        for photoID in photoIDs {
+            guard let photo = try? photoRepo.getPhoto(id: photoID) else { continue }
             do {
                 try photoRepo.assignPhoto(photo, to: pet)
                 photo.pet = pet

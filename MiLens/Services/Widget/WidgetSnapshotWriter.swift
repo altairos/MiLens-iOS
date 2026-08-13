@@ -35,6 +35,11 @@ final class WidgetSnapshotWriter {
     private let maxThumbnails = 20
     /// 缩略图降采样最大边长（pt × scale）。
     private let thumbnailMaxSize: CGFloat = 300
+    /// 写入代数：每次 writeSnapshot 递增。后台缩略图任务提交结果前
+    /// 检查是否仍为最新代，防止旧任务清理掉新任务所需的缩略图。
+    private var writeGeneration = 0
+    /// 当前待完成的后台缩略图写入任务（新写入时取消旧任务）。
+    private var pendingThumbnailTask: Task<Void, Never>?
 
     init(petRepo: any PetRepositoryProtocol, photoRepo: any PhotoRepositoryProtocol) {
         self.petRepo = petRepo
@@ -61,9 +66,18 @@ final class WidgetSnapshotWriter {
             // 在 MainActor 上收集缩略图源路径（Photo 对象只在 MainActor 可访问）
             let thumbnails = collectThumbnailSources(from: allPhotos)
             let thumbMax = thumbnailMaxSize
-            Task.detached(priority: .utility) {
+
+            // 取消上一次未完成的后台写入（旧任务的清理会清掉新任务所需的缩略图）
+            pendingThumbnailTask?.cancel()
+            writeGeneration += 1
+            let generation = writeGeneration
+
+            pendingThumbnailTask = Task.detached(priority: .utility) { [weak self] in
                 await Self.copyThumbnails(thumbnails, to: containerURL, maxSize: thumbMax)
-                // 缩略图写完后 reload（确保 Widget 能加载到图片）
+                // 只有未被取消且仍为最新代的任务才 reload（旧代已被新代取代）
+                guard !Task.isCancelled else { return }
+                let isLatest = await MainActor.run { self?.writeGeneration == generation }
+                guard isLatest else { return }
                 WidgetCenter.shared.reloadAllTimelines()
             }
             // 立即 reload 一次（让文字数据先更新，图片随后）
@@ -194,8 +208,10 @@ final class WidgetSnapshotWriter {
         // 确保缩略图目录存在
         try? fm.createDirectory(at: thumbDir, withIntermediateDirectories: true)
 
-        // 清理过期缩略图（不在本次 sources 中的）
-        if let existing = try? fm.contentsOfDirectory(at: thumbDir, includingPropertiesForKeys: nil) {
+        // 清理过期缩略图（不在本次 sources 中的）；被取消则跳过清理
+        // （旧任务被新任务取代后，不应清理新任务仍需要的缩略图）
+        if !Task.isCancelled,
+           let existing = try? fm.contentsOfDirectory(at: thumbDir, includingPropertiesForKeys: nil) {
             let validNames = Set(sources.map(\.destName))
             for url in existing where !validNames.contains(url.lastPathComponent) {
                 try? fm.removeItem(at: url)
@@ -204,6 +220,7 @@ final class WidgetSnapshotWriter {
 
         let scale = await MainActor.run { UIScreen.main.scale }
         for source in sources {
+            if Task.isCancelled { return }
             guard !source.sourcePath.isEmpty,
                   fm.fileExists(atPath: source.sourcePath) else { continue }
             let destURL = thumbDir.appendingPathComponent(source.destName)

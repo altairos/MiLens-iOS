@@ -103,6 +103,7 @@ final class ZipBackupService: BackupService, @unchecked Sendable {
 
         var copied = 0
         for file in bundle.files {
+            if Task.isCancelled { throw BackupServiceError.cancelled }
             if fileStorage.fileExists(at: file.sourcePath) {
                 let data = try await fileStorage.read(at: file.sourcePath)
                 entries.append(ZipEntry(path: file.zipPath, data: data))
@@ -165,13 +166,15 @@ final class ZipBackupService: BackupService, @unchecked Sendable {
                           sourcePath: photo.uri))
         }
 
-        // 事件：选中宠物的全部纪念事件
+        // 事件：选中宠物的全部纪念事件（含 notify/body/sourceType/isPinned/relatedPhotoID）
         var eventSnaps: [PetEventSnapshot] = []
         for pet in selectedPets {
             for event in pet.events {
                 eventSnaps.append(PetEventSnapshot(
                     id: event.id, petID: pet.id,
-                    eventType: event.eventType, eventDate: event.eventDate, title: event.title))
+                    eventType: event.eventType, eventDate: event.eventDate, title: event.title,
+                    notify: event.notify, body: event.body, sourceType: event.sourceType,
+                    isPinned: event.isPinned, relatedPhotoID: event.relatedPhotoID))
             }
         }
 
@@ -247,45 +250,62 @@ final class ZipBackupService: BackupService, @unchecked Sendable {
         }
         let metadata = try Self.decoder.decode(BackupMetadata.self, from: metadataData)
 
+        // 原子性保证：跟踪本次写入的所有文件路径，任意阶段失败时统一清理，
+        // 避免文件已写入但数据库未完成、或数据库只恢复了一部分留下孤儿文件。
+        var writtenPaths: [String] = []
+
         await progress(RestoreProgress(current: 0, total: metadata.photos.count, phase: .copyingFiles))
-        // 先复制照片文件（IO），再 MainActor 合并元数据——合并是事实源写入，放最后。
         var photoPathByID: [UUID: String] = [:]
         var written = 0
-        for photoSnap in metadata.photos {
-            // 路径穿越防御：photoFileName 来自外部备份，直接拼接到沙盒路径可越权写入。
-            // 拒绝非纯文件名（含分隔符 / `..`），跳过该照片（元数据仍按缺失处理）。
-            if Self.isSafeFileName(photoSnap.photoFileName) {
-                let zipPath = "\(BackupConfig.photosDirName)/\(photoSnap.photoFileName)"
+        do {
+            // 先复制照片文件（IO），再 MainActor 合并元数据——合并是事实源写入，放最后。
+            for photoSnap in metadata.photos {
+                if Task.isCancelled { throw BackupServiceError.cancelled }
+                // 路径穿越防御：photoFileName 来自外部备份，直接拼接到沙盒路径可越权写入。
+                // 拒绝非纯文件名（含分隔符 / `..`），跳过该照片（元数据仍按缺失处理）。
+                if Self.isSafeFileName(photoSnap.photoFileName) {
+                    let zipPath = "\(BackupConfig.photosDirName)/\(photoSnap.photoFileName)"
+                    if let fileData = entryMap[zipPath] {
+                        let dest = "\(sandboxDir)/\(photoSnap.photoFileName)"
+                        try await fileStorage.write(fileData, to: dest)
+                        writtenPaths.append(dest)
+                        photoPathByID[photoSnap.id] = dest
+                    }
+                }
+                written += 1
+                await progress(RestoreProgress(current: written, total: metadata.photos.count, phase: .copyingFiles))
+            }
+
+            // 复制头像文件（导出时写入 avatars/ 目录，恢复时须写回沙盒，否则 avatarPath 悬空）。
+            // 同样需校验 avatarFileName 防路径穿越。
+            for petSnap in metadata.pets {
+                if Task.isCancelled { throw BackupServiceError.cancelled }
+                guard let avatarName = petSnap.avatarFileName,
+                      Self.isSafeFileName(avatarName) else { continue }
+                let zipPath = "\(avatarsDirName)/\(avatarName)"
                 if let fileData = entryMap[zipPath] {
-                    let dest = "\(sandboxDir)/\(photoSnap.photoFileName)"
+                    let dest = "\(sandboxDir)/\(avatarsDirName)/\(avatarName)"
                     try await fileStorage.write(fileData, to: dest)
-                    photoPathByID[photoSnap.id] = dest
+                    writtenPaths.append(dest)
                 }
             }
-            written += 1
-            await progress(RestoreProgress(current: written, total: metadata.photos.count, phase: .copyingFiles))
-        }
 
-        // 复制头像文件（导出时写入 avatars/ 目录，恢复时须写回沙盒，否则 avatarPath 悬空）。
-        // 同样需校验 avatarFileName 防路径穿越。
-        for petSnap in metadata.pets {
-            guard let avatarName = petSnap.avatarFileName,
-                  Self.isSafeFileName(avatarName) else { continue }
-            let zipPath = "\(avatarsDirName)/\(avatarName)"
-            if let fileData = entryMap[zipPath] {
-                let dest = "\(sandboxDir)/\(avatarsDirName)/\(avatarName)"
-                try await fileStorage.write(fileData, to: dest)
+            await progress(RestoreProgress(current: 0, total: 1, phase: .importingMetadata))
+            let result = try await applyImport(metadata: metadata, photoPathByID: photoPathByID)
+
+            await progress(RestoreProgress(current: 1, total: 1, phase: .done))
+            return result
+        } catch {
+            // 失败时清理本次写入的所有文件，避免孤儿文件残留
+            for path in writtenPaths {
+                try? await fileStorage.removeItem(at: path)
             }
+            throw error
         }
-
-        await progress(RestoreProgress(current: 0, total: 1, phase: .importingMetadata))
-        let result = try await applyImport(metadata: metadata, photoPathByID: photoPathByID)
-
-        await progress(RestoreProgress(current: 1, total: 1, phase: .done))
-        return result
     }
 
     /// 合并导入元数据（MainActor）。同 id 宠物 / 同 originalURI 照片跳过，不覆盖。
+    /// 原子性：任意阶段失败时回滚已插入的记录，避免半成品残留。
     @MainActor
     private func applyImport(
         metadata: BackupMetadata,
@@ -296,66 +316,89 @@ final class ZipBackupService: BackupService, @unchecked Sendable {
         var importedEvents = 0
         var skipped = 0
 
-        // 1) 宠物
-        var petByID: [UUID: Pet] = [:]
-        for petSnap in metadata.pets {
-            if try petRepo.getPet(id: petSnap.id) != nil {
-                skipped += 1
-                continue
-            }
-            let pet = Self.recreate(pet: petSnap, sandboxDir: sandboxDir)
-            try petRepo.insertPet(pet)
-            petByID[petSnap.id] = pet
-            importedPets += 1
-        }
+        // 跟踪已插入记录，失败时回滚
+        var insertedPets: [Pet] = []
+        var insertedPhotos: [Photo] = []
 
-        // 2) 事件（关联到已导入或已存在的宠物）
-        for eventSnap in metadata.petEvents {
-            // 只为本次导入的宠物追加事件；已存在宠物的事件不重复导入
-            guard let pet = petByID[eventSnap.petID] else {
-                skipped += 1
-                continue
+        do {
+            // 1) 宠物
+            var petByID: [UUID: Pet] = [:]
+            for petSnap in metadata.pets {
+                if Task.isCancelled { throw BackupServiceError.cancelled }
+                if try petRepo.getPet(id: petSnap.id) != nil {
+                    skipped += 1
+                    continue
+                }
+                let pet = Self.recreate(pet: petSnap, sandboxDir: sandboxDir)
+                try petRepo.insertPet(pet)
+                petByID[petSnap.id] = pet
+                insertedPets.append(pet)
+                importedPets += 1
             }
-            let event = PetEvent(
-                id: eventSnap.id, pet: pet,
-                eventType: eventSnap.eventType,
-                eventDate: eventSnap.eventDate,
-                title: eventSnap.title)
-            pet.events.append(event)
-            importedEvents += 1
-        }
-        // 批量持久化事件（updatePet 内部 saveOrRollback）
-        for pet in petByID.values {
-            try petRepo.updatePet(pet)
-        }
 
-        // 3) 照片（关联宠物，写文件路径）
-        for photoSnap in metadata.photos {
-            if try photoRepo.getPhotoByOriginalURI(photoSnap.originalURI) != nil {
-                skipped += 1
-                continue
+            // 2) 事件（关联到已导入或已存在的宠物）
+            for eventSnap in metadata.petEvents {
+                if Task.isCancelled { throw BackupServiceError.cancelled }
+                // 只为本次导入的宠物追加事件；已存在宠物的事件不重复导入
+                guard let pet = petByID[eventSnap.petID] else {
+                    skipped += 1
+                    continue
+                }
+                let event = PetEvent(
+                    id: eventSnap.id, pet: pet,
+                    eventType: eventSnap.eventType,
+                    eventDate: eventSnap.eventDate,
+                    title: eventSnap.title,
+                    notify: eventSnap.notify, body: eventSnap.body,
+                    sourceType: eventSnap.sourceType, isPinned: eventSnap.isPinned,
+                    relatedPhotoID: eventSnap.relatedPhotoID)
+                pet.events.append(event)
+                importedEvents += 1
             }
-            let pet = photoSnap.petID.flatMap { try petRepo.getPet(id: $0) }
-            // 文件未写入（缺失或文件名不安全）时，uri 留空——DB 是事实源，
-            // 缺失文件按 auditOrphans 占位处理；不得拼接潜在穿越路径进 DB。
-            let uri = photoPathByID[photoSnap.id]
-                ?? (Self.isSafeFileName(photoSnap.photoFileName)
-                    ? "\(sandboxDir)/\(photoSnap.photoFileName)"
-                    : "")
-            let photo = Self.recreate(
-                photo: photoSnap, uri: uri, pet: pet)
-            try photoRepo.insertPhoto(photo)
-            if let pet {
-                try photoRepo.assignPhoto(photo, to: pet)
+            // 批量持久化事件（updatePet 内部 saveOrRollback）
+            for pet in petByID.values {
+                try petRepo.updatePet(pet)
             }
-            importedPhotos += 1
-        }
 
-        return RestoreResult(
-            importedPets: importedPets,
-            importedPhotos: importedPhotos,
-            importedEvents: importedEvents,
-            skipped: skipped)
+            // 3) 照片（关联宠物，写文件路径）
+            for photoSnap in metadata.photos {
+                if Task.isCancelled { throw BackupServiceError.cancelled }
+                if try photoRepo.getPhotoByOriginalURI(photoSnap.originalURI) != nil {
+                    skipped += 1
+                    continue
+                }
+                let pet = photoSnap.petID.flatMap { try petRepo.getPet(id: $0) }
+                // 文件未写入（缺失或文件名不安全）时，uri 留空——DB 是事实源，
+                // 缺失文件按 auditOrphans 占位处理；不得拼接潜在穿越路径进 DB。
+                let uri = photoPathByID[photoSnap.id]
+                    ?? (Self.isSafeFileName(photoSnap.photoFileName)
+                        ? "\(sandboxDir)/\(photoSnap.photoFileName)"
+                        : "")
+                let photo = Self.recreate(
+                    photo: photoSnap, uri: uri, pet: pet)
+                try photoRepo.insertPhoto(photo)
+                insertedPhotos.append(photo)
+                if let pet {
+                    try photoRepo.assignPhoto(photo, to: pet)
+                }
+                importedPhotos += 1
+            }
+
+            return RestoreResult(
+                importedPets: importedPets,
+                importedPhotos: importedPhotos,
+                importedEvents: importedEvents,
+                skipped: skipped)
+        } catch {
+            // 回滚已插入的记录，避免半成品残留
+            for photo in insertedPhotos {
+                try? photoRepo.deletePhoto(photo)
+            }
+            for pet in insertedPets {
+                try? petRepo.deletePet(pet)
+            }
+            throw error
+        }
     }
 
     // MARK: - Snapshot 转换辅助
@@ -528,7 +571,8 @@ final class ZipBackupService: BackupService, @unchecked Sendable {
         let formatter = DateFormatter()
         formatter.locale = Locale(identifier: "en_US_POSIX")
         formatter.timeZone = TimeZone(secondsFromGMT: 0)
-        formatter.dateFormat = "yyyy-MM-dd"
+        // 包含时分秒，避免同一天多次导出覆盖同一文件名路径。
+        formatter.dateFormat = "yyyy-MM-dd-HHmmss"
         return formatter.string(from: Date())
     }
 }

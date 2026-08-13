@@ -162,6 +162,129 @@ final class ZipBackupServiceTests: XCTestCase {
         XCTAssertEqual(try await tFs.read(at: writtenPath), Data("jpeg-bytes".utf8))
     }
 
+    // MARK: - PetEvent 字段完整性（P1 修复）
+
+    func testRoundTripPreservesPetEventAllFields() async throws {
+        // 验证 notify/body/sourceType/isPinned/relatedPhotoID 全部存活往返
+        let sharedFS = MockFileStorage()
+        let pet = Pet(name: "小橘", species: .cat)
+        let relatedPhotoID = UUID()
+        let event = PetEvent(
+            pet: pet, eventType: "memory", eventDate: Date(timeIntervalSince1970: 123456),
+            title: "第一次回家", notify: false, body: "那天她特别紧张", 
+            sourceType: "user", isPinned: true, relatedPhotoID: relatedPhotoID)
+        pet.events.append(event)
+        let (source, _, _, _, _) = makeService(pets: [pet], fileStorage: sharedFS)
+
+        let result = try await source.exportBackup(petIDs: nil, progress: { _ in })
+
+        let (target, tPetRepo, _, _, _) = makeService(fileStorage: sharedFS)
+        _ = try await target.importBackup(from: result.fileURL, progress: { _ in })
+
+        let restoredEvent = try tPetRepo.getAllPets().first?.events.first
+        XCTAssertNotNil(restoredEvent)
+        XCTAssertEqual(restoredEvent?.notify, false, "notify 须保留")
+        XCTAssertEqual(restoredEvent?.body, "那天她特别紧张", "body 须保留")
+        XCTAssertEqual(restoredEvent?.sourceType, "user", "sourceType 须保留")
+        XCTAssertEqual(restoredEvent?.isPinned, true, "isPinned 须保留")
+        XCTAssertEqual(restoredEvent?.relatedPhotoID, relatedPhotoID, "relatedPhotoID 须保留")
+    }
+
+    func testOldBackupWithoutNewFieldsDecodesWithDefaults() throws {
+        // 旧版备份包缺 notify/body/sourceType/isPinned/relatedPhotoID 字段，
+        // 解码须回退为 PetEvent 默认值而非抛错。
+        let oldFormatJSON = """
+        {"id":"\(UUID().uuidString)","petID":"\(UUID().uuidString)",
+         "eventType":"birthday","eventDate":"2024-01-01T00:00:00Z","title":"生日"}
+        """
+        let decoder = JSONDecoder()
+        decoder.dateDecodingStrategy = .iso8601
+        let snap = try decoder.decode(PetEventSnapshot.self, from: Data(oldFormatJSON.utf8))
+
+        XCTAssertEqual(snap.notify, true, "缺省 notify 回退为 true")
+        XCTAssertEqual(snap.body, "", "缺省 body 回退为空字符串")
+        XCTAssertEqual(snap.sourceType, "system", "缺省 sourceType 回退为 system")
+        XCTAssertEqual(snap.isPinned, false, "缺省 isPinned 回退为 false")
+        XCTAssertNil(snap.relatedPhotoID, "缺省 relatedPhotoID 回退为 nil")
+    }
+
+    // MARK: - 原子性（P1 修复：失败时清理文件）
+
+    func testRestoreCleansUpFilesOnDBFailure() async throws {
+        // 使用会抛错的仓储模拟 DB 失败，验证恢复失败后文件被清理
+        let sharedFS = MockFileStorage()
+        let pet = Pet(name: "小橘", species: .cat)
+        let photo = Photo(uri: "/src/a.jpg", originalURI: "L0/001", pet: pet)
+        let (source, _, _, _, _) = makeService(pets: [pet], photos: [photo], fileStorage: sharedFS)
+        sharedFS.preset(Data([0x01, 0x02]), at: "/src/a.jpg")
+
+        let result = try await source.exportBackup(petIDs: nil, progress: { _ in })
+
+        // 目标库使用会抛错的 petRepo（模拟 DB 写入失败）
+        let failingRepo = ThrowingPetRepository()
+        let sandboxDir = "/restore-sandbox-\(UUID().uuidString)"
+        let target = ZipBackupService(
+            petRepo: failingRepo,
+            photoRepo: InMemoryPhotoRepository(),
+            fileStorage: sharedFS,
+            sandboxDir: sandboxDir,
+            appVersion: "1.0.0",
+            temporaryDirectory: "/test-tmp-\(UUID().uuidString)")
+
+        do {
+            _ = try await target.importBackup(from: result.fileURL, progress: { _ in })
+            XCTFail("DB 失败时应抛错")
+        } catch {
+            // 预期抛错——验证文件已清理
+        }
+
+        // 恢复失败后，沙盒目录下不应残留本次写入的照片文件
+        let writtenFiles = sharedFS.listFiles(in: sandboxDir)
+        XCTAssertEqual(writtenFiles.count, 0, "恢复失败时写入的文件须全部清理")
+    }
+
+    func testRestoreRollsBackInsertedRecordsOnLateFailure() async throws {
+        // ThrowingPetRepository 在 insertPet 立即抛错，无法覆盖「部分记录已入库后再失败」
+        // 的回滚分支。本例用 PartiallyThrowingPetRepository：insertPet 正常，updatePet
+        // 抛错（模拟事件持久化阶段失败）。此时宠物已 insertPet 成功（insertedPets 非空），
+        // applyImport catch 须 deletePet 回滚已插入记录，importBackup catch 须清理文件。
+        let sharedFS = MockFileStorage()
+        let pet = Pet(name: "小橘", species: .cat)
+        let event = PetEvent(pet: pet, eventType: "birthday", eventDate: Date(), title: "生日")
+        pet.events.append(event)
+        let photo = Photo(uri: "/src/a.jpg", originalURI: "L0/001", pet: pet)
+        let (source, _, _, _, _) = makeService(pets: [pet], photos: [photo], fileStorage: sharedFS)
+        sharedFS.preset(Data([0x01, 0x02]), at: "/src/a.jpg")
+
+        let result = try await source.exportBackup(petIDs: nil, progress: { _ in })
+
+        let failingRepo = PartiallyThrowingPetRepository()
+        let sandboxDir = "/rollback-sandbox-\(UUID().uuidString)"
+        let target = ZipBackupService(
+            petRepo: failingRepo,
+            photoRepo: InMemoryPhotoRepository(),
+            fileStorage: sharedFS,
+            sandboxDir: sandboxDir,
+            appVersion: "1.0.0",
+            temporaryDirectory: "/test-tmp-\(UUID().uuidString)")
+
+        do {
+            _ = try await target.importBackup(from: result.fileURL, progress: { _ in })
+            XCTFail("事件持久化（updatePet）失败时应抛错")
+        } catch {
+            // 预期抛错
+        }
+
+        // 已插入的宠物记录须被回滚（applyImport catch → deletePet），不留半成品
+        XCTAssertTrue(
+            try failingRepo.allPets.isEmpty,
+            "事件持久化失败时已 insertPet 成功的宠物记录须回滚删除")
+        // 已写入的照片文件须被清理（importBackup catch → removeItem）
+        XCTAssertTrue(
+            sharedFS.listFiles(in: sandboxDir).isEmpty,
+            "恢复失败时已写入的照片文件须清理，避免孤儿文件")
+    }
+
     // MARK: - 头像还原
 
     func testExportImportRestoresAvatarFile() async throws {
@@ -326,4 +449,41 @@ final class ZipBackupServiceTests: XCTestCase {
             XCTAssertEqual(error as? BackupServiceError, .invalidFormat)
         }
     }
+}
+
+// MARK: - 测试辅助：总会抛错的宠物仓储
+
+/// 在 insertPet 时抛错，用于模拟 DB 写入失败（测试恢复原子性）。
+@MainActor
+final class ThrowingPetRepository: PetRepositoryProtocol {
+    private struct FakeError: Error {}
+
+    func getAllPets() throws -> [Pet] { [] }
+    func getPet(id: UUID) throws -> Pet? { nil }
+    func insertPet(_ pet: Pet) throws { throw FakeError() }
+    func updatePet(_ pet: Pet) throws { throw FakeError() }
+    func deletePet(_ pet: Pet) throws {}
+    func refreshPhotoCount(for pet: Pet) throws {}
+    func updateFeatureData(_ pet: Pet, data: Data?) throws {}
+    func addEvent(_ event: PetEvent, to pet: Pet) throws {}
+}
+
+/// insertPet 正常但 updatePet 抛错——模拟「宠物已入库、事件持久化阶段失败」。
+/// 用于覆盖 applyImport 的记录回滚分支（deletePet 已插入的宠物），
+/// 这是 ThrowingPetRepository（insertPet 立即抛错）无法触达的路径。
+@MainActor
+final class PartiallyThrowingPetRepository: PetRepositoryProtocol {
+    private struct FakeError: Error {}
+
+    /// 暴露内部状态供测试断言回滚是否生效。
+    private(set) var allPets: [Pet] = []
+
+    func getAllPets() throws -> [Pet] { allPets }
+    func getPet(id: UUID) throws -> Pet? { allPets.first { $0.id == id } }
+    func insertPet(_ pet: Pet) throws { allPets.append(pet) }
+    func updatePet(_ pet: Pet) throws { throw FakeError() }
+    func deletePet(_ pet: Pet) throws { allPets.removeAll { $0.id == pet.id } }
+    func refreshPhotoCount(for pet: Pet) throws {}
+    func updateFeatureData(_ pet: Pet, data: Data?) throws {}
+    func addEvent(_ event: PetEvent, to pet: Pet) throws {}
 }

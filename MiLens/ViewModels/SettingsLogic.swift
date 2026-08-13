@@ -105,6 +105,12 @@ enum SettingsLogic {
             author: "Undercase Type",
             licenseName: "SIL Open Font License 1.1",
             sourceURL: "https://github.com/undercasetype/Fraunces"
+        ),
+        FontCredit(
+            name: "Jacques Francois",
+            author: "Cyreal",
+            licenseName: "SIL Open Font License 1.1",
+            sourceURL: "https://github.com/google/fonts/tree/main/ofl/jacquesfrancois"
         )
     ]
 

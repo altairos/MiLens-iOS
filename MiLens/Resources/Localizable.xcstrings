@@ -6466,6 +6466,215 @@
         }
       }
     },
+    "redpacket.export.scene.card" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "红包卡片"
+          }
+        }
+      }
+    },
+    "redpacket.export.scene.open" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "拆红包页"
+          }
+        }
+      }
+    },
+    "redpacket.export.scene.list" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "红包列表"
+          }
+        }
+      }
+    },
+    "redpacket.export.sceneLabel" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "场景预览"
+          }
+        }
+      }
+    },
+    "redpacket.export.defaultTitle" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "恭喜发财"
+          }
+        }
+      }
+    },
+    "redpacket.export.defaultSender" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "家人"
+          }
+        }
+      }
+    },
+    "redpacket.export.openButton" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "開"
+          }
+        }
+      }
+    },
+    "redpacket.export.noWatermark" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "无水印导出（Pro）"
+          }
+        }
+      }
+    },
+    "redpacket.export.hasWatermark" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "免费版导出含 MiLens 水印"
+          }
+        }
+      }
+    },
+    "redpacket.export.proHint" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "升级 Pro 后导出无水印"
+          }
+        }
+      }
+    },
+    "redpacket.export.howToUse" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "保存到相册后，在微信红包封面页面选择自定义封面即可"
+          }
+        }
+      }
+    },
+    "redpacket.export.shareReady" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "已准备分享，选择目标应用即可"
+          }
+        }
+      }
+    },
+    "redpacket.export.shareFailed" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "分享准备失败，请重试"
+          }
+        }
+      }
+    },
+    "redpacket.export.saved" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "已保存到相册"
+          }
+        }
+      }
+    },
+    "redpacket.export.saveFailed" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "保存到相册失败，请检查相册权限"
+          }
+        }
+      }
+    },
+    "redpacket.export.fail.size" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "尺寸不符合平台要求"
+          }
+        }
+      }
+    },
+    "redpacket.export.fail.fileSize" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "文件超过限制，最大"
+          }
+        }
+      }
+    },
+    "redpacket.export.fail.format" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "格式不受支持"
+          }
+        }
+      }
+    },
+    "redpacket.action.share" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "分享"
+          }
+        }
+      }
+    },
     "redpacket.workshop.templateSwitcher" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -6506,6 +6715,204 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "模板"
+          }
+        }
+      }
+    },
+    "redpacket.quality.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "质量检测"
+          }
+        }
+      }
+    },
+    "redpacket.quality.recheck" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "重新检测"
+          }
+        }
+      }
+    },
+    "redpacket.quality.allGood" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "全部通过"
+          }
+        }
+      }
+    },
+    "redpacket.quality.notEvaluated" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "尚未进行质量检测"
+          }
+        }
+      }
+    },
+    "redpacket.quality.startCheck" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "开始检测"
+          }
+        }
+      }
+    },
+    "redpacket.quality.level.pass" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "质量良好"
+          }
+        }
+      }
+    },
+    "redpacket.quality.level.warning" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "有改进建议"
+          }
+        }
+      }
+    },
+    "redpacket.quality.level.error" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "需要修复"
+          }
+        }
+      }
+    },
+    "redpacket.quality.badge.warning" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "建议"
+          }
+        }
+      }
+    },
+    "redpacket.quality.badge.error" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "问题"
+          }
+        }
+      }
+    },
+    "redpacket.quality.dim.clarity" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "清晰度"
+          }
+        }
+      }
+    },
+    "redpacket.quality.dim.brightness" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "亮度"
+          }
+        }
+      }
+    },
+    "redpacket.quality.dim.composition" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "构图"
+          }
+        }
+      }
+    },
+    "redpacket.quality.dim.cutout" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "抠图"
+          }
+        }
+      }
+    },
+    "redpacket.quality.dim.readability" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "可读性"
+          }
+        }
+      }
+    },
+    "redpacket.optimize.button" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "智能优化"
+          }
+        }
+      }
+    },
+    "redpacket.optimize.applied" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "已为你调整"
+          }
+        }
+      }
+    },
+    "redpacket.optimize.disclaimer" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "智能优化不会承诺平台审核通过"
           }
         }
       }

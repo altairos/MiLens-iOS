@@ -19,6 +19,7 @@ struct RedPacketWorkshopView: View {
     @State private var viewModel: RedPacketWorkshopViewModel?
     @State private var showTemplateSwitcher = false
     @State private var showAccessoryPicker = false
+    @State private var showQualityReport = false
 
     var body: some View {
         Group {
@@ -40,6 +41,11 @@ struct RedPacketWorkshopView: View {
                     isPro: entitlement.isPro
                 )
                 Task { await viewModel?.load() }
+            }
+        }
+        .sheet(isPresented: $showQualityReport) {
+            if let vm = viewModel {
+                RedPacketQualityReportView(viewModel: vm)
             }
         }
         .sheet(isPresented: $showTemplateSwitcher) {
@@ -193,19 +199,39 @@ struct RedPacketWorkshopView: View {
                     vm.activeLayerID = textLayer.id
                 }
             }
+
+            // 智能优化（Phase 3 启用）
+            toolbarButton(
+                icon: "wand.and.stars",
+                label: String(localized: "redpacket.workshop.tool.optimize"),
+                isEnabled: true,
+                badge: vm.hasQualityIssues
+            ) {
+                showQualityReport = true
+            }
         }
         .padding(.vertical, 8)
         .background(Color.milensSealSurface)
     }
 
     private func toolbarButton(
-        icon: String, label: String, isEnabled: Bool, action: @escaping () -> Void
+        icon: String, label: String, isEnabled: Bool,
+        badge: Bool = false,
+        action: @escaping () -> Void
     ) -> some View {
         Button(action: action) {
             VStack(spacing: 4) {
-                Image(systemName: icon)
-                    .font(.system(size: 20))
-                    .foregroundStyle(isEnabled ? Color.milensActionPrimary : Color.milensTextSecondary.opacity(0.4))
+                ZStack(alignment: .topTrailing) {
+                    Image(systemName: icon)
+                        .font(.system(size: 20))
+                        .foregroundStyle(isEnabled ? Color.milensActionPrimary : Color.milensTextSecondary.opacity(0.4))
+                    if badge {
+                        Circle()
+                            .fill(Color.red)
+                            .frame(width: 6, height: 6)
+                            .offset(x: 4, y: -4)
+                    }
+                }
                 Text(label)
                     .font(.editorialMetadata)
                     .foregroundStyle(isEnabled ? Color.milensTextPrimary : Color.milensTextSecondary.opacity(0.4))

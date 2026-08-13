@@ -58,6 +58,12 @@ final class RedPacketWorkshopViewModel {
     var petName = ""
     /// 撤销/重做历史状态。
     var history: RedPacketHistoryState = RedPacketHistoryState()
+    /// 质量报告（最近一次检测结果）。
+    var qualityReport: RedPacketQualityReport?
+    /// 是否正在执行智能优化。
+    var isOptimizing = false
+    /// 智能优化摘要（供 UI 反馈）。
+    var optimizationSummary: [String] = []
 
     // MARK: - 初始化
 
@@ -101,6 +107,12 @@ final class RedPacketWorkshopViewModel {
     var canUndo: Bool { history.canUndo }
     /// 是否可重做。
     var canRedo: Bool { history.canRedo }
+    /// 是否有质量问题。
+    var hasQualityIssues: Bool { qualityReport?.hasIssues ?? false }
+    /// 总体质量级别。
+    var overallQualityLevel: RedPacketQualityLevel {
+        qualityReport?.overallLevel ?? .pass
+    }
 
     // MARK: - 加载
 
@@ -343,6 +355,112 @@ final class RedPacketWorkshopViewModel {
                 template = t
             }
         }
+    }
+
+    // MARK: - 质量检测与智能优化
+
+    /// 从当前图层状态提取质量检测输入。
+    func evaluateQuality() {
+        let input = buildQualityInput()
+        qualityReport = RedPacketQualityLogic.evaluate(input)
+    }
+
+    /// 一键智能优化（根据质量报告生成并应用优化方案，可撤销）。
+    func applySmartOptimization() {
+        guard qualityReport != nil || true else { return }
+        isOptimizing = true
+        defer { isOptimizing = false }
+
+        let report = qualityReport ?? RedPacketQualityReport(items: [])
+        let petLayer = draft.layers.first { $0.kind == .pet }
+        let textLayer = draft.layers.first { $0.kind == .text }
+
+        let optimization: RedPacketOptimizationResult
+        if report.hasIssues {
+            optimization = RedPacketOptimizationLogic.generateOptimization(
+                report: report,
+                template: template,
+                petLayer: petLayer,
+                textLayer: textLayer
+            )
+        } else {
+            optimization = RedPacketOptimizationLogic.defaultGentleOptimization(
+                template: template,
+                petLayer: petLayer,
+                textLayer: textLayer
+            )
+        }
+
+        guard optimization.hasOptimizations else {
+            optimizationSummary = ["redpacket.optimize.noChanges"]
+            return
+        }
+
+        // 记录历史（可撤销）
+        pushSnapshot()
+
+        // 应用优化到图层
+        draft.layers = RedPacketOptimizationLogic.applyOptimization(
+            optimization, layers: draft.layers
+        )
+
+        optimizationSummary = optimization.summaryKeys
+
+        // 重新检测质量
+        evaluateQuality()
+    }
+
+    /// 构建质量检测输入（从当前图层和图像状态提取）。
+    private func buildQualityInput() -> RedPacketQualityInput {
+        let petLayer = draft.layers.first { $0.kind == .pet }
+        let textLayer = draft.layers.first { $0.kind == .text }
+
+        // 图像信息（从 sourceImage 提取）
+        let imgW = sourceImage?.cgImage?.width ?? 0
+        let imgH = sourceImage?.cgImage?.height ?? 0
+
+        // 简化：检测阈值用占位值，真实计算需 Core Image 分析（真机环境）
+        let sharpness: Double = 2000 // 占位（真机环境用 ImageAnalyzer 计算）
+        let brightness: Double = 0.5
+
+        // 宠物面积比例
+        let petCoverage: Double
+        if let pet = petLayer, pet.visible {
+            let petArea = pet.width * pet.scale * pet.height * pet.scale
+            let canvasArea = rpCanvasWidth * rpCanvasHeight
+            petCoverage = petArea / canvasArea
+        } else {
+            petCoverage = 0
+        }
+
+        // 宠物是否在安全区
+        let petInZone: Bool
+        if let pet = petLayer {
+            petInZone = rpIsLayerInSafeZone(pet, template: template)
+        } else {
+            petInZone = false
+        }
+
+        // 文本是否在安全区
+        let textInZone: Bool
+        if let text = textLayer {
+            textInZone = rpIsLayerInSafeZone(text, template: template)
+        } else {
+            textInZone = true
+        }
+
+        return RedPacketQualityInput(
+            imageWidth: imgW,
+            imageHeight: imgH,
+            sharpness: sharpness,
+            averageBrightness: brightness,
+            petCoverageRatio: petCoverage,
+            cutoutEdgeRoughness: 0.1,
+            petInSafeZone: petInZone,
+            textContent: textLayer?.text ?? "",
+            textInSafeZone: textInZone,
+            textContrast: 0.6
+        )
     }
 
     // MARK: - 草稿持久化

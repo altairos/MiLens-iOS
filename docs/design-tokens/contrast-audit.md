@@ -15,11 +15,42 @@
 
 | 配对 | 前景 | 背景 | 对比度 | AA 正文 (≥4.5) | AA 大字 (≥3) | 结论 |
 |---|---|---:|---|---|---|---|
-| TextPrimary on SurfaceCanvas | `#F2EBE3` | `#161311` | 15.65 | 通过 | 通过 | ✅ |
-| TextPrimary on SurfacePrimary | `#F2EBE3` | `#221E1A` | 14.01 | 通过 | 通过 | ✅ |
+| TextPrimary on SurfaceBackground | `#F2EBE3` | `#161311` | 15.65 | 通过 | 通过 | ✅ |
+| TextPrimary on SurfaceCard | `#F2EBE3` | `#221E1A` | 14.01 | 通过 | 通过 | ✅ |
+| TextPrimary on SurfaceElevated | `#F2EBE3` | `#2C2722` | 12.51 | 通过 | 通过 | ✅ |
+| TextPrimary on SurfaceGrouped | `#F2EBE3` | `#1C1916` | 14.82 | 通过 | 通过 | ✅ |
+| TextSecondary on SurfaceBackground | `#B5A89C` | `#161311` | 7.97 | 通过 | 通过 | ✅ |
+| TextSecondary on SurfaceCard | `#B5A89C` | `#221E1A` | 7.13 | 通过 | 通过 | ✅ |
+| TextTertiary on SurfaceBackground | `#7A6F64` | `#161311` | 3.77 | 不通过 | 通过 | ⚠️ |
+| TextTertiary on SurfaceCard | `#7A6F64` | `#221E1A` | 3.38 | 不通过 | 通过 | ⚠️ |
+| TextTertiary on SurfaceElevated | `#7A6F64` | `#2C2722` | 3.02 | 不通过 | 临界 | ❌ |
+| TextOnActionPrimary on ActionPrimary | `#161311` | `#E8845F` | 6.96 | 通过 | 通过 | ✅ |
+| TextOnAccent on AccentColor | `#FFFFFF` | `#E8845F` | 2.66 | 不通过 | 不通过 | ❌ |
+| AccentColor on SurfaceBackground | `#E8845F` | `#161311` | 6.96 | 通过 | 通过 | ✅ |
+| DogAccent on SurfaceCard | `#D19E43` | `#221E1A` | 6.85 | 通过 | 通过 | ✅ |
+| Success on SurfaceCard | `#72C998` | `#221E1A` | 8.29 | 通过 | 通过 | ✅ |
+| Danger on SurfaceCard | `#EF7D76` | `#221E1A` | 6.19 | 通过 | 通过 | ✅ |
+| Warning on SurfaceCard | `#F0B85A` | `#221E1A` | 9.23 | 通过 | 通过 | ✅ |
+| MemoryMarker on SurfaceCard | `#91857A` | `#221E1A` | 4.61 | 通过 | 通过 | ✅ |
+
+### 常暗编辑面（无暗色变体，两主题渲染同值，按单一值审计）
+
+| 配对 | 前景 | 背景 | 对比度 | 结论 |
+|---|---|---:|---|---|
+| DarkroomText on DarkroomBadge | `#F1D8CA` | `#1D1815` | 12.91 | ✅ |
+| EditorialInk on EditorialPaper | `#1B1612` | `#F4EEE4` | 15.55 | ✅ |
+| EditorialCopper on EditorialPaper | `#B04125` | `#F4EEE4` | 5.01 | ✅ |
+| TextPrimary(D) on StudioSurface | `#F2EBE3` | `#221D1A` | 14.12 | ✅ |
+| TextPrimary(D) on DialSurface | `#F2EBE3` | `#7C3F30` | 6.81 | ✅ |
+| PaywallSubtitle on PaywallGradientStart | `#D4CCC4` | `#0D0A09` | 12.43 | ✅ |
+| ProBody on ProCardDark | `#B5A89C` | `#14110F` | 8.10 | ✅ |
 
 ## 结论
 
-- 正文、次文字、动作色全部达标（正文对比度均 ≥ 5:1）。
-- **唯一不达标项**：`BrandCoral`（`#FD8663`）配白字仅 2.40:1，不能作为正文、小图标、按钮文字或唯一状态差异的背景 —— 已按 §3.1「纠正后的语义色」拆分为 `BrandCoral`（纯装饰）与 `ActionPrimary`（交互强调）。
-- 深色模式下 `ActionPrimary` 使用 `#E8845F` 配暖黑字 `#161311`（≈7.1:1），达标。
+- 正文、次文字、动作色、语义色全部达标。
+- **Light 唯一不达标**：`BrandCoral`（`#FD8663`）配白字 2.40:1 → 已按 §3.1 拆分为纯装饰 `BrandCoral` 与交互 `ActionPrimary #BC4727`（白字 5.16:1）。
+- **Dark 两处不达标**：
+  1. `TextTertiary #7A6F64` 在所有暗面上低于 4.5:1（最差 `SurfaceElevated` 3.02，逼近 3:1 大字底线）→ 建议暗侧调亮至 `#97897E`（约 4.4:1）或 `#9B8B80`（稳定 >4.5），或将 TextTertiary 限定为大字号 / 装饰性文本。
+  2. 白字 on `AccentColor #E8845F` 2.66:1 → 与 Light 同类债；白字永不落在珊瑚上，交互改用 `ActionPrimary` 或暗字。
+- `Border` / `Separator` 暗侧 1.44 / 1.14:1 属装饰性结构、可接受；但任何依赖边框色单独表达的状态（选中 / 错误）需另加非颜色提示。
+- 常暗编辑面（Studio / Darkroom / Dial / Seal / Paywall）全部达标，`DogAccent` 金黄在暗侧 6.85:1 达标。

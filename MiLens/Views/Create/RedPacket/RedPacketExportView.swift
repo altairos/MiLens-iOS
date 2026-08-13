@@ -1,7 +1,7 @@
 //  RedPacketExportView —— 红包导出页（对应红包封面开发计划 §6）。
 //
-//  上段：成品检查（封面大图、规格、安全区状态、重新编辑）。
-//  下段：聊天语境预览 + 保存到相册 / 系统分享 + 上传指引入口。
+//  上段：成品检查（封面大图、规格校验结果、水印状态、重新编辑）。
+//  下段：分享前预览（聊天红包卡片 + 多场景模拟） + 保存到相册 / 系统分享 + 上传指引入口。
 //  封面和预览共用 RedPacketCoverRenderer 渲染结果（不两套排版逻辑）。
 
 import SwiftUI
@@ -27,6 +27,23 @@ struct RedPacketExportView: View {
     @State private var isSaving = false
     @State private var saveError: String?
     @State private var shareItem: ShareItem?
+    @State private var toast: ExportToastMessage?
+    @State private var selectedScene: PreviewScene = .redPacketCard
+
+    enum PreviewScene: String, CaseIterable, Identifiable {
+        case redPacketCard  // 红包卡片（聊天消息）
+        case openRedPacket  // 拆红包页
+        case redPacketList  // 红包列表
+
+        var id: String { rawValue }
+        var displayName: String {
+            switch self {
+            case .redPacketCard: return String(localized: "redpacket.export.scene.card")
+            case .openRedPacket: return String(localized: "redpacket.export.scene.open")
+            case .redPacketList: return String(localized: "redpacket.export.scene.list")
+            }
+        }
+    }
 
     var body: some View {
         Group {
@@ -66,23 +83,13 @@ struct RedPacketExportView: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: 0) {
                     // === 上段：成品检查 ===
-                   成品检查段(draft: draft, template: template)
+                    productCheckSection(draft: draft, template: template)
 
-                    // === 下段：聊天语境预览 ===
-                    聊天预览段(draft: draft, template: template)
+                    // === 下段：分享前预览 ===
+                    chatPreviewSection(draft: draft, template: template)
 
                     // 上传指引入口
-                    if let photoID = draft.sourcePhotoID {
-                        NavigationLink(value: Route.redPacketUploadGuide(
-                            photoID: photoID, petID: nil
-                        )) {
-                            Text(String(localized: "redpacket.uploadGuide.link"))
-                                .font(.uiBodyStrong)
-                                .foregroundStyle(Color.milensActionPrimary)
-                        }
-                        .padding(.horizontal, Spacing.pagePad)
-                        .padding(.top, Spacing.lg)
-                    }
+                    uploadGuideEntry
 
                     Spacer(minLength: 100)
                 }
@@ -93,11 +100,23 @@ struct RedPacketExportView: View {
                 actionBar
             }
         }
+        .overlay(alignment: .top) {
+            if let toast {
+                ExportToastView(kind: toast.kind, message: toast.text)
+                    .transition(.move(edge: .top).combined(with: .opacity))
+                    .onAppear {
+                        Task {
+                            try? await Task.sleep(for: .seconds(2.5))
+                            self.toast = nil
+                        }
+                    }
+            }
+        }
     }
 
     // MARK: - 成品检查段
 
-    private func 成品检查段(draft: RedPacketCoverDraft, template: RedPacketTemplate) -> some View {
+    private func productCheckSection(draft: RedPacketCoverDraft, template: RedPacketTemplate) -> some View {
         VStack(alignment: .leading, spacing: Spacing.sm) {
             EditorialOverline(text: String(localized: "redpacket.export.productCheck"))
                 .padding(.horizontal, Spacing.pagePad)
@@ -114,47 +133,98 @@ struct RedPacketExportView: View {
                     .padding(.top, Spacing.sm)
             }
 
-            // 规格信息
-            VStack(alignment: .leading, spacing: 4) {
+            // 规格校验结果
+            specValidationView
+
+            // 水印状态
+            watermarkStatusView
+        }
+    }
+
+    // MARK: - 规格校验
+
+    private var specValidationView: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            specRow(
+                label: String(localized: "redpacket.export.size"),
+                value: "\(WeChatRedPacketSpec.coverImageWidth) × \(WeChatRedPacketSpec.coverImageHeight)"
+            )
+            specRow(
+                label: String(localized: "redpacket.export.format"),
+                value: exportData?.format.rawValue.uppercased() ?? "PNG"
+            )
+            if let data = exportData {
                 specRow(
-                    label: String(localized: "redpacket.export.size"),
-                    value: "\(WeChatRedPacketSpec.coverImageWidth) × \(WeChatRedPacketSpec.coverImageHeight)"
+                    label: String(localized: "redpacket.export.fileSize"),
+                    value: formatByteCount(data.data.count)
                 )
+                // 规格校验结果
+                let validation = validateExport(data: data)
                 specRow(
-                    label: String(localized: "redpacket.export.format"),
-                    value: exportData?.format.rawValue.uppercased() ?? "PNG"
+                    label: String(localized: "redpacket.export.status"),
+                    value: validation.passed
+                        ? String(localized: "redpacket.export.passed")
+                        : String(localized: "redpacket.export.exceeded"),
+                    valueColor: validation.passed ? .green : .red
                 )
-                if let data = exportData {
-                    specRow(
-                        label: String(localized: "redpacket.export.fileSize"),
-                        value: formatByteCount(data.data.count)
-                    )
-                    specRow(
-                        label: String(localized: "redpacket.export.status"),
-                        value: RedPacketExportLogic.isWithinSizeLimit(data.data)
-                            ? String(localized: "redpacket.export.passed")
-                            : String(localized: "redpacket.export.exceeded"),
-                        valueColor: RedPacketExportLogic.isWithinSizeLimit(data.data)
-                            ? .green : .red
-                    )
+                // 失败原因
+                if !validation.passed, let reason = validation.reason {
+                    Text(reason)
+                        .font(.editorialMetadata)
+                        .foregroundStyle(Color.red.opacity(0.8))
+                        .padding(.top, 2)
                 }
             }
-            .padding(.horizontal, Spacing.pagePad)
-            .padding(.top, Spacing.sm)
         }
+        .padding(.horizontal, Spacing.pagePad)
+        .padding(.top, Spacing.sm)
+    }
+
+    // MARK: - 水印状态
+
+    private var watermarkStatusView: some View {
+        HStack(spacing: 8) {
+            Image(systemName: entitlement.isPro ? "checkmark.seal.fill" : "drop.fill")
+                .foregroundStyle(entitlement.isPro ? .green : .orange)
+            VStack(alignment: .leading, spacing: 2) {
+                Text(entitlement.isPro
+                     ? String(localized: "redpacket.export.noWatermark")
+                     : String(localized: "redpacket.export.hasWatermark"))
+                    .font(.editorialMetadata)
+                    .foregroundStyle(Color.milensTextPrimary)
+                if !entitlement.isPro {
+                    Text(String(localized: "redpacket.export.proHint"))
+                        .font(.editorialMetadata)
+                        .foregroundStyle(Color.milensActionPrimary)
+                }
+            }
+            Spacer()
+        }
+        .padding(.horizontal, Spacing.pagePad)
+        .padding(.top, Spacing.sm)
     }
 
     // MARK: - 聊天预览段
 
-    private func 聊天预览段(draft: RedPacketCoverDraft, template: RedPacketTemplate) -> some View {
+    private func chatPreviewSection(draft: RedPacketCoverDraft, template: RedPacketTemplate) -> some View {
         VStack(alignment: .leading, spacing: Spacing.sm) {
             EditorialOverline(text: String(localized: "redpacket.export.chatPreview"))
                 .padding(.horizontal, Spacing.pagePad)
                 .padding(.top, Spacing.xl)
 
-            // 中性聊天红包卡片预览
+            // 场景切换
+            Picker("", selection: $selectedScene) {
+                ForEach(PreviewScene.allCases) { scene in
+                    Text(scene.displayName).tag(scene)
+                }
+            }
+            .pickerStyle(.segmented)
+            .padding(.horizontal, Spacing.pagePad)
+            .padding(.top, Spacing.xs)
+
+            // 场景预览
             if let image = renderedImage {
-                chatCardPreview(image: image, draft: draft)
+                scenePreview(image: image, draft: draft)
                     .padding(.horizontal, Spacing.pagePad)
                     .padding(.top, Spacing.sm)
             }
@@ -167,60 +237,165 @@ struct RedPacketExportView: View {
         }
     }
 
-    // MARK: - 聊天卡片预览
+    // MARK: - 场景预览
 
-    private func chatCardPreview(image: UIImage, draft: RedPacketCoverDraft) -> some View {
-        VStack(spacing: 8) {
-            // 模拟聊天消息
-            HStack(alignment: .top, spacing: 8) {
-                // 头像占位
-                Circle()
-                    .fill(Color.gray.opacity(0.3))
-                    .frame(width: 36, height: 36)
-                    .overlay {
-                        Image(systemName: "person.fill")
-                            .foregroundStyle(Color.gray)
-                    }
-
-                // 红包卡片
-                VStack(alignment: .leading, spacing: 4) {
-                    Image(uiImage: image)
-                        .resizable()
-                        .scaledToFill()
-                        .frame(width: 80, height: 107)
-                        .clipped()
-                        .clipShape(RoundedRectangle(cornerRadius: 4, style: .continuous))
-
-                    Text(draft.coverTitle.isEmpty ? "恭喜发财" : draft.coverTitle)
-                        .font(.system(size: 13))
-                        .foregroundStyle(Color.milensTextPrimary)
-                        .lineLimit(1)
-                }
-                .padding(10)
-                .background(Color.orange.opacity(0.8))
-                .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
-
-                Spacer()
+    private func scenePreview(image: UIImage, draft: RedPacketCoverDraft) -> some View {
+        Group {
+            switch selectedScene {
+            case .redPacketCard:
+                redPacketCardScene(image: image, draft: draft)
+            case .openRedPacket:
+                openRedPacketScene(image: image, draft: draft)
+            case .redPacketList:
+                redPacketListScene(image: image, draft: draft)
             }
-
-            Text(String(localized: "redpacket.export.scenePreview"))
-                .font(.editorialMetadata)
-                .foregroundStyle(Color.milensTextSecondary)
         }
+        .frame(maxWidth: .infinity)
         .padding(12)
         .background(Color.milensSealSurface.opacity(0.5))
         .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+        .overlay(alignment: .bottomTrailing) {
+            Text(String(localized: "redpacket.export.sceneLabel"))
+                .font(.system(size: 10))
+                .foregroundStyle(Color.milensTextSecondary)
+                .padding(.horizontal, 6)
+                .padding(.vertical, 2)
+                .background(Color.milensBackground.opacity(0.8))
+                .clipShape(Capsule())
+                .padding(6)
+        }
+    }
+
+    // 场景 1：红包卡片（聊天消息）
+    private func redPacketCardScene(image: UIImage, draft: RedPacketCoverDraft) -> some View {
+        HStack(alignment: .top, spacing: 8) {
+            avatarPlaceholder
+            VStack(alignment: .leading, spacing: 4) {
+                Image(uiImage: image)
+                    .resizable()
+                    .scaledToFill()
+                    .frame(width: 80, height: 107)
+                    .clipped()
+                    .clipShape(RoundedRectangle(cornerRadius: 4, style: .continuous))
+                Text(draft.coverTitle.isEmpty ? String(localized: "redpacket.export.defaultTitle") : draft.coverTitle)
+                    .font(.system(size: 13))
+                    .foregroundStyle(Color.milensTextPrimary)
+                    .lineLimit(1)
+            }
+            .padding(10)
+            .background(Color.orange.opacity(0.8))
+            .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+            Spacer()
+        }
+    }
+
+    // 场景 2：拆红包页
+    private func openRedPacketScene(image: UIImage, draft: RedPacketCoverDraft) -> some View {
+        VStack(spacing: 8) {
+            Image(uiImage: image)
+                .resizable()
+                .scaledToFill()
+                .frame(width: 120, height: 160)
+                .clipped()
+                .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+            Text(draft.coverTitle.isEmpty ? String(localized: "redpacket.export.defaultTitle") : draft.coverTitle)
+                .font(.system(size: 14, weight: .medium))
+                .foregroundStyle(Color.milensTextPrimary)
+            // 模拟拆开按钮
+            Circle()
+                .fill(Color.orange.opacity(0.8))
+                .frame(width: 44, height: 44)
+                .overlay {
+                    Text(String(localized: "redpacket.export.openButton"))
+                        .font(.system(size: 18, weight: .bold))
+                        .foregroundStyle(.white)
+                }
+        }
+    }
+
+    // 场景 3：红包列表
+    private func redPacketListScene(image: UIImage, draft: RedPacketCoverDraft) -> some View {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack(spacing: 8) {
+                avatarPlaceholder.frame(width: 28, height: 28)
+                Text(draft.petName.isEmpty ? String(localized: "redpacket.export.defaultSender") : draft.petName)
+                    .font(.system(size: 12))
+                    .foregroundStyle(Color.milensTextSecondary)
+            }
+            HStack(spacing: 6) {
+                Image(uiImage: image)
+                    .resizable()
+                    .scaledToFill()
+                    .frame(width: 36, height: 48)
+                    .clipped()
+                    .clipShape(RoundedRectangle(cornerRadius: 3, style: .continuous))
+                Text(draft.coverTitle.isEmpty ? String(localized: "redpacket.export.defaultTitle") : draft.coverTitle)
+                    .font(.system(size: 12))
+                    .foregroundStyle(Color.milensTextPrimary)
+                    .lineLimit(1)
+            }
+            .padding(6)
+            .background(Color.orange.opacity(0.6))
+            .clipShape(RoundedRectangle(cornerRadius: 6, style: .continuous))
+        }
+    }
+
+    private var avatarPlaceholder: some View {
+        Circle()
+            .fill(Color.gray.opacity(0.3))
+            .frame(width: 36, height: 36)
+            .overlay {
+                Image(systemName: "person.fill")
+                    .font(.system(size: 16))
+                    .foregroundStyle(Color.gray)
+            }
+    }
+
+    // MARK: - 上传指引入口
+
+    private var uploadGuideEntry: some View {
+        VStack(spacing: 8) {
+            if let photoID = draft?.sourcePhotoID {
+                NavigationLink(value: Route.redPacketUploadGuide(
+                    photoID: photoID, petID: nil
+                )) {
+                    HStack {
+                        Image(systemName: "info.circle")
+                        Text(String(localized: "redpacket.uploadGuide.link"))
+                    }
+                    .font(.uiBodyStrong)
+                    .foregroundStyle(Color.milensActionPrimary)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 12)
+                    .background(Color.milensActionPrimary.opacity(0.08))
+                    .clipShape(RoundedRectangle(cornerRadius: Radius.medium, style: .continuous))
+                }
+            }
+            Text(String(localized: "redpacket.export.howToUse"))
+                .font(.editorialMetadata)
+                .foregroundStyle(Color.milensTextSecondary)
+        }
+        .padding(.horizontal, Spacing.pagePad)
+        .padding(.top, Spacing.lg)
     }
 
     // MARK: - 操作栏
 
     private var actionBar: some View {
-        CreationActionBar(
-            primaryLabel: String(localized: "redpacket.action.export"),
-            secondaryLabel: String(localized: "share.action.saveLibrary"),
-            primaryAction: { share() },
-            secondaryAction: { Task { await saveToLibrary() } }
-        )
+        VStack(spacing: 0) {
+            // 保存成功提示
+            if isSaving {
+                ProgressView()
+                    .scaleEffect(0.8)
+                    .padding(.bottom, 4)
+            }
+            CreationActionBar(
+                primaryLabel: String(localized: "redpacket.action.share"),
+                secondaryLabel: String(localized: "share.action.saveLibrary"),
+                primaryAction: { share() },
+                secondaryAction: { Task { await saveToLibrary() } }
+            )
+        }
         .padding(.horizontal, Spacing.pagePad)
         .padding(.top, Spacing.sm)
         .padding(.bottom, Spacing.md)
@@ -255,6 +430,27 @@ struct RedPacketExportView: View {
         }
     }
 
+    // MARK: - 校验
+
+    private func validateExport(data: RedPacketExportData) -> (passed: Bool, reason: String?) {
+        let result = RedPacketCoverLogic.validateCoverImage(
+            data: data.data,
+            width: WeChatRedPacketSpec.coverImageWidth,
+            height: WeChatRedPacketSpec.coverImageHeight,
+            fileExtension: data.fileExtension
+        )
+        switch result {
+        case .valid:
+            return (true, nil)
+        case .invalidSize(let expected, let actual):
+            return (false, String(localized: "redpacket.export.fail.size"))
+        case .invalidFileSize(let maxBytes, _):
+            return (false, "\(String(localized: "redpacket.export.fail.fileSize")) \(formatByteCount(maxBytes))")
+        case .invalidFormat:
+            return (false, String(localized: "redpacket.export.fail.format"))
+        }
+    }
+
     // MARK: - 动作
 
     private func share() {
@@ -266,8 +462,10 @@ struct RedPacketExportView: View {
         do {
             let url = try BeadExportService().writeShareCache(data: data.data, filename: filename)
             shareItem = ShareItem(url: url)
+            toast = .success(String(localized: "redpacket.export.shareReady"))
         } catch {
             logger.error("share: 写入分享缓存失败 \(error.localizedDescription)")
+            toast = .failure(String(localized: "redpacket.export.shareFailed"))
         }
     }
 
@@ -277,9 +475,10 @@ struct RedPacketExportView: View {
         defer { isSaving = false }
         do {
             try await BeadExportService().saveToPhotoLibrary(pngData: data.data)
+            toast = .success(String(localized: "redpacket.export.saved"))
         } catch {
             logger.error("saveToLibrary: 保存失败 \(error.localizedDescription)")
-            saveError = "保存到相册失败：\(error.localizedDescription)"
+            saveError = String(localized: "redpacket.export.saveFailed")
         }
     }
 
@@ -318,11 +517,9 @@ struct RedPacketExportView: View {
             draft = loaded
             template = RedPacketTemplateCatalog.find(id: loaded.templateID)
 
-            // 渲染封面
             guard let rendered = renderCover() else { return }
             renderedImage = rendered
 
-            // 编码
             let png = rendered.pngData()
             let jpegHigh = rendered.jpegData(compressionQuality: 0.9)
             let jpegLow = rendered.jpegData(compressionQuality: 0.6)

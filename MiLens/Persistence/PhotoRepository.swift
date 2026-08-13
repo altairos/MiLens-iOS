@@ -64,6 +64,22 @@ protocol PhotoRepositoryProtocol {
     func updatePhoto(_ photo: Photo) throws
     /// 分配/取消归属（对应源端 assignPhotoToPet）。
     func assignPhoto(_ photo: Photo, to pet: Pet?) throws
+    /// 原子批量归属照片到目标宠物，并同步刷新受影响宠物的 photoCount 缓存。
+    ///
+    /// 与逐张 `assignPhoto` + `refreshPhotoCount` 不同，此方法在单次事务内完成全部写入，
+    /// 保证关系变更与计数刷新的原子性——任一步骤失败回滚全部 pending changes，
+    /// 不留部分归属或计数不一致的中间态。
+    ///
+    /// 受影响宠物集合 = 各照片旧归属 ∪ {targetPet}（去重），确保：
+    /// - 归属到新宠物：新宠物计数 +N，旧宠物计数 -N（若不同）
+    /// - 移出归属（nil）：旧宠物计数 -N
+    /// - 幂等（归属到同一宠物）：旧=新，计数不变
+    ///
+    /// - Parameters:
+    ///   - photos: 待归属的照片列表（空列表直接返回空）
+    ///   - targetPet: 目标宠物（nil = 移出归属）
+    /// - Returns: 受影响（已刷新 photoCount）的宠物列表
+    func batchAssignPhotos(_ photos: [Photo], to targetPet: Pet?) throws -> [Pet]
     func setFavorite(_ photo: Photo, favorite: Bool) throws
     func updateNote(_ photo: Photo, note: String) throws
 
@@ -228,6 +244,38 @@ final class SwiftDataPhotoRepository: PhotoRepositoryProtocol {
     func assignPhoto(_ photo: Photo, to pet: Pet?) throws {
         photo.pet = pet
         try context.saveOrRollback()
+    }
+
+    func batchAssignPhotos(_ photos: [Photo], to targetPet: Pet?) throws -> [Pet] {
+        // 收集受影响宠物（旧归属 + 目标归属），变更前捕获旧宠物引用
+        var affectedPets: [Pet] = []
+        var seenIDs = Set<UUID>()
+        for photo in photos {
+            if let oldPet = photo.pet, !seenIDs.contains(oldPet.id) {
+                affectedPets.append(oldPet)
+                seenIDs.insert(oldPet.id)
+            }
+        }
+        if let targetPet, !seenIDs.contains(targetPet.id) {
+            affectedPets.append(targetPet)
+            seenIDs.insert(targetPet.id)
+        }
+
+        // 变更所有照片归属（SwiftData 自动维护 Pet.photos 双向关系）
+        for photo in photos {
+            photo.pet = targetPet
+        }
+
+        // 刷新所有受影响宠物的 photoCount
+        let now = Date()
+        for pet in affectedPets {
+            pet.photoCount = pet.photos.count
+            pet.updatedAt = now
+        }
+
+        // 单次事务提交：保证关系与计数原子性
+        try context.saveOrRollback()
+        return affectedPets
     }
 
     func setFavorite(_ photo: Photo, favorite: Bool) throws {

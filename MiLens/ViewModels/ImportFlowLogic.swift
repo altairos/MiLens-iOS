@@ -68,13 +68,18 @@ enum ImportFlowLogic {
 
     /// 导入完成汇总消息（自动归属结果提示）。
     /// 仅 matched > 0 时提及自动归属；failed > 0 时追加失败提示，避免静默丢照片（H4）。
-    static func resolveImportSummary(imported: Int, matched: Int, failed: Int) -> String {
+    /// cancelled = true 时追加取消提示，让调用方区分「用户取消」与「普通完成」。
+    static func resolveImportSummary(
+        imported: Int, matched: Int, failed: Int, cancelled: Bool = false
+    ) -> String {
         if imported <= 0 {
+            if cancelled { return "导入已取消" }
             return failed > 0 ? "有 \(failed) 张照片导入失败" : "没有新照片需要导入"
         }
         var message = "已导入 \(imported) 张照片"
         if matched > 0 { message += "，其中 \(matched) 张自动归入已注册宠物" }
         if failed > 0 { message += "，\(failed) 张导入失败" }
+        if cancelled { message += "（已取消）" }
         return message
     }
 }

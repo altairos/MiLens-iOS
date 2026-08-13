@@ -329,6 +329,7 @@ struct SettingsView: View {
                 .buttonStyle(.plain)
                 .disabled(backupVM?.isExporting == true
                           || backupVM?.isEstimating == true
+                          || backupVM?.isRestoring == true
                           || backupVM?.isServiceAvailable == false)
 
                 ArchiveDivider().padding(.leading, 32)
@@ -345,7 +346,10 @@ struct SettingsView: View {
                         tint: .milensTextSecondary)
                 }
                 .buttonStyle(.plain)
-                .disabled(backupVM?.isRestoring == true || backupVM?.isServiceAvailable == false)
+                .disabled(backupVM?.isRestoring == true
+                          || backupVM?.isExporting == true
+                          || backupVM?.isEstimating == true
+                          || backupVM?.isServiceAvailable == false)
 
                 ArchiveDivider().padding(.leading, 32)
 

@@ -33,14 +33,18 @@ struct ImportResult: Equatable, Sendable {
     /// 本次实际导入入库的照片 ID（精确归属用，避免按「未分配照片/列表前 N 条」推断）。
     /// 调用方应据此对精确记录执行批量归属，而非按数量猜测。
     let importedPhotoIDs: [UUID]
+    /// 用户是否在导入过程中取消（部分照片可能已入库）。
+    /// true 时调用方应区分提示「已取消」，不要当普通成功完成处理。
+    let cancelled: Bool
 
     init(imported: Int, matched: Int, failed: Int, quotaBlocked: Int = 0,
-        importedPhotoIDs: [UUID] = []) {
+        importedPhotoIDs: [UUID] = [], cancelled: Bool = false) {
         self.imported = imported
         self.matched = matched
         self.failed = failed
         self.quotaBlocked = quotaBlocked
         self.importedPhotoIDs = importedPhotoIDs
+        self.cancelled = cancelled
     }
 
     /// 是否因配额被拦截（需调用方引导付费）。
@@ -277,11 +281,13 @@ final class ImportService {
         // 尾批入库（含取消中断：已写文件不丢弃，避免孤儿）
         await flushPending()
 
-        taskOutcome = Task.isCancelled ? .canceled : .success
-        taskSummary = "requested=\(identifiers.count) imported=\(imported) failed=\(failed) matched=\(matched) quotaBlocked=\(quotaBlocked)"
-        logger.info("importPhotos: imported=\(imported), failed=\(failed), matched=\(matched), quotaBlocked=\(quotaBlocked)")
+        let wasCancelled = Task.isCancelled
+        taskOutcome = wasCancelled ? .canceled : .success
+        taskSummary = "requested=\(identifiers.count) imported=\(imported) failed=\(failed) matched=\(matched) quotaBlocked=\(quotaBlocked) cancelled=\(wasCancelled)"
+        logger.info("importPhotos: imported=\(imported), failed=\(failed), matched=\(matched), quotaBlocked=\(quotaBlocked), cancelled=\(wasCancelled)")
         return ImportResult(imported: imported, matched: matched, failed: failed,
-                            quotaBlocked: quotaBlocked, importedPhotoIDs: importedPhotoIDs)
+                            quotaBlocked: quotaBlocked, importedPhotoIDs: importedPhotoIDs,
+                            cancelled: wasCancelled)
     }
 
     /// 自动归属判定：提取 embedding + 颜色签名 → PetMatcher 匹配。

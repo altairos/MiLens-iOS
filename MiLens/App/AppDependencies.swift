@@ -150,18 +150,19 @@ final class AppDependencies {
             // 强制归属到刚创建的宠物（覆盖自动匹配结果）
             // 使用本次实际导入的照片 ID 精确归属，避免按「未分配照片」推断
             // （自动匹配成功的照片已非未分配状态，旧逻辑无法覆盖）。
+            // 统一走 PhotoAssignmentLogic.assign：原子批量归属 + 全部受影响宠物计数刷新
+            // （包括被自动匹配到其他宠物的照片——旧归属宠物计数必须递减）。
             if let petID = targetPetID,
                let pet = try? petRepo.getPet(id: petID) {
-                for photoID in result.importedPhotoIDs {
-                    guard let photo = try? photoRepo.getPhoto(id: photoID) else { continue }
-                    do {
-                        try photoRepo.assignPhoto(photo, to: pet)
-                    } catch {
-                        // 归属失败不静默吞掉，记录日志保证可观测
-                        // （旧 try? 会吞掉部分归属失败，造成静默不完整）
-                    }
+                let photos = result.importedPhotoIDs.compactMap { try? photoRepo.getPhoto(id: $0) }
+                do {
+                    try PhotoAssignmentLogic.assign(
+                        photos: photos, to: pet,
+                        photoRepo: photoRepo, petRepo: petRepo)
+                } catch {
+                    // 归属失败不静默吞掉，记录日志保证可观测
+                    // PhotoAssignmentLogic 已保证原子性：失败时无部分归属残留
                 }
-                try? petRepo.refreshPhotoCount(for: pet)
             }
             if result.imported > 0 {
                 WidgetReload.notifyDataChanged()

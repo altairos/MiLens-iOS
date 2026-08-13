@@ -10,6 +10,8 @@
 //     长任务时用户能看到「卡在哪一步」。
 //
 //  幂等保护：预估/导出/恢复进行中时重复触发直接忽略，避免并发写临时文件或重复导入。
+//  互斥保护：导出与恢复不可同时进行（共享同一 DB 上下文，并发写入有冲突风险），
+//  任意一方进行中时另一方直接忽略。
 //
 //  上次备份时间（lastBackupDate）：导出成功后持久化到 UserDefaults，
 //  供设置页副标题展示「上次备份 X 月 X 日」、首页横幅与定期通知判断「多久没备份」。
@@ -93,7 +95,7 @@ final class BackupViewModel {
     /// 预估将导出的内容规模（不打包）。完成后 exportState 进入 .readyToExport，
     /// 由 View 弹确认对话框让用户确认后再调用 exportBackup()。
     func prepareExport() async {
-        guard !isEstimating, !isExporting else { return }
+        guard !isEstimating, !isExporting, !isRestoring else { return }
         exportState = .estimating
         do {
             let estimate = try await backupService.estimateBackup(petIDs: nil)
@@ -105,7 +107,7 @@ final class BackupViewModel {
 
     /// 实际导出（用户在确认对话框点「导出」后调用）。
     func exportBackup() async {
-        guard !isExporting else { return }
+        guard !isExporting, !isRestoring else { return }
         exportState = .inProgress(0, .collectingMetadata)
         do {
             let result = try await backupService.exportBackup(petIDs: nil) { [weak self] progress in
@@ -124,7 +126,7 @@ final class BackupViewModel {
     // MARK: - 恢复
 
     func importBackup(from url: URL) async {
-        guard !isRestoring else { return }
+        guard !isRestoring, !isExporting else { return }
         restoreState = .inProgress(0, .decompressing)
         do {
             let result = try await backupService.importBackup(from: url) { [weak self] progress in

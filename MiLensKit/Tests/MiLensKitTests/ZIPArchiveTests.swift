@@ -147,6 +147,76 @@ final class ZIPArchiveTests: XCTestCase {
         }
     }
 
+    // MARK: - 大小预校验（validateSizes）
+
+    func testValidateSizesPassesWithinLimits() throws {
+        let entries = [
+            ZipEntry(path: "a.txt", data: Data(repeating: 0x41, count: 100)),
+            ZipEntry(path: "b.txt", data: Data(repeating: 0x42, count: 200)),
+        ]
+        let zip = ZipWriter.archive(entries: entries)
+
+        // 不解出数据，只读 central directory 校验：通过
+        XCTAssertNoThrow(try ZipReader.validateSizes(
+            in: zip, maxTotalUncompressedSize: 1000,
+            maxEntryCount: 10, maxSingleEntrySize: 500))
+    }
+
+    func testValidateSizesRejectsEntryCountExceeded() throws {
+        let entries = (0..<5).map { i in
+            ZipEntry(path: "file\(i).txt", data: Data([UInt8(i)]))
+        }
+        let zip = ZipWriter.archive(entries: entries)
+
+        XCTAssertThrowsError(try ZipReader.validateSizes(
+            in: zip, maxTotalUncompressedSize: 1000,
+            maxEntryCount: 3, maxSingleEntrySize: 100)) { error in
+            guard case .entryCountExceeded = error as? ZipArchiveError else {
+                return XCTFail("应抛 entryCountExceeded，实际：\(error)")
+            }
+        }
+    }
+
+    func testValidateSizesRejectsTotalSizeExceeded() throws {
+        let entries = [
+            ZipEntry(path: "a.txt", data: Data(repeating: 0x41, count: 500)),
+            ZipEntry(path: "b.txt", data: Data(repeating: 0x42, count: 600)),
+        ]
+        let zip = ZipWriter.archive(entries: entries)
+
+        // 总解压大小 1100 > 上限 1000
+        XCTAssertThrowsError(try ZipReader.validateSizes(
+            in: zip, maxTotalUncompressedSize: 1000,
+            maxEntryCount: 10, maxSingleEntrySize: 1000)) { error in
+            guard case .totalSizeExceeded = error as? ZipArchiveError else {
+                return XCTFail("应抛 totalSizeExceeded，实际：\(error)")
+            }
+        }
+    }
+
+    func testValidateSizesRejectsSingleEntrySizeExceeded() throws {
+        let entries = [
+            ZipEntry(path: "big.txt", data: Data(repeating: 0x41, count: 500)),
+        ]
+        let zip = ZipWriter.archive(entries: entries)
+
+        // 单条目 500 > 上限 100
+        XCTAssertThrowsError(try ZipReader.validateSizes(
+            in: zip, maxTotalUncompressedSize: 10000,
+            maxEntryCount: 10, maxSingleEntrySize: 100)) { error in
+            guard case .singleEntrySizeExceeded = error as? ZipArchiveError else {
+                return XCTFail("应抛 singleEntrySizeExceeded，实际：\(error)")
+            }
+        }
+    }
+
+    func testValidateSizesPassesEmptyArchive() throws {
+        let zip = ZipWriter.archive(entries: [])
+        XCTAssertNoThrow(try ZipReader.validateSizes(
+            in: zip, maxTotalUncompressedSize: 1000,
+            maxEntryCount: 10, maxSingleEntrySize: 500))
+    }
+
     // MARK: - 辅助
 
     /// 测试专用：复刻 reader 的 EOCD 定位逻辑以取得偏移（避免暴露内部 API）。

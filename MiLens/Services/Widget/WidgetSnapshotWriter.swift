@@ -72,8 +72,18 @@ final class WidgetSnapshotWriter {
             writeGeneration += 1
             let generation = writeGeneration
 
+            // 代数检查闭包：供 copyThumbnails 在每次文件写入前调用，
+            // 防止旧代任务的 downsampleAndCopy 覆盖新代任务已写入的同名缩略图。
+            // 同时检查 Task.isCancelled 与 generation，任一过期即返回 true。
+            let isStale: @Sendable () async -> Bool = { [weak self] in
+                guard !Task.isCancelled else { return true }
+                let latest = await MainActor.run { self?.writeGeneration == generation }
+                return !latest
+            }
+
             pendingThumbnailTask = Task.detached(priority: .utility) { [weak self] in
-                await Self.copyThumbnails(thumbnails, to: containerURL, maxSize: thumbMax)
+                await Self.copyThumbnails(
+                    thumbnails, to: containerURL, maxSize: thumbMax, isStale: isStale)
                 // 只有未被取消且仍为最新代的任务才 reload（旧代已被新代取代）
                 guard !Task.isCancelled else { return }
                 let isLatest = await MainActor.run { self?.writeGeneration == generation }
@@ -197,10 +207,12 @@ final class WidgetSnapshotWriter {
 
     /// 把沙盒缩略图降采样后复制到 App Group 缩略图目录（后台线程）。
     /// `sources` 是 (源路径, 目标文件名) 对；源路径为空时跳过。
+    /// `isStale` 在每次文件操作前调用，返回 true 时中止（旧代任务或已取消）。
     nonisolated static func copyThumbnails(
         _ sources: [(sourcePath: String, destName: String)],
         to containerURL: URL,
-        maxSize: CGFloat
+        maxSize: CGFloat,
+        isStale: @Sendable () async -> Bool = { Task.isCancelled }
     ) async {
         let thumbDir = containerURL.appendingPathComponent(WidgetSharedConfig.thumbnailsDirName)
         let fm = FileManager.default
@@ -208,9 +220,9 @@ final class WidgetSnapshotWriter {
         // 确保缩略图目录存在
         try? fm.createDirectory(at: thumbDir, withIntermediateDirectories: true)
 
-        // 清理过期缩略图（不在本次 sources 中的）；被取消则跳过清理
-        // （旧任务被新任务取代后，不应清理新任务仍需要的缩略图）
-        if !Task.isCancelled,
+        // 清理过期缩略图（不在本次 sources 中的）；旧代任务跳过清理
+        // （旧代任务不应清理新代任务仍需要的缩略图）
+        if await !isStale(),
            let existing = try? fm.contentsOfDirectory(at: thumbDir, includingPropertiesForKeys: nil) {
             let validNames = Set(sources.map(\.destName))
             for url in existing where !validNames.contains(url.lastPathComponent) {
@@ -220,7 +232,8 @@ final class WidgetSnapshotWriter {
 
         let scale = await MainActor.run { UIScreen.main.scale }
         for source in sources {
-            if Task.isCancelled { return }
+            // 每次写入前检查代数：防止旧代 downsampleAndCopy 覆盖新代已写入的同名缩略图
+            if await isStale() { return }
             guard !source.sourcePath.isEmpty,
                   fm.fileExists(atPath: source.sourcePath) else { continue }
             let destURL = thumbDir.appendingPathComponent(source.destName)

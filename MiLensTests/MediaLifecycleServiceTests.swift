@@ -271,6 +271,7 @@ private final class FailingPhotoRepository: PhotoRepositoryProtocol {
         try wrapped.updatePhoto(photo)
     }
     func assignPhoto(_ photo: Photo, to pet: Pet?) throws { try wrapped.assignPhoto(photo, to: pet) }
+    func batchAssignPhotos(_ photos: [Photo], to targetPet: Pet?) throws -> [Pet] { try wrapped.batchAssignPhotos(photos, to: targetPet) }
     func setFavorite(_ photo: Photo, favorite: Bool) throws { try wrapped.setFavorite(photo, favorite: favorite) }
     func updateNote(_ photo: Photo, note: String) throws { try wrapped.updateNote(photo, note: note) }
     func getPendingQualityScorePhotos(limit: Int) throws -> [Photo] { try wrapped.getPendingQualityScorePhotos(limit: limit) }

@@ -48,6 +48,10 @@ struct PetSnapshot: Codable, Equatable, Sendable {
 }
 
 /// 照片导出投影。photoFileName 对应 photos/ 目录中的文件名。
+///
+/// 质量分析字段（sharpness / duplicateOf / isBest）纳入快照，
+/// 确保备份恢复后不丢失分析结果。新增字段使用 decodeIfPresent 向后兼容
+/// 旧版备份包（缺省为 Photo 默认值），与 PetEventSnapshot 策略一致。
 struct PhotoSnapshot: Codable, Equatable, Sendable {
     let id: UUID
     let originalURI: String
@@ -70,6 +74,71 @@ struct PhotoSnapshot: Codable, Equatable, Sendable {
     let photoFileName: String
     /// 原始入库时间（保留导入顺序，恢复后排序一致）。
     let createdAt: Date
+    /// Laplacian 方差清晰度（对应 Photo.sharpness）。
+    let sharpness: Double
+    /// 重复归属：指向本组 best 照片的 id（nil = 非重复或自身是 best）。
+    let duplicateOf: UUID?
+    /// 是否为本重复组的最佳照片（对应 Photo.isBest）。
+    let isBest: Bool
+
+    /// 成员构造器（导出端 + 测试用）。
+    init(id: UUID, originalURI: String, petID: UUID?, takenAt: Date?,
+         latitude: Double, longitude: Double, placeName: String, note: String,
+         isFavorite: Bool, eventNotify: Bool, width: Int, height: Int,
+         fileSize: Int64, category: String, subCategory: String,
+         phash: String, qualityScore: Double, photoFileName: String,
+         createdAt: Date,
+         sharpness: Double = 0, duplicateOf: UUID? = nil, isBest: Bool = true) {
+        self.id = id
+        self.originalURI = originalURI
+        self.petID = petID
+        self.takenAt = takenAt
+        self.latitude = latitude
+        self.longitude = longitude
+        self.placeName = placeName
+        self.note = note
+        self.isFavorite = isFavorite
+        self.eventNotify = eventNotify
+        self.width = width
+        self.height = height
+        self.fileSize = fileSize
+        self.category = category
+        self.subCategory = subCategory
+        self.phash = phash
+        self.qualityScore = qualityScore
+        self.photoFileName = photoFileName
+        self.createdAt = createdAt
+        self.sharpness = sharpness
+        self.duplicateOf = duplicateOf
+        self.isBest = isBest
+    }
+
+    /// 自定义解码：旧版备份包缺 sharpness/duplicateOf/isBest 时回退为 Photo 默认值，避免解码失败。
+    init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        id = try c.decode(UUID.self, forKey: .id)
+        originalURI = try c.decode(String.self, forKey: .originalURI)
+        petID = try c.decodeIfPresent(UUID.self, forKey: .petID)
+        takenAt = try c.decodeIfPresent(Date.self, forKey: .takenAt)
+        latitude = try c.decode(Double.self, forKey: .latitude)
+        longitude = try c.decode(Double.self, forKey: .longitude)
+        placeName = try c.decode(String.self, forKey: .placeName)
+        note = try c.decode(String.self, forKey: .note)
+        isFavorite = try c.decode(Bool.self, forKey: .isFavorite)
+        eventNotify = try c.decode(Bool.self, forKey: .eventNotify)
+        width = try c.decode(Int.self, forKey: .width)
+        height = try c.decode(Int.self, forKey: .height)
+        fileSize = try c.decode(Int64.self, forKey: .fileSize)
+        category = try c.decode(String.self, forKey: .category)
+        subCategory = try c.decode(String.self, forKey: .subCategory)
+        phash = try c.decode(String.self, forKey: .phash)
+        qualityScore = try c.decode(Double.self, forKey: .qualityScore)
+        photoFileName = try c.decode(String.self, forKey: .photoFileName)
+        createdAt = try c.decode(Date.self, forKey: .createdAt)
+        sharpness = try c.decodeIfPresent(Double.self, forKey: .sharpness) ?? 0
+        duplicateOf = try c.decodeIfPresent(UUID.self, forKey: .duplicateOf)
+        isBest = try c.decodeIfPresent(Bool.self, forKey: .isBest) ?? true
+    }
 }
 
 /// 宠物事件导出投影。
@@ -199,6 +268,10 @@ enum BackupServiceError: Error, LocalizedError, Sendable {
     case writeFailed(String)
     case readFailed(String)
     case cancelled
+    /// 备份导出大小超过上限（照片数据总量过大）。
+    case backupTooLarge
+    /// 备份恢复文件大小超过上限（解压后总量过大）。
+    case restoreTooLarge(String)
 
     var errorDescription: String? {
         switch self {
@@ -210,6 +283,8 @@ enum BackupServiceError: Error, LocalizedError, Sendable {
         case .writeFailed(let msg):          return "写入失败：\(msg)"
         case .readFailed(let msg):           return "读取失败：\(msg)"
         case .cancelled:                     return "操作已取消"
+        case .backupTooLarge:                return "备份内容过大，请减少导出范围后重试"
+        case .restoreTooLarge(let msg):      return "备份文件过大：\(msg)"
         }
     }
 }
@@ -279,6 +354,14 @@ enum BackupConfig {
     static let manifestFileName = "manifest.json"
     /// 元数据文件名。
     static let metadataFileName = "metadata.json"
+
+    // MARK: - 内存上限（防御性限制，避免大图库 OOM）
+    /// 备份包全部条目解压后总字节数上限（2 GB）。
+    static let maxBackupSizeBytes = 2 * 1024 * 1024 * 1024
+    /// 备份包内最大条目数（manifest + metadata + 照片 + 头像 + 事件，以照片为主）。
+    static let maxEntryCount = 50_000
+    /// 单个条目解压后最大字节数（单张照片上限，200 MB）。
+    static let maxSingleEntrySizeBytes = 200 * 1024 * 1024
 }
 
 // MARK: - V1 占位实现

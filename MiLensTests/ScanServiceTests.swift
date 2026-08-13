@@ -486,6 +486,7 @@ private final class FailingPhotoRepository: PhotoRepositoryProtocol {
     func deletePhoto(_ photo: Photo) throws {}
     func updatePhoto(_ photo: Photo) throws {}
     func assignPhoto(_ photo: Photo, to pet: Pet?) throws {}
+    func batchAssignPhotos(_ photos: [Photo], to targetPet: Pet?) throws -> [Pet] { [] }
     func setFavorite(_ photo: Photo, favorite: Bool) throws {}
     func updateNote(_ photo: Photo, note: String) throws {}
     func getPendingQualityScorePhotos(limit: Int) throws -> [Photo] { [] }

@@ -101,16 +101,33 @@ final class ZipBackupService: BackupService, @unchecked Sendable {
                      data: try Self.encoder.encode(bundle.metadata)),
         ]
 
+        // 内存上限校验：导出时累计照片数据总量，超限提前拒绝（避免 OOM）。
+        var totalEntrySize = entries.reduce(0) { $0 + $1.data.count }
+
         var copied = 0
         for file in bundle.files {
             if Task.isCancelled { throw BackupServiceError.cancelled }
             if fileStorage.fileExists(at: file.sourcePath) {
                 let data = try await fileStorage.read(at: file.sourcePath)
+                // 单文件大小检查
+                guard data.count <= BackupConfig.maxSingleEntrySizeBytes else {
+                    throw BackupServiceError.backupTooLarge
+                }
+                totalEntrySize += data.count
+                // 总量检查
+                guard totalEntrySize <= BackupConfig.maxBackupSizeBytes else {
+                    throw BackupServiceError.backupTooLarge
+                }
                 entries.append(ZipEntry(path: file.zipPath, data: data))
             }
             // 文件缺失：跳过（DB 是事实源；元数据已记录，恢复时按缺失处理）
             copied += 1
             await progress(BackupProgress(current: copied, total: bundle.files.count, phase: .copyingPhotos))
+        }
+
+        // 条目数检查
+        guard entries.count <= BackupConfig.maxEntryCount else {
+            throw BackupServiceError.backupTooLarge
         }
 
         await progress(BackupProgress(current: 0, total: 1, phase: .compressing))
@@ -226,6 +243,18 @@ final class ZipBackupService: BackupService, @unchecked Sendable {
             throw BackupServiceError.readFailed(error.localizedDescription)
         }
 
+        // 内存上限预校验：只读 central directory 统计条目数与解压后总大小，
+        // 超限提前拒绝，避免一次性解出全部条目造成 OOM。
+        do {
+            try ZipReader.validateSizes(
+                in: data,
+                maxTotalUncompressedSize: BackupConfig.maxBackupSizeBytes,
+                maxEntryCount: BackupConfig.maxEntryCount,
+                maxSingleEntrySize: BackupConfig.maxSingleEntrySizeBytes)
+        } catch let error as ZipArchiveError {
+            throw BackupServiceError.restoreTooLarge("\(error)")
+        }
+
         let entries = try ZipReader.extract(data)
 
         await progress(RestoreProgress(current: 0, total: 1, phase: .validating))
@@ -250,6 +279,10 @@ final class ZipBackupService: BackupService, @unchecked Sendable {
         }
         let metadata = try Self.decoder.decode(BackupMetadata.self, from: metadataData)
 
+        // 预校验（MainActor）：在写文件前确定哪些照片/宠物会被实际导入。
+        // 避免为重复记录写入孤儿文件、覆盖已有文件、或清理时误删原有文件。
+        let prevalidated = try await prevalidateImport(metadata: metadata)
+
         // 原子性保证：跟踪本次写入的所有文件路径，任意阶段失败时统一清理，
         // 避免文件已写入但数据库未完成、或数据库只恢复了一部分留下孤儿文件。
         var writtenPaths: [String] = []
@@ -259,16 +292,26 @@ final class ZipBackupService: BackupService, @unchecked Sendable {
         var written = 0
         do {
             // 先复制照片文件（IO），再 MainActor 合并元数据——合并是事实源写入，放最后。
+            // 仅复制预校验通过的照片文件；目标已存在时跳过写入（保留已有文件）。
             for photoSnap in metadata.photos {
                 if Task.isCancelled { throw BackupServiceError.cancelled }
+                guard prevalidated.photos.contains(photoSnap.id) else {
+                    written += 1
+                    await progress(RestoreProgress(current: written, total: metadata.photos.count, phase: .copyingFiles))
+                    continue
+                }
                 // 路径穿越防御：photoFileName 来自外部备份，直接拼接到沙盒路径可越权写入。
                 // 拒绝非纯文件名（含分隔符 / `..`），跳过该照片（元数据仍按缺失处理）。
                 if Self.isSafeFileName(photoSnap.photoFileName) {
                     let zipPath = "\(BackupConfig.photosDirName)/\(photoSnap.photoFileName)"
                     if let fileData = entryMap[zipPath] {
                         let dest = "\(sandboxDir)/\(photoSnap.photoFileName)"
-                        try await fileStorage.write(fileData, to: dest)
-                        writtenPaths.append(dest)
+                        // 目标已存在时不覆盖：避免跨平台备份中不同 originalURI
+                        // 但同文件名的冲突覆盖已有文件。
+                        if !fileStorage.fileExists(at: dest) {
+                            try await fileStorage.write(fileData, to: dest)
+                            writtenPaths.append(dest)
+                        }
                         photoPathByID[photoSnap.id] = dest
                     }
                 }
@@ -277,16 +320,19 @@ final class ZipBackupService: BackupService, @unchecked Sendable {
             }
 
             // 复制头像文件（导出时写入 avatars/ 目录，恢复时须写回沙盒，否则 avatarPath 悬空）。
-            // 同样需校验 avatarFileName 防路径穿越。
+            // 仅复制预校验通过（将被导入）的宠物头像；同样需校验 avatarFileName 防路径穿越。
             for petSnap in metadata.pets {
                 if Task.isCancelled { throw BackupServiceError.cancelled }
-                guard let avatarName = petSnap.avatarFileName,
+                guard prevalidated.pets.contains(petSnap.id),
+                      let avatarName = petSnap.avatarFileName,
                       Self.isSafeFileName(avatarName) else { continue }
                 let zipPath = "\(avatarsDirName)/\(avatarName)"
                 if let fileData = entryMap[zipPath] {
                     let dest = "\(sandboxDir)/\(avatarsDirName)/\(avatarName)"
-                    try await fileStorage.write(fileData, to: dest)
-                    writtenPaths.append(dest)
+                    if !fileStorage.fileExists(at: dest) {
+                        try await fileStorage.write(fileData, to: dest)
+                        writtenPaths.append(dest)
+                    }
                 }
             }
 
@@ -304,7 +350,33 @@ final class ZipBackupService: BackupService, @unchecked Sendable {
         }
     }
 
-    /// 合并导入元数据（MainActor）。同 id 宠物 / 同 originalURI 照片跳过，不覆盖。
+    /// 预校验：在写文件前确定哪些照片/宠物会被实际导入（MainActor）。
+    ///
+    /// 检查现有 DB 中是否已存在同 id 宠物、同 id 或同 originalURI 照片。
+    /// 返回可导入集合——文件复制阶段仅写入这些记录的文件，
+    /// 避免为重复记录写入孤儿文件或覆盖已有文件。
+    @MainActor
+    private func prevalidateImport(
+        metadata: BackupMetadata
+    ) async throws -> (photos: Set<UUID>, pets: Set<UUID>) {
+        var importablePets: Set<UUID> = []
+        for petSnap in metadata.pets {
+            if try petRepo.getPet(id: petSnap.id) == nil {
+                importablePets.insert(petSnap.id)
+            }
+        }
+
+        var importablePhotos: Set<UUID> = []
+        for photoSnap in metadata.photos {
+            // 同 id 或同 originalURI 已存在 → 跳过（不导入、不写文件）
+            if try photoRepo.getPhoto(id: photoSnap.id) != nil { continue }
+            if try photoRepo.getPhotoByOriginalURI(photoSnap.originalURI) != nil { continue }
+            importablePhotos.insert(photoSnap.id)
+        }
+        return (importablePhotos, importablePets)
+    }
+
+    /// 合并导入元数据（MainActor）。同 id 宠物 / 同 id 或同 originalURI 照片跳过，不覆盖。
     /// 原子性：任意阶段失败时回滚已插入的记录，避免半成品残留。
     @MainActor
     private func applyImport(
@@ -363,7 +435,9 @@ final class ZipBackupService: BackupService, @unchecked Sendable {
             // 3) 照片（关联宠物，写文件路径）
             for photoSnap in metadata.photos {
                 if Task.isCancelled { throw BackupServiceError.cancelled }
-                if try photoRepo.getPhotoByOriginalURI(photoSnap.originalURI) != nil {
+                // 双重校验（安全网）：预校验已过滤，但 applyImport 独立调用时仍需保护
+                if try photoRepo.getPhoto(id: photoSnap.id) != nil
+                    || try photoRepo.getPhotoByOriginalURI(photoSnap.originalURI) != nil {
                     skipped += 1
                     continue
                 }
@@ -504,7 +578,10 @@ final class ZipBackupService: BackupService, @unchecked Sendable {
             phash: photo.phash,
             qualityScore: photo.qualityScore,
             photoFileName: fileName,
-            createdAt: photo.createdAt)
+            createdAt: photo.createdAt,
+            sharpness: photo.sharpness,
+            duplicateOf: photo.duplicateOf,
+            isBest: photo.isBest)
     }
 
     private static func recreate(pet snap: PetSnapshot, sandboxDir: String) -> Pet {
@@ -556,10 +633,10 @@ final class ZipBackupService: BackupService, @unchecked Sendable {
             subCategory: snap.subCategory,
             createdAt: snap.createdAt,
             phash: snap.phash,
-            sharpness: 0,
+            sharpness: snap.sharpness,
             qualityScore: snap.qualityScore,
-            duplicateOf: nil,
-            isBest: true)
+            duplicateOf: snap.duplicateOf,
+            isBest: snap.isBest)
     }
 
     private static func fileExtension(for path: String) -> String {

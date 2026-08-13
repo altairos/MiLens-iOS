@@ -42,6 +42,12 @@ public enum ZipArchiveError: Error, Equatable, Sendable {
     case offsetOutOfBounds
     /// 解压数据 CRC 与 central directory 记录不符（文件损坏/被篡改）。
     case crcMismatch(expected: UInt32, actual: UInt32)
+    /// 条目数超过上限（防御性限制，避免大备份 OOM）。
+    case entryCountExceeded(max: Int)
+    /// 解压后总大小超过上限（防御性限制，避免大备份 OOM）。
+    case totalSizeExceeded(max: Int)
+    /// 单个条目解压后大小超过上限（防御性限制，避免大文件 OOM）。
+    case singleEntrySizeExceeded(max: Int)
 }
 
 // MARK: - Writer
@@ -193,6 +199,54 @@ public enum ZipReader {
         }
 
         return entries
+    }
+
+    /// 预校验 ZIP 归档大小，不解出数据。
+    ///
+    /// 只读 central directory 统计条目数与各条目解压后大小，提前拒绝超限归档，
+    /// 避免一次性解出全部条目造成内存峰值甚至 OOM。
+    ///
+    /// - Parameters:
+    ///   - data: 完整 ZIP 文件数据。
+    ///   - maxTotalUncompressedSize: 全部条目解压后总字节数上限。
+    ///   - maxEntryCount: 条目数上限。
+    ///   - maxSingleEntrySize: 单个条目解压后字节数上限。
+    public static func validateSizes(
+        in data: Data,
+        maxTotalUncompressedSize: Int,
+        maxEntryCount: Int,
+        maxSingleEntrySize: Int
+    ) throws {
+        guard data.count >= 22 else { throw ZipArchiveError.truncated }
+        let eocdOffset = try findEndOfCentralDirectory(in: data)
+        let totalEntries = Int(data.readUInt16LE(at: eocdOffset + 10))
+        let cdOffset = Int(data.readUInt32LE(at: eocdOffset + 16))
+
+        guard totalEntries <= maxEntryCount else {
+            throw ZipArchiveError.entryCountExceeded(max: maxEntryCount)
+        }
+
+        var cursor = cdOffset
+        var totalUncompressed = 0
+        for _ in 0..<totalEntries {
+            guard cursor + 46 <= data.count else { throw ZipArchiveError.offsetOutOfBounds }
+            guard data.readUInt32LE(at: cursor) == 0x02014b50 else {
+                throw ZipArchiveError.invalidSignature
+            }
+            let uncompSize = Int(data.readUInt32LE(at: cursor + 24))
+            let nameLen = Int(data.readUInt16LE(at: cursor + 28))
+            let extraLen = Int(data.readUInt16LE(at: cursor + 30))
+            let commentLen = Int(data.readUInt16LE(at: cursor + 32))
+
+            guard uncompSize <= maxSingleEntrySize else {
+                throw ZipArchiveError.singleEntrySizeExceeded(max: maxSingleEntrySize)
+            }
+            totalUncompressed += uncompSize
+            guard totalUncompressed <= maxTotalUncompressedSize else {
+                throw ZipArchiveError.totalSizeExceeded(max: maxTotalUncompressedSize)
+            }
+            cursor = cursor + 46 + nameLen + extraLen + commentLen
+        }
     }
 
     /// 从尾部向前扫描 End Of Central Directory 签名（兼容尾部带注释的 ZIP）。

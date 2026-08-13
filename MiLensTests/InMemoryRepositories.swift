@@ -65,6 +65,38 @@ final class InMemoryPhotoRepository: PhotoRepositoryProtocol {
             }
         }
     }
+    func batchAssignPhotos(_ photos: [Photo], to targetPet: Pet?) throws -> [Pet] {
+        // 收集受影响宠物（旧归属 + 目标归属），变更前捕获旧宠物引用
+        var affectedPets: [Pet] = []
+        var seenIDs = Set<UUID>()
+        for photo in photos {
+            if let oldPet = photo.pet, !seenIDs.contains(oldPet.id) {
+                affectedPets.append(oldPet)
+                seenIDs.insert(oldPet.id)
+            }
+        }
+        if let targetPet, !seenIDs.contains(targetPet.id) {
+            affectedPets.append(targetPet)
+            seenIDs.insert(targetPet.id)
+        }
+        // 变更所有照片归属（维护双向关系，与 assignPhoto 一致）
+        for photo in photos {
+            if let oldPet = photo.pet {
+                oldPet.photos.removeAll { $0.id == photo.id }
+            }
+            photo.pet = targetPet
+            if let targetPet {
+                if !targetPet.photos.contains(where: { $0.id == photo.id }) {
+                    targetPet.photos.append(photo)
+                }
+            }
+        }
+        // 刷新所有受影响宠物的 photoCount（与 InMemoryPetRepository.refreshPhotoCount 一致）
+        for pet in affectedPets {
+            pet.photoCount = pet.photos.count
+        }
+        return affectedPets
+    }
     func setFavorite(_ photo: Photo, favorite: Bool) throws { photo.isFavorite = favorite }
     func updateNote(_ photo: Photo, note: String) throws { photo.note = note }
     func getPendingQualityScorePhotos(limit: Int) throws -> [Photo] { [] }

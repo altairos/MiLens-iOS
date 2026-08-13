@@ -190,6 +190,60 @@ final class ZipBackupServiceTests: XCTestCase {
         XCTAssertEqual(restoredEvent?.relatedPhotoID, relatedPhotoID, "relatedPhotoID 须保留")
     }
 
+    // MARK: - 照片分析字段完整性（P2 修复）
+
+    func testRoundTripPreservesPhotoAnalysisFields() async throws {
+        // 验证 sharpness / duplicateOf / isBest 全部存活往返
+        let sharedFS = MockFileStorage()
+        let pet = Pet(name: "小橘", species: .cat)
+        let dupOf = UUID()
+        let photo = Photo(
+            uri: "/src/p1.jpg", originalURI: "L0/001", pet: pet,
+            phash: "a1b2c3d4e5f6a7b8",
+            sharpness: 123.45,
+            qualityScore: 0.87,
+            duplicateOf: dupOf,
+            isBest: false)
+        let (source, _, _, _, _) = makeService(pets: [pet], photos: [photo], fileStorage: sharedFS)
+        sharedFS.preset(Data("jpeg-bytes".utf8), at: "/src/p1.jpg")
+
+        let result = try await source.exportBackup(petIDs: nil, progress: { _ in })
+
+        let (target, _, tPhotoRepo, _, _) = makeService(fileStorage: sharedFS)
+        _ = try await target.importBackup(from: result.fileURL, progress: { _ in })
+
+        let restoredPhoto = try tPhotoRepo.getPhotosPage(offset: 0, limit: 10).first
+        XCTAssertNotNil(restoredPhoto)
+        XCTAssertEqual(restoredPhoto?.sharpness, 123.45, "sharpness 须保留")
+        XCTAssertEqual(restoredPhoto?.qualityScore, 0.87, "qualityScore 须保留")
+        XCTAssertEqual(restoredPhoto?.duplicateOf, dupOf, "duplicateOf 须保留")
+        XCTAssertEqual(restoredPhoto?.isBest, false, "isBest 须保留")
+        XCTAssertEqual(restoredPhoto?.phash, "a1b2c3d4e5f6a7b8", "phash 须保留")
+    }
+
+    func testOldPhotoBackupWithoutAnalysisFieldsDecodesWithDefaults() throws {
+        // 旧版备份包缺 sharpness/duplicateOf/isBest 字段，
+        // 解码须回退为 Photo 默认值而非抛错。
+        let oldFormatJSON = """
+        {"id":"\(UUID().uuidString)","originalURI":"L0/001","petID":null,
+         "takenAt":null,"latitude":0,"longitude":0,"placeName":"",
+         "note":"","isFavorite":false,"eventNotify":true,
+         "width":1080,"height":1920,"fileSize":0,
+         "category":"pet_photo","subCategory":"other",
+         "phash":"","qualityScore":0,
+         "photoFileName":"test.jpg","createdAt":"2024-01-01T00:00:00Z"}
+        """
+        let decoder = JSONDecoder()
+        decoder.dateDecodingStrategy = .iso8601
+        let snap = try decoder.decode(PhotoSnapshot.self, from: Data(oldFormatJSON.utf8))
+
+        XCTAssertEqual(snap.sharpness, 0, "缺省 sharpness 回退为 0")
+        XCTAssertNil(snap.duplicateOf, "缺省 duplicateOf 回退为 nil")
+        XCTAssertEqual(snap.isBest, true, "缺省 isBest 回退为 true")
+    }
+
+    // MARK: - PetEvent 字段完整性（P1 修复）
+
     func testOldBackupWithoutNewFieldsDecodesWithDefaults() throws {
         // 旧版备份包缺 notify/body/sourceType/isPinned/relatedPhotoID 字段，
         // 解码须回退为 PetEvent 默认值而非抛错。
@@ -402,6 +456,74 @@ final class ZipBackupServiceTests: XCTestCase {
         let photos = try tPhotoRepo.getPhotosPage(offset: 0, limit: 10)
         XCTAssertEqual(photos.count, 1)
         XCTAssertEqual(photos.first?.uri, "/existing/a.jpg", "现有照片不得被覆盖")
+    }
+
+    // MARK: - 预校验（P1 修复：不写孤儿文件、不覆盖已有文件）
+
+    func testImportDuplicatePhotoWritesNoOrphanFile() async throws {
+        // 相同 originalURI 的照片须跳过——且不写文件到沙盒（预校验拦截）。
+        let sharedFS = MockFileStorage()
+        let pet = Pet(name: "小橘", species: .cat)
+        let photo = Photo(uri: "/src/a.jpg", originalURI: "L0/001", pet: pet)
+        let (source, _, _, _, _) = makeService(pets: [pet], photos: [photo], fileStorage: sharedFS)
+        sharedFS.preset(Data([0x01, 0x02, 0x03]), at: "/src/a.jpg")
+        let backup = try await source.exportBackup(petIDs: nil, progress: { _ in })
+
+        // 目标库已有相同 originalURI 的照片
+        let targetPet = Pet(id: pet.id, name: "小橘", species: .cat)
+        let existingPhoto = Photo(uri: "/existing/a.jpg", originalURI: "L0/001", pet: targetPet)
+        let (target, _, _, tFs, sandboxDir) = makeService(pets: [targetPet], photos: [existingPhoto], fileStorage: sharedFS)
+
+        _ = try await target.importBackup(from: backup.fileURL, progress: { _ in })
+
+        // 沙盒目录不应有任何新写入的照片文件（预校验拦截，跳过写入）
+        let sandboxFiles = tFs.listFiles(in: sandboxDir)
+        XCTAssertTrue(sandboxFiles.isEmpty, "重复照片不应写入孤儿文件")
+    }
+
+    func testImportSkipsExistingPhotoByID() async throws {
+        // 相同 id 但不同 originalURI 的照片也须跳过（Photo.id 是 unique 约束）。
+        let sharedFS = MockFileStorage()
+        let pet = Pet(name: "小橘", species: .cat)
+        let photo = Photo(uri: "/src/a.jpg", originalURI: "L0/001", pet: pet)
+        let (source, _, _, _, _) = makeService(pets: [pet], photos: [photo], fileStorage: sharedFS)
+        sharedFS.preset(Data([0x01]), at: "/src/a.jpg")
+        let backup = try await source.exportBackup(petIDs: nil, progress: { _ in })
+
+        // 目标库已有相同 id 的照片（不同 originalURI，验证 id 去重也生效）
+        let targetPet = Pet(id: pet.id, name: "小橘", species: .cat)
+        let existingPhoto = Photo(id: photo.id, uri: "/existing/a.jpg", originalURI: "L0/DIFFERENT", pet: targetPet)
+        let (target, _, tPhotoRepo, _, _) = makeService(pets: [targetPet], photos: [existingPhoto], fileStorage: sharedFS)
+
+        let result = try await target.importBackup(from: backup.fileURL, progress: { _ in })
+
+        XCTAssertEqual(result.importedPhotos, 0, "相同 id 照片须跳过")
+        let photos = try tPhotoRepo.getPhotosPage(offset: 0, limit: 10)
+        XCTAssertEqual(photos.count, 1)
+        XCTAssertEqual(photos.first?.originalURI, "L0/DIFFERENT", "现有照片不得被覆盖")
+    }
+
+    func testRestoreDoesNotOverwriteExistingFile() async throws {
+        // 目标路径已有文件时，恢复不得覆盖（跨平台备份不同 originalURI 但同文件名冲突）。
+        let sharedFS = MockFileStorage()
+        let pet = Pet(name: "小橘", species: .cat)
+        let photo = Photo(uri: "/src/a.jpg", originalURI: "L0/001", pet: pet)
+        let (source, _, _, _, _) = makeService(pets: [pet], photos: [photo], fileStorage: sharedFS)
+        sharedFS.preset(Data("source-bytes".utf8), at: "/src/a.jpg")
+        let backup = try await source.exportBackup(petIDs: nil, progress: { _ in })
+
+        // 目标库为空（照片会被导入），但在恢复前手动写入同名文件
+        let (target, _, _, tFs, sandboxDir) = makeService(fileStorage: sharedFS)
+        let photoFileName = "\(photo.id.uuidString).jpg"
+        let destPath = "\(sandboxDir)/\(photoFileName)"
+        sharedFS.preset(Data("pre-existing".utf8), at: destPath)
+
+        _ = try await target.importBackup(from: backup.fileURL, progress: { _ in })
+
+        // 原有文件应保留，不被备份包中的数据覆盖
+        XCTAssertTrue(tFs.fileExists(at: destPath), "目标路径应存在")
+        XCTAssertEqual(try await tFs.read(at: destPath), Data("pre-existing".utf8),
+                       "恢复不得覆盖已存在的文件")
     }
 
     // MARK: - 版本校验

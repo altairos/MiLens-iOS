@@ -412,19 +412,19 @@ final class GalleryViewModel {
     /// 将本次导入的照片精确归属到指定宠物。
     /// 使用 ImportResult.importedPhotoIDs（实际入库的照片 ID），
     /// 避免按列表前 N 条推断（旧逻辑在自动匹配/排序变化时会错归属）。
+    /// 统一走 PhotoAssignmentLogic.assign：原子批量归属 + 全部受影响宠物计数刷新
+    /// （包括被自动匹配到其他宠物的照片——旧归属宠物计数必须递减）。
     private func assignImportedPhotos(to petID: UUID) {
         guard let pet = try? petRepo.getPet(id: petID) else { return }
         let photoIDs = lastImportResult?.importedPhotoIDs ?? []
-        for photoID in photoIDs {
-            guard let photo = try? photoRepo.getPhoto(id: photoID) else { continue }
-            do {
-                try photoRepo.assignPhoto(photo, to: pet)
-                photo.pet = pet
-            } catch {
-                logger.error("assignImportedPhotos: 归属失败（\(error.localizedDescription)）")
-            }
+        let photos = photoIDs.compactMap { try? photoRepo.getPhoto(id: $0) }
+        do {
+            try PhotoAssignmentLogic.assign(
+                photos: photos, to: pet,
+                photoRepo: photoRepo, petRepo: petRepo)
+        } catch {
+            logger.error("assignImportedPhotos: 归属失败（\(error.localizedDescription)）")
         }
-        try? petRepo.refreshPhotoCount(for: pet)
     }
 
     // MARK: - 导入（原有全量导入入口，保留向后兼容）
@@ -456,10 +456,11 @@ final class GalleryViewModel {
             if result.hitQuota {
                 self.showQuotaPaywall = true
             }
-            // 自动归属结果提示（复用扫描完成弹窗）；有失败时同样提示，避免静默丢照片（H4）
-            if result.imported > 0 || result.failed > 0 {
+            // 自动归属结果提示（复用扫描完成弹窗）；有失败/取消时同样提示，避免静默丢照片（H4）
+            if result.imported > 0 || result.failed > 0 || result.cancelled {
                 self.scanCompleteMessage = ImportFlowLogic.resolveImportSummary(
-                    imported: result.imported, matched: result.matched, failed: result.failed)
+                    imported: result.imported, matched: result.matched, failed: result.failed,
+                    cancelled: result.cancelled)
                 self.showScanCompleteDialog = true
             }
             // 导入成功后刷新 Widget 快照（§6.1）

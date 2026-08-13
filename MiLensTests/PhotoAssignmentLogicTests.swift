@@ -201,9 +201,9 @@ final class PhotoAssignmentLogicTests: XCTestCase {
         XCTAssertEqual(affected.first?.id, pet.id)
     }
 
-    // MARK: - 原子性回滚
+    // MARK: - 原子性回滚（批量事务失败时不留中间态）
 
-    func testRollbackOnPartialFailure() throws {
+    func testBatchAssignRollsBackAllOnFailure() throws {
         let petA = Pet(name: "小橘")
         let petB = Pet(name: "黑黑")
         let p1 = Photo(uri: "/test/1.jpg", originalURI: "1", pet: petA)
@@ -215,8 +215,8 @@ final class PhotoAssignmentLogicTests: XCTestCase {
         try photoRepo.insertPhoto(p2)
         try photoRepo.insertPhoto(p3)
 
-        // 包装 InMemoryPhotoRepository：第 2 次 assignPhoto 调用时抛错
-        let failingRepo = PartialFailingPhotoRepository(wrapping: photoRepo, failOnAssignCount: 2)
+        // 包装 InMemoryPhotoRepository：batchAssignPhotos 抛错（模拟单次事务保存失败）
+        let failingRepo = FailingBatchPhotoRepository(wrapping: photoRepo)
 
         XCTAssertThrowsError(
             try PhotoAssignmentLogic.assign(
@@ -224,31 +224,29 @@ final class PhotoAssignmentLogicTests: XCTestCase {
                 photoRepo: failingRepo, petRepo: petRepo)
         )
 
-        // 回滚后：所有照片应保持原始归属（petA），不应有部分转移
+        // 批量事务失败时，底层包装的 repo 未被调用 batchAssignPhotos（mock 直接抛错），
+        // 所有照片应保持原始归属（petA），不应有任何转移
         XCTAssertEqual(p1.pet?.id, petA.id, "p1 应回滚到原始归属")
-        XCTAssertEqual(p2.pet?.id, petA.id, "p2 应未被修改（在第 2 次写入时失败）")
-        XCTAssertEqual(p3.pet?.id, petA.id, "p3 应未被修改")
+        XCTAssertEqual(p2.pet?.id, petA.id, "p2 应回滚到原始归属")
+        XCTAssertEqual(p3.pet?.id, petA.id, "p3 应回滚到原始归属")
+        XCTAssertEqual(petA.photoCount, 3, "petA 计数应不变")
+        XCTAssertEqual(petB.photoCount, 0, "petB 计数应不变")
     }
 }
 
-/// 包装一个 InMemoryPhotoRepository，在第 failOnAssignCount 次 assignPhoto 调用时抛错。
+/// 包装一个 InMemoryPhotoRepository，batchAssignPhotos 直接抛错（模拟单次事务保存失败）。
+/// assignPhoto 仍可正常调用（用于验证回滚后旧关系完好）。
 @MainActor
-private final class PartialFailingPhotoRepository: PhotoRepositoryProtocol {
+private final class FailingBatchPhotoRepository: PhotoRepositoryProtocol {
     private let wrapped: InMemoryPhotoRepository
-    private let failOnAssignCount: Int
-    private var assignCallCount = 0
+    private struct FakeError: Error {}
 
-    init(wrapping: InMemoryPhotoRepository, failOnAssignCount: Int) {
+    init(wrapping: InMemoryPhotoRepository) {
         self.wrapped = wrapping
-        self.failOnAssignCount = failOnAssignCount
     }
 
-    func assignPhoto(_ photo: Photo, to pet: Pet?) throws {
-        assignCallCount += 1
-        if assignCallCount == failOnAssignCount {
-            throw NSError(domain: "test", code: 99, userInfo: [NSLocalizedDescriptionKey: "模拟写入失败"])
-        }
-        try wrapped.assignPhoto(photo, to: pet)
+    func batchAssignPhotos(_ photos: [Photo], to targetPet: Pet?) throws -> [Pet] {
+        throw FakeError()
     }
 
     // 以下方法全部委托给 wrapped
@@ -269,6 +267,7 @@ private final class PartialFailingPhotoRepository: PhotoRepositoryProtocol {
     func insertPhotos(_ photos: [Photo]) throws { try wrapped.insertPhotos(photos) }
     func deletePhoto(_ photo: Photo) throws { try wrapped.deletePhoto(photo) }
     func updatePhoto(_ photo: Photo) throws { try wrapped.updatePhoto(photo) }
+    func assignPhoto(_ photo: Photo, to pet: Pet?) throws { try wrapped.assignPhoto(photo, to: pet) }
     func setFavorite(_ photo: Photo, favorite: Bool) throws { try wrapped.setFavorite(photo, favorite: favorite) }
     func updateNote(_ photo: Photo, note: String) throws { try wrapped.updateNote(photo, note: note) }
     func getPendingQualityScorePhotos(limit: Int) throws -> [Photo] { try wrapped.getPendingQualityScorePhotos(limit: limit) }

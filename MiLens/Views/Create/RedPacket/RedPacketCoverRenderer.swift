@@ -164,7 +164,7 @@ struct RedPacketCoverRenderer: View {
             }
         case .resource:
             // Phase 0 不使用资源背景
-            Color.gray.opacity(0.3)
+            Color.milensTextTertiary.opacity(0.3)
         }
     }
 
@@ -234,7 +234,7 @@ struct RedPacketCoverRenderer: View {
         return ZStack {
             // 风险区（红色半透明）
             Rectangle()
-                .fill(Color.red.opacity(0.1))
+                .fill(Color.milensDanger.opacity(0.1))
                 .frame(
                     width: size.width * CGFloat(template.riskZone.width),
                     height: size.height * CGFloat(template.riskZone.height)

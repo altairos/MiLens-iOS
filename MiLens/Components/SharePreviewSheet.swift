@@ -119,14 +119,14 @@ struct SharePreviewSheet: View {
                                 } else if value.translation.height > 100 {
                                     closeImmersive()
                                 } else {
-                                    withAnimation(.spring(duration: Motion.durationNormal)) {
+                                    withAnimation(.spring(duration: Motion.durationNormal, bounce: 0.1)) {
                                         immersiveOffset = .zero
                                     }
                                 }
                             }
                     )
                     .onTapGesture(count: 2) {
-                        withAnimation(.spring(duration: Motion.durationNormal)) {
+                        withAnimation(.spring(duration: Motion.durationNormal, bounce: 0.1)) {
                             if immersiveScale > 1 {
                                 resetImmersive()
                             } else {

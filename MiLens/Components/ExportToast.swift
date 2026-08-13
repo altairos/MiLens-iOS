@@ -60,6 +60,7 @@ struct ExportToastMessage: Equatable {
 private struct ExportToastModifier: ViewModifier {
     /// 非空时显示胶囊，nil 时隐藏。2.5s 后自动置 nil（由调用方持有状态）。
     @Binding var message: ExportToastMessage?
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     func body(content: Content) -> some View {
         content
@@ -86,7 +87,7 @@ private struct ExportToastModifier: ViewModifier {
                         }
                 }
             }
-            .animation(.easeInOut(duration: 0.25), value: message)
+            .animation(reduceMotion ? nil : .easeInOut(duration: Motion.durationNormal), value: message)
     }
 }
 

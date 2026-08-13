@@ -178,7 +178,7 @@ struct RedPacketWorkshopView: View {
     private func cutoutErrorBar(vm: RedPacketWorkshopViewModel) -> some View {
         HStack(spacing: 8) {
             Image(systemName: "exclamationmark.triangle")
-                .foregroundStyle(.orange)
+                .foregroundStyle(Color.milensWarning)
             Text(String(localized: "redpacket.cutout.failed"))
                 .font(.editorialMetadata)
                 .foregroundStyle(Color.milensTextSecondary)

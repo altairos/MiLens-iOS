@@ -105,9 +105,8 @@ final class RedPacketLayoutLogicTests: XCTestCase {
         let layers = rpDefaultLayers(for: defaultTemplate)
         // 点击背景层中心（背景不可选）
         let hit = rpHitTest(layers: layers, canvasX: rpCanvasWidth / 2, canvasY: rpCanvasHeight / 2)
-        // 只命中文本层（pet 隐藏），不命中背景
-        let text = layers.first { $0.kind == .text }
-        XCTAssertEqual(hit, text?.id)
+        // 默认文本不在画布中心；pet 隐藏，因此这里只能命中背景，结果应为空。
+        XCTAssertNil(hit)
     }
 
     func testHitTestFindsTopLayer() {

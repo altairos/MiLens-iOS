@@ -67,7 +67,7 @@ struct RedPacketQualityReportView: View {
             } else {
                 Text(String(localized: "redpacket.quality.allGood"))
                     .font(.editorialMetadata)
-                    .foregroundStyle(Color.green)
+                    .foregroundStyle(Color.milensSuccess)
             }
         }
         .padding(.bottom)
@@ -179,9 +179,9 @@ struct RedPacketQualityReportView: View {
 
     private func levelColor(_ level: RedPacketQualityLevel) -> Color {
         switch level {
-        case .pass: return .green
-        case .warning: return .orange
-        case .error: return .red
+        case .pass: return .milensSuccess
+        case .warning: return .milensWarning
+        case .error: return .milensDanger
         }
     }
 

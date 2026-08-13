@@ -56,7 +56,7 @@ struct PhotoViewView: View {
                         .gesture(magnificationGesture(geo))
                         .gesture(dragGesture(geo))
                         .onTapGesture(count: 2) {
-                            withAnimation(.spring(duration: 0.3)) {
+                            withAnimation(.spring(duration: Motion.durationNormal, bounce: 0.1)) {
                                 if scale > 1 {
                                     resetZoom()
                                 } else {
@@ -408,7 +408,7 @@ struct PhotoViewView: View {
                         dismiss()
                     }
                 } else {
-                    withAnimation(.spring(duration: Motion.durationNormal)) {
+                    withAnimation(.spring(duration: Motion.durationNormal, bounce: 0.1)) {
                         dismissOffset = .zero
                         dismissScale = 1
                         backgroundOpacity = 1

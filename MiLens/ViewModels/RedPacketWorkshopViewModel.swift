@@ -453,8 +453,9 @@ final class RedPacketWorkshopViewModel {
         let petLayer = draft.layers.first { $0.kind == .pet }
         let textLayer = draft.layers.first { $0.kind == .text }
 
-        // 优先检查抠出的宠物主体；抠图尚不可用时回退原图指标并明确标记抠图未完成。
-        let imageMetrics = cutoutImageMetrics ?? sourceImageMetrics
+        // 清晰度/分辨率使用原图，避免透明轮廓抬高 Laplacian；亮度优先检查抠出的主体。
+        let clarityMetrics = sourceImageMetrics
+        let toneMetrics = cutoutImageMetrics ?? sourceImageMetrics
 
         // 宠物面积比例
         let petCoverage: Double
@@ -489,19 +490,19 @@ final class RedPacketWorkshopViewModel {
         }
 
         return RedPacketQualityInput(
-            imageWidth: imageMetrics?.pixelWidth ?? 0,
-            imageHeight: imageMetrics?.pixelHeight ?? 0,
-            sharpness: imageMetrics?.sharpness ?? 0,
-            averageBrightness: imageMetrics?.averageBrightness ?? 0,
+            imageWidth: clarityMetrics?.pixelWidth ?? 0,
+            imageHeight: clarityMetrics?.pixelHeight ?? 0,
+            sharpness: clarityMetrics?.sharpness ?? 0,
+            averageBrightness: toneMetrics?.averageBrightness ?? 0,
             petCoverageRatio: petCoverage,
             cutoutEdgeRoughness: cutoutMaskMetrics?.edgeRoughness ?? 0,
             petInSafeZone: petInZone,
             textContent: textLayer?.text ?? "",
             textInSafeZone: textInZone,
             textContrast: 0.6,
-            imageMetricsAvailable: imageMetrics != nil,
-            shadowClippingRatio: imageMetrics?.shadowClippingRatio ?? 0,
-            highlightClippingRatio: imageMetrics?.highlightClippingRatio ?? 0,
+            imageMetricsAvailable: clarityMetrics != nil && toneMetrics != nil,
+            shadowClippingRatio: toneMetrics?.shadowClippingRatio ?? 0,
+            highlightClippingRatio: toneMetrics?.highlightClippingRatio ?? 0,
             petCanvasVisibleRatio: petCanvasVisible,
             petSafeZoneCoverageRatio: petSafeZoneCoverage,
             cutoutMetricsAvailable: cutoutPhase == .applied && cutoutMaskMetrics != nil,

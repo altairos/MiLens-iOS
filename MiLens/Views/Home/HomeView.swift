@@ -206,7 +206,7 @@ private struct HomeHero: View {
     /// 铃铛点击回调（由 HomeView 按 reason 分流处理）。
     let onBellTap: () -> Void
 
-    /// 铃铛摇晃动效状态：有提醒命中时启动温和摆动（±6°，周期 1.2s）。
+    /// 铃铛提醒动效状态：有提醒命中时触发一次系统 wiggle（symbolEffect 自动守 Reduce Motion）。
     @State private var bellAnimating = false
 
     var body: some View {
@@ -242,7 +242,7 @@ private struct HomeHero: View {
                             .foregroundStyle(.white.opacity(0.92))
                     }
                     Spacer()
-                    // 铃铛：有提醒时轻微摇晃，点击按触发原因分流（回忆中心/确认窗/选择菜单）
+                    // 铃铛：有提醒时轻微 wiggle 一次，点击按触发原因分流（回忆中心/确认窗/选择菜单）
                     Button {
                         Haptics.light()
                         bellAnimating = false
@@ -252,13 +252,7 @@ private struct HomeHero: View {
                             .font(.system(size: Sizing.iconMd))
                             .foregroundStyle(.white)
                             .frame(width: 44, height: 44)
-                            .rotationEffect(.degrees(bellAnimating ? 6 : -6))
-                            .animation(
-                                bellAnimating
-                                    ? .easeInOut(duration: 1.2).repeatForever(autoreverses: true)
-                                    : .easeInOut(duration: Motion.durationNormal),
-                                value: bellAnimating
-                            )
+                            .symbolEffect(.wiggle, value: bellAnimating)
                     }
                     .buttonStyle(.plain)
                     .accessibilityLabel(String(localized: "a11y.home.bell"))

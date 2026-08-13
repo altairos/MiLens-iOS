@@ -373,25 +373,10 @@ struct BeadPatternView: View {
         .allowsHitTesting(false)
     }
 
-    /// 扫描线（珊瑚色 + 发光效果，对照 #91:385）
-    @State private var scanLineOffset: CGFloat = 0
+    /// 扫描线（珊瑚色，对照 #91:385）
 
     private var scanLine: some View {
-        GeometryReader { geo in
-            Rectangle()
-                .fill(Color.milensActionPrimary)
-                .frame(width: geo.size.width - 148, height: 2)
-                .shadow(color: Color.milensCopperGlow, radius: 4)
-                .opacity(0.95)
-                .clipShape(RoundedRectangle(cornerRadius: 1))
-                .offset(x: 74, y: scanLineOffset)
-                .onAppear {
-                    withAnimation(.linear(duration: 2.0).repeatForever(autoreverses: true)) {
-                        scanLineOffset = geo.size.height - 170
-                    }
-                }
-        }
-        .allowsHitTesting(false)
+        ScanLine(color: Color.milensActionPrimary, horizontalInset: 74, bottomInset: 170)
     }
 
     // MARK: - Progress Track（对照 #91:391）

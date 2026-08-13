@@ -124,7 +124,7 @@ private struct MemoryOrbitTabIcon: View {
             orbitProgress = isSelected ? 1 : 0
             return
         }
-        withAnimation(.easeOut(duration: 0.36)) {
+        withAnimation(.easeOut(duration: Motion.durationOrbit)) {
             orbitProgress = isSelected ? 1 : 0
         }
     }

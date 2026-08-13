@@ -9,8 +9,6 @@ import SwiftUI
 
 struct OnboardingFullScanStep: View {
     @Bindable var viewModel: OnboardingViewModel
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
-    @State private var scanLineOffset: CGFloat = 0
 
     var body: some View {
         ScrollView {
@@ -100,21 +98,10 @@ struct OnboardingFullScanStep: View {
                     .fill(Color.milensGrouped)
                     .frame(height: 198)
 
-                // 扫描线（仅扫描中显示）
-                if viewModel.isScanning && !reduceMotion {
-                    GeometryReader { geo in
-                        Rectangle()
-                            .fill(Color.milensPrimary)
-                            .frame(width: geo.size.width - 44, height: 2)
-                            .shadow(color: Color.milensCopperGlow, radius: 4)
-                            .offset(x: 22, y: scanLineOffset)
-                            .onAppear {
-                                withAnimation(.linear(duration: 2.0).repeatForever(autoreverses: true)) {
-                                    scanLineOffset = 180
-                                }
-                            }
-                    }
-                    .frame(height: 198)
+                // 扫描线（仅扫描中显示；Reduce Motion 由 ScanLine 内部处理为静止顶线）
+                if viewModel.isScanning {
+                    ScanLine(color: Color.milensPrimary, horizontalInset: 22, bottomInset: 18)
+                        .frame(height: 198)
                 }
 
                 // 十字线（对照 #47:9 Rule）

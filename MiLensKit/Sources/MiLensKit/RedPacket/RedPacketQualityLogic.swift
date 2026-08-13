@@ -108,7 +108,7 @@ public struct RedPacketQualityInput: Equatable, Sendable {
     public var petCoverageRatio: Double
     /// 抠图边缘破碎度（0–1，越低越好）。
     public var cutoutEdgeRoughness: Double
-    /// 宠物图层中心是否在安全区内。
+    /// 宠物图层是否达到最低安全区覆盖率。
     public var petInSafeZone: Bool
     /// 文本内容（非空时检测可读性）。
     public var textContent: String

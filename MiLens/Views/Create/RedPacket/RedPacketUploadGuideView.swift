@@ -126,7 +126,7 @@ struct RedPacketUploadGuideView: View {
             .scrollIndicators(.hidden)
             .safeAreaInset(edge: .bottom) {
                 CreationActionBar(
-                    primaryLabel: String(localized: "upload.action.wechatShare"),
+                    primaryLabel: String(localized: "redpacket.action.share"),
                     secondaryLabel: String(localized: "share.action.saveLibrary"),
                     primaryAction: { shareViaWeChat() },
                     secondaryAction: { Task { await saveToLibrary() } }

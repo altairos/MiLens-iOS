@@ -37,6 +37,8 @@ final class CoreGraphicsRedPacketImageQualityAnalyzer:
 {
     private let sharpnessAnalyzer: any ImageAnalyzer
     private let sampleMaxDimension = 256
+    /// 红包画布无需保留相机全分辨率；限制合成缓冲，避免 48MP 照片产生数百 MB RGBA。
+    private let cutoutMaxDimension = 2_048
 
     init(sharpnessAnalyzer: any ImageAnalyzer = CoreImageAnalyzer()) {
         self.sharpnessAnalyzer = sharpnessAnalyzer
@@ -87,7 +89,6 @@ final class CoreGraphicsRedPacketImageQualityAnalyzer:
               segmentation.bboxWidth > 0,
               segmentation.bboxHeight > 0,
               segmentation.mask.count >= segmentation.bboxWidth * segmentation.bboxHeight,
-              var rgba = renderRGBA(image, exactWidth: image.width, exactHeight: image.height)?.pixels,
               let maskMetrics = RedPacketMaskQualityLogic.analyze(
                 mask: segmentation.mask,
                 width: segmentation.bboxWidth,
@@ -97,8 +98,15 @@ final class CoreGraphicsRedPacketImageQualityAnalyzer:
 
         let bboxX = Int(segmentation.bboxX.rounded())
         let bboxY = Int(segmentation.bboxY.rounded())
-        let width = image.width
-        let height = image.height
+        let processingScale = min(
+            1,
+            Double(cutoutMaxDimension) / Double(max(image.width, image.height))
+        )
+        let width = max(1, Int((Double(image.width) * processingScale).rounded()))
+        let height = max(1, Int((Double(image.height) * processingScale).rounded()))
+        guard var rgba = renderRGBA(
+            image, exactWidth: width, exactHeight: height
+        )?.pixels else { return nil }
         var minX = width
         var minY = height
         var maxX = -1
@@ -111,8 +119,16 @@ final class CoreGraphicsRedPacketImageQualityAnalyzer:
 
                 for y in 0..<height {
                     for x in 0..<width {
-                        let localX = x - bboxX
-                        let localY = y - bboxY
+                        let sourceX = min(
+                            image.width - 1,
+                            Int((Double(x) / processingScale).rounded(.down))
+                        )
+                        let sourceY = min(
+                            image.height - 1,
+                            Int((Double(y) / processingScale).rounded(.down))
+                        )
+                        let localX = sourceX - bboxX
+                        let localY = sourceY - bboxY
                         let alphaMask: UInt8
                         if localX >= 0, localX < segmentation.bboxWidth,
                            localY >= 0, localY < segmentation.bboxHeight {

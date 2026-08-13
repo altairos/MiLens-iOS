@@ -9,8 +9,6 @@ struct AlbumScanStageView: View {
     let isImport: Bool
     @Environment(\.dismiss) private var dismiss
 
-    @State private var scanLineOffset: CGFloat = 0
-
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 0) {
@@ -147,22 +145,7 @@ struct AlbumScanStageView: View {
     // MARK: - 扫描线（对照 #29:14）
 
     private var scanLine: some View {
-        GeometryReader { geo in
-            let lineWidth = geo.size.width - 148
-            Rectangle()
-                .fill(Color.milensActionPrimary)
-                .frame(width: lineWidth, height: 2)
-                .shadow(color: Color.milensCopperGlow, radius: 4)
-                .opacity(0.95)
-                .clipShape(RoundedRectangle(cornerRadius: 1))
-                .offset(x: 74, y: scanLineOffset)
-                .onAppear {
-                    withAnimation(.linear(duration: 2.0).repeatForever(autoreverses: true)) {
-                        scanLineOffset = geo.size.height - 170
-                    }
-                }
-        }
-        .allowsHitTesting(false)
+        ScanLine(color: Color.milensActionPrimary, horizontalInset: 74, bottomInset: 170)
     }
 
     // MARK: - 进度条（对照 #29:20-21）

@@ -83,6 +83,10 @@ enum Motion {
     static let durationNormal: Double = 0.25
     /// hero、揭示
     static let durationSlow: Double = 0.4
+    /// Memory Orbit 轨道 path trim（~0.34-0.38s 依次展开）
+    static let durationOrbit: Double = 0.36
+    /// 扫描线单程时长（共享 ScanLine 组件，保证各屏扫描速度一致）
+    static let durationScan: Double = 2.0
 }
 
 /// 深度/阴影 token（UI-DESIGN.md §3.3）。

@@ -165,13 +165,13 @@ struct RedPacketExportView: View {
                     value: validation.passed
                         ? String(localized: "redpacket.export.passed")
                         : String(localized: "redpacket.export.exceeded"),
-                    valueColor: validation.passed ? .green : .red
+                    valueColor: validation.passed ? .milensSuccess : .milensDanger
                 )
                 // 失败原因
                 if !validation.passed, let reason = validation.reason {
                     Text(reason)
                         .font(.editorialMetadata)
-                        .foregroundStyle(Color.red.opacity(0.8))
+                        .foregroundStyle(Color.milensDanger.opacity(0.8))
                         .padding(.top, 2)
                 }
             }
@@ -185,7 +185,7 @@ struct RedPacketExportView: View {
     private var watermarkStatusView: some View {
         HStack(spacing: 8) {
             Image(systemName: entitlement.isPro ? "checkmark.seal.fill" : "drop.fill")
-                .foregroundStyle(entitlement.isPro ? .green : .orange)
+                .foregroundStyle(entitlement.isPro ? Color.milensSuccess : Color.milensWarning)
             VStack(alignment: .leading, spacing: 2) {
                 Text(entitlement.isPro
                      ? String(localized: "redpacket.export.noWatermark")
@@ -283,7 +283,7 @@ struct RedPacketExportView: View {
                     .lineLimit(1)
             }
             .padding(10)
-            .background(Color.orange.opacity(0.8))
+            .background(Color.milensWarning.opacity(0.8))
             .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
             Spacer()
         }
@@ -303,7 +303,7 @@ struct RedPacketExportView: View {
                 .foregroundStyle(Color.milensTextPrimary)
             // 模拟拆开按钮
             Circle()
-                .fill(Color.orange.opacity(0.8))
+                .fill(Color.milensWarning.opacity(0.8))
                 .frame(width: 44, height: 44)
                 .overlay {
                     Text(String(localized: "redpacket.export.openButton"))
@@ -335,19 +335,19 @@ struct RedPacketExportView: View {
                     .lineLimit(1)
             }
             .padding(6)
-            .background(Color.orange.opacity(0.6))
+            .background(Color.milensWarning.opacity(0.6))
             .clipShape(RoundedRectangle(cornerRadius: 6, style: .continuous))
         }
     }
 
     private var avatarPlaceholder: some View {
         Circle()
-            .fill(Color.gray.opacity(0.3))
+            .fill(Color.milensTextTertiary.opacity(0.3))
             .frame(width: 36, height: 36)
             .overlay {
                 Image(systemName: "person.fill")
                     .font(.system(size: 16))
-                    .foregroundStyle(Color.gray)
+                    .foregroundStyle(Color.milensTextTertiary)
             }
     }
 

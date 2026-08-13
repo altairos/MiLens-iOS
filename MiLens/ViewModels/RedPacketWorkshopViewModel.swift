@@ -38,6 +38,8 @@ final class RedPacketWorkshopViewModel {
     let photoID: UUID
     let petID: UUID?
     let isPro: Bool
+    /// 是否跳过自动抠图（从 CutoutConfirm 进入时为 true）。
+    var skipAutoCutout = false
 
     // MARK: - 状态
 
@@ -72,6 +74,13 @@ final class RedPacketWorkshopViewModel {
     var isOptimizing = false
     /// 智能优化摘要（供 UI 反馈）。
     var optimizationSummary: [String] = []
+    /// 优化前图层快照（优化后可通过切换预览“优化前”状态）。
+    /// 仅在最近一次智能优化执行后存在；用户修改图层后清除。
+    var preOptimizationLayers: [RedPacketLayer]?
+    /// 当前预览是否显示优化前状态（false = 优化后/正常状态）。
+    var isPreviewingBeforeOptimization = false
+    /// 最近一次优化是否已应用（用于判断“优化前/优化后”切换和“撤销本次调整”的可见性）。
+    var hasAppliedOptimization = false
 
     // MARK: - 初始化
 
@@ -183,10 +192,10 @@ final class RedPacketWorkshopViewModel {
                 petName: name
             )
 
-            // 自动抠图
             // 初始化历史状态
             history = RedPacketHistoryLogic.initialState(draft: draft)
 
+            // 执行抠图（无论是否从 CutoutConfirm 进入，工作室都需要自己的抠图结果）
             await performCutout()
 
         } catch {
@@ -292,6 +301,7 @@ final class RedPacketWorkshopViewModel {
     func deleteActive() {
         guard let id = activeLayerID else { return }
         pushSnapshot()
+        clearOptimizationPreview()
         draft.layers = rpDeleteLayer(draft.layers, id: id)
         activeLayerID = nil
         refreshQualityIfNeeded()
@@ -300,6 +310,7 @@ final class RedPacketWorkshopViewModel {
     func centerActive() {
         guard let id = activeLayerID else { return }
         pushSnapshot()
+        clearOptimizationPreview()
         draft.layers = rpUpdateLayer(draft.layers, id: id) { layer in
             let centered = rpCenterLayer(layer)
             layer.x = centered.x
@@ -311,6 +322,7 @@ final class RedPacketWorkshopViewModel {
     func resetActive() {
         guard let id = activeLayerID else { return }
         pushSnapshot()
+        clearOptimizationPreview()
         draft.layers = rpUpdateLayer(draft.layers, id: id) { layer in
             let reset = rpResetLayerToDefault(layer, template: template)
             layer.x = reset.x
@@ -324,6 +336,7 @@ final class RedPacketWorkshopViewModel {
     func updateText(_ text: String) {
         guard let textLayer = draft.layers.first(where: { $0.kind == .text }) else { return }
         pushSnapshot()
+        clearOptimizationPreview()
         let truncated = String(text.prefix(WeChatRedPacketSpec.coverTitleMaxLength))
         draft.layers = rpUpdateLayer(draft.layers, id: textLayer.id) { $0.text = truncated }
         draft.coverTitle = truncated
@@ -334,6 +347,7 @@ final class RedPacketWorkshopViewModel {
     func applyTextStyle(_ preset: RedPacketTextStylePreset) {
         guard let id = activeLayerID, activeLayer?.kind == .text else { return }
         pushSnapshot()
+        clearOptimizationPreview()
         draft.layers = rpUpdateLayer(draft.layers, id: id) { $0.styleID = preset.rawValue }
         refreshQualityIfNeeded()
     }
@@ -341,6 +355,7 @@ final class RedPacketWorkshopViewModel {
     /// 添加配饰图层（Phase 2 基础配饰）。
     func addAccessory(resourceRef: String, x: Double? = nil, y: Double? = nil) {
         pushSnapshot()
+        clearOptimizationPreview()
         let posX = x ?? (rpCanvasWidth * 0.5)
         let posY = y ?? (rpCanvasHeight * 0.5)
         var accessory = makeRedPacketTextLayer(text: "", x: posX, y: posY, width: 120, height: 120)
@@ -357,6 +372,7 @@ final class RedPacketWorkshopViewModel {
     func switchTemplate(to newTemplateID: String) {
         guard let newTemplate = RedPacketTemplateCatalog.find(id: newTemplateID) else { return }
         pushSnapshot()
+        clearOptimizationPreview()
         template = newTemplate
         draft.layers = rpSwitchTemplate(oldLayers: draft.layers, newTemplate: newTemplate)
         draft.templateID = newTemplate.id
@@ -370,6 +386,15 @@ final class RedPacketWorkshopViewModel {
     /// 在用户操作前记录快照。
     private func pushSnapshot() {
         history = RedPacketHistoryLogic.push(current: history, draft: draft)
+    }
+
+    /// 用户手动修改图层后，清除优化前/后预览状态。
+    private func clearOptimizationPreview() {
+        if preOptimizationLayers != nil {
+            preOptimizationLayers = nil
+            isPreviewingBeforeOptimization = false
+            hasAppliedOptimization = false
+        }
     }
 
     func undo() {
@@ -434,6 +459,11 @@ final class RedPacketWorkshopViewModel {
             return
         }
 
+        // 保存优化前快照（供“优化前/优化后”预览切换）
+        preOptimizationLayers = draft.layers
+        isPreviewingBeforeOptimization = false
+        hasAppliedOptimization = true
+
         // 记录历史（可撤销）
         pushSnapshot()
 
@@ -445,6 +475,25 @@ final class RedPacketWorkshopViewModel {
         optimizationSummary = optimization.summaryKeys
 
         // 重新检测质量
+        evaluateQuality()
+    }
+
+    /// 切换“优化前/优化后”预览。
+    /// 优化后状态为正常草稿（draft.layers）；优化前状态使用 preOptimizationLayers 快照。
+    func toggleOptimizationPreview() {
+        guard preOptimizationLayers != nil else { return }
+        isPreviewingBeforeOptimization.toggle()
+    }
+
+    /// 撤销最近一次优化（恢复优化前图层，清除快照）。
+    func undoOptimization() {
+        guard let before = preOptimizationLayers else { return }
+        pushSnapshot()
+        draft.layers = before
+        preOptimizationLayers = nil
+        isPreviewingBeforeOptimization = false
+        hasAppliedOptimization = false
+        optimizationSummary = []
         evaluateQuality()
     }
 

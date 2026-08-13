@@ -144,6 +144,8 @@ struct RootTabView: View {
             case .redPacketTemplatePicker: RedPacketTemplatePickerView()
             case .redPacketPhotoPicker(let templateID):
                 RedPacketPhotoPickerView(templateID: templateID)
+            case .redPacketCutoutConfirm(let templateID, let photoID, let petID):
+                RedPacketCutoutConfirmView(templateID: templateID, photoID: photoID, petID: petID)
             case .redPacketWorkshop(let templateID, let photoID, let petID):
                 RedPacketWorkshopView(templateID: templateID, photoID: photoID, petID: petID)
             case .redPacketExport(let draftID):

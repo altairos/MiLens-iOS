@@ -64,7 +64,7 @@ struct RedPacketPhotoPickerView: View {
 
                 LazyVGrid(columns: columns, spacing: 9) {
                     ForEach(photos) { photo in
-                        NavigationLink(value: Route.redPacketWorkshop(
+                        NavigationLink(value: Route.redPacketCutoutConfirm(
                             templateID: templateID,
                             photoID: photo.id,
                             petID: photo.pet?.id

@@ -25,6 +25,7 @@ enum Route: Hashable {
     // 微信红包封面工作室（创作 Tab 新增项目，模板→照片抠图→编辑→导出）
     case redPacketTemplatePicker
     case redPacketPhotoPicker(templateID: String)
+    case redPacketCutoutConfirm(templateID: String, photoID: UUID, petID: UUID?)
     case redPacketWorkshop(templateID: String, photoID: UUID, petID: UUID?)
     case redPacketExport(draftID: UUID)
     case redPacketUploadGuide(photoID: UUID, petID: UUID?)

@@ -31,14 +31,14 @@ struct RedPacketExportView: View {
     @State private var selectedScene: PreviewScene = .redPacketCard
 
     enum PreviewScene: String, CaseIterable, Identifiable {
-        case redPacketCard  // 红包卡片（聊天消息）
-        case openRedPacket  // 拆红包页
+        case redPacketCard  // 聊天横幅（聊天消息）
+        case openRedPacket  // 拆红包
         case redPacketList  // 红包列表
 
         var id: String { rawValue }
         var displayName: String {
             switch self {
-            case .redPacketCard: return String(localized: "redpacket.export.scene.card")
+            case .redPacketCard: return String(localized: "redpacket.export.scene.banner")
             case .openRedPacket: return String(localized: "redpacket.export.scene.open")
             case .redPacketList: return String(localized: "redpacket.export.scene.list")
             }
@@ -75,30 +75,41 @@ struct RedPacketExportView: View {
     // MARK: - 内容
 
     private func content(draft: RedPacketCoverDraft, template: RedPacketTemplate) -> some View {
-        VStack(spacing: 0) {
-            WorkshopNavHeader(title: String(localized: "redpacket.export.title")) {
-                dismiss()
-            }
-
-            ScrollView {
-                VStack(alignment: .leading, spacing: 0) {
-                    // === 上段：成品检查 ===
-                    productCheckSection(draft: draft, template: template)
-
-                    // === 下段：分享前预览 ===
-                    chatPreviewSection(draft: draft, template: template)
-
-                    // 上传指引入口
-                    uploadGuideEntry
-
-                    Spacer(minLength: 100)
+        ZStack(alignment: .bottom) {
+            // 上层：场景预览区（全屏背景 + 编辑式标题 + 预览）
+            VStack(spacing: 0) {
+                WorkshopNavHeader(title: String(localized: "redpacket.export.shareTitle")) {
+                    dismiss()
                 }
-                .padding(.bottom, Spacing.xxl)
+
+                ScrollView {
+                    VStack(alignment: .leading, spacing: 0) {
+                        // Overline + 编辑式标题
+                        EditorialOverline(text: String(localized: "redpacket.export.sceneOverline"))
+                            .padding(.horizontal, Spacing.pagePad)
+                            .padding(.top, Spacing.lg)
+
+                        Text(String(localized: "redpacket.export.editorialTitle"))
+                            .font(.editorialSection)
+                            .foregroundStyle(Color.milensTextPrimary)
+                            .fixedSize(horizontal: false, vertical: true)
+                            .padding(.horizontal, Spacing.pagePad)
+                            .padding(.top, Spacing.xs)
+
+                        // 场景预览
+                        if let image = renderedImage {
+                            scenePreviewContainer(image: image, draft: draft)
+                                .padding(.horizontal, Spacing.pagePad)
+                                .padding(.top, Spacing.lg)
+                        }
+                    }
+                    .padding(.bottom, 380) // 为底部面板留空间
+                }
+                .scrollIndicators(.hidden)
             }
-            .scrollIndicators(.hidden)
-            .safeAreaInset(edge: .bottom) {
-                actionBar
-            }
+
+            // 底层：底部上滑面板（使用步骤 + 保存或分享）
+            exportBottomSheet
         }
         .overlay(alignment: .top) {
             if let toast {
@@ -204,37 +215,82 @@ struct RedPacketExportView: View {
         .padding(.top, Spacing.sm)
     }
 
-    // MARK: - 聊天预览段
+    // MARK: - 场景预览容器（含自定义 segmented control）
 
-    private func chatPreviewSection(draft: RedPacketCoverDraft, template: RedPacketTemplate) -> some View {
-        VStack(alignment: .leading, spacing: Spacing.sm) {
-            EditorialOverline(text: String(localized: "redpacket.export.chatPreview"))
-                .padding(.horizontal, Spacing.pagePad)
-                .padding(.top, Spacing.xl)
-
-            // 场景切换
-            Picker("", selection: $selectedScene) {
+    private func scenePreviewContainer(image: UIImage, draft: RedPacketCoverDraft) -> some View {
+        VStack(spacing: 0) {
+            // 自定义 segmented control
+            HStack(spacing: 0) {
                 ForEach(PreviewScene.allCases) { scene in
-                    Text(scene.displayName).tag(scene)
+                    let isSelected = selectedScene == scene
+                    Button {
+                        selectedScene = scene
+                    } label: {
+                        Text(scene.displayName)
+                            .font(.system(size: 11, weight: .medium))
+                            .foregroundStyle(isSelected ? Color.milensActionPrimary : Color.milensTextSecondary)
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 7)
+                            .background(
+                                isSelected
+                                    ? Color.white.opacity(0.95)
+                                    : Color.clear
+                            )
+                            .clipShape(RoundedRectangle(cornerRadius: 6, style: .continuous))
+                    }
+                    .buttonStyle(.plain)
                 }
             }
-            .pickerStyle(.segmented)
-            .padding(.horizontal, Spacing.pagePad)
-            .padding(.top, Spacing.xs)
+            .padding(3)
+            .background(Color.milensSealSurface.opacity(0.8))
+            .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+            .overlay(
+                RoundedRectangle(cornerRadius: 8, style: .continuous)
+                    .stroke(Color.milensSeparator, lineWidth: 1)
+            )
+            .padding(.bottom, Spacing.sm)
 
-            // 场景预览
-            if let image = renderedImage {
-                scenePreview(image: image, draft: draft)
-                    .padding(.horizontal, Spacing.pagePad)
+            // 场景内容
+            scenePreview(image: image, draft: draft)
+        }
+    }
+
+    // MARK: - 底部上滑面板
+
+    private var exportBottomSheet: some View {
+        VStack(spacing: 0) {
+            // 使用步骤
+            usageStepsCard
+                .padding(.horizontal, Spacing.pagePad)
+                .padding(.top, Spacing.lg)
+
+            // 上传指引入口
+            uploadGuideEntry
+
+            // 保存中提示
+            if isSaving {
+                ProgressView()
+                    .scaleEffect(0.8)
                     .padding(.top, Spacing.sm)
             }
 
-            Text(String(localized: "redpacket.export.previewNote"))
-                .font(.editorialMetadata)
-                .foregroundStyle(Color.milensTextSecondary)
-                .padding(.horizontal, Spacing.pagePad)
-                .padding(.top, Spacing.xs)
+            // 保存或分享
+            CreationActionBar(
+                primaryLabel: String(localized: "redpacket.export.saveOrShare"),
+                secondaryLabel: String(localized: "redpacket.export.discard"),
+                primaryAction: { share() },
+                secondaryAction: { dismiss() }
+            )
+            .padding(.horizontal, Spacing.pagePad)
+            .padding(.top, Spacing.sm)
+            .padding(.bottom, Spacing.md)
         }
+        .padding(.top, Spacing.md)
+        .background(
+            RoundedRectangle(cornerRadius: 22, style: .continuous)
+                .fill(Color.milensBackground)
+                .shadow(color: .black.opacity(0.08), radius: 8, y: -2)
+        )
     }
 
     // MARK: - 场景预览
@@ -376,7 +432,43 @@ struct RedPacketExportView: View {
                 .foregroundStyle(Color.milensTextSecondary)
         }
         .padding(.horizontal, Spacing.pagePad)
-        .padding(.top, Spacing.lg)
+        .padding(.top, Spacing.sm)
+    }
+
+    // MARK: - 使用步骤卡
+
+    private var usageStepsCard: some View {
+        HStack(spacing: 12) {
+            usageStep(number: "1", text: String(localized: "redpacket.export.step.saveImage"))
+            usageStep(number: "2", text: String(localized: "redpacket.export.step.openCover"))
+            usageStep(number: "3", text: String(localized: "redpacket.export.step.selectCustom"))
+        }
+        .padding(.top, Spacing.sm)
+    }
+
+    private func usageStep(number: String, text: String) -> some View {
+        VStack(spacing: 6) {
+            ZStack {
+                Circle()
+                    .fill(Color.milensTextPrimary.opacity(0.14))
+                    .frame(width: 22, height: 22)
+                Text(number)
+                    .font(.system(size: 10, weight: .semibold))
+                    .foregroundStyle(Color.milensActionPrimary)
+            }
+            Text(text)
+                .font(.system(size: 10, weight: .medium))
+                .foregroundStyle(Color.milensTextPrimary)
+                .multilineTextAlignment(.center)
+                .frame(maxWidth: .infinity)
+        }
+        .padding(.vertical, 10)
+        .background(Color.milensSealSurface.opacity(0.5))
+        .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+        .overlay(
+            RoundedRectangle(cornerRadius: 8, style: .continuous)
+                .stroke(Color.milensSeparator, lineWidth: 1)
+        )
     }
 
     // MARK: - 操作栏

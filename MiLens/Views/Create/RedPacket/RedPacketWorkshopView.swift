@@ -32,6 +32,8 @@ struct RedPacketWorkshopView: View {
     let templateID: String
     let photoID: UUID
     let petID: UUID?
+    /// 是否跳过自动抠图（从 CutoutConfirm 进入时为 true，用户已确认抠图）。
+    var skipAutoCutout: Bool = false
 
     @Environment(\.viewModelFactory) private var factory
     @Environment(\.proEntitlement) private var entitlement
@@ -62,6 +64,7 @@ struct RedPacketWorkshopView: View {
                     petID: petID,
                     isPro: entitlement.isPro
                 )
+                viewModel?.skipAutoCutout = skipAutoCutout
                 Task { await viewModel?.load() }
             }
         }

@@ -24,6 +24,25 @@ public enum DecorationCategory: String, Sendable, CaseIterable, Codable {
     case sticker
 }
 
+/// 分组稳定 ID 与展示顺序（开发计划 §5.1；阻塞项8：不再用中文字符串分组）。
+/// UI 显示名映射 `decoration.group.*` 本地化 key；`recommended` 恒首位。
+public enum DecorationGroupIds {
+    /// frame 分组稳定 ID，按 UI 展示顺序声明。
+    public static let frame: [String] = ["recommended", "film", "paper", "holiday"]
+    /// sticker 分组稳定 ID，按 UI 展示顺序声明。
+    public static let sticker: [String] = ["recommended", "paw", "daily", "memorial"]
+
+    /// 给定类别的分组展示顺序（recommended 首位）。
+    public static func orderedIds(for category: DecorationCategory) -> [String] {
+        category == .frame ? frame : sticker
+    }
+
+    /// 分组 ID 是否为给定类别的合法 ID（导入工具 validate 复用）。
+    public static func isKnownId(_ id: String, category: DecorationCategory) -> Bool {
+        orderedIds(for: category).contains(id)
+    }
+}
+
 /// 装饰资源元数据。一个相框或一张贴纸的目录描述。
 ///
 /// 素材文件本身不包含在此模型中——`resourcePath` 指向 Bundle 资源名（Asset Catalog imageset 名），
@@ -43,7 +62,8 @@ public struct DecorationItem: Identifiable, Equatable, Sendable, Codable {
     public let previewPath: String
     /// 是否为 Pro 专属装饰（免费用户可见但不可用 → 点击触发付费墙）。
     public let isPremium: Bool
-    /// 分组标签（如「基础」「节日」「动物」），面板分组展示用。
+    /// 分组稳定 ID（frame: recommended/film/paper/holiday；sticker: recommended/paw/daily/memorial）。
+    /// 顺序见 DecorationGroupIds；UI 显示名映射 `decoration.group.*` 本地化 key。
     public let group: String
     /// 排序权重（升序）。
     public let sortOrder: Int
@@ -63,7 +83,7 @@ public struct DecorationItem: Identifiable, Equatable, Sendable, Codable {
     public init(
         id: String, name: String, category: DecorationCategory,
         resourcePath: String, previewPath: String,
-        isPremium: Bool = false, group: String = "基础", sortOrder: Int = 0,
+        isPremium: Bool = false, group: String = "recommended", sortOrder: Int = 0,
         fitMode: FrameFitMode = .stretch,
         ninePatchInsets: NinePatchInsets? = nil,
         supportedRatios: [String]? = nil,
@@ -111,7 +131,7 @@ extension DecorationItem {
         resourcePath = try c.decode(String.self, forKey: .resourcePath)
         previewPath = try c.decode(String.self, forKey: .previewPath)
         isPremium = try c.decodeIfPresent(Bool.self, forKey: .isPremium) ?? false
-        group = try c.decodeIfPresent(String.self, forKey: .group) ?? "基础"
+        group = try c.decodeIfPresent(String.self, forKey: .group) ?? "recommended"
         sortOrder = try c.decodeIfPresent(Int.self, forKey: .sortOrder) ?? 0
         let declaredFit = try c.decodeIfPresent(FrameFitMode.self, forKey: .fitMode) ?? .stretch
         // sticker 强制 stretch（与自定义 init 一致，防 JSON 手写绕过）
@@ -146,9 +166,20 @@ public struct DecorationCatalog: Sendable, Codable {
         items.first { $0.id == id }
     }
 
-    /// 按分组查询（面板分组展示用）。
-    public func groups(for category: DecorationCategory) -> [String: [DecorationItem]] {
-        Dictionary(grouping: items(for: category), by: { $0.group })
+    /// 按分组查询（面板分组展示用）。返回稳定排序的 (id, items) 数组（阻塞项8）：
+    /// 已知分组按 DecorationGroupIds 常量序（recommended 恒首位），组内按 sortOrder 升序；
+    /// 未知分组按字母序追加（catalog 脏数据容错，不静默丢弃）。
+    public func groups(for category: DecorationCategory) -> [(id: String, items: [DecorationItem])] {
+        var grouped = Dictionary(grouping: items(for: category), by: { $0.group })
+        var result: [(id: String, items: [DecorationItem])] = []
+        for id in DecorationGroupIds.orderedIds(for: category) {
+            guard let groupItems = grouped.removeValue(forKey: id) else { continue }
+            result.append((id: id, items: groupItems))
+        }
+        for id in grouped.keys.sorted() {
+            result.append((id: id, items: grouped[id] ?? []))
+        }
+        return result
     }
 
     /// 当前 Pro 状态下可用的装饰项（过滤掉 isPremium 且非 Pro）。
@@ -165,13 +196,19 @@ public struct DecorationCatalog: Sendable, Codable {
 /// 把装饰项转换为编辑器图层（对应源端 addDecorationLayer）。
 /// App 层在 ViewModel 中调用：先查 DecorationItem → 再创建 EditorLayer → 加入 EditorDocument。
 ///
-/// 相框默认铺满画布（zIndex 最底层），三种 fitMode 均铺满几何尺寸——
-/// 视觉差异由 renderExport 按 fitMode 决定（stretch 单块 / ninePatch 分块 / ratioSet 由
-/// imageProvider 预先选好具体比例素材后仍按 stretch 单块绘制）。
+/// 图层 x/y 为画布中心点坐标（阻塞项2 修正：编辑器坐标以图层中心为锚点）：
+/// - frame：中心 = 画布中心，宽高 = 画布尺寸（铺满），rotation=0/scale=1/flip=false。
+///   fitMode 不影响几何，只影响渲染方式（stretch 单块 / ninePatch 分块 / ratioSet 选图后单块）。
+/// - sticker：基准视觉尺寸 = 画布短边 × 22%（按素材宽高比分配到 width/height，较大边 = 视觉尺寸）；
+///   首个贴纸中心 = 画布中心向右上偏移 18% 短边，每多一个贴纸再偏 8% 短边，
+///   偏移量按可用半径环形取模并 clamp 在画布内（落点避开画面中心主体，规格 §4.3）。
+///
+/// - Parameter stickerCount: 当前文档已有贴纸数量（堆叠落点偏移用，默认 0）。
 public func createDecorationLayer(
     from item: DecorationItem,
     canvasWidth: Double,
-    canvasHeight: Double
+    canvasHeight: Double,
+    stickerCount: Int = 0
 ) -> EditorLayer {
     switch item.category {
     case .frame:
@@ -181,17 +218,27 @@ public func createDecorationLayer(
             width: canvasWidth,
             height: canvasHeight,
             resourcePath: item.resourcePath,
-            x: 0, y: 0)
+            x: canvasWidth / 2, y: canvasHeight / 2)
     case .sticker:
-        // 贴纸默认尺寸为画布短边的 30%，居中放置
-        let stickerSize = min(canvasWidth, canvasHeight) * 0.3
-        let centerX = (canvasWidth - stickerSize) / 2
-        let centerY = (canvasHeight - stickerSize) / 2
+        let short = min(canvasWidth, canvasHeight)
+        let displaySize = short * 0.22
+        // 按素材宽高比分配基准宽高（缺元数据或非法值时按正方形；视觉尺寸 = 较大边）。
+        let ratio = item.nativeAspectRatio.flatMap { $0 > 0 ? $0 : nil } ?? 1
+        let stickerW = ratio >= 1 ? displaySize : displaySize * ratio
+        let stickerH = ratio >= 1 ? displaySize / ratio : displaySize
+        // 中心落点：画布中心 + 右上对角偏移（18% + 8% × 已有贴纸数）× 短边，环形回归 + clamp 画布内。
+        let offset = (0.18 + 0.08 * Double(max(0, stickerCount))) * short
+        let availX = max(canvasWidth / 2 - stickerW / 2, 1)
+        let availY = max(canvasHeight / 2 - stickerH / 2, 1)
+        let ringX = offset.truncatingRemainder(dividingBy: availX)
+        let ringY = offset.truncatingRemainder(dividingBy: availY)
+        let x = min(max(canvasWidth / 2 + ringX, stickerW / 2), canvasWidth - stickerW / 2)
+        let y = min(max(canvasHeight / 2 - ringY, stickerH / 2), canvasHeight - stickerH / 2)
         return createImageLayer(
             type: .sticker,
-            width: stickerSize,
-            height: stickerSize,
+            width: stickerW,
+            height: stickerH,
             resourcePath: item.resourcePath,
-            x: centerX, y: centerY)
+            x: x, y: y)
     }
 }

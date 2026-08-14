@@ -69,9 +69,9 @@ public enum MemoryCardKind: String, CaseIterable, Identifiable, Equatable, Senda
     public var defaultTemplate: PetCardTemplate? {
         switch self {
         case .birthday, .adoptionDay:
-            return .classic
+            return .museum
         case .milestone:
-            return .classic
+            return .museum
         case .growthCompare, .monthlyRecap, .yearlyRecap:
             return nil
         }

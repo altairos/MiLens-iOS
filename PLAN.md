@@ -274,11 +274,18 @@ P1 核心可靠性与性能六项修复全部落地（实现记录见状态摘�
 - [x] Image Workshop 第二批成品系列（2026-08-13）：对照 Figma 422:801 第二批，重做 02 Picker（A/B 角色双选）、07–10 四个成品页（Source 条 + TemplateRail + FieldRow + CreationActionBar）+ 11 上传指引新页（时间线步骤）。新增 `WorkshopNavHeader`/`WorkshopSourceBar`/`WorkshopTemplateTab`/`WorkshopFieldRow`/`WorkshopTimelineStep` 共享组件。12 页全部落地。
 - [x] 调色预设滤镜（iOS 端增强，2026-08-13）：调色面板顶部新增 6 款预设滤镜横滚条（原图/鲜明/暖阳/冷调/柔和/黑白），复用 `EditorColorAdjustments` + CIFilter 管线（零新增渲染）；手动 5 滑块默认折叠于「手动调整」入口。预设数据下沉 MiLensKit `EditorFilterPresets`（纯逻辑 + 单测），`matchPresetFilter` 精确匹配回算高亮（手动微调偏离预设自动取消选中）。
 
+**Phase 4：相框与贴纸（M0+M1 代码已落地，素材待补）**
+
+- [x] **M0+M1 代码落地（2026-08-15，[开发计划](docs/Frame-Sticker-Development-Plan.md) §7 M0/M1）**：8 个阻塞项全部修复——装饰图层快照（`EditorLayerSnapshot` 扩展 `resourcePath`/`visible`，旧 JSON 容错）、画布重映射（`remapLayersForCanvas`：frame 重铺满/贴纸归一化迁移 + 钳制）、预览与导出一致（共用 `orderedRenderLayers` 稳定序 photo→frame→sticker→text 与 `DecorationAssetResolver` 三 fitMode 解析）、命中排除相框（`selectLayer` 仅 sticker/text）；MiLensKit 新增 `DecorationComposition`（贴纸钳制 8%–70% 短边 + 上限 `STICKER_LAYER_LIMIT=20`）、装饰默认几何（frame 铺满/贴纸 22% 短边右上偏移 + 堆叠落点）与分组稳定 ID `DecorationGroupIds`（recommended 恒首位）；M1 交互：`EditorDecorationPanelVM`（分组浏览按类别记忆/相框单选替换整体一次 push/Pro 锁定触发付费墙）+ `EditorDecorationPanelView`（60×56pt 三态素材单元 + 真实空态）+ 工具入口门禁（`hasFrameItems`/`hasStickerItems`）+ 本地化 14 key + `frame_import.py` 分组 ID 校验。MiLensKit 测试 WSL2 全绿（1104 用例）；App 测试 `EditorViewModelTests` +9 用例**未执行**（Windows 无 Mac，待 CI/Mac 验证）。
+- [ ] 素材交付：首批 6 相框 + 6 贴纸 PNG 经 `tools/frame_import.py add` 入库。当前 catalog 为空 → decorate 组按门禁自动隐藏贴纸/相框入口（无假入口），素材后补后入口自动出现。
+- [ ] 完成 App 编译/XCTest（Mac/CI）、五类画布比例导出、iPhone/iPad 与真机性能验收后解除功能开关。
+
 ### 验收标准
 
 - 从相册选图到拼豆图纸导出完整走通（拼豆图纸并行推进中）
 - 行为与源端 BeadPatternPage 一致（对照源端用例）
 - 图片编辑器裁切/滤镜/文字/抠图可用，产物正确入库（Phase 3 完成：编辑产物走 `Documents/MiPhotos` + Photo 就地更新）
+- 相框/贴纸在 Phase 4 完成前保持 catalog/功能开关控制；开放后预览与导出一致，撤销/重做与画布比例变化不丢素材、不漂移
 
 ---
 

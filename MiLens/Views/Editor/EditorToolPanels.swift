@@ -1,8 +1,8 @@
 //  EditorToolPanels —— 编辑器底部面板（对应源端 EditorPage.ets 底部工具区）。
 //  结构：底部 dock（调整/智能/装饰三组）→ 组内工具行（group != .none 时）→ 工具面板（tool 激活时）。
 //  工具面板：裁剪（比例 chips + 取消/确认）、旋转/翻转、调色（预设滤镜横滚条 + 手动 5 滑块）、
-//  文字（添加/选中编辑）、抠图（状态 + 开始/重试）。
-//  V1.0 差异：贴纸/相框无素材资源不展示；拼豆（bead）工具由图纸页并行实现，本编辑器不重复入口。
+//  文字（添加/选中编辑）、抠图（状态 + 开始/重试）、装饰（相框/贴纸，EditorDecorationPanelView）。
+//  V1.0 差异：贴纸/相框入口由 catalog 非空门禁（§10，空 catalog 不显示）；拼豆（bead）工具由图纸页并行实现。
 
 import SwiftUI
 import MiLensKit
@@ -69,12 +69,16 @@ struct EditorGroupToolRow: View {
         .background(Color.milensBackground)
     }
 
-    /// 组内工具列表（V1.0 无贴纸/相框素材，不展示；bead 由图纸页并行实现）。
+    /// 组内工具列表（decorate：文字 + 贴纸/相框，后两者由 catalog 非空门禁，§10；bead 由图纸页并行实现）。
     private var tools: [(EditorToolMode, String, String)] {
         switch group {
         case .adjust: return [(.crop, "crop", "裁剪"), (.rotate, "rotate.right", "旋转"), (.adjust, "slider.horizontal.3", "调色"), (.flip, "arrow.left.and.right.righttriangle.left.righttriangle.right", "翻转")]
         case .smart: return [(.cutout, "scissors", "抠图")]
-        case .decorate: return [(.text, "textformat", "文字")]
+        case .decorate:
+            var list: [(EditorToolMode, String, String)] = [(.text, "textformat", "文字")]
+            if viewModel.hasStickerItems { list.append((.sticker, "sticker", "贴纸")) }
+            if viewModel.hasFrameItems { list.append((.frame, "photo.on.rectangle", "相框")) }
+            return list
         case .create, .none: return []
         }
     }
@@ -119,7 +123,8 @@ struct EditorPanelArea: View {
             case .adjust: EditorAdjustPanelView(viewModel: viewModel)
             case .text: EditorTextPanelView(viewModel: viewModel)
             case .cutout: EditorCutoutPanelView(viewModel: viewModel)
-            case .frame, .sticker, .bead, .none:
+            case .frame, .sticker: EditorDecorationPanelView(viewModel: viewModel)
+            case .bead, .none:
                 if viewModel.group != .none {
                     EditorGroupToolRow(viewModel: viewModel, group: viewModel.group)
                 } else {

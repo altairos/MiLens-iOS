@@ -80,15 +80,17 @@ struct EditorCanvasView: View {
 
     // MARK: - 装饰图层（相框 / 贴纸）
 
-    /// 画布预览渲染已添加的相框 / 贴纸图层。V1.0 无装饰面板 UI 添加入口，该视图为空；
-    /// V1.x 装饰面板上线后，添加的 frame/sticker layer 会在画布实时显示。
-    /// 预览简化为拉伸显示；导出时 renderExport 按 fitMode 精确绘制（ninePatch 分块 / ratioSet 选图）。
+    /// 画布预览渲染已添加的相框 / 贴纸图层（阻塞项4）：
+    /// - 素材名经 viewModel.resolveDecorationSource 解析（ratioSet 按画布比例选图，与导出一致）；
+    /// - fitMode 三模式预览：stretch 拉伸 / ninePatch 分块（computeNinePatchTiles，与导出同源）/ ratioSet 已选图后单图拉伸；
+    /// - 命中：贴纸参与点选/手势（命中判定在 selectLayer）；相框铺满画布保持不可命中。
     @ViewBuilder
     private var decorationLayers: some View {
         ForEach(viewModel.layers) { layer in
-            if (layer.type == .frame || layer.type == .sticker) && layer.visible {
-                DecorationLayerView(layer: layer)
-                    .allowsHitTesting(false)
+            if (layer.type == .frame || layer.type == .sticker) && layer.visible,
+               let source = viewModel.resolveDecorationSource(for: layer) {
+                DecorationLayerView(layer: layer, source: source)
+                    .allowsHitTesting(layer.type == .sticker)
             }
         }
     }
@@ -103,14 +105,14 @@ struct EditorCanvasView: View {
             let geo = computeSelectionBoxGeometry(active)
             ZStack {
                 Rectangle()
-                    .strokeBorder(Color(hexString: DEFAULT_SELECTION_COLOR) ?? .blue,
+                    .strokeBorder(Color.milensActionPrimary,
                                   style: StrokeStyle(lineWidth: geo.lineWidth,
                                                      dash: geo.dashPattern.map { CGFloat($0) }))
                     .frame(width: geo.halfW * 2, height: geo.halfH * 2)
                 ForEach(0..<4, id: \.self) { i in
                     let corner = geo.corners[i]
                     Circle()
-                        .fill(Color(hexString: DEFAULT_SELECTION_COLOR) ?? .blue)
+                        .fill(Color.milensActionPrimary)
                         .frame(width: geo.handleSize * 2, height: geo.handleSize * 2)
                         .position(x: corner[0], y: corner[1])
                 }
@@ -256,24 +258,89 @@ struct EditorCanvasView: View {
     }
 }
 
+/// 预览侧装饰素材解析结果（EditorViewModel.resolveDecorationSource 产出）。
+/// assetName 已按画布比例经 resolveDecorationResource 选好（ratioSet 选图与导出一致）。
+struct DecorationPreviewSource {
+    /// 实际加载的 Asset Catalog imageset 名。
+    let assetName: String
+    /// 相框自适应模式（来自 DecorationItem.fitMode；sticker 恒 stretch）。
+    let fitMode: FrameFitMode
+    /// 九宫格切图内边距（仅 ninePatch 时非 nil，源图像素空间）。
+    let ninePatchInsets: NinePatchInsets?
+}
+
+/// 装饰图片解码缓存：NSCache（内存警告自动回收）+ 后台解码（参照 ThumbnailCache 模式，
+/// 阻塞项4：UIImage(named:) 的磁盘读取/解码移出 body）。
+enum DecorationImageLoader {
+    private static let cache = NSCache<NSString, UIImage>()
+
+    /// 取图：缓存命中直接返回；否则后台读取+解码后回填。
+    static func load(_ name: String) async -> UIImage? {
+        if let hit = cache.object(forKey: name as NSString) { return hit }
+        let image = await Task.detached(priority: .userInitiated) {
+            UIImage(named: name)
+        }.value
+        if let image {
+            cache.setObject(image, forKey: name as NSString)
+        }
+        return image
+    }
+}
+
 /// 装饰图层预览子视图（相框 / 贴纸）。
 ///
-/// 按 resourcePath 从 Asset Catalog 加载 UIImage；预览不区分 fitMode（拉伸显示），
-/// 导出精度由 renderExport 负责（ninePatch 分块 / ratioSet 由 imageProvider 选图）。
+/// - stretch / ratioSet：单图拉伸（ratioSet 的选图已由 source.assetName 完成）。
+/// - ninePatch：Canvas 内 computeNinePatchTiles 分 9 块绘制（与导出同源纯函数）。
+/// 图片经 DecorationImageLoader 异步解码，未加载完成时不占位（加载后淡入）。
 private struct DecorationLayerView: View {
     let layer: EditorLayer
+    let source: DecorationPreviewSource
+
+    @State private var uiImage: UIImage?
 
     var body: some View {
-        if let img = UIImage(named: layer.resourcePath) {
-            Image(uiImage: img)
-                .resizable()
-                .opacity(layer.opacity)
-                // layer.width/height/scale 为 Double，.frame 需 CGFloat（显式转换避免类型错误）。
-                .frame(width: CGFloat(layer.width * layer.scale),
-                       height: CGFloat(layer.height * layer.scale))
-                .rotationEffect(.degrees(layer.rotation))
-                .scaleEffect(x: layer.flipX ? -1 : 1, y: layer.flipY ? -1 : 1)
-                .position(x: layer.x, y: layer.y)
+        Group {
+            if let img = uiImage {
+                if source.fitMode == .ninePatch, let insets = source.ninePatchInsets {
+                    ninePatchCanvas(img, insets: insets)
+                } else {
+                    Image(uiImage: img).resizable()
+                }
+            }
+        }
+        .opacity(layer.opacity)
+        // layer.width/height/scale 为 Double，.frame 需 CGFloat（显式转换避免类型错误）。
+        .frame(width: CGFloat(layer.width * layer.scale),
+               height: CGFloat(layer.height * layer.scale))
+        .rotationEffect(.degrees(layer.rotation))
+        .scaleEffect(x: layer.flipX ? -1 : 1, y: layer.flipY ? -1 : 1)
+        .position(x: layer.x, y: layer.y)
+        .task(id: source.assetName) {
+            uiImage = await DecorationImageLoader.load(source.assetName)
+        }
+    }
+
+    /// 九宫格分块预览（Canvas 左上原点；目标矩形 = 图层显示区；源矩形用像素坐标，
+    /// 与导出 CGImage.cropping 一致）。
+    private func ninePatchCanvas(_ img: UIImage, insets: NinePatchInsets) -> some View {
+        Canvas { context, size in
+            let srcW = Double(img.cgImage?.width ?? 0)
+            let srcH = Double(img.cgImage?.height ?? 0)
+            guard srcW > 0, srcH > 0 else { return }
+            let tiles = computeNinePatchTiles(
+                srcWidth: srcW, srcHeight: srcH,
+                insets: insets,
+                dstX: 0, dstY: 0,
+                dstW: Double(size.width), dstH: Double(size.height))
+            let image = Image(uiImage: img)
+            for tile in tiles {
+                guard tile.srcW > 0, tile.srcH > 0, tile.dstW > 0, tile.dstH > 0 else { continue }
+                context.draw(
+                    image,
+                    in: CGRect(x: tile.dstX, y: tile.dstY, width: tile.dstW, height: tile.dstH),
+                    slice: CGRect(x: tile.srcX, y: tile.srcY, width: tile.srcW, height: tile.srcH)
+                )
+            }
         }
     }
 }

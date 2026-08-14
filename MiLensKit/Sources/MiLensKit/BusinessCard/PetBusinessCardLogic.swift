@@ -23,6 +23,10 @@ public struct PetBusinessCardInput: Equatable, Sendable {
     public let genderName: String
     public let ageText: String
     public let avatarPath: String
+    /// 生日（MILENS ID 的 MMDD 首选来源；缺省回退 profileCreatedAt）。
+    public let birthday: Date?
+    /// 建档日期（生日缺失时光 MILENS ID 的回退来源）。
+    public let profileCreatedAt: Date?
 
     public init(
         id: UUID = UUID(),
@@ -31,7 +35,9 @@ public struct PetBusinessCardInput: Equatable, Sendable {
         breed: String = "",
         genderName: String = "",
         ageText: String = "",
-        avatarPath: String = ""
+        avatarPath: String = "",
+        birthday: Date? = nil,
+        profileCreatedAt: Date? = nil
     ) {
         self.id = id
         self.name = name
@@ -40,6 +46,8 @@ public struct PetBusinessCardInput: Equatable, Sendable {
         self.genderName = genderName
         self.ageText = ageText
         self.avatarPath = avatarPath
+        self.birthday = birthday
+        self.profileCreatedAt = profileCreatedAt
     }
 }
 
@@ -56,10 +64,18 @@ public struct PetBusinessCardData: Equatable, Sendable {
     public let avatarPath: String
     /// 性格标签（已去重、已截断数量）。
     public let tags: [String]
-    /// 一句话简介（已校验长度）。
+    /// 一句话简介（已校验长度；名片「擅长」行）。
     public let tagline: String
-    /// 主人称呼（如「铲屎官：小橘妈妈」）。
+    /// 主人称呼（如「照护人｜小橘妈妈」）。
     public let ownerName: String
+    /// 身份行（物种 · 年龄 · 性别，Figma「身份」字段）。
+    public let identityLine: String
+    /// 档案编号（名字拼音首字母 + 生日 MMDD，如「XM—0521」；无法生成时为空串）。
+    public let milensID: String
+    /// 季节行（如「2026 · 夏」）。
+    public let seasonLine: String
+    /// 生成日期行（如「2026.08.14」，名片「拍摄时间」字段）。
+    public let shotDateLine: String
 
     public init(
         petID: UUID,
@@ -71,7 +87,11 @@ public struct PetBusinessCardData: Equatable, Sendable {
         avatarPath: String,
         tags: [String],
         tagline: String,
-        ownerName: String
+        ownerName: String,
+        identityLine: String = "",
+        milensID: String = "",
+        seasonLine: String = "",
+        shotDateLine: String = ""
     ) {
         self.petID = petID
         self.name = name
@@ -83,6 +103,10 @@ public struct PetBusinessCardData: Equatable, Sendable {
         self.tags = tags
         self.tagline = tagline
         self.ownerName = ownerName
+        self.identityLine = identityLine
+        self.milensID = milensID
+        self.seasonLine = seasonLine
+        self.shotDateLine = shotDateLine
     }
 }
 
@@ -92,9 +116,9 @@ public enum PetBusinessCardLogic {
 
     // MARK: - 版式参数
 
-    /// 导出画布尺寸（像素，3:4 竖版名片卡，适合社交分享）。
-    public static let exportWidth = 1080
-    public static let exportHeight = 1440
+    /// 导出画布尺寸（像素，16:10 横版名片卡，Figma 720×450 基准 × 2）。
+    public static let exportWidth = 1440
+    public static let exportHeight = 900
 
     // MARK: - 长度约束
 
@@ -152,12 +176,17 @@ public enum PetBusinessCardLogic {
     // MARK: - 数据组装
 
     /// 从宠物输入 + 用户输入组装名片卡数据。
-    /// 自动规范化标签、截断超长字段。
+    /// 自动规范化标签、截断超长字段，并派生身份/编号/季节/日期行。
+    /// - Parameters:
+    ///   - now: 生成时刻（季节行与日期行基准，注入保证可测）。
+    ///   - calendar: 日历（默认 current）。
     public static func buildData(
         from pet: PetBusinessCardInput,
         tags: [String],
         tagline: String,
-        ownerName: String
+        ownerName: String,
+        now: Date = Date(),
+        calendar: Calendar = .current
     ) -> PetBusinessCardData {
         PetBusinessCardData(
             petID: pet.id,
@@ -169,7 +198,14 @@ public enum PetBusinessCardLogic {
             avatarPath: pet.avatarPath,
             tags: normalizeTags(tags),
             tagline: truncate(tagline, max: maxTaglineLength),
-            ownerName: truncate(ownerName, max: maxOwnerNameLength)
+            ownerName: truncate(ownerName, max: maxOwnerNameLength),
+            identityLine: identityLine(
+                speciesName: pet.speciesName, ageText: pet.ageText, genderName: pet.genderName),
+            milensID: milensID(
+                name: pet.name, birthday: pet.birthday,
+                fallbackDate: pet.profileCreatedAt ?? now, calendar: calendar),
+            seasonLine: seasonLine(from: now, calendar: calendar),
+            shotDateLine: shotDateLine(from: now, calendar: calendar)
         )
     }
 
@@ -187,9 +223,58 @@ public enum PetBusinessCardLogic {
         return parts.joined(separator: " · ")
     }
 
-    /// 主人称呼行（空则返回空串）。
+    /// 身份行：物种 · 年龄 · 性别（Figma Namecard「身份」字段顺序；缺字段跳过分隔符）。
+    public static func identityLine(
+        speciesName: String, ageText: String, genderName: String
+    ) -> String {
+        var parts: [String] = []
+        if !speciesName.isEmpty { parts.append(speciesName) }
+        if !ageText.isEmpty { parts.append(ageText) }
+        if !genderName.isEmpty { parts.append(genderName) }
+        return parts.joined(separator: " · ")
+    }
+
+    /// 主人称呼行（空则返回空串；Figma「照护人｜」前缀）。
     public static func ownerLine(_ ownerName: String) -> String {
-        ownerName.isEmpty ? "" : "铲屎官：\(ownerName)"
+        ownerName.isEmpty ? "" : "照护人｜\(ownerName)"
+    }
+
+    // MARK: - 档案编号与时间行
+
+    /// MILENS ID：名字拼音首字母（大写）+ 生日 MMDD，以「—」连接（如「XM—0521」）。
+    /// 拼音经 CFStringTransform（MandarinLatin + 去声调）；
+    /// 非中文名回退原名首字母；生日缺失回退 fallbackDate（建档日期）；
+    /// 名字或日期均无法解析时返回空串（View 层空则不渲染该行）。
+    public static func milensID(
+        name: String, birthday: Date?, fallbackDate: Date?, calendar: Calendar = .current
+    ) -> String {
+        let initials = nameInitials(name)
+        guard !initials.isEmpty, let date = birthday ?? fallbackDate else { return "" }
+        let month = calendar.component(.month, from: date)
+        let day = calendar.component(.day, from: date)
+        return "\(initials)—\(String(format: "%02d%02d", month, day))"
+    }
+
+    /// 季节行：「YYYY · 春/夏/秋/冬」（3-5 春、6-8 夏、9-11 秋、12-2 冬）。
+    public static func seasonLine(from date: Date, calendar: Calendar = .current) -> String {
+        let year = calendar.component(.year, from: date)
+        let month = calendar.component(.month, from: date)
+        let season: String
+        switch month {
+        case 3...5: season = "春"
+        case 6...8: season = "夏"
+        case 9...11: season = "秋"
+        default: season = "冬"
+        }
+        return "\(year) · \(season)"
+    }
+
+    /// 生成日期行：「YYYY.MM.DD」（名片「拍摄时间」字段）。
+    public static func shotDateLine(from date: Date, calendar: Calendar = .current) -> String {
+        let year = calendar.component(.year, from: date)
+        let month = calendar.component(.month, from: date)
+        let day = calendar.component(.day, from: date)
+        return String(format: "%04d.%02d.%02d", year, month, day)
     }
 
     // MARK: - 内部工具
@@ -198,5 +283,44 @@ public enum PetBusinessCardLogic {
     private static func truncate(_ string: String, max length: Int) -> String {
         guard string.count > length else { return string }
         return String(string.prefix(length))
+    }
+
+    /// 名字首字母串：中文字符逐个转拼音取首字母（大写拼接，如「小满」→「XM」）；
+    /// 无中文时回退首个字母字符的大写（如「Luna」→「L」）；无可用字符返回空串。
+    private static func nameInitials(_ name: String) -> String {
+        var cjkInitials = ""
+        for character in name {
+            if let initial = pinyinInitial(of: character) {
+                cjkInitials.append(contentsOf: initial)
+            }
+        }
+        if !cjkInitials.isEmpty { return cjkInitials }
+        for character in name where character.isLetter {
+            return character.uppercased()
+        }
+        return ""
+    }
+
+    /// 单个中文字符的拼音首字母（大写；非中文字符返回 nil）。
+    /// CFStringTransform 仅 Apple 平台可用；Linux（WSL2 测试环境）无此 API，
+    /// 返回 nil（nameInitials 随后走字母回退，CJK 拼音断言测试在 Linux 跳过）。
+    private static func pinyinInitial(of character: Character) -> String? {
+        guard let scalar = character.unicodeScalars.first, isCJKIdeograph(scalar) else { return nil }
+        #if canImport(UIKit) || canImport(AppKit)
+        let mutable = NSMutableString(string: String(character))
+        CFStringTransform(mutable, nil, CFStringTransformToLatin, false)
+        CFStringTransform(mutable, nil, CFStringTransformStripDiacriticalMarks, false)
+        for letter in String(mutable).lowercased() where letter.isLetter {
+            return String(letter).uppercased()
+        }
+        return nil
+        #else
+        return nil
+        #endif
+    }
+
+    /// 是否为 CJK 统一表意文字（基本区 + 扩展 A 区）。
+    private static func isCJKIdeograph(_ scalar: Unicode.Scalar) -> Bool {
+        (0x4E00...0x9FFF).contains(scalar.value) || (0x3400...0x4DBF).contains(scalar.value)
     }
 }

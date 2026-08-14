@@ -191,15 +191,21 @@ final class CoreImageEditorProcessing: EditorImageProcessing {
             UIImage(cgImage: baseImage).draw(in: CGRect(x: 0, y: 0, width: width, height: height))
             ctx.restoreGState()
 
-            // 装饰图层：先画相框/贴纸（zIndex 最底层，位于照片之上、文字之下），
-            // 再画文字。无 decorationProvider 时跳过装饰图层（仅渲染文字，向后兼容）。
+            // 装饰与文字：统一过 orderedRenderLayers 稳定排序（photo→frame→sticker→text，
+            // 同类型内 zIndex 升序，阻塞项5：与画布预览共用同一排序，保证所见即所得）。
+            // photo 已作为底图单独绘制，跳过；无 decorationProvider 时仅渲染文字（向后兼容）。
             if let provider = decorationProvider {
-                for layer in layers where (layer.type == .frame || layer.type == .sticker) && layer.visible {
-                    drawDecorationLayer(layer, scale: scale, decorationProvider: provider)
+                for layer in orderedRenderLayers(layers) where layer.type != .photo && layer.visible {
+                    if layer.type == .text {
+                        drawTextLayer(layer, scale: scale)
+                    } else {
+                        drawDecorationLayer(layer, scale: scale, decorationProvider: provider)
+                    }
                 }
-            }
-            for layer in layers where layer.type == .text && layer.visible {
-                drawTextLayer(layer, scale: scale)
+            } else {
+                for layer in orderedRenderLayers(layers) where layer.type == .text && layer.visible {
+                    drawTextLayer(layer, scale: scale)
+                }
             }
         }
         return encodeImage(image, format: format)

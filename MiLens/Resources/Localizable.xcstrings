@@ -102,6 +102,28 @@
         }
       }
     },
+    "a11y.editor.decoration.proBadge" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pro 专属"
+          }
+        }
+      }
+    },
+    "a11y.editor.deleteSticker" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "删除贴纸"
+          }
+        }
+      }
+    },
     "a11y.editor.deleteText" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -153,6 +175,105 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "撤销"
+          }
+        }
+      }
+    },
+    "decoration.group.daily" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "日常"
+          }
+        }
+      }
+    },
+    "decoration.group.film" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "胶片"
+          }
+        }
+      }
+    },
+    "decoration.group.holiday" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "节日"
+          }
+        }
+      }
+    },
+    "decoration.group.memorial" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "纪念"
+          }
+        }
+      }
+    },
+    "decoration.group.paper" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "纸样"
+          }
+        }
+      }
+    },
+    "decoration.group.paw" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "爪印"
+          }
+        }
+      }
+    },
+    "decoration.group.recommended" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "推荐"
+          }
+        }
+      }
+    },
+    "decoration.panel.empty" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "装饰资源暂未安装"
+          }
+        }
+      }
+    },
+    "decoration.sticker.limit %lld" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "贴纸最多添加 %lld 个"
           }
         }
       }
@@ -219,6 +340,28 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "主体抠图"
+          }
+        }
+      }
+    },
+    "editor.panel.frame" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "相框"
+          }
+        }
+      }
+    },
+    "editor.panel.sticker" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "贴纸"
           }
         }
       }
@@ -5740,46 +5883,46 @@
         }
       }
     },
-    "businessCard.template.standard" : {
+    "businessCard.template.museum" : {
       "extractionState" : "manual",
       "localizations" : {
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "标准"
+            "value" : "博物馆典藏"
           }
         }
       }
     },
-    "businessCard.template.elegant" : {
+    "businessCard.template.binding" : {
       "extractionState" : "manual",
       "localizations" : {
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "优雅"
+            "value" : "私人装帧"
           }
         }
       }
     },
-    "businessCard.template.playful" : {
+    "businessCard.template.gallery" : {
       "extractionState" : "manual",
       "localizations" : {
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "活泼"
+            "value" : "现代画廊"
           }
         }
       }
     },
-    "businessCard.template.minimal" : {
+    "businessCard.template.darkroom" : {
       "extractionState" : "manual",
       "localizations" : {
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "极简"
+            "value" : "夜间暗房"
           }
         }
       }

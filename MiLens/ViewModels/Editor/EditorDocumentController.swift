@@ -72,10 +72,12 @@ final class EditorDocumentController {
         document.updateLayer(id, mutate)
     }
 
-    /// 点选命中：顶层优先（LayerGeometry.isPointInLayer），底图不可选中。
+    /// 点选命中：顶层优先（LayerGeometry.isPointInLayer）；底图与相框不可选中
+    /// （frame 铺满画布会挡住全部点击，阻塞项6：仅 sticker/text 可命中）。
     func selectLayer(at point: CGPoint) {
         let hit = document.getLayers().reversed().first { layer in
-            layer.type != .photo && isPointInLayer(layer, tapX: point.x, tapY: point.y)
+            (layer.type == .sticker || layer.type == .text)
+                && isPointInLayer(layer, tapX: point.x, tapY: point.y)
         }
         document.select(hit?.id)
     }
@@ -88,9 +90,19 @@ final class EditorDocumentController {
         }
     }
 
-    func scaleActiveLayer(by factor: Double) {
+    /// 缩放活动图层：贴纸按视觉尺寸钳制（8%–70% 短边），其余维持 MIN/MAX_LAYER_SCALE。
+    func scaleActiveLayer(by factor: Double, canvasSize: CGSize) {
         guard let layer = document.activeLayer else { return }
-        let newScale = clampLayerScale(layer.scale * factor)
+        let newScale: Double
+        if layer.type == .sticker {
+            newScale = clampStickerVisualScale(
+                nativeW: layer.width, nativeH: layer.height,
+                scale: layer.scale * factor,
+                canvasW: Double(canvasSize.width), canvasH: Double(canvasSize.height)
+            )
+        } else {
+            newScale = clampLayerScale(layer.scale * factor)
+        }
         document.updateLayer(layer.id) { $0.scale = newScale }
     }
 

@@ -345,6 +345,8 @@ Figma 实现参考 [`01 · Creation / Studio Index` 422:805](https://www.figma.c
 
 编辑器服务于档案照片，不复制桌面软件。底部一级分组限定为“调整 / 智能 / 装饰”；现有代码能力为裁切、旋转、调色、文字、抠图，Figma 另为装饰组定义贴纸与相框的后续实现规格。装饰组不包含未设计的“留白”或“签名”；撤销/重做与保存常驻。
 
+相框与贴纸的数据契约、素材批次、实现顺序和验收门禁见 [docs/Frame-Sticker-Development-Plan.md](docs/Frame-Sticker-Development-Plan.md)。
+
 - iPhone 底部工具轨 + 单层面板；iPad 右侧 Inspector。
 - iPhone 编辑器使用三层但不重叠的 `EditorPanelArea`：当前参数纸内依次是二级标题、342×40pt 横向滚动 `EditorGroupToolRow`、工具专属参数；342×54pt `EditorDockView` 作为一级分组坞贴在其下方常驻。二级工具轨负责同组模式切换，参数区只承载当前模式内容；必须通过固定高度、裁切和滚动避免三层侵占编辑画布。
 - 保存前说明“更新当前照片”或“保存副本”，默认选择可恢复方式。

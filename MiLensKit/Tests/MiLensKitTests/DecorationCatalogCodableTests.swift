@@ -3,7 +3,7 @@ import XCTest
 
 // DecorationCatalogCodableTests — 装饰目录 JSON 序列化与工厂分派测试。
 // 覆盖：DecorationItem Codable 往返（含 ninePatchInsets / supportedRatios / fitMode）、
-// createDecorationLayer 三种 fitMode 的几何输出（frame 铺满 / sticker 居中）。
+// createDecorationLayer 三种 fitMode 的几何输出（frame 铺满画布中心 / sticker 右上偏移落点）。
 
 final class DecorationCatalogCodableTests: XCTestCase {
 
@@ -86,7 +86,7 @@ final class DecorationCatalogCodableTests: XCTestCase {
         XCTAssertNil(item.ninePatchInsets)
         XCTAssertEqual(item.isPremium, false)    // 缺 isPremium 默认 false
         XCTAssertEqual(item.sortOrder, 0)        // 缺 sortOrder 默认 0
-        XCTAssertEqual(item.group, "基础")
+        XCTAssertEqual(item.group, "recommended")  // 缺 group 默认稳定 ID（阻塞项8）
     }
 
     func testCatalogRoundTrip() throws {
@@ -140,8 +140,9 @@ final class DecorationCatalogCodableTests: XCTestCase {
         XCTAssertEqual(layer.type, .frame)
         XCTAssertEqual(layer.width, 200, accuracy: 1e-9)
         XCTAssertEqual(layer.height, 300, accuracy: 1e-9)
-        XCTAssertEqual(layer.x, 0, accuracy: 1e-9)
-        XCTAssertEqual(layer.y, 0, accuracy: 1e-9)
+        // x/y 为图层中心点坐标（阻塞项2 修正）：frame 中心 = 画布中心
+        XCTAssertEqual(layer.x, 100, accuracy: 1e-9)
+        XCTAssertEqual(layer.y, 150, accuracy: 1e-9)
         XCTAssertEqual(layer.resourcePath, "frame_test")
     }
 
@@ -168,18 +169,18 @@ final class DecorationCatalogCodableTests: XCTestCase {
         }
     }
 
-    func testStickerLayerCentered() {
+    func testStickerLayerPlacementOffsetTopRight() {
         let item = DecorationItem(
             id: "sticker_paw", name: "肉球", category: .sticker,
             resourcePath: "sticker_paw", previewPath: "sticker_paw")
-        // 画布 200x400，短边 200，stickerSize = 200*0.3 = 60
+        // 画布 200x400，短边 200：视觉尺寸 = 200×22% = 44（缺宽高比元数据按方形）。
+        // 首贴纸偏移 = 18%×短边 = 36：中心 = (100+36, 200-36) = (136, 164)（右上）。
         let layer = createDecorationLayer(from: item, canvasWidth: 200, canvasHeight: 400)
         XCTAssertEqual(layer.type, .sticker)
-        XCTAssertEqual(layer.width, 60, accuracy: 1e-9)
-        XCTAssertEqual(layer.height, 60, accuracy: 1e-9)
-        // 居中：(200-60)/2 = 70, (400-60)/2 = 170
-        XCTAssertEqual(layer.x, 70, accuracy: 1e-9)
-        XCTAssertEqual(layer.y, 170, accuracy: 1e-9)
+        XCTAssertEqual(layer.width, 44, accuracy: 1e-9)
+        XCTAssertEqual(layer.height, 44, accuracy: 1e-9)
+        XCTAssertEqual(layer.x, 136, accuracy: 1e-9)
+        XCTAssertEqual(layer.y, 164, accuracy: 1e-9)
     }
 
     // MARK: - catalog 查询

@@ -4,7 +4,7 @@
 //  一句话简介 + 主人称呼。照片为辅（头像位）。
 //  预览与导出共用 BusinessCardArtwork（同一排版，导出用 ImageRenderer 固定尺寸）。
 //  V1 草稿按 petID 缓存到 UserDefaults（不持久化到 SwiftData，避免 schema 迁移）。
-//  Pro 门控：免费可用 standard 模板（带水印），Pro 解锁全部模板 + 无水印。
+//  Pro 门控：免费可用 museum 模板（带水印），Pro 解锁全部模板 + 无水印。
 
 import SwiftUI
 import UIKit
@@ -33,7 +33,7 @@ struct BusinessCardView: View {
     @State private var editingField: EditableField? = nil
 
     // 模板
-    @AppStorage("businessCardTemplate") private var selectedTemplateRaw: String = BusinessCardTemplate.standard.rawValue
+    @AppStorage("businessCardTemplate") private var selectedTemplateRaw: String = BusinessCardTemplate.museum.rawValue
     @State private var showTemplatePaywall = false
 
     // 导出/分享
@@ -214,7 +214,7 @@ struct BusinessCardView: View {
     // MARK: - 模板选择器
 
     private var selectedTemplate: BusinessCardTemplate {
-        BusinessCardTemplate(rawValue: selectedTemplateRaw) ?? .standard
+        BusinessCardTemplate(rawValue: selectedTemplateRaw) ?? .museum
     }
 
     private var resolvedTemplate: BusinessCardTemplate {
@@ -258,7 +258,9 @@ struct BusinessCardView: View {
             breed: pet.breed,
             genderName: PetDisplayLogic.genderDisplayName(pet.gender),
             ageText: PetDisplayLogic.ageText(from: pet.birthday),
-            avatarPath: pet.avatarPath
+            avatarPath: pet.avatarPath,
+            birthday: pet.birthday,
+            profileCreatedAt: pet.createdAt
         )
         return PetBusinessCardLogic.buildData(
             from: input, tags: selectedTags, tagline: tagline, ownerName: ownerName)

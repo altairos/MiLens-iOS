@@ -7,7 +7,8 @@ import XCTest
 //  - 校验：简介/标签/主人称呼长度
 //  - 标签规范化：去空白/去重保序/过滤超长/截断数量
 //  - 组装：端到端数据构建 + 自动规范化
-//  - 副标题/主人行：缺字段跳过分隔符
+//  - 副标题/身份行/主人行：缺字段跳过分隔符
+//  - 档案编号与时间行：MILENS ID、季节行、日期行
 //  - BusinessCardTemplate：模板元数据与门控
 
 // MARK: - 校验
@@ -120,9 +121,33 @@ final class BusinessCardBuildDataTests: XCTestCase {
         XCTAssertEqual(data.tags, ["活泼", "黏人"])
     }
 
-    func testExportSizeIs3x4Portrait() {
+    func testBuildDataDerivesArchiveLines() {
+        var calendar = Calendar(identifier: .gregorian)
+        calendar.timeZone = TimeZone(identifier: "Asia/Shanghai")!
+        let birthday = calendar.date(from: DateComponents(year: 2022, month: 5, day: 21))!
+        let pet = PetBusinessCardInput(
+            id: UUID(), name: "咪咪", speciesName: "喵星人", breed: "橘猫",
+            genderName: "男生", ageText: "3岁", avatarPath: "",
+            birthday: birthday, profileCreatedAt: birthday)
+        let now = calendar.date(from: DateComponents(year: 2026, month: 8, day: 14))!
+        let data = PetBusinessCardLogic.buildData(
+            from: pet, tags: [], tagline: "", ownerName: "", now: now, calendar: calendar)
+        XCTAssertEqual(data.identityLine, "喵星人 · 3岁 · 男生")
+#if os(Linux)
+        // Linux（WSL2）无 CFStringTransform，拼音首字母不可用：回退首个字母字符（咪咪 → 咪）
+        XCTAssertEqual(data.milensID, "咪—0521")
+#else
+        XCTAssertEqual(data.milensID, "MM—0521")
+#endif
+        XCTAssertEqual(data.seasonLine, "2026 · 夏")
+        XCTAssertEqual(data.shotDateLine, "2026.08.14")
+    }
+
+    func testExportSizeIs16x10Landscape() {
+        XCTAssertEqual(PetBusinessCardLogic.exportWidth, 1440)
+        XCTAssertEqual(PetBusinessCardLogic.exportHeight, 900)
         let ratio = Double(PetBusinessCardLogic.exportWidth) / Double(PetBusinessCardLogic.exportHeight)
-        XCTAssertEqual(ratio, 3.0 / 4.0, accuracy: 0.001)
+        XCTAssertEqual(ratio, 1.6, accuracy: 0.001)
     }
 }
 
@@ -149,11 +174,84 @@ final class BusinessCardSubtitleTests: XCTestCase {
     }
 
     func testOwnerLineWithContent() {
-        XCTAssertEqual(PetBusinessCardLogic.ownerLine("小橘妈妈"), "铲屎官：小橘妈妈")
+        XCTAssertEqual(PetBusinessCardLogic.ownerLine("小橘妈妈"), "照护人｜小橘妈妈")
     }
 
     func testOwnerLineEmpty() {
         XCTAssertEqual(PetBusinessCardLogic.ownerLine(""), "")
+    }
+
+    func testIdentityLineWithAllFields() {
+        let line = PetBusinessCardLogic.identityLine(
+            speciesName: "喵星人", ageText: "3岁", genderName: "男生")
+        XCTAssertEqual(line, "喵星人 · 3岁 · 男生")
+    }
+
+    func testIdentityLineSkipsEmptyFields() {
+        let line = PetBusinessCardLogic.identityLine(
+            speciesName: "喵星人", ageText: "", genderName: "男生")
+        XCTAssertEqual(line, "喵星人 · 男生")
+    }
+}
+
+// MARK: - 档案编号与时间行
+
+final class BusinessCardMilensIDTests: XCTestCase {
+
+    /// 固定格里历 + 上海时区，避免 CI 时区差异导致跨日抖动。
+    private var calendar: Calendar {
+        var c = Calendar(identifier: .gregorian)
+        c.timeZone = TimeZone(identifier: "Asia/Shanghai")!
+        return c
+    }
+
+    private func date(_ y: Int, _ m: Int, _ d: Int) -> Date {
+        calendar.date(from: DateComponents(year: y, month: m, day: d))!
+    }
+
+#if !os(Linux)
+    // 拼音首字母依赖 CFStringTransform（仅 Apple 平台）；Linux（WSL2）下跳过。
+    func testChineseNameUsesPinyinInitials() {
+        let id = PetBusinessCardLogic.milensID(
+            name: "小满", birthday: date(2022, 5, 21), fallbackDate: nil, calendar: calendar)
+        XCTAssertEqual(id, "XM—0521")
+    }
+
+    func testMissingBirthdayFallsBackToProfileCreatedAt() {
+        let id = PetBusinessCardLogic.milensID(
+            name: "小满", birthday: nil, fallbackDate: date(2024, 11, 3), calendar: calendar)
+        XCTAssertEqual(id, "XM—1103")
+    }
+#endif
+
+    func testNonChineseNameUsesFirstLetter() {
+        let id = PetBusinessCardLogic.milensID(
+            name: "Luna", birthday: date(2022, 5, 21), fallbackDate: nil, calendar: calendar)
+        XCTAssertEqual(id, "L—0521")
+    }
+
+    func testEmptyWhenNameOrDateUnresolvable() {
+        XCTAssertEqual(
+            PetBusinessCardLogic.milensID(
+                name: "", birthday: date(2022, 5, 21), fallbackDate: nil, calendar: calendar),
+            "")
+        XCTAssertEqual(
+            PetBusinessCardLogic.milensID(
+                name: "小满", birthday: nil, fallbackDate: nil, calendar: calendar),
+            "")
+    }
+
+    func testSeasonLineMapsMonths() {
+        XCTAssertEqual(PetBusinessCardLogic.seasonLine(from: date(2026, 3, 1), calendar: calendar), "2026 · 春")
+        XCTAssertEqual(PetBusinessCardLogic.seasonLine(from: date(2026, 8, 14), calendar: calendar), "2026 · 夏")
+        XCTAssertEqual(PetBusinessCardLogic.seasonLine(from: date(2026, 9, 30), calendar: calendar), "2026 · 秋")
+        XCTAssertEqual(PetBusinessCardLogic.seasonLine(from: date(2026, 12, 2), calendar: calendar), "2026 · 冬")
+    }
+
+    func testShotDateLine() {
+        XCTAssertEqual(
+            PetBusinessCardLogic.shotDateLine(from: date(2026, 8, 14), calendar: calendar),
+            "2026.08.14")
     }
 }
 
@@ -184,39 +282,39 @@ final class BusinessCardTemplateTests: XCTestCase {
     func testAllTemplatesPresent() {
         XCTAssertEqual(
             BusinessCardTemplate.allCases.map(\.rawValue),
-            ["standard", "elegant", "playful", "minimal"]
+            ["museum", "binding", "gallery", "darkroom"]
         )
     }
 
-    func testStandardIsFree() {
-        XCTAssertFalse(BusinessCardTemplate.standard.isPremium)
-        XCTAssertTrue(BusinessCardTemplate.elegant.isPremium)
-        XCTAssertTrue(BusinessCardTemplate.playful.isPremium)
-        XCTAssertTrue(BusinessCardTemplate.minimal.isPremium)
+    func testMuseumIsFree() {
+        XCTAssertFalse(BusinessCardTemplate.museum.isPremium)
+        XCTAssertTrue(BusinessCardTemplate.binding.isPremium)
+        XCTAssertTrue(BusinessCardTemplate.gallery.isPremium)
+        XCTAssertTrue(BusinessCardTemplate.darkroom.isPremium)
     }
 
     func testResolveForFreeUser() {
-        XCTAssertEqual(BusinessCardTemplate.resolve(.elegant, isPro: false), .standard)
-        XCTAssertEqual(BusinessCardTemplate.resolve(.standard, isPro: false), .standard)
+        XCTAssertEqual(BusinessCardTemplate.resolve(.binding, isPro: false), .museum)
+        XCTAssertEqual(BusinessCardTemplate.resolve(.museum, isPro: false), .museum)
     }
 
     func testResolveForProUser() {
-        XCTAssertEqual(BusinessCardTemplate.resolve(.elegant, isPro: true), .elegant)
-        XCTAssertEqual(BusinessCardTemplate.resolve(.standard, isPro: true), .standard)
+        XCTAssertEqual(BusinessCardTemplate.resolve(.binding, isPro: true), .binding)
+        XCTAssertEqual(BusinessCardTemplate.resolve(.museum, isPro: true), .museum)
     }
 
     func testIsUsable() {
-        XCTAssertTrue(BusinessCardTemplate.standard.isUsable(isPro: false))
-        XCTAssertFalse(BusinessCardTemplate.elegant.isUsable(isPro: false))
-        XCTAssertTrue(BusinessCardTemplate.elegant.isUsable(isPro: true))
+        XCTAssertTrue(BusinessCardTemplate.museum.isUsable(isPro: false))
+        XCTAssertFalse(BusinessCardTemplate.binding.isUsable(isPro: false))
+        XCTAssertTrue(BusinessCardTemplate.binding.isUsable(isPro: true))
     }
 
     func testLocalizationKey() {
-        XCTAssertEqual(BusinessCardTemplate.standard.localizationKey, "businessCard.template.standard")
-        XCTAssertEqual(BusinessCardTemplate.playful.localizationKey, "businessCard.template.playful")
+        XCTAssertEqual(BusinessCardTemplate.museum.localizationKey, "businessCard.template.museum")
+        XCTAssertEqual(BusinessCardTemplate.darkroom.localizationKey, "businessCard.template.darkroom")
     }
 
     func testFreeDefault() {
-        XCTAssertEqual(BusinessCardTemplate.freeDefault, .standard)
+        XCTAssertEqual(BusinessCardTemplate.freeDefault, .museum)
     }
 }

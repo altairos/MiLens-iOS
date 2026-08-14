@@ -43,7 +43,8 @@ manifest 字段（frame.json）：
   category             frame 或 sticker（默认 frame）
   fit_mode             stretch / nine_patch / ratio_set（默认 stretch）
   is_premium           bool，Pro 专属（默认 false）
-  group                分组标签（默认「基础」）
+  group                分组稳定 ID（frame: recommended/film/paper/holiday；sticker: recommended/paw/daily/memorial；
+                       默认 recommended，与 MiLensKit DecorationGroupIds 一致，显示名走本地化 decoration.group.<id>）
   sort_order           int，面板排序（默认 0）
   nine_patch_insets    {top,left,bottom,right}，仅 nine_patch 模式
   supported_ratios     ["1x1","3x4",...]，仅 ratio_set 模式（可省略，从文件名自动发现）
@@ -72,11 +73,20 @@ DEFAULT_CATALOG = REPO_ROOT / "MiLens" / "Resources" / "Decorations" / "catalog.
 MANIFEST_NAMES = ("frame.json", "sticker.json", "decoration.json")
 VALID_CATEGORIES = ("frame", "sticker")
 VALID_FITMODES = ("stretch", "nine_patch", "ratio_set")
+# 分组稳定 ID（与 MiLensKit/Sources/MiLensKit/Editor/DecorationCatalog.swift 的 DecorationGroupIds 一致；
+# UI 显示名走本地化 key decoration.group.<id>，见 MiLens/Resources/Localizable.xcstrings）。
+VALID_FRAME_GROUPS = ("recommended", "film", "paper", "holiday")
+VALID_STICKER_GROUPS = ("recommended", "paw", "daily", "memorial")
 FITMODE_SNAKE_TO_CAMEL = {
     "stretch": "stretch",
     "nine_patch": "ninePatch",
     "ratio_set": "ratioSet",
 }
+
+
+def valid_groups_for(category: str) -> tuple[str, ...]:
+    """按类别返回合法分组 ID（frame 与 sticker 分组集合互不通用）。"""
+    return VALID_STICKER_GROUPS if category == "sticker" else VALID_FRAME_GROUPS
 
 
 # --------------------------------------------------------------------------- #
@@ -105,6 +115,9 @@ def validate_manifest(m: dict, source: str) -> list[str]:
     cat = m.get("category", "frame")
     if cat not in VALID_CATEGORIES:
         errs.append(f"{source}: category 必须 in {VALID_CATEGORIES}，实际 {cat!r}")
+    group = m.get("group", "recommended")
+    if group not in valid_groups_for(cat):
+        errs.append(f"{source}: group 必须 in {valid_groups_for(cat)}（category={cat}），实际 {group!r}")
     fit = m.get("fit_mode", "stretch")
     if fit not in VALID_FITMODES:
         errs.append(f"{source}: fit_mode 必须 in {VALID_FITMODES}，实际 {fit!r}")
@@ -209,7 +222,7 @@ def manifest_to_catalog_item(m: dict, fit_mode: str, found_ratios: list[str]) ->
         "resourcePath": m["id"],
         "previewPath": m.get("preview_path") or m["id"],
         "isPremium": bool(m.get("is_premium", False)),
-        "group": m.get("group", "基础"),
+        "group": m.get("group", "recommended"),
         "sortOrder": int(m.get("sort_order", 0)),
         "fitMode": FITMODE_SNAKE_TO_CAMEL[fit_mode],
     }
@@ -377,6 +390,10 @@ def cmd_validate(args: argparse.Namespace) -> int:
         if cat not in VALID_CATEGORIES:
             print(f"[错误] {item_id}: category={cat} 非法")
             problems += 1
+        group = it.get("group", "recommended")
+        if group not in valid_groups_for(cat):
+            print(f"[错误] {item_id}: group={group} 非法（category={cat} 应为 {valid_groups_for(cat)}）")
+            problems += 1
         if fit not in FITMODE_SNAKE_TO_CAMEL.values():
             print(f"[错误] {item_id}: fitMode={fit} 非法（应为 {list(FITMODE_SNAKE_TO_CAMEL.values())}）")
             problems += 1
@@ -421,7 +438,7 @@ def cmd_init(args: argparse.Namespace) -> int:
         "category": "frame",
         "fit_mode": "nine_patch",
         "is_premium": False,
-        "group": "基础",
+        "group": "recommended",
         "sort_order": 0,
         "nine_patch_insets": {"top": 96, "left": 96, "bottom": 96, "right": 96},
         "supported_ratios": None,

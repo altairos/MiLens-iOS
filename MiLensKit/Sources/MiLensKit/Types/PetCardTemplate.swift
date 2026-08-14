@@ -6,26 +6,26 @@
 
 import Foundation
 
-/// 宠物卡片模板标识（ADR-0010 §4.1）。
+/// 宠物卡片模板标识（ADR-0010 §4.1，Figma「Keepsake Cards · Premium Directions」四套方向）。
 public enum PetCardTemplate: String, CaseIterable, Identifiable, Equatable, Sendable {
-    /// 经典：全屏照片 + 底部暖黑渐变 + 左下衬线名字（免费默认）。
-    case classic
-    /// 拍立得：白边相框 + 底部手写体文案区（Pro）。
-    case polaroid
-    /// 杂志：照片偏上 + 大号 display 标题 + 细体副标题（Pro）。
-    case magazine
-    /// 极简：纯照片 + 右下角小字签名（Pro）。
-    case minimal
+    /// 博物馆典藏：白底档案排版 + 朱砂藏印 + 纸纤维 + 竹枝墨拓（免费默认）。
+    case museum
+    /// 私人装帧：铜红藏书线 + 布纹 + 护页衬纸 + 压印（Pro）。
+    case binding
+    /// 现代画廊：满版照片 + 黑带丝网半调 + 朱砂导轨（Pro）。
+    case gallery
+    /// 夜间暗房：深底安全灯 + 银盐颗粒 + 胶片齿孔 + 曝光轨（Pro）。
+    case darkroom
 
     public var id: String { rawValue }
 
-    /// 模板显示名（简体中文，App 层用 String(localized:) 覆盖）。
+    /// 模板显示名（简体中文直出，Figma 2026.08.14 方向命名）。
     public var displayName: String {
         switch self {
-        case .classic:   return "经典"
-        case .polaroid:  return "拍立得"
-        case .magazine:  return "杂志"
-        case .minimal:   return "极简"
+        case .museum:    return "博物馆典藏"
+        case .binding:   return "私人装帧"
+        case .gallery:   return "现代画廊"
+        case .darkroom:  return "夜间暗房"
         }
     }
 
@@ -37,18 +37,18 @@ public enum PetCardTemplate: String, CaseIterable, Identifiable, Equatable, Send
     /// SF Symbol 预览图标（模板选择器缩略图占位，后续可换真实预览）。
     public var previewIcon: String {
         switch self {
-        case .classic:   return "rectangle.stack"
-        case .polaroid:  return "rectangle.dashed"
-        case .magazine:  return "book"
-        case .minimal:   return "rectangle"
+        case .museum:    return "building.columns"
+        case .binding:   return "book.closed"
+        case .gallery:   return "photo.artframe"
+        case .darkroom:  return "camera.filters"
         }
     }
 
     /// 是否为 Pro 专属模板（免费用户可见但不可用，点击触发付费墙）。
     public var isPremium: Bool {
         switch self {
-        case .classic:   return false
-        case .polaroid, .magazine, .minimal: return true
+        case .museum:    return false
+        case .binding, .gallery, .darkroom: return true
         }
     }
 
@@ -63,7 +63,7 @@ public enum PetCardTemplate: String, CaseIterable, Identifiable, Equatable, Send
 public extension PetCardTemplate {
 
     /// 免费用户始终可用的默认模板。
-    static let freeDefault: PetCardTemplate = .classic
+    static let freeDefault: PetCardTemplate = .museum
 
     /// 全部可选模板（用于模板选择器展示顺序）。
     static var allTemplates: [PetCardTemplate] {
@@ -76,7 +76,7 @@ public extension PetCardTemplate {
     }
 
     /// 将模板回退到当前 Pro 状态下可用的模板。
-    /// 免费用户传入 Pro 模板时回退到 `.classic`。
+    /// 免费用户传入 Pro 模板时回退到 `.museum`。
     static func resolve(_ template: PetCardTemplate, isPro: Bool) -> PetCardTemplate {
         template.isUsable(isPro: isPro) ? template : freeDefault
     }

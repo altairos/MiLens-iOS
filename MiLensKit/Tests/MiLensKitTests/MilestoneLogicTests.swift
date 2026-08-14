@@ -256,8 +256,8 @@ final class MemoryCardKindTests: XCTestCase {
     }
 
     func testDefaultTemplateForSinglePhotoKinds() {
-        XCTAssertEqual(MemoryCardKind.birthday.defaultTemplate, .classic)
-        XCTAssertEqual(MemoryCardKind.milestone.defaultTemplate, .classic)
+        XCTAssertEqual(MemoryCardKind.birthday.defaultTemplate, .museum)
+        XCTAssertEqual(MemoryCardKind.milestone.defaultTemplate, .museum)
     }
 
     func testDefaultTemplateNilForMultiPhotoKinds() {

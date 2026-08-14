@@ -32,12 +32,14 @@ struct PetCardView: View {
     /// 保存到相册的统一成功/失败反馈（顶部胶囊 + 触感）。
     @State private var exportToast: ExportToastMessage?
     /// ADR-0010 §4：卡片模板选择（持久化到 UserDefaults）。
-    @AppStorage("petCardTemplate") private var selectedTemplateRaw: String = PetCardTemplate.classic.rawValue
+    @AppStorage("petCardTemplate") private var selectedTemplateRaw: String = PetCardTemplate.museum.rawValue
     /// ADR-0010 §4：非 Pro 用户点击 Pro 模板时弹付费墙。
     @State private var showTemplatePaywall = false
     /// Figma 07 Annotation Register：一行注释（Display + 编辑 sheet）。
     @State private var annotation = ""
     @State private var showAnnotationEditor = false
+    /// 季节行（按拍摄日期推算，Keepsake 模板显示；空则该行不渲染）。
+    @State private var season = ""
 
     var body: some View {
         Group {
@@ -94,10 +96,10 @@ struct PetCardView: View {
     // MARK: - 预览
 
     private var selectedTemplate: PetCardTemplate {
-        PetCardTemplate(rawValue: selectedTemplateRaw) ?? .classic
+        PetCardTemplate(rawValue: selectedTemplateRaw) ?? .museum
     }
 
-    /// 当前 Pro 状态下实际生效的模板（免费用户回退到 classic）。
+    /// 当前 Pro 状态下实际生效的模板（免费用户回退到 museum）。
     private var resolvedTemplate: PetCardTemplate {
         PetCardTemplate.resolve(selectedTemplate, isPro: entitlement.isPro)
     }
@@ -139,7 +141,9 @@ struct PetCardView: View {
                         image: image,
                         content: content,
                         template: resolvedTemplate,
-                        includeWatermark: !entitlement.isPro
+                        includeWatermark: !entitlement.isPro,
+                        season: season,
+                        annotation: annotation
                     )
                         .frame(maxWidth: 342)
                         .aspectRatio(PetCardLogic.exportSize.width.cg / PetCardLogic.exportSize.height.cg,
@@ -233,7 +237,9 @@ struct PetCardView: View {
             image: image,
             content: content,
             template: resolvedTemplate,
-            includeWatermark: !entitlement.isPro
+            includeWatermark: !entitlement.isPro,
+            season: season,
+            annotation: annotation
         )
             .frame(width: size.width.cg, height: size.height.cg)
         let renderer = ImageRenderer(content: artwork)
@@ -314,6 +320,7 @@ struct PetCardView: View {
             }
             image = loaded
             content = PetCardLogic.content(pet: photo.pet, takenAt: photo.takenAt, kind: kind)
+            season = photo.takenAt.map { PetBusinessCardLogic.seasonLine(from: $0) } ?? ""
         } catch {
             logger.error("load: 读取照片失败（\(error.localizedDescription)）")
         }
@@ -357,218 +364,6 @@ struct AnnotationEditorSheet: View {
                     Button(String(localized: "common.ok")) { dismiss() }
                 }
             }
-        }
-    }
-}
-
-// MARK: - 卡片排版（预览与导出共用）
-
-/// 宠物卡片版式：照片铺底 + 底部暖黑渐变 + 名字/物种/日期行。
-/// 字号与间距按画布宽度比例缩放（预览与 1080px 导出同源）。
-struct PetCardArtwork: View {
-    let image: UIImage
-    let content: PetCardContent
-    /// ADR-0010 §4：卡片模板（决定排版分支）。
-    var template: PetCardTemplate = .classic
-    /// ADR-0010：免费版导出在底部渐变区显示半透明「MiLens」水印。
-    var includeWatermark: Bool = false
-
-    var body: some View {
-        GeometryReader { geo in
-            let w = geo.size.width
-            let h = geo.size.height
-            switch template {
-            case .classic:
-                classicLayout(w: w, h: h)
-            case .polaroid:
-                polaroidLayout(w: w, h: h)
-            case .magazine:
-                magazineLayout(w: w, h: h)
-            case .minimal:
-                minimalLayout(w: w, h: h)
-            }
-        }
-        .aspectRatio(PetCardLogic.exportSize.width.cg / PetCardLogic.exportSize.height.cg,
-                     contentMode: .fit)
-    }
-
-    // MARK: - 经典（全屏照片 + 底部渐变 + 左下文字）
-
-    private func classicLayout(w: CGFloat, h: CGFloat) -> some View {
-        ZStack(alignment: .bottomLeading) {
-            Image(uiImage: image)
-                .resizable()
-                .scaledToFill()
-                .frame(width: w, height: h)
-                .clipped()
-
-            LinearGradient(
-                colors: [Color.black.opacity(0.78), Color.black.opacity(0.0)],
-                startPoint: .bottom, endPoint: .top
-            )
-            .frame(height: h * PetCardLogic.gradientHeightRatio)
-            .frame(maxHeight: .infinity, alignment: .bottom)
-
-            classicTextBlock(w: w)
-
-            watermarkOverlay(w: w)
-        }
-    }
-
-    private func classicTextBlock(w: CGFloat) -> some View {
-        VStack(alignment: .leading, spacing: w * 0.024) {
-            Text("\(content.emoji) \(content.subtitle)")
-                .font(.system(size: w * 0.042, weight: .medium, design: .rounded))
-                .foregroundStyle(.white.opacity(0.92))
-
-            Text(content.title)
-                .font(.custom("LXGWWenKai-Regular", size: w * 0.10))
-                .foregroundStyle(.white)
-                .lineLimit(1)
-                .minimumScaleFactor(0.6)
-
-            Text(content.dateLine)
-                .font(.system(size: w * 0.036, weight: .regular, design: .rounded))
-                .foregroundStyle(.white.opacity(0.78))
-        }
-        .padding(w * 0.07)
-        .padding(.bottom, w * 0.05)
-    }
-
-    // MARK: - 拍立得（白边相框 + 底部文字区）
-
-    private func polaroidLayout(w: CGFloat, h: CGFloat) -> some View {
-        let border = w * 0.06
-        let photoH = h * 0.70
-        return VStack(spacing: 0) {
-            Image(uiImage: image)
-                .resizable()
-                .scaledToFill()
-                .frame(width: w - border * 2, height: photoH)
-                .clipped()
-                .padding(.top, border)
-            // 底部文字区（白底深字）
-            VStack(alignment: .leading, spacing: w * 0.02) {
-                Text(content.title)
-                    .font(.custom("LXGWWenKai-Regular", size: w * 0.075))
-                    .foregroundStyle(Color.milensTextPrimary)
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.6)
-                Text("\(content.emoji) \(content.subtitle) · \(content.dateLine)")
-                    .font(.system(size: w * 0.034, weight: .regular, design: .rounded))
-                    .foregroundStyle(Color.milensTextSecondary)
-            }
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(.horizontal, border)
-            .padding(.top, w * 0.04)
-            .padding(.bottom, border)
-            .frame(maxHeight: .infinity)
-            .background(Color.white)
-            .overlay(alignment: .bottomTrailing) {
-                if includeWatermark {
-                    Text("MiLens")
-                        .font(.system(size: w * 0.028, weight: .medium, design: .rounded))
-                        .foregroundStyle(Color.milensTextTertiary)
-                        .padding(border * 0.5)
-                }
-            }
-        }
-        .frame(width: w, height: h)
-        .background(Color.white)
-    }
-
-    // MARK: - 杂志（照片偏上 + 大标题 + 细副标题）
-
-    private func magazineLayout(w: CGFloat, h: CGFloat) -> some View {
-        let photoH = h * 0.58
-        return VStack(spacing: 0) {
-            Image(uiImage: image)
-                .resizable()
-                .scaledToFill()
-                .frame(width: w, height: photoH)
-                .clipped()
-
-            VStack(alignment: .leading, spacing: w * 0.03) {
-                Text("\(content.emoji) \(content.subtitle)")
-                    .font(.system(size: w * 0.038, weight: .light, design: .serif))
-                    .foregroundStyle(Color.milensTextSecondary)
-                    .tracking(w * 0.008)
-
-                Text(content.title)
-                    .font(.custom("LXGWWenKai-Regular", size: w * 0.12))
-                    .foregroundStyle(Color.milensTextPrimary)
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.5)
-
-                Spacer(minLength: 0)
-
-                Text(content.dateLine)
-                    .font(.system(size: w * 0.034, weight: .regular, design: .serif))
-                    .foregroundStyle(Color.milensTextSecondary)
-            }
-            .padding(w * 0.08)
-            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-            .background(Color.milensBackground)
-            .overlay(alignment: .bottomTrailing) {
-                if includeWatermark {
-                    Text("MiLens")
-                        .font(.system(size: w * 0.028, weight: .medium, design: .serif))
-                        .foregroundStyle(Color.milensTextTertiary)
-                        .padding(w * 0.05)
-                }
-            }
-        }
-        .frame(width: w, height: h)
-    }
-
-    // MARK: - 极简（纯照片 + 右下角小字）
-
-    private func minimalLayout(w: CGFloat, h: CGFloat) -> some View {
-        ZStack(alignment: .bottomTrailing) {
-            Image(uiImage: image)
-                .resizable()
-                .scaledToFill()
-                .frame(width: w, height: h)
-                .clipped()
-
-            // 极轻微底部渐变保证文字可读
-            LinearGradient(
-                colors: [Color.black.opacity(0.45), Color.black.opacity(0.0)],
-                startPoint: .bottom, endPoint: .top
-            )
-            .frame(height: h * 0.22)
-            .frame(maxHeight: .infinity, alignment: .bottom)
-
-            VStack(alignment: .trailing, spacing: w * 0.012) {
-                Text("\(content.emoji) \(content.title)")
-                    .font(.system(size: w * 0.04, weight: .medium, design: .default))
-                    .foregroundStyle(.white.opacity(0.9))
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.6)
-                Text(content.dateLine)
-                    .font(.system(size: w * 0.028, weight: .regular, design: .default))
-                    .foregroundStyle(.white.opacity(0.65))
-                if includeWatermark {
-                    Text("MiLens")
-                        .font(.system(size: w * 0.024, weight: .medium, design: .default))
-                        .foregroundStyle(.white.opacity(0.4))
-                }
-            }
-            .padding(w * 0.06)
-            .padding(.bottom, w * 0.03)
-        }
-    }
-
-    // MARK: - 水印辅助（仅 classic 用）
-
-    @ViewBuilder
-    private func watermarkOverlay(w: CGFloat) -> some View {
-        if includeWatermark {
-            Text("MiLens")
-                .font(.system(size: w * 0.03, weight: .medium, design: .rounded))
-                .foregroundStyle(.white.opacity(0.5))
-                .padding(w * 0.05)
-                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottomTrailing)
         }
     }
 }

@@ -79,6 +79,15 @@ struct EditorView: View {
         } message: {
             Text(vm.errorMessage ?? "")
         }
+        // 装饰面板 Pro 锁定项 → 付费墙（开发计划 §3.4）：锁定素材点击由面板 VM 置 pendingPaywallItem，
+        // isPro 由 EditorDecorationPanelView 从环境读取传入动作；sheet 关闭时复位意图，
+        // 购买成功后可再次选择同一素材（规格 §4.2）。
+        .sheet(isPresented: Binding(
+            get: { vm.decorationVM.pendingPaywallItem != nil },
+            set: { if !$0 { vm.decorationVM.clearPaywallIntent() } }
+        )) {
+            NavigationStack { PaywallView() }
+        }
     }
 
     // MARK: - 顶栏

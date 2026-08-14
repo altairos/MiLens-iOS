@@ -38,19 +38,25 @@ public struct EditorLayerSnapshot: Codable, Equatable {
     public var strokeColor: String
     // 照片底图是否含透明像素
     public var hasAlpha: Bool
+    // 装饰图层素材路径（仅 frame/sticker 层写入；nil = 旧快照或非装饰层，恢复时回退空串）
+    public var resourcePath: String?
+    // 图层可见性（nil = 旧快照缺失该字段，恢复时默认 true）
+    public var visible: Bool?
 
     public init(id: String, type: String, x: Double, y: Double, width: Double, height: Double,
                 rotation: Double, scale: Double, opacity: Double, zIndex: Int,
                 flipX: Bool, flipY: Bool, brightness: Double, contrast: Double,
                 saturation: Double, temperature: Double, sharpness: Double, text: String,
                 fontSize: Double, fontColor: String, maxWidth: Double, strokeWidth: Double,
-                strokeColor: String, hasAlpha: Bool) {
+                strokeColor: String, hasAlpha: Bool,
+                resourcePath: String? = nil, visible: Bool? = nil) {
         self.id = id; self.type = type; self.x = x; self.y = y; self.width = width; self.height = height
         self.rotation = rotation; self.scale = scale; self.opacity = opacity; self.zIndex = zIndex
         self.flipX = flipX; self.flipY = flipY; self.brightness = brightness; self.contrast = contrast
         self.saturation = saturation; self.temperature = temperature; self.sharpness = sharpness
         self.text = text; self.fontSize = fontSize; self.fontColor = fontColor; self.maxWidth = maxWidth
         self.strokeWidth = strokeWidth; self.strokeColor = strokeColor; self.hasAlpha = hasAlpha
+        self.resourcePath = resourcePath; self.visible = visible
     }
 }
 
@@ -68,7 +74,9 @@ public func serializeEditorLayer(_ layer: EditorLayer) -> EditorLayerSnapshot {
         sharpness: layer.adjustments.sharpness,
         text: layer.text, fontSize: layer.fontSize, fontColor: layer.fontColor,
         maxWidth: layer.maxWidth, strokeWidth: layer.strokeWidth, strokeColor: layer.strokeColor,
-        hasAlpha: layer.hasAlpha)
+        hasAlpha: layer.hasAlpha,
+        resourcePath: (layer.type == .frame || layer.type == .sticker) ? layer.resourcePath : nil,
+        visible: layer.visible)
 }
 
 /// 把快照反序列化为 EditorLayer。对应源端 `deserializeLayer`。
@@ -76,11 +84,12 @@ public func serializeEditorLayer(_ layer: EditorLayer) -> EditorLayerSnapshot {
 public func deserializeEditorLayer(_ data: EditorLayerSnapshot) -> EditorLayer {
     let layerType = EditorLayerType(rawValue: data.type) ?? .photo
     return EditorLayer(
-        id: data.id, type: layerType, zIndex: data.zIndex, visible: true,
+        id: data.id, type: layerType, zIndex: data.zIndex, visible: data.visible ?? true,
         x: data.x, y: data.y, scale: data.scale, rotation: data.rotation,
         opacity: data.opacity, flipX: data.flipX, flipY: data.flipY,
         width: data.width > 0 ? data.width : 100,
         height: data.height > 0 ? data.height : 100,
+        resourcePath: data.resourcePath ?? "",
         hasAlpha: data.hasAlpha,
         adjustments: EditorColorAdjustments(
             brightness: data.brightness, contrast: data.contrast,

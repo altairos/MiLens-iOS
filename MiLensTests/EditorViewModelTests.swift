@@ -1,8 +1,10 @@
 //  EditorViewModelTests —— 编辑器 ViewModel 决策测试（对应 PLAN.md Phase 3 XCTest）。
 //  覆盖：加载/失败、工具与组切换、裁剪（初始化/比例/确认=像素级重置历史）、旋转/翻转、
 //  调色滑块手势合并、锐化 end 触发、文字（添加/编辑/删除/撤销重做）、
-//  抠图（成功/失败无降级）、保存回写（文件 + Photo 就地更新）、返回动作与保存选择。
+//  抠图（成功/失败无降级）、保存回写（文件 + Photo 就地更新）、返回动作与保存选择、
+//  装饰面板（工具门禁/贴纸添加与上限/相框单选替换/Pro 付费墙意图/画布重映射/分组记忆）。
 //  使用 MockEditorImageProcessing + MockFileStorage + 内存 repo（不碰 SwiftData / Core Image）。
+//  注意：装饰区段测试未在本地执行（Windows 环境无法跑 App target XCTest），待 Mac/CI 验证。
 
 import CoreGraphics
 import ImageIO
@@ -30,7 +32,7 @@ final class EditorViewModelTests: XCTestCase {
 
     // MARK: - 基础设施
 
-    private func makeVM(photoID: UUID) -> EditorViewModel {
+    private func makeVM(photoID: UUID, decorationCatalog: DecorationCatalog = .empty) -> EditorViewModel {
         EditorViewModel(
             photoID: photoID,
             photoRepo: repo,
@@ -42,18 +44,20 @@ final class EditorViewModelTests: XCTestCase {
                     fileStorage: storage, sandboxDir: sandboxDir
                 ),
                 sandboxDir: sandboxDir
-            )
+            ),
+            decorationCatalog: decorationCatalog
         )
     }
 
     /// 写一张 width×height 的 JPEG 到临时目录并入库，返回已 load 的 VM。
-    private func makeLoadedVM(width: Int = 400, height: Int = 300) async -> EditorViewModel {
+    private func makeLoadedVM(width: Int = 400, height: Int = 300,
+                              catalog: DecorationCatalog = .empty) async -> EditorViewModel {
         let url = URL(fileURLWithPath: NSTemporaryDirectory())
             .appendingPathComponent("editor-\(UUID().uuidString).jpg")
         writeJPEG(url: url, width: width, height: height)
         let photo = Photo(uri: url.path, width: width, height: height)
         try? repo.insertPhoto(photo)
-        let vm = makeVM(photoID: photo.id)
+        let vm = makeVM(photoID: photo.id, decorationCatalog: catalog)
         await vm.load()
         vm.setCanvasSize(CGSize(width: CGFloat(width), height: CGFloat(height)))
         return vm
@@ -521,5 +525,214 @@ final class EditorViewModelTests: XCTestCase {
         dirty.back()
         dirty.discardAndBack()
         XCTAssertTrue(dirty.shouldDismiss)
+    }
+
+    // MARK: - 装饰面板（相框/贴纸）
+    // 未执行：Windows 环境无法跑 App target XCTest，待 Mac/CI 验证。
+
+    /// 测试用装饰目录：frame（film 组 a/b + holiday 组 Pro）、sticker（paw 组 + daily 组 Pro）。
+    private func makeDecorationCatalog() -> DecorationCatalog {
+        DecorationCatalog(items: [
+            DecorationItem(id: "frame_a", name: "相框A", category: .frame,
+                           resourcePath: "frame_a", previewPath: "frame_a", group: "film"),
+            DecorationItem(id: "frame_b", name: "相框B", category: .frame,
+                           resourcePath: "frame_b", previewPath: "frame_b", group: "film"),
+            DecorationItem(id: "frame_pro", name: "节日Pro相框", category: .frame,
+                           resourcePath: "frame_pro", previewPath: "frame_pro",
+                           isPremium: true, group: "holiday"),
+            DecorationItem(id: "sticker_paw", name: "爪印", category: .sticker,
+                           resourcePath: "sticker_paw", previewPath: "sticker_paw", group: "paw"),
+            DecorationItem(id: "sticker_pro", name: "日常Pro贴纸", category: .sticker,
+                           resourcePath: "sticker_pro", previewPath: "sticker_pro",
+                           isPremium: true, group: "daily"),
+        ])
+    }
+
+    /// 工具入口门禁（§10）：catalog 对应类别非空才显示入口；空 catalog 无假入口。
+    func testDecorationToolGatesFollowCatalog() async {
+        // 空 catalog（素材后补的现状）→ 双入口隐藏
+        let empty = await makeLoadedVM()
+        XCTAssertFalse(empty.hasFrameItems)
+        XCTAssertFalse(empty.hasStickerItems)
+
+        // 双类别齐全 → 双入口
+        let full = await makeLoadedVM(catalog: makeDecorationCatalog())
+        XCTAssertTrue(full.hasFrameItems)
+        XCTAssertTrue(full.hasStickerItems)
+
+        // 仅 frame → 贴纸入口仍隐藏
+        let framesOnly = await makeLoadedVM(catalog: DecorationCatalog(items: [
+            DecorationItem(id: "frame_a", name: "相框A", category: .frame,
+                           resourcePath: "frame_a", previewPath: "frame_a"),
+        ]))
+        XCTAssertTrue(framesOnly.hasFrameItems)
+        XCTAssertFalse(framesOnly.hasStickerItems)
+    }
+
+    /// 添加贴纸：创建图层 + 选中（手势链前提）+ 一次 push 可撤销。
+    func testAddStickerCreatesSelectedUndoableLayer() async {
+        let vm = await makeLoadedVM(catalog: makeDecorationCatalog())
+        vm.selectTool(.sticker)
+        let sticker = vm.decorationCatalog.find("sticker_paw")!
+
+        vm.decorationVM.addSticker(sticker, isPro: true)
+
+        XCTAssertEqual(vm.layers.count, 2)
+        let added = vm.layers.last
+        XCTAssertEqual(added?.type, .sticker)
+        XCTAssertEqual(added?.resourcePath, "sticker_paw")
+        XCTAssertEqual(vm.activeLayerID, added?.id)
+        XCTAssertTrue(vm.decorationVM.hasActiveSticker)
+        XCTAssertTrue(vm.canUndo)
+
+        vm.undo()
+        XCTAssertEqual(vm.layers.count, 1)
+        XCTAssertNil(vm.layers.first { $0.type == .sticker })
+    }
+
+    /// 贴纸上限（STICKER_LAYER_LIMIT=20）：第 21 个被拦 + 提示置位，View 复位后可再试。
+    func testStickerLimitBlocksAtTwentyAndShowsToast() async {
+        let vm = await makeLoadedVM(catalog: makeDecorationCatalog())
+        vm.selectTool(.sticker)
+        let sticker = vm.decorationCatalog.find("sticker_paw")!
+
+        for _ in 0..<STICKER_LAYER_LIMIT {
+            vm.decorationVM.addSticker(sticker, isPro: true)
+        }
+        XCTAssertEqual(vm.layers.filter { $0.type == .sticker }.count, STICKER_LAYER_LIMIT)
+
+        vm.decorationVM.addSticker(sticker, isPro: true) // 第 21 个
+        XCTAssertEqual(vm.layers.filter { $0.type == .sticker }.count, STICKER_LAYER_LIMIT)
+        XCTAssertTrue(vm.decorationVM.showsStickerLimitToast)
+
+        vm.decorationVM.clearStickerLimitToast()
+        XCTAssertFalse(vm.decorationVM.showsStickerLimitToast)
+    }
+
+    /// Pro 判定：锁定项点击不改文档、置付费墙意图；isPro=true 同一素材可直接使用。
+    func testPremiumDecorationTriggersPaywallIntentOnlyWhenLocked() async {
+        let vm = await makeLoadedVM(catalog: makeDecorationCatalog())
+
+        vm.selectTool(.sticker)
+        vm.decorationVM.addSticker(vm.decorationCatalog.find("sticker_pro")!, isPro: false)
+        XCTAssertEqual(vm.layers.count, 1) // 文档未改
+        XCTAssertEqual(vm.decorationVM.pendingPaywallItem?.id, "sticker_pro")
+
+        vm.decorationVM.clearPaywallIntent()
+        vm.decorationVM.addSticker(vm.decorationCatalog.find("sticker_pro")!, isPro: true)
+        XCTAssertEqual(vm.layers.count, 2)
+        XCTAssertNil(vm.decorationVM.pendingPaywallItem)
+
+        vm.selectTool(.frame)
+        vm.decorationVM.applyFrame(vm.decorationCatalog.find("frame_pro")!, isPro: false)
+        XCTAssertNil(vm.decorationVM.currentFrameResourcePath)
+        XCTAssertEqual(vm.decorationVM.pendingPaywallItem?.id, "frame_pro")
+    }
+
+    /// 相框单选替换：唯一 frame + 铺满画布 + 不可选中；同资源短路；替换为整体一条历史。
+    func testApplyFrameReplacesSoleFrameWithSingleHistoryStep() async {
+        let vm = await makeLoadedVM(catalog: makeDecorationCatalog()) // 画布 400×300
+        vm.selectTool(.frame)
+
+        vm.decorationVM.applyFrame(vm.decorationCatalog.find("frame_a")!, isPro: true)
+        XCTAssertEqual(vm.layers.filter { $0.type == .frame }.count, 1)
+        XCTAssertEqual(vm.decorationVM.currentFrameResourcePath, "frame_a")
+        let frame = vm.layers.first { $0.type == .frame }!
+        XCTAssertEqual(frame.x, 200, accuracy: 0.5) // 画布中心铺满
+        XCTAssertEqual(frame.y, 150, accuracy: 0.5)
+        XCTAssertEqual(frame.width, 400, accuracy: 0.5)
+        XCTAssertEqual(frame.height, 300, accuracy: 0.5)
+        XCTAssertNil(vm.activeLayerID) // 相框不可选中（阻塞项6）
+
+        // 换 B：仍是唯一 frame（单选替换）
+        vm.decorationVM.applyFrame(vm.decorationCatalog.find("frame_b")!, isPro: true)
+        XCTAssertEqual(vm.layers.filter { $0.type == .frame }.count, 1)
+        XCTAssertEqual(vm.decorationVM.currentFrameResourcePath, "frame_b")
+
+        // 点击当前已选相框：保持选中，不重复创建（§4.2）
+        vm.decorationVM.applyFrame(vm.decorationCatalog.find("frame_b")!, isPro: true)
+        XCTAssertEqual(vm.layers.filter { $0.type == .frame }.count, 1)
+
+        // 撤销链：B → A → 无（替换为整体一条记录）
+        vm.undo()
+        XCTAssertEqual(vm.decorationVM.currentFrameResourcePath, "frame_a")
+        vm.undo()
+        XCTAssertNil(vm.decorationVM.currentFrameResourcePath)
+    }
+
+    /// 标题行图标动作：移除相框（可撤销恢复）；删除贴纸（非贴纸选中态静默）。
+    func testRemoveFrameAndDeleteStickerHeaderActions() async {
+        let vm = await makeLoadedVM(catalog: makeDecorationCatalog())
+        vm.selectTool(.frame)
+        vm.decorationVM.applyFrame(vm.decorationCatalog.find("frame_a")!, isPro: true)
+
+        vm.decorationVM.removeFrame()
+        XCTAssertEqual(vm.layers.filter { $0.type == .frame }.count, 0)
+        XCTAssertNil(vm.decorationVM.currentFrameResourcePath)
+        vm.undo()
+        XCTAssertEqual(vm.decorationVM.currentFrameResourcePath, "frame_a")
+
+        // 非贴纸选中态（照片/相框/nil）静默，不误删
+        vm.selectTool(.sticker)
+        let before = vm.layers.count
+        vm.decorationVM.deleteActiveSticker()
+        XCTAssertEqual(vm.layers.count, before)
+
+        // 添加后选中的贴纸可被标题行动作删除
+        vm.decorationVM.addSticker(vm.decorationCatalog.find("sticker_paw")!, isPro: true)
+        XCTAssertTrue(vm.decorationVM.hasActiveSticker)
+        vm.decorationVM.deleteActiveSticker()
+        XCTAssertEqual(vm.layers.filter { $0.type == .sticker }.count, 0)
+    }
+
+    /// 画布变化重映射（阻塞项7）：frame 重新铺满，sticker 中心按比例迁移 + scale 按短边比缩放。
+    func testSetCanvasSizeRemapsFrameAndSticker() async {
+        let vm = await makeLoadedVM(catalog: makeDecorationCatalog()) // 画布 400×300
+        vm.selectTool(.frame)
+        vm.decorationVM.applyFrame(vm.decorationCatalog.find("frame_a")!, isPro: true)
+        vm.selectTool(.sticker)
+        vm.decorationVM.addSticker(vm.decorationCatalog.find("sticker_paw")!, isPro: true)
+        let stickerBefore = vm.layers.first { $0.type == .sticker }!
+
+        vm.setCanvasSize(CGSize(width: 800, height: 600))
+
+        let frame = vm.layers.first { $0.type == .frame }!
+        XCTAssertEqual(frame.x, 400, accuracy: 0.5)
+        XCTAssertEqual(frame.y, 300, accuracy: 0.5)
+        XCTAssertEqual(frame.width, 800, accuracy: 0.5)
+        XCTAssertEqual(frame.height, 600, accuracy: 0.5)
+
+        let sticker = vm.layers.first { $0.type == .sticker }!
+        XCTAssertEqual(sticker.x, stickerBefore.x * 2, accuracy: 1) // 中心归一化迁移
+        XCTAssertEqual(sticker.y, stickerBefore.y * 2, accuracy: 1)
+        XCTAssertEqual(sticker.scale, stickerBefore.scale * 2, accuracy: 0.01) // 短边比缩放（22%→44% 未触钳制）
+    }
+
+    /// 分组稳定序（常量序内仅出现有素材的组）+ 分组索引按类别独立记忆。
+    func testDecorationGroupOrderAndPerCategoryMemory() async {
+        let vm = await makeLoadedVM(catalog: makeDecorationCatalog())
+        vm.selectTool(.frame)
+        XCTAssertEqual(vm.decorationVM.groups.map(\.id), ["film", "holiday"])
+
+        vm.decorationVM.selectGroup(1)
+        XCTAssertEqual(vm.decorationVM.currentGroup?.id, "holiday")
+
+        // 切到贴纸：分组索引独立记忆（首组 paw，不继承相框的 holiday）
+        vm.selectTool(.sticker)
+        XCTAssertEqual(vm.decorationVM.groups.map(\.id), ["paw", "daily"])
+        XCTAssertEqual(vm.decorationVM.currentGroup?.id, "paw")
+
+        // 切回相框：恢复记忆的 holiday
+        vm.selectTool(.frame)
+        XCTAssertEqual(vm.decorationVM.currentGroup?.id, "holiday")
+    }
+
+    /// 空 catalog（素材后补现状）：分组空、无当前组（View 据此显示空态），无选中态。
+    func testEmptyCatalogDecorationPanelShowsEmptyState() async {
+        let vm = await makeLoadedVM()
+        XCTAssertTrue(vm.decorationVM.groups.isEmpty)
+        XCTAssertNil(vm.decorationVM.currentGroup)
+        XCTAssertNil(vm.decorationVM.currentFrameResourcePath)
+        XCTAssertFalse(vm.decorationVM.hasActiveSticker)
     }
 }

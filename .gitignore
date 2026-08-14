@@ -50,6 +50,7 @@ Package.resolved
 # 临时与备份
 *.tmp
 *~
+tmp/
 
 # Python 生成产物（模型转换工具链）
 __pycache__/

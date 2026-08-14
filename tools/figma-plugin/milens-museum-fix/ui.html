@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<style>
+  :root { color-scheme: light dark; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, "PingFang SC", "Noto Sans SC", "Segoe UI", sans-serif;
+    font-size: 12px; padding: 14px; line-height: 1.5;
+  }
+  h1 { font-size: 13px; font-weight: 600; margin-bottom: 2px; }
+  .sub { opacity: 0.65; margin-bottom: 12px; }
+  .group { display: flex; align-items: flex-start; gap: 8px; padding: 7px 8px; border-radius: 6px; }
+  .group:hover { background: rgba(127, 127, 127, 0.12); }
+  .group input { margin-top: 3px; }
+  .group label { cursor: pointer; }
+  .group .hint { display: block; opacity: 0.6; font-size: 11px; }
+  .row { display: flex; gap: 8px; margin-top: 12px; }
+  button {
+    flex: 1; padding: 8px 0; border-radius: 6px; border: 1px solid rgba(127,127,127,0.4);
+    background: transparent; cursor: pointer; font-size: 12px;
+  }
+  button.primary { background: #BC4727; border-color: #BC4727; color: #fff; }
+  #result {
+    margin-top: 12px; padding: 10px; border-radius: 6px; background: rgba(127,127,127,0.12);
+    max-height: 180px; overflow: auto; white-space: pre-wrap; display: none; font-size: 11px;
+  }
+  #result .summary { font-weight: 600; margin-bottom: 4px; }
+</style>
+</head>
+<body>
+  <h1>MiLens Museum Fix</h1>
+  <div class="sub">「01 · Museum Archive」(#692:1316)评审修正,共 10 组。整体可一次 Ctrl+Z 撤销。</div>
+
+  <div class="group"><input type="checkbox" id="g1" checked /><label for="g1">G1 纹理强度统一<span class="hint">Keepsake 纸纤维/墨拓降到与名片一致,让出文字区</span></label></div>
+  <div class="group"><input type="checkbox" id="g2" checked /><label for="g2">G2 季节统一朱砂<span class="hint">Keepsake「2026 · 夏」→ #BC4727,与名字同顶</span></label></div>
+  <div class="group"><input type="checkbox" id="g3" checked /><label for="g3">G3 分隔线 token 统一<span class="hint">#ECE7E1 → #E5DFD8(milensBorder)</span></label></div>
+  <div class="group"><input type="checkbox" id="g4" checked /><label for="g4">G4 名片右栏两段式重构<span class="hint">隐藏内联字段,新建 标签行+内容行,固定组距,ID 行底对齐照片底</span></label></div>
+  <div class="group"><input type="checkbox" id="g5" checked /><label for="g5">G5 头行去重复编号<span class="hint">「MILENS PET PROFILE」,编号只在 ID 行出现一次</span></label></div>
+  <div class="group"><input type="checkbox" id="g6" checked /><label for="g6">G6 信息行对比度升档<span class="hint">#A89F97 → #6B625B(纯装饰文字保留灰)</span></label></div>
+  <div class="group"><input type="checkbox" id="g7" checked /><label for="g7">G7 Keepsake 下部节奏微调<span class="hint">4px 基数:藏印/规则线/名字/物种/编号对位</span></label></div>
+  <div class="group"><input type="checkbox" id="g8" checked /><label for="g8">G8 名片右上小藏印<span class="hint">16×16 朱砂方块 + 8pt M,跨卡典藏识别</span></label></div>
+  <div class="group"><input type="checkbox" id="g9" checked /><label for="g9">G9 Device Note 补实现说明<span class="hint">ID 规则 / 照片裁切 / 字体映射 / 导出基准</span></label></div>
+  <div class="group"><input type="checkbox" id="g10" checked /><label for="g10">G10 纹理精修重绘<span class="hint">程序化重绘纸纤维(帘纹+纤维束)与竹叶墨拓,替换原 SVG,文字区自动减稀</span></label></div>
+
+  <div class="row">
+    <button class="primary" id="apply">Apply</button>
+    <button id="close">Close</button>
+  </div>
+  <div id="result"></div>
+
+<script>
+  const ids = ['g1','g2','g3','g4','g5','g6','g7','g8','g9','g10'];
+
+  document.getElementById('apply').onclick = () => {
+    const groups = {};
+    ids.forEach((id) => { groups[id] = document.getElementById(id).checked; });
+    document.getElementById('apply').disabled = true;
+    parent.postMessage({ pluginMessage: { type: 'apply', groups } }, '*');
+  };
+
+  document.getElementById('close').onclick = () => {
+    parent.postMessage({ pluginMessage: { type: 'close' } }, '*');
+  };
+
+  onmessage = (event) => {
+    const msg = event.data.pluginMessage;
+    if (!msg || msg.type !== 'result') return;
+    document.getElementById('apply').disabled = false;
+    const box = document.getElementById('result');
+    box.style.display = 'block';
+    box.innerHTML = '';
+    const sum = document.createElement('div');
+    sum.className = 'summary';
+    sum.textContent = '应用 ' + msg.applied + ' 项 / 跳过 ' + msg.skipped + ' 项';
+    box.appendChild(sum);
+    const detail = document.createElement('div');
+    detail.textContent = msg.notes.join('\n');
+    box.appendChild(detail);
+  };
+</script>
+</body>
+</html>

@@ -57,6 +57,7 @@ final class EditorViewModel {
     private var adjustVMStorage: EditorAdjustPanelVM?
     private var textVMStorage: EditorTextPanelVM?
     private var cutoutVMStorage: EditorCutoutPanelVM?
+    private var decorationVMStorage: EditorDecorationPanelVM?
     var cropVM: EditorCropPanelVM {
         if let vm = cropVMStorage { return vm }
         let vm = EditorCropPanelVM(owner: self)
@@ -79,6 +80,12 @@ final class EditorViewModel {
         if let vm = cutoutVMStorage { return vm }
         let vm = EditorCutoutPanelVM(owner: self)
         cutoutVMStorage = vm
+        return vm
+    }
+    var decorationVM: EditorDecorationPanelVM {
+        if let vm = decorationVMStorage { return vm }
+        let vm = EditorDecorationPanelVM(owner: self)
+        decorationVMStorage = vm
         return vm
     }
 
@@ -132,8 +139,14 @@ final class EditorViewModel {
     // MARK: - 初始化
 
     /// 装饰资源目录（相框/贴纸元数据）；V1.0 默认空目录，由 ViewModelFactory 从
-    /// Bundle catalog.json 加载注入。导出时按 resourcePath 查 item → 构造渲染源。
-    private let decorationCatalog: DecorationCatalog
+    /// Bundle catalog.json 加载注入。导出与预览按 resourcePath 查 item 构造渲染源。
+    /// internal 只读：装饰面板子 VM 与工具门禁共用（协作接口，同 imageProcessor）。
+    let decorationCatalog: DecorationCatalog
+
+    /// 装饰工具门禁（开发计划 §10）：catalog 对应类别非空才显示工具入口；
+    /// 空 catalog 时无假入口（只显示文字工具，现状不变）。
+    var hasFrameItems: Bool { !decorationCatalog.items(for: .frame).isEmpty }
+    var hasStickerItems: Bool { !decorationCatalog.items(for: .sticker).isEmpty }
 
     init(photoID: UUID,
          photoRepo: any PhotoRepositoryProtocol,
@@ -190,11 +203,18 @@ final class EditorViewModel {
         syncState()
     }
 
-    /// View 报告画布尺寸（fit 后的图片显示区域；静默更新底图图层，不入历史）。
+    /// View 报告画布尺寸（fit 后的图片显示区域；静默重映射图层，不入历史）。
+    /// 阻塞项7：photo/frame 铺满新画布，sticker/text 中心按比例迁移并钳制 scale
+    /// （MiLensKit.remapLayersForCanvas）；首次报告（旧画布无效）时仅铺满底图。
     func setCanvasSize(_ size: CGSize) {
         guard size.width > 0, size.height > 0, size != canvasSize else { return }
+        let previous = canvasSize
         canvasSize = size
-        if let layer = document.photoLayer() {
+        if previous.width > 0, previous.height > 0 {
+            for layer in remapLayersForCanvas(document.getLayers(), from: previous, to: size) {
+                document.updateLayer(layer.id) { l in l = layer }
+            }
+        } else if let layer = document.photoLayer() {
             document.updateLayer(layer.id) { l in
                 l.x = size.width / 2
                 l.y = size.height / 2
@@ -277,7 +297,7 @@ final class EditorViewModel {
     }
 
     func scaleActiveLayer(by factor: Double) {
-        document.scaleActiveLayer(by: factor)
+        document.scaleActiveLayer(by: factor, canvasSize: canvasSize)
         document.pushHistory()
         syncState()
     }
@@ -345,24 +365,15 @@ final class EditorViewModel {
 
     /// 构造装饰图层素材提供闭包（传给 renderExport）。
     ///
-    /// 闭包内按 resourcePath 查 decorationCatalog：
-    /// - ratioSet：按当前 photoAspectRatio 在 supportedRatios 选最优比例，
-    ///   实际加载 imageset 名为 `"\(resourcePath)_\(ratio)"`（如 frame_polaroid_1x1）。
-    /// - stretch / ninePatch：直接按 resourcePath 加载 imageset。
-    /// 加载失败返回 nil（renderExport 自动跳过该图层）。
+    /// 素材名解析统一走 MiLensKit.resolveDecorationResource（预览与导出共用同一
+    /// ratioSet 选图规则，阻塞项5 所见即所得）；加载失败返回 nil（renderExport 自动跳过）。
     private func makeDecorationProvider() -> (String) -> DecorationRenderSource? {
         let catalog = decorationCatalog
         let ratio = photoAspectRatio
         return { resourcePath in
             guard let item = catalog.items.first(where: { $0.resourcePath == resourcePath })
                 ?? catalog.find(resourcePath) else { return nil }
-            let assetName: String
-            if item.fitMode == .ratioSet, let supported = item.supportedRatios,
-               let best = pickClosestAspectRatio(targetRatio: ratio, candidates: supported) {
-                assetName = "\(resourcePath)_\(best)"
-            } else {
-                assetName = resourcePath
-            }
+            let assetName = resolveDecorationResource(item: item, targetRatio: ratio)
             guard let cg = UIImage(named: assetName)?.cgImage else { return nil }
             return DecorationRenderSource(
                 image: cg,
@@ -370,6 +381,18 @@ final class EditorViewModel {
                 ninePatchInsets: item.ninePatchInsets
             )
         }
+    }
+
+    /// 预览侧装饰素材解析（阻塞项4：EditorCanvasView 用；与导出共用
+    /// resolveDecorationResource 的 ratioSet 选图；素材缺失返回 nil 不渲染）。
+    func resolveDecorationSource(for layer: EditorLayer) -> DecorationPreviewSource? {
+        guard let item = decorationCatalog.items.first(where: { $0.resourcePath == layer.resourcePath })
+            ?? decorationCatalog.find(layer.resourcePath) else { return nil }
+        return DecorationPreviewSource(
+            assetName: resolveDecorationResource(item: item, targetRatio: photoAspectRatio),
+            fitMode: item.fitMode,
+            ninePatchInsets: item.ninePatchInsets
+        )
     }
 
     /// 保存并退出编辑器（源端 saveAndBack）。

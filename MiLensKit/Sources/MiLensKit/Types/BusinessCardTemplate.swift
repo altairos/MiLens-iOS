@@ -7,26 +7,26 @@
 
 import Foundation
 
-/// 宠物名片卡模板标识。
+/// 宠物名片卡模板标识（Figma「Namecard」四套方向，与 PetCardTemplate 同构）。
 public enum BusinessCardTemplate: String, CaseIterable, Identifiable, Equatable, Sendable {
-    /// 标准：居中头像 + 信息列 + 标签胶囊（免费默认）。
-    case standard
-    /// 优雅：衬线留白 + 大号名字 + 细信息（Pro）。
-    case elegant
-    /// 活泼：圆角彩底 + Emoji 装饰 + 标签网格（Pro）。
-    case playful
-    /// 极简：纯文字名片，无照片主体（Pro）。
-    case minimal
+    /// 博物馆典藏：左侧竖裁照片 + 藏书脊分隔 + 两段式字段 + 纸纤维/竹拓（免费默认）。
+    case museum
+    /// 私人装帧：铜红装订线 + 护页衬纸 + 内联字段（Pro）。
+    case binding
+    /// 现代画廊：黑场半调 + 满版照 + 朱砂导轨 + 铜底 ID Block（Pro）。
+    case gallery
+    /// 夜间暗房：安全灯 + 银盐 + 样片齿孔 + 曝光轨（Pro）。
+    case darkroom
 
     public var id: String { rawValue }
 
-    /// 模板显示名（简体中文，App 层用 String(localized:) 覆盖）。
+    /// 模板显示名（简体中文直出，Figma 2026.08.14 方向命名）。
     public var displayName: String {
         switch self {
-        case .standard: return "标准"
-        case .elegant:  return "优雅"
-        case .playful:  return "活泼"
-        case .minimal:  return "极简"
+        case .museum:    return "博物馆典藏"
+        case .binding:   return "私人装帧"
+        case .gallery:   return "现代画廊"
+        case .darkroom:  return "夜间暗房"
         }
     }
 
@@ -38,18 +38,18 @@ public enum BusinessCardTemplate: String, CaseIterable, Identifiable, Equatable,
     /// SF Symbol 预览图标（模板选择器缩略图占位，后续可换真实预览）。
     public var previewIcon: String {
         switch self {
-        case .standard: return "person.crop.circle"
-        case .elegant:  return "rectangle.split.3x1"
-        case .playful:  return "sparkles"
-        case .minimal:  return "text.alignleft"
+        case .museum:    return "building.columns"
+        case .binding:   return "book.closed"
+        case .gallery:   return "photo.artframe"
+        case .darkroom:  return "camera.filters"
         }
     }
 
     /// 是否为 Pro 专属模板（免费用户可见但不可用，点击触发付费墙）。
     public var isPremium: Bool {
         switch self {
-        case .standard: return false
-        case .elegant, .playful, .minimal: return true
+        case .museum:    return false
+        case .binding, .gallery, .darkroom: return true
         }
     }
 
@@ -64,7 +64,7 @@ public enum BusinessCardTemplate: String, CaseIterable, Identifiable, Equatable,
 public extension BusinessCardTemplate {
 
     /// 免费用户始终可用的默认模板。
-    static let freeDefault: BusinessCardTemplate = .standard
+    static let freeDefault: BusinessCardTemplate = .museum
 
     /// 全部可选模板（用于模板选择器展示顺序）。
     static var allTemplates: [BusinessCardTemplate] {
@@ -77,7 +77,7 @@ public extension BusinessCardTemplate {
     }
 
     /// 将模板回退到当前 Pro 状态下可用的模板。
-    /// 免费用户传入 Pro 模板时回退到 `.standard`。
+    /// 免费用户传入 Pro 模板时回退到 `.museum`。
     static func resolve(_ template: BusinessCardTemplate, isPro: Bool) -> BusinessCardTemplate {
         template.isUsable(isPro: isPro) ? template : freeDefault
     }

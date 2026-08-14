@@ -1,0 +1,72 @@
+// risk-map.dot —— MiLens 系统审计风险热图（2026-08-14 快照）
+// 渲染：dot -Tsvg risk-map.dot -o risk-map.svg
+// 节点约定：fill 色 = 严重度（红 P0 / 橙 P1 / 黄 P2 / 绿 P3·观察 / 蓝健康项）
+// 边约定：实线 = 因果/阻塞传导，虚线 = 同根共因
+
+digraph MiLensRiskMap {
+  graph [rankdir=LR, fontname="PingFang SC", label="MiLens iOS 上架就绪风险热图（2026-08-14）\n节点=风险/健康项  边=传导路径", labelloc=t, fontsize=16, compound=true];
+  node  [fontname="PingFang SC", shape=box, style="rounded,filled", fontsize=11, margin="0.15,0.08"];
+  edge  [fontname="PingFang SC", fontsize=9, color="#555555"];
+
+  // ===== 目标节点 =====
+  goal [label="App Store 上架就绪\n（V1.0 提审）", shape=doubleoctagon, fillcolor="#e8e8f0", color="#333366", penwidth=2];
+
+  // ===== 簇 A：验证链路断层 =====
+  subgraph cluster_A {
+    label="簇 A · 验证链路断层（P0）";
+    style=filled; fillcolor="#fdecec"; color="#cc3333";
+    R1 [label="R1 验证断层\n08-10 起 App 层未编译未测\n（60+ 文件状态未知）", fillcolor="#f2b8b5", color="#cc3333"];
+    R5 [label="R5 文档漂移\n1198(旧) vs 1916(实)\n「全绿」宣称过期", fillcolor="#fde0a8", color="#c9971f"];
+    R6 [label="R6 UI 测试薄弱\n仅 2 冒烟用例\n截图产出未就绪", fillcolor="#fde0a8", color="#c9971f"];
+  }
+  R1 -> goal [label="阻塞", penwidth=2, color="#cc3333"];
+  R1 -> R5 [label="只能引旧快照"];
+  R1 -> R6 [label="UI 验证积压"];
+  R5 -> goal [label="误导决策"];
+
+  // ===== 簇 B：架构债务 =====
+  subgraph cluster_B {
+    label="簇 B · 架构债务（同根：守卫未自动化）";
+    style=filled; fillcolor="#fdf3e3"; color="#c9771f";
+    R2 [label="R2 规模守卫违规\nZipBackupService\n1227 行 > 600", fillcolor="#f8caa4", color="#c9771f"];
+    R3 [label="R3 平台隔离偏差\nBeadExportService 直接\nPHPhotoLibrary.shared()", fillcolor="#f8caa4", color="#c9771f"];
+    R7 [label="R7 胶水层测试缺口\nBeadExport/Print\nTests 0 引用", fillcolor="#fde0a8", color="#c9971f"];
+    R8 [label="R8 Sendable 注释缺口\nZipBackupService:34", fillcolor="#d8eed8", color="#4f9a4f"];
+  }
+  R3 -> R7 [label="同根：绕协议→\n无法 mock", style=dashed];
+  R2 -> R8 [label="同文件", style=dashed];
+  R2 -> goal [label="可维护性"];
+  R3 -> goal [label="架构一致性"];
+
+  // ===== 簇 C：质量门禁 =====
+  subgraph cluster_C {
+    label="簇 C · 质量门禁有效性";
+    style=filled; fillcolor="#eaf2fb"; color="#33669e";
+    R4 [label="R4 覆盖率基线占位\n30/25/30·47/50/44\n从未实测校准", fillcolor="#f8caa4", color="#c9771f"];
+    GATE [label="CI 门禁\ncheck-coverage.sh\n(行数加权+selftest)", fillcolor="#cfe3f7", color="#33669e"];
+  }
+  R1 -> R4 [label="实测被推迟", penwidth=1.5];
+  R4 -> GATE [label="保护力未知"];
+  GATE -> goal [label="回归防线"];
+
+  // ===== 健康项（防线存量） =====
+  subgraph cluster_H {
+    label="健康项 · 存量防线（资产侧）";
+    style=filled; fillcolor="#e9f7e9"; color="#4f9a4f";
+    H1 [label="H1 分层纪律\nViews 0 越界", fillcolor="#cdeccd", color="#4f9a4f"];
+    H2 [label="H2 VM 纪律 100%\n18 VM 全 @MainActor", fillcolor="#cdeccd", color="#4f9a4f"];
+    H3 [label="H3 资源生命周期\n7 处解码全降采样", fillcolor="#cdeccd", color="#4f9a4f"];
+    H4 [label="H4 卫生近零瑕疵\n0 try!/密钥/TODO", fillcolor="#cdeccd", color="#4f9a4f"];
+    H6 [label="H6 门禁自守护\nselftest 防回归", fillcolor="#cdeccd", color="#4f9a4f"];
+    TEST [label="测试资产\n1916 用例\n(Kit 1041 + App 875)", fillcolor="#cdeccd", color="#4f9a4f"];
+  }
+  TEST -> GATE [label="数据源"];
+  H6 -> GATE [label="脚本质量"];
+
+  // ===== 观察项 =====
+  R9  [label="R9 解码 fallback 全尺寸\n（仅失败路径触发）", fillcolor="#d8eed8", color="#4f9a4f"];
+  R10 [label="R10 上架依赖未启动\n6 语言翻译/真机/性能/截图\n（已知，供排期）", fillcolor="#d8eed8", color="#4f9a4f"];
+  R10 -> goal [label="排期依赖"];
+
+  R9 -> H3 [label="边缘偏差", style=dashed];
+}

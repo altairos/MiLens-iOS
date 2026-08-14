@@ -58,9 +58,9 @@ jobs:
       - name: Test
         run: swift test --parallel
 
-  # ── Lint：UI token 纪律 + 本地化校验（Python 脚本，Linux 快速运行）──
+  # ── Lint：UI token 纪律 + 规模守卫 + 平台隔离 + 本地化校验（Python 脚本，Linux 快速运行）──
   lint:
-    name: Lint (UI tokens + i18n)
+    name: Lint (tokens + size + isolation + i18n)
     runs-on: ubuntu-24.04
     timeout-minutes: 5
     steps:
@@ -70,6 +70,12 @@ jobs:
           python-version: "3.x"
       - name: Check UI token discipline
         run: python tools/check-ui-tokens.py
+      # ADR-0011：规模守卫（600/800 行）+ 平台隔离（Photos 越界），
+      # 豁免白名单挂 ADR，根治 R2/R3 复发（remediation-plan P1-3）。
+      - name: Check file size guard
+        run: python tools/check-file-size.py
+      - name: Check platform isolation (Photos imports)
+        run: python tools/check-imports.py
       - name: Check localization
         run: python tools/localization.py check MiLens/Resources/Localizable.xcstrings MiLens/Resources/InfoPlist.xcstrings --project-yml project.yml --source-root MiLens
 

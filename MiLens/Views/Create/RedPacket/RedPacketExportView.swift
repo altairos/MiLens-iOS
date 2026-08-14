@@ -6,7 +6,6 @@
 
 import SwiftUI
 import UIKit
-import Photos
 import MiLensKit
 import os
 

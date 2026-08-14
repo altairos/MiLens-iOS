@@ -75,7 +75,7 @@ apt-get install -y --no-install-recommends \
 仓库 https://github.com/altairos/MiLens-iOS（私有）。推送即触发 `.github/workflows/ci.yml`（PR 与 main/master push 均运行三个作业）：
 
 1. `MiLensKit (Linux)`——ubuntu-24.04 上 `swift build/test`，约 50s。
-2. `Lint (UI tokens + i18n)`——ubuntu-24.04 上 `check-ui-tokens.py`（色值硬门禁）+ `localization.py check`（key 完整性），约 10s。
+2. `Lint (tokens + size + isolation + i18n)`——ubuntu-24.04 上 `check-ui-tokens.py`（色值硬门禁）+ `check-file-size.py`（600/800 行规模守卫，白名单豁免挂 ADR 且冻结行数，[ADR-0011](docs/adr/0011-ci-guards-and-photos-exemption.md)）+ `check-imports.py`（Photos 平台隔离：Views 禁 import/符号，Services 仅 Platform/ 与 ADR 豁免）+ `localization.py check`（key 完整性），约 10s。
 3. `MiLens App (macOS)`——macos-15 runner 上 `tools/fetch-models.sh`（从 Release 下载生产模型 + SHA256 校验，`actions/cache` 缓存 `MiLens/Resources/Models`，命中则幂等跳过）→ **再** `xcodegen generate`（顺序约束：XcodeGen 生成工程时模型必须已存在，否则 `.mlpackage` 不会进入 Resources Build Phase，正式包会静默降级到 Vision）→ `xcodebuild build` → **产物断言**（`tools/assert-built-models.sh` 校验 `.app` 内含编译后 `.mlmodelc`，防静默降级）→ `xcodebuild test`（含覆盖率，`-resultBundlePath build/TestResult.xcresult`）→ **覆盖率门禁**（`tools/check-coverage.sh --selftest` 固定 fixture 自测 + 解析 xcresult，line 覆盖率按行数加权（非等权平均，避免大文件低覆盖被小高覆盖文件稀释高估），按 MiLens/MiLensKit 目标与基线比较，任一指标不达标即失败；基线为占位值，首次实测后校准，见脚本头注释），约 4-5 分钟（依赖 MiLensKit + Lint 作业通过）。
 
 查看：`gh run list --repo altairos/MiLens-iOS` 或 https://github.com/altairos/MiLens-iOS/actions。

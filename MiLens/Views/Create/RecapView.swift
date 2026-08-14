@@ -358,10 +358,13 @@ struct RecapView: View {
     }
 
     /// 从文件路径加载降采样 UIImage（CGImageSource thumbnail，避免全分辨率图占满内存）。
+    /// 解码链路任一步失败都返回 nil（渲染端画占位块），不 fallback 到
+    /// `UIImage(contentsOfFile:)` 全尺寸解码——那是 R9 降采样纪律禁止的内存峰值源
+    /// （docs/audit/architecture-review.md R9）。
     private static func loadDownsampled(path: String, maxPixelSize: Int) -> UIImage? {
         let url = URL(fileURLWithPath: path) as CFURL
         guard let source = CGImageSourceCreateWithURL(url, nil) else {
-            return UIImage(contentsOfFile: path)
+            return nil
         }
         let options: [CFString: Any] = [
             kCGImageSourceCreateThumbnailFromImageAlways: true,
@@ -370,7 +373,7 @@ struct RecapView: View {
             kCGImageSourceThumbnailMaxPixelSize: maxPixelSize
         ]
         guard let cgImage = CGImageSourceCreateThumbnailAtIndex(source, 0, options as CFDictionary) else {
-            return UIImage(contentsOfFile: path)
+            return nil
         }
         return UIImage(cgImage: cgImage)
     }

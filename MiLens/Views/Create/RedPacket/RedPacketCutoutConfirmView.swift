@@ -19,8 +19,10 @@ struct RedPacketCutoutConfirmView: View {
     @Environment(\.visionService) private var vision
     @Environment(\.dismiss) private var dismiss
 
-    @State private var sourceImage: UIImage?
+    @State private var sourceImageData: Data?
     @State private var cutoutImage: UIImage?
+    /// 已确认的分割结果（与工作室共用同一 Vision 数据源，传入以复用）。
+    @State private var confirmedSegmentation: SegmentationResult?
     @State private var phase: CutoutPhase = .loading
     @State private var hasNavigated = false
 
@@ -62,7 +64,8 @@ struct RedPacketCutoutConfirmView: View {
                 templateID: templateID,
                 photoID: photoID,
                 petID: petID,
-                skipAutoCutout: true
+                skipAutoCutout: true,
+                confirmedSegmentation: confirmedSegmentation
             )
         }
         .task { await loadAndCutout() }
@@ -273,16 +276,25 @@ struct RedPacketCutoutConfirmView: View {
                 phase = .error
                 return
             }
-            let path = photo.thumbnailPath.isEmpty ? photo.uri : photo.thumbnailPath
-            let loaded = await Task.detached(priority: .utility) {
-                UIImage(contentsOfFile: path)
+            // 与工作室一致：原图优先，原图不可用回退缩略图，
+            // 保证两页分割质量与 bbox 坐标系一致。
+            let candidatePaths = [photo.uri, photo.thumbnailPath]
+                .filter { !$0.isEmpty }
+            let loadedData = await Task.detached(priority: .utility) {
+                for path in candidatePaths {
+                    if let data = try? Data(contentsOf: URL(fileURLWithPath: path), options: .mappedIfSafe),
+                       !data.isEmpty {
+                        return data
+                    }
+                }
+                return nil
             }.value
-            guard let loaded else {
-                logger.error("loadAndCutout: 照片解码失败")
+            guard let loadedData else {
+                logger.error("loadAndCutout: 照片读取失败")
                 phase = .error
                 return
             }
-            sourceImage = loaded
+            sourceImageData = loadedData
             await performCutout()
         } catch {
             logger.error("loadAndCutout: \(error.localizedDescription)")
@@ -292,14 +304,13 @@ struct RedPacketCutoutConfirmView: View {
 
     @MainActor
     private func performCutout() async {
-        guard let image = sourceImage,
-              let data = image.jpegData(compressionQuality: 0.9) else {
+        guard let data = sourceImageData else {
             phase = .error
             return
         }
         phase = .processing
 
-        // Vision 分割
+        // Vision 分割：与工作室同一 VisionService、同一原始数据，无 JPEG 再编码损失。
         let result: SegmentationResult?
         do {
             result = try await vision.segmentSubject(in: data)
@@ -308,65 +319,27 @@ struct RedPacketCutoutConfirmView: View {
             result = nil
         }
 
-        guard let seg = result, seg.bboxWidth > 0, seg.bboxHeight > 0,
-              let cgImage = image.cgImage else {
+        guard let seg = result, seg.bboxWidth > 0, seg.bboxHeight > 0 else {
             // 失败即 error，不用中心裁切伪装（诚实标注）
             phase = .error
             return
         }
 
-        // 应用蒙版
-        guard let cutout = applyCutoutMask(
-            cgImage: cgImage, mask: [UInt8](seg.mask),
-            bboxX: Int(seg.bboxX), bboxY: Int(seg.bboxY),
-            bboxWidth: seg.bboxWidth, bboxHeight: seg.bboxHeight
-        ) else {
+        // 复用工作室同一 analyzer 蒙版管线（RGB 预乘、裁边、2048 限制），
+        // 预览即工作室实际效果；确认的分割结果传入工作室复用。
+        let analyzer = factory.makeRedPacketImageQualityAnalyzer()
+        let processed = await Task.detached(priority: .utility) {
+            analyzer.makeCutout(imageData: data, segmentation: seg)
+        }.value
+        guard let processed, let preview = UIImage(data: processed.pngData) else {
             phase = .error
             return
         }
 
         withAnimation(.easeOut(duration: 0.25)) {
-            cutoutImage = cutout
+            cutoutImage = preview
+            confirmedSegmentation = seg
             phase = .applied
         }
-    }
-
-    /// 把 bbox 局部 mask 平铺到全图，生成透明抠图。
-    private func applyCutoutMask(
-        cgImage: CGImage, mask: [UInt8],
-        bboxX: Int, bboxY: Int, bboxWidth: Int, bboxHeight: Int
-    ) -> UIImage? {
-        let imgW = cgImage.width
-        let imgH = cgImage.height
-        let bytesPerPixel = 4
-        let bytesPerRow = imgW * bytesPerPixel
-
-        guard let context = CGContext(
-            data: nil, width: imgW, height: imgH,
-            bitsPerComponent: 8, bytesPerRow: bytesPerRow,
-            space: CGColorSpaceCreateDeviceRGB(),
-            bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue
-        ) else { return nil }
-
-        context.draw(cgImage, in: CGRect(x: 0, y: 0, width: imgW, height: imgH))
-
-        guard let pixelData = context.data?.assumingMemoryBound(to: UInt8.self) else { return nil }
-
-        for y in 0..<bboxHeight {
-            let dstY = bboxY + y
-            guard dstY >= 0, dstY < imgH else { continue }
-            for x in 0..<bboxWidth {
-                let dstX = bboxX + x
-                guard dstX >= 0, dstX < imgW else { continue }
-                let maskIdx = y * bboxWidth + x
-                guard maskIdx < mask.count else { continue }
-                let alpha = mask[maskIdx]
-                let pixelIdx = (dstY * imgW + dstX) * bytesPerPixel
-                pixelData[pixelIdx + 3] = min(pixelData[pixelIdx + 3], alpha)
-            }
-        }
-
-        guard let outputCG = context.makeImage() else { return nil }
-        return UIImage(cgImage: outputCG)
     }
 }

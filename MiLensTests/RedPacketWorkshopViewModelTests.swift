@@ -1,6 +1,6 @@
 //  RedPacketWorkshopViewModelTests — 工作室 ViewModel 状态机测试。
 //
-//  验证：选中/移动/删除/切模板保留/文本编辑/草稿保存恢复。
+//  验证：选中/移动/删除/切模板（含 Pro 权限拦截）/文本编辑撤销会话/加载失败态/草稿保存恢复。
 //  抠图状态机用 MockVisionService 验证（无真实 Vision 框架依赖）。
 //  注意：UIKit (UIImage) 在非 macOS/Linux 测试环境不可用，本测试需 macOS/Xcode 执行。
 
@@ -14,17 +14,19 @@ final class RedPacketWorkshopViewModelTests: XCTestCase {
     // MARK: - 工厂
 
     private func makeVM(
-        template: RedPacketTemplate = .firstFreeTemplate
+        template: RedPacketTemplate = .firstFreeTemplate,
+        templateID: String? = nil,
+        isPro: Bool = false
     ) -> RedPacketWorkshopViewModel {
         let photoRepo = InMemoryPhotoRepository()
         let petRepo = InMemoryPetRepository()
         let vision = MockVisionService()
         let draftStore = RedPacketDraftStore()
         return RedPacketWorkshopViewModel(
-            templateID: template.id,
+            templateID: templateID ?? template.id,
             photoID: UUID(),
             petID: nil,
-            isPro: false,
+            isPro: isPro,
             photoRepo: photoRepo,
             vision: vision,
             draftStore: draftStore,
@@ -168,10 +170,24 @@ final class RedPacketWorkshopViewModelTests: XCTestCase {
         XCTAssertLessThanOrEqual(textLayer.text.count, WeChatRedPacketSpec.coverTitleMaxLength)
     }
 
+    func testUpdateTextPushesSingleSnapshotPerSession() {
+        let vm = makeVM()
+        vm.draft = RedPacketCoverDraft.create(from: vm.template, petName: "咪咪")
+        vm.updateText("新")
+        vm.updateText("新年")
+        vm.updateText("新年好")
+        XCTAssertEqual(vm.history.undoStack.count, 1, "同一输入会话内连续键入只记一条撤销快照")
+        vm.endTextEdit()
+        vm.updateText("发大财")
+        XCTAssertEqual(vm.history.undoStack.count, 2, "会话结束后再次输入开启新撤销记录")
+        vm.undo()
+        XCTAssertEqual(vm.layers.first { $0.kind == .text }?.text, "新年好")
+    }
+
     // MARK: - 模板切换
 
     func testSwitchTemplatePreservesText() {
-        let vm = makeVM()
+        let vm = makeVM(isPro: true)
         vm.draft = RedPacketCoverDraft.create(from: vm.template, petName: "咪咪")
         vm.updateText("新年好")
         vm.switchTemplate(to: RedPacketTemplateCatalog.fortuneGold.id)
@@ -180,10 +196,28 @@ final class RedPacketWorkshopViewModelTests: XCTestCase {
     }
 
     func testSwitchTemplateUpdatesTemplateID() {
-        let vm = makeVM()
+        let vm = makeVM(isPro: true)
         vm.draft = RedPacketCoverDraft.create(from: vm.template, petName: "咪咪")
         vm.switchTemplate(to: RedPacketTemplateCatalog.fortuneGold.id)
         XCTAssertEqual(vm.draft.templateID, RedPacketTemplateCatalog.fortuneGold.id)
+    }
+
+    func testSwitchTemplateBlockedWithoutPro() {
+        let vm = makeVM()
+        vm.draft = RedPacketCoverDraft.create(from: vm.template, petName: "咪咪")
+        let draftBefore = vm.draft
+        vm.switchTemplate(to: RedPacketTemplateCatalog.fortuneGold.id)
+        // 非 Pro 不可越权切到付费模板（View 层 isLocked 之外的 VM 层兜底）
+        XCTAssertEqual(vm.draft.templateID, RedPacketTemplateCatalog.newYearRed.id)
+        XCTAssertEqual(vm.draft, draftBefore)
+        XCTAssertFalse(vm.canUndo, "被拦截的切换不应推撤销快照")
+    }
+
+    func testSwitchTemplateUnknownIDIgnored() {
+        let vm = makeVM(isPro: true)
+        vm.draft = RedPacketCoverDraft.create(from: vm.template, petName: "咪咪")
+        vm.switchTemplate(to: "no_such_template")
+        XCTAssertEqual(vm.draft.templateID, RedPacketTemplateCatalog.newYearRed.id)
     }
 
     // MARK: - 草稿保存/恢复
@@ -207,5 +241,21 @@ final class RedPacketWorkshopViewModelTests: XCTestCase {
         let vm = makeVM()
         vm.draft = RedPacketCoverDraft.create(from: vm.template, petName: "咪咪")
         XCTAssertNil(vm.activeLayer)
+    }
+
+    // MARK: - 加载失败态
+
+    func testLoadInvalidTemplateSetsError() async {
+        let vm = makeVM(templateID: "no_such_template")
+        await vm.load()
+        XCTAssertEqual(vm.loadError, .templateNotFound)
+        XCTAssertFalse(vm.isLoading)
+    }
+
+    func testLoadMissingPhotoSetsError() async {
+        let vm = makeVM()
+        await vm.load()
+        XCTAssertEqual(vm.loadError, .photoNotFound)
+        XCTAssertFalse(vm.isLoading)
     }
 }

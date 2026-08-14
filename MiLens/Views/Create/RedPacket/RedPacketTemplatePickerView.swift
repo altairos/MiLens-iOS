@@ -84,8 +84,8 @@ struct RedPacketTemplatePickerView: View {
                     }
                 }
 
-                // 风格名
-                Text(template.displayName)
+                // 风格名（模板层只存 key，App 层从 xcstrings 取）
+                Text(String(localized: String.LocalizationValue(template.displayNameKey)))
                     .font(.uiBodyStrong)
                     .foregroundStyle(Color.milensTextPrimary)
                     .padding(.top, 8)

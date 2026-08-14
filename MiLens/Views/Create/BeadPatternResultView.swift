@@ -1,7 +1,7 @@
 //  BeadPatternResultView —— 拼豆图纸导出页（对照 Figma「10·拼豆结果」#211:492）。
 //  Identity Strip + Pattern Workspace + Materials Summary + Export Dock。
 //  画布渲染走 MiLensKit drawBeadPattern（BeadViewModel.refreshPreview 重绘）。
-//  保存/分享/A4 PDF 逻辑保留不变。
+//  保存/分享/A4 PDF 导出逻辑。
 
 import SwiftUI
 import MiLensKit
@@ -111,7 +111,7 @@ struct BeadPatternResultView: View {
                             isExporting: vm.isExporting,
                             onExport: { vm.export() },
                             onShare: { share() },
-                            onA4Paywall: { showPaywall = true }
+                            onA4Export: { handleA4Export() }
                         )
                     }
                     .padding(.bottom, Spacing.xxl)
@@ -435,6 +435,26 @@ struct BeadPatternResultView: View {
                 }
                 .buttonStyle(.plain)
                 .disabled(vm.isExporting)
+
+                // A4 PDF 图纸按钮（Pro 专属，免费用户点击弹付费墙）
+                Button {
+                    handleA4Export()
+                } label: {
+                    ZStack {
+                        RoundedRectangle(cornerRadius: 13, style: .continuous)
+                            .fill(Color.milensCard)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 13, style: .continuous)
+                                    .stroke(Color.milensBorder, lineWidth: 1)
+                            )
+                            .frame(width: 44, height: 44)
+                        Image(systemName: "doc.text")
+                            .font(.system(size: Sizing.iconSm, weight: .medium))
+                            .foregroundStyle(Color.milensActionPrimary)
+                    }
+                }
+                .buttonStyle(.plain)
+                .disabled(vm.isExporting)
             }
             .padding(.horizontal, 16)
             .padding(.top, 12)
@@ -448,7 +468,7 @@ struct BeadPatternResultView: View {
         .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
     }
 
-    // MARK: - 导出逻辑（保留不变）
+    // MARK: - 导出逻辑
 
     private func share() {
         Task { @MainActor in
@@ -460,6 +480,18 @@ struct BeadPatternResultView: View {
             } else {
                 shareItem = ShareItem(url: url)
             }
+        }
+    }
+
+    /// A4 PDF 图纸导出（Pro 专属；免费用户弹付费墙）。
+    private func handleA4Export() {
+        guard entitlement.isPro else {
+            showPaywall = true
+            return
+        }
+        Task { @MainActor in
+            guard let url = await vm.preparePDFFile() else { return }
+            shareItem = ShareItem(url: url)
         }
     }
 }

@@ -38,6 +38,26 @@ final class RedPacketDraftStore {
         draftsDir.appendingPathComponent("\(id.uuidString).json")
     }
 
+    /// 抠图 PNG 文件 URL（与草稿同目录，`<uuid>.png`）。
+    private func cutoutFileURL(for id: UUID) -> URL {
+        draftsDir.appendingPathComponent("\(id.uuidString).png")
+    }
+
+    // MARK: - 抠图持久化
+
+    /// 保存宠物抠图 PNG（覆盖式；导出页按 pet 层 mattePath 回灌）。
+    func saveCutoutPNG(_ data: Data, for id: UUID) throws {
+        try ensureDirectory()
+        try data.write(to: cutoutFileURL(for: id), options: .atomic)
+    }
+
+    /// 读取宠物抠图 PNG（不存在或不可读时返回 nil）。
+    func loadCutoutPNG(id: UUID) -> Data? {
+        let url = cutoutFileURL(for: id)
+        guard FileManager.default.fileExists(atPath: url.path) else { return nil }
+        return try? Data(contentsOf: url)
+    }
+
     // MARK: - 保存
 
     /// 保存草稿（覆盖式）。
@@ -75,11 +95,12 @@ final class RedPacketDraftStore {
 
     // MARK: - 删除
 
-    /// 删除草稿。
+    /// 删除草稿（联动删除同 ID 的抠图 PNG）。
     func delete(id: UUID) throws {
-        let url = fileURL(for: id)
-        if FileManager.default.fileExists(atPath: url.path) {
-            try FileManager.default.removeItem(at: url)
+        for url in [fileURL(for: id), cutoutFileURL(for: id)] {
+            if FileManager.default.fileExists(atPath: url.path) {
+                try FileManager.default.removeItem(at: url)
+            }
         }
     }
 }

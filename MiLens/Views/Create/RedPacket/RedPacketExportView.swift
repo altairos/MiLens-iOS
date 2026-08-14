@@ -576,14 +576,14 @@ struct RedPacketExportView: View {
 
     // MARK: - 渲染
 
-    private func renderCover() -> UIImage? {
+    private func renderCover(petImage: UIImage?) -> UIImage? {
         guard let template else { return nil }
         let layers = draft?.layers ?? rpDefaultLayers(for: template)
         let renderer = ImageRenderer(content:
             RedPacketCoverRenderer(
                 template: template,
                 layers: layers,
-                petImage: nil,
+                petImage: petImage,
                 includeWatermark: !entitlement.isPro
             )
             .frame(
@@ -609,7 +609,10 @@ struct RedPacketExportView: View {
             draft = loaded
             template = RedPacketTemplateCatalog.find(id: loaded.templateID)
 
-            guard let rendered = renderCover() else { return }
+            // 工作室 VM 不跨页面存活：按 pet 层 mattePath 回灌持久化的抠图 PNG。
+            let petImage = petCutoutImage(from: loaded, store: store)
+
+            guard let rendered = renderCover(petImage: petImage) else { return }
             renderedImage = rendered
 
             let png = rendered.pngData()
@@ -621,6 +624,16 @@ struct RedPacketExportView: View {
         } catch {
             logger.error("load: 加载草稿失败 \(error.localizedDescription)")
         }
+    }
+
+    /// 读取草稿持久化的宠物抠图（pet 层 mattePath 标记，PNG 存于草稿目录）。
+    private func petCutoutImage(
+        from draft: RedPacketCoverDraft,
+        store: RedPacketDraftStore
+    ) -> UIImage? {
+        guard draft.layers.first(where: { $0.kind == .pet })?.mattePath != nil,
+              let data = store.loadCutoutPNG(id: draft.id) else { return nil }
+        return UIImage(data: data)
     }
 
     // MARK: - 工具

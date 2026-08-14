@@ -193,6 +193,12 @@ final class ViewModelFactory {
         )
     }
 
+    /// 红包图片质量分析器（CutoutConfirm 预览与工作室共用同一实现，保证两页抠图一致）。
+    /// 无状态组件，每次构造新实例。
+    func makeRedPacketImageQualityAnalyzer() -> any RedPacketImageQualityAnalyzing {
+        CoreGraphicsRedPacketImageQualityAnalyzer()
+    }
+
     // MARK: - 候选缩略图（AlbumScanFlow 候选页）
 
     /// 加载系统相册候选照片的缩略图（256px JPEG Data → UIImage）。

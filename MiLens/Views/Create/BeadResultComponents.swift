@@ -10,7 +10,7 @@ struct BeadResultOutputPanel: View {
     let isExporting: Bool
     let onExport: () -> Void
     let onShare: () -> Void
-    let onA4Paywall: () -> Void
+    let onA4Export: () -> Void
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -41,7 +41,7 @@ struct BeadResultOutputPanel: View {
 
             outputRow(title: "A4 制作图纸",
                       desc: "单页 PDF · 打印友好", badge: "PRO",
-                      action: onA4Paywall)
+                      action: onA4Export)
             outputSeparator
 
             // Darkroom Pulse 导出按钮（对照 #313:1448）

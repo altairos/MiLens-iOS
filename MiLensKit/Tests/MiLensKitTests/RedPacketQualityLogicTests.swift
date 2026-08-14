@@ -181,6 +181,51 @@ final class RedPacketQualityLogicTests: XCTestCase {
         XCTAssertEqual(report.errorCount, 0)
     }
 
+    // MARK: - 文字对比度计算（WCAG）
+
+    func testRelativeLuminanceBlackAndWhite() {
+        XCTAssertEqual(RedPacketQualityLogic.relativeLuminance(hex: "#000000") ?? -1, 0, accuracy: 0.001)
+        XCTAssertEqual(RedPacketQualityLogic.relativeLuminance(hex: "#FFFFFF") ?? -1, 1, accuracy: 0.001)
+    }
+
+    func testContrastRatioBlackOnWhiteIs21() {
+        let ratio = RedPacketQualityLogic.contrastRatio(textHex: "#000000", backgroundHex: "#FFFFFF")
+        XCTAssertEqual(ratio ?? 0, 21, accuracy: 0.01)
+    }
+
+    func testTextContrastFestiveOnNewYearRedPassesThreshold() {
+        let value = RedPacketQualityLogic.textContrast(
+            textHex: RedPacketTextStylePreset.festive.style.colorHex,
+            background: RedPacketTemplateCatalog.newYearRed.background
+        )
+        XCTAssertNotNil(value)
+        XCTAssertGreaterThanOrEqual(value ?? 0, RedPacketQualityLogic.textContrastMin)
+    }
+
+    func testTextContrastGoldOnFortuneGoldBelowThreshold() {
+        let value = RedPacketQualityLogic.textContrast(
+            textHex: RedPacketTextStylePreset.goldBlessing.style.colorHex,
+            background: RedPacketTemplateCatalog.fortuneGold.background
+        )
+        XCTAssertNotNil(value)
+        // 金字落在金底渐变的深色端，对比度低于阈值 → 可读性 warning（审计 P2-4 的真实场景）
+        XCTAssertLessThan(value ?? 1, RedPacketQualityLogic.textContrastMin)
+    }
+
+    func testTextContrastResourceBackgroundReturnsNil() {
+        let value = RedPacketQualityLogic.textContrast(
+            textHex: "#FFFFFF",
+            background: .resource(resourceRef: "bg_custom")
+        )
+        XCTAssertNil(value)
+    }
+
+    func testRelativeLuminanceInvalidHexReturnsNil() {
+        XCTAssertNil(RedPacketQualityLogic.relativeLuminance(hex: "#12345"))
+        XCTAssertNil(RedPacketQualityLogic.relativeLuminance(hex: "zzzzzz"))
+        XCTAssertNil(RedPacketQualityLogic.contrastRatio(textHex: "#GGGGGG", backgroundHex: "#FFFFFF"))
+    }
+
     // MARK: - 辅助
 
     private func makeInput(

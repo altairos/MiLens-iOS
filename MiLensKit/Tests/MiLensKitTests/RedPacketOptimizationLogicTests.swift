@@ -21,12 +21,13 @@ final class RedPacketOptimizationLogicTests: XCTestCase {
             report: report, template: defaultTemplate,
             petLayer: nil, textLayer: nil
         )
-        // 干净报告不应有额外优化（对比度提升只在 hasIssues 时）
-        XCTAssertEqual(result.brightnessAdjust, 0)
+        // 干净报告不应产生任何优化
+        XCTAssertFalse(result.hasOptimizations)
         XCTAssertEqual(result.petNewX, nil)
+        XCTAssertTrue(result.summaryKeys.isEmpty)
     }
 
-    func testSharpenForClarityIssue() {
+    func testClarityIssueNotAutoAdjusted() {
         let report = RedPacketQualityReport(items: [
             RedPacketQualityItem(dimension: .clarity, level: .warning, detail: "", suggestionKey: "redpacket.quality.clarity.soft"),
         ])
@@ -35,11 +36,12 @@ final class RedPacketOptimizationLogicTests: XCTestCase {
             report: report, template: defaultTemplate,
             petLayer: nil, textLayer: nil
         )
-        XCTAssertGreaterThan(result.sharpnessAdjust, 0)
-        XCTAssertTrue(result.summaryKeys.contains("redpacket.optimize.sharpened"))
+        // 清晰度无像素级滤镜管线，不得声称已锐化（诚实标注）
+        XCTAssertFalse(result.hasOptimizations)
+        XCTAssertFalse(result.summaryKeys.contains("redpacket.optimize.sharpened"))
     }
 
-    func testBrightenForDarkPhoto() {
+    func testBrightnessIssueNotAutoAdjusted() {
         let report = RedPacketQualityReport(items: [
             RedPacketQualityItem(dimension: .brightness, level: .warning, detail: "", suggestionKey: "redpacket.quality.brightness.dark"),
         ])
@@ -48,8 +50,9 @@ final class RedPacketOptimizationLogicTests: XCTestCase {
             report: report, template: defaultTemplate,
             petLayer: nil, textLayer: nil
         )
-        XCTAssertGreaterThan(result.brightnessAdjust, 0)
-        XCTAssertTrue(result.summaryKeys.contains("redpacket.optimize.brightened"))
+        // 亮度需像素级滤镜，不得用 opacity 冒充提亮
+        XCTAssertFalse(result.hasOptimizations)
+        XCTAssertFalse(result.summaryKeys.contains("redpacket.optimize.brightened"))
     }
 
     func testRepositionPetOutOfSafeZone() {
@@ -126,33 +129,22 @@ final class RedPacketOptimizationLogicTests: XCTestCase {
         XCTAssertEqual(bg2?.x, bg.x) // 背景不变
     }
 
-    func testApplyOptimizationBrightnessAdjust() {
+    func testApplyOptimizationDoesNotTouchOpacity() {
         var petLayer = makeRedPacketPetLayer(x: 100, y: 100)
         petLayer.opacity = 0.8
-        let optimization = RedPacketOptimizationResult(brightnessAdjust: 0.15)
+        let optimization = RedPacketOptimizationResult(petNewX: 500, petNewY: 600)
 
         let updated = RedPacketOptimizationLogic.applyOptimization(
             optimization, layers: [petLayer]
         )
         let updatedPet = updated.first { $0.kind == .pet }
-        XCTAssertGreaterThan(updatedPet?.opacity ?? 0, 0.8) // 提亮后 opacity 增加
-    }
-
-    // MARK: - 默认优化
-
-    func testDefaultGentleOptimization() {
-        let result = RedPacketOptimizationLogic.defaultGentleOptimization(
-            template: defaultTemplate, petLayer: nil, textLayer: nil
-        )
-        XCTAssertTrue(result.hasOptimizations)
-        XCTAssertGreaterThan(result.sharpnessAdjust, 0)
-        XCTAssertTrue(result.summaryKeys.contains("redpacket.optimize.gentleApplied"))
+        XCTAssertEqual(updatedPet?.opacity, 0.8) // 位置优化不得改动不透明度
     }
 
     // MARK: - hasOptimizations
 
     func testHasOptimizationsTrue() {
-        let opt = RedPacketOptimizationResult(contrastAdjust: 0.1)
+        let opt = RedPacketOptimizationResult(petNewX: 100, petNewY: 100)
         XCTAssertTrue(opt.hasOptimizations)
     }
 

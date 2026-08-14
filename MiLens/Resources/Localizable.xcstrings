@@ -6092,6 +6092,94 @@
         }
       }
     },
+    "redpacket.accessory.lantern" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "灯笼"
+          }
+        }
+      }
+    },
+    "redpacket.accessory.firecracker" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "鞭炮"
+          }
+        }
+      }
+    },
+    "redpacket.accessory.coin" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "金币"
+          }
+        }
+      }
+    },
+    "redpacket.accessory.flower" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "花卉"
+          }
+        }
+      }
+    },
+    "redpacket.accessory.paw" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "爪印"
+          }
+        }
+      }
+    },
+    "redpacket.accessory.heart" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "爱心"
+          }
+        }
+      }
+    },
+    "redpacket.accessory.star" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "星星"
+          }
+        }
+      }
+    },
+    "redpacket.accessory.bow" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "蝴蝶结"
+          }
+        }
+      }
+    },
     "redpacket.workshop.templatePicker" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -6220,6 +6308,39 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "伙伴"
+          }
+        }
+      }
+    },
+    "redpacket.workshop.loadError.template" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "模板不可用，请返回重新选择"
+          }
+        }
+      }
+    },
+    "redpacket.workshop.loadError.photo" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "照片无法读取，请返回重新选择"
+          }
+        }
+      }
+    },
+    "redpacket.workshop.loadError.back" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "返回"
           }
         }
       }
@@ -7324,35 +7445,13 @@
         }
       }
     },
-    "redpacket.optimize.summary.sharpened" : {
+    "redpacket.optimize.summary.noChanges" : {
       "extractionState" : "manual",
       "localizations" : {
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "轻微锐化"
-          }
-        }
-      }
-    },
-    "redpacket.optimize.summary.brightened" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "提亮主体"
-          }
-        }
-      }
-    },
-    "redpacket.optimize.summary.contrast" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "调整对比度"
+            "value" : "当前画面无需调整"
           }
         }
       }
@@ -7375,17 +7474,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "文字移入安全区"
-          }
-        }
-      }
-    },
-    "redpacket.optimize.summary.gentle" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "轻微优化"
           }
         }
       }

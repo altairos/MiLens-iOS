@@ -178,7 +178,7 @@ public struct RedPacketLayer: Identifiable, Equatable, Codable, Sendable {
     // MARK: 图片层属性（kind == .pet / .accessory 时有效）
     /// 资源引用（Asset Catalog 名或文件路径）。
     public var resourceRef: String
-    /// 宠物层专用：抠图蒙版路径（未来扩展）。
+    /// 宠物层专用：已持久化抠图 PNG 的文件名（存于 RedPacketDraftStore 草稿目录，导出页回灌用）。
     public var mattePath: String?
 
     // MARK: 文本层属性（kind == .text 时有效）

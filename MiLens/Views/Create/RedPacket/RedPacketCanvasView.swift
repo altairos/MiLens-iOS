@@ -51,9 +51,10 @@ struct RedPacketCanvasView: View {
     private func canvasTapGesture(canvasRect: CGRect) -> some Gesture {
         SpatialTapGesture()
             .onEnded { value in
+                // 手势挂在内层 ZStack（即画布本体）上，location 已是画布本地坐标。
                 let p = CGPoint(
-                    x: (value.location.x - canvasRect.minX) / canvasRect.width * rpCanvasWidth,
-                    y: (value.location.y - canvasRect.minY) / canvasRect.height * rpCanvasHeight
+                    x: value.location.x / canvasRect.width * rpCanvasWidth,
+                    y: value.location.y / canvasRect.height * rpCanvasHeight
                 )
                 viewModel.selectLayer(at: p)
             }
@@ -62,6 +63,7 @@ struct RedPacketCanvasView: View {
     private func canvasDragGesture(canvasRect: CGRect) -> some Gesture {
         DragGesture(minimumDistance: 1)
             .onChanged { value in
+                viewModel.beginGestureEdit()
                 // 计算本次增量（相对上次 translation）
                 let deltaW = value.translation.width - lastDragTranslation.width
                 let deltaH = value.translation.height - lastDragTranslation.height
@@ -72,30 +74,35 @@ struct RedPacketCanvasView: View {
             }
             .onEnded { _ in
                 lastDragTranslation = .zero
+                viewModel.endGestureEdit()
             }
     }
 
     private func canvasMagnifyGesture() -> some Gesture {
         MagnifyGesture()
             .onChanged { value in
+                viewModel.beginGestureEdit()
                 let factor = Double(value.magnification / lastScale)
                 viewModel.scaleActive(by: factor)
                 lastScale = value.magnification
             }
             .onEnded { _ in
                 lastScale = 1.0
+                viewModel.endGestureEdit()
             }
     }
 
     private func canvasRotationGesture() -> some Gesture {
         RotateGesture()
             .onChanged { value in
+                viewModel.beginGestureEdit()
                 let delta = Double(value.rotation.degrees - lastRotation)
                 viewModel.rotateActive(by: delta)
                 lastRotation = value.rotation.degrees
             }
             .onEnded { _ in
                 lastRotation = 0
+                viewModel.endGestureEdit()
             }
     }
 
@@ -113,9 +120,10 @@ struct RedPacketCanvasView: View {
             ))
             .frame(width: max(w, 20), height: max(h, 20))
             .rotationEffect(.degrees(layer.rotation))
+            // 父 ZStack 即画布本体（原点 0,0），position 无需 canvasRect 偏移。
             .position(
-                x: layer.x * scaleX + canvasRect.minX,
-                y: layer.y * scaleY + canvasRect.minY
+                x: layer.x * scaleX,
+                y: layer.y * scaleY
             )
             .allowsHitTesting(false)
     }

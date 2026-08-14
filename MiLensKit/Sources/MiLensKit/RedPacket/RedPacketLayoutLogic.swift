@@ -74,6 +74,24 @@ public func rpClampPosition(x: Double, y: Double) -> (x: Double, y: Double) {
     return (clampedX, clampedY)
 }
 
+/// 抠图主体初始入画尺寸：在模板安全区内等比缩放，长边占安全区对应边的 82%，
+/// 保证主体足够突出又不贴边。非法像素尺寸返回 nil（调用方保留图层原状）。
+public func rpFitCutoutLayerSize(
+    pixelWidth: Int,
+    pixelHeight: Int,
+    template: RedPacketTemplate
+) -> (width: Double, height: Double)? {
+    guard pixelWidth > 0, pixelHeight > 0 else { return nil }
+    let zone = template.safeZone
+    let maxWidth = zone.width * rpCanvasWidth * 0.82
+    let maxHeight = zone.height * rpCanvasHeight * 0.82
+    let fitScale = min(
+        maxWidth / Double(pixelWidth),
+        maxHeight / Double(pixelHeight)
+    )
+    return (Double(pixelWidth) * fitScale, Double(pixelHeight) * fitScale)
+}
+
 // MARK: - 几何计算
 
 /// 计算图层的半宽/半高（已乘 scale）。

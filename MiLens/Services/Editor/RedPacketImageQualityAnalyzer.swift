@@ -31,13 +31,22 @@ protocol RedPacketImageQualityAnalyzing: Sendable {
     ) -> RedPacketCutoutProcessingResult?
 }
 
+/// 解码结果：降采样后的图像 + 原始分辨率（从图像属性读取，不受降采样影响）。
+/// 质量检测的分辨率指标与蒙版坐标换算都必须以原始分辨率为基准。
+struct RedPacketDecodedImage {
+    let image: CGImage
+    let pixelWidth: Int
+    let pixelHeight: Int
+}
+
 /// 基于 Core Graphics/ImageIO 的本地图像质量分析器。
 final class CoreGraphicsRedPacketImageQualityAnalyzer:
     RedPacketImageQualityAnalyzing, @unchecked Sendable
 {
     private let sharpnessAnalyzer: any ImageAnalyzer
     private let sampleMaxDimension = 256
-    /// 红包画布无需保留相机全分辨率；限制合成缓冲，避免 48MP 照片产生数百 MB RGBA。
+    /// 红包画布无需保留相机全分辨率；限制合成缓冲与解码尺寸，
+    /// 避免 48MP 照片全分辨率解码产生数百 MB RGBA（降采样在 ImageIO 解码管线内完成）。
     private let cutoutMaxDimension = 2_048
 
     init(sharpnessAnalyzer: any ImageAnalyzer = CoreImageAnalyzer()) {
@@ -45,8 +54,9 @@ final class CoreGraphicsRedPacketImageQualityAnalyzer:
     }
 
     func analyze(imageData: Data) -> RedPacketImageMetrics? {
-        guard let image = decode(imageData),
-              let sample = renderRGBA(image, maxDimension: sampleMaxDimension)
+        // 只需 256px 亮度样本 + 原始分辨率，无需全分辨率解码。
+        guard let decoded = decode(imageData, maxPixelSize: sampleMaxDimension),
+              let sample = renderRGBA(decoded.image, maxDimension: sampleMaxDimension)
         else { return nil }
 
         var luminanceSum = 0.0
@@ -71,8 +81,8 @@ final class CoreGraphicsRedPacketImageQualityAnalyzer:
 
         guard sampleCount > 0 else { return nil }
         return RedPacketImageMetrics(
-            pixelWidth: image.width,
-            pixelHeight: image.height,
+            pixelWidth: decoded.pixelWidth,
+            pixelHeight: decoded.pixelHeight,
             sharpness: sharpnessAnalyzer.computeSharpness(imageData: imageData),
             averageBrightness: luminanceSum / Double(sampleCount),
             shadowClippingRatio: Double(shadowCount) / Double(sampleCount),
@@ -85,7 +95,7 @@ final class CoreGraphicsRedPacketImageQualityAnalyzer:
         imageData: Data,
         segmentation: SegmentationResult
     ) -> RedPacketCutoutProcessingResult? {
-        guard let image = decode(imageData),
+        guard let decoded = decode(imageData, maxPixelSize: cutoutMaxDimension),
               segmentation.bboxWidth > 0,
               segmentation.bboxHeight > 0,
               segmentation.mask.count >= segmentation.bboxWidth * segmentation.bboxHeight,
@@ -96,14 +106,17 @@ final class CoreGraphicsRedPacketImageQualityAnalyzer:
               )
         else { return nil }
 
+        let image = decoded.image
         let bboxX = Int(segmentation.bboxX.rounded())
         let bboxY = Int(segmentation.bboxY.rounded())
+        // 坐标换算基准是原始分辨率（蒙版 bbox 为原图坐标系），
+        // 解码图像已限制在 cutoutMaxDimension 内，两者经 processingScale 对齐。
         let processingScale = min(
             1,
-            Double(cutoutMaxDimension) / Double(max(image.width, image.height))
+            Double(cutoutMaxDimension) / Double(max(decoded.pixelWidth, decoded.pixelHeight))
         )
-        let width = max(1, Int((Double(image.width) * processingScale).rounded()))
-        let height = max(1, Int((Double(image.height) * processingScale).rounded()))
+        let width = max(1, Int((Double(decoded.pixelWidth) * processingScale).rounded()))
+        let height = max(1, Int((Double(decoded.pixelHeight) * processingScale).rounded()))
         guard var rgba = renderRGBA(
             image, exactWidth: width, exactHeight: height
         )?.pixels else { return nil }
@@ -120,11 +133,11 @@ final class CoreGraphicsRedPacketImageQualityAnalyzer:
                 for y in 0..<height {
                     for x in 0..<width {
                         let sourceX = min(
-                            image.width - 1,
+                            decoded.pixelWidth - 1,
                             Int((Double(x) / processingScale).rounded(.down))
                         )
                         let sourceY = min(
-                            image.height - 1,
+                            decoded.pixelHeight - 1,
                             Int((Double(y) / processingScale).rounded(.down))
                         )
                         let localX = sourceX - bboxX
@@ -195,9 +208,27 @@ final class CoreGraphicsRedPacketImageQualityAnalyzer:
         )
     }
 
-    private func decode(_ data: Data) -> CGImage? {
+    /// 解码图像，超出 maxPixelSize 时在 ImageIO 解码管线内降采样（不产生全分辨率 RGBA）。
+    /// 返回原始分辨率供分辨率指标与蒙版坐标换算；属性缺失视为解码失败。
+    private func decode(_ data: Data, maxPixelSize: Int) -> RedPacketDecodedImage? {
         guard let source = CGImageSourceCreateWithData(data as CFData, nil) else { return nil }
-        return CGImageSourceCreateImageAtIndex(source, 0, nil)
+        let properties = CGImageSourceCopyPropertiesAtIndex(source, 0, nil) as? [CFString: Any]
+        guard let pixelWidth = properties?[kCGImagePropertyPixelWidth] as? Int,
+              let pixelHeight = properties?[kCGImagePropertyPixelHeight] as? Int else { return nil }
+        // FromImageAlways：不返回 EXIF 内嵌小缩略图；WithTransform=false：保持与
+        // CGImageSourceCreateImageAtIndex 一致的无方向变换行为，避免与 Vision 蒙版坐标系不一致。
+        let options: [CFString: Any] = [
+            kCGImageSourceCreateThumbnailFromImageAlways: true,
+            kCGImageSourceCreateThumbnailWithTransform: false,
+            kCGImageSourceShouldCacheImmediately: true,
+            kCGImageSourceThumbnailMaxPixelSize: maxPixelSize
+        ]
+        guard let image = CGImageSourceCreateThumbnailAtIndex(
+            source, 0, options as CFDictionary
+        ) else { return nil }
+        return RedPacketDecodedImage(
+            image: image, pixelWidth: pixelWidth, pixelHeight: pixelHeight
+        )
     }
 
     private func renderRGBA(

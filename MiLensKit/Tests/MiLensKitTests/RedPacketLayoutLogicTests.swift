@@ -87,6 +87,36 @@ final class RedPacketLayoutLogicTests: XCTestCase {
         XCTAssertEqual(result.y, 0)
     }
 
+    // MARK: - 抠图主体入画尺寸
+
+    func testFitCutoutLayerSizeLandscapeUsesWidthConstraint() {
+        // 宽图：宽边主导，宽边占安全区宽的 82%
+        let zone = defaultTemplate.safeZone
+        let fitted = rpFitCutoutLayerSize(
+            pixelWidth: 2000, pixelHeight: 1000, template: defaultTemplate
+        )
+        XCTAssertNotNil(fitted)
+        XCTAssertEqual(fitted?.width ?? 0, zone.width * rpCanvasWidth * 0.82, accuracy: 0.01)
+        // 等比：height/width 比例保持 1:2
+        XCTAssertEqual((fitted?.height ?? 0) / (fitted?.width ?? 1), 0.5, accuracy: 0.001)
+    }
+
+    func testFitCutoutLayerSizePortraitUsesHeightConstraint() {
+        // 高图：高边主导，高边占安全区高的 82%（safeZone.height = 0.5 更紧）
+        let zone = defaultTemplate.safeZone
+        let fitted = rpFitCutoutLayerSize(
+            pixelWidth: 1000, pixelHeight: 2000, template: defaultTemplate
+        )
+        XCTAssertNotNil(fitted)
+        XCTAssertEqual(fitted?.height ?? 0, zone.height * rpCanvasHeight * 0.82, accuracy: 0.01)
+        XCTAssertEqual((fitted?.width ?? 0) / (fitted?.height ?? 1), 0.5, accuracy: 0.001)
+    }
+
+    func testFitCutoutLayerSizeInvalidPixelsReturnsNil() {
+        XCTAssertNil(rpFitCutoutLayerSize(pixelWidth: 0, pixelHeight: 100, template: defaultTemplate))
+        XCTAssertNil(rpFitCutoutLayerSize(pixelWidth: 100, pixelHeight: -5, template: defaultTemplate))
+    }
+
     // MARK: - 命中测试
 
     func testHitTestFindsEditableLayer() {

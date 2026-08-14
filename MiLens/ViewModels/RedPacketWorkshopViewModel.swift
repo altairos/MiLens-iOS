@@ -2,8 +2,8 @@
 //
 //  @Observable 视图模型，管理草稿/图层/选中状态/抠图状态。
 //  几何全部委托 RedPacketLayoutLogic；VM 只做状态机。
-//  抠图复用 VisionService.segmentSubject（VNGenerateForegroundInstanceMask），
-//  失败设 .error，不降级为中心裁切（诚实标注）。
+//  抠图管线（分割/合成/持久化）在 +Cutout.swift；质量输入组装在
+//  RedPacketQualityInputBuilder；本文件只保留加载/图层操作/撤销/优化/草稿持久化。
 
 import SwiftUI
 import UIKit
@@ -20,6 +20,13 @@ enum RedPacketCutoutPhase: Equatable {
     case error
 }
 
+/// 工作室加载失败原因（模板/照片不可用时阻止编辑，UI 显示失败态）。
+enum RedPacketLoadError: Equatable {
+    case templateNotFound
+    case photoNotFound
+    case photoUnreadable
+}
+
 /// 红包工作室 ViewModel。
 @MainActor
 @Observable
@@ -28,9 +35,10 @@ final class RedPacketWorkshopViewModel {
     // MARK: - 依赖
 
     private let photoRepo: any PhotoRepositoryProtocol
-    private let vision: any VisionService
-    private let draftStore: RedPacketDraftStore
-    private let imageQualityAnalyzer: any RedPacketImageQualityAnalyzing
+    // 以下三个成员供 +Cutout.swift 访问（同模块内可见），其余仍 private。
+    let vision: any VisionService
+    let draftStore: RedPacketDraftStore
+    let imageQualityAnalyzer: any RedPacketImageQualityAnalyzing
 
     // MARK: - 初始参数
 
@@ -40,11 +48,15 @@ final class RedPacketWorkshopViewModel {
     let isPro: Bool
     /// 是否跳过自动抠图（从 CutoutConfirm 进入时为 true）。
     var skipAutoCutout = false
+    /// CutoutConfirm 页已确认的分割结果（复用以跳过重复 Vision 分割）。
+    var confirmedSegmentation: SegmentationResult?
 
     // MARK: - 状态
 
     /// 是否正在加载。
     var isLoading = true
+    /// 加载失败原因（nil = 加载成功或进行中）。
+    var loadError: RedPacketLoadError?
     /// 当前模板。
     private(set) var template: RedPacketTemplate = .firstFreeTemplate
     /// 当前草稿。
@@ -54,14 +66,14 @@ final class RedPacketWorkshopViewModel {
     /// 原始照片图像。
     var sourceImage: UIImage?
     /// 原图编码数据，Vision 与像素分析共用，避免反复 JPEG 压缩损失。
-    private var sourceImageData: Data?
+    var sourceImageData: Data?
     /// 抠图后的图像。
     var cutoutImage: UIImage?
-    /// 原图/抠图真实像素指标。
+    /// 原图/抠图真实像素指标（抠图指标供 +Cutout.swift 写入）。
     private var sourceImageMetrics: RedPacketImageMetrics?
-    private var cutoutImageMetrics: RedPacketImageMetrics?
+    var cutoutImageMetrics: RedPacketImageMetrics?
     /// 抠图蒙版真实结构指标。
-    private var cutoutMaskMetrics: RedPacketMaskMetrics?
+    var cutoutMaskMetrics: RedPacketMaskMetrics?
     /// 抠图阶段。
     var cutoutPhase: RedPacketCutoutPhase = .idle
     /// 宠物名。
@@ -139,6 +151,7 @@ final class RedPacketWorkshopViewModel {
         defer { isLoading = false }
         guard let foundTemplate = RedPacketTemplateCatalog.find(id: templateID) else {
             logger.error("load: 模板不存在 \(self.templateID)")
+            loadError = .templateNotFound
             return
         }
         template = foundTemplate
@@ -146,6 +159,7 @@ final class RedPacketWorkshopViewModel {
         do {
             guard let photo = try photoRepo.getPhoto(id: photoID) else {
                 logger.error("load: 照片不存在 \(self.photoID)")
+                loadError = .photoNotFound
                 return
             }
 
@@ -166,6 +180,7 @@ final class RedPacketWorkshopViewModel {
             }.value
             guard let loadedData, let loaded = UIImage(data: loadedData) else {
                 logger.error("load: 照片解码失败")
+                loadError = .photoUnreadable
                 return
             }
             sourceImage = loaded
@@ -195,68 +210,22 @@ final class RedPacketWorkshopViewModel {
             // 初始化历史状态
             history = RedPacketHistoryLogic.initialState(draft: draft)
 
-            // 执行抠图（无论是否从 CutoutConfirm 进入，工作室都需要自己的抠图结果）
-            await performCutout()
+            // 抠图：从 CutoutConfirm 进入时复用其已确认的分割结果，避免重复 Vision 分割；
+            // 其余入口自行分割。
+            if skipAutoCutout, let seg = confirmedSegmentation,
+               seg.bboxWidth > 0, seg.bboxHeight > 0 {
+                await applySegmentation(seg, sourceData: loadedData)
+            } else {
+                await performCutout()
+            }
 
         } catch {
             logger.error("load: 读取照片失败 \(error.localizedDescription)")
+            loadError = .photoUnreadable
         }
     }
 
-    // MARK: - 抠图
-
-    func performCutout() async {
-        guard let data = sourceImageData else { return }
-        cutoutPhase = .processing
-
-        let result: SegmentationResult?
-        do {
-            result = try await vision.segmentSubject(in: data)
-        } catch {
-            logger.error("performCutout: 分割失败 \(error.localizedDescription)")
-            result = nil
-        }
-
-        guard let seg = result, seg.bboxWidth > 0, seg.bboxHeight > 0 else {
-            // 失败即 error，不用中心裁切伪装（诚实标注）
-            cutoutPhase = .error
-            cutoutImageMetrics = nil
-            cutoutMaskMetrics = nil
-            evaluateQuality()
-            return
-        }
-
-        // 蒙版合成、裁边与指标提取均在后台完成，避免阻塞编辑手势。
-        let analyzer = imageQualityAnalyzer
-        let processed = await Task.detached(priority: .utility) {
-            analyzer.makeCutout(imageData: data, segmentation: seg)
-        }.value
-        guard let processed, let cutout = UIImage(data: processed.pngData) else {
-            cutoutPhase = .error
-            cutoutImageMetrics = nil
-            cutoutMaskMetrics = nil
-            evaluateQuality()
-            return
-        }
-
-        cutoutImage = cutout
-        cutoutImageMetrics = processed.imageMetrics
-        cutoutMaskMetrics = processed.maskMetrics
-        cutoutPhase = .applied
-
-        // 更新 pet 图层
-        updatePetLayerWithCutout(
-            pixelWidth: processed.pixelWidth,
-            pixelHeight: processed.pixelHeight
-        )
-        evaluateQuality()
-    }
-
-    func retryCutout() async {
-        await performCutout()
-    }
-
-    // MARK: - 图层操作
+    // MARK: - 图层操作（抠图管线见 +Cutout.swift）
 
     func selectLayer(at canvasPoint: CGPoint) {
         let hitID = rpHitTest(
@@ -268,6 +237,34 @@ final class RedPacketWorkshopViewModel {
 
     func deselect() {
         activeLayerID = nil
+    }
+
+    /// 手势编辑会话：会话首帧推快照（幂等），手势结束调 endGestureEdit。
+    /// 连续手势（拖/缩/旋）在 onChanged 首帧进入，整段手势只占一条撤销记录。
+    private var isGestureEditing = false
+
+    /// 文本输入会话：会话首帧自动推快照，连续键入只占一条撤销记录。
+    /// 任何离散操作（pushSnapshot）、撤销/重做或失焦（endTextEdit）都会重置。
+    private var isTextEditing = false
+
+    func beginGestureEdit() {
+        guard !isGestureEditing, activeLayerID != nil else { return }
+        isGestureEditing = true
+        pushSnapshot()
+        clearOptimizationPreview()
+    }
+
+    func endGestureEdit() {
+        isGestureEditing = false
+    }
+
+    /// 离散变换（检查器按钮等单次操作）：推快照后执行。
+    func transformActive(scaleBy factor: Double = 1.0, rotateBy degrees: Double = 0.0) {
+        guard activeLayerID != nil else { return }
+        pushSnapshot()
+        clearOptimizationPreview()
+        if factor != 1.0 { scaleActive(by: factor) }
+        if degrees != 0 { rotateActive(by: degrees) }
     }
 
     func moveActive(dx: Double, dy: Double) {
@@ -335,12 +332,21 @@ final class RedPacketWorkshopViewModel {
 
     func updateText(_ text: String) {
         guard let textLayer = draft.layers.first(where: { $0.kind == .text }) else { return }
-        pushSnapshot()
-        clearOptimizationPreview()
+        if !isTextEditing {
+            // 会话首帧：记录编辑前状态；后续键入不再逐字推快照
+            isTextEditing = true
+            history = RedPacketHistoryLogic.push(current: history, draft: draft)
+            clearOptimizationPreview()
+        }
         let truncated = String(text.prefix(WeChatRedPacketSpec.coverTitleMaxLength))
         draft.layers = rpUpdateLayer(draft.layers, id: textLayer.id) { $0.text = truncated }
         draft.coverTitle = truncated
         refreshQualityIfNeeded()
+    }
+
+    /// 结束文本输入会话（输入框失焦时调用；下一次键入开启新撤销记录）。
+    func endTextEdit() {
+        isTextEditing = false
     }
 
     /// 切换活动文本层的预置风格。
@@ -371,6 +377,8 @@ final class RedPacketWorkshopViewModel {
 
     func switchTemplate(to newTemplateID: String) {
         guard let newTemplate = RedPacketTemplateCatalog.find(id: newTemplateID) else { return }
+        // VM 层兜底：View 层 isLocked 已拦截，但直接调用（测试/未来入口）不可越权切到 Pro 模板。
+        guard newTemplate.isFree || isPro else { return }
         pushSnapshot()
         clearOptimizationPreview()
         template = newTemplate
@@ -383,8 +391,10 @@ final class RedPacketWorkshopViewModel {
 
     // MARK: - 撤销 / 重做
 
-    /// 在用户操作前记录快照。
+    /// 在用户操作前记录快照。离散操作同时打断文本输入会话，
+    /// 避免跨操作合并撤销记录。
     private func pushSnapshot() {
+        isTextEditing = false
         history = RedPacketHistoryLogic.push(current: history, draft: draft)
     }
 
@@ -398,6 +408,7 @@ final class RedPacketWorkshopViewModel {
     }
 
     func undo() {
+        isTextEditing = false
         let (newState, restored) = RedPacketHistoryLogic.undo(history)
         history = newState
         if let restored {
@@ -409,6 +420,7 @@ final class RedPacketWorkshopViewModel {
     }
 
     func redo() {
+        isTextEditing = false
         let (newState, restored) = RedPacketHistoryLogic.redo(history)
         history = newState
         if let restored {
@@ -421,9 +433,16 @@ final class RedPacketWorkshopViewModel {
 
     // MARK: - 质量检测与智能优化
 
-    /// 从当前图层状态提取质量检测输入。
+    /// 从当前图层状态评估质量（输入组装见 RedPacketQualityInputBuilder）。
     func evaluateQuality() {
-        let input = buildQualityInput()
+        let input = RedPacketQualityInputBuilder.make(
+            layers: draft.layers,
+            template: template,
+            sourceMetrics: sourceImageMetrics,
+            cutoutMetrics: cutoutImageMetrics,
+            maskMetrics: cutoutMaskMetrics,
+            cutoutApplied: cutoutPhase == .applied
+        )
         qualityReport = RedPacketQualityLogic.evaluate(input)
     }
 
@@ -447,11 +466,8 @@ final class RedPacketWorkshopViewModel {
                 textLayer: textLayer
             )
         } else {
-            optimization = RedPacketOptimizationLogic.defaultGentleOptimization(
-                template: template,
-                petLayer: petLayer,
-                textLayer: textLayer
-            )
+            // 无质量问题：没有可真实落地的调整，交由 noChanges 摘要告知用户。
+            optimization = RedPacketOptimizationResult()
         }
 
         guard optimization.hasOptimizations else {
@@ -497,70 +513,6 @@ final class RedPacketWorkshopViewModel {
         evaluateQuality()
     }
 
-    /// 构建质量检测输入（从当前图层和图像状态提取）。
-    private func buildQualityInput() -> RedPacketQualityInput {
-        let petLayer = draft.layers.first { $0.kind == .pet }
-        let textLayer = draft.layers.first { $0.kind == .text }
-
-        // 清晰度/分辨率使用原图，避免透明轮廓抬高 Laplacian；亮度优先检查抠出的主体。
-        let clarityMetrics = sourceImageMetrics
-        let toneMetrics = cutoutImageMetrics ?? sourceImageMetrics
-
-        // 宠物面积比例
-        let petCoverage: Double
-        if let pet = petLayer, pet.visible {
-            let petArea = pet.width * pet.scale * pet.height * pet.scale
-            let canvasArea = rpCanvasWidth * rpCanvasHeight
-            petCoverage = min(1, petArea / canvasArea)
-        } else {
-            petCoverage = 0
-        }
-
-        // 宠物是否在安全区
-        let petInZone: Bool
-        let petSafeZoneCoverage: Double
-        let petCanvasVisible: Double
-        if let pet = petLayer {
-            petSafeZoneCoverage = rpLayerSafeZoneCoverageRatio(pet, template: template)
-            petCanvasVisible = rpLayerCanvasVisibleRatio(pet)
-            petInZone = petSafeZoneCoverage >= 0.65
-        } else {
-            petInZone = false
-            petSafeZoneCoverage = 0
-            petCanvasVisible = 0
-        }
-
-        // 文本是否在安全区
-        let textInZone: Bool
-        if let text = textLayer {
-            textInZone = rpIsLayerInSafeZone(text, template: template)
-        } else {
-            textInZone = true
-        }
-
-        return RedPacketQualityInput(
-            imageWidth: clarityMetrics?.pixelWidth ?? 0,
-            imageHeight: clarityMetrics?.pixelHeight ?? 0,
-            sharpness: clarityMetrics?.sharpness ?? 0,
-            averageBrightness: toneMetrics?.averageBrightness ?? 0,
-            petCoverageRatio: petCoverage,
-            cutoutEdgeRoughness: cutoutMaskMetrics?.edgeRoughness ?? 0,
-            petInSafeZone: petInZone,
-            textContent: textLayer?.text ?? "",
-            textInSafeZone: textInZone,
-            textContrast: 0.6,
-            imageMetricsAvailable: clarityMetrics != nil && toneMetrics != nil,
-            shadowClippingRatio: toneMetrics?.shadowClippingRatio ?? 0,
-            highlightClippingRatio: toneMetrics?.highlightClippingRatio ?? 0,
-            petCanvasVisibleRatio: petCanvasVisible,
-            petSafeZoneCoverageRatio: petSafeZoneCoverage,
-            cutoutMetricsAvailable: cutoutPhase == .applied && cutoutMaskMetrics != nil,
-            cutoutForegroundRatio: cutoutMaskMetrics?.foregroundRatio ?? 0,
-            cutoutFragmentationRatio: cutoutMaskMetrics?.fragmentationRatio ?? 0,
-            cutoutBoundaryTouchRatio: cutoutMaskMetrics?.boundaryTouchRatio ?? 0
-        )
-    }
-
     private func refreshQualityIfNeeded() {
         guard qualityReport != nil else { return }
         evaluateQuality()
@@ -590,29 +542,5 @@ final class RedPacketWorkshopViewModel {
         } catch {
             logger.error("loadDraft: 加载失败 \(error.localizedDescription)")
         }
-    }
-
-    /// 用抠图结果更新 pet 图层。
-    private func updatePetLayerWithCutout(pixelWidth: Int, pixelHeight: Int) {
-        guard let petLayer = draft.layers.first(where: { $0.kind == .pet }) else { return }
-        guard pixelWidth > 0, pixelHeight > 0 else { return }
-        let zone = template.safeZone
-        let maxWidth = zone.width * rpCanvasWidth * 0.82
-        let maxHeight = zone.height * rpCanvasHeight * 0.82
-        let fitScale = min(
-            maxWidth / Double(pixelWidth),
-            maxHeight / Double(pixelHeight)
-        )
-        let logicalWidth = Double(pixelWidth) * fitScale
-        let logicalHeight = Double(pixelHeight) * fitScale
-        draft.layers = rpUpdateLayer(draft.layers, id: petLayer.id) { layer in
-            layer.visible = true
-            layer.width = logicalWidth
-            layer.height = logicalHeight
-            layer.scale = template.defaultPetTransform.scale
-            layer.x = template.defaultPetTransform.x
-            layer.y = template.defaultPetTransform.y
-        }
-        activeLayerID = petLayer.id
     }
 }

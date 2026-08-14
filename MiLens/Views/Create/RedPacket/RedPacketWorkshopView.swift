@@ -34,6 +34,8 @@ struct RedPacketWorkshopView: View {
     let petID: UUID?
     /// 是否跳过自动抠图（从 CutoutConfirm 进入时为 true，用户已确认抠图）。
     var skipAutoCutout: Bool = false
+    /// CutoutConfirm 页已确认的分割结果（复用以跳过重复 Vision 分割）。
+    var confirmedSegmentation: SegmentationResult? = nil
 
     @Environment(\.viewModelFactory) private var factory
     @Environment(\.proEntitlement) private var entitlement
@@ -48,7 +50,11 @@ struct RedPacketWorkshopView: View {
     var body: some View {
         Group {
             if let vm = viewModel {
-                content(vm: vm)
+                if vm.loadError != nil {
+                    loadErrorView(vm: vm)
+                } else {
+                    content(vm: vm)
+                }
             } else {
                 ProgressView()
                     .tint(Color.milensActionPrimary)
@@ -65,6 +71,7 @@ struct RedPacketWorkshopView: View {
                     isPro: entitlement.isPro
                 )
                 viewModel?.skipAutoCutout = skipAutoCutout
+                viewModel?.confirmedSegmentation = confirmedSegmentation
                 Task { await viewModel?.load() }
             }
         }
@@ -160,6 +167,39 @@ struct RedPacketWorkshopView: View {
             case .text: selectedChannel = .blessing
             default: break
             }
+        }
+    }
+
+    // MARK: - 加载失败态
+
+    /// 模板/照片不可用时阻止编辑，只提供返回（失败不伪装，可换图重试）。
+    private func loadErrorView(vm: RedPacketWorkshopViewModel) -> some View {
+        VStack(spacing: 12) {
+            Image(systemName: "exclamationmark.triangle")
+                .font(.system(size: 32))
+                .foregroundStyle(Color.milensWarning)
+            Text(loadErrorText(vm.loadError))
+                .font(.editorialMetadata)
+                .foregroundStyle(Color.milensTextSecondary)
+            Button {
+                dismiss()
+            } label: {
+                Text(String(localized: "redpacket.workshop.loadError.back"))
+                    .font(.editorialMetadata)
+                    .foregroundStyle(Color.milensActionPrimary)
+            }
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+
+    private func loadErrorText(_ error: RedPacketLoadError?) -> String {
+        switch error {
+        case .templateNotFound:
+            return String(localized: "redpacket.workshop.loadError.template")
+        case .photoNotFound, .photoUnreadable:
+            return String(localized: "redpacket.workshop.loadError.photo")
+        case nil:
+            return ""
         }
     }
 
@@ -358,7 +398,7 @@ struct RedPacketWorkshopView: View {
                                     }
                                 }
 
-                                Text(template.displayName)
+                                Text(String(localized: String.LocalizationValue(template.displayNameKey)))
                                     .font(.editorialMetadata)
                                     .foregroundStyle(isCurrent ? Color.milensActionPrimary : Color.milensTextPrimary)
                             }
@@ -400,7 +440,7 @@ struct RedPacketWorkshopView: View {
                                     .frame(width: 64, height: 64)
                                     .background(Color.milensSealSurface.opacity(0.5))
                                     .clipShape(RoundedRectangle(cornerRadius: 8))
-                                Text(item.name)
+                                Text(String(localized: String.LocalizationValue(item.nameKey)))
                                     .font(.editorialMetadata)
                                     .foregroundStyle(Color.milensTextPrimary)
                             }
@@ -427,21 +467,21 @@ struct RedPacketWorkshopView: View {
 
     private struct AccessoryItem {
         let id: String
-        let name: String
+        let nameKey: String
         let emoji: String
         let resourceRef: String
     }
 
     private func accessoryCatalog() -> [AccessoryItem] {
         [
-            AccessoryItem(id: "lantern", name: "灯笼", emoji: "🏮", resourceRef: "acc_lantern"),
-            AccessoryItem(id: "firecracker", name: "鞭炮", emoji: "🧨", resourceRef: "acc_firecracker"),
-            AccessoryItem(id: "coin", name: "金币", emoji: "🪙", resourceRef: "acc_coin"),
-            AccessoryItem(id: "flower", name: "花卉", emoji: "🌸", resourceRef: "acc_flower"),
-            AccessoryItem(id: "paw", name: "爪印", emoji: "🐾", resourceRef: "acc_paw"),
-            AccessoryItem(id: "heart", name: "爱心", emoji: "❤️", resourceRef: "acc_heart"),
-            AccessoryItem(id: "star", name: "星星", emoji: "⭐", resourceRef: "acc_star"),
-            AccessoryItem(id: "bow", name: "蝴蝶结", emoji: "🎀", resourceRef: "acc_bow"),
+            AccessoryItem(id: "lantern", nameKey: "redpacket.accessory.lantern", emoji: "🏮", resourceRef: "acc_lantern"),
+            AccessoryItem(id: "firecracker", nameKey: "redpacket.accessory.firecracker", emoji: "🧨", resourceRef: "acc_firecracker"),
+            AccessoryItem(id: "coin", nameKey: "redpacket.accessory.coin", emoji: "🪙", resourceRef: "acc_coin"),
+            AccessoryItem(id: "flower", nameKey: "redpacket.accessory.flower", emoji: "🌸", resourceRef: "acc_flower"),
+            AccessoryItem(id: "paw", nameKey: "redpacket.accessory.paw", emoji: "🐾", resourceRef: "acc_paw"),
+            AccessoryItem(id: "heart", nameKey: "redpacket.accessory.heart", emoji: "❤️", resourceRef: "acc_heart"),
+            AccessoryItem(id: "star", nameKey: "redpacket.accessory.star", emoji: "⭐", resourceRef: "acc_star"),
+            AccessoryItem(id: "bow", nameKey: "redpacket.accessory.bow", emoji: "🎀", resourceRef: "acc_bow"),
         ]
     }
 }

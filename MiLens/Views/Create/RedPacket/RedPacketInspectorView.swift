@@ -99,14 +99,14 @@ struct RedPacketInspectorView: View {
                 label: String(localized: "redpacket.workshop.transform.scale"),
                 isHighlighted: false
             ) {
-                viewModel.scaleActive(by: 1.2)
+                viewModel.transformActive(scaleBy: 1.2)
             }
             transformButton(
                 icon: "rotate.3d",
                 label: String(localized: "redpacket.workshop.transform.rotate"),
                 isHighlighted: false
             ) {
-                viewModel.rotateActive(by: 15)
+                viewModel.transformActive(rotateBy: 15)
             }
             transformButton(
                 icon: "scope",
@@ -136,14 +136,14 @@ struct RedPacketInspectorView: View {
                 label: String(localized: "redpacket.workshop.transform.scale"),
                 isHighlighted: false
             ) {
-                viewModel.scaleActive(by: 1.2)
+                viewModel.transformActive(scaleBy: 1.2)
             }
             transformButton(
                 icon: "rotate.3d",
                 label: String(localized: "redpacket.workshop.transform.rotate"),
                 isHighlighted: false
             ) {
-                viewModel.rotateActive(by: 15)
+                viewModel.transformActive(rotateBy: 15)
             }
             transformButton(
                 icon: "scope",
@@ -168,7 +168,11 @@ struct RedPacketInspectorView: View {
                     text: Binding(
                         get: { viewModel.textContent },
                         set: { viewModel.updateText($0) }
-                    )
+                    ),
+                    onEditingChanged: { isEditing in
+                        // 失焦结束文本会话：连续键入只占一条撤销记录
+                        if !isEditing { viewModel.endTextEdit() }
+                    }
                 )
                 .font(.system(size: 12))
                 .foregroundStyle(Color.milensTextPrimary)

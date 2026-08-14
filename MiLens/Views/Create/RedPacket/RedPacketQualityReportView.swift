@@ -306,18 +306,15 @@ struct RedPacketQualityReportView: View {
         if viewModel.optimizationSummary.isEmpty {
             return String(localized: "redpacket.optimize.applied")
         }
-        // 映射 key 到中文
+        // 映射 key 到中文（只映射真实落地的优化；摘要不得宣传未执行的效果）
         viewModel.optimizationSummary.map { key in
             switch key {
-            case "redpacket.optimize.sharpened": return String(localized: "redpacket.optimize.summary.sharpened")
-            case "redpacket.optimize.brightened": return String(localized: "redpacket.optimize.summary.brightened")
-            case "redpacket.optimize.contrastAdjusted": return String(localized: "redpacket.optimize.summary.contrast")
             case "redpacket.optimize.petRepositioned": return String(localized: "redpacket.optimize.summary.petPos")
             case "redpacket.optimize.textRepositioned": return String(localized: "redpacket.optimize.summary.textPos")
-            case "redpacket.optimize.gentleApplied": return String(localized: "redpacket.optimize.summary.gentle")
+            case "redpacket.optimize.noChanges": return String(localized: "redpacket.optimize.summary.noChanges")
             default: return ""
             }
-        }.joined(separator: "，")
+        }.filter { !$0.isEmpty }.joined(separator: "，")
     }
 }
 

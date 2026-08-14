@@ -313,7 +313,7 @@ public enum RedPacketQualityLogic {
             return RedPacketQualityItem(
                 dimension: .brightness,
                 level: .warning,
-                detail: "暗部细节较少（阴影剪切 (Int(input.shadowClippingRatio * 100))%），建议适度提亮",
+                detail: "暗部细节较少（阴影剪切 \(Int(input.shadowClippingRatio * 100))%），建议适度提亮",
                 suggestionKey: "redpacket.quality.brightness.dark"
             )
         }
@@ -322,7 +322,7 @@ public enum RedPacketQualityLogic {
             return RedPacketQualityItem(
                 dimension: .brightness,
                 level: .warning,
-                detail: "高光细节较少（高光剪切 (Int(input.highlightClippingRatio * 100))%），建议降低曝光",
+                detail: "高光细节较少（高光剪切 \(Int(input.highlightClippingRatio * 100))%），建议降低曝光",
                 suggestionKey: "redpacket.quality.brightness.overexposed"
             )
         }
@@ -343,7 +343,7 @@ public enum RedPacketQualityLogic {
             return RedPacketQualityItem(
                 dimension: .composition,
                 level: .error,
-                detail: "宠物主体有 (Int((1 - input.petCanvasVisibleRatio) * 100))% 超出画布，可能被裁切",
+                detail: "宠物主体有 \(Int((1 - input.petCanvasVisibleRatio) * 100))% 超出画布，可能被裁切",
                 suggestionKey: "redpacket.quality.composition.clipped"
             )
         }
@@ -363,7 +363,7 @@ public enum RedPacketQualityLogic {
             return RedPacketQualityItem(
                 dimension: .composition,
                 level: .error,
-                detail: "宠物主体仅有 (Int(input.petSafeZoneCoverageRatio * 100))% 位于安全区，红包控件可能遮挡主体",
+                detail: "宠物主体仅有 \(Int(input.petSafeZoneCoverageRatio * 100))% 位于安全区，红包控件可能遮挡主体",
                 suggestionKey: "redpacket.quality.composition.safezone"
             )
         }
@@ -393,7 +393,7 @@ public enum RedPacketQualityLogic {
             return RedPacketQualityItem(
                 dimension: .cutout,
                 level: .error,
-                detail: "识别到的主体过少（(Int(input.cutoutForegroundRatio * 100))%），抠图可能失败",
+                detail: "识别到的主体过少（\(Int(input.cutoutForegroundRatio * 100))%），抠图可能失败",
                 suggestionKey: "redpacket.quality.cutout.retry"
             )
         }
@@ -402,7 +402,7 @@ public enum RedPacketQualityLogic {
             return RedPacketQualityItem(
                 dimension: .cutout,
                 level: .warning,
-                detail: "前景覆盖 (Int(input.cutoutForegroundRatio * 100))%，可能混入较多背景",
+                detail: "前景覆盖 \(Int(input.cutoutForegroundRatio * 100))%，可能混入较多背景",
                 suggestionKey: "redpacket.quality.cutout.background"
             )
         }
@@ -411,7 +411,7 @@ public enum RedPacketQualityLogic {
             return RedPacketQualityItem(
                 dimension: .cutout,
                 level: .warning,
-                detail: "抠图包含较多零散区域（(Int(input.cutoutFragmentationRatio * 100))%），建议重试",
+                detail: "抠图包含较多零散区域（\(Int(input.cutoutFragmentationRatio * 100))%），建议重试",
                 suggestionKey: "redpacket.quality.cutout.fragmented"
             )
         }
@@ -420,7 +420,7 @@ public enum RedPacketQualityLogic {
             return RedPacketQualityItem(
                 dimension: .cutout,
                 level: .warning,
-                detail: "主体与画面边缘接触较多（(Int(input.cutoutBoundaryTouchRatio * 100))%），请确认耳朵或尾巴是否完整",
+                detail: "主体与画面边缘接触较多（\(Int(input.cutoutBoundaryTouchRatio * 100))%），请确认耳朵或尾巴是否完整",
                 suggestionKey: "redpacket.quality.cutout.incomplete"
             )
         }
@@ -482,5 +482,67 @@ public enum RedPacketQualityLogic {
             detail: "文字可读性良好",
             suggestionKey: ""
         )
+    }
+
+    // MARK: - 文字对比度计算（可读性检测支撑）
+
+    /// 对比度满分基准：WCAG 7.5:1（超过 AAA 正文标准 7:1）映射为 1.0。
+    /// 3:1（WCAG AA 大文本标准，封面文字均为大号展示字）恰映射为 0.4 = textContrastMin。
+    public static let textContrastFullScale: Double = 7.5
+
+    /// 提取背景描述符的代表色：渐变取全部端点色（文字可能落在渐变任意位置），
+    /// 装饰背景取底渐变（稀疏图案不主导文字底色），资源背景无法解析返回空。
+    public static func backgroundHexColors(_ background: RedPacketBackgroundDescriptor) -> [String] {
+        switch background {
+        case .solid(let colorHex):
+            return [colorHex]
+        case .gradient(let colors, _):
+            return colors
+        case .decorated(let base, _, _):
+            return base.colors
+        case .resource:
+            return []
+        }
+    }
+
+    /// WCAG 相对亮度（0–1）。支持 #RRGGBB / #RRGGBBAA（alpha 不参与亮度），无法解析返回 nil。
+    public static func relativeLuminance(hex: String) -> Double? {
+        var value = hex.hasPrefix("#") ? String(hex.dropFirst()) : hex
+        guard value.count == 6 || value.count == 8 else { return nil }
+        if value.count == 8 { value = String(value.prefix(6)) }
+        var channels: [Double] = []
+        var index = value.startIndex
+        while index < value.endIndex {
+            let next = value.index(index, offsetBy: 2)
+            guard let component = UInt64(value[index..<next], radix: 16) else { return nil }
+            channels.append(Double(component) / 255.0)
+            index = next
+        }
+        // sRGB 分量 → 线性亮度（WCAG 2.x 定义）
+        let linear = channels.map { c in
+            c <= 0.03928 ? c / 12.92 : pow((c + 0.055) / 1.055, 2.4)
+        }
+        return 0.2126 * linear[0] + 0.7152 * linear[1] + 0.0722 * linear[2]
+    }
+
+    /// WCAG 对比度（1–21）。任一颜色无法解析返回 nil。
+    public static func contrastRatio(textHex: String, backgroundHex: String) -> Double? {
+        guard let textLuminance = relativeLuminance(hex: textHex),
+              let backgroundLuminance = relativeLuminance(hex: backgroundHex) else { return nil }
+        let lighter = max(textLuminance, backgroundLuminance)
+        let darker = min(textLuminance, backgroundLuminance)
+        return (lighter + 0.05) / (darker + 0.05)
+    }
+
+    /// 文字与模板背景的归一化对比度（0–1，越高越好）。
+    /// 取文字主色对背景各代表色 WCAG 对比度的最小值（渐变下最保守），
+    /// 再按 textContrastFullScale 归一化。只看主色不看描边——描边过细（画布宽 0.2%–0.6%）
+    /// 不主导可读性，宁可多报不漏报。背景无可解析代表色或颜色解析失败返回 nil，由调用方决定降级语义。
+    public static func textContrast(textHex: String, background: RedPacketBackgroundDescriptor) -> Double? {
+        let ratios = backgroundHexColors(background).compactMap {
+            contrastRatio(textHex: textHex, backgroundHex: $0)
+        }
+        guard let worst = ratios.min() else { return nil }
+        return min(1.0, worst / textContrastFullScale)
     }
 }

@@ -23,11 +23,12 @@
 
 行数分类依据：AGENTS.md §3「单文件超 600 行（编辑器/算法核心 800 行）须拆分」。Kit 整体视为算法核心（拼豆算法/工具收敛地）；App 层含 `Editor` 目录段的路径（Views/Editor、ViewModels/Editor、Services/Editor）视为编辑器核心。测试目录不在守卫范围（测试是行为规格载体，非产品代码）。
 
-### 2.2 首例豁免：BeadExportService 的 `import Photos`
+### 2.2 首例豁免：BeadExportService 的 `import Photos`——已关闭（P2-1 完成）
 
 - **现状**：`MiLens/Services/BeadExportService.swift` 直接 `PHPhotoLibrary.shared().performChanges` 保存导出图（红包封面/拼豆/宠物卡片等共用），绕过 `PhotoLibraryAccess` 协议抽象。
 - **豁免理由**：功能已被 2026-08-13 前的红包封面 8 连发提交广泛依赖（4 个 View 复用其保存能力），立即改协议注入需同步补 Mock 与测试（P2-1 范围），不宜与守卫上线混在一次变更。
 - **期限与移除条件**：P2-1 完成（`PhotoLibraryAccess` 协议补 `save(imageData:as:)` + Mock 实现 + ≥3 用例）后，从 `check-imports.py` 的 `FILE_EXEMPTIONS` 删除本条目并关闭本节。
+- **完成记录（2026-08-16，P2-1）**：协议补 `save(imageData:as:)`（`PhotoLibrarySaveKind` photo/video 二分）与 `PhotoLibraryError.savePermissionDenied/.saveFailed`；真实实现收敛至 `IOSPhotoLibraryAccess.save`（addOnly 显式授权 → `performChanges`，权限拒绝不再埋进深层失败）；`BeadExportService` 改协议注入（默认 `IOSPhotoLibraryAccess`，测试注入 Mock）并删除 `import Photos`，`FILE_EXEMPTIONS` 条目已删（守卫复跑：222 文件 0 越界、0 豁免）；`BeadExportServiceSaveTests` 4 用例覆盖成功/底层失败/权限拒绝三分支。附注：remediation-plan 验收中「`PrintService` 若无法脱离 UIWindow 依赖则登记真机验证项」的条件不成立——V1 的 `PrintService` 仅为协议预留 + `UnavailablePrintService` 占位（本 ADR 同文件体系，无真实 UIKit 打印调用与 UIWindow 依赖），无需登记。
 - **防复发**：豁免期间任何新增文件不得进入白名单，除非有新的 ADR。
 
 ### 2.3 顺带清理
@@ -64,6 +65,6 @@
 
 ## 5. 后续追踪
 
-- P2-1 完成后回写本文件 §2.2 状态并删除脚本白名单条目。
+- ~~P2-1 完成后回写本文件 §2.2 状态并删除脚本白名单条目~~ 已完成（2026-08-16，见 §2.2 完成记录；`FILE_EXEMPTIONS` 当前为空）。
 - ~~§2.4 存量行数豁免随拆分批次逐项删除（先小后大：PetProfileView → SettingsView → HomeView → RedPacketExportView → TimelineLogic）~~ 已完成（2026-08-15，见 §2.4 表）。
 - 守卫脚本自身变更（规则调整/白名单增删）须在本 ADR 追加记录。

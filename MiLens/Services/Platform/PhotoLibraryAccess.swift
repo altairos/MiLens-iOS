@@ -42,8 +42,15 @@ struct PhotoAssetMetadata: Equatable, Sendable {
     }
 }
 
+/// 保存到相册的资源类型（对应 PHAssetResourceType 的 photo/video 二分）。
+enum PhotoLibrarySaveKind: Sendable, Equatable {
+    case photo
+    case video
+}
+
 /// 照片库访问协议。
-/// V1.0 仅含扫描所需方法；保存到相册（createAsset）待 P4 创作导出时追加。
+/// 扫描/导入（读取）与创作导出（保存）共用；保存经 save(imageData:as:) 收敛
+/// （P2-1 / ADR-0011 §2.2，消除 BeadExportService 直接 import Photos 的豁免）。
 /// Sendable：实现类无共享可变状态（或单线程测试 mock），供后台执行器捕获。
 protocol PhotoLibraryAccess: Sendable {
     /// 流式遍历系统相册照片元数据（对应源端 streamPhotoAssets）。
@@ -69,6 +76,14 @@ protocol PhotoLibraryAccess: Sendable {
     ///   - maxDimension: 最大边长（像素）。0 = 原始尺寸（导入用），>0 = 缩放（AI 检测用）。
     /// - Returns: 编码后的图片数据（JPEG/PNG），供 VisionService/CoreML 解码。
     func loadImageData(forIdentifier identifier: String, maxDimension: Int) async throws -> Data
+
+    // ── 保存（创作导出共用：拼豆图纸/红包封面/宠物卡片等，P2-1 收敛）──
+
+    /// 保存图片数据到系统相册（对应源端 createAsset + writePixelMapAsPng）。
+    /// 需要 NSPhotoLibraryAddUsageDescription（已配置）。
+    /// - Throws: `PhotoLibraryError.savePermissionDenied`（addOnly 授权被拒/受限）、
+    ///   `PhotoLibraryError.saveFailed`（performChanges 底层失败）。
+    func save(imageData: Data, as kind: PhotoLibrarySaveKind) async throws
 
     // ── 授权（对应源端 PermissionHelper，Onboarding 权限步骤用）──
 
@@ -101,6 +116,10 @@ final class MockPhotoLibraryAccess: PhotoLibraryAccess, @unchecked Sendable {
     /// 可注入的新照片计数（默认按 assets 的 dateAdded/creationDate 过滤；
     /// 测试可直接赋值固定结果，简化 ViewModel 测试）。
     var newPhotoCountOverride: Int? = nil
+    /// 失败注入：save(imageData:as:) 抛错（保存失败/权限拒绝路径测试用）
+    var saveError: Error?
+    /// 已记录的 save 调用（数据 + 类型），供测试断言透传
+    private(set) var saveCalls: [(data: Data, kind: PhotoLibrarySaveKind)] = []
 
     init(assets: [PhotoAssetMetadata] = [], imageDataOverrides: [String: Data] = [:]) {
         self.assets = assets
@@ -149,5 +168,10 @@ final class MockPhotoLibraryAccess: PhotoLibraryAccess, @unchecked Sendable {
     func requestAuthorization() async -> PhotoLibraryAuthorizationStatus {
         if let requestedResult { return requestedResult }
         return authorizationStatusValue
+    }
+
+    func save(imageData: Data, as kind: PhotoLibrarySaveKind) async throws {
+        if let saveError { throw saveError }
+        saveCalls.append((imageData, kind))
     }
 }

@@ -188,7 +188,9 @@ struct BeadPatternResultView: View {
     }
 
     private func identityMeta(_ pattern: BeadPattern) -> String {
-        "\(pattern.width)×\(pattern.height) · \(pattern.score.colorCount) 色"
+        BeadResultDisplayLogic.identityMeta(
+            width: pattern.width, height: pattern.height, colorCount: pattern.score.colorCount
+        )
     }
 
     // MARK: - Pattern Workspace（对照 #211:503-509）
@@ -294,7 +296,7 @@ struct BeadPatternResultView: View {
             // 轨道
             GeometryReader { geo in
                 let trackWidth = geo.size.width - 48
-                let progress = min(max(vm.canvasScale / 2.0, 0), 1)
+                let progress = BeadResultDisplayLogic.zoomProgress(canvasScale: vm.canvasScale)
                 ZStack(alignment: .leading) {
                     Rectangle()
                         .fill(Color.milensBorder)

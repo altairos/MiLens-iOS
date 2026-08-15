@@ -290,27 +290,15 @@ struct PhotoViewView: View {
     // MARK: - 衍生数据
 
     private var dateLabel: String {
-        guard let photo, let takenAt = photo.takenAt else { return "" }
-        let cal = Calendar.current
-        let month = cal.component(.month, from: takenAt)
-        let day = cal.component(.day, from: takenAt)
-        let hour = cal.component(.hour, from: takenAt)
-        let minute = cal.component(.minute, from: takenAt)
-        return String(format: "%d年%d月%d日 · %02d:%02d", cal.component(.year, from: takenAt), month, day, hour, minute)
+        PhotoViewDisplayLogic.dateLabel(takenAt: photo?.takenAt)
     }
 
     private var titleText: String {
-        if let photo, !photo.note.isEmpty { return photo.note }
-        return String(localized: "photo.detail.archived")
+        PhotoViewDisplayLogic.titleText(note: photo?.note ?? "")
     }
 
     private var metadataText: String {
-        let petName = photo?.pet?.name ?? ""
-        let archived = String(localized: "photo.detail.archived")
-        if petName.isEmpty {
-            return archived
-        }
-        return "\(petName) · \(archived)"
+        PhotoViewDisplayLogic.metadataText(petName: photo?.pet?.name ?? "")
     }
 
     private func toggleFavorite() {

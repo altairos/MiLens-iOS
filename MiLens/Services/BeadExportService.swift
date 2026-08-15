@@ -5,10 +5,17 @@
 //  iOS 用 CGImage byteOrder32Big 直接解释 RGBA buffer，无需交换通道。
 
 import UIKit
-import Photos
 import MiLensKit
 
 struct BeadExportService {
+
+    /// 照片库写入经 PhotoLibraryAccess 协议抽象（P2-1 / ADR-0011 §2.2 豁免移除条件）。
+    /// 默认真实实现；测试注入 MockPhotoLibraryAccess 覆盖保存三分支。
+    private let photoLibrary: any PhotoLibraryAccess
+
+    init(photoLibrary: any PhotoLibraryAccess = IOSPhotoLibraryAccess()) {
+        self.photoLibrary = photoLibrary
+    }
 
     /// 渲染 A4 高清图纸为 PNG Data（对应源端 exportPattern 的 renderA4Export → PNG 编码）。
     /// - Parameters:
@@ -52,11 +59,9 @@ struct BeadExportService {
 
     /// 保存 PNG 到系统相册（对应源端 createAsset + writePixelMapAsPng）。
     /// 需要 NSPhotoLibraryAddUsageDescription（已配置）。
+    /// 权限被拒抛 PhotoLibraryError.savePermissionDenied（P2-1：经协议注入）。
     func saveToPhotoLibrary(pngData: Data) async throws {
-        try await PHPhotoLibrary.shared().performChanges {
-            let request = PHAssetCreationRequest.forAsset()
-            request.addResource(with: .photo, data: pngData, options: nil)
-        }
+        try await photoLibrary.save(imageData: pngData, as: .photo)
     }
 
     /// 写入分享缓存文件（对应源端 sharePattern 写入 cacheDir/bead_pattern_share.png）。

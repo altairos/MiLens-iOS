@@ -306,7 +306,7 @@ P1 核心可靠性与性能六项修复全部落地（实现记录见状态摘�
 - [ ] 性能基准：大图库（5000+）滚动/内存
 - [ ] iPhone/iPad 适配（[ADR-0008](docs/adr/0008-v1-scope-decision.md)：iPad 为 V1.0 目标）+ 深色模式 + Dynamic Type 检查
 - [ ] **全球首发多语言（7 语言：zh-Hans/zh-Hant/ja/ko/en/fr/de）**——计划与各国市场注意要点见 [docs/Localization-Plan.md](docs/Localization-Plan.md)：knownRegions 追加 + **区域差异化基础设施已落地**（`MarketProfile` 模型 + `@Environment(\.marketProfile)` 注入，承载字体策略与 GDPR 区隐私叙事强度；5 处硬编码 `zh_CN` 已清理）+ 260+3 key × 6 语言翻译（动态文案 10 类已收口 8 类，见 §3.6 收口进度；固定 locale 快照测试待补 #7.7b）+ 术语表定稿 + 商店元数据/订阅描述/审核备注/隐私政策多语言 + 截图本地化；`localization.py check` 补每语言缺译断言并接入 CI
-- [ ] **UI 测试扩展（发布前质量门禁）**——`MiLensUITests` 当前仅 2 个冒烟用例（冷启动 4 Tab + 空状态导航），未覆盖核心用户路径与错误态。目标用例：
+- [ ] **UI 测试扩展（发布前质量门禁）**——`MiLensUITests` 冒烟已扩至 **6 条**（2026-08-16 audit-6 §4 P2-2：冷启动 4 Tab + 空态导航 + 创作页→相册扫描入口 / 建档 sheet 开合 / 设置备份入口 / 非 Pro 弹付费墙并可关闭，待 CI 首轮跑通），但核心用户路径与错误态仍未覆盖。目标用例：
   - **导入流程**：Onboarding 扫描发现 → 手动导入 → 入库后图库渲染（验证照片出现在网格 + 计数更新）
   - **编辑器**：照片进入编辑 → 裁切/标注等关键操作 → 保存回写（验证编辑产物标记 `category=="edited"` + 出现在「作品」分类）
   - **备份导出/恢复**：设置页导出入口 → 预估确认 → ShareSheet 出现；恢复入口 → 文件选择 → 版本校验 → 成功态（数据出现）/ 失败态（版本不兼容/格式无效错误提示）
@@ -563,6 +563,8 @@ P1 核心可靠性与性能六项修复全部落地（实现记录见状态摘�
 - 2026-08-15：**相框贴纸 M0+M1/阻塞项全量复核（纯文档改动）**——对照[开发计划](docs/Frame-Sticker-Development-Plan.md)逐项核对 §3.2 八个阻塞项与 §8 M0/M1 的代码证据：阻塞项全部修复属实（快照字段/相框中心/ratioSet 同源解析/ninePatch 分块预览/稳定排序/命中排除相框/画布重映射/分组稳定 ID，各有 Kit 纯函数 + 用例）；M1 交互链路完整（面板三态/相框替换/贴纸手势/历史/保存/付费墙）。发现两处此前未跟踪的缺口并回写文档：①素材错误诊断未达 §7.2——导出端素材缺失静默跳过且保存仍报成功（M0 第 3 项部分未完成）；②App 渲染级单测未写（§9.2 逐像素一致/透明通道/缺素材用例，现有为 VM 级）。另确认 `catalog.json` 实为空目录（素材导入未开始，M1 第 3 项），入口按 §10 门禁自动隐藏。M0/M1 复选框补落地注记（保持未勾，待 Mac/CI）；Phase 4 新增诊断收口待办。
 
 - 2026-08-15：**CI 首次全绿 + 审计收口（audit-4/5/6）**——仓库转 public 后额度无限，以 CI 代偿 Mac 验证完成 remediation-plan P0-1/P0-2：**25 轮修复链**（编译恢复 r1-8 → 严格并发/测试 target r9-17 → 运行时 r18-19 → 覆盖率门禁 r20-25）终结于 [run 31900122759](https://github.com/altairos/MiLens-iOS/actions/runs/31900122759) 四作业全绿：Kit 1113（Linux）+ App 894（模拟器）+ UI 2 = **2009 用例 0 failed**，lint 四项全过（含 08-14 接入的规模/隔离守卫），覆盖率门禁首次对真实数据 PASS（App 加权 line 16.2% ≥ 基线 13%，实测校准消除 R4）。audit-5：README/DESIGN/PLAN/DEVELOPMENT 测试数字统一为 CI 实测 2009（消除 R5）。audit-6：产出 [verification-recovery-report.md](docs/audit/verification-recovery-report.md)（R1 实证链 + 风险表状态：R1-R5/R8/R9 六项消除，新增 N1 App 覆盖 0% 大文件清单 P1-4）；remediation-plan 进度注记同步。**未执行**：真机验证与性能基准（P2-3，需 iPhone）。
+
+- 2026-08-16：**audit-6 §4 剩余项逐项修复（P1-4/P1-5/P2-1/P2-2）**——①**P1-4**（N1 覆盖 0% 大文件补测）：5 个 0% 超大视图的决策逻辑下沉为纯 struct（`ViewModels/` 下 `TimelineChapterLogic`/`PhotoViewDisplayLogic`/`RedPacketCoverEncodeLogic`/`BeadPreviewLayoutLogic`/`BeadResultDisplayLogic`），回改 5 个调用方（TimelineView/PhotoViewView/RedPacketUploadGuideView/BeadViewModel/BeadPatternResultView），新增 5 个 XCTest 文件 **45 用例**；②**P1-5**：[ADR-0011](docs/adr/0011-ci-guards-and-photos-exemption.md) §2.4 冻结超标文件实际已全部拆分完毕，状态表回写关闭（audit-6 表述过时已澄清）；③**P2-1**：`PhotoLibraryAccess` 协议补 `save(imageData:as:)`（`IOSPhotoLibraryAccess` 真实实现 + Mock），`BeadExportService` 改协议注入并移除 `import Photos`，check-imports `FILE_EXEMPTIONS` 清零（ADR-0011 §2.2/§5 同步关闭），`BeadExportServiceSaveTests` 4 用例；④**P2-2**：UI 冒烟 2→6 条（audit-6 §4「5~8 条」口径达成；付费墙断言避开设置页 ProHeroCard 与付费墙 hero 同名 "MiLens Pro" 的恒真陷阱，改用付费墙独有 hero 文案；不点「开始扫描」防真实相册授权弹窗阻塞用例）；截图脚本属 P5 上架流水线（Mac 侧）不在此轮。**验证（Windows 本地）**：三守卫全绿（check-imports 222 文件 0 越界 / check-file-size / check-ui-tokens 均 exit 0）；WSL2 MiLensKit `swift test` **1113/1113 全绿**（零回归，本轮 Kit 无改动）。**未执行**：App 单测（+49）与 UI 测试（6 条）需 iOS SDK，scheme 已含 UI target，推送后 CI 自动执行，盯首轮 app 作业。
 
 ---
 

@@ -2,7 +2,7 @@
 
 配套 [architecture-review.md](architecture-review.md)（2026-08-14 审计）。优先级按「阻塞上架 → 一致性 → 债务清理」排序；每项含验收标准，完成后回写 PLAN.md。
 
-> **进度（2026-08-15）**：✅ P0-1、✅ P0-2、✅ P1-2（本链，25 轮 CI 修复至 run 31900122759 首绿，详见 [verification-recovery-report.md](verification-recovery-report.md)）；✅ P1-1、✅ P1-3、✅ P3-1（08-14 Windows 整改批次）。待做：P2-1/P2-2/P2-3、P3-2/P3-3 + 新增 P1-4（App 覆盖 0% 大文件补测）、P1-5（ADR-0011 冻结超标文件拆分）。
+> **进度（2026-08-16）**：✅ P0-1、✅ P0-2、✅ P1-2（本链，25 轮 CI 修复至 run 31900122759 首绿，详见 [verification-recovery-report.md](verification-recovery-report.md)）；✅ P1-1、✅ P1-3、✅ P3-1（08-14 Windows 整改批次）；✅ P1-4、✅ P1-5、✅ P2-1、✅ P2-2（08-16 audit-6 §4 批次，明细见 PLAN.md 状态摘要：App 新增 49 单测 + UI 冒烟 2→6；三守卫全绿 + WSL2 Kit 1113 零回归；App/UI 测试待 CI）。待做：P2-3（真机验证轮）、P3-2、P3-3。
 
 ---
 
@@ -42,15 +42,17 @@
 
 ## P2 — 上架前（V1.0 提审门槛）
 
-### P2-1 BeadExportService 收敛到 PhotoLibraryAccess（消除 R3 + R7 之半）
+### P2-1 BeadExportService 收敛到 PhotoLibraryAccess（消除 R3 + R7 之半）✅ 完成（2026-08-16）
 
 - **动作**：`PhotoLibraryAccess` 协议补 `save(imageData:as:)` 能力（若缺）；BeadExportService 改走协议注入；MockPhotoLibraryAccess 补实现；App 单测补保存路径（成功/失败/权限拒绝三分支）。
 - **验收**：BeadExportService 无 `import Photos`；新增 ≥3 用例；`PrintService` 若无法脱离 UIWindow 依赖则登记为「真机验证项」并注明原因。
+- **实际**：协议补 `save`、`IOSPhotoLibraryAccess` 真实实现 + Mock 补齐，`BeadExportService` 改协议注入并移除 `import Photos`；`BeadExportServiceSaveTests` 4 用例；check-imports `FILE_EXEMPTIONS` 清零 + [ADR-0011](../adr/0011-ci-guards-and-photos-exemption.md) §2.2/§5 关闭回写。App XCTest 待 CI。
 
-### P2-2 UI 冒烟清单扩展（收敛 R6）
+### P2-2 UI 冒烟清单扩展（收敛 R6）✅ 完成（2026-08-16，audit-6 §4 收口口径）
 
 - **动作**：MiLensUITests 从 2 用例扩到核心流程冒烟（Tab 切换 / 扫描入口 / 建档 / 付费墙展示 / 设置备份入口，5~8 条），复用既有 accessibilityIdentifier；截图产出脚本（12 页 RC 页面浅/深色 + iPhone/iPad 关键尺寸）接入 P5 上架流水线。
 - **验收**：CI 本地跑通；截图资产入 `fastlane`/`deliver` 目录结构。
+- **实际**：冒烟 2→6 条（+创作页→相册扫描入口 / 建档 sheet 开合 / 设置备份入口可见性 / 非 Pro 备份导出弹付费墙并可关闭），按 audit-6 §4 口径「清单扩展 5~8 条（R6）」收口；scheme 已含 UI 测试 target，CI 自动执行，无需改 ci.yml。**截图脚本未做**：属 P5 上架流水线（需 macOS + fastlane/deliver 目录），PLAN.md P5 已挂锚点，不阻塞本项收口。
 
 ### P2-3 真机验证轮（R10 的可执行部分）
 

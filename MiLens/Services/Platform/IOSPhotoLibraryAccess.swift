@@ -68,6 +68,26 @@ final class IOSPhotoLibraryAccess: PhotoLibraryAccess, @unchecked Sendable {
         await PHPhotoLibrary.requestAuthorization(for: .readWrite).milensStatus
     }
 
+    // MARK: - 保存（创作导出共用，P2-1：BeadExportService 收敛到协议）
+
+    func save(imageData: Data, as kind: PhotoLibrarySaveKind) async throws {
+        // 显式走 addOnly 授权：notDetermined 触发系统弹窗；denied/restricted
+        // 时抛确定错误（业务层可提示去设置开启），不埋进 performChanges 深层失败。
+        let status = await PHPhotoLibrary.requestAuthorization(for: .addOnly)
+        guard status == .authorized || status == .limited else {
+            throw PhotoLibraryError.savePermissionDenied
+        }
+        do {
+            try await PHPhotoLibrary.shared().performChanges {
+                let request = PHAssetCreationRequest.forAsset()
+                request.addResource(with: kind == .photo ? .photo : .video,
+                                    data: imageData, options: nil)
+            }
+        } catch {
+            throw PhotoLibraryError.saveFailed
+        }
+    }
+
     // MARK: - 流式遍历（对应源端 streamPhotoAssets）
 
     func streamPhotos(
@@ -375,12 +395,18 @@ final class RequestIDBox: @unchecked Sendable {
 enum PhotoLibraryError: LocalizedError, Equatable {
     case assetNotFound(String)
     case imageDataUnavailable(String)
+    /// 保存到相册的添加权限被拒/受限（addOnly 授权 denied/restricted）
+    case savePermissionDenied
+    /// 底层保存失败（PHPhotoLibrary performChanges 抛错）
+    case saveFailed
 
     var errorDescription: String? {
         switch self {
         // L5：描述中不落完整 localIdentifier（日志/用户可见面均只保留前缀）
         case .assetNotFound(let id): return "未找到照片资产：\(AppErrorHandler.redactIdentifier(id))"
         case .imageDataUnavailable(let id): return "照片数据加载失败：\(AppErrorHandler.redactIdentifier(id))"
+        case .savePermissionDenied: return "没有添加照片的权限，请在系统设置中开启"
+        case .saveFailed: return "保存到相册失败"
         }
     }
 }

@@ -52,12 +52,9 @@ STRUCTURAL_ALLOW_DIRS = (
 
 # 逐文件豁免：相对仓库根 posix 路径 -> ADR 文件名（docs/adr/ 下）。
 # 新增豁免必须先写 ADR（背景/期限/移除条件），再登记到这里。
-FILE_EXEMPTIONS: dict[str, str] = {
-    # R3（docs/audit/architecture-review.md）：BeadExportService 直接
-    # PHPhotoLibrary.performChanges 保存导出图，绕过 PhotoLibraryAccess 协议。
-    # P2-1 收敛到协议注入后删除本条目。
-    "MiLens/Services/BeadExportService.swift": "0011-ci-guards-and-photos-exemption.md",
-}
+# 历史唯一豁免 BeadExportService 已随 P2-1 收敛到 PhotoLibraryAccess 协议
+# （2026-08-16，ADR-0011 §2.2 关闭），当前无豁免项。
+FILE_EXEMPTIONS: dict[str, str] = {}
 
 # Photos 框架符号（\b 边界匹配；PHObject 涵盖全部 PH 资产类型基类）
 PH_SYMBOLS = (

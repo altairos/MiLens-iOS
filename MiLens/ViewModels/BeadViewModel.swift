@@ -268,18 +268,18 @@ final class BeadViewModel {
             previewImage = nil
             return
         }
-        let scaledCell = Swift.max(2, Int((Double(cellSize) * canvasScale).rounded()))
-        let totalW = pattern.width * scaledCell
-        let totalH = pattern.height * scaledCell
-        let canvasSize = Swift.min(2560, Swift.max(720, Swift.max(totalW, totalH)))
-        var pixels = [UInt8](repeating: 255, count: canvasSize * canvasSize * 4)
-        let offsetX = Swift.max(0, (canvasSize - totalW) / 2)
-        let offsetY = Swift.max(0, (canvasSize - totalH) / 2)
-        drawBeadPattern(pixels: &pixels, canvasW: canvasSize, canvasH: canvasSize,
-                        pattern: pattern, cellSize: scaledCell, viewMode: viewMode,
-                        offsetX: offsetX, offsetY: offsetY,
+        let layout = BeadPreviewLayoutLogic.layout(
+            patternWidth: pattern.width,
+            patternHeight: pattern.height,
+            cellSize: cellSize,
+            canvasScale: canvasScale
+        )
+        var pixels = [UInt8](repeating: 255, count: layout.canvasSize * layout.canvasSize * 4)
+        drawBeadPattern(pixels: &pixels, canvasW: layout.canvasSize, canvasH: layout.canvasSize,
+                        pattern: pattern, cellSize: layout.scaledCell, viewMode: viewMode,
+                        offsetX: layout.offsetX, offsetY: layout.offsetY,
                         drawOpts: beadDrawOptions(styleKey: settings.styleKey, pattern: pattern))
-        previewImage = BeadExportService.makeImage(rgba: pixels, width: canvasSize, height: canvasSize)
+        previewImage = BeadExportService.makeImage(rgba: pixels, width: layout.canvasSize, height: layout.canvasSize)
     }
 
     // MARK: - 风格预设
@@ -440,17 +440,6 @@ final class BeadViewModel {
 
     /// iOS SegmentationResult.mask 是 bbox 局部蒙版；平铺到全图坐标（源端蒙版为全图坐标）再裁切。
     private func fullMaskFromSegmentation(_ seg: SegmentationResult, imgW: Int, imgH: Int) -> [UInt8] {
-        var mask = [UInt8](repeating: 0, count: imgW * imgH)
-        let bytes = [UInt8](seg.mask)
-        for y in 0..<seg.bboxHeight {
-            let dstY = Int(seg.bboxY) + y
-            guard dstY >= 0, dstY < imgH else { continue }
-            for x in 0..<seg.bboxWidth {
-                let dstX = Int(seg.bboxX) + x
-                guard dstX >= 0, dstX < imgW else { continue }
-                mask[dstY * imgW + dstX] = bytes[y * seg.bboxWidth + x]
-            }
-        }
-        return mask
+        BeadPreviewLayoutLogic.fullMask(from: seg, imgW: imgW, imgH: imgH)
     }
 }

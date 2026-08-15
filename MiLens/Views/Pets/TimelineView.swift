@@ -145,11 +145,10 @@ struct TimelineView: View {
     }
 
     private func currentFilterTitle(_ vm: TimelineViewModel) -> String {
-        if let petID = vm.selectedPetID,
-           let pet = pets.first(where: { $0.id == petID }) {
-            return "\(PetProfileLogic.speciesEmoji(pet.species)) \(pet.name)"
-        }
-        return String(localized: "timeline.allPets")
+        TimelineChapterLogic.filterTitle(
+            selectedPetID: vm.selectedPetID,
+            pets: pets.map { ($0.id, "\(PetProfileLogic.speciesEmoji($0.species)) \($0.name)") }
+        )
     }
 
     // MARK: - 内容区
@@ -378,7 +377,7 @@ struct TimelineView: View {
 
     /// 实际高亮的年份：未筛选（nil）时视为最新一年，与 yearChip 的 isSelected 判定一致。
     private func effectiveSelectedYear(in years: [Int]) -> Int? {
-        selectedYear ?? years.last
+        TimelineChapterLogic.effectiveSelectedYear(selectedYear: selectedYear, years: years)
     }
 
     /// 把年份选择器滚动到实际选中年份的可视区域中央。
@@ -394,8 +393,7 @@ struct TimelineView: View {
     }
 
     private func availableYears(_ vm: TimelineViewModel) -> [Int] {
-        let years = Set(vm.months.map { $0.year })
-        return years.sorted()
+        TimelineChapterLogic.availableYears(vm.months)
     }
 
     private func yearChip(year: Int, isSelected: Bool, action: @escaping () -> Void) -> some View {
@@ -422,9 +420,11 @@ struct TimelineView: View {
 
     /// 左侧竖线 rail + 章节分组 + 条目卡片。
     private func timelineAxis(_ vm: TimelineViewModel) -> some View {
-        let filteredMonths = filteredByYear(vm.months)
+        let filteredMonths = TimelineChapterLogic.filteredByYear(vm.months, selectedYear: selectedYear)
         // 按年份分组
-        let yearGroups = groupByYear(filteredMonths)
+        let yearGroups = TimelineChapterLogic.groupByYear(filteredMonths)
+        // 全时间线最早年份（章节相处年数推导基准，与年份筛选无关）
+        let timelineFirstYear = vm.months.map { $0.year }.min()
 
         return HStack(alignment: .top, spacing: 0) {
             // 左侧竖线 rail（1pt，贯穿）
@@ -439,29 +439,18 @@ struct TimelineView: View {
             // 右侧内容
             VStack(alignment: .leading, spacing: 0) {
                 ForEach(yearGroups, id: \.year) { group in
-                    chapterSection(group)
+                    chapterSection(group, timelineFirstYear: timelineFirstYear)
                 }
             }
             Spacer(minLength: 0)
         }
     }
 
-    /// 按选中年份过滤月份组。
-    private func filteredByYear(_ months: [TimelineMonth]) -> [TimelineMonth] {
-        guard let year = selectedYear else { return months }
-        return months.filter { $0.year == year }
-    }
-
-    /// 按年份分组月份。
-    private func groupByYear(_ months: [TimelineMonth]) -> [(year: Int, months: [TimelineMonth])] {
-        let years = Set(months.map { $0.year }).sorted()
-        return years.map { year in
-            (year: year, months: months.filter { $0.year == year })
-        }
-    }
-
     /// 一个相处章节：珊瑚大圆点 + Fraunces 年份 + 章节名 + 副标题 + 月内条目。
-    private func chapterSection(_ group: (year: Int, months: [TimelineMonth])) -> some View {
+    private func chapterSection(
+        _ group: (year: Int, months: [TimelineMonth]),
+        timelineFirstYear: Int?
+    ) -> some View {
         VStack(alignment: .leading, spacing: 0) {
             // 章节标记（圆点向左偏移到 rail 位置）
             HStack(spacing: 0) {
@@ -473,7 +462,7 @@ struct TimelineView: View {
                             .font(.custom("Fraunces-Bold", size: 12))
                             .foregroundStyle(Color.milensActionPrimary)
                     }
-                    Text(chapterTitle(group.year, months: group.months))
+                    Text(chapterTitle(group.year, timelineFirstYear: timelineFirstYear))
                         .font(.custom("LXGWWenKai-Regular", size: 19, relativeTo: .title3))
                         .foregroundStyle(Color.milensTextPrimary)
                     Text(String(localized: "timeline.chapter.subtitle"))
@@ -500,11 +489,10 @@ struct TimelineView: View {
         }
     }
 
-    /// 章节标题：根据年份推导「一起生活的第N年」。
-    private func chapterTitle(_ year: Int, months: [TimelineMonth]) -> String {
-        // 从最早生日推导相处年数（简化：用最早月份年份与当前年份的差）
-        guard let firstYear = months.first?.year else { return "" }
-        let years = max(1, year - firstYear + 1)
+    /// 章节标题：根据年份推导「一起生活的第N年」（用全时间线最早年份，与年份筛选无关）。
+    /// 修正记录：原实现误用分组内首年，导致筛选非首年时每章恒为「第1年」（audit-6 P1-4 下沉时修复）。
+    private func chapterTitle(_ year: Int, timelineFirstYear: Int?) -> String {
+        let years = TimelineChapterLogic.chapterTogetherYears(year: year, firstYear: timelineFirstYear)
         return String(localized: "timeline.chapter.together \(years)")
     }
 

@@ -1,6 +1,8 @@
 //  MiLensUITests —— UI 冒烟测试（评审阻塞项：工程此前只有单元测试 target）。
 //
-//  覆盖：冷启动进入主界面、4 Tab 导航、空库页面状态渲染。
+//  覆盖：冷启动进入主界面、4 Tab 导航、空库页面状态渲染、创作页→相册扫描入口、
+//  宠物建档 sheet 开合、设置页备份入口可见性、非 Pro 点备份导出弹付费墙并可关闭
+//  （audit-6 §4 P2-2：冒烟清单从 2 条扩到 6 条）。
 //  运行方式：Mac 上 xcodegen generate 后选择 MiLens scheme → Test（包含 MiLensUITests）。
 //
 //  环境说明：launchEnvironment 注入 XCTestConfigurationFilePath 触发 App 的
@@ -67,6 +69,116 @@ final class MiLensUITests: XCTestCase {
         )
     }
 
+    /// 扫描入口冒烟：创作页空态 → 「去相册添加」push 相册页 → 空态 + 「开始扫描」入口。
+    /// 只断言入口存在，不点击「开始扫描」——会触发真实相册授权（isTesting 下
+    /// photoLibrary 为真实 IOSPhotoLibraryAccess，系统弹窗会阻塞用例）。
+    func testCreateTabNavigatesToGalleryScanEntry() {
+        let app = launchApp()
+
+        app.buttons["tab.create"].tap()
+        let galleryLink = app.buttons["去相册添加"]
+        XCTAssertTrue(
+            galleryLink.waitForExistence(timeout: 5),
+            "创作页空态缺少「去相册添加」入口"
+        )
+        galleryLink.tap()
+
+        XCTAssertTrue(
+            app.staticTexts["还没有照片"].waitForExistence(timeout: 5),
+            "相册页空状态未渲染"
+        )
+        XCTAssertTrue(
+            app.buttons["开始扫描"].exists,
+            "相册页空态缺少「开始扫描」入口"
+        )
+    }
+
+    /// 建档 sheet 开合冒烟：宠物页空态 → 「添加伙伴」弹 sheet（取消可见）→ 取消后关闭。
+    func testPetsAddSheetOpensAndCancels() {
+        let app = launchApp()
+
+        app.buttons["tab.pets"].tap()
+        XCTAssertTrue(
+            app.buttons["添加伙伴"].waitForExistence(timeout: 5),
+            "宠物页空态缺少「添加伙伴」按钮"
+        )
+        app.buttons["添加伙伴"].firstMatch.tap()
+
+        // sheet 弹出：导航栏「取消」按钮出现（AddPetSheet toolbar）
+        let cancelButton = app.buttons["取消"]
+        XCTAssertTrue(
+            cancelButton.waitForExistence(timeout: 5),
+            "添加伙伴 sheet 未弹出或缺少取消按钮"
+        )
+
+        cancelButton.tap()
+        // 取消后 sheet 关闭，空态文案重新可见
+        XCTAssertFalse(
+            app.buttons["取消"].waitForExistence(timeout: 3),
+            "取消后 sheet 未关闭"
+        )
+        XCTAssertTrue(
+            app.staticTexts["还没有伙伴档案"].waitForExistence(timeout: 5),
+            "取消建档后宠物页空状态未恢复"
+        )
+    }
+
+    /// 设置页备份入口可见性冒烟：「备份导出」「备份恢复」两行在滚动后可达。
+    /// isTesting 下注入真实 ZipBackupService（isAvailable == true），入口不禁用。
+    func testSettingsBackupEntriesVisible() {
+        let app = launchApp()
+
+        app.buttons["tab.settings"].tap()
+        let exportEntry = app.staticTexts["备份导出"]
+        XCTAssertTrue(
+            exportEntry.waitForExistence(timeout: 5),
+            "设置页未渲染"
+        )
+        scrollToElement(exportEntry, in: app)
+        XCTAssertTrue(
+            exportEntry.isHittable,
+            "滚动后「备份导出」行仍不可达"
+        )
+        XCTAssertTrue(
+            app.staticTexts["备份恢复"].exists,
+            "「备份恢复」行缺失"
+        )
+    }
+
+    /// 付费墙冒烟：非 Pro（MockStoreService inactive）点「备份导出」→ 弹付费墙
+    /// （MockStoreService 默认注入 sampleProducts，ready 态渲染 hero）→ 关闭后返回。
+    func testSettingsBackupExportShowsPaywall() {
+        let app = launchApp()
+
+        app.buttons["tab.settings"].tap()
+        let exportEntry = app.staticTexts["备份导出"]
+        XCTAssertTrue(exportEntry.waitForExistence(timeout: 5), "设置页未渲染")
+        scrollToElement(exportEntry, in: app)
+        exportEntry.tap()
+
+        // 付费墙 sheet：ready 态 hero 副标题（付费墙独有；勿用 "MiLens Pro"——
+        // 设置页 ProHeroCard 首屏同名文本会使断言恒真）。Mock 产品即时返回，
+        // loading → ready 无真实网络耗时。
+        let heroTitle = app.staticTexts["把这张照片做成一份作品"]
+        XCTAssertTrue(
+            heroTitle.waitForExistence(timeout: 10),
+            "非 Pro 点「备份导出」未弹出付费墙"
+        )
+
+        // 关闭按钮（accessibilityLabel「关闭」，付费墙独有）→ sheet dismiss
+        let closeButton = app.buttons["关闭"].firstMatch
+        XCTAssertTrue(closeButton.exists, "付费墙缺少关闭按钮")
+        closeButton.tap()
+        XCTAssertFalse(
+            app.buttons["关闭"].waitForExistence(timeout: 3),
+            "点关闭后付费墙未关闭"
+        )
+        // 返回设置页后备份入口仍在
+        scrollToElement(exportEntry, in: app)
+        XCTAssertTrue(exportEntry.exists, "关闭付费墙后设置页备份入口丢失"
+        )
+    }
+
     // MARK: - 基础设施
 
     private func launchApp() -> XCUIApplication {
@@ -75,5 +187,14 @@ final class MiLensUITests: XCTestCase {
         app.launchEnvironment["XCTestConfigurationFilePath"] = "/dev/null"
         app.launch()
         return app
+    }
+
+    /// 滚动直到元素可点击（设置页为长 Form，备份行在首屏之外）。
+    private func scrollToElement(_ element: XCUIElement, in app: XCUIApplication, maxSwipes: Int = 6) {
+        var swipes = 0
+        while !element.isHittable, swipes < maxSwipes {
+            app.swipeUp()
+            swipes += 1
+        }
     }
 }

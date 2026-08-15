@@ -215,18 +215,12 @@ struct RedPacketUploadGuideView: View {
             saveError = String(localized: "redpacket.render.failed")
             return
         }
-        let data: Data
-        if let png = rendered.pngData(), png.count <= WeChatRedPacketSpec.coverImageMaxBytes {
-            data = png
-        } else if let jpg = rendered.jpegData(compressionQuality: 0.9),
-                  jpg.count <= WeChatRedPacketSpec.coverImageMaxBytes {
-            data = jpg
-        } else {
-            guard let jpg = rendered.jpegData(compressionQuality: 0.6) else {
-                saveError = String(localized: "create.encode.failed")
-                return
-            }
-            data = jpg
+        guard let data = RedPacketCoverEncodeLogic.encodeForSave(
+            pngData: { rendered.pngData() },
+            jpegData: { rendered.jpegData(compressionQuality: $0) }
+        ) else {
+            saveError = String(localized: "create.encode.failed")
+            return
         }
         do {
             try await BeadExportService().saveToPhotoLibrary(pngData: data)
@@ -238,12 +232,10 @@ struct RedPacketUploadGuideView: View {
 
     private func shareViaWeChat() {
         guard let rendered = renderCover() else { return }
-        let data: Data
-        if let png = rendered.pngData(), png.count <= WeChatRedPacketSpec.coverImageMaxBytes {
-            data = png
-        } else {
-            data = rendered.jpegData(compressionQuality: 0.85) ?? Data()
-        }
+        let data = RedPacketCoverEncodeLogic.encodeForShare(
+            pngData: { rendered.pngData() },
+            jpegData: { rendered.jpegData(compressionQuality: $0) }
+        )
         let filename = RedPacketCoverLogic.exportFilename(petName: petName)
         do {
             let url = try BeadExportService().writeShareCache(data: data, filename: filename)

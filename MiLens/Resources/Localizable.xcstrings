@@ -1238,6 +1238,17 @@
         }
       }
     },
+    "home.hero.date %lld %lld %@" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$lld月%2$lld日 · %3$@"
+          }
+        }
+      }
+    },
     "home.upcoming.sectionLabel" : {
       "extractionState" : "manual",
       "localizations" : {

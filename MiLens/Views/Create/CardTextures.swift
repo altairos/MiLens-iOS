@@ -131,9 +131,11 @@ struct PaperFibers: View {
             if rnd.next() < 0.18 {
                 var branch = Path()
                 branch.move(to: f.mid)
-                let a = f.angle + (rnd.next() < 0.5 ? 1 : -1) * (0.9 + rnd.next() * 0.7)
+                let a = Double(f.angle) + (rnd.next() < 0.5 ? 1 : -1) * (0.9 + rnd.next() * 0.7)
                 let len = 7 + rnd.next() * 9
-                branch.addLine(to: CGPoint(x: f.mid.x + cos(a) * len, y: f.mid.y + sin(a) * len))
+                branch.addLine(to: CGPoint(
+                    x: f.mid.x + CGFloat(cos(a) * len),
+                    y: f.mid.y + CGFloat(sin(a) * len)))
                 ctx.stroke(branch, with: .color(ink.opacity(0.26)),
                            style: StrokeStyle(lineWidth: 0.8, lineCap: .round))
             }

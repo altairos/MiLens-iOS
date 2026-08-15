@@ -120,7 +120,7 @@ struct DatabaseRecoveryView: View {
         let file = dir.appendingPathComponent("startup-error-\(formatter.string(from: Date())).log")
         let content = [
             String(localized: "recovery.diagHeader"),
-            String(localized: "recovery.diagTime \(Date())"),
+            String(localized: "recovery.diagTime \(Date().formatted())"),
             String(localized: "recovery.diagError \(error)")
         ].joined(separator: "\n")
         do {

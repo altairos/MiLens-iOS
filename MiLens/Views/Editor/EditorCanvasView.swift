@@ -365,13 +365,15 @@ private struct DecorationLayerView: View {
                 insets: insets,
                 dstX: 0, dstY: 0,
                 dstW: Double(size.width), dstH: Double(size.height))
-            let image = Image(uiImage: img)
+            // draw(_:in:slice:) 为 iOS 18 API 且 slice 用单位坐标；iOS 17 改用
+            // CGImage.cropping 取像素子图绘制，与导出路径（CGImage.cropping）一致。
             for tile in tiles {
                 guard tile.srcW > 0, tile.srcH > 0, tile.dstW > 0, tile.dstH > 0 else { continue }
+                guard let cg = img.cgImage?.cropping(to: CGRect(
+                    x: tile.srcX, y: tile.srcY, width: tile.srcW, height: tile.srcH)) else { continue }
                 context.draw(
-                    image,
-                    in: CGRect(x: tile.dstX, y: tile.dstY, width: tile.dstW, height: tile.dstH),
-                    slice: CGRect(x: tile.srcX, y: tile.srcY, width: tile.srcW, height: tile.srcH)
+                    Image(decorative: cg, scale: img.scale),
+                    in: CGRect(x: tile.dstX, y: tile.dstY, width: tile.dstW, height: tile.dstH)
                 )
             }
         }

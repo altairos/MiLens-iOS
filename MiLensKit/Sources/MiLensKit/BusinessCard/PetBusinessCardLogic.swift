@@ -11,6 +11,11 @@
 //  DESIGN.md §4：纯决策逻辑，无 IO / 无 SwiftUI 依赖。
 
 import Foundation
+#if canImport(UIKit) || canImport(AppKit)
+// CFStringTransform 常量在 Apple 平台随 CoreFoundation 模块暴露，新工具链
+// 不再经 Foundation 隐式可见，需显式导入（Linux 无此模块，条件编译跳过）
+import CoreFoundation
+#endif
 
 // MARK: - 投影输入
 

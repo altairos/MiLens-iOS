@@ -58,14 +58,17 @@ struct PaywallView: View {
             heroSection
                 .ignoresSafeArea(edges: .top)
 
-            // 关闭按钮
-            closeButton
-                .frame(maxWidth: .infinity, alignment: .topTrailing)
-                .padding(.trailing, Spacing.md)
-                .padding(.top, 13)
-
             // 下半屏：Purchase Sheet
             purchaseSheet(model)
+        }
+        // 关闭按钮：overlay 悬浮于右上角（对照 Figma #64:418）。
+        // 勿放回 ZStack(alignment: .bottom) 内：全宽短条带会被对齐到底部，
+        // 被 purchaseSheet 完全遮挡——按钮存在于可达性树但不可见不可点
+        // （UI 冒烟 testSettingsBackupExportShowsPaywall 曾因此点关闭不掉付费墙）。
+        .overlay(alignment: .topTrailing) {
+            closeButton
+                .padding(.trailing, Spacing.md)
+                .padding(.top, 13)
         }
         .sensoryFeedback(.selection, trigger: model.selectedID)
         .sensoryFeedback(.success, trigger: model.purchaseMessage) { $1 == .success }

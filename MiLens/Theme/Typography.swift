@@ -95,11 +95,11 @@ extension Font {
     /// Overline 小标（「CREATION DARKROOM」「READY TO KEEP」）。
     /// Figma `MiLens/UI/Overline`：10pt Medium + letterSpacing 0.04em。
     /// 文字间距通过调用方 `.tracking(0.4)` 补足（SwiftUI tracking 单位为 pt）。
-    static let editorialOverline = scaledSystemFont(size: 10, weight: .medium, relativeTo: .caption)
+    static let editorialOverline = scaledSystemFont(size: 10, weight: .medium, relativeTo: .caption1)
 
     /// Metadata 元信息（「图纸 · 色号 · 用量」「2021.04.18」）。
     /// Figma `MiLens/UI/Metadata`：11pt Regular。
-    static let editorialMetadata = scaledSystemFont(size: 11, relativeTo: .caption)
+    static let editorialMetadata = scaledSystemFont(size: 11, relativeTo: .caption1)
 
     /// 项目编号 / 步骤编号（「01」「02」「03」）。
     /// Figma `MiLens/Number/Index`：Fraunces-Bold 12pt。

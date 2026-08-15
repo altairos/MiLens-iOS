@@ -367,8 +367,11 @@ final class NotifyService {
 
     // MARK: - 标识符
 
+    // 标识符编解码是纯字符串逻辑（仅访问 static let 前缀常量，无隔离状态），
+    // 标记 nonisolated 供非隔离上下文（如纯逻辑单测）直接调用。
+
     /// 时光机通知标识符：`tm-daily-<yyyyMMdd>`（按调度日生成，稳定可撤销）。
-    static func timeMachineIdentifier(for day: Date, calendar: Calendar = .current) -> String {
+    nonisolated static func timeMachineIdentifier(for day: Date, calendar: Calendar = .current) -> String {
         let comp = calendar.dateComponents([.year, .month, .day], from: day)
         let year = comp.year ?? 0
         let month = comp.month ?? 0
@@ -376,24 +379,24 @@ final class NotifyService {
         return "\(timeMachineIdentifierPrefix)-\(String(format: "%04d%02d%02d", year, month, dayOfMonth))"
     }
 
-    static func anniversaryIdentifier(for pet: Pet, kind: PetAnniversaryKind) -> String {
+    nonisolated static func anniversaryIdentifier(for pet: Pet, kind: PetAnniversaryKind) -> String {
         "\(anniversaryIdentifierPrefix)\(pet.id.uuidString)-\(kind.rawValue)"
     }
 
-    static func anniversaryIdentifiers(for pet: Pet) -> [String] {
+    nonisolated static func anniversaryIdentifiers(for pet: Pet) -> [String] {
         [anniversaryIdentifier(for: pet, kind: .birthday),
          anniversaryIdentifier(for: pet, kind: .adoption)]
     }
 
-    static func milestoneIdentifier(for pet: Pet, days: Int) -> String {
+    nonisolated static func milestoneIdentifier(for pet: Pet, days: Int) -> String {
         "\(milestoneIdentifierPrefix)\(pet.id.uuidString)-\(days)"
     }
 
-    static func milestoneIdentifiers(for pet: Pet) -> [String] {
+    nonisolated static func milestoneIdentifiers(for pet: Pet) -> [String] {
         MilestoneLogic.milestoneDays.map { milestoneIdentifier(for: pet, days: $0) }
     }
 
-    static func reminderIdentifiers(for pet: Pet) -> [String] {
+    nonisolated static func reminderIdentifiers(for pet: Pet) -> [String] {
         anniversaryIdentifiers(for: pet) + milestoneIdentifiers(for: pet)
     }
 }

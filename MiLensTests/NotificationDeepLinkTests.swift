@@ -11,7 +11,7 @@ final class NotificationDeepLinkTests: XCTestCase {
     // MARK: - 里程碑通知路由
 
     func testMilestoneIdentifierResolvesToPetCardMilestone() {
-        let identifier = NotifyService.milestoneIdentifier(for: Pet(name: "小橘", id: petID), days: 100)
+        let identifier = NotifyService.milestoneIdentifier(for: Pet(id: petID, name: "小橘"), days: 100)
 
         let destination = NotificationDeepLink.destination(fromIdentifier: identifier)
 
@@ -20,7 +20,7 @@ final class NotificationDeepLinkTests: XCTestCase {
     }
 
     func testMilestoneIdentifierFor1000DaysResolves() {
-        let identifier = NotifyService.milestoneIdentifier(for: Pet(name: "小橘", id: petID), days: 1000)
+        let identifier = NotifyService.milestoneIdentifier(for: Pet(id: petID, name: "小橘"), days: 1000)
 
         let destination = NotificationDeepLink.destination(fromIdentifier: identifier)
 
@@ -41,7 +41,7 @@ final class NotificationDeepLinkTests: XCTestCase {
 
     func testLowercaseUUIDAccepted() {
         let lower = UUID(uuidString: "aabbccdd-eeff-1144-7788-001122334455")!
-        let identifier = NotifyService.milestoneIdentifier(for: Pet(name: "小橘", id: lower), days: 730)
+        let identifier = NotifyService.milestoneIdentifier(for: Pet(id: lower, name: "小橘"), days: 730)
 
         let destination = NotificationDeepLink.destination(fromIdentifier: identifier)
 
@@ -51,7 +51,7 @@ final class NotificationDeepLinkTests: XCTestCase {
     // MARK: - 非里程碑通知排除
 
     func testAnniversaryIdentifierReturnsNil() {
-        let pet = Pet(name: "小橘", id: petID)
+        let pet = Pet(id: petID, name: "小橘")
         let identifier = NotifyService.anniversaryIdentifier(for: pet, kind: .birthday)
 
         XCTAssertNil(NotificationDeepLink.destination(fromIdentifier: identifier))

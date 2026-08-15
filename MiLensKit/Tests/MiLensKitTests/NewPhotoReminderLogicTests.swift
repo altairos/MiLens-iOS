@@ -8,7 +8,9 @@ import XCTest
 private enum NewPhotoTestSupport {
     static let calendar: Calendar = {
         var cal = Calendar(identifier: .gregorian)
-        cal.timeZone = TimeZone(identifier: "UTC") ?? .gmt
+        // TimeZone.gmt 是 Swift 6 Foundation 成员，CI Swift 5.10 无此 API；
+        // "UTC" 是各平台保留标识符必存在，测试代码直接解包（同下方 date(from:)! 风格）。
+        cal.timeZone = TimeZone(identifier: "UTC")!
         return cal
     }()
 

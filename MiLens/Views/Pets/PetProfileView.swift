@@ -71,6 +71,9 @@ struct PetProfileView: View {
 
     // MARK: - 档案主体
 
+    // ViewBuilder 展开双分支（adaptiveArchive 与 ScrollView 是不同具体类型，
+    // 普通函数的 some View 不接受 if/else 各返回一种）。
+    @ViewBuilder
     private func petArchive(_ pet: Pet) -> some View {
         if isRegularWidth {
             // iPad 双栏分栏（对照 Figma #307:669 Adaptive Layout · iPad）
@@ -157,10 +160,17 @@ struct PetProfileView: View {
         let gender = PetDisplayLogic.genderDisplayName(pet.gender)
         var subtitle = Text("\(species) · \(gender)")
         if let birthday = pet.birthday {
-            let dateStr = birthday.formatted(.iso8601.year().month().day().dateSeparator(.dot))
+            let dateStr = dotDate(birthday)
             subtitle = subtitle + Text(" · ") + Text(String(localized: "pet.profile.born")) + Text(" ") + Text(dateStr).font(.custom("Fraunces-Semibold", size: 12))
         }
         return subtitle.foregroundStyle(.white.opacity(0.92))
+    }
+
+    /// 「2024.05.16」点分隔日期（ISO8601FormatStyle 只有 .dash 分隔，
+    /// 点分隔需手工拼；固定公历与 PetDateCalendar 其他用法一致）。
+    private func dotDate(_ date: Date) -> String {
+        let c = PetDateCalendar.gregorian.dateComponents([.year, .month, .day], from: date)
+        return String(format: "%04d.%02d.%02d", c.year ?? 0, c.month ?? 0, c.day ?? 0)
     }
 
     // MARK: - Archive Panel
@@ -181,8 +191,7 @@ struct PetProfileView: View {
                     .foregroundStyle(Color.milensTextSecondary)
                 // P3.6：档案起点日期
                 if let originDate = archiveOriginDate(pet) {
-                    Text(String(localized: "pet.profile.archiveOrigin") + " " +
-                         originDate.formatted(.iso8601.year().month().day().dateSeparator(.dot)))
+                    Text(String(localized: "pet.profile.archiveOrigin") + " " + dotDate(originDate))
                         .font(.editorialMetadata)
                         .foregroundStyle(Color.milensTextTertiary)
                         .padding(.top, 2)
@@ -435,7 +444,7 @@ struct PetProfileView: View {
     // MARK: - 备忘
 
     private var parsedNotes: [String] {
-        PetFormLogic.parseNotesItems(pet?.notes ?? "")
+        PetFormLogic.parseNoteItems(pet?.notes ?? "")
     }
 
     private var notesSection: some View {

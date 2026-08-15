@@ -21,6 +21,8 @@ struct PetProfileView: View {
 
     @State private var pet: Pet?
     @State private var photos: [Photo] = []
+    /// 置顶记忆随机照片索引：load() 时固定一次，body 重算不再重新随机，下次进入页面才换。
+    @State private var pinnedRandomIndex: Int = 0
     @State private var unassignedPhotos: [Photo] = []
     @State private var selectedCategory: PetPhotoCategory = .all
     @State private var isLoading = true
@@ -199,8 +201,8 @@ struct PetProfileView: View {
                 .padding(.top, 16)
 
             // 置顶记忆（对照 #I319:1101;296:595-608）
-            if let pinned = pinnedMemory(pet) {
-                pinnedMemorySection(pinned)
+            if let pinned = PinnedMemory.pick(pet: pet, photos: photos, randomIndex: pinnedRandomIndex) {
+                PinnedMemorySection(pinned: pinned)
                     .padding(.top, 16)
             }
 
@@ -266,108 +268,6 @@ struct PetProfileView: View {
             ArchiveStatItem(value: "\(importantDayCount)", label: String(localized: "pet.profile.stat.importantDays"))
         }
         .padding(.horizontal, 24)
-    }
-
-    // MARK: - 置顶记忆
-
-    /// 取置顶的 PetEvent（isPinned）或最近用户记录（sourceType=="user"），
-    /// 回退随机一张照片（每次进入页面从全部照片中随机选一张，增加新鲜感）。
-    private struct PinnedMemory {
-        let title: String
-        let note: String
-        let dateLabel: String
-        let photoPath: String?
-    }
-
-    private func pinnedMemory(_ pet: Pet) -> PinnedMemory? {
-        // 优先 isPinned 事件
-        let pinnedEvents = pet.events.filter { $0.isPinned }
-        // 其次用户记录
-        let userEvents = pet.events.filter { $0.sourceType == "user" && !$0.body.isEmpty }
-        let candidates = pinnedEvents.isEmpty ? userEvents : pinnedEvents
-
-        if let ev = candidates.sorted(by: { $0.eventDate > $1.eventDate }).first {
-            let cal = Calendar.current
-            let m = cal.component(.month, from: ev.eventDate)
-            let d = cal.component(.day, from: ev.eventDate)
-            let relatedPhoto = ev.relatedPhotoID.flatMap { rid in photos.first { $0.id == rid } }
-            let fallbackPhoto = photos.randomElement()
-            let chosen = relatedPhoto ?? fallbackPhoto
-            let path = chosen?.thumbnailPath.isEmpty == false ? chosen?.thumbnailPath : chosen?.uri
-            return PinnedMemory(
-                title: ev.title,
-                note: ev.body,
-                dateLabel: "RECENT · " + String(format: "%02d.%02d", m, d),
-                photoPath: path
-            )
-        }
-
-        // 回退：从全部照片中随机选一张（每次进入页面不同，增加新鲜感）
-        guard let photo = photos.randomElement() else { return nil }
-        let dateLabel: String
-        if let takenAt = photo.takenAt {
-            let cal = Calendar.current
-            dateLabel = "RECENT · " + String(format: "%02d.%02d", cal.component(.month, from: takenAt), cal.component(.day, from: takenAt))
-        } else {
-            dateLabel = "RECENT"
-        }
-        let path = photo.thumbnailPath.isEmpty ? photo.uri : photo.thumbnailPath
-        return PinnedMemory(
-            title: photo.note.isEmpty ? String(localized: "pet.profile.pinned.recent") : photo.note,
-            note: "",
-            dateLabel: dateLabel,
-            photoPath: path
-        )
-    }
-
-    private func pinnedMemorySection(_ pinned: PinnedMemory) -> some View {
-        VStack(alignment: .leading, spacing: 8) {
-            // Section 标签（独立头部行，对照 #I319:1101;296:595）
-            Text(String(localized: "pet.profile.pinned.section"))
-                .font(.bodySecondary)
-                .foregroundStyle(Color.milensTextSecondary)
-                .padding(.horizontal, 24)
-
-            // Fold index + 内容行（对照 #I319:1101;296:604-598）
-            HStack(alignment: .top, spacing: 15) {
-                // 左侧珊瑚竖线 4pt（panel x=16 起，对照 Pinned Fold Index #I319:1101;296:604）
-                Rectangle()
-                    .fill(Color.milensActionPrimary)
-                    .frame(width: 4)
-                    .cornerRadius(Radius.accentRail)
-
-                VStack(alignment: .leading, spacing: 6) {
-                    // 日期 overline（对照 #I319:1101;296:608）
-                    Text(pinned.dateLabel)
-                        .font(.editorialOverline)
-                        .tracking(0.4)
-                        .foregroundStyle(Color.milensActionPrimary)
-                    // 文楷标题（对照 #I319:1101;296:597）
-                    Text(pinned.title)
-                        .font(.custom("LXGWWenKai-Regular", size: 16, relativeTo: .body))
-                        .foregroundStyle(Color.milensTextPrimary)
-                    // 正文（对照 #I319:1101;296:598）
-                    if !pinned.note.isEmpty {
-                        Text(pinned.note)
-                            .font(.bodySecondary)
-                            .foregroundStyle(Color.milensTextSecondary)
-                    }
-                }
-
-                Spacer(minLength: 12)
-
-                // 右侧缩略图 122×86（对照 Pinned Memory Photo #I319:1101;296:596）
-                if let path = pinned.photoPath {
-                    ThumbnailImage(path: path)
-                        .scaledToFill()
-                        .frame(width: 122, height: 86)
-                        .clipped()
-                        .clipShape(RoundedRectangle(cornerRadius: 4, style: .continuous))
-                }
-            }
-            .padding(.leading, 16)
-            .padding(.trailing, 24)
-        }
     }
 
     // MARK: - 最近照片
@@ -584,6 +484,8 @@ struct PetProfileView: View {
                     photos = []
                     logger.error("load: 读取宠物照片失败（\(error.localizedDescription)）")
                 }
+                // photos 就绪后固定置顶记忆随机索引（空池置 0，取片时安全判空）。
+                pinnedRandomIndex = photos.isEmpty ? 0 : Int.random(in: 0..<photos.count)
             }
             do {
                 unassignedPhotos = try factory.unassignedPhotos(limit: 200)

@@ -65,7 +65,7 @@
 
 不要只报告 `BUILD SUCCEEDED`；还要检查 XCTest 汇总、覆盖率以及测试最终退出码。若未执行某项验证，要明确写「未执行」和原因。
 
-覆盖率门禁已接入 CI（`tools/check-coverage.sh`，解析 `TestResult.xcresult` 与基线比较）：MiLens (App) 默认 30/25/30、MiLensKit 默认 47/50/44（lines/functions/branches %）。当前为对齐源端的占位值，首次 CI 实测后校准（见脚本头注释）；基线可用 `APP_*_MIN`/`KIT_*_MIN` 环境变量覆盖。
+覆盖率门禁已接入 CI（`tools/check-coverage.sh`，解析 `TestResult.xcresult` 与基线比较）：MiLens (App) 默认 13/13/0（lines/functions/branches %，2026-08-15 首次实测校准：加权 line 16.2% - 3pp 缓冲，快照 run 31898839674；branch=0 因 xccov 新格式无 branches 数据，实际未参与判罚）。MiLensKit 口径为信息性不判罚：xccov 对 SPM 包 target 归属不稳定（数据缺失时跳过、存在时仅展示），Kit 质量由 Linux kit 作业（`swift test` 全量用例）守护。基线可用 `APP_*_MIN`/`KIT_*_MIN` 环境变量覆盖。
 
 ## 6. 文档维护
 

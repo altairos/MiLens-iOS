@@ -8,12 +8,22 @@
 #   tools/check-coverage.sh build/TestResult.xcresult
 #   tools/check-coverage.sh --selftest      # 固定 fixture 自测（单位与比较逻辑）
 #
-# 基线（默认值为占位基线，对齐源端 entry/shared 口径；首次实测后校准，
-# 校准方式见 DEVELOPMENT.md §2.2）。可用环境变量覆盖，便于本地/CI 调参：
-#   APP_LINE_MIN / APP_FUNCTION_MIN / APP_BRANCH_MIN   MiLens App target 基线
-#   KIT_LINE_MIN / KIT_FUNCTION_MIN / KIT_BRANCH_MIN   MiLensKit target 基线
+# 基线（2026-08-15 首次实测校准，快照 run 31898839674，App-only 口径行数加权：
+#   line 16.2%（9907/60997）、function ~15.7%——按 remediation-plan P0-2「实测值
+#   -3pp 缓冲」得 13/13/0；branch=0 因 xccov 新格式无 branches 数据（按 100% 计，
+#   实际未参与判罚）。校准记录见 DEVELOPMENT.md §2.2）。环境变量可覆盖便于调参：
+#   APP_LINE_MIN / APP_FUNCTION_MIN / APP_BRANCH_MIN   MiLens App target 基线（判罚）
+#   KIT_LINE_MIN / KIT_FUNCTION_MIN / KIT_BRANCH_MIN   MiLensKit 基线（当前信息性，
+#       见下「Kit 口径」；保留对齐源端的 47/50/44 作恢复判罚时参考）
 #   FILE_MIN_LINES    最差文件报告忽略小文件的阈值（可执行行，默认 50）
 #   APP_FILE_MIN / KIT_FILE_MIN   可选单文件行覆盖下限（百分数，默认 0=关闭）
+#
+# Kit 口径（2026-08-15 定）：xccov 对 SPM 包的 target 归属不稳定——同一 workflow
+#   run 31897080607/31897830212 中 Kit 源文件混入 MiLens.app target、run 31898839674
+#   中则完全缺席——脚本无法依赖该数据源。故 Kit 仅信息性：数据缺失时跳过
+#   （不判 FAIL）、数据存在时展示数字不判罚；Kit 质量由 Linux kit 作业
+#   （swift test 全量用例）守护。待引入独立 Kit scheme 测试产稳定 xcresult 后
+#   可恢复判罚。
 #
 # 口径说明（2026-08-13 修正权重失真）：
 # - line 覆盖率优先用每文件 coveredLines/uncoveredLines 做【行数加权】
@@ -39,9 +49,9 @@ if [ "$XC_RESULT" != "--selftest" ] && [ ! -d "$XC_RESULT" ]; then
   exit 2
 fi
 
-APP_LINE_MIN="${APP_LINE_MIN:-30}"
-APP_FUNCTION_MIN="${APP_FUNCTION_MIN:-25}"
-APP_BRANCH_MIN="${APP_BRANCH_MIN:-30}"
+APP_LINE_MIN="${APP_LINE_MIN:-13}"
+APP_FUNCTION_MIN="${APP_FUNCTION_MIN:-13}"
+APP_BRANCH_MIN="${APP_BRANCH_MIN:-0}"
 KIT_LINE_MIN="${KIT_LINE_MIN:-47}"
 KIT_FUNCTION_MIN="${KIT_FUNCTION_MIN:-50}"
 KIT_BRANCH_MIN="${KIT_BRANCH_MIN:-44}"
@@ -86,8 +96,9 @@ KIT_FILE_MIN = float(os.environ.get("KIT_FILE_MIN", "0"))      # Kit 单文件�
 
 if selftest:
     # 固定 fixture（含 coveredLines/uncoveredLines，守护行数加权）：
-    # App 两文件行数加权恰好 30%（PASS 基线），但算术平均为 56.7%——
-    # 若误回退算术平均，加权断言失败；App 整体必须 PASS，Kit 必须 FAIL。
+    # App 两文件行数加权 30%，高于基线 13%，但算术平均为 56.7%——
+    # 若误回退算术平均，加权断言失败；App 整体必须 PASS；Kit 数据存在
+    # 但仅信息性展示不判罚（res=True，即使 46.9% 低于旧占位基线 47%）。
     #   Small.swift: 90/100  = 0.90  （小·高）
     #   Big.swift:   210/900 ≈ 0.2333（大·低）
     #   加权 = (90+210)/(100+900) = 0.30；算术 = (0.90+0.2333)/2 = 0.5667
@@ -130,7 +141,7 @@ def target_name(t):
     return os.path.basename(bp) if bp else ""
 
 
-def collect_files(include: tuple, exclude: tuple):
+def collect_files(report, include: tuple, exclude: tuple):
     """收集指定 target 的全部文件覆盖率对象（兼容 coverageData 与 files 两种键）。"""
     files = []
     for t in report:
@@ -254,103 +265,132 @@ def worst_files(files, limit=5):
     return rows[:limit]
 
 
-ok = True
-results = {}
-specs = {
-    "MiLens (App)": (("MiLens",), ("Tests", "Kit"), APP_FILE_MIN),
-    "MiLensKit": (("MiLensKit",), ("Tests",), KIT_FILE_MIN),
-}
 kit_names, widget_names = package_basename_map()
 if not kit_names and not selftest:
     print("[note] 源码树未扫描到 MiLensKit/Sources 下 .swift（cwd 非仓库根？），Kit 分离将不可用")
-for name, (inc, exc, file_min) in specs.items():
-    files = collect_files(inc, exc)
-    if not files and name == "MiLensKit":
-        # App scheme 的 xcresult 中 MiLensKit target 文件数为 0（SPM 代码链接进
-        # App 二进制，run 31897830212 实测）：从非测试 target 的混合数据分离包文件
-        mixed = [f for t in report
-                 if "Tests" not in target_name(t)
-                 for f in (t.get("coverageData") or t.get("files") or [])]
-        files = separate_package_files(mixed, kit_names)
-        if files:
-            print(f"[note] {name}: MiLensKit target 文件数为 0，"
-                  f"按源码树 basename 从混合数据分离 {len(files)} 个包文件")
-    if name == "MiLens (App)" and not selftest:
-        # App 口径排除包/扩展源文件（Kit 覆盖计入自身口径，Widget 不在门禁范围）
-        kept = exclude_non_app(files, kit_names, widget_names)
-        if len(kept) < len(files):
-            print(f"[note] {name}: 排除 {len(files) - len(kept)} 个包/扩展源文件"
-                  f"（Kit 计入自身口径，Widget 不在门禁范围）")
-            files = kept
-    if not files:
-        # 透明化：target 概览 + 文件对象键 + 首文件样本（整 target 样本会被函数数组挤满，
-        # 键级信息更利于适配未知 xccov 结构）
-        tgt = "; ".join(f"{target_name(t) or '?'}={len(t.get('coverageData') or t.get('files') or [])}"
-                        for t in report) or "无 target"
-        fkeys = sorted({k for t in report
-                        for f in (t.get("coverageData") or t.get("files") or [])[:3]
-                        for k in f})
-        fsample = next((json.dumps(f, ensure_ascii=False)[:400]
-                        for t in report
-                        for f in (t.get("coverageData") or t.get("files") or [])[:1]), "")
-        print(f"[FAIL] {name}: 未在 xcresult 中找到覆盖率数据；target 概览（名=文件数）：{tgt}")
-        print(f"       文件对象键：{fkeys}；首文件样本：{fsample}")
-        results[name] = False
-        ok = False
-        continue
 
-    line, line_m, line_weighted = line_coverage(files)
-    fn, fn_m = fn_coverage(files)
-    branch, branch_data = branch_coverage(files)
-    min_line, min_fn, min_branch = mins[name]
 
-    # 单位统一为百分比：xccov 的 line/functionCoverage 是 0…1 小数，基线是百分数
-    passed = line * 100 >= min_line and fn * 100 >= min_fn and branch * 100 >= min_branch
+def run_gate(report, mins, kit_names, widget_names, selftest):
+    """单轮门禁：返回 (ok, results)。判罚仅限 App target；Kit 为 SPM 包，
+    xccov 对其 target 归属不稳定（run 31897080607/31897830212 混入 App target、
+    31898839674 完全缺席），数据缺失时跳过、存在时信息性展示不判罚
+    （质量由 Linux kit 作业全量用例守护）。抽为函数供 --selftest 双场景复用
+    （Kit 有数据 / Kit 缺失），避免盲改后只能等 CI 验证。"""
+    ok = True
+    results = {}
+    specs = {
+        "MiLens (App)": (("MiLens",), ("Tests", "Kit"), APP_FILE_MIN),
+        "MiLensKit": (("MiLensKit",), ("Tests",), KIT_FILE_MIN),
+    }
+    for name, (inc, exc, file_min) in specs.items():
+        files = collect_files(report, inc, exc)
+        if not files and name == "MiLensKit":
+            # App scheme 的 xcresult 中 MiLensKit target 文件数可能为 0（SPM 代码
+            # 链接进 App 二进制）：从非测试 target 的混合数据按 basename 分离包文件
+            mixed = [f for t in report
+                     if "Tests" not in target_name(t)
+                     for f in (t.get("coverageData") or t.get("files") or [])]
+            files = separate_package_files(mixed, kit_names)
+            if files:
+                print(f"[note] {name}: MiLensKit target 文件数为 0，"
+                      f"按源码树 basename 从混合数据分离 {len(files)} 个包文件")
+        if name == "MiLens (App)" and not selftest:
+            # App 口径排除包/扩展源文件（Kit 覆盖计入自身口径，Widget 不在门禁范围）
+            kept = exclude_non_app(files, kit_names, widget_names)
+            if len(kept) < len(files):
+                print(f"[note] {name}: 排除 {len(files) - len(kept)} 个包/扩展源文件"
+                      f"（Kit 计入自身口径，Widget 不在门禁范围）")
+                files = kept
+        if not files:
+            if name == "MiLensKit":
+                # xccov 对 SPM 包 target 归属不稳定（头注释「Kit 口径」），
+                # 缺失时信息性跳过，不判 FAIL
+                print(f"[INFO] {name}: xcresult 未包含 Kit 覆盖数据（xccov 对 SPM 包 "
+                      f"target 归属不稳定），本轮跳过不判罚——Kit 质量由 Linux "
+                      f"kit 作业（swift test 全量用例）守护")
+                results[name] = "skip"
+                continue
+            # App 数据缺失 = xcresult 异常（测试未产出/产物损坏），仍判 FAIL。
+            # 透明化：target 概览 + 文件对象键 + 首文件样本（整 target 样本会被函数
+            # 数组挤满，键级信息更利于适配未知 xccov 结构）
+            tgt = "; ".join(f"{target_name(t) or '?'}={len(t.get('coverageData') or t.get('files') or [])}"
+                            for t in report) or "无 target"
+            fkeys = sorted({k for t in report
+                            for f in (t.get("coverageData") or t.get("files") or [])[:3]
+                            for k in f})
+            fsample = next((json.dumps(f, ensure_ascii=False)[:400]
+                            for t in report
+                            for f in (t.get("coverageData") or t.get("files") or [])[:1]), "")
+            print(f"[FAIL] {name}: 未在 xcresult 中找到覆盖率数据；target 概览（名=文件数）：{tgt}")
+            print(f"       文件对象键：{fkeys}；首文件样本：{fsample}")
+            results[name] = False
+            ok = False
+            continue
 
-    # 可选单文件下限：任何达标文件（可执行行 ≥ FILE_MIN_LINES）低于下限 → 该 target 失败。
-    # 直击「大体量低覆盖文件被均值掩盖」问题：均值达标但单文件塌方也会被拦下。
-    floor_ok = True
-    qualifying = worst_files(files, limit=len(files))
-    if file_min > 0:
-        for _, lcov, _ in qualifying:
-            if lcov * 100 < file_min:
-                floor_ok = False
-                break
-    passed = passed and floor_ok
+        line, line_m, line_weighted = line_coverage(files)
+        fn, fn_m = fn_coverage(files)
+        branch, branch_data = branch_coverage(files)
+        min_line, min_fn, min_branch = mins[name]
 
-    floor_tag = f"  单文件下限={file_min}% {'PASS' if floor_ok else 'FAIL'}" if file_min > 0 else ""
-    print(f"[{'PASS' if passed else 'FAIL'}] {name}: "
-          f"line={pct(line)} ({line_m}, min {min_line}%) "
-          f"function={pct(fn)} ({fn_m}, min {min_fn}%) "
-          f"branch={pct(branch)} (min {min_branch}%){floor_tag}")
+        if name == "MiLens (App)":
+            # 单位统一为百分比：xccov 的 line/functionCoverage 是 0…1 小数，基线是百分数
+            passed = line * 100 >= min_line and fn * 100 >= min_fn and branch * 100 >= min_branch
 
-    # 行数缺失回退提示：xccov report 未提供行数时 line 退化为算术平均（修复的加权
-    # 暂不生效），明确告知避免误以为加权已生效。
-    if not line_weighted and not selftest:
-        print(f"       [note] {name}: xccov 未提供 coveredLines/uncoveredLines，"
-              f"line 回退文件级算术平均（加权未生效）")
+            # 可选单文件下限：任何达标文件（可执行行 ≥ FILE_MIN_LINES）低于下限 → 该 target 失败。
+            # 直击「大体量低覆盖文件被均值掩盖」问题：均值达标但单文件塌方也会被拦下。
+            floor_ok = True
+            qualifying = worst_files(files, limit=len(files))
+            if file_min > 0:
+                for _, lcov, _ in qualifying:
+                    if lcov * 100 < file_min:
+                        floor_ok = False
+                        break
+            passed = passed and floor_ok
 
-    # 分支数据缺失提示：Xcode 16.4 新格式未提供 branches，branch 恒为 100%
-    # （不低于任何基线）——透明告知该指标实际未参与判罚。
-    if not branch_data and not selftest:
-        print(f"       [note] {name}: xccov 未提供 branches 数据，branch 按 100% 计（该指标未参与判罚）")
+            floor_tag = f"  单文件下限={file_min}% {'PASS' if floor_ok else 'FAIL'}" if file_min > 0 else ""
+            print(f"[{'PASS' if passed else 'FAIL'}] {name}: "
+                  f"line={pct(line)} ({line_m}, min {min_line}%) "
+                  f"function={pct(fn)} ({fn_m}, min {min_fn}%) "
+                  f"branch={pct(branch)} (min {min_branch}%){floor_tag}")
+        else:
+            passed = True  # Kit 信息性展示，不判罚（见函数 docstring）
+            print(f"[INFO] {name}: line={pct(line)} ({line_m}) "
+                  f"function={pct(fn)} ({fn_m}) branch={pct(branch)}"
+                  f"（信息性展示，不判罚——xccov 数据源不稳定，质量由 Linux kit 作业守护）")
 
-    # 倒数最差文件报告（透明化：暴露被均值掩盖的大体量低覆盖文件）
-    wf = worst_files(files)
-    if wf:
-        print(f"       最差文件（可执行行 ≥ {FILE_MIN_LINES}, 最多 5 个）:")
-        for nm, lcov, total in wf:
-            print(f"         {pct(lcov):>7}  {nm}  ({total} 行)")
+        # 行数缺失回退提示：xccov report 未提供行数时 line 退化为算术平均（修复的加权
+        # 暂不生效），明确告知避免误以为加权已生效。
+        if not line_weighted and not selftest:
+            print(f"       [note] {name}: xccov 未提供 coveredLines/uncoveredLines，"
+                  f"line 回退文件级算术平均（加权未生效）")
 
-    results[name] = passed
-    ok = ok and passed
+        # 分支数据缺失提示：Xcode 16.4 新格式未提供 branches，branch 恒为 100%
+        # （不低于任何基线）——透明告知该指标实际未参与判罚。
+        if not branch_data and not selftest:
+            print(f"       [note] {name}: xccov 未提供 branches 数据，branch 按 100% 计（该指标未参与判罚）")
+
+        # 倒数最差文件报告（透明化：暴露被均值掩盖的大体量低覆盖文件）
+        wf = worst_files(files)
+        if wf:
+            print(f"       最差文件（可执行行 ≥ {FILE_MIN_LINES}, 最多 5 个）:")
+            for nm, lcov, total in wf:
+                print(f"         {pct(lcov):>7}  {nm}  ({total} 行)")
+
+        results[name] = passed
+        ok = ok and passed
+    return ok, results
+
+
+ok, results = run_gate(report, mins, kit_names, widget_names, selftest)
 
 if selftest:
+    # 场景 A（主 fixture）：App 加权 30% ≥ 基线 13% PASS；Kit 数据存在 → 信息性
+    # 展示不判罚（res=True，即使 46.9% 低于旧占位基线 47% 也不 FAIL）。
     app_ok = results.get("MiLens (App)") is True
-    kit_ok = results.get("MiLensKit") is False
+    kit_info = results.get("MiLensKit") is True and ok
     # 守护：行数加权必须生效——App 加权 line=0.30，算术平均会得 0.5667。
     # 若有人误把 line_coverage 回退为算术平均，line_w 将等于 0.5667，断言失败。
-    app_files = collect_files(("MiLens",), ("Tests", "Kit"))
+    app_files = collect_files(report, ("MiLens",), ("Tests", "Kit"))
     line_w, method, _ = line_coverage(app_files)
     line_a = sum(f.get("lineCoverage", 0.0) for f in app_files) / len(app_files)
     weighted_active = (method == "weighted"
@@ -368,7 +408,7 @@ if selftest:
                    {"path": "/p/B.swift", "coveredLines": 20, "executableLines": 100,
                     "functions": []},
                ]}]
-    nf = collect_files(("MiLens",), ("Tests", "Kit"))
+    nf = collect_files(report, ("MiLens",), ("Tests", "Kit"))
     nf_line, nf_line_m, _ = line_coverage(nf)
     nf_fn, nf_fn_m = fn_coverage(nf)
     nf_wf = worst_files(nf)
@@ -390,12 +430,25 @@ if selftest:
     app_sep = exclude_non_app(mixed, {"B.swift"}, {"C.swift"})
     mixed_ok = (len(kit_sep) == 1 and kit_sep[0]["path"] == "B.swift"
                 and len(app_sep) == 1 and app_sep[0]["path"] == "A.swift")
-    if app_ok and kit_ok and weighted_active and new_fmt_ok and mixed_ok:
-        print("check-coverage: selftest PASS（行数加权生效；App=基线 PASS / Kit<基线 FAIL，单位与比较逻辑正确；"
-              "Xcode 16.4 新格式解析正确；SPM 包路径分离正确）")
+    # 场景 B（run 31898839674 实测形态）：Kit 数据完全缺席 → 跳过不判罚，
+    # ok 不受影响；App 数据正常判罚。
+    report_b = [{"target": "MiLens.app", "coverageData": [
+        {"name": "Small.swift", "coveredLines": 90, "uncoveredLines": 10,
+         "lineCoverage": 0.90, "functionCoverage": 0.25,
+         "branches": [{"covered": 1, "count": 5}]},
+        {"name": "Big.swift", "coveredLines": 210, "uncoveredLines": 690,
+         "lineCoverage": 0.2333, "functionCoverage": 0.25,
+         "branches": [{"covered": 2, "count": 5}]},
+    ]}]
+    ok_b, res_b = run_gate(report_b, mins, set(), set(), True)
+    kit_skip_ok = (res_b.get("MiLensKit") == "skip"
+                   and res_b.get("MiLens (App)") is True and ok_b)
+    if app_ok and kit_info and weighted_active and new_fmt_ok and mixed_ok and kit_skip_ok:
+        print("check-coverage: selftest PASS（行数加权生效；App 判罚 PASS / Kit 信息性不判罚；"
+              "Xcode 16.4 新格式解析正确；SPM 包分离正确；Kit 缺失时跳过不影响门禁）")
         sys.exit(0)
-    print("check-coverage: selftest FAIL（App/Kit 结果与预期不符，或行数加权未生效，或新格式/包分离解析错误——"
-          "阈值单位、比较逻辑或加权口径错误）")
+    print("check-coverage: selftest FAIL（App/Kit 结果与预期不符，或行数加权未生效，或新格式/包分离解析错误，"
+          "或 Kit 缺失跳过路径未生效——阈值单位、比较逻辑或加权口径错误）")
     sys.exit(1)
 
 print(f"check-coverage: {'门禁通过' if ok else '覆盖率未达基线（用环境变量覆盖基线或补测试）'}")

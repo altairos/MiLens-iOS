@@ -145,8 +145,14 @@ xcodebuild ... test -enableCodeCoverage YES
 # line 覆盖率为行数加权（Σ已覆盖行/Σ可执行行）；xccov 未提供行数时回退文件级算术
 # 平均并打印 [note]。另打印倒数 5 个最差文件报告（可执行行 ≥ FILE_MIN_LINES）。
 tools/check-coverage.sh build/TestResult.xcresult
-#   APP_LINE_MIN/APP_FUNCTION_MIN/APP_BRANCH_MIN   MiLens (App) 基线，默认 30/25/30
-#   KIT_LINE_MIN/KIT_FUNCTION_MIN/KIT_BRANCH_MIN   MiLensKit 基线，默认 47/50/44（占位）
+#   APP_LINE_MIN/APP_FUNCTION_MIN/APP_BRANCH_MIN   MiLens (App) 基线，默认 13/13/0
+#     （2026-08-15 首次实测校准：App-only 加权 line 16.2%（9907/60997）/function ~15.7%，
+#      快照 run 31898839674，按「实测值 -3pp 缓冲」得 13/13；branch=0 因 xccov
+#      新格式无 branches 数据，按 100% 计、未参与判罚）
+#   KIT_LINE_MIN/KIT_FUNCTION_MIN/KIT_BRANCH_MIN   MiLensKit 基线（信息性不判罚：
+#     xccov 对 SPM 包 target 归属不稳定——run 31897080607/31897830212 混入 App
+#     target、run 31898839674 完全缺席——数据缺失时跳过、存在时仅展示；Kit 质量
+#     由 Linux kit 作业 swift test 全量用例守护）
 #   FILE_MIN_LINES    最差文件报告忽略小文件的阈值（可执行行，默认 50）
 #   APP_FILE_MIN/KIT_FILE_MIN   可选单文件行覆盖下限（百分数，默认 0=关闭）
 ```

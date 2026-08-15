@@ -40,6 +40,9 @@ final class OnboardingViewModel {
         case success           // 04 导入成功（#123:198）
     }
 
+    /// 大阶段总数（进度指示器段数与 a11y「第 X 步，共 N 步」标签共用）。
+    static let majorStageCount = 4
+
     /// 当前所属大阶段（0..3，供 OnboardingView 4 段进度指示器点亮）。
     var majorStage: Int {
         switch step {

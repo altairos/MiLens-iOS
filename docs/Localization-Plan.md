@@ -1,6 +1,6 @@
 # MiLens 全球本地化计划
 
-最后更新：2026-08-10（首发 7 语言定案：zh-Hans / zh-Hant / ja / ko / en / fr / de）
+最后更新：2026-08-15（CI 缺译门禁过渡期降级 `--allow-missing-translations`；2026-08-10 定案首发 7 语言：zh-Hans / zh-Hant / ja / ko / en / fr / de）
 
 > 本文档是 MiLens 全球首发本地化工作的唯一事实来源：语言矩阵、各国市场注意要点、翻译工作流、质量门禁、ASO 关键词策略与时间线。工具与命令见 [DEVELOPMENT.md](../DEVELOPMENT.md) §4.5，商店文案见 [AppStore-metadata.md](AppStore-metadata.md)，商业决策见 [ADR-0010](adr/0010-commercialization-and-emotion-triggers.md)。
 
@@ -68,11 +68,14 @@ python tools/localization.py export \
 python tools/localization.py import build/loc.xlsx \
     MiLens/Resources/Localizable.xcstrings --lang ja
 
-# 4. 校验（当前基础门禁：0 缺译；发布门禁目标：0 多余 key / 0 格式问题），CI 同款命令
+# 4. 校验（基础门禁：0 缺 key / 0 占位符漂移；发布门禁 --strict：0 缺译 / 0 待审）
 python tools/localization.py check \
     MiLens/Resources/Localizable.xcstrings \
     MiLens/Resources/InfoPlist.xcstrings \
     --project-yml project.yml --source-root MiLens
+
+# CI 过渡期命令额外带 --allow-missing-translations（非源语言缺译降为警告；
+# 7 语言翻译完成后移除，恢复缺译阻断）。--strict 发布门禁不受该参数影响。
 ```
 
 ---
@@ -420,7 +423,7 @@ python tools/localization.py import docs/localization/global-localization.xlsx M
 | 门禁 | 工具 | 触发时机 | 通过标准 |
 |---|---|---|---|
 | key 完整性 | `localization.py check` | CI Lint 作业 + 本地 | 代码缺 key 阻断；多余 key 警告（不阻断） |
-| 缺译检测 + 每语言计数 | `localization.py check` | 同上 | 阻断缺失/空值/`new`；输出每语言进度统计表；`--strict` 把 `needs_review` 升级为阻断 |
+| 缺译检测 + 每语言计数 | `localization.py check` | 同上 | 阻断缺失/空值/`new`；输出每语言进度统计表；`--strict` 把 `needs_review` 升级为阻断。过渡期（2026-08-15 起）：CI 带 `--allow-missing-translations` 把缺译降为警告，翻译完成后移除 |
 | 占位符漂移 | `localization.py check` | 同上 | 普通条目译文 `%d`/`%@` 占位符集合与源一致（默认阻断）；复数条目由 plural 校验 |
 | 译文长度 | `localization.py check --length-rules` | 每语言导入后 | 按 `tools/loc-length-rules.example.json` 规则校验超限（精确 key > comment `[len:N]` > 最长前缀 > default）|
 | 硬编码文案 | `localization.py check --hardcoded` | 翻译前 + CI | 无 SwiftUI 文案 API（Text/Label/Button/navigationTitle 等）首参含 CJK 且不在 catalog 的硬编码 |
@@ -432,6 +435,8 @@ python tools/localization.py import docs/localization/global-localization.xlsx M
 | 隐私政策可访问 | 人工核对 | 上架前 | 各语言 URL 可访问、内容与 App 行为一致 |
 
 > check 增强（2026-08-12）：每语言缺译计数、占位符漂移（默认阻断）、`--strict`（needs_review 阻断）、`--length-rules`、`--hardcoded` 均已落地，单测见 `tools/test_localization.py`（17 用例）。CI 接入 `--strict` 即可作发布门禁；多余 key 与格式不一致（非 Xcode 风格）仍仅告警。
+>
+> 缺译降级（2026-08-15）：7 语言 knownRegions 已定而 6 语言翻译未开始，缺译阻断使 CI lint 必挂并连带跳过 app 作业（`needs: [kit, lint]`）。过渡期 CI 命令带 `--allow-missing-translations`：非源语言缺译降为警告（聚合输出）不阻断；`--strict` 发布门禁下缺译仍阻断。全部语言翻译完成后移除该参数，恢复默认缺译阻断。
 
 ### 6.1 自动化检查与伪本地化
 

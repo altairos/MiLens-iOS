@@ -9,6 +9,7 @@ import MiLensKit
 
 struct RedPacketInspectorView: View {
     @Bindable var viewModel: RedPacketWorkshopViewModel
+    @Environment(\.dismiss) private var dismiss
 
     var body: some View {
         ScrollView(.vertical, showsIndicators: false) {
@@ -87,15 +88,14 @@ struct RedPacketInspectorView: View {
 
     private var petLayerControls: some View {
         HStack(spacing: 8) {
-            transformButton(
+            // 拖动由画布手势承担，这里只作高亮指示（Figma #3 默认手势提示），非可点击按钮
+            transformBadge(
                 icon: "move",
                 label: String(localized: "redpacket.workshop.transform.move"),
                 isHighlighted: true
-            ) {
-                // 拖动是手势操作，不需要按钮动作
-            }
+            )
             transformButton(
-                icon: "plus magnifyingglass",
+                icon: "plus.magnifyingglass",
                 label: String(localized: "redpacket.workshop.transform.scale"),
                 isHighlighted: false
             ) {
@@ -120,7 +120,8 @@ struct RedPacketInspectorView: View {
                 label: String(localized: "redpacket.workshop.transform.changePhoto"),
                 isHighlighted: false
             ) {
-                // 换图通过外部 dismiss 实现
+                // 与更多菜单「换图」同语义：退出工作台，回到抠图确认/照片选择页
+                dismiss()
             }
         }
         .padding(.horizontal, Spacing.pagePad)
@@ -222,29 +223,36 @@ struct RedPacketInspectorView: View {
         .padding(.top, 8)
     }
 
-    // MARK: - 变换按钮
+    // MARK: - 变换单元
 
     private func transformButton(
         icon: String, label: String, isHighlighted: Bool, action: @escaping () -> Void
     ) -> some View {
         Button(action: action) {
-            VStack(spacing: 2) {
-                Image(systemName: icon)
-                    .font(.system(size: 14))
-                    .foregroundStyle(Color.milensActionPrimary)
-                Text(label)
-                    .font(.system(size: 12))
-                    .foregroundStyle(Color.milensTextPrimary)
-            }
-            .frame(width: 62, height: 60)
-            .background(isHighlighted ? Color.milensActionPrimary.opacity(0.1) : Color.white.opacity(0.7))
-            .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
-            .overlay(
-                RoundedRectangle(cornerRadius: 8, style: .continuous)
-                    .stroke(isHighlighted ? Color.milensActionPrimary : Color.milensSeparator, lineWidth: 1)
-            )
+            transformBadge(icon: icon, label: label, isHighlighted: isHighlighted)
         }
         .buttonStyle(.plain)
+    }
+
+    /// 变换单元视觉（按钮与静态手势指示共用）。
+    private func transformBadge(
+        icon: String, label: String, isHighlighted: Bool
+    ) -> some View {
+        VStack(spacing: 2) {
+            Image(systemName: icon)
+                .font(.system(size: 14))
+                .foregroundStyle(Color.milensActionPrimary)
+            Text(label)
+                .font(.system(size: 12))
+                .foregroundStyle(Color.milensTextPrimary)
+        }
+        .frame(width: 62, height: 60)
+        .background(isHighlighted ? Color.milensActionPrimary.opacity(0.1) : Color.white.opacity(0.7))
+        .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+        .overlay(
+            RoundedRectangle(cornerRadius: 8, style: .continuous)
+                .stroke(isHighlighted ? Color.milensActionPrimary : Color.milensSeparator, lineWidth: 1)
+        )
     }
 
     // MARK: - 风格显示名（对齐 Figma #5 命名）

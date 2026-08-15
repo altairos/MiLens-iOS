@@ -333,9 +333,11 @@ struct AddMemorySheet: View {
     // MARK: - 拨盘式 CTA（对照 Figma #267:296）
 
     private var ctaButton: some View {
-        Button { submit() } label: {
+        // 插值内不用 "??" 空串表达式：字面量内的引号会截断 localization.py 的 key 提取
+        let petName = selectedPet?.name ?? ""
+        return Button { submit() } label: {
             HStack {
-                Text(String(localized: "memory.saveToPet \(selectedPet?.name ?? "")"))
+                Text(String(localized: "memory.saveToPet \(petName)"))
                     .font(.buttonLabel)
                     .foregroundStyle(Color.milensDarkroomText)
                 Spacer()

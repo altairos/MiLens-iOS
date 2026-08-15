@@ -733,6 +733,7 @@ def cmd_check(args: argparse.Namespace) -> int:
     strict = getattr(args, "strict", False)
     length_rules_path = getattr(args, "length_rules", None)
     do_hardcoded = getattr(args, "hardcoded", False)
+    allow_missing = getattr(args, "allow_missing_translations", False)
     rules = load_length_rules(Path(length_rules_path) if length_rules_path else None)
 
     problems = 0     # 阻断级问题数（决定退出码）
@@ -794,10 +795,20 @@ def cmd_check(args: argparse.Namespace) -> int:
                 print(f"  [多余 key] String Catalog 有但代码未引用：{sorted(extra)}")
                 warnings += len(extra)
 
-        # ④ 缺译检测 + 复数完整性（knownRegions 非源语言）——阻断
-        for lang, key, note in missing_problems(obj, path, known):
-            print(f"  [缺译] {key} @ {lang}: {note}")
-            problems += 1
+        # ④ 缺译检测 + 复数完整性（knownRegions 非源语言）——阻断；
+        # --allow-missing-translations 且非 --strict 时降为警告并聚合输出
+        # （7 语言首发翻译过渡期 CI 放行用，翻译完成后移除，见 Localization-Plan §6）
+        misses = missing_problems(obj, path, known)
+        if allow_missing and not strict:
+            if misses:
+                langs = sorted({m[0] for m in misses})
+                print(f"  [缺译] {len(misses)} 条（{', '.join(langs)}）"
+                      "——已按 --allow-missing-translations 降为警告")
+            warnings += len(misses)
+        else:
+            for lang, key, note in misses:
+                print(f"  [缺译] {key} @ {lang}: {note}")
+                problems += 1
 
         # ⑤ 普通条目占位符漂移——阻断：译文漏 %@/%d 会运行时崩或显示畸形
         for lang, key, note in placeholder_problems(obj, path, known):
@@ -899,6 +910,8 @@ def main() -> None:
     pc.add_argument("--source-root", help="Swift 源码根目录（扫描代码引用的 key）")
     pc.add_argument("--strict", action="store_true",
                     help="发布门禁：把 needs_review 初译待审也计为阻断问题")
+    pc.add_argument("--allow-missing-translations", action="store_true",
+                    help="非源语言缺译降为警告（7 语言翻译过渡期 CI 放行用；--strict 下仍阻断）")
     pc.add_argument("--length-rules", metavar="JSON",
                     help="译文长度规则 JSON 路径（{default,keys,prefixes,comment_tag}）")
     pc.add_argument("--hardcoded", action="store_true",

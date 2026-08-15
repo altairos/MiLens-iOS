@@ -81,7 +81,7 @@ struct OnboardingView: View {
                 .frame(width: 40, alignment: .trailing)
         }
         .accessibilityElement(children: .ignore)
-        .accessibilityLabel(String(localized: "a11y.onboarding.step \(viewModel.majorStage + 1) 4"))
+        .accessibilityLabel(String(localized: "a11y.onboarding.step \(viewModel.majorStage + 1) \(OnboardingViewModel.majorStageCount)"))
     }
 
     // MARK: - 步骤内容

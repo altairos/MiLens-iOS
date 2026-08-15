@@ -81,7 +81,7 @@ struct RedPacketQualityReportView: View {
             let passCount = viewModel.qualityReport?.items.filter { $0.level == .pass }.count ?? 0
             let totalCount = viewModel.qualityReport?.items.count ?? 5
 
-            Text("QUALITY")
+            Text(String(localized: "redpacket.quality.overline"))
                 .font(.system(size: 10, weight: .medium))
                 .foregroundStyle(Color.milensTextSecondary)
             Text("\(passCount) / \(totalCount)")
@@ -276,10 +276,6 @@ struct RedPacketQualityReportView: View {
                 .stroke(Color.milensActionPrimary.opacity(0.38), lineWidth: 1)
         )
         .padding(.top, Spacing.sm)
-        // 优化前/后切换 + 撤销按钮
-        .overlay(alignment: .bottom) {
-            VStack(spacing: 0) {}
-        }
     }
 
     // MARK: - 辅助

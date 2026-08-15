@@ -17,7 +17,7 @@
 | 次要类别 | 生活 (Lifestyle) | — |
 | 内容分级 | 4+（无不良内容） | — |
 | 价格 | 免费（含应用内订阅） | — |
-| 隐私政策 URL | https://miovelle.cn/privacy | 已起草（[privacy-policy.html](privacy-policy.html)） | — |
+| 隐私政策 URL | https://miovelle.cn/private-privacy.html | 已起草（[privacy-policy.html](privacy-policy.html)） | — |
 | 支持 URL | 待准备 | — |
 | 营销 URL | 可留空 | — |
 

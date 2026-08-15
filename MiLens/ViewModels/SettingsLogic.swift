@@ -118,7 +118,7 @@ enum SettingsLogic {
 
     enum Links {
         /// 隐私政策（docs/AppStore-metadata.md §1：privacy-policy.html 托管地址）
-        static let privacyPolicy = "https://miovelle.cn/privacy"
+        static let privacyPolicy = "https://miovelle.cn/private-privacy.html"
         /// 服务条款：未自建条款前使用 Apple 标准 EULA（App Store 审核认可做法）
         static let termsOfService = "https://www.apple.com/legal/internet-services/itunes/dev/stdeula/"
         /// App Store 订阅管理页（Pro 已解锁时「管理订阅」入口）

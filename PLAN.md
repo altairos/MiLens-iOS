@@ -168,7 +168,7 @@ P1 核心可靠性与性能六项修复全部落地（实现记录见状态摘�
 - 首次启动流程已实现（First Archive 重构）：建档 → 特征注册 → 扫描 → 候选确认 → 导入 → 相册可见；真机授权与真实照片走查待做 🟡
 - 相册支持分页、筛选、多选、大图查看 ✅
 - 扫描可取消，不提交过期结果 ✅
-- CI/本机编译 + 测试全绿 ✅（本机 2026-08-09 最新：严格并发 `complete` 下 BUILD SUCCEEDED；App 604 passed / 0 failed、MiLensKit 594 / 0 failed、UI 2 冒烟、本地化 144+3 key 校验通过；CI 仍需下一次 PR 运行确认模型 Release 下载链路）
+- CI/本机编译 + 测试全绿 ✅（CI 2026-08-15 首次全绿 [run 31900122759](https://github.com/altairos/MiLens-iOS/actions/runs/31900122759)：严格并发下 macOS runner BUILD SUCCEEDED；MiLensKit 1113（Linux）+ App 894（模拟器）+ UI 2 = 2009 用例 0 failed；lint 四项全过；覆盖率门禁实测校准 13/13/0（App 加权 line 16.2%）后 PASS）
 - 真机验证（待 Mac + iPhone）—— 待办清单见 [P2-真机验证备忘](docs/P2-真机验证备忘.md)
 
 ---

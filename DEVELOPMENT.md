@@ -1,6 +1,6 @@
 # MiLens iOS 开发说明
 
-最后核对：2026-08-12（P0–P5 实现完成；本机 macOS 编译 + 1198+ XCTest 全绿；本地导出功能体验补强代码就绪待 Mac；真机与性能验收待做，清单见 docs/P2-待办清单.md）
+最后核对：2026-08-15（P0–P5 实现完成；CI 全绿 run 31900122759：Kit 1113（Linux）+ App 894（模拟器）+ UI 2 = 2009 用例全绿，覆盖率门禁实测校准 13/13/0；真机与性能验收待做，清单见 docs/P2-待办清单.md）
 
 > 环境、命令、开发约定、可复现验证快照。架构见 [DESIGN.md](DESIGN.md)，计划见 [PLAN.md](PLAN.md)，约束见 [AGENTS.md](AGENTS.md)。
 
@@ -29,12 +29,12 @@
 
 ### 2.1 本地：MiLensKit 纯算法包（Mac 或 WSL2 Ubuntu-24.04，最高频）
 
-**Mac 直接跑（推荐）**：包已声明 `.macOS(.v13)`，全量 594 用例可在 macOS 上独立验证，无需 iOS 模拟器：
+**Mac 直接跑（推荐）**：包已声明 `.macOS(.v13)`，全量 1113 用例可在 macOS 上独立验证，无需 iOS 模拟器：
 
 ```bash
 cd MiLensKit
 swift build              # 编译拼豆包
-swift test               # 全量 XCTest（594 用例）
+swift test               # 全量 XCTest（1113 用例）
 ```
 
 > 注意：macOS 上 Quickdraw（经 XCTest→AppKit 传递导入）与包内 `RGBColor` 同名，

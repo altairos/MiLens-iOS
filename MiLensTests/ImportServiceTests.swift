@@ -350,7 +350,9 @@ final class ImportServiceTests: XCTestCase {
             petRepo: petRepo, clipService: clip,
             executor: AnalysisExecutor(maxConcurrent: 1))
         let images = (0..<8).map { _ in makeSolidPNG(width: 64, height: 64, r: 255, g: 120, b: 60) }
-        XCTAssertTrue(await matcher.registerPetFeatures(petID: pet.id, imageDatas: images))
+        // XCTest 断言的 autoclosure 不支持 async：先求值再断言。
+        let registered = await matcher.registerPetFeatures(petID: pet.id, imageDatas: images)
+        XCTAssertTrue(registered)
 
         let service2 = ImportService(
             photoLibrary: MockPhotoLibraryAccess(

@@ -102,8 +102,8 @@ final class MemoryRemindersViewModelTests: XCTestCase {
         let photo = Photo(
             uri: "test://1", pet: pet,
             takenAt: date(2024, 8, 13),
-            note: "散步",
-            thumbnailPath: "thumb://1"
+            thumbnailPath: "thumb://1",
+            note: "散步"
         )
         let photoRepo = InMemoryPhotoRepository(photos: [photo])
         let petRepo = InMemoryPetRepository(pets: [pet])

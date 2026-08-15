@@ -282,16 +282,28 @@ final class EditorViewModel {
 
     // MARK: - 图层手势
 
+    /// 拖动吸附参考线显示状态（M2 质量项，规格 §4.3）：瞬态 UI 状态，不入历史；
+    /// 拖动中随吸附决策更新，手势结束/无吸附时复位。View 据此绘制中心参考线。
+    private(set) var showsSnapGuideX = false
+    private(set) var showsSnapGuideY = false
+
     func selectLayer(at point: CGPoint) {
         document.selectLayer(at: point)
         syncState()
     }
 
     func beginLayerGesture() { document.beginGesture() }
-    func endLayerGesture() { document.endGesture() }
+    func endLayerGesture() {
+        document.endGesture()
+        // 手势结束隐藏参考线（吸附仅拖动中生效）
+        showsSnapGuideX = false
+        showsSnapGuideY = false
+    }
 
     func moveActiveLayer(dx: Double, dy: Double) {
-        document.moveActiveLayer(dx: dx, dy: dy)
+        let snap = document.moveActiveLayer(dx: dx, dy: dy, canvasSize: canvasSize)
+        showsSnapGuideX = snap?.snapsX ?? false
+        showsSnapGuideY = snap?.snapsY ?? false
         document.pushHistory()
         syncState()
     }

@@ -82,12 +82,28 @@ final class EditorDocumentController {
         document.select(hit?.id)
     }
 
-    func moveActiveLayer(dx: Double, dy: Double) {
-        guard let layer = document.activeLayer else { return }
-        document.updateLayer(layer.id) { l in
-            l.x += dx
-            l.y += dy
+    /// 拖动活动图层（增量）：移动后应用中心吸附 + 中心 clamp（M2 质量项，规格 §4.3）。
+    /// 返回吸附决策（View 据此绘制中心参考线）；nil = 无活动图层或画布无效（不吸附）。
+    @discardableResult
+    func moveActiveLayer(dx: Double, dy: Double, canvasSize: CGSize) -> LayerSnapResult? {
+        guard let layer = document.activeLayer else { return nil }
+        guard canvasSize.width > 0, canvasSize.height > 0 else {
+            document.updateLayer(layer.id) { l in
+                l.x += dx
+                l.y += dy
+            }
+            return nil
         }
+        var snap: LayerSnapResult?
+        document.updateLayer(layer.id) { l in
+            let result = snapAndClampLayerCenter(
+                x: l.x + dx, y: l.y + dy,
+                canvasW: Double(canvasSize.width), canvasH: Double(canvasSize.height))
+            l.x = result.x
+            l.y = result.y
+            snap = result
+        }
+        return snap
     }
 
     /// 缩放活动图层：贴纸按视觉尺寸钳制（8%–70% 短边），其余维持 MIN/MAX_LAYER_SCALE。

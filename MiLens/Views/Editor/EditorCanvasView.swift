@@ -13,6 +13,10 @@ struct EditorCanvasView: View {
     /// 裁剪手势起点（onChanged 时用起点 + translation 计算新位置）。
     @State private var cropDragStart: EditorCropRect?
 
+    /// 图层拖动上次累计位移（DragGesture.translation 是相对手势起点的累计值，
+    /// moveActiveLayer 为增量语义：差值传入，否则重复累加导致图层超速漂移）。
+    @State private var layerDragLast: CGSize = .zero
+
     var body: some View {
         GeometryReader { geo in
             let canvasRect = Self.fitRect(container: geo.size, aspectRatio: viewModel.photoAspectRatio)
@@ -24,6 +28,7 @@ struct EditorCanvasView: View {
                     decorationLayers
                     textLayers
                     selectionBoxView(canvasRect: canvasRect)
+                    snapGuideLines(canvasRect: canvasRect)
                     if viewModel.tool == .crop {
                         cropOverlayView(canvasRect: canvasRect)
                     }
@@ -123,6 +128,29 @@ struct EditorCanvasView: View {
         }
     }
 
+    // MARK: - 拖动吸附中心参考线（M2 质量项，规格 §4.3）
+
+    /// 拖动中吸附对齐时显示画布水平/垂直中心参考线（铜色虚线，与选中框同色系）。
+    /// 出现/消失为瞬时切换，不附加动画（Reduce Motion 天然满足；吸附无回弹）。
+    @ViewBuilder
+    private func snapGuideLines(canvasRect: CGRect) -> some View {
+        if viewModel.showsSnapGuideX || viewModel.showsSnapGuideY {
+            Path { path in
+                if viewModel.showsSnapGuideX {
+                    path.move(to: CGPoint(x: canvasRect.width / 2, y: 0))
+                    path.addLine(to: CGPoint(x: canvasRect.width / 2, y: canvasRect.height))
+                }
+                if viewModel.showsSnapGuideY {
+                    path.move(to: CGPoint(x: 0, y: canvasRect.height / 2))
+                    path.addLine(to: CGPoint(x: canvasRect.width, y: canvasRect.height / 2))
+                }
+            }
+            .stroke(Color.milensActionPrimary.opacity(0.8),
+                    style: StrokeStyle(lineWidth: 1, dash: [4, 3]))
+            .allowsHitTesting(false)
+        }
+    }
+
     // MARK: - 裁剪覆盖层（遮罩/边框/九宫格/角标）
 
     @ViewBuilder
@@ -189,6 +217,7 @@ struct EditorCanvasView: View {
                 if viewModel.tool == .crop {
                     cropDragStart = nil
                 } else {
+                    layerDragLast = .zero
                     viewModel.endLayerGesture()
                 }
             }
@@ -224,6 +253,7 @@ struct EditorCanvasView: View {
     }
 
     /// 常规模式：无活动图层时点选（画布内坐标），有活动图层时拖动。
+    /// translation 为相对手势起点的累计值，取差值作为增量传给 moveActiveLayer。
     private func layerTapOrDragChanged(_ value: DragGesture.Value, canvasRect: CGRect) {
         if viewModel.activeLayerID == nil {
             let p = CGPoint(
@@ -234,7 +264,10 @@ struct EditorCanvasView: View {
         }
         if viewModel.activeLayerID != nil {
             viewModel.beginLayerGesture()
-            viewModel.moveActiveLayer(dx: value.translation.width, dy: value.translation.height)
+            let dx = value.translation.width - layerDragLast.width
+            let dy = value.translation.height - layerDragLast.height
+            layerDragLast = value.translation
+            viewModel.moveActiveLayer(dx: Double(dx), dy: Double(dy))
         }
     }
 

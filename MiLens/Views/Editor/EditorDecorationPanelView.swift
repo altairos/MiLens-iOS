@@ -11,6 +11,7 @@ import MiLensKit
 struct EditorDecorationPanelView: View {
     @Bindable var viewModel: EditorViewModel
     @Environment(\.proEntitlement) private var entitlement
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     var body: some View {
         @Bindable var panelVM = viewModel.decorationVM
@@ -28,7 +29,9 @@ struct EditorDecorationPanelView: View {
         }
         .background(Color.milensBackground)
         .overlay(alignment: .top) { stickerLimitToast(panelVM: panelVM) }
-        .animation(.easeInOut(duration: Motion.durationNormal), value: panelVM.showsStickerLimitToast)
+        // Reduce Motion（规格 §9.3）：关闭 toast 过渡动画，直接切换（信息不依赖动画传达）
+        .animation(reduceMotion ? nil : .easeInOut(duration: Motion.durationNormal),
+                   value: panelVM.showsStickerLimitToast)
     }
 
     // MARK: - 标题行
@@ -94,8 +97,11 @@ struct EditorDecorationPanelView: View {
         }
     }
 
+    /// 分组显示名（动态 key `decoration.group.*`）。运行时拼接 key 必须用
+    /// NSLocalizedString：String.LocalizationValue 插值会把 key 归一为
+    /// "decoration.group.%@" 导致查表失败、显示 key 原文（数据驱动本地化惯例）。
     private func groupName(_ id: String) -> String {
-        String(localized: String.LocalizationValue("decoration.group.\(id)"))
+        NSLocalizedString("decoration.group.\(id)", comment: "装饰面板分组名（动态 key）")
     }
 
     private func groupChip(title: String, isSelected: Bool, action: @escaping () -> Void) -> some View {
@@ -176,9 +182,12 @@ struct EditorDecorationPanelView: View {
             .accessibilityLabel(String(localized: "a11y.editor.decoration.proBadge"))
     }
 
+    /// 素材名与锁定态均为动态 key 查表（NSLocalizedString，同 groupName 理由）；
+    /// key 缺失时回退 key 原文（素材 name key 由导入流程手工维护于 xcstrings）。
     private func cellA11yLabel(_ item: DecorationItem, isLocked: Bool) -> String {
-        guard isLocked else { return item.name }
-        return "\(item.name)，\(String(localized: "a11y.editor.decoration.proBadge"))"
+        let name = NSLocalizedString(item.name, comment: "装饰素材显示名（动态 key）")
+        guard isLocked else { return name }
+        return "\(name)，\(String(localized: "a11y.editor.decoration.proBadge"))"
     }
 
     // MARK: - 空态与提示

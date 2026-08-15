@@ -219,7 +219,7 @@ python tools/frame_import.py list
 ### M2：质量与扩充
 
 - [ ] 贴纸扩展到 12–18 个，并完成主题一致性评审。
-- [ ] 增加中心参考线、边界 clamp、VoiceOver 和 Reduce Motion 行为。
+- [ ] 增加中心参考线、边界 clamp、VoiceOver 和 Reduce Motion 行为。（2026-08-15 代码落地：`snapAndClampLayerCenter` 6pt 吸附/离开立即释放/中心 clamp + 画布瞬时参考线 + 拖动累计 translation 缺陷修复 + 分组名/素材名动态 key VoiceOver 修复 + toast Reduce Motion；MiLensKit 9 用例 WSL2 全绿，App VM 6 用例已写未跑，勾选待 Mac/CI XCTest 与真机验收）
 - [ ] 完成 iPhone/iPad、深色模式、Dynamic Type、低内存和多比例导出验收。
 - [ ] 通过 Mac 模拟器、真机和 CI 质量门禁后再解除功能开关。
 
@@ -231,6 +231,7 @@ python tools/frame_import.py list
 - 添加第二个相框替换第一个，撤销/重做能恢复正确素材。
 - 相框中心点、尺寸、固定变换属性正确。
 - 贴纸默认尺寸/位置、最大数量、缩放范围和边界 clamp 正确。
+- 拖动中心吸附（6pt 阈值进入/离开立即释放、两轴独立）与中心 clamp、参考线决策正确。
 - 画布横竖比变化后，相框铺满，贴纸和文字相对位置稳定。
 - 稳定合成顺序不受添加顺序影响。
 - 分组顺序、素材排序、Pro 可用性和空目录决策正确。

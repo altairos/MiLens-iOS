@@ -44,6 +44,47 @@ public let STICKER_MAX_VISUAL_RATIO: Double = 0.70
 /// 贴纸图层数量上限。
 public let STICKER_LAYER_LIMIT = 20
 
+/// 拖动吸附阈值（pt，规格 §4.3）：图层中心距画布中心线 ≤ 该值时吸附对齐。
+public let LAYER_SNAP_THRESHOLD: Double = 6
+
+/// 拖动吸附决策结果：吸附后的中心位置 + 各轴参考线是否显示（View 绘制依据）。
+public struct LayerSnapResult: Sendable, Equatable {
+    public let x: Double
+    public let y: Double
+    /// 已对齐垂直中心线（x 轴）→ 显示垂直参考线。
+    public let snapsX: Bool
+    /// 已对齐水平中心线（y 轴）→ 显示水平参考线。
+    public let snapsY: Bool
+
+    public init(x: Double, y: Double, snapsX: Bool, snapsY: Bool) {
+        self.x = x
+        self.y = y
+        self.snapsX = snapsX
+        self.snapsY = snapsY
+    }
+}
+
+/// 拖动中的图层位置决策（M2 质量项）：中心吸附到画布中心线 + 中心 clamp 在画布内。
+/// 语义（规格 §4.3）：进入阈值吸附、离开立即释放（每次调用独立判定，无滞后）；
+/// 贴纸/文字共用（贴纸完全不出界由创建落点保证，拖动允许中心为界的半出画布，
+/// 保证图层可见可拖回）。画布非法（宽高 ≤ 0）时原样返回，不吸附不 clamp。
+public func snapAndClampLayerCenter(
+    x: Double, y: Double,
+    canvasW: Double, canvasH: Double,
+    threshold: Double = LAYER_SNAP_THRESHOLD
+) -> LayerSnapResult {
+    guard canvasW > 0, canvasH > 0 else {
+        return LayerSnapResult(x: x, y: y, snapsX: false, snapsY: false)
+    }
+    let cx = canvasW / 2, cy = canvasH / 2
+    let snapsX = abs(x - cx) <= threshold
+    let snapsY = abs(y - cy) <= threshold
+    // 吸附值即中心线（必在画布内），clamp 只作用于未吸附轴
+    let clampedX = min(max(snapsX ? cx : x, 0), canvasW)
+    let clampedY = min(max(snapsY ? cy : y, 0), canvasH)
+    return LayerSnapResult(x: clampedX, y: clampedY, snapsX: snapsX, snapsY: snapsY)
+}
+
 /// 钳制贴纸视觉尺寸：显示尺寸（素材宽高较大者 × scale）约束在画布短边 8%–70%。
 /// 画布非法或素材尺寸非法（≤ 0）时原样返回 scale（无有效基准，交由调用方兜底）。
 public func clampStickerVisualScale(

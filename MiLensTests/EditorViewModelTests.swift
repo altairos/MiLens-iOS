@@ -735,4 +735,103 @@ final class EditorViewModelTests: XCTestCase {
         XCTAssertNil(vm.decorationVM.currentFrameResourcePath)
         XCTAssertFalse(vm.decorationVM.hasActiveSticker)
     }
+
+    // MARK: - 拖动吸附 / 中心参考线（M2 质量项，规格 §4.3）
+    // 未执行：Windows 环境无法跑 App target XCTest，待 Mac/CI 验证。
+    // 首个贴纸落点（画布 400×300）：短边 300×22%=66，偏移 18%×300=54 → 中心 (254, 96)；
+    // 画布中心线 (200, 150)。阈值 LAYER_SNAP_THRESHOLD=6。
+
+    /// 增量语义守护：连续两次 dx=10 → 总位移 20（View 层 DragGesture 差值传入的前提）。
+    func testMoveActiveLayerUsesIncrementalDeltas() async {
+        let vm = await makeLoadedVM(catalog: makeDecorationCatalog())
+        vm.selectTool(.sticker)
+        vm.decorationVM.addSticker(vm.decorationCatalog.find("sticker_paw")!, isPro: true)
+
+        vm.moveActiveLayer(dx: 10, dy: 5)
+        vm.moveActiveLayer(dx: 10, dy: 5)
+
+        let sticker = vm.layers.first { $0.type == .sticker }!
+        XCTAssertEqual(sticker.x, 254 + 20, accuracy: 1e-9)
+        XCTAssertEqual(sticker.y, 96 + 10, accuracy: 1e-9)
+        XCTAssertFalse(vm.showsSnapGuideX) // 两轴距中心均远超阈值，无参考线
+        XCTAssertFalse(vm.showsSnapGuideY)
+    }
+
+    /// 进入阈值吸附：y 轴先入阈值（吸附 + 水平参考线），再 x 轴入阈值（双参考线）；
+    /// 手势结束后参考线隐藏（吸附仅拖动中生效）。
+    func testDragWithinThresholdSnapsAndShowsGuides() async {
+        let vm = await makeLoadedVM(catalog: makeDecorationCatalog())
+        vm.selectTool(.sticker)
+        vm.decorationVM.addSticker(vm.decorationCatalog.find("sticker_paw")!, isPro: true)
+
+        vm.beginLayerGesture()
+        // (254,96) → (207,148)：x 距中心 7（>6 不吸附），y 距中心 2（≤6 吸附）
+        vm.moveActiveLayer(dx: -47, dy: 52)
+        var sticker = vm.layers.first { $0.type == .sticker }!
+        XCTAssertEqual(sticker.x, 207, accuracy: 1e-9)
+        XCTAssertEqual(sticker.y, 150, accuracy: 1e-9)
+        XCTAssertFalse(vm.showsSnapGuideX)
+        XCTAssertTrue(vm.showsSnapGuideY)
+
+        // (207,148) → (200,148)：x 进入阈值，双轴吸附对齐
+        vm.moveActiveLayer(dx: -7, dy: 0)
+        sticker = vm.layers.first { $0.type == .sticker }!
+        XCTAssertEqual(sticker.x, 200, accuracy: 1e-9)
+        XCTAssertEqual(sticker.y, 150, accuracy: 1e-9)
+        XCTAssertTrue(vm.showsSnapGuideX)
+        XCTAssertTrue(vm.showsSnapGuideY)
+
+        // 手势结束：参考线复位
+        vm.endLayerGesture()
+        XCTAssertFalse(vm.showsSnapGuideX)
+        XCTAssertFalse(vm.showsSnapGuideY)
+    }
+
+    /// 离开阈值立即释放（无滞后）：同一手势内从吸附态拖离，位置原样、参考线熄灭。
+    func testDragBeyondThresholdReleasesImmediately() async {
+        let vm = await makeLoadedVM(catalog: makeDecorationCatalog())
+        vm.selectTool(.sticker)
+        vm.decorationVM.addSticker(vm.decorationCatalog.find("sticker_paw")!, isPro: true)
+
+        vm.beginLayerGesture()
+        vm.moveActiveLayer(dx: -54, dy: 54) // → (200,150) 精确中心，双轴吸附
+        XCTAssertTrue(vm.showsSnapGuideX)
+        XCTAssertTrue(vm.showsSnapGuideY)
+
+        vm.moveActiveLayer(dx: 20, dy: 0) // → (220,150)：x 离开阈值立即释放，y 保持吸附
+        let sticker = vm.layers.first { $0.type == .sticker }!
+        XCTAssertEqual(sticker.x, 220, accuracy: 1e-9)
+        XCTAssertEqual(sticker.y, 150, accuracy: 1e-9)
+        XCTAssertFalse(vm.showsSnapGuideX)
+        XCTAssertTrue(vm.showsSnapGuideY)
+    }
+
+    /// 中心 clamp：拖出画布时中心钳在 [0, W]×[0, H]（保留半幅可见可拖回）。
+    func testDragCenterClampedToCanvasBounds() async {
+        let vm = await makeLoadedVM(catalog: makeDecorationCatalog())
+        vm.selectTool(.sticker)
+        vm.decorationVM.addSticker(vm.decorationCatalog.find("sticker_paw")!, isPro: true)
+
+        vm.beginLayerGesture()
+        vm.moveActiveLayer(dx: -300, dy: 300) // → (-46,396)：clamp 到 (0,300)
+        let sticker = vm.layers.first { $0.type == .sticker }!
+        XCTAssertEqual(sticker.x, 0, accuracy: 1e-9)
+        XCTAssertEqual(sticker.y, 300, accuracy: 1e-9)
+        XCTAssertFalse(vm.showsSnapGuideX)
+        XCTAssertFalse(vm.showsSnapGuideY)
+    }
+
+    /// 无活动图层：移动静默（photo 为 passive 不可选），参考线保持隐藏。
+    func testMoveWithoutActiveLayerKeepsGuidesHidden() async {
+        let vm = await makeLoadedVM()
+        XCTAssertNil(vm.activeLayerID)
+
+        vm.moveActiveLayer(dx: 10, dy: 10)
+
+        XCTAssertEqual(vm.layers.count, 1) // 仅底图，位置不变
+        XCTAssertEqual(vm.layers[0].x, 200, accuracy: 1e-9)
+        XCTAssertEqual(vm.layers[0].y, 150, accuracy: 1e-9)
+        XCTAssertFalse(vm.showsSnapGuideX)
+        XCTAssertFalse(vm.showsSnapGuideY)
+    }
 }

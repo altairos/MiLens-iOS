@@ -13,10 +13,12 @@ import os
 
 /// 引导流程导入执行器：把已确认候选写入档案 + 强制归属到刚创建的宠物。
 /// 闭包注入便于生产环境复用 ImportService、测试环境注入模拟实现。
+/// onProgress 必须 @escaping：async 执行器内被 ImportService 的进度回
+/// 调捕获，跨 await 点调用（non-escaping 参数被 escaping 闭包捕获会拒绝编译）。
 typealias OnboardingImportExecutor = @MainActor (
     _ identifiers: [String],
     _ targetPetID: UUID?,
-    _ onProgress: @MainActor (Double) -> Void
+    _ onProgress: @escaping @MainActor (Double) -> Void
 ) async -> Int
 
 @MainActor

@@ -111,12 +111,15 @@ final class IOSFileStorage: FileStorage, @unchecked Sendable {
         guard fileExists(at: path) else {
             throw FileStorageError.fileNotFound(path)
         }
-        guard let handle = FileHandle(forReadingFrom: URL(fileURLWithPath: path)) else {
+        // iOS 15+ 的 init(forReadingFrom:) 为 throws 非可选初始化器
+        //（旧 failable 写法已不可用）；文件大小复用 fileSize helper（FileManager 属性）。
+        let handle: FileHandle
+        do {
+            handle = try FileHandle(forReadingFrom: URL(fileURLWithPath: path))
+        } catch {
             throw FileStorageError.fileNotFound(path)
         }
-        let attrs = try handle.attributes()
-        let size = (attrs[.size] as? Int64) ?? 0
-        return IOSFileInputStream(handle: handle, size: size)
+        return IOSFileInputStream(handle: handle, size: fileSize(at: path) ?? 0)
     }
 
     // MARK: - 私有
@@ -243,7 +246,10 @@ final class IOSFileInputStream: ZipInputStream, @unchecked Sendable {
     func read(offset: Int64, length: Int) async throws -> Data {
         guard !closed else { throw FileStorageError.fileNotFound("stream closed") }
         try handle.seek(toOffset: UInt64(offset))
-        let data = try handle.read(upToCount: length)
+        // read(upToCount:) 返回 Data?（读取错误时为 nil；EOF 返回空 Data）。
+        guard let data = try handle.read(upToCount: length) else {
+            throw FileStorageError.fileNotFound("read failed")
+        }
         return data
     }
 

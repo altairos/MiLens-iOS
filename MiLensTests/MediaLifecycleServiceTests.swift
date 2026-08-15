@@ -253,6 +253,7 @@ private final class FailingPhotoRepository: PhotoRepositoryProtocol {
     func getAllOriginalURIs() throws -> Set<String> { try wrapped.getAllOriginalURIs() }
     func getAllPhotoURIs() throws -> Set<String> { try wrapped.getAllPhotoURIs() }
     func countAllPhotos() throws -> Int { try wrapped.countAllPhotos() }
+    func getLatestPhotoDate() throws -> Date? { try wrapped.getLatestPhotoDate() }
     func getPhotosPage(offset: Int, limit: Int) throws -> [Photo] { try wrapped.getPhotosPage(offset: offset, limit: limit) }
     func getPhotosByPet(_ pet: Pet) throws -> [Photo] { try wrapped.getPhotosByPet(pet) }
     func getUnassignedPhotos(limit: Int) throws -> [Photo] { try wrapped.getUnassignedPhotos(limit: limit) }

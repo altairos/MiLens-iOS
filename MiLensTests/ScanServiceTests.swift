@@ -474,6 +474,7 @@ private final class FailingPhotoRepository: PhotoRepositoryProtocol {
     func getAllOriginalURIs() throws -> Set<String> { throw MockScanError.repoFailure }
     func getAllPhotoURIs() throws -> Set<String> { [] }
     func countAllPhotos() throws -> Int { 0 }
+    func getLatestPhotoDate() throws -> Date? { nil }
     func getPhoto(id: UUID) throws -> Photo? { nil }
     func getPhotoByURI(_ uri: String) throws -> Photo? { nil }
     func getPhotoByOriginalURI(_ originalURI: String) throws -> Photo? { nil }

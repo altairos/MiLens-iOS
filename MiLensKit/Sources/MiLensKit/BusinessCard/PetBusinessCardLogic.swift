@@ -313,10 +313,11 @@ public enum PetBusinessCardLogic {
         guard let scalar = character.unicodeScalars.first, isCJKIdeograph(scalar) else { return nil }
         #if canImport(UIKit) || canImport(AppKit)
         let mutable = NSMutableString(string: String(character))
-        // 用 C 原名 kCF 常量：Swift 化无 k 前缀名（CFStringTransformToLatin）
-        // 在 CI SDK 中不可见（cannot find in scope）
-        CFStringTransform(mutable, nil, kCFStringTransformToLatin, false)
-        CFStringTransform(mutable, nil, kCFStringTransformStripDiacriticalMarks, false)
+        // transform 常量名跨 SDK 可见性不稳（kCF 与无 k 前缀名均有 not found
+        // 实测），直接用等价 ICU 规则字符串（常量本身即这些规则的别名）：
+        //   Any-Latin = 汉字→拼音拉丁；NFD+去组合符号+NFC = 去声调
+        CFStringTransform(mutable, nil, "Any-Latin" as CFString, false)
+        CFStringTransform(mutable, nil, "NFD; [:Nonspacing Mark:] Remove; NFC" as CFString, false)
         for letter in String(mutable).lowercased() where letter.isLetter {
             return String(letter).uppercased()
         }

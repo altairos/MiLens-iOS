@@ -559,15 +559,31 @@ def normalize_localized_key(key: str) -> str:
     return key
 
 
+# 数据驱动动态 key 的行级豁免标记：调用所在行尾带此注释时跳过提取
+# （key 运行时拼接、无法静态枚举，如 NSLocalizedString("decoration.group.\(id)")）
+_DYNAMIC_MARK = "// loc:dynamic"
+
+
 def extract_code_keys(source_root: Path) -> set[str]:
-    """扫描 Swift 源码中引用的本地化 key。"""
+    """扫描 Swift 源码中引用的本地化 key。
+
+    行内带 `// loc:dynamic` 标记的调用是数据驱动动态 key（运行时拼接查表，
+    具体 key 由导入流程手工维护于 xcstrings），跳过以免 check 误报缺 key。
+    """
     keys: set[str] = set()
     for swift in source_root.rglob("*.swift"):
         try:
             text = swift.read_text(encoding="utf-8")
         except (OSError, UnicodeDecodeError):
             continue
-        keys.update(_KEY_RE.findall(text))
+        for m in _KEY_RE.finditer(text):
+            line_start = text.rfind("\n", 0, m.start()) + 1
+            line_end = text.find("\n", m.start())
+            if line_end == -1:
+                line_end = len(text)
+            if _DYNAMIC_MARK in text[line_start:line_end]:
+                continue
+            keys.add(m.group(1))
     return keys
 
 

@@ -101,7 +101,7 @@ struct EditorDecorationPanelView: View {
     /// NSLocalizedString：String.LocalizationValue 插值会把 key 归一为
     /// "decoration.group.%@" 导致查表失败、显示 key 原文（数据驱动本地化惯例）。
     private func groupName(_ id: String) -> String {
-        NSLocalizedString("decoration.group.\(id)", comment: "装饰面板分组名（动态 key）")
+        NSLocalizedString("decoration.group.\(id)", comment: "装饰面板分组名（动态 key）")  // loc:dynamic
     }
 
     private func groupChip(title: String, isSelected: Bool, action: @escaping () -> Void) -> some View {

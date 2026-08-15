@@ -169,6 +169,38 @@ class HardcodedTests(unittest.TestCase):
         self.assertEqual(loc._decode_swift_string('a\\"b'), 'a"b')
 
 
+class ExtractCodeKeysTests(unittest.TestCase):
+    def setUp(self) -> None:
+        self._dir = tempfile.TemporaryDirectory()
+        self.root = Path(self._dir.name)
+
+    def tearDown(self) -> None:
+        self._dir.cleanup()
+
+    def _write(self, name: str, content: str) -> None:
+        (self.root / name).write_text(content, encoding="utf-8")
+
+    def test_extracts_literal_keys(self):
+        self._write("V.swift",
+                    'let a = String(localized: "k.a")\n'
+                    'let b = NSLocalizedString("k.b", comment: "")\n')
+        self.assertEqual(loc.extract_code_keys(self.root), {"k.a", "k.b"})
+
+    def test_dynamic_mark_skips_line(self):
+        # 数据驱动动态 key：行内 loc:dynamic 标记豁免提取，同文件其他行不受影响
+        self._write("V.swift",
+                    'NSLocalizedString("decoration.group.\\(id)", comment: "")  // loc:dynamic\n'
+                    'NSLocalizedString("k.normal", comment: "")\n')
+        self.assertEqual(loc.extract_code_keys(self.root), {"k.normal"})
+
+    def test_mark_only_affects_own_line(self):
+        # 标记只在所在行生效（行级语义，不是文件级）
+        self._write("V.swift",
+                    '// loc:dynamic\n'
+                    'let a = String(localized: "k.a")\n')
+        self.assertEqual(loc.extract_code_keys(self.root), {"k.a"})
+
+
 class NormalizeKeyTests(unittest.TestCase):
     def test_interpolation_normalized(self):
         self.assertEqual(loc.normalize_localized_key("k \\(x)"), "k %lld")

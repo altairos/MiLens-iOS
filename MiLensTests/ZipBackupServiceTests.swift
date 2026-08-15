@@ -676,7 +676,10 @@ final class ZipBackupServiceTests: XCTestCase {
             exportDate: Date(),
             photoCount: 0,
             petCount: 0)
-        entries[manifestIdx] = ZipEntry(path: BackupConfig.manifestFileName, data: try JSONEncoder().encode(tampered))
+        // manifest 的 exportDate 解码用 ISO8601：篡改重打包须对称编码，否则先抛 typeMismatch 而非版本错
+        let encoder = JSONEncoder()
+        encoder.dateEncodingStrategy = .iso8601
+        entries[manifestIdx] = ZipEntry(path: BackupConfig.manifestFileName, data: try encoder.encode(tampered))
         let tamperedZip = ZipWriter.archive(entries: entries)
         try await sharedFS.write(tamperedZip, to: backup.fileURLs[0].path)
 

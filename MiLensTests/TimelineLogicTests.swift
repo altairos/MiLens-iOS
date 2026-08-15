@@ -152,7 +152,7 @@ final class TimelineLogicTests: XCTestCase {
                                   eventDate: date(2024, 3, 10), title: "")
         let entries = TimelineLogic.buildTimelineEntries(
             input(pets: [p], petEvents: [ev], now: date(2026, 1, 1)), calendar: cal)
-        XCTAssertEqual(entries.first?.title, "Max的纪念日")
+        XCTAssertEqual(entries.first?.title, "和Max成为家人的日子")
     }
 
     func testBuildTimelineEntriesSortsEntriesByDateAscending() {

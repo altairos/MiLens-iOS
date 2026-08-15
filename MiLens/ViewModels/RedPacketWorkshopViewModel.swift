@@ -412,7 +412,13 @@ final class RedPacketWorkshopViewModel {
 
     func undo() {
         isTextEditing = false
-        let (newState, restored) = RedPacketHistoryLogic.undo(history)
+        // push 约定为「编辑前快照」：live draft 可能领先栈顶一步。
+        // 撤销前先把当前 live 提交为当前态，再走 Kit 的 pop-current 语义恢复上一状态。
+        var effective = history
+        if history.undoStack.last != draft {
+            effective = RedPacketHistoryLogic.push(current: history, draft: draft)
+        }
+        let (newState, restored) = RedPacketHistoryLogic.undo(effective)
         history = newState
         if let restored {
             draft = restored

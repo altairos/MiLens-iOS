@@ -77,7 +77,11 @@ final class NotifyServiceTests: XCTestCase {
 
         await service.rescheduleAllReminders(now: date(2026, 8, 8), calendar: calendar)
 
-        XCTAssertTrue(poster.scheduled.isEmpty)
+        // 无纪念日宠物：不调度宠物相关纪念通知（备份/新照片提醒独立于宠物数据，由各自条件决定）
+        XCTAssertTrue(poster.scheduled.filter {
+            $0.identifier.hasPrefix(NotifyService.anniversaryIdentifierPrefix)
+                || $0.identifier.hasPrefix(NotifyService.milestoneIdentifierPrefix)
+        }.isEmpty)
     }
 
     func testBirthdayNotificationUsesPetSpecificTitleAndBody() async {
@@ -226,8 +230,11 @@ final class NotifyServiceTests: XCTestCase {
         await service.rescheduleAllReminders(now: date(2026, 8, 8), calendar: calendar)
 
         XCTAssertEqual(poster.removeAllCount, 2)
-        // 同一 identifier 重复调度由系统覆盖（mock 追加记录），去重后仍只有一份数据
-        XCTAssertEqual(Set(poster.scheduled.map(\.identifier)).count, 1)
+        // 同一 identifier 重复调度由系统覆盖（mock 追加记录）：宠物纪念 + 备份 + 新照片提醒，去重后各自唯一
+        let identifiers = Set(poster.scheduled.map(\.identifier))
+        XCTAssertTrue(identifiers.contains(NotifyService.anniversaryIdentifier(for: pet, kind: .birthday)))
+        XCTAssertTrue(identifiers.contains(NotifyService.backupReminderIdentifier))
+        XCTAssertTrue(identifiers.contains(NotifyService.newPhotoReminderIdentifier))
     }
 
     // MARK: - 宠物编辑/删除局部更新

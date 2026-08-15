@@ -7,7 +7,7 @@ import MiLensKit
 
 final class PetCardLogicTests: XCTestCase {
 
-    private let fixedNow = Date(timeIntervalSince1970: 1_752_000_000) // 2025-07-16 UTC 附近
+    private let fixedNow = Date(timeIntervalSince1970: 1_752_000_000) // 2025-07-08 18:40 UTC
     private let calendar = PetDateCalendar.gregorian
 
     private func makePet(
@@ -22,7 +22,7 @@ final class PetCardLogicTests: XCTestCase {
     // MARK: - 有宠物
 
     func testContentWithPetAndAdoptionDayUsesAnniversaryLine() {
-        // 领养日 100 天前 → 日期行优先「来到家 100 天」而非拍摄日期
+        // 领养日 100 天前 → 日期行优先「来到家100天」而非拍摄日期（xcstrings 无空格）
         let adoption = fixedNow.addingTimeInterval(-100 * 86_400)
         let pet = makePet(adoptionDay: adoption)
         let content = PetCardLogic.content(
@@ -31,7 +31,7 @@ final class PetCardLogicTests: XCTestCase {
         XCTAssertEqual(content.title, "咪咪")
         XCTAssertEqual(content.emoji, "\u{1F431}")
         XCTAssertEqual(content.subtitle, "喵星人", "年龄未知时副标题只显示物种")
-        XCTAssertEqual(content.dateLine, "来到家 100 天")
+        XCTAssertEqual(content.dateLine, "来到家100天")
     }
 
     func testContentSubtitleIncludesAgeWhenBirthdayKnown() {
@@ -97,21 +97,21 @@ final class PetCardLogicTests: XCTestCase {
     // MARK: - kind 驱动文案变体（ADR-0010 §10.11）
 
     func testMilestoneKindUsesDaysHomeLine() {
-        let adoption = fixedNow.addingTimeInterval(-365 * 86_400)
+        let adoption = fixedNow.addingTimeInterval(-150 * 86_400)
         let pet = makePet(adoptionDay: adoption)
         let content = PetCardLogic.content(
             pet: pet, takenAt: fixedNow, now: fixedNow, calendar: calendar, kind: .milestone)
-        // 里程碑与领养日语义同源，均显示「来到家 N 天」
+        // 里程碑与领养日语义同源；文案随相处天数分档，150 天落在「来到家」档
         XCTAssertTrue(content.dateLine.contains("来到家"))
-        XCTAssertTrue(content.dateLine.contains("365"))
+        XCTAssertTrue(content.dateLine.contains("150"))
     }
 
     func testBirthdayKindUsesBirthdayYearsLine() {
-        let birthday = calendar.date(from: DateComponents(year: 2022, month: 7, day: 16))!
+        let birthday = calendar.date(from: DateComponents(year: 2022, month: 7, day: 1))!
         let pet = makePet(birthday: birthday)
         let content = PetCardLogic.content(
             pet: pet, takenAt: fixedNow, now: fixedNow, calendar: calendar, kind: .birthday)
-        // 3 岁生日
+        // fixedNow 2025-07-08，生日 2022-07-01 → 3 岁
         XCTAssertTrue(content.dateLine.contains("3"))
     }
 

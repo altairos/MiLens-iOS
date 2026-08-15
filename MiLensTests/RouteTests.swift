@@ -19,10 +19,19 @@ final class RouteTests: XCTestCase {
     }
 
     func testProFeatureCatalogContainsOnlyImplementedV1Features() {
-        XCTAssertEqual(ProFeature.allCases, [.petProfiles, .beadGeneration, .timeline])
+        XCTAssertEqual(ProFeature.allCases, [
+            .petProfiles, .photoStorage, .beadGeneration, .timeline,
+            .watermarkFreeExport, .cardTemplates, .timelineExport, .offlineBackup, .albumModes
+        ])
         XCTAssertEqual(
             ProFeature.allCases.map(\.localizationKey),
-            ["paywall.benefit.profiles", "paywall.benefit.beadQuota", "paywall.benefit.timeline"]
+            [
+                "paywall.benefit.profiles", "paywall.benefit.photoStorage",
+                "paywall.benefit.beadQuota", "paywall.benefit.timeline",
+                "paywall.benefit.watermarkFree", "paywall.benefit.cardTemplates",
+                "paywall.benefit.timelineExport", "paywall.benefit.offlineBackup",
+                "paywall.benefit.albumModes"
+            ]
         )
     }
 }

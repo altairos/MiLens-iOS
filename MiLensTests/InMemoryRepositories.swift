@@ -49,7 +49,14 @@ final class InMemoryPhotoRepository: PhotoRepositoryProtocol {
             }
             .sorted { ($0.takenAt ?? .distantPast) > ($1.takenAt ?? .distantPast) }
     }
-    func insertPhoto(_ photo: Photo) throws { photos.append(photo) }
+    func insertPhoto(_ photo: Photo) throws {
+        photos.append(photo)
+        // 维护双向关系与计数（SwiftData @Model 自动维护，mock 需手动；对齐 assignPhoto 的注释约定）
+        if let pet = photo.pet, !pet.photos.contains(where: { $0.id == photo.id }) {
+            pet.photos.append(photo)
+            pet.photoCount = pet.photos.count
+        }
+    }
     func insertPhotos(_ photos: [Photo]) throws { self.photos.append(contentsOf: photos) }
     func deletePhoto(_ photo: Photo) throws { photos.removeAll { $0.id == photo.id } }
     func updatePhoto(_ photo: Photo) throws { updatedPhoto = photo }

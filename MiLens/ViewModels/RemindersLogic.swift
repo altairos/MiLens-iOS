@@ -288,7 +288,7 @@ enum RemindersLogic {
         originalDate: Date, title: String, petName: String, petID: UUID,
         kind: UpcomingReminder.Kind, now: Date, cal: Calendar
     ) -> UpcomingReminder? {
-        let comp = cal.dateComponents([.month, .day], from: originalDate)
+        let comp = cal.dateComponents([.month, .day, .hour, .minute], from: originalDate)
         guard let month = comp.month, let day = comp.day else { return nil }
 
         let nowYear = cal.component(.year, from: now)
@@ -296,6 +296,9 @@ enum RemindersLogic {
         dc.year = nowYear
         dc.month = month
         dc.day = day
+        // 保留原始时刻（周年推进只换年份，不改当天触发时刻）
+        dc.hour = comp.hour ?? 0
+        dc.minute = comp.minute ?? 0
         guard let thisYear = cal.date(from: dc) else { return nil }
 
         // 如果今年已过，取明年

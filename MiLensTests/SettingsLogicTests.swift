@@ -93,11 +93,12 @@ final class SettingsLogicTests: XCTestCase {
 
     // MARK: - 字体许可与外链
 
-    func testFontCreditsCoverBothEmbeddedFontsWithOFL() {
+    func testFontCreditsCoverAllEmbeddedFontsWithOFL() {
         let names = SettingsLogic.fontCredits.map(\.name)
-        XCTAssertEqual(names.count, 2)
+        XCTAssertEqual(names.count, 3)
         XCTAssertTrue(names.contains { $0.contains("霞鹜文楷") })
         XCTAssertTrue(names.contains { $0.contains("Fraunces") })
+        XCTAssertTrue(names.contains { $0.contains("Jacques Francois") })
         for credit in SettingsLogic.fontCredits {
             XCTAssertTrue(credit.licenseName.contains("SIL Open Font License"))
             XCTAssertNotNil(URL(string: credit.sourceURL))

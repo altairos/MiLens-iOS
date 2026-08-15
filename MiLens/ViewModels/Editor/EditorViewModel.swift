@@ -197,6 +197,8 @@ final class EditorViewModel {
             type: .photo, width: CGFloat(decoded.width), height: CGFloat(decoded.height)
         )
         document.addPassive(&photoLayer)
+        // 底图 passive 不可选中：清掉 addPassive 在无活动图层时的防御性激活（对齐 applyFrame 添加后清选中）
+        document.select(nil)
         document.resetHistory()
         isPhotoLoading = false
         photoLoaded = true

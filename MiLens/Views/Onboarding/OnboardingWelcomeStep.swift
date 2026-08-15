@@ -158,8 +158,9 @@ struct OnboardingWelcomeStep: View {
                     }
                 }
             }
-            .toggleStyle(.plain)
-            .labelsHidden()
+            // ToggleStyle 无 .plain（那是 ButtonStyle 成员）；.button 样式无边框、
+            // label 原样显示，点击由 Toggle 消费不与外层整行 tap 手势叠加。
+            .toggleStyle(.button)
             .padding(.leading, 11)
 
             Spacer()

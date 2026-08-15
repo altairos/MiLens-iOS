@@ -562,6 +562,8 @@ P1 核心可靠性与性能六项修复全部落地（实现记录见状态摘�
 
 - 2026-08-15：**相框贴纸 M0+M1/阻塞项全量复核（纯文档改动）**——对照[开发计划](docs/Frame-Sticker-Development-Plan.md)逐项核对 §3.2 八个阻塞项与 §8 M0/M1 的代码证据：阻塞项全部修复属实（快照字段/相框中心/ratioSet 同源解析/ninePatch 分块预览/稳定排序/命中排除相框/画布重映射/分组稳定 ID，各有 Kit 纯函数 + 用例）；M1 交互链路完整（面板三态/相框替换/贴纸手势/历史/保存/付费墙）。发现两处此前未跟踪的缺口并回写文档：①素材错误诊断未达 §7.2——导出端素材缺失静默跳过且保存仍报成功（M0 第 3 项部分未完成）；②App 渲染级单测未写（§9.2 逐像素一致/透明通道/缺素材用例，现有为 VM 级）。另确认 `catalog.json` 实为空目录（素材导入未开始，M1 第 3 项），入口按 §10 门禁自动隐藏。M0/M1 复选框补落地注记（保持未勾，待 Mac/CI）；Phase 4 新增诊断收口待办。
 
+- 2026-08-15：**CI 首次全绿 + 审计收口（audit-4/5/6）**——仓库转 public 后额度无限，以 CI 代偿 Mac 验证完成 remediation-plan P0-1/P0-2：**25 轮修复链**（编译恢复 r1-8 → 严格并发/测试 target r9-17 → 运行时 r18-19 → 覆盖率门禁 r20-25）终结于 [run 31900122759](https://github.com/altairos/MiLens-iOS/actions/runs/31900122759) 四作业全绿：Kit 1113（Linux）+ App 894（模拟器）+ UI 2 = **2009 用例 0 failed**，lint 四项全过（含 08-14 接入的规模/隔离守卫），覆盖率门禁首次对真实数据 PASS（App 加权 line 16.2% ≥ 基线 13%，实测校准消除 R4）。audit-5：README/DESIGN/PLAN/DEVELOPMENT 测试数字统一为 CI 实测 2009（消除 R5）。audit-6：产出 [verification-recovery-report.md](docs/audit/verification-recovery-report.md)（R1 实证链 + 风险表状态：R1-R5/R8/R9 六项消除，新增 N1 App 覆盖 0% 大文件清单 P1-4）；remediation-plan 进度注记同步。**未执行**：真机验证与性能基准（P2-3，需 iPhone）。
+
 ---
 
 ## 数据安全与跨设备迁移（2026-08-12 规划）

@@ -1,5 +1,7 @@
 # MiLens iOS 工程系统审计报告
 
+> **2026-08-15 收口**：R1/R4/R5 已消除（CI 首绿 run 31900122759），R2/R8/R9 已消除（08-14 整改批次）；风险状态更新与新增发现见 [verification-recovery-report.md](verification-recovery-report.md)。本文为 08-14 审计原始快照，证据引用保持原样。
+
 - **审计日期**：2026-08-14
 - **审计快照**：main 分支（HEAD `e2a91c4`），工作区干净
 - **审计方法**：静态代码取证（Grep/行数统计/注解扫描）+ 文档交叉核对（DESIGN/PLAN/DEVELOPMENT/README/AGENTS/project.yml/ci.yml/ADR）+ CI 门禁脚本审读。全部发现附证据引用；未执行 Mac 编译与 XCTest（Windows 环境，与 R1 同源限制）。

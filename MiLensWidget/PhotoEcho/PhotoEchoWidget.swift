@@ -99,28 +99,30 @@ struct PhotoEchoWidgetView: View {
         return hasPets ? "留下一张照片" : "先建立一份伙伴档案"
     }
 
+    // ViewBuilder 不支持 guard 语句（首次编译暴露）：改用 if let 结构，
+    // 空态分支保持原语义（无快照 → 等待同步；有快照但选不出照片 → 空态文案）。
     @ViewBuilder
     private var contentView: some View {
-        guard let snapshot = entry.snapshot else {
+        if let snapshot = entry.snapshot {
+            if let photo = WidgetSelectionLogic.selectPhotoEcho(
+                snapshot: snapshot, petID: entry.petID, source: entry.source,
+                now: entry.date, randomIndex: entry.randomIndex
+            ) {
+                switch family {
+                case .systemSmall:
+                    PhotoEchoSmallView(photo: photo, snapshot: snapshot, now: entry.date)
+                case .systemMedium:
+                    PhotoEchoMediumView(photo: photo, snapshot: snapshot, now: entry.date)
+                case .systemLarge:
+                    PhotoEchoLargeView(photo: photo, snapshot: snapshot, now: entry.date)
+                default:
+                    PhotoEchoSmallView(photo: photo, snapshot: snapshot, now: entry.date)
+                }
+            } else {
+                WidgetEmptyState(message: emptyMessage)
+            }
+        } else {
             WidgetEmptyState(message: "等待数据同步")
-            return
-        }
-        guard let photo = WidgetSelectionLogic.selectPhotoEcho(
-            snapshot: snapshot, petID: entry.petID, source: entry.source,
-            now: entry.date, randomIndex: entry.randomIndex
-        ) else {
-            WidgetEmptyState(message: emptyMessage)
-            return
-        }
-        switch family {
-        case .systemSmall:
-            PhotoEchoSmallView(photo: photo, snapshot: snapshot, now: entry.date)
-        case .systemMedium:
-            PhotoEchoMediumView(photo: photo, snapshot: snapshot, now: entry.date)
-        case .systemLarge:
-            PhotoEchoLargeView(photo: photo, snapshot: snapshot, now: entry.date)
-        default:
-            PhotoEchoSmallView(photo: photo, snapshot: snapshot, now: entry.date)
         }
     }
 }

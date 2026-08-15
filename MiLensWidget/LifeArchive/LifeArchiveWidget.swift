@@ -83,20 +83,21 @@ struct LifeArchiveWidgetView: View {
         return hasPets ? "档案还没有照片" : "先建立一份伙伴档案"
     }
 
+    // ViewBuilder 不支持 guard 语句（首次编译暴露）：改用 if let / else，语义不变。
     @ViewBuilder
     private var contentView: some View {
-        guard let snapshot = entry.snapshot else {
+        if let snapshot = entry.snapshot {
+            let stats = WidgetSelectionLogic.archiveStats(snapshot: snapshot, petID: entry.petID)
+            switch family {
+            case .systemMedium:
+                LifeArchiveMediumView(stats: stats, snapshot: snapshot)
+            case .systemLarge:
+                LifeArchiveLargeView(stats: stats, snapshot: snapshot, now: entry.date)
+            default:
+                LifeArchiveMediumView(stats: stats, snapshot: snapshot)
+            }
+        } else {
             WidgetEmptyState(message: "等待数据同步")
-            return
-        }
-        let stats = WidgetSelectionLogic.archiveStats(snapshot: snapshot, petID: entry.petID)
-        switch family {
-        case .systemMedium:
-            LifeArchiveMediumView(stats: stats, snapshot: snapshot)
-        case .systemLarge:
-            LifeArchiveLargeView(stats: stats, snapshot: snapshot, now: entry.date)
-        default:
-            LifeArchiveMediumView(stats: stats, snapshot: snapshot)
         }
     }
 }

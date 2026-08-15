@@ -142,19 +142,21 @@ struct UpcomingDayWidgetView: View {
         return hasPets ? "还没有纪念日" : "先建立一份伙伴档案"
     }
 
+    // ViewBuilder 不支持 guard 语句（首次编译暴露）：改用 if let / else，
+    // 无选中纪念日时展示空态文案，语义不变。
     @ViewBuilder
     private var contentView: some View {
-        guard let selection = entry.selection else {
+        if let selection = entry.selection {
+            switch family {
+            case .systemSmall:
+                UpcomingDaySmallView(selection: selection, snapshot: entry.snapshot, isSpecifiedMatch: entry.isSpecifiedMatch)
+            case .systemMedium:
+                UpcomingDayMediumView(selection: selection, snapshot: entry.snapshot, isSpecifiedMatch: entry.isSpecifiedMatch)
+            default:
+                UpcomingDaySmallView(selection: selection, snapshot: entry.snapshot, isSpecifiedMatch: entry.isSpecifiedMatch)
+            }
+        } else {
             WidgetEmptyState(message: emptyMessage)
-            return
-        }
-        switch family {
-        case .systemSmall:
-            UpcomingDaySmallView(selection: selection, snapshot: entry.snapshot, isSpecifiedMatch: entry.isSpecifiedMatch)
-        case .systemMedium:
-            UpcomingDayMediumView(selection: selection, snapshot: entry.snapshot, isSpecifiedMatch: entry.isSpecifiedMatch)
-        default:
-            UpcomingDaySmallView(selection: selection, snapshot: entry.snapshot, isSpecifiedMatch: entry.isSpecifiedMatch)
         }
     }
 }

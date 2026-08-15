@@ -4,6 +4,7 @@
 //  边界：MiLens 只生成与导出，上传/审核/发布均在微信完成。
 
 import SwiftUI
+import MiLensKit
 import os
 
 private let logger = Logger(subsystem: "com.milens.app", category: "RedPacketGuide")

@@ -355,7 +355,7 @@ private extension RedPacketQualityReportView {
                         Text(String(localized: "redpacket.optimize.undoThis"))
                             .font(.system(size: 12, weight: .medium))
                             .foregroundStyle(Color.milensTextPrimary)
-                            .frame(maxWidth: .infinity, height: 44)
+                            .frame(maxWidth: .infinity).frame(height: 44)
                             .overlay(
                                 RoundedRectangle(cornerRadius: 4, style: .continuous)
                                     .stroke(Color.milensSeparator, lineWidth: 1)
@@ -374,7 +374,7 @@ private extension RedPacketQualityReportView {
             Text(title)
                 .font(.system(size: 12, weight: .medium))
                 .foregroundStyle(isSelected ? Color.white : Color.milensTextSecondary)
-                .frame(maxWidth: .infinity, height: 44)
+                .frame(maxWidth: .infinity).frame(height: 44)
                 .background(isSelected ? Color.milensActionPrimary : Color.clear)
         }
         .buttonStyle(.plain)

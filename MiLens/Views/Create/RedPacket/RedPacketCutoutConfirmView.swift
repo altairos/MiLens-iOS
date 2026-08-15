@@ -280,7 +280,7 @@ struct RedPacketCutoutConfirmView: View {
             // 保证两页分割质量与 bbox 坐标系一致。
             let candidatePaths = [photo.uri, photo.thumbnailPath]
                 .filter { !$0.isEmpty }
-            let loadedData = await Task.detached(priority: .utility) {
+            let loadedData = await Task.detached(priority: .utility) { () -> Data? in
                 for path in candidatePaths {
                     if let data = try? Data(contentsOf: URL(fileURLWithPath: path), options: .mappedIfSafe),
                        !data.isEmpty {

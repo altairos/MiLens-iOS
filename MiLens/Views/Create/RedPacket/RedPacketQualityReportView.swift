@@ -303,7 +303,7 @@ struct RedPacketQualityReportView: View {
             return String(localized: "redpacket.optimize.applied")
         }
         // 映射 key 到中文（只映射真实落地的优化；摘要不得宣传未执行的效果）
-        viewModel.optimizationSummary.map { key in
+        return viewModel.optimizationSummary.map { key in
             switch key {
             case "redpacket.optimize.petRepositioned": return String(localized: "redpacket.optimize.summary.petPos")
             case "redpacket.optimize.textRepositioned": return String(localized: "redpacket.optimize.summary.textPos")

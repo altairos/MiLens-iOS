@@ -12,8 +12,8 @@
 
 import Foundation
 #if canImport(UIKit) || canImport(AppKit)
-// CFStringTransform 常量在 Apple 平台随 CoreFoundation 模块暴露，新工具链
-// 不再经 Foundation 隐式可见，需显式导入（Linux 无此模块，条件编译跳过）
+// CFStringTransform 函数与 kCF*Transform 常量随 CoreFoundation 模块暴露，
+// 需显式导入（Linux 无此模块，条件编译跳过）
 import CoreFoundation
 #endif
 
@@ -313,8 +313,10 @@ public enum PetBusinessCardLogic {
         guard let scalar = character.unicodeScalars.first, isCJKIdeograph(scalar) else { return nil }
         #if canImport(UIKit) || canImport(AppKit)
         let mutable = NSMutableString(string: String(character))
-        CFStringTransform(mutable, nil, CFStringTransformToLatin, false)
-        CFStringTransform(mutable, nil, CFStringTransformStripDiacriticalMarks, false)
+        // 用 C 原名 kCF 常量：Swift 化无 k 前缀名（CFStringTransformToLatin）
+        // 在 CI SDK 中不可见（cannot find in scope）
+        CFStringTransform(mutable, nil, kCFStringTransformToLatin, false)
+        CFStringTransform(mutable, nil, kCFStringTransformStripDiacriticalMarks, false)
         for letter in String(mutable).lowercased() where letter.isLetter {
             return String(letter).uppercased()
         }

@@ -53,7 +53,7 @@ struct HomeHero: View {
                             .foregroundStyle(.white.opacity(0.92))
                     }
                     Spacer()
-                    // 铃铛：有提醒时轻微 wiggle 一次，点击按触发原因分流（回忆中心/确认窗/选择菜单）
+                    // 铃铛：有提醒时轻弹一次（wiggle 为 iOS 18 效果，iOS 17 用 bounce），点击按触发原因分流（回忆中心/确认窗/选择菜单）
                     Button {
                         Haptics.light()
                         bellAnimating = false
@@ -63,7 +63,7 @@ struct HomeHero: View {
                             .font(.system(size: Sizing.iconMd))
                             .foregroundStyle(.white)
                             .frame(width: 44, height: 44)
-                            .symbolEffect(.wiggle, value: bellAnimating)
+                            .symbolEffect(.bounce, value: bellAnimating)
                     }
                     .buttonStyle(.plain)
                     .accessibilityLabel(String(localized: "a11y.home.bell"))

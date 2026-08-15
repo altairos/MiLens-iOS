@@ -211,7 +211,7 @@ final class EditorViewModel {
         let previous = canvasSize
         canvasSize = size
         if previous.width > 0, previous.height > 0 {
-            for layer in remapLayersForCanvas(document.getLayers(), from: previous, to: size) {
+            for layer in remapLayersForCanvas(document.layers, from: previous, to: size) {
                 document.updateLayer(layer.id) { l in l = layer }
             }
         } else if let layer = document.photoLayer() {
@@ -508,7 +508,10 @@ final class EditorViewModel {
     /// 用 ImageIO 降采样解码图片，最大边长不超过 maxPixelDimension。
     /// 低于上限的图片按原始尺寸解码（不放大）。
     /// 遵循 DESIGN.md §3「解码缓冲有上限」资源生命周期纪律。
-    static func downsampledImage(at path: String, maxPixelDimension: CGFloat) -> CGImage? {
+    /// 纯 ImageIO 调用、无隔离状态访问，标记 nonisolated 以便在
+    /// Task.detached 后台上下文同步执行（否则静态方法继承类的
+    /// @MainActor 隔离，解码会 hop 回主线程，违背后台解码初衷）。
+    nonisolated static func downsampledImage(at path: String, maxPixelDimension: CGFloat) -> CGImage? {
         guard let source = CGImageSourceCreateWithURL(URL(fileURLWithPath: path) as CFURL, nil) else {
             return nil
         }

@@ -148,7 +148,7 @@ struct GrowthComparePhotoPickerView: View {
                     .font(.bodySecondary)
                     .foregroundStyle(Color.milensTextPrimary)
                     .lineLimit(1)
-                Text(formatDate(photo.takenAt))
+                Text(photo.takenAt.map(formatDate) ?? "")
                     .font(.editorialMetadata)
                     .foregroundStyle(Color.milensTextSecondary)
             }
@@ -194,14 +194,16 @@ struct GrowthComparePhotoPickerView: View {
         }
     }
 
-    /// 网格中出现的宠物列表（用于筛选条展示）。
+    /// 网格中出现的宠物列表（用于筛选条展示；保持出现顺序去重）。
     private var petFilters: [Pet] {
-        let seen = Set<UUID>()
-        return photos.compactMap { p -> Pet? in
-            guard let pet = p.pet, !seen.contains(pet.id) else { return nil }
+        var seen = Set<UUID>()
+        var pets: [Pet] = []
+        for p in photos {
+            guard let pet = p.pet, !seen.contains(pet.id) else { continue }
             seen.insert(pet.id)
-            return pet
+            pets.append(pet)
         }
+        return pets
     }
 
     // MARK: - 照片单元
@@ -304,7 +306,8 @@ struct GrowthComparePhotoPickerView: View {
         guard pair.count == 2 else {
             return (photos[0], photos[0])
         }
-        let sorted = pair.sorted { $0.takenAt < $1.takenAt }
+        // takenAt 可选：无日期的按最早排序（distantPast），行为确定。
+        let sorted = pair.sorted { ($0.takenAt ?? .distantPast) < ($1.takenAt ?? .distantPast) }
         return (sorted[0], sorted[1])
     }
 

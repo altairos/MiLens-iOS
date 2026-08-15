@@ -120,30 +120,45 @@ def pct(x: float) -> str:
     return f"{x * 100:.1f}%"
 
 
+def target_name(t):
+    """提取 target 名称——兼容旧格式（target/name 键）与 Xcode 16.4 新格式
+    （buildProductPath 尾段，如 .../MiLens.app/MiLens 或 .../MiLensKit.framework/MiLensKit）。"""
+    n = t.get("target") or t.get("name")
+    if n:
+        return n
+    bp = t.get("buildProductPath")
+    return os.path.basename(bp) if bp else ""
+
+
 def collect_files(include: tuple, exclude: tuple):
-    """收集指定 target 的全部文件覆盖率对象。"""
+    """收集指定 target 的全部文件覆盖率对象（兼容 coverageData 与 files 两种键）。"""
     files = []
     for t in report:
-        name = t.get("target") or t.get("name") or ""
+        name = target_name(t)
         if not any(k in name for k in include):
             continue
         if any(k in name for k in exclude):
             continue
-        files.extend(t.get("coverageData") or [])
+        files.extend(t.get("coverageData") or t.get("files") or [])
     return files
 
 
 def line_coverage(files):
-    """行覆盖率：所有文件均有 coveredLines/uncoveredLines 时做行数加权
-    （Σ已覆盖行 / Σ可执行行，准确反映大文件覆盖）；否则回退文件级算术平均。
+    """行覆盖率：行数加权（Σ已覆盖行 / Σ可执行行，准确反映大文件覆盖）。
+    兼容两种文件格式：旧 coveredLines/uncoveredLines 对，或 Xcode 16.4 的
+    coveredLines/executableLines（uncovered = executable - covered）。
+    两种行数均缺失时回退文件级算术平均。
     返回 (value, method, weighted)。weighted=False 表示因缺行数回退（需提示）。"""
     cov = unc = 0
     weighted = True
     for f in files:
         c, u = f.get("coveredLines"), f.get("uncoveredLines")
         if c is None or u is None:
-            weighted = False
-            break
+            e = f.get("executableLines")
+            if c is None or e is None:
+                weighted = False
+                break
+            u = e - c
         cov += c
         unc += u
     if weighted and (cov + unc) > 0:
@@ -153,16 +168,29 @@ def line_coverage(files):
 
 
 def fn_coverage(files):
-    """函数覆盖率：xccov report 不含每文件函数计数 → 文件级算术平均。"""
+    """函数覆盖率：Xcode 16.4 新格式用 functions[] 行数加权
+    （Σ函数已覆盖行 / Σ函数可执行行）；旧格式回退文件级 functionCoverage 算术平均。"""
+    cov = exe = 0
+    for f in files:
+        for fn in f.get("functions") or []:
+            c, e = fn.get("coveredLines"), fn.get("executableLines")
+            if c is not None and e is not None:
+                cov += c
+                exe += e
+    if exe > 0:
+        return cov / exe, "weighted"
     vals = [f.get("functionCoverage", 0.0) for f in files]
     return (sum(vals) / len(vals) if vals else 0.0), "arithmetic"
 
 
 def branch_coverage(files):
-    """分支覆盖率：covered/count 精确汇总（无分支为 100%）。"""
+    """分支覆盖率：covered/count 精确汇总。
+    返回 (value, has_branches)：Xcode 16.4 新格式未见 branches 键时返回
+    (1.0, False)，由调用方提示「无分支数据，按 100% 计」——避免假性达标被误读。"""
+    has_branches = any("branches" in f for f in files)
     covered = sum(b.get("covered", 0) for f in files for b in f.get("branches", []))
     count = sum(b.get("count", 0) for f in files for b in f.get("branches", []))
-    return covered / count if count > 0 else 1.0
+    return (covered / count if count > 0 else 1.0), has_branches
 
 
 def worst_files(files, limit=5):
@@ -171,15 +199,16 @@ def worst_files(files, limit=5):
     rows = []
     for f in files:
         c, u = f.get("coveredLines"), f.get("uncoveredLines")
-        if c is None or u is None:
+        e = f.get("executableLines")
+        if c is None:
             continue
-        total = c + u
+        total = (c + u) if u is not None else (e if e is not None else 0)
         if total < FILE_MIN_LINES:
             continue
         lcov = f.get("lineCoverage")
         if lcov is None:
             lcov = c / total if total > 0 else 0.0
-        rows.append((f.get("name") or f.get("sourceFile") or "?", lcov, total))
+        rows.append((f.get("name") or f.get("path") or f.get("sourceFile") or "?", lcov, total))
     rows.sort(key=lambda r: r[1])
     return rows[:limit]
 
@@ -203,7 +232,7 @@ for name, (inc, exc, file_min) in specs.items():
 
     line, line_m, line_weighted = line_coverage(files)
     fn, fn_m = fn_coverage(files)
-    branch = branch_coverage(files)
+    branch, branch_data = branch_coverage(files)
     min_line, min_fn, min_branch = mins[name]
 
     # 单位统一为百分比：xccov 的 line/functionCoverage 是 0…1 小数，基线是百分数
@@ -232,6 +261,11 @@ for name, (inc, exc, file_min) in specs.items():
         print(f"       [note] {name}: xccov 未提供 coveredLines/uncoveredLines，"
               f"line 回退文件级算术平均（加权未生效）")
 
+    # 分支数据缺失提示：Xcode 16.4 新格式未提供 branches，branch 恒为 100%
+    # （不低于任何基线）——透明告知该指标实际未参与判罚。
+    if not branch_data and not selftest:
+        print(f"       [note] {name}: xccov 未提供 branches 数据，branch 按 100% 计（该指标未参与判罚）")
+
     # 倒数最差文件报告（透明化：暴露被均值掩盖的大体量低覆盖文件）
     wf = worst_files(files)
     if wf:
@@ -254,10 +288,33 @@ if selftest:
                        and abs(line_w - 0.30) < 1e-9
                        and abs(line_a - 0.56665) < 1e-3
                        and line_w < line_a)
-    if app_ok and kit_ok and weighted_active:
-        print("check-coverage: selftest PASS（行数加权生效；App=基线 PASS / Kit<基线 FAIL，单位与比较逻辑正确）")
+    # 守护：Xcode 16.4 新格式解析（run 31896295261 gate 样本实证的形状）——
+    # target 名在 buildProductPath 尾段、文件列表键为 files、行数为
+    # coveredLines/executableLines 对、函数覆盖在 functions[]、无 branches 键。
+    report = [{"buildProductPath": "/x/DerivedData/MiLens.app/MiLens",
+               "files": [
+                   {"path": "/p/A.swift", "coveredLines": 60, "executableLines": 100,
+                    "functions": [{"name": "f1", "coveredLines": 40, "executableLines": 50},
+                                   {"name": "f2", "coveredLines": 10, "executableLines": 50}]},
+                   {"path": "/p/B.swift", "coveredLines": 20, "executableLines": 100,
+                    "functions": []},
+               ]}]
+    nf = collect_files(("MiLens",), ("Tests", "Kit"))
+    nf_line, nf_line_m, _ = line_coverage(nf)
+    nf_fn, nf_fn_m = fn_coverage(nf)
+    nf_wf = worst_files(nf)
+    new_fmt_ok = (target_name(report[0]) == "MiLens"
+                  and len(nf) == 2
+                  and nf_line_m == "weighted" and abs(nf_line - 0.40) < 1e-9
+                  and nf_fn_m == "weighted" and abs(nf_fn - 0.50) < 1e-9
+                  and branch_coverage(nf) == (1.0, False)
+                  and len(nf_wf) == 2 and nf_wf[0][0] == "/p/B.swift"
+                  and abs(nf_wf[0][1] - 0.2) < 1e-9 and nf_wf[0][2] == 100)
+    if app_ok and kit_ok and weighted_active and new_fmt_ok:
+        print("check-coverage: selftest PASS（行数加权生效；App=基线 PASS / Kit<基线 FAIL，单位与比较逻辑正确；"
+              "Xcode 16.4 新格式解析正确）")
         sys.exit(0)
-    print("check-coverage: selftest FAIL（App/Kit 结果与预期不符，或行数加权未生效——"
+    print("check-coverage: selftest FAIL（App/Kit 结果与预期不符，或行数加权未生效，或新格式解析错误——"
           "阈值单位、比较逻辑或加权口径错误）")
     sys.exit(1)
 

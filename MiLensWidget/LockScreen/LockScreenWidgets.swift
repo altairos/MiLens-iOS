@@ -147,7 +147,9 @@ struct LockScreenCircularView: View {
                     // 约 300° 开放弧（底部留开口），呼应「开放年轮」语义
                     path.addArc(center: center, radius: radius,
                                 startAngle: .degrees(120), endAngle: .degrees(60), clockwise: false)
-                    context.stroke(path, with: .color(.opacity(0.5)), lineWidth: 1.5)
+                    // opacity 是 Color 实例方法（首次编译暴露），补基底色后再调制透明度；
+                    // accessory 单色渲染下系统会色调化，基底色仅作透明度载体。
+                    context.stroke(path, with: .color(.gray.opacity(0.5)), lineWidth: 1.5)
                 }
                 VStack(spacing: 0) {
                     Text(countdownText(selection))

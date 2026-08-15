@@ -1,7 +1,7 @@
 //  RecapView —— 月度精选 / 年度回忆册（情感触点系统 Stage 3，ADR-0010 §3.3）。
 //
 //  从全部照片构建年度回忆册（MemoryRecapLogic 纯逻辑选片），
-//  12 个月代表照片网格预览，Pro 完整长图导出（ImageRenderer，不新建渲染管线，ADR §10.12）。
+//  12 个月代表照片网格预览，Pro 手机分页图片组导出（共享 ArchiveShareTemplate）。
 //  免费版可预览全部代表照片缩略图；导出为 Pro 专属。
 
 import SwiftUI
@@ -24,8 +24,9 @@ struct RecapView: View {
     @State private var selectedYear: Int
     @State private var isLoading = true
     @State private var showPaywall = false
-    @State private var sharePreview: (image: UIImage, url: URL, filename: String, spec: String)?
+    @State private var sharePreview: SharePreviewData?
     @State private var isExporting = false
+    @State private var exportTask: Task<Void, Never>?
     @State private var exportError: String?
 
     init(year: Int? = nil) {
@@ -64,13 +65,12 @@ struct RecapView: View {
         .sheet(isPresented: $showPaywall) {
             NavigationStack { PaywallView() }
         }
-        .sheet(item: Binding<SharePreviewData?>(
-            get: { sharePreview.map { SharePreviewData(image: $0.image, url: $0.url, filename: $0.filename, spec: $0.spec) } },
-            set: { if $0 == nil { sharePreview = nil } }
-        )) { data in
+        .sheet(item: $sharePreview) { data in
             SharePreviewSheet(
                 previewImage: data.image,
                 shareURL: data.url,
+                additionalPreviewImages: data.additionalImages,
+                additionalShareURLs: data.additionalURLs,
                 filename: data.filename,
                 spec: data.spec,
                 onDismiss: { sharePreview = nil }
@@ -83,6 +83,9 @@ struct RecapView: View {
             Button(String(localized: "common.ok"), role: .cancel) {}
         } message: {
             Text(exportError ?? "")
+        }
+        .onDisappear {
+            exportTask?.cancel()
         }
         .task { await load() }
     }
@@ -263,10 +266,6 @@ struct RecapView: View {
 
     // MARK: - 导出（Pro 专属）
 
-    /// 导出画布每月代表照片上限（内存校准：2400px 宽长图峰值内存控制）。
-    /// 预览网格用 8 张/月；导出降到 3 张/月（3 列 1 行），避免 12 月 × 多行超高画布爆内存。
-    private static let exportPhotosPerMonth = 3
-
     private func handleExport() {
         guard entitlement.isPro else {
             showPaywall = true
@@ -286,136 +285,42 @@ struct RecapView: View {
             })
         let year = recap.year
         let months = recap.months
+        let totalPhotoCount = recap.totalPhotoCount
 
-        // 后台线程渲染：autoreleasepool 确保 CoreGraphics 中间缓冲及时释放；
-        // JPEG（非 PNG）大幅降低照片拼贴的内存占用。
-        Task.detached(priority: .utility) {
-            let outcome = Self.renderRecapImage(
-                year: year, months: months, pathMap: pathMap, quality: quality)
-            await MainActor.run {
-                isExporting = false
-                switch outcome {
-                case .success(let rendered):
-                    guard let preview = UIImage(data: rendered.previewData) else {
-                        exportError = String(localized: "recap.renderFailed")
-                        return
-                    }
-                    sharePreview = (image: preview, url: rendered.url,
-                                    filename: rendered.filename, spec: rendered.spec)
-                    MetricsRecorder().record(.exportCompleted)
-                case .failure(let message):
-                    exportError = message
+        exportTask?.cancel()
+        exportTask = Task {
+            let outcome = await ArchiveShareRendering.renderAnnualRecap(
+                year: year,
+                months: months,
+                totalPhotoCount: totalPhotoCount,
+                pathMap: pathMap,
+                quality: quality
+            )
+            switch outcome {
+            case .success(let bundle):
+                let images = bundle.pages.compactMap { UIImage(data: $0.previewData) }
+                guard images.count == bundle.pages.count else {
+                    exportError = String(localized: "recap.renderFailed")
+                    isExporting = false
+                    return
                 }
+                guard let image = images.first, let url = bundle.pages.first?.url else { return }
+                sharePreview = SharePreviewData(
+                    image: image,
+                    url: url,
+                    additionalImages: Array(images.dropFirst()),
+                    additionalURLs: bundle.pages.dropFirst().map(\.url),
+                    filename: bundle.filename,
+                    spec: bundle.spec
+                )
+                MetricsRecorder().record(.exportCompleted)
+            case .failure(let message):
+                exportError = message
+            case .cancelled:
+                break
             }
+            isExporting = false
         }
-    }
-
-    // MARK: - 离屏渲染（后台线程 + autoreleasepool）
-
-    /// 离屏渲染结果（全部 Sendable，可从后台线程返回主线程）。
-    private struct RenderedRecap: Sendable {
-        let url: URL
-        let filename: String
-        let spec: String
-        /// 降采样预览 JPEG（供分享预览 sheet 展示，非全分辨率长图）。
-        let previewData: Data
-    }
-
-    /// 渲染年度回忆册长图：预加载降采样缩略图 → ImageRenderer → JPEG 编码 → 写缓存。
-    /// 必须在后台线程调用（autoreleasepool 控制 CoreGraphics 峰值内存）。
-    /// 静态方法无实例捕获，闭包引用可安全跨 actor 传递。
-    private static func renderRecapImage(
-        year: Int, months: [MonthlyRecap],
-        pathMap: [UUID: String], quality: ExportQuality
-    ) -> Result<RenderedRecap, String> {
-        autoreleasepool {
-            // 1. 预加载降采样缩略图（每格约 宽度/3，避免全分辨率原图进画布）。
-            // 每月仅取前 exportPhotosPerMonth 张（内存校准：控制长图高度）。
-            let cellPixelSize = Int(CGFloat(quality.maxLongEdgePixels) / 3.0) + 1
-            var imageMap: [UUID: UIImage] = [:]
-            for month in months {
-                for photoID in month.photoIDs.prefix(exportPhotosPerMonth) where imageMap[photoID] == nil {
-                    if let path = pathMap[photoID] {
-                        imageMap[photoID] = loadDownsampled(path: path, maxPixelSize: cellPixelSize)
-                    }
-                }
-            }
-
-            // 2. 构建 + 渲染画布。
-            let canvas = RecapExportCanvas(
-                year: year, months: months, imageMap: imageMap,
-                quality: quality, photosPerMonth: exportPhotosPerMonth)
-            let renderer = ImageRenderer(content: canvas)
-            renderer.scale = 1
-            guard let image = renderer.uiImage else {
-                return .failure(String(localized: "recap.renderFailed"))
-            }
-
-            // 3. JPEG 编码（照片拼贴用 JPEG 远小于 PNG）。
-            guard let data = image.jpegData(compressionQuality: quality.jpegCompressionQuality) else {
-                return .failure(String(localized: "recap.renderFailed"))
-            }
-
-            // 4. 降采样预览（长边 1080，供分享 sheet 展示，避免常驻全分辨率长图）。
-            let previewData = downscalePreview(image: image, maxDimension: 1080) ?? data
-
-            // 5. 写入分享缓存。
-            let filename = "recap_\(year).jpg"
-            do {
-                let url = try BeadExportService().writeShareCache(data: data, filename: filename)
-                let spec = "JPEG · \(formatByteCount(data.count))"
-                return .success(RenderedRecap(
-                    url: url, filename: filename, spec: spec, previewData: previewData))
-            } catch {
-                return .failure(String(localized: "recap.exportFailedDetail \(error.localizedDescription)"))
-            }
-        }
-    }
-
-    /// 从文件路径加载降采样 UIImage（CGImageSource thumbnail，避免全分辨率图占满内存）。
-    /// 解码链路任一步失败都返回 nil（渲染端画占位块），不 fallback 到
-    /// `UIImage(contentsOfFile:)` 全尺寸解码——那是 R9 降采样纪律禁止的内存峰值源
-    /// （docs/audit/architecture-review.md R9）。
-    private static func loadDownsampled(path: String, maxPixelSize: Int) -> UIImage? {
-        let url = URL(fileURLWithPath: path) as CFURL
-        guard let source = CGImageSourceCreateWithURL(url, nil) else {
-            return nil
-        }
-        let options: [CFString: Any] = [
-            kCGImageSourceCreateThumbnailFromImageAlways: true,
-            kCGImageSourceShouldCacheImmediately: true,
-            kCGImageSourceCreateThumbnailWithTransform: true,
-            kCGImageSourceThumbnailMaxPixelSize: maxPixelSize
-        ]
-        guard let cgImage = CGImageSourceCreateThumbnailAtIndex(source, 0, options as CFDictionary) else {
-            return nil
-        }
-        return UIImage(cgImage: cgImage)
-    }
-
-    /// 将渲染长图降采样为预览 JPEG Data（maxDimension 为长边像素上限）。
-    private static func downscalePreview(image: UIImage, maxDimension: CGFloat) -> Data? {
-        let size = image.size
-        let longEdge = max(size.width, size.height)
-        guard longEdge > maxDimension else {
-            return image.jpegData(compressionQuality: 0.85)
-        }
-        let scale = maxDimension / longEdge
-        let newSize = CGSize(width: size.width * scale, height: size.height * scale)
-        let format = UIGraphicsImageRendererFormat()
-        format.scale = 1
-        return UIGraphicsImageRenderer(size: newSize, format: format).jpegData(
-            withCompressionQuality: 0.85
-        ) { ctx in
-            image.draw(in: CGRect(origin: .zero, size: newSize))
-        }
-    }
-
-    /// 格式化字节数为可读字符串（KB/MB）。
-    private static func formatByteCount(_ bytes: Int) -> String {
-        let formatter = ByteCountFormatter()
-        formatter.countStyle = .file
-        return formatter.string(fromByteCount: Int64(bytes))
     }
 
     // MARK: - 数据加载
@@ -435,81 +340,6 @@ struct RecapView: View {
         } catch {
             pets = []
             logger.error("load: 读取宠物失败（\(error.localizedDescription)）")
-        }
-    }
-}
-
-// MARK: - 回忆册导出 Canvas（ImageRenderer 离屏渲染，不新建渲染管线 ADR §10.12）
-
-/// 年度回忆册导出长图：封面年份 + 月度精选照片网格。
-/// 宽度随 ExportQuality 门控（standard 1080 / high 2400）。
-/// 缩略图由调用方预加载降采样 UIImage 传入（ImageRenderer 同步渲染不执行 ThumbnailImage 的 .task）。
-private struct RecapExportCanvas: View {
-    let year: Int
-    let months: [MonthlyRecap]
-    let imageMap: [UUID: UIImage]
-    let quality: ExportQuality
-    /// 每月导出照片上限（内存校准：控制长图高度）。
-    let photosPerMonth: Int
-
-    private var scale: CGFloat { CGFloat(quality.maxLongEdgePixels) / 1080 }
-    private var columns: Int { 3 }
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 0) {
-            header
-                .padding(.bottom, 40 * scale)
-
-            ForEach(months, id: \.month) { month in
-                monthBlock(month)
-                    .padding(.bottom, 32 * scale)
-            }
-        }
-        .padding(60 * scale)
-        .frame(width: CGFloat(quality.maxLongEdgePixels), alignment: .leading)
-        .background(Color.white)
-    }
-
-    private var header: some View {
-        VStack(alignment: .leading, spacing: 16 * scale) {
-            Text(MemoryRecapLogic.yearlyTitle(year: year))
-                .font(.custom("LXGWWenKai-Regular", size: 56 * scale))
-                .foregroundStyle(Color.milensTextPrimary)
-        }
-    }
-
-    private func monthBlock(_ month: MonthlyRecap) -> some View {
-        VStack(alignment: .leading, spacing: 16 * scale) {
-            HStack {
-                Rectangle()
-                    .fill(Color.milensActionPrimary)
-                    .frame(width: 3 * scale, height: 20 * scale)
-                Text(MemoryRecapLogic.monthlyTitle(year: month.year, month: month.month))
-                    .font(.system(size: 26 * scale, weight: .semibold)) // ui-token:ok 动态缩放标题
-                    .foregroundStyle(Color.milensTextPrimary)
-            }
-
-            let cols = Array(repeating: GridItem(.flexible(), spacing: 8 * scale), count: columns)
-            LazyVGrid(columns: cols, spacing: 8 * scale) {
-                ForEach(Array(month.photoIDs.prefix(photosPerMonth)), id: \.self) { photoID in
-                    photoCell(photoID)
-                }
-            }
-        }
-    }
-
-    @ViewBuilder
-    private func photoCell(_ photoID: UUID) -> some View {
-        if let image = imageMap[photoID] {
-            Image(uiImage: image)
-                .resizable()
-                .aspectRatio(1, contentMode: .fill)
-                .clipped()
-                .clipShape(RoundedRectangle(cornerRadius: 8 * scale, style: .continuous))
-        } else {
-            Rectangle()
-                .fill(Color.milensGrouped)
-                .aspectRatio(1, contentMode: .fit)
         }
     }
 }

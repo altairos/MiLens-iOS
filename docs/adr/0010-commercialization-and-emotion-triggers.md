@@ -106,7 +106,7 @@ ADR-0009 定义的 Pro 权益（宠物档案数 / 拼豆配额 / 时间线窗口
 |---|---|---|---|---|
 | 纪念日卡片 | 生日、成为家人的日子、相处 100/365/730/1000 天 | 生成经典模板预览/标准导出 | 高级模板、高清无水印导出 | `PetCardArtwork` + `PetCardTemplate` |
 | 成长对比卡片 | 早期与现在的照片并排，直观看到变化 | 选择照片并预览 | 高清导出/分享 | `PetCardArtwork` + `SharePreviewSheet` |
-| 月度精选 | 每月自动挑选高质量照片形成小回顾 | 浏览精选预览 | 完整长图导出 | `QualityScorer` + `TimelineExportCanvas` |
+| 月度精选 | 每月自动挑选高质量照片形成小回顾 | 浏览精选预览 | 手机分页图片组导出 | `QualityScorer` + `ArchiveShareTemplate` |
 | 年度回忆册 | 一年中宠物的照片、事件和里程碑汇总 | 浏览摘要和前几页预览 | 完整回忆册、高清导出 | Timeline 数据 + `ImageRenderer` |
 | 历史回忆解锁 | 找回 365 天以前的照片和故事 | 展示锁定数量与缩略预览 | 查看、导出全部历史 | 现有时间线门控 |
 | 离线备份 | 保住整理结果、编辑成品和时间线 | 可恢复别人分享的备份 | 创建完整 `.milensbackup` | `BackupService` |
@@ -175,14 +175,16 @@ V1 触发原则：每个触点都必须在用户已经投入时间或产生情�
 ### 5.2 设计
 
 - 导出范围：当前筛选条件下的全部可见月份（受 365 天门控约束——免费用户导出按钮灰锁，Pro 用户导出全部历史）。
-- 导出格式：长图 PNG（宽度 1080px，高度按内容自适应），通过 `ImageRenderer` 渲染。
-- 长图结构：头部（宠物名 + 日期范围）→ 按月分组条目列表 → 底部「由 MiLens 制作」签名（Pro 无水印则无签名）。
-- 分享：复用 `SharePreviewSheet` 引导式分享流程。
+- 导出格式：固定 390×1260pt 手机画布，经 `ImageRenderer` 3× 输出 1170×3780px JPEG 图片组；内容超出时分页，不增加单图高度。
+- 页面结构：封面（代表照片 + 标题 + 日期范围）→ 按月分组条目 → 固定页脚与页码；关联照片优先使用本地降采样缩略图。
+- 分享：复用 `SharePreviewSheet` 的分页预览与整组系统分享流程。
 
 ### 5.3 架构
 
 - `TimelineExportLogic`（纯函数）：从 `TimelineMonth[]` 准备导出数据（标题、日期范围、条目裁剪），不依赖 SwiftUI。
-- `TimelineExportCanvas`（SwiftUI View）：纯渲染视图，供 `ImageRenderer` 离屏生成图片。
+- `ArchiveSharePagination`（纯函数）：按固定页面预算拆分时间线，年度回忆册按封面 2 月 / 内容页 3 月拆分。
+- `ArchiveShareTemplate` / `TimelineExportCanvas`（SwiftUI View）：共用封面、月标题、照片区和页脚，供 `ImageRenderer` 逐页生成图片。
+- `ArchiveShareRendering`：缩略图降采样、逐页 JPEG 编码与缓存写入；每页检查取消并限制解码尺寸。
 - `TimelineView`：导航栏增加「分享」按钮，Pro 门控 → 点击弹导出预览面板。
 
 ## 6. 编辑器相框/贴纸接口预留
@@ -408,7 +410,7 @@ MiLens-Backup-2026-08-10.milensbackup  (ZIP 压缩包)
 - `MemoryRecapLogic`（MiLensKit）：按月份/年份筛选照片、事件和里程碑，使用质量分和去重结果选取代表照片。
 - 月度精选为本地按需生成，不做后台上传；年度回忆册支持取消、进度反馈和尺寸上限。
 - 免费用户可看到摘要/前几页预览；Pro 用户可完整查看和高清导出。
-- 复用 `TimelineExportLogic` / `TimelineExportCanvas`，避免产生第二套长图渲染管线。
+- 复用 `ArchiveSharePagination` / `ArchiveShareTemplate` / `ArchiveShareRendering`，避免时间线与年度回忆册形成两套分页与渲染管线。
 
 ### 10.13 高清导出与作品规格（V1）
 

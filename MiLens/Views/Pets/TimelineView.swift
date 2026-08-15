@@ -18,8 +18,9 @@ struct TimelineView: View {
     @State private var pets: [Pet] = []
     @State private var showPaywall = false
     /// ADR-0010 §5：时间线导出分享状态。
-    @State private var sharePreview: (image: UIImage, url: URL, filename: String, spec: String)?
+    @State private var sharePreview: SharePreviewData?
     @State private var isExporting = false
+    @State private var exportTask: Task<Void, Never>?
     @State private var exportError: String?
     @State private var showAddMemorySheet = false
     /// 选中的年份筛选（nil = 全部年份）。
@@ -50,13 +51,12 @@ struct TimelineView: View {
             }
         }
         // ADR-0010 §5：导出分享预览面板
-        .sheet(item: Binding<SharePreviewData?>(
-            get: { sharePreview.map { SharePreviewData(image: $0.image, url: $0.url, filename: $0.filename, spec: $0.spec) } },
-            set: { if $0 == nil { sharePreview = nil } }
-        )) { data in
+        .sheet(item: $sharePreview) { data in
             SharePreviewSheet(
                 previewImage: data.image,
                 shareURL: data.url,
+                additionalPreviewImages: data.additionalImages,
+                additionalShareURLs: data.additionalURLs,
                 filename: data.filename,
                 spec: data.spec,
                 onDismiss: { sharePreview = nil }
@@ -88,6 +88,9 @@ struct TimelineView: View {
                 }
             }
         }
+        .onDisappear {
+            exportTask?.cancel()
+        }
     }
 
     // MARK: - 导出分享（ADR-0010 §5）
@@ -108,28 +111,37 @@ struct TimelineView: View {
         MetricsRecorder().record(.exportStarted)
         isExporting = true
         let exportQuality = ExportQuality.high.resolved(isPro: entitlement.isPro)
-        let canvas = TimelineExportCanvas(data: exportData, quality: exportQuality)
-        let renderer = ImageRenderer(content: canvas)
-        renderer.scale = 1
-
-        guard let image = renderer.uiImage,
-              let pngData = image.pngData() else {
-            exportError = String(localized: "timeline.renderFailed")
-            isExporting = false
-            return
-        }
-
-        do {
-            let filename = "timeline_export.png"
-            let url = try BeadExportService().writeShareCache(
-                data: pngData, filename: filename
+        exportTask?.cancel()
+        exportTask = Task {
+            let outcome = await ArchiveShareRendering.renderTimeline(
+                data: exportData,
+                quality: exportQuality
             )
-            let spec = "PNG · \(formatByteCount(pngData.count))"
-            sharePreview = (image: image, url: url, filename: filename, spec: spec)
-        } catch {
-            exportError = String(localized: "timeline.exportFailedDetail \(error.localizedDescription)")
+            switch outcome {
+            case .success(let bundle):
+                let images = bundle.pages.compactMap { UIImage(data: $0.previewData) }
+                guard images.count == bundle.pages.count else {
+                    exportError = String(localized: "timeline.renderFailed")
+                    isExporting = false
+                    return
+                }
+                guard let image = images.first, let url = bundle.pages.first?.url else { return }
+                sharePreview = SharePreviewData(
+                    image: image,
+                    url: url,
+                    additionalImages: Array(images.dropFirst()),
+                    additionalURLs: bundle.pages.dropFirst().map(\.url),
+                    filename: bundle.filename,
+                    spec: bundle.spec
+                )
+                MetricsRecorder().record(.exportCompleted)
+            case .failure(let message):
+                exportError = message
+            case .cancelled:
+                break
+            }
+            isExporting = false
         }
-        isExporting = false
     }
 
     private func currentFilterTitle(_ vm: TimelineViewModel) -> String {
@@ -138,13 +150,6 @@ struct TimelineView: View {
             return "\(PetProfileLogic.speciesEmoji(pet.species)) \(pet.name)"
         }
         return String(localized: "timeline.allPets")
-    }
-
-    /// 格式化字节数为可读字符串（KB/MB）。
-    private func formatByteCount(_ bytes: Int) -> String {
-        let formatter = ByteCountFormatter()
-        formatter.countStyle = .file
-        return formatter.string(fromByteCount: Int64(bytes))
     }
 
     // MARK: - 内容区

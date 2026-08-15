@@ -13,6 +13,9 @@ struct SharePreviewData: Identifiable {
     let id = UUID()
     let image: UIImage
     let url: URL
+    /// 同一份分页作品的后续预览图与文件；单图调用方保持为空。
+    var additionalImages: [UIImage] = []
+    var additionalURLs: [URL] = []
     /// 文件名（如 "MiLens_小满_伙伴纪念卡_001.png"），nil 时隐藏。
     var filename: String? = nil
     /// 导出规格（如 "1080 × 1350 · PNG · 2.4 MB"），nil 时隐藏。
@@ -29,6 +32,9 @@ struct SharePreviewSheet: View {
     let previewImage: UIImage
     /// 分享文件 URL（系统 ShareSheet 使用）。
     let shareURL: URL
+    /// 分页作品的后续预览图与分享文件。
+    var additionalPreviewImages: [UIImage] = []
+    var additionalShareURLs: [URL] = []
     /// 分享文案（可选，随图片一起分享）。
     var shareText: String = ""
     /// 文件名（如 "MiLens_小满_伙伴纪念卡_001.png"）。
@@ -53,6 +59,15 @@ struct SharePreviewSheet: View {
     @State private var immersiveLastScale: CGFloat = 1
     @State private var immersiveOffset: CGSize = .zero
     @State private var immersiveLastOffset: CGSize = .zero
+    @State private var selectedPageIndex = 0
+
+    private var previewImages: [UIImage] {
+        [previewImage] + additionalPreviewImages
+    }
+
+    private var activePreviewImage: UIImage {
+        previewImages[min(selectedPageIndex, previewImages.count - 1)]
+    }
 
     var body: some View {
         VStack(spacing: 0) {
@@ -82,7 +97,7 @@ struct SharePreviewSheet: View {
             ZStack {
                 Color.black.ignoresSafeArea()
 
-                Image(uiImage: previewImage)
+                Image(uiImage: activePreviewImage)
                     .resizable()
                     .scaledToFit()
                     .frame(width: geo.size.width, height: geo.size.height)
@@ -152,6 +167,12 @@ struct SharePreviewSheet: View {
                 .padding(.leading, Spacing.lg)
                 .padding(.top, 12)
             }
+            .overlay(alignment: .bottom) {
+                if previewImages.count > 1 {
+                    pageStepper(foreground: .white, background: Color.black.opacity(0.55))
+                        .padding(.bottom, Spacing.xl)
+                }
+            }
         }
     }
 
@@ -206,30 +227,39 @@ struct SharePreviewSheet: View {
             .padding(.horizontal, Spacing.pagePad)
             .padding(.top, Spacing.lg)
 
-            // 成品卡片预览（居中 + 大阴影；点击进入沉浸式查看）
-            Button {
-                showImmersive = true
-                Haptics.light()
-            } label: {
-                Image(uiImage: previewImage)
-                    .resizable()
-                    .scaledToFit()
-                    .frame(maxWidth: 210, maxHeight: 263)
-                    .clipShape(RoundedRectangle(cornerRadius: 4, style: .continuous))
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 4, style: .continuous)
-                            .stroke(Color.milensSeparator, lineWidth: 0.5)
+            // 成品卡片预览（分页作品可逐页翻看；点击进入沉浸式查看）
+            VStack(spacing: Spacing.sm) {
+                Button {
+                    showImmersive = true
+                    Haptics.light()
+                } label: {
+                    Image(uiImage: activePreviewImage)
+                        .resizable()
+                        .scaledToFit()
+                        .frame(maxWidth: 210, maxHeight: 263)
+                        .clipShape(RoundedRectangle(cornerRadius: 4, style: .continuous))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 4, style: .continuous)
+                                .stroke(Color.milensSeparator, lineWidth: 0.5)
+                        )
+                        .elevation(.medium)
+                        .overlay(alignment: .bottomTrailing) {
+                            Image(systemName: "plus.magnifyingglass")
+                                .font(.system(size: 12)) // ui-token:ok SF Symbol 光学图标尺寸
+                                .foregroundStyle(.white)
+                                .padding(6)
+                                .background(Color.black.opacity(0.4), in: Circle())
+                        }
+                }
+                .buttonStyle(.plain)
+
+                if previewImages.count > 1 {
+                    pageStepper(
+                        foreground: Color.milensTextPrimary,
+                        background: Color.milensGrouped
                     )
-                    .elevation(.medium)
-                    .overlay(alignment: .bottomTrailing) {
-                        Image(systemName: "plus.magnifyingglass")
-                            .font(.system(size: 12)) // ui-token:ok SF Symbol 光学图标尺寸
-                            .foregroundStyle(.white)
-                            .padding(6)
-                            .background(Color.black.opacity(0.4), in: Circle())
-                    }
+                }
             }
-            .buttonStyle(.plain)
             .padding(.top, Spacing.xl)
 
             Spacer(minLength: Spacing.lg)
@@ -303,11 +333,46 @@ struct SharePreviewSheet: View {
         onSecondary?()
     }
 
+    private func changePage(by offset: Int) {
+        let next = min(max(selectedPageIndex + offset, 0), previewImages.count - 1)
+        guard next != selectedPageIndex else { return }
+        withAnimation(.easeInOut(duration: Motion.durationFast)) {
+            selectedPageIndex = next
+            resetImmersive()
+        }
+    }
+
+    private func pageStepper(foreground: Color, background: Color) -> some View {
+        HStack(spacing: Spacing.md) {
+            Button { changePage(by: -1) } label: {
+                Image(systemName: "chevron.left")
+                    .frame(width: 28, height: 28)
+            }
+            .disabled(selectedPageIndex == 0)
+            .opacity(selectedPageIndex == 0 ? 0.35 : 1)
+
+            Text(String(format: "%02d / %02d", selectedPageIndex + 1, previewImages.count))
+                .font(.editorialMetadata)
+                .monospacedDigit()
+
+            Button { changePage(by: 1) } label: {
+                Image(systemName: "chevron.right")
+                    .frame(width: 28, height: 28)
+            }
+            .disabled(selectedPageIndex == previewImages.count - 1)
+            .opacity(selectedPageIndex == previewImages.count - 1 ? 0.35 : 1)
+        }
+        .foregroundStyle(foreground)
+        .padding(.horizontal, Spacing.sm)
+        .padding(.vertical, 4)
+        .background(background, in: Capsule())
+    }
+
     /// 系统 ShareSheet 的 items（图片 URL + 可选文案）。
     private var shareItems: [Any] {
         var items: [Any] = []
         if !shareText.isEmpty { items.append(shareText) }
-        items.append(shareURL)
+        items.append(contentsOf: [shareURL] + additionalShareURLs)
         return items
     }
 }

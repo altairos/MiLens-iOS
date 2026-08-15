@@ -436,6 +436,8 @@ P1 核心可靠性与性能六项修复全部落地（实现记录见状态摘�
 
   **已实现（P0-e/f）**：⑤**宠物卡片多模板**：MiLensKit `PetCardTemplate` 枚举（经典免费 / 拍立得 / 杂志 / 极简 Pro）+ `isUsable(isPro:)` / `resolve(_:isPro:)` 门控；`PetCardArtwork` 重构为 4 个独立排版分支；`PetCardView` 底部模板选择器（水平滚动 + 缩略图 + Pro 锁标）+ `@AppStorage` 持久化。⑥**时间线导出分享**（Pro 专属）：`TimelineExportLogic` 纯函数（从 months 构建导出数据）+ `TimelineExportCanvas`（1080px 离屏渲染视图，头部 + 按月分组 + 时间线节点）+ `TimelineView` 导航栏「分享」按钮 + Pro 门控。
 
+- 2026-08-15：**成长时间线 / 年度回忆册手机分享模板 V1**——废止高度随内容增长的单张超级长图，统一为 390×1260pt、3× 输出的 JPEG 图片组；`ArchiveSharePagination` 纯函数负责时间线高度分页和年度回忆册 2/3 月分页，`ArchiveShareTemplate` 复用封面、月标题、真实缩略图、月度条与页脚，`ArchiveShareRendering` 按页降采样和释放资源，`SharePreviewSheet` 支持多页预览与整组系统分享。时间线与回忆册原有 `guard entitlement.isPro` 门控保持不变。Figma 首套可复用组件与 4 张成品页已放入 `Timeline` 页面 `776:1318`；iPad 专用模板后置。
+
   **接口预留（数据模型锁定）**：⑦**编辑器装饰**：MiLensKit `DecorationCatalog`（边框/贴纸资源目录 + Pro 门控元数据，复用已有 `EditorLayerType.frame/.sticker`）。⑧**实体打印**：`MiLens/Services/Print/PrintService.swift`（协议 + `PrintProductType`/`PrintProductSpec`/`PrintQuote`/`PrintOrder` 数据模型 + `UnavailablePrintService` 占位）。**⚠️ 延后处理（2026-08-12）**：产品决策将实体打印移出 V1.0，仅保留架构预留，不投入开发资源，不展示入口。后续版本视供应链与运营资源再行评估。⑨**离线备份**：`MiLens/Services/Backup/BackupService.swift`（协议 + `BackupManifest`/`BackupMetadata`/`PetSnapshot`/`PhotoSnapshot` 数据模型 + ZIP 打包格式定义 + `UnavailableBackupService` 占位；方案选定 A（ZIP + ShareSheet）核心 + B（iTunes File Sharing）补充，排除 C（系统相册丢元数据）和 D（iCloud 违背不联网约束））。⑩**相簿浏览模式**：MiLensKit `GalleryMode` 枚举（网格免费 / 剪贴簿 / 拍立得散页 / 杂志 Pro）。
 
   **Pro 权益扩展**：`ProFeature` 新增 `.photoStorage` / `.watermarkFreeExport` / `.cardTemplates` / `.timelineExport` / `.offlineBackup` / `.albumModes` 6 个权益项 + 对应本地化字符串。

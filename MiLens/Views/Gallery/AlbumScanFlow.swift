@@ -168,13 +168,16 @@ struct AlbumScanFlowView: View {
     private func startImport() {
         guard !selectedIdentifiers.isEmpty else { return }
         phase = .importing
-        vm.importCandidates(identifiers: Array(selectedIdentifiers), targetPetID: selectedPetID)
+        // 按候选列表顺序过滤选中项（Set 迭代序随机，见 OnboardingViewModel 同样处理）
+        let identifiers = vm.candidateURIs.filter { selectedIdentifiers.contains($0) }
+        vm.importCandidates(identifiers: identifiers, targetPetID: selectedPetID)
     }
 
     /// 用户选择"新建伙伴档案"时：导入为未归属照片（稍后手动建档归属）。
     private func startImportUnassigned() {
         guard !selectedIdentifiers.isEmpty else { return }
         phase = .importing
-        vm.importCandidates(identifiers: Array(selectedIdentifiers), targetPetID: nil)
+        let identifiers = vm.candidateURIs.filter { selectedIdentifiers.contains($0) }
+        vm.importCandidates(identifiers: identifiers, targetPetID: nil)
     }
 }

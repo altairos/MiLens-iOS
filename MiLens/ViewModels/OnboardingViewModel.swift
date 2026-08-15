@@ -440,7 +440,9 @@ final class OnboardingViewModel {
     /// 候选页「确认导入」入口：把已确认候选写入档案 + 强制归属到刚创建的宠物。
     func importConfirmedCandidates() {
         guard !isImporting, !selectedCandidateIDs.isEmpty else { return }
-        let identifiers = Array(selectedCandidateIDs)
+        // Set 迭代顺序随进程哈希种子随机——按候选列表顺序过滤选中项，
+        // 保证导入顺序与候选页展示一致（确定性，避免顺序敏感断言 flaky）。
+        let identifiers = candidateURIs.filter { selectedCandidateIDs.contains($0) }
         isImporting = true
         importPercent = 0
         step = .importing

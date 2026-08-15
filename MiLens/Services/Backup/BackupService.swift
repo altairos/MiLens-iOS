@@ -296,7 +296,7 @@ struct RestoreResult: Equatable, Sendable {
 
 // MARK: - 错误
 
-enum BackupServiceError: Error, LocalizedError, Sendable {
+enum BackupServiceError: Error, LocalizedError, Sendable, Equatable {
     case serviceUnavailable
     case backupFailed(String)
     case restoreFailed(String)

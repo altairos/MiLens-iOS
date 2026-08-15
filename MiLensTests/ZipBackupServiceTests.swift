@@ -175,7 +175,8 @@ final class ZipBackupServiceTests: XCTestCase {
         // 照片文件写回目标沙盒
         let writtenPath = restoredPhotos.first?.uri ?? ""
         XCTAssertTrue(tFs.fileExists(at: writtenPath), "恢复后照片文件须写回沙盒")
-        XCTAssertEqual(try await tFs.read(at: writtenPath), Data("jpeg-bytes".utf8))
+        let writtenData = try await tFs.read(at: writtenPath)
+        XCTAssertEqual(writtenData, Data("jpeg-bytes".utf8))
     }
 
     // MARK: - PetEvent 字段完整性（P1 修复）
@@ -423,7 +424,8 @@ final class ZipBackupServiceTests: XCTestCase {
         XCTAssertTrue(tFs.fileExists(at: restoredPet.avatarPath), "恢复后头像文件须写回沙盒")
         XCTAssertTrue(restoredPet.avatarPath.hasPrefix("\(sandboxDir)/avatars/"),
                       "avatarPath 须指向沙盒 avatars 目录")
-        XCTAssertEqual(try await tFs.read(at: restoredPet.avatarPath), Data("avatar-bytes".utf8))
+        let avatarData = try await tFs.read(at: restoredPet.avatarPath)
+        XCTAssertEqual(avatarData, Data("avatar-bytes".utf8))
     }
 
     // MARK: - 路径穿越防御
@@ -578,7 +580,8 @@ final class ZipBackupServiceTests: XCTestCase {
 
         // 原有文件应保留，不被备份包中的数据覆盖
         XCTAssertTrue(tFs.fileExists(at: destPath), "目标路径应存在")
-        XCTAssertEqual(try await tFs.read(at: destPath), Data("pre-existing".utf8),
+        let preExistingData = try await tFs.read(at: destPath)
+        XCTAssertEqual(preExistingData, Data("pre-existing".utf8),
                        "恢复不得覆盖已存在的文件")
     }
 
@@ -673,12 +676,14 @@ final class ZipBackupServiceTests: XCTestCase {
             exportDate: Date(),
             photoCount: 0,
             petCount: 0)
-        entries[manifestIdx] = ZipEntry(path: BackupConfig.manifestFileName, data: JSONEncoder().encode(tampered))
+        entries[manifestIdx] = ZipEntry(path: BackupConfig.manifestFileName, data: try JSONEncoder().encode(tampered))
         let tamperedZip = ZipWriter.archive(entries: entries)
         try await sharedFS.write(tamperedZip, to: backup.fileURLs[0].path)
 
         let (target, _, _, _, _) = makeService(fileStorage: sharedFS)
-        XCTAssertThrowsError(try await target.importBackup(from: [backup.fileURLs[0]], progress: { _ in })) { error in
+        do {
+            _ = try await target.importBackup(from: [backup.fileURLs[0]], progress: { _ in }); XCTFail("should throw")
+        } catch {
             guard case .unsupportedVersion = error as? BackupServiceError else {
                 return XCTFail("应抛 unsupportedVersion，实际：\(error)")
             }
@@ -696,7 +701,9 @@ final class ZipBackupServiceTests: XCTestCase {
         try await sharedFS.write(ZipWriter.archive(entries: entries), to: backup.fileURLs[0].path)
 
         let (target, _, _, _, _) = makeService(fileStorage: sharedFS)
-        XCTAssertThrowsError(try await target.importBackup(from: [backup.fileURLs[0]], progress: { _ in })) { error in
+        do {
+            _ = try await target.importBackup(from: [backup.fileURLs[0]], progress: { _ in }); XCTFail("should throw")
+        } catch {
             XCTAssertEqual(error as? BackupServiceError, .invalidFormat)
         }
     }
@@ -723,7 +730,8 @@ final class ZipBackupServiceTests: XCTestCase {
 
         // 原有文件保留
         XCTAssertTrue(tFs.fileExists(at: destPath))
-        XCTAssertEqual(try await tFs.read(at: destPath), Data("pre-existing-unrelated".utf8))
+        let unrelatedData = try await tFs.read(at: destPath)
+        XCTAssertEqual(unrelatedData, Data("pre-existing-unrelated".utf8))
         // 照片记录须导入（元数据有效），但 uri 须为空——不绑定到未知文件
         let restoredPhoto = try tPhotoRepo.getPhotosPage(offset: 0, limit: 10).first!
         XCTAssertEqual(restoredPhoto.uri, "", "恢复不得将 uri 绑定到非本次写入的未知文件")
@@ -895,7 +903,7 @@ final class ZipBackupServiceTests: XCTestCase {
             phash: snap2.phash, qualityScore: snap2.qualityScore,
             photoFileName: snap1.photoFileName, createdAt: snap2.createdAt)
         metadata = BackupMetadata(pets: metadata.pets, photos: [snap1, snap2], petEvents: metadata.petEvents)
-        let encoder = JSONEncoder(); encoder.dateDecodingStrategy = .iso8601
+        let encoder = JSONEncoder(); encoder.dateEncodingStrategy = .iso8601
         entries[metaIdx] = ZipEntry(path: BackupConfig.metadataFileName, data: try encoder.encode(metadata))
         try await sharedFS.write(ZipWriter.archive(entries: entries), to: backup.fileURLs[0].path)
 
@@ -934,7 +942,7 @@ final class ZipBackupServiceTests: XCTestCase {
             avatarFileName: snap1.avatarFileName, notes: snap2.notes,
             photoCount: snap2.photoCount, createdAt: snap2.createdAt)
         metadata = BackupMetadata(pets: [snap1, snap2], photos: metadata.photos, petEvents: metadata.petEvents)
-        let encoder = JSONEncoder(); encoder.dateDecodingStrategy = .iso8601
+        let encoder = JSONEncoder(); encoder.dateEncodingStrategy = .iso8601
         entries[metaIdx] = ZipEntry(path: BackupConfig.metadataFileName, data: try encoder.encode(metadata))
         try await sharedFS.write(ZipWriter.archive(entries: entries), to: backup.fileURLs[0].path)
 
@@ -1055,9 +1063,9 @@ final class ZipBackupServiceTests: XCTestCase {
         let incompleteURLs = Array(result.fileURLs.dropLast())
         let (target, _, _, _, _) = makeService(fileStorage: sharedFS)
 
-        XCTAssertThrowsError(
-            try await target.importBackup(from: incompleteURLs, progress: { _ in })
-        ) { error in
+        do {
+            _ = try await target.importBackup(from: incompleteURLs, progress: { _ in }); XCTFail("should throw")
+        } catch {
             guard case .incompleteVolumeSet = error as? BackupServiceError else {
                 return XCTFail("应抛 incompleteVolumeSet，实际：\(error)")
             }
@@ -1093,9 +1101,9 @@ final class ZipBackupServiceTests: XCTestCase {
         let mixedURLs = [result1.fileURLs[0], result2.fileURLs[0]]
         let (target, _, _, _, _) = makeService(fileStorage: sharedFS)
 
-        XCTAssertThrowsError(
-            try await target.importBackup(from: mixedURLs, progress: { _ in })
-        ) { error in
+        do {
+            _ = try await target.importBackup(from: mixedURLs, progress: { _ in }); XCTFail("should throw")
+        } catch {
             guard case .mismatchedBackupID = error as? BackupServiceError else {
                 return XCTFail("应抛 mismatchedBackupID，实际：\(error)")
             }

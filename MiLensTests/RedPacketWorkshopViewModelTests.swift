@@ -27,7 +27,7 @@ final class RedPacketWorkshopViewModelTests: XCTestCase {
             photoID: UUID(),
             petID: nil,
             isPro: isPro,
-            photoRepo: photoRepo,
+            photoRepo: photoRepo,`r`n            petRepo: petRepo,
             vision: vision,
             draftStore: draftStore,
             imageQualityAnalyzer: CoreGraphicsRedPacketImageQualityAnalyzer()

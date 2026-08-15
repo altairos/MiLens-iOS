@@ -143,6 +143,17 @@ def collect_files(include: tuple, exclude: tuple):
     return files
 
 
+def file_path(f):
+    """文件源路径（新格式 path 键优先，旧格式 name 兜底）。"""
+    return f.get("path") or f.get("name") or ""
+
+
+def separate_package_files(files):
+    """从混合文件列表分离 MiLensKit 包源文件（按源码路径子串，排除测试）。"""
+    return [f for f in files
+            if "MiLensKit" in file_path(f) and "Tests" not in file_path(f)]
+
+
 def line_coverage(files):
     """行覆盖率：行数加权（Σ已覆盖行 / Σ可执行行，准确反映大文件覆盖）。
     兼容两种文件格式：旧 coveredLines/uncoveredLines 对，或 Xcode 16.4 的
@@ -221,11 +232,35 @@ specs = {
 }
 for name, (inc, exc, file_min) in specs.items():
     files = collect_files(inc, exc)
+    if not files and name == "MiLensKit":
+        # App scheme 的 xcresult 无独立包 target（SPM 代码链接进 App 二进制）：
+        # 按源码路径从非测试 target 的混合数据中分离 MiLensKit 包文件
+        mixed = [f for t in report
+                 if "Tests" not in target_name(t)
+                 for f in (t.get("coverageData") or t.get("files") or [])]
+        files = separate_package_files(mixed)
+        if files:
+            print(f"[note] {name}: xcresult 无独立 MiLensKit target，"
+                  f"按源码路径从混合数据分离 {len(files)} 个包文件")
+    if name == "MiLens (App)":
+        # App 口径排除包源文件（其覆盖计入 MiLensKit，避免双计/稀释 App 数字）
+        pkg = separate_package_files(files)
+        if pkg:
+            files = [f for f in files if "MiLensKit" not in file_path(f)]
+            print(f"[note] {name}: 排除 {len(pkg)} 个 MiLensKit 包源文件（覆盖计入 MiLensKit 口径）")
     if not files:
-        # 透明化：target 对象样本助力适配未知 xccov 结构
-        sample = next((json.dumps(t, ensure_ascii=False)[:600]
-                       for t in report if isinstance(t, dict)), "无 target 对象")
-        print(f"[FAIL] {name}: 未在 xcresult 中找到覆盖率数据；target 样本：{sample}")
+        # 透明化：target 概览 + 文件对象键 + 首文件样本（整 target 样本会被函数数组挤满，
+        # 键级信息更利于适配未知 xccov 结构）
+        tgt = "; ".join(f"{target_name(t) or '?'}={len(t.get('coverageData') or t.get('files') or [])}"
+                        for t in report) or "无 target"
+        fkeys = sorted({k for t in report
+                        for f in (t.get("coverageData") or t.get("files") or [])[:3]
+                        for k in f})
+        fsample = next((json.dumps(f, ensure_ascii=False)[:400]
+                        for t in report
+                        for f in (t.get("coverageData") or t.get("files") or [])[:1]), "")
+        print(f"[FAIL] {name}: 未在 xcresult 中找到覆盖率数据；target 概览（名=文件数）：{tgt}")
+        print(f"       文件对象键：{fkeys}；首文件样本：{fsample}")
         results[name] = False
         ok = False
         continue
@@ -310,11 +345,22 @@ if selftest:
                   and branch_coverage(nf) == (1.0, False)
                   and len(nf_wf) == 2 and nf_wf[0][0] == "/p/B.swift"
                   and abs(nf_wf[0][1] - 0.2) < 1e-9 and nf_wf[0][2] == 100)
-    if app_ok and kit_ok and weighted_active and new_fmt_ok:
+    # 守护：SPM 混合场景——App scheme xcresult 无独立 Kit target（包代码链接进
+    # App 二进制），Kit 按源码路径分离、App 排除包文件，互不双计。
+    mixed = [
+        {"path": "/repo/MiLens/Views/A.swift", "coveredLines": 60, "executableLines": 100, "functions": []},
+        {"path": "/repo/MiLensKit/Sources/MiLensKit/B.swift", "coveredLines": 20, "executableLines": 100, "functions": []},
+        {"path": "/repo/MiLensKit/Tests/MiLensKitTests/C.swift", "coveredLines": 50, "executableLines": 100, "functions": []},
+    ]
+    kit_sep = separate_package_files(mixed)
+    app_sep = [f for f in mixed if "MiLensKit" not in file_path(f)]
+    mixed_ok = (len(kit_sep) == 1 and kit_sep[0]["path"].endswith("B.swift")
+                and len(app_sep) == 1 and app_sep[0]["path"].endswith("A.swift"))
+    if app_ok and kit_ok and weighted_active and new_fmt_ok and mixed_ok:
         print("check-coverage: selftest PASS（行数加权生效；App=基线 PASS / Kit<基线 FAIL，单位与比较逻辑正确；"
-              "Xcode 16.4 新格式解析正确）")
+              "Xcode 16.4 新格式解析正确；SPM 包路径分离正确）")
         sys.exit(0)
-    print("check-coverage: selftest FAIL（App/Kit 结果与预期不符，或行数加权未生效，或新格式解析错误——"
+    print("check-coverage: selftest FAIL（App/Kit 结果与预期不符，或行数加权未生效，或新格式/包分离解析错误——"
           "阈值单位、比较逻辑或加权口径错误）")
     sys.exit(1)
 

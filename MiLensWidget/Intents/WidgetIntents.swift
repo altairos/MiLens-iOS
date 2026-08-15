@@ -43,6 +43,8 @@ struct PetEntityQuery: EntityQuery {
         allEntities()
     }
 
+    /// 用户未选择伙伴时 WidgetKit 使用的默认实体；同时是各 Intent
+    /// `@Parameter` 省略 `default:` 后的默认值来源（值为「全部伙伴」）。
     func defaultResult() async -> PetEntity {
         PetEntity(id: "all", displayName: "全部伙伴")
     }
@@ -66,7 +68,9 @@ struct SelectPetIntent: WidgetConfigurationIntent {
     static var title: LocalizedStringResource = "选择伙伴"
     static var description = IntentDescription("选择这个 Widget 展示的伙伴档案")
 
-    @Parameter(title: "伙伴", default: PetEntity(id: "all", displayName: "全部伙伴"))
+    // AppEntity 参数的 default: 只接受编译期字面量（构造调用被宏拒绝），
+    // 默认值改由 PetEntityQuery.defaultResult() 提供（同一「全部伙伴」）。
+    @Parameter(title: "伙伴")
     var pet: PetEntity
 
     init() {}
@@ -82,7 +86,9 @@ struct PhotoEchoConfigIntent: WidgetConfigurationIntent {
     static var title: LocalizedStringResource = "相片回声设置"
     static var description = IntentDescription("选择展示哪个伙伴的哪类照片")
 
-    @Parameter(title: "伙伴", default: PetEntity(id: "all", displayName: "全部伙伴"))
+    // AppEntity 参数的 default: 只接受编译期字面量（构造调用被宏拒绝），
+    // 默认值改由 PetEntityQuery.defaultResult() 提供（同一「全部伙伴」）。
+    @Parameter(title: "伙伴")
     var pet: PetEntity
 
     @Parameter(title: "内容", default: PhotoEchoSourceAppEnum.todayOrRecent)
@@ -159,6 +165,8 @@ struct AnniversaryEntityQuery: EntityQuery {
         suggestedEntities(petID: selectAnniversaryIntent?.pet.petID)
     }
 
+    /// 用户未选择纪念日时的默认实体（自动取最近），也是
+    /// `@Parameter` 省略 `default:` 后的默认值来源。
     func defaultResult() async -> AnniversaryEntity {
         AnniversaryEntity(id: "auto", displayName: "自动（最近）")
     }
@@ -203,10 +211,13 @@ struct SelectAnniversaryIntent: WidgetConfigurationIntent {
     static var title: LocalizedStringResource = "纪念日设置"
     static var description = IntentDescription("选择展示哪个伙伴的哪个纪念日倒计时")
 
-    @Parameter(title: "伙伴", default: PetEntity(id: "all", displayName: "全部伙伴"))
+    // AppEntity 参数的 default: 只接受编译期字面量（构造调用被宏拒绝），
+    // 默认值改由 PetEntityQuery.defaultResult() 提供（同一「全部伙伴」）。
+    @Parameter(title: "伙伴")
     var pet: PetEntity
 
-    @Parameter(title: "纪念日", default: AnniversaryEntity(id: "auto", displayName: "自动（最近）"))
+    // 同上：默认值由 AnniversaryEntityQuery.defaultResult() 提供（自动取最近）。
+    @Parameter(title: "纪念日")
     var anniversary: AnniversaryEntity
 
     init() {}

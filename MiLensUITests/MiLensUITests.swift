@@ -146,7 +146,7 @@ final class MiLensUITests: XCTestCase {
     }
 
     /// 付费墙冒烟：非 Pro（MockStoreService inactive）点「备份导出」→ 弹付费墙
-    /// （MockStoreService 默认注入 sampleProducts，ready 态渲染 hero）→ 关闭后返回。
+    /// （MockStoreService 默认注入 sampleProducts，ready 态渲染）→ 关闭后返回。
     func testSettingsBackupExportShowsPaywall() {
         let app = launchApp()
 
@@ -156,18 +156,16 @@ final class MiLensUITests: XCTestCase {
         scrollToElement(exportEntry, in: app)
         exportEntry.tap()
 
-        // 付费墙 sheet：ready 态 hero 副标题（付费墙独有；勿用 "MiLens Pro"——
-        // 设置页 ProHeroCard 首屏同名文本会使断言恒真）。Mock 产品即时返回，
-        // loading → ready 无真实网络耗时。
-        let heroTitle = app.staticTexts["把这张照片做成一份作品"]
+        // 付费墙 sheet：ready 态才渲染关闭按钮（accessibilityLabel「关闭」，付费墙
+        // 独有；勿用 "MiLens Pro"——设置页 ProHeroCard 首屏同名文本会使断言恒真）。
+        // 勿按 hero 文案断言：paywall.hero.title 为多行文本（label 含换行，匹配不稳）；
+        // 上一版误用无代码引用的孤儿文案 paywall.title，CI 首跑即失败。
+        let closeButton = app.buttons["关闭"].firstMatch
         XCTAssertTrue(
-            heroTitle.waitForExistence(timeout: 10),
+            closeButton.waitForExistence(timeout: 10),
             "非 Pro 点「备份导出」未弹出付费墙"
         )
 
-        // 关闭按钮（accessibilityLabel「关闭」，付费墙独有）→ sheet dismiss
-        let closeButton = app.buttons["关闭"].firstMatch
-        XCTAssertTrue(closeButton.exists, "付费墙缺少关闭按钮")
         closeButton.tap()
         XCTAssertFalse(
             app.buttons["关闭"].waitForExistence(timeout: 3),

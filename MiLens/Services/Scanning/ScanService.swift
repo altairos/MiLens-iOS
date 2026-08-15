@@ -186,16 +186,16 @@ final class ScanService {
         do {
             _ = try await photoLibrary.streamPhotos { asset in
                 // 取消检查点（对应源端 shouldCancel）
-                if shouldCancel {
+                if self.shouldCancel {
                     return false
                 }
                 // 暂停检查点：保存断点与统计，停止遍历（返回 false 中断流）
-                if shouldPause {
-                    lastScannedIdentifier = asset.identifier
-                    savedPetPhotosFound = petPhotosFound
-                    savedMatchedCount = matchedCount
-                    isPaused = true
-                    isScanning = false
+                if self.shouldPause {
+                    self.lastScannedIdentifier = asset.identifier
+                    self.savedPetPhotosFound = petPhotosFound
+                    self.savedMatchedCount = matchedCount
+                    self.isPaused = true
+                    self.isScanning = false
                     return false
                 }
 
@@ -205,7 +205,7 @@ final class ScanService {
                 if !pastResumePoint {
                     pastResumePoint = ScanControlMath.updateResumePoint(
                         assetUri: asset.identifier,
-                        lastScannedUri: lastScannedIdentifier ?? "",
+                        lastScannedUri: self.lastScannedIdentifier ?? "",
                         alreadyPast: pastResumePoint)
                     onProgress?(ScanProgress(
                         scanned: scanned, total: totalCount,

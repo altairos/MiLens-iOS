@@ -11,6 +11,9 @@ enum SettingsBackupCopy {
     /// 导出入口副标题：
     /// 服务不可用 →「即将上线」；未解锁 →「Pro 专属功能」；
     /// 已解锁 → 展示上次备份时间（「上次备份 8 月 3 日」）或「尚未备份」温柔引导。
+    /// 读取 BackupViewModel 的 MainActor 隔离状态（isServiceAvailable/lastBackupDate），
+    /// 故随 VM 一同隔离；调用方均在 View（MainActor）上下文。
+    @MainActor
     static func exportSubtitle(isPro: Bool, backupVM: BackupViewModel?) -> String? {
         if backupVM?.isServiceAvailable == false {
             return String(localized: "settings.backup.comingSoon")

@@ -242,7 +242,7 @@ struct SharePreviewSheet: View {
                             RoundedRectangle(cornerRadius: 4, style: .continuous)
                                 .stroke(Color.milensSeparator, lineWidth: 0.5)
                         )
-                        .elevation(.medium)
+                        .elevation(Elevation.medium)
                         .overlay(alignment: .bottomTrailing) {
                             Image(systemName: "plus.magnifyingglass")
                                 .font(.system(size: 12)) // ui-token:ok SF Symbol 光学图标尺寸

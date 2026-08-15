@@ -188,6 +188,7 @@ final class ViewModelFactory {
             petID: petID,
             isPro: isPro,
             photoRepo: photoRepo,
+            petRepo: petRepo,
             vision: vision,
             draftStore: RedPacketDraftStore(draftsDir: redPacketDraftsDir),
             imageQualityAnalyzer: CoreGraphicsRedPacketImageQualityAnalyzer()

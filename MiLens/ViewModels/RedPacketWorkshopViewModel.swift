@@ -35,6 +35,7 @@ final class RedPacketWorkshopViewModel {
     // MARK: - 依赖
 
     private let photoRepo: any PhotoRepositoryProtocol
+    private let petRepo: any PetRepositoryProtocol
     // 以下三个成员供 +Cutout.swift 访问（同模块内可见），其余仍 private。
     let vision: any VisionService
     let draftStore: RedPacketDraftStore
@@ -102,6 +103,7 @@ final class RedPacketWorkshopViewModel {
         petID: UUID?,
         isPro: Bool,
         photoRepo: any PhotoRepositoryProtocol,
+        petRepo: any PetRepositoryProtocol,
         vision: any VisionService,
         draftStore: RedPacketDraftStore,
         imageQualityAnalyzer: any RedPacketImageQualityAnalyzing
@@ -111,6 +113,7 @@ final class RedPacketWorkshopViewModel {
         self.petID = petID
         self.isPro = isPro
         self.photoRepo = photoRepo
+        self.petRepo = petRepo
         self.vision = vision
         self.draftStore = draftStore
         self.imageQualityAnalyzer = imageQualityAnalyzer
@@ -169,7 +172,7 @@ final class RedPacketWorkshopViewModel {
                 .reduce(into: [String]()) { paths, path in
                     if !paths.contains(path) { paths.append(path) }
                 }
-            let loadedData = await Task.detached(priority: .utility) {
+            let loadedData = await Task.detached(priority: .utility) { () -> Data? in
                 for path in candidatePaths {
                     if let data = try? Data(contentsOf: URL(fileURLWithPath: path), options: .mappedIfSafe),
                        !data.isEmpty {
@@ -193,7 +196,7 @@ final class RedPacketWorkshopViewModel {
 
             // 宠物名
             var name = ""
-            if let petID, let pet = try photoRepo.getPet(id: petID) {
+            if let petID, let pet = try petRepo.getPet(id: petID) {
                 name = pet.name
             } else if let pet = photo.pet {
                 name = pet.name

@@ -153,7 +153,7 @@ struct PetCardView: View {
                             RoundedRectangle(cornerRadius: Radius.large, style: .continuous)
                                 .stroke(Color.milensBorder, lineWidth: 0.5)
                         }
-                        .elevation(.medium)
+                        .elevation(Elevation.medium)
                         .padding(.horizontal, Spacing.pagePad)
                         .padding(.top, Spacing.sm)
 

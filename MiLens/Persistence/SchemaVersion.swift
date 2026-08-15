@@ -221,6 +221,6 @@ enum MiLensMigrationPlan: SchemaMigrationPlan {
         // V1 → V2：PetEvent 纯新增字段（body/sourceType/isPinned/relatedPhotoID，均有默认值），
         // Pet/Photo 字段不变。SwiftData lightweight migration 自动处理。
         // 最终须在 Mac 上用真实旧库验证（见文件头注释）。
-        [MigrationStage.lightweight(from: SchemaV1.self, to: SchemaV2.self)]
+        [MigrationStage.lightweight(fromVersion: SchemaV1.self, toVersion: SchemaV2.self)]
     }
 }

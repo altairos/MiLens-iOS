@@ -58,6 +58,27 @@ args = sys.argv[1:]
 selftest = args[0] == "--selftest"
 app_ml, app_mf, app_mb, kit_ml, kit_mf, kit_mb = (float(a) for a in args[1:7])
 
+
+def normalize_report(raw):
+    """归一化 xccov --report --json 顶层结构。
+    旧版（≤Xcode 15）：顶层为 target 对象列表 [{target, coverageData}]；
+    新版（Xcode 16+）可能包裹在 {"targets": [...]} 或其他 dict 形态。
+    无法识别时 dump 结构样本到 stderr 并退出（退出码 2），便于下轮适配。"""
+    if isinstance(raw, list):
+        return raw
+    if isinstance(raw, dict):
+        ts = raw.get("targets")
+        if isinstance(ts, list):
+            return ts
+        # {targetName: {...}} 映射形态兜底
+        if raw and all(isinstance(v, dict) for v in raw.values()):
+            return [{"target": k, **v} for k, v in raw.items()]
+    sys.stderr.write(
+        "check-coverage: 无法识别的 xccov JSON 顶层结构，前 800 字符样本：\n"
+        + json.dumps(raw, ensure_ascii=False)[:800] + "\n")
+    sys.exit(2)
+
+
 # 附加阈值（环境变量；selftest 使用默认值，不依赖外部环境）。
 FILE_MIN_LINES = int(os.environ.get("FILE_MIN_LINES", "50"))   # 最差文件报告忽略小文件的阈值
 APP_FILE_MIN = float(os.environ.get("APP_FILE_MIN", "0"))      # App 单文件行覆盖下限（%），0=关闭
@@ -89,6 +110,7 @@ else:
     xc_result = args[0]
     report = json.loads(subprocess.check_output(
         ["xcrun", "xccov", "view", "--report", "--json", xc_result], text=True))
+    report = normalize_report(report)
 
 mins = {"MiLens (App)": (app_ml, app_mf, app_mb),
         "MiLensKit": (kit_ml, kit_mf, kit_mb)}
@@ -102,12 +124,12 @@ def collect_files(include: tuple, exclude: tuple):
     """收集指定 target 的全部文件覆盖率对象。"""
     files = []
     for t in report:
-        name = t.get("target", "")
+        name = t.get("target") or t.get("name") or ""
         if not any(k in name for k in include):
             continue
         if any(k in name for k in exclude):
             continue
-        files.extend(t.get("coverageData", []))
+        files.extend(t.get("coverageData") or [])
     return files
 
 
@@ -171,7 +193,10 @@ specs = {
 for name, (inc, exc, file_min) in specs.items():
     files = collect_files(inc, exc)
     if not files:
-        print(f"[FAIL] {name}: 未在 xcresult 中找到覆盖率数据")
+        # 透明化：target 对象样本助力适配未知 xccov 结构
+        sample = next((json.dumps(t, ensure_ascii=False)[:600]
+                       for t in report if isinstance(t, dict)), "无 target 对象")
+        print(f"[FAIL] {name}: 未在 xcresult 中找到覆盖率数据；target 样本：{sample}")
         results[name] = False
         ok = False
         continue

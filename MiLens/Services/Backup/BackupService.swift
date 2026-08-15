@@ -370,7 +370,7 @@ protocol BackupService: Sendable {
     /// - Returns: 备份结果（含临时文件路径，供 ShareSheet 分享）。
     func exportBackup(
         petIDs: [UUID]?,
-        progress: @Sendable @MainActor (BackupProgress) -> Void
+        progress: @escaping @Sendable @MainActor (BackupProgress) -> Void
     ) async throws -> BackupResult
 
     /// 从备份文件恢复。
@@ -382,7 +382,7 @@ protocol BackupService: Sendable {
     /// - Note: 合并导入，不覆盖现有数据（同 ID 跳过）。
     func importBackup(
         from urls: [URL],
-        progress: @Sendable @MainActor (RestoreProgress) -> Void
+        progress: @escaping @Sendable @MainActor (RestoreProgress) -> Void
     ) async throws -> RestoreResult
 }
 
@@ -440,14 +440,14 @@ final class UnavailableBackupService: BackupService {
 
     func exportBackup(
         petIDs: [UUID]?,
-        progress: @Sendable @MainActor (BackupProgress) -> Void
+        progress: @escaping @Sendable @MainActor (BackupProgress) -> Void
     ) async throws -> BackupResult {
         throw BackupServiceError.serviceUnavailable
     }
 
     func importBackup(
         from urls: [URL],
-        progress: @Sendable @MainActor (RestoreProgress) -> Void
+        progress: @escaping @Sendable @MainActor (RestoreProgress) -> Void
     ) async throws -> RestoreResult {
         throw BackupServiceError.serviceUnavailable
     }

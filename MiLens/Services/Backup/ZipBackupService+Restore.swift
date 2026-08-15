@@ -16,7 +16,7 @@ extension ZipBackupService {
 
     func importBackup(
         from urls: [URL],
-        progress: @Sendable @MainActor (RestoreProgress) -> Void
+        progress: @escaping @Sendable @MainActor (RestoreProgress) -> Void
     ) async throws -> RestoreResult {
 
         guard !urls.isEmpty else {
@@ -177,7 +177,7 @@ extension ZipBackupService {
     /// 返回按卷号排序的卷信息列表（含仍打开的输入流，供后续文件拷贝使用）。
     private func readAndValidateVolumes(
         urls: [URL],
-        progress: @Sendable @MainActor (RestoreProgress) -> Void
+        progress: @escaping @Sendable @MainActor (RestoreProgress) -> Void
     ) async throws -> [RestoreVolume] {
         struct RawVolume {
             let url: URL

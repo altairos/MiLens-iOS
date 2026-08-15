@@ -99,7 +99,7 @@ final class ZipBackupService: BackupService, @unchecked Sendable {
 
     func exportBackup(
         petIDs: [UUID]?,
-        progress: @Sendable @MainActor (BackupProgress) -> Void
+        progress: @escaping @Sendable @MainActor (BackupProgress) -> Void
     ) async throws -> BackupResult {
 
         await progress(BackupProgress(current: 0, total: 1, phase: .collectingMetadata))
@@ -299,7 +299,7 @@ final class ZipBackupService: BackupService, @unchecked Sendable {
         photoFiles: [(zipPath: String, sourcePath: String, size: Int64)],
         avatarFiles: [(zipPath: String, sourcePath: String, size: Int64)],
         to fileURL: URL,
-        progress: @Sendable @MainActor (BackupProgress) -> Void,
+        progress: @escaping @Sendable @MainActor (BackupProgress) -> Void,
         sharedProgressCounter: StreamProgressCounter? = nil
     ) async throws {
         let manifestData = try Self.encoder.encode(manifest)

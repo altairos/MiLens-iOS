@@ -8,20 +8,25 @@ import UniformTypeIdentifiers
 /// ImportService 测试——导入编排逻辑（对应源端 PhotoScanner.importPhotos）。
 /// 使用 in-memory SwiftData + mock 平台服务，覆盖入库、去重、上限。
 ///
-/// 注：container 必须由 makeService 返回并持有——mainContext 不持有 container，
-/// 局部变量释放后 repo 的 fetch 会触发 SwiftData 内部 SIGTRAP（悬垂引用）。
+/// 注：container 由 makeService 内部 keepAlive 保活——mainContext 不持有 container，
+/// 释放后 repo 的 fetch 会触发 SwiftData 内部 SIGTRAP（悬垂引用）。
 @MainActor
 final class ImportServiceTests: XCTestCase {
+
+    /// 保活所有 in-memory container 至测试类结束（对齐 PhotoRepositoryTests 模式），
+    /// 防止用例解构丢弃 container 后 fetch 崩溃。
+    private var keepAlive: [ModelContainer] = []
 
     private func makeService(
         assets: [PhotoAssetMetadata] = [],
         library: MockPhotoLibraryAccess? = nil
     ) -> (ImportService, SwiftDataPhotoRepository, MockFileStorage, ModelContainer) {
-        // container 必须返回并持有——mainContext 不持有 container，
-        // 局部变量释放后 repo 的 fetch 触发 SwiftData 内部 SIGTRAP（悬垂引用）。
+        // container 保活进 keepAlive——mainContext 不持有 container，
+        // 释放后 repo 的 fetch 触发 SwiftData 内部 SIGTRAP（悬垂引用）。
         let schema = Schema(versionedSchema: SchemaV2.self)
         let config = ModelConfiguration(isStoredInMemoryOnly: true)
         let container = try! ModelContainer(for: schema, configurations: [config])
+        keepAlive.append(container)
         let photoRepo = SwiftDataPhotoRepository(context: container.mainContext)
         let petRepo = SwiftDataPetRepository(context: container.mainContext)
         let photoLibrary = library ?? MockPhotoLibraryAccess(assets: assets)

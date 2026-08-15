@@ -148,10 +148,40 @@ def file_path(f):
     return f.get("path") or f.get("name") or ""
 
 
-def separate_package_files(files):
-    """从混合文件列表分离 MiLensKit 包源文件（按源码路径子串，排除测试）。"""
+def fbase(f):
+    return os.path.basename(file_path(f))
+
+
+def scan_swift_basenames(*dirs):
+    """扫描本地源码树目录，收集 .swift 文件名（basename）集合。"""
+    names = set()
+    for d in dirs:
+        for _, _, fnames in os.walk(d):
+            for fn in fnames:
+                if fn.endswith(".swift"):
+                    names.add(fn)
+    return names
+
+
+def package_basename_map():
+    """返回 (kit_only, widget) basename 集合。xccov 新格式（Xcode 16.4，
+    run 31897830212 实测）文件对象的 name/path 均为纯文件名、无目录路径，
+    只能用源码树对照区分 App/Kit/Widget；与 App 目录同名的文件归 App（保守不误拉）。"""
+    app = scan_swift_basenames("MiLens")
+    kit = scan_swift_basenames(os.path.join("MiLensKit", "Sources"))
+    widget = scan_swift_basenames("MiLensWidget")
+    return kit - app, widget - app - kit
+
+
+def separate_package_files(files, kit_names):
+    """从混合文件列表分离 MiLensKit 包源文件（按源码树对照的 basename 集合）。"""
+    return [f for f in files if fbase(f) in kit_names]
+
+
+def exclude_non_app(files, kit_names, widget_names):
+    """App 口径排除包/扩展源文件（Kit 计入自身口径，Widget 不在门禁范围）。"""
     return [f for f in files
-            if "MiLensKit" in file_path(f) and "Tests" not in file_path(f)]
+            if fbase(f) not in kit_names and fbase(f) not in widget_names]
 
 
 def line_coverage(files):
@@ -230,24 +260,28 @@ specs = {
     "MiLens (App)": (("MiLens",), ("Tests", "Kit"), APP_FILE_MIN),
     "MiLensKit": (("MiLensKit",), ("Tests",), KIT_FILE_MIN),
 }
+kit_names, widget_names = package_basename_map()
+if not kit_names and not selftest:
+    print("[note] 源码树未扫描到 MiLensKit/Sources 下 .swift（cwd 非仓库根？），Kit 分离将不可用")
 for name, (inc, exc, file_min) in specs.items():
     files = collect_files(inc, exc)
     if not files and name == "MiLensKit":
-        # App scheme 的 xcresult 无独立包 target（SPM 代码链接进 App 二进制）：
-        # 按源码路径从非测试 target 的混合数据中分离 MiLensKit 包文件
+        # App scheme 的 xcresult 中 MiLensKit target 文件数为 0（SPM 代码链接进
+        # App 二进制，run 31897830212 实测）：从非测试 target 的混合数据分离包文件
         mixed = [f for t in report
                  if "Tests" not in target_name(t)
                  for f in (t.get("coverageData") or t.get("files") or [])]
-        files = separate_package_files(mixed)
+        files = separate_package_files(mixed, kit_names)
         if files:
-            print(f"[note] {name}: xcresult 无独立 MiLensKit target，"
-                  f"按源码路径从混合数据分离 {len(files)} 个包文件")
-    if name == "MiLens (App)":
-        # App 口径排除包源文件（其覆盖计入 MiLensKit，避免双计/稀释 App 数字）
-        pkg = separate_package_files(files)
-        if pkg:
-            files = [f for f in files if "MiLensKit" not in file_path(f)]
-            print(f"[note] {name}: 排除 {len(pkg)} 个 MiLensKit 包源文件（覆盖计入 MiLensKit 口径）")
+            print(f"[note] {name}: MiLensKit target 文件数为 0，"
+                  f"按源码树 basename 从混合数据分离 {len(files)} 个包文件")
+    if name == "MiLens (App)" and not selftest:
+        # App 口径排除包/扩展源文件（Kit 覆盖计入自身口径，Widget 不在门禁范围）
+        kept = exclude_non_app(files, kit_names, widget_names)
+        if len(kept) < len(files):
+            print(f"[note] {name}: 排除 {len(files) - len(kept)} 个包/扩展源文件"
+                  f"（Kit 计入自身口径，Widget 不在门禁范围）")
+            files = kept
     if not files:
         # 透明化：target 概览 + 文件对象键 + 首文件样本（整 target 样本会被函数数组挤满，
         # 键级信息更利于适配未知 xccov 结构）
@@ -345,17 +379,17 @@ if selftest:
                   and branch_coverage(nf) == (1.0, False)
                   and len(nf_wf) == 2 and nf_wf[0][0] == "/p/B.swift"
                   and abs(nf_wf[0][1] - 0.2) < 1e-9 and nf_wf[0][2] == 100)
-    # 守护：SPM 混合场景——App scheme xcresult 无独立 Kit target（包代码链接进
-    # App 二进制），Kit 按源码路径分离、App 排除包文件，互不双计。
+    # 守护：SPM 混合场景——xccov 新格式文件对象 name/path 均为纯文件名，
+    # 按源码树 basename 集合分离 Kit、排除 Widget，互不双计。
     mixed = [
-        {"path": "/repo/MiLens/Views/A.swift", "coveredLines": 60, "executableLines": 100, "functions": []},
-        {"path": "/repo/MiLensKit/Sources/MiLensKit/B.swift", "coveredLines": 20, "executableLines": 100, "functions": []},
-        {"path": "/repo/MiLensKit/Tests/MiLensKitTests/C.swift", "coveredLines": 50, "executableLines": 100, "functions": []},
+        {"path": "A.swift", "coveredLines": 60, "executableLines": 100, "functions": []},
+        {"path": "B.swift", "coveredLines": 20, "executableLines": 100, "functions": []},
+        {"path": "C.swift", "coveredLines": 50, "executableLines": 100, "functions": []},
     ]
-    kit_sep = separate_package_files(mixed)
-    app_sep = [f for f in mixed if "MiLensKit" not in file_path(f)]
-    mixed_ok = (len(kit_sep) == 1 and kit_sep[0]["path"].endswith("B.swift")
-                and len(app_sep) == 1 and app_sep[0]["path"].endswith("A.swift"))
+    kit_sep = separate_package_files(mixed, {"B.swift"})
+    app_sep = exclude_non_app(mixed, {"B.swift"}, {"C.swift"})
+    mixed_ok = (len(kit_sep) == 1 and kit_sep[0]["path"] == "B.swift"
+                and len(app_sep) == 1 and app_sep[0]["path"] == "A.swift")
     if app_ok and kit_ok and weighted_active and new_fmt_ok and mixed_ok:
         print("check-coverage: selftest PASS（行数加权生效；App=基线 PASS / Kit<基线 FAIL，单位与比较逻辑正确；"
               "Xcode 16.4 新格式解析正确；SPM 包路径分离正确）")

@@ -454,13 +454,18 @@ extension ZipBackupService {
                     skipped += 1
                     continue
                 }
-                // 双重校验（安全网）：预校验已过滤，但 applyImport 独立调用时仍需保护
-                if try photoRepo.getPhoto(id: photoSnap.id) != nil
-                    || try photoRepo.getPhotoByOriginalURI(photoSnap.originalURI) != nil {
+                // 双重校验（安全网）：预校验已过滤，但 applyImport 独立调用时仍需保护。
+                // try 不能出现在 || 右侧与 flatMap 闭包内，拆为显式语句再组合。
+                let duplicateByID = try photoRepo.getPhoto(id: photoSnap.id) != nil
+                let duplicateByURI = try photoRepo.getPhotoByOriginalURI(photoSnap.originalURI) != nil
+                if duplicateByID || duplicateByURI {
                     skipped += 1
                     continue
                 }
-                let pet = photoSnap.petID.flatMap { try petRepo.getPet(id: $0) }
+                var pet: Pet? = nil
+                if let petID = photoSnap.petID {
+                    pet = try petRepo.getPet(id: petID)
+                }
                 // uri 仅取本次实际写入的路径——文件未写入（缺失、文件名不安全、
                 // 目标已存在但非本次写入）时留空。DB 是事实源，缺失文件按
                 // auditOrphans 占位处理；不得绑定到未经校验的未知文件。

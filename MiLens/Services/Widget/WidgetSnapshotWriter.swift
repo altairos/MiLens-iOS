@@ -100,11 +100,21 @@ final class WidgetSnapshotWriter {
 
     // MARK: - 组装快照
 
+    /// Species 以 Int rawValue 持久化；快照按 PetProjection 约定输出 case 名
+    /// （"cat"/"dog"/"unknown"），Widget UI 层按此字符串本地化。
+    private static func speciesName(of species: Species) -> String {
+        switch species {
+        case .unknown: return "unknown"
+        case .cat: return "cat"
+        case .dog: return "dog"
+        }
+    }
+
     private func buildSnapshot(pets: [Pet], photos: [Photo], totalPhotos: Int) -> WidgetSnapshot {
-        // 投影宠物
+        // 投影宠物（species 用 case 名字符串，Int rawValue 不跨进程传递）
         let petProjections = pets.map { pet in
             PetProjection(
-                id: pet.id, name: pet.name, species: pet.species.rawValue,
+                id: pet.id, name: pet.name, species: Self.speciesName(of: pet.species),
                 birthday: pet.birthday, adoptionDay: pet.adoptionDay,
                 photoCount: pet.photoCount
             )

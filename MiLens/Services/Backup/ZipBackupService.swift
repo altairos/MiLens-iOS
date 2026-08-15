@@ -63,7 +63,8 @@ final class ZipBackupService: BackupService, @unchecked Sendable {
     /// 字节数优先取文件系统真实大小（stat），fallback 到 DB fileSize——
     /// 保证预估与实际导出分卷决策一致，避免 DB fileSize 过期导致预估偏小。
     func estimateBackup(petIDs: [UUID]?) async throws -> BackupEstimate {
-        let allPets = try petRepo.getAllPets()
+        // repo 协议为 @MainActor，本方法非隔离——跨 actor 调用需 await。
+        let allPets = try await petRepo.getAllPets()
         let selectedPets: [Pet]
         if let petIDs, !petIDs.isEmpty {
             let wanted = Set(petIDs)
@@ -76,7 +77,7 @@ final class ZipBackupService: BackupService, @unchecked Sendable {
         if petIDs != nil {
             var tempPhotos: [Photo] = []
             for pet in selectedPets {
-                tempPhotos.append(contentsOf: try photoRepo.getPhotosByPet(pet))
+                tempPhotos.append(contentsOf: try await photoRepo.getPhotosByPet(pet))
             }
             photos = tempPhotos
         } else {
@@ -381,9 +382,14 @@ final class ZipBackupService: BackupService, @unchecked Sendable {
         }
 
         // 照片范围：petIDs=nil 全量；否则仅选中宠物的照片。
+        // flatMap 闭包内不能 try，改循环累积（与 estimateBackup 的写法一致）。
         let photos: [Photo]
         if petIDs != nil {
-            photos = selectedPets.flatMap { try photoRepo.getPhotosByPet($0) }
+            var selectedPetPhotos: [Photo] = []
+            for pet in selectedPets {
+                selectedPetPhotos.append(contentsOf: try photoRepo.getPhotosByPet(pet))
+            }
+            photos = selectedPetPhotos
         } else {
             photos = try collectAllPhotos()
         }

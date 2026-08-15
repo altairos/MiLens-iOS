@@ -55,29 +55,30 @@ enum ArchiveShareRendering {
                 cleanup(renderedPages)
                 return .cancelled
             }
+            let filename = String(format: "timeline_export_%02d.jpg", index + 1)
             do {
-                let rendered = try autoreleasepool {
+                let imageMap = autoreleasepool { () -> [UUID: UIImage] in
                     var photoIDs = Set(page.months.flatMap(\.entries).compactMap(\.photoID))
                     if page.isCover, let heroPhotoID { photoIDs.insert(heroPhotoID) }
-                    let imageMap = loadImages(
+                    return loadImages(
                         photoIDs: photoIDs,
                         pathMap: pathMap,
                         heroPhotoID: page.isCover ? heroPhotoID : nil
                     )
-                    let canvas = TimelineExportCanvas(
-                        data: data,
-                        page: page,
-                        imageMap: imageMap,
-                        coverHeroImage: heroPhotoID.flatMap { imageMap[$0] },
-                        pageNumber: index + 1,
-                        pageCount: pages.count
-                    )
-                    return try render(
-                        canvas: canvas,
-                        filename: String(format: "timeline_export_%02d.jpg", index + 1),
-                        compressionQuality: quality.jpegCompressionQuality
-                    )
                 }
+                let image = try await rasterizeTimelinePage(
+                    data: data,
+                    page: page,
+                    imageMap: imageMap,
+                    heroPhotoID: heroPhotoID,
+                    pageNumber: index + 1,
+                    pageCount: pages.count
+                )
+                let rendered = try encodeAndCache(
+                    image: image,
+                    filename: filename,
+                    compressionQuality: quality.jpegCompressionQuality
+                )
                 renderedPages.append(rendered)
             } catch {
                 cleanup(renderedPages)
@@ -112,34 +113,35 @@ enum ArchiveShareRendering {
                 cleanup(renderedPages)
                 return .cancelled
             }
+            let filename = String(format: "recap_%d_%02d.jpg", year, index + 1)
             do {
-                let rendered = try autoreleasepool {
+                let imageMap = autoreleasepool { () -> [UUID: UIImage] in
                     var photoIDs = Set(page.months.flatMap { month in
                         Array(month.photoIDs.prefix(ArchiveShareLayout.photosPerMonth))
                     })
                     if page.isCover, let heroPhotoID { photoIDs.insert(heroPhotoID) }
-                    let imageMap = loadImages(
+                    return loadImages(
                         photoIDs: photoIDs,
                         pathMap: pathMap,
                         heroPhotoID: page.isCover ? heroPhotoID : nil
                     )
-                    let canvas = RecapExportCanvas(
-                        year: year,
-                        page: page,
-                        imageMap: imageMap,
-                        coverHeroImage: heroPhotoID.flatMap { imageMap[$0] },
-                        totalPhotoCount: totalPhotoCount,
-                        totalMonthCount: months.count,
-                        pageNumber: index + 1,
-                        pageCount: pages.count,
-                        includeWatermark: includeWatermark
-                    )
-                    return try render(
-                        canvas: canvas,
-                        filename: String(format: "recap_%d_%02d.jpg", year, index + 1),
-                        compressionQuality: quality.jpegCompressionQuality
-                    )
                 }
+                let image = try await rasterizeAnnualPage(
+                    year: year,
+                    page: page,
+                    imageMap: imageMap,
+                    heroPhotoID: heroPhotoID,
+                    totalPhotoCount: totalPhotoCount,
+                    totalMonthCount: months.count,
+                    pageNumber: index + 1,
+                    pageCount: pages.count,
+                    includeWatermark: includeWatermark
+                )
+                let rendered = try encodeAndCache(
+                    image: image,
+                    filename: filename,
+                    compressionQuality: quality.jpegCompressionQuality
+                )
                 renderedPages.append(rendered)
             } catch {
                 cleanup(renderedPages)
@@ -153,28 +155,86 @@ enum ArchiveShareRendering {
         ))
     }
 
-    private static func render<Canvas: View>(
-        canvas: Canvas,
+    //  View 协议与 ImageRenderer 在 iOS 17 SDK 均为 main actor 隔离：
+    //  画布构造与光栅化必须在主线程；解码（loadImages）与编码落盘（encodeAndCache）
+    //  留在并发池，各自包 autoreleasepool，保持逐页释放缓冲的纪律。
+    @MainActor
+    private static func rasterizeTimelinePage(
+        data: TimelineExportData,
+        page: TimelineArchiveSharePage,
+        imageMap: [UUID: UIImage],
+        heroPhotoID: UUID?,
+        pageNumber: Int,
+        pageCount: Int
+    ) throws -> UIImage {
+        let canvas = TimelineExportCanvas(
+            data: data,
+            page: page,
+            imageMap: imageMap,
+            coverHeroImage: heroPhotoID.flatMap { imageMap[$0] },
+            pageNumber: pageNumber,
+            pageCount: pageCount
+        )
+        let renderer = ImageRenderer(content: canvas)
+        renderer.scale = ArchiveShareLayout.renderScale
+        guard let image = renderer.uiImage else {
+            throw ArchiveShareRenderingError.renderFailed
+        }
+        return image
+    }
+
+    @MainActor
+    private static func rasterizeAnnualPage(
+        year: Int,
+        page: AnnualArchiveSharePage,
+        imageMap: [UUID: UIImage],
+        heroPhotoID: UUID?,
+        totalPhotoCount: Int,
+        totalMonthCount: Int,
+        pageNumber: Int,
+        pageCount: Int,
+        includeWatermark: Bool
+    ) throws -> UIImage {
+        let canvas = RecapExportCanvas(
+            year: year,
+            page: page,
+            imageMap: imageMap,
+            coverHeroImage: heroPhotoID.flatMap { imageMap[$0] },
+            totalPhotoCount: totalPhotoCount,
+            totalMonthCount: totalMonthCount,
+            pageNumber: pageNumber,
+            pageCount: pageCount,
+            includeWatermark: includeWatermark
+        )
+        let renderer = ImageRenderer(content: canvas)
+        renderer.scale = ArchiveShareLayout.renderScale
+        guard let image = renderer.uiImage else {
+            throw ArchiveShareRenderingError.renderFailed
+        }
+        return image
+    }
+
+    private static func encodeAndCache(
+        image: UIImage,
         filename: String,
         compressionQuality: Double
     ) throws -> ArchiveShareRenderedPage {
-        let renderer = ImageRenderer(content: canvas)
-        renderer.scale = ArchiveShareLayout.renderScale
-        guard let image = renderer.uiImage,
-              let data = image.jpegData(compressionQuality: compressionQuality) else {
-            throw ArchiveShareRenderingError.renderFailed
+        try autoreleasepool { () -> ArchiveShareRenderedPage in
+            guard let data = image.jpegData(compressionQuality: compressionQuality) else {
+                throw ArchiveShareRenderingError.renderFailed
+            }
+            let previewData = downscalePreview(
+                image: image,
+                maxDimension: ArchiveShareLayout.pageHeight
+            ) ?? data
+            let url = try BeadExportService().writeShareCache(data: data, filename: filename)
+            return ArchiveShareRenderedPage(
+                url: url,
+                filename: filename,
+                previewData: previewData,
+                byteCount: data.count
+            )
         }
-        let previewData = downscalePreview(
-            image: image,
-            maxDimension: ArchiveShareLayout.pageHeight
-        ) ?? data
-        let url = try BeadExportService().writeShareCache(data: data, filename: filename)
-        return ArchiveShareRenderedPage(
-            url: url,
-            filename: filename,
-            previewData: previewData,
-            byteCount: data.count
-        )
     }
 
     private static func loadImages(

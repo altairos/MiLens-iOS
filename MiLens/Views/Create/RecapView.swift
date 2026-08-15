@@ -151,29 +151,44 @@ struct RecapView: View {
 
     // MARK: - 年份选择器
 
+    /// 年份选择器：出现/切换时滚动定位到选中年份（列表降序，老年份初始在屏幕外）。
     private var yearSelector: some View {
-        ScrollView(.horizontal, showsIndicators: false) {
-            HStack(spacing: Spacing.sm) {
-                ForEach(availableYears, id: \.self) { year in
-                    Button {
-                        withAnimation(.easeInOut(duration: Motion.durationFast)) {
-                            selectedYear = year
+        ScrollViewReader { proxy in
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: Spacing.sm) {
+                    ForEach(availableYears, id: \.self) { year in
+                        Button {
+                            withAnimation(.easeInOut(duration: Motion.durationFast)) {
+                                selectedYear = year
+                            }
+                        } label: {
+                            Text(String(year))
+                                .font(.bodyPrimary)
+                                .foregroundStyle(selectedYear == year ? Color.milensActionPrimary : Color.milensTextSecondary)
+                                .padding(.horizontal, 16)
+                                .padding(.vertical, 8)
+                                .background(
+                                    selectedYear == year ? Color.milensAccentSoft : Color.clear,
+                                    in: Capsule()
+                                )
                         }
-                    } label: {
-                        Text(String(year))
-                            .font(.bodyPrimary)
-                            .foregroundStyle(selectedYear == year ? Color.milensActionPrimary : Color.milensTextSecondary)
-                            .padding(.horizontal, 16)
-                            .padding(.vertical, 8)
-                            .background(
-                                selectedYear == year ? Color.milensAccentSoft : Color.clear,
-                                in: Capsule()
-                            )
+                        .buttonStyle(.plain)
+                        .id(year)
                     }
-                    .buttonStyle(.plain)
+                }
+                .padding(.vertical, Spacing.xs)
+            }
+            .task {
+                // 等首帧布局完成后再定位，避免 scrollTo 在布局前调用落空。
+                try? await Task.sleep(nanoseconds: 50_000_000)
+                guard !Task.isCancelled else { return }
+                proxy.scrollTo(selectedYear, anchor: .center)
+            }
+            .onChange(of: selectedYear) { _, year in
+                withAnimation(.easeInOut(duration: Motion.durationFast)) {
+                    proxy.scrollTo(year, anchor: .center)
                 }
             }
-            .padding(.vertical, Spacing.xs)
         }
     }
 

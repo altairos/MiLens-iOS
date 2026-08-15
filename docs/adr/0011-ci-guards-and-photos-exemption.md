@@ -34,19 +34,21 @@
 
 4 个 View 的冗余 `import Photos`（RedPacketExportView/PetCardView/BusinessCardView/GrowthCompareView）——仅头注释提及 PHPhotoLibrary、代码零符号使用——直接删除，不开豁免。
 
-### 2.4 存量超标文件登记（守卫首跑发现，冻结语义）
+### 2.4 存量超标文件登记（守卫首跑发现，冻结语义）——已全部关闭
 
-`check-file-size.py` 首次全量运行（2026-08-14）发现 5 个既存超标文件，属审计 R2 同类存量（此前人工取证遗漏——这正是守卫自动化的直接价值）：
-
-| 文件 | 冻结行数 |
-|---|---|
-| `MiLens/ViewModels/TimelineLogic.swift` | 665 |
-| `MiLens/Views/Create/RedPacket/RedPacketExportView.swift` | 651 |
-| `MiLens/Views/Home/HomeView.swift` | 648 |
-| `MiLens/Views/Settings/SettingsView.swift` | 633 |
-| `MiLens/Views/Pets/PetProfileView.swift` | 604 |
+`check-file-size.py` 首次全量运行（2026-08-14）发现 5 个既存超标文件，属审计 R2 同类存量（此前人工取证遗漏——这正是守卫自动化的直接价值）。
 
 豁免不是免死金牌，而是**冻结**：登记当前行数，豁免期间继续增长直接失败，只许缩小；每项拆分至 <600 行后删除条目并关闭对应行。拆分批次记入 PLAN.md 待办。
+
+**2026-08-15 拆分批次全部完成**，`FILE_EXEMPTIONS`/`FROZEN_LINES` 已清空（守卫复跑：312 个源文件全绿）：
+
+| 文件 | 冻结行数 | 拆分后 | 拆出/说明 |
+|---|---|---|---|
+| `MiLens/ViewModels/TimelineLogic.swift` | 665 | 395 | → `TimelineArchiveLogic.swift`（278，Life-Archive P3.6 增强段） |
+| `MiLens/Views/Create/RedPacket/RedPacketExportView.swift` | 651 | 313 | → `RedPacketScenePreview.swift`（183）+ 删除不可达死代码段（规格校验/水印状态/本地保存链） |
+| `MiLens/Views/Home/HomeView.swift` | 648 | 202 | → `HomeSections.swift`（464） |
+| `MiLens/Views/Settings/SettingsView.swift` | 633 | 516 | → `SettingsBackupFlow.swift`（142） |
+| `MiLens/Views/Pets/PetProfileView.swift` | 604 | 506 | → `PetProfilePinnedMemory.swift`（117） |
 
 ## 3. 影响与落地
 
@@ -63,5 +65,5 @@
 ## 5. 后续追踪
 
 - P2-1 完成后回写本文件 §2.2 状态并删除脚本白名单条目。
-- §2.4 存量行数豁免随拆分批次逐项删除（先小后大：PetProfileView → SettingsView → HomeView → RedPacketExportView → TimelineLogic）。
+- ~~§2.4 存量行数豁免随拆分批次逐项删除（先小后大：PetProfileView → SettingsView → HomeView → RedPacketExportView → TimelineLogic）~~ 已完成（2026-08-15，见 §2.4 表）。
 - 守卫脚本自身变更（规则调整/白名单增删）须在本 ADR 追加记录。

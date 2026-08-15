@@ -276,7 +276,9 @@ P1 核心可靠性与性能六项修复全部落地（实现记录见状态摘�
 
 **Phase 4：相框与贴纸（M0+M1 代码已落地，素材待补）**
 
-- [x] **M0+M1 代码落地（2026-08-15，[开发计划](docs/Frame-Sticker-Development-Plan.md) §7 M0/M1）**：8 个阻塞项全部修复——装饰图层快照（`EditorLayerSnapshot` 扩展 `resourcePath`/`visible`，旧 JSON 容错）、画布重映射（`remapLayersForCanvas`：frame 重铺满/贴纸归一化迁移 + 钳制）、预览与导出一致（共用 `orderedRenderLayers` 稳定序 photo→frame→sticker→text 与 `DecorationAssetResolver` 三 fitMode 解析）、命中排除相框（`selectLayer` 仅 sticker/text）；MiLensKit 新增 `DecorationComposition`（贴纸钳制 8%–70% 短边 + 上限 `STICKER_LAYER_LIMIT=20`）、装饰默认几何（frame 铺满/贴纸 22% 短边右上偏移 + 堆叠落点）与分组稳定 ID `DecorationGroupIds`（recommended 恒首位）；M1 交互：`EditorDecorationPanelVM`（分组浏览按类别记忆/相框单选替换整体一次 push/Pro 锁定触发付费墙）+ `EditorDecorationPanelView`（60×56pt 三态素材单元 + 真实空态）+ 工具入口门禁（`hasFrameItems`/`hasStickerItems`）+ 本地化 14 key + `frame_import.py` 分组 ID 校验。MiLensKit 测试 WSL2 全绿（1104 用例）；App 测试 `EditorViewModelTests` +9 用例**未执行**（Windows 无 Mac，待 CI/Mac 验证）。
+- [x] **M0+M1 代码落地（2026-08-15，[开发计划](docs/Frame-Sticker-Development-Plan.md) §7 M0/M1）**：8 个阻塞项全部修复——装饰图层快照（`EditorLayerSnapshot` 扩展 `resourcePath`/`visible`，旧 JSON 容错）、画布重映射（`remapLayersForCanvas`：frame 重铺满/贴纸归一化迁移 + 钳制）、预览与导出一致（共用 `orderedRenderLayers` 稳定序 photo→frame→sticker→text 与 `resolveDecorationResource`（DecorationAssetResolver.swift）三 fitMode 解析）、命中排除相框（`selectLayer` 仅 sticker/text）；MiLensKit 新增 `DecorationComposition`（贴纸钳制 8%–70% 短边 + 上限 `STICKER_LAYER_LIMIT=20`）、装饰默认几何（frame 铺满/贴纸 22% 短边右上偏移 + 堆叠落点）与分组稳定 ID `DecorationGroupIds`（recommended 恒首位）；M1 交互：`EditorDecorationPanelVM`（分组浏览按类别记忆/相框单选替换整体一次 push/Pro 锁定触发付费墙）+ `EditorDecorationPanelView`（60×56pt 三态素材单元 + 真实空态）+ 工具入口门禁（`hasFrameItems`/`hasStickerItems`）+ 本地化 14 key + `frame_import.py` 分组 ID 校验。MiLensKit 测试 WSL2 全绿（1104 用例）；App 测试 `EditorViewModelTests` +9 用例**未执行**（Windows 无 Mac，待 CI/Mac 验证）。2026-08-15 复核：8 阻塞项与交互链路全部属实；遗留缺口——①素材错误诊断未达开发计划 §7.2（导出素材缺失静默跳过仍报成功）；②App 渲染级单测未写（现有为 VM 级），均已建待办跟踪。
+- [x] **M2 质量项：拖动吸附/参考线/可访问性（2026-08-15，[开发计划](docs/Frame-Sticker-Development-Plan.md) §8 M2）**：①MiLensKit `DecorationComposition` 新增 `snapAndClampLayerCenter` + `LAYER_SNAP_THRESHOLD=6pt`（进入阈值吸附画布中心线、离开立即释放无滞后、两轴独立；吸附优先于边缘 clamp；中心钳在 [0,W]×[0,H] 保留半幅可拖回）+ `StickerSnapGuideTests` 9 用例；②修复拖动缺陷：`EditorCanvasView` 原把 DragGesture 累计 translation 当增量传增量语义的 `moveActiveLayer`，越拖越快漂移，改 `layerDragLast` 差值增量；③`moveActiveLayer` 应用吸附/钳制（`EditorDocumentController` 返回 `LayerSnapResult`，画布无效退化纯增量）+ `EditorViewModel.showsSnapGuideX/Y` 瞬态参考线（手势结束复位）；④参考线为铜色虚线 Path 瞬时切换（无动画 → Reduce Motion 天然满足「不播放吸附回弹」）+ 面板 toast 按 `accessibilityReduceMotion` 禁用动画；⑤VoiceOver 动态 key 修复：分组名/素材名原 `String.LocalizationValue` 插值归一为 `decoration.group.%@` 查表失败（VoiceOver 读 key 原文），改 `NSLocalizedString` 动态查找（xcstrings 已有 7 个分组 key，素材名 key 由导入流程维护）。App `EditorViewModelTests` +6 用例（增量语义守护/入阈值双轴吸附/离开立即释放/中心 clamp/无活动图层静默）。验证：MiLensKit WSL2 全量 1113 用例零回归；**未执行**：App XCTest（Windows 无 iOS SDK，待 CI/Mac）。
+- [ ] 装饰素材错误诊断收口（M0 遗留，2026-08-15 复核发现，违背[开发计划](docs/Frame-Sticker-Development-Plan.md) §7.2/§9.2）：导出前预解码当前文档引用的全部装饰素材，必需素材缺失时中止保存并给出含素材 ID 的可诊断错误（当前 `makeDecorationProvider` 返回 nil 时 `renderExport` 静默跳过该层、保存仍报成功）；面板单元解码失败显示不可用状态；补 §9.2「preview/export 一致 + 缺素材不产『成功』作品」App 渲染单测（需 Mac）。
 - [ ] 素材交付：首批 6 相框 + 6 贴纸 PNG 经 `tools/frame_import.py add` 入库。当前 catalog 为空 → decorate 组按门禁自动隐藏贴纸/相框入口（无假入口），素材后补后入口自动出现。
 - [ ] 完成 App 编译/XCTest（Mac/CI）、五类画布比例导出、iPhone/iPad 与真机性能验收后解除功能开关。
 
@@ -554,6 +556,10 @@ P1 核心可靠性与性能六项修复全部落地（实现记录见状态摘�
 
   **验证（Windows 本地）**：`localization.py check` 带参数 EXIT=0（5339 警告 = 5148 缺译降级 + 原有 191；阻断清零、缺 key 清零）；`--strict --allow-missing-translations` EXIT=1（发布门禁优先级正确）；`tools/test_localization.py` 17/17 通过。**未执行**：App target 编译 + XCTest（Swift 改动 5 文件，依赖 iOS SDK）——推送后需盯首轮 CI 的 app 作业（此前因 lint 必挂，本批代码从未在 CI 编译过）。
 
+- 2026-08-15：**相框贴纸 M2 质量项：拖动中心吸附 + 参考线 + 可访问性**——落地开发计划 §4.3 拖动质量行为并修复两处存量缺陷（详见 P4 Phase 4 任务区条目）：吸附决策下沉 MiLensKit（`snapAndClampLayerCenter` + `LAYER_SNAP_THRESHOLD=6pt`，9 用例）；拖动累计 translation 缺陷（越拖越快漂移）改 `layerDragLast` 差值增量；画布铜色虚线中心参考线瞬时切换（无动画，Reduce Motion 天然兼容）+ toast 动画按开关禁用；VoiceOver 动态 key（`String.LocalizationValue` 插值归一 `decoration.group.%@` 查表失败）改 `NSLocalizedString` 动态查找。App `EditorViewModelTests` +6 用例。**验证（Windows 本地）**：MiLensKit WSL2 `swift test` 全量 1113 用例 0 失败（含新增 9）。**未执行**：App target XCTest（需 iOS SDK，待 CI/Mac，推送后盯首轮 app 作业）。
+
+- 2026-08-15：**相框贴纸 M0+M1/阻塞项全量复核（纯文档改动）**——对照[开发计划](docs/Frame-Sticker-Development-Plan.md)逐项核对 §3.2 八个阻塞项与 §8 M0/M1 的代码证据：阻塞项全部修复属实（快照字段/相框中心/ratioSet 同源解析/ninePatch 分块预览/稳定排序/命中排除相框/画布重映射/分组稳定 ID，各有 Kit 纯函数 + 用例）；M1 交互链路完整（面板三态/相框替换/贴纸手势/历史/保存/付费墙）。发现两处此前未跟踪的缺口并回写文档：①素材错误诊断未达 §7.2——导出端素材缺失静默跳过且保存仍报成功（M0 第 3 项部分未完成）；②App 渲染级单测未写（§9.2 逐像素一致/透明通道/缺素材用例，现有为 VM 级）。另确认 `catalog.json` 实为空目录（素材导入未开始，M1 第 3 项），入口按 §10 门禁自动隐藏。M0/M1 复选框补落地注记（保持未勾，待 Mac/CI）；Phase 4 新增诊断收口待办。
+
 ---
 
 ## 数据安全与跨设备迁移（2026-08-12 规划）
@@ -623,11 +629,11 @@ Figma 文件 `WnT7DCK1XCyPwnS38SE87p`（MiLens iOS Release Candidate · FINAL）
 
 1. **相处章节不支持自定义命名**：章节标题用公式自动推导（「一起生活的第N年」），用户自定义命名属 P1 功能。
 2. **首页通知按钮是装饰性**：设计稿的 bell icon 暂不跳路由（Tab 切换无法通过 NavigationLink 实现），后续可改用 `@State` 切 Tab 或 badge 红点。
-3. **首页 heroDateString 固定中文星期**：weekday 数组硬编码中文（「星期一」…），未来本地化需改为 `DateFormatter.weekdaySymbols`。
-4. **年份选择器无滚动定位**：当前只做视觉选择，ScrollView 滚动到选中年份的自动定位待优化。
+3. **首页 heroDateString 固定中文星期**：weekday 数组硬编码中文（「星期一」…），未来本地化需改为 `DateFormatter.weekdaySymbols`。**已修复（2026-08-15）**：`HomeHero` 改用 App 匹配语言的 `DateFormatter.weekdaySymbols` 取星期名，日期格式下沉 `home.hero.date %lld %lld %@` 本地化 key。
+4. **年份选择器无滚动定位**：当前只做视觉选择，ScrollView 滚动到选中年份的自动定位待优化。**已修复（2026-08-15）**：TimelineView / RecapView 选择器加 `ScrollViewReader`，出现与切换时 `scrollTo` 居中定位选中年份（同时修复 TimelineView `yearSelector` guard 缺 return 的编译错误，`AnyView` 改 `@ViewBuilder`）。
 5. **设置页 ProFeature 列表样式**：设计稿未展示多行功能列表，当前用轻量行（图标+标题）而非 LedgerRow 编号样式。
 6. **Figma SVG 切图未下载**：MCP 图片目录只读权限导致 SVG 下载失败，全部图标改用 SF Symbol（lock.fill/chevron.right/bell/plus 等），与设计稿矢量一致性可能有细微差异。（注：已决定不再需要设计稿矢量图）
-7. **伙伴档案置顶记忆回退策略为随机照片**：无置顶事件/用户记录时，`pinnedMemory` 从全部照片中随机选一张展示（每次进入页面不同，增加新鲜感）。当前随机发生在 SwiftUI 计算属性内，每次 body 重算都会重新随机，可能导致频繁切换；后续可改为 `@State` 固定一张（进入页面时选定）或在 ViewModel 层缓存。
+7. **伙伴档案置顶记忆回退策略为随机照片**：无置顶事件/用户记录时，`pinnedMemory` 从全部照片中随机选一张展示（每次进入页面不同，增加新鲜感）。当前随机发生在 SwiftUI 计算属性内，每次 body 重算都会重新随机，可能导致频繁切换；后续可改为 `@State` 固定一张（进入页面时选定）或在 ViewModel 层缓存。**已修复（2026-08-15）**：新增 `@State pinnedRandomIndex` 在 `load()` 内固定随机索引，`PinnedMemory.pick`（拆分至 PetProfilePinnedMemory.swift）改为按索引取片，body 重算不再换图，下次进入页面重新随机。
 8. **伙伴档案 Archive Panel 浮起效果**：用 `.padding(.top, -25)` 实现 Hero 底部覆盖，在 ScrollView 内可能因安全区/状态栏交互导致位置偏移，需模拟器视觉验证。
 9. **伙伴档案生日日期格式**：`birthday.formatted(.iso8601...)` 产出 `2024.05.16` 格式，与设计稿一致，但未来本地化需验证 locale 行为。
 10. **添加记忆入口仅 TimelineView**：`AddMemorySheet` 完整表单已落地，但 `PetProfileView`、`PhotoViewView` 的入口待实现（Life-Archive-Design.md P0）。

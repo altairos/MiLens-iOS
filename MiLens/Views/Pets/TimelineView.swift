@@ -330,27 +330,62 @@ struct TimelineView: View {
 
     // MARK: - 年份选择器
 
-    /// 从 months 提取可用年份列表，水平排列。
+    /// 从 months 提取可用年份列表，水平排列；出现/切换时滚动定位到实际选中年份。
+    @ViewBuilder
     private func yearSelector(_ vm: TimelineViewModel) -> some View {
         let years = availableYears(vm)
-        guard !years.isEmpty else { AnyView(EmptyView()) }
-        return AnyView(
-            ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: 0) {
-                    ForEach(years, id: \.self) { year in
-                        yearChip(year: year, isSelected: selectedYear == year || (selectedYear == nil && year == years.last)) {
-                            selectedYear = (selectedYear == year) ? nil : year
+        if years.isEmpty {
+            EmptyView()
+        } else {
+            ScrollViewReader { proxy in
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 0) {
+                        ForEach(years, id: \.self) { year in
+                            yearChip(year: year, isSelected: selectedYear == year || (selectedYear == nil && year == years.last)) {
+                                selectedYear = (selectedYear == year) ? nil : year
+                            }
+                            .id(year)
                         }
                     }
+                    // baseline
+                    .overlay(alignment: .bottom) {
+                        Rectangle()
+                            .fill(Color.milensBorder)
+                            .frame(height: 1)
+                    }
                 }
-                // baseline
-                .overlay(alignment: .bottom) {
-                    Rectangle()
-                        .fill(Color.milensBorder)
-                        .frame(height: 1)
+                .task {
+                    // 等首帧布局完成后再定位，避免 scrollTo 在布局前调用落空。
+                    try? await Task.sleep(nanoseconds: 50_000_000)
+                    guard !Task.isCancelled else { return }
+                    scrollYearSelection(into: proxy, years: years)
+                }
+                .onChange(of: selectedYear) { _, _ in
+                    scrollYearSelection(into: proxy, years: years, animated: true)
+                }
+                .onChange(of: years) { _, _ in
+                    // 年份列表随宠物筛选/数据变化重建后保持定位。
+                    scrollYearSelection(into: proxy, years: years)
                 }
             }
-        )
+        }
+    }
+
+    /// 实际高亮的年份：未筛选（nil）时视为最新一年，与 yearChip 的 isSelected 判定一致。
+    private func effectiveSelectedYear(in years: [Int]) -> Int? {
+        selectedYear ?? years.last
+    }
+
+    /// 把年份选择器滚动到实际选中年份的可视区域中央。
+    private func scrollYearSelection(into proxy: ScrollViewProxy, years: [Int], animated: Bool = false) {
+        guard let target = effectiveSelectedYear(in: years) else { return }
+        if animated {
+            withAnimation(.easeInOut(duration: Motion.durationFast)) {
+                proxy.scrollTo(target, anchor: .center)
+            }
+        } else {
+            proxy.scrollTo(target, anchor: .center)
+        }
     }
 
     private func availableYears(_ vm: TimelineViewModel) -> [Int] {

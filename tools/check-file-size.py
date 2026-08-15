@@ -48,23 +48,11 @@ SCAN_ROOTS = ("MiLens", "MiLensWidget", "MiLensKit/Sources")
 # 逐文件白名单：相对仓库根的 posix 路径 -> ADR 文件名（docs/adr/ 下）。
 # 新增豁免必须先写 ADR（背景/期限/移除条件），再登记到这里。
 # 豁免即冻结（ADR-0011 §2.4）：FROZEN_LINES 登记当前行数，只许缩小。
-FILE_EXEMPTIONS: dict[str, str] = {
-    # 存量超标（守卫首跑 2026-08-14 发现，ADR-0011 §2.4）：拆分至 <600 后删除条目。
-    "MiLens/ViewModels/TimelineLogic.swift": "0011-ci-guards-and-photos-exemption.md",
-    "MiLens/Views/Create/RedPacket/RedPacketExportView.swift": "0011-ci-guards-and-photos-exemption.md",
-    "MiLens/Views/Home/HomeView.swift": "0011-ci-guards-and-photos-exemption.md",
-    "MiLens/Views/Settings/SettingsView.swift": "0011-ci-guards-and-photos-exemption.md",
-    "MiLens/Views/Pets/PetProfileView.swift": "0011-ci-guards-and-photos-exemption.md",
-}
+# 2026-08-15：ADR-0011 §2.4 首批 5 个存量超标文件已全部拆分至 <600 行，条目清空。
+FILE_EXEMPTIONS: dict[str, str] = {}
 
 # 豁免冻结行数：豁免文件当前行数，超出即失败（防「豁免后继续膨胀」）。
-FROZEN_LINES: dict[str, int] = {
-    "MiLens/ViewModels/TimelineLogic.swift": 665,
-    "MiLens/Views/Create/RedPacket/RedPacketExportView.swift": 651,
-    "MiLens/Views/Home/HomeView.swift": 648,
-    "MiLens/Views/Settings/SettingsView.swift": 633,
-    "MiLens/Views/Pets/PetProfileView.swift": 604,
-}
+FROZEN_LINES: dict[str, int] = {}
 
 # --------------------------------------------------------------------------- #
 

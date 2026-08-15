@@ -428,7 +428,7 @@ struct SettingsFooter: View {
         VStack(alignment: .leading, spacing: Spacing.lg) {
             ProHeroCard {}
             ProHeroCard(isPro: true) {}
-            PrivacyBadgeCard {}
+            PrivacyBadgeCard()
         }
         .padding(.horizontal, Spacing.pagePad)
         .padding(.top, Spacing.lg)

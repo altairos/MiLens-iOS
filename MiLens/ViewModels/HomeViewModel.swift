@@ -59,9 +59,9 @@ final class HomeViewModel {
     private let photoRepository: any PhotoRepositoryProtocol
     private let petRepository: any PetRepositoryProtocol
     /// 系统图库访问（新照片提醒增量计数用）。
-    private let photoLibrary: any PhotoLibraryAccess?
+    private let photoLibrary: (any PhotoLibraryAccess)?
     /// 扫描游标（新照片提醒增量基准）。
-    private let scanCursorStore: any ScanCursorStore?
+    private let scanCursorStore: (any ScanCursorStore)?
     private let now: () -> Date
     /// hero 回退选片的随机种子；在 load() 时固定，避免计算属性每次重算都换一张。
     private var heroRandomIndex: Int = 0
@@ -72,8 +72,8 @@ final class HomeViewModel {
     init(
         photoRepository: any PhotoRepositoryProtocol,
         petRepository: any PetRepositoryProtocol,
-        photoLibrary: any PhotoLibraryAccess? = nil,
-        scanCursorStore: any ScanCursorStore? = nil,
+        photoLibrary: (any PhotoLibraryAccess)? = nil,
+        scanCursorStore: (any ScanCursorStore)? = nil,
         now: @escaping () -> Date = Date.init
     ) {
         self.photoRepository = photoRepository

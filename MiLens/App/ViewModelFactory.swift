@@ -12,6 +12,7 @@
 import Foundation
 import MiLensKit
 import SwiftData
+import UIKit
 
 /// 页面 ViewModel 组合工厂（@MainActor——构造出的 VM 与 Repository 均为 MainActor 隔离）。
 @MainActor

@@ -16,7 +16,7 @@ struct OnboardingFullScanStep: View {
                 EditorialSection(
                     overline: "LOCAL SCAN · 特征基准已就绪",
                     title: viewModel.isScanning ? "正在全面扫描\n系统图库" : scanCompleteTitle,
-                    body: viewModel.isScanning
+                    bodyText: viewModel.isScanning
                         ? "正在以\(viewModel.petName)的特征基准进行比较；\n发现的内容仍需要你逐张确认。"
                         : scanCompleteBody
                 )

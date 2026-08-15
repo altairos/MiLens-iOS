@@ -58,7 +58,7 @@ final class RedPacketWorkshopViewModel {
     /// 加载失败原因（nil = 加载成功或进行中）。
     var loadError: RedPacketLoadError?
     /// 当前模板。
-    private(set) var template: RedPacketTemplate = .firstFreeTemplate
+    private(set) var template: RedPacketTemplate = RedPacketTemplateCatalog.firstFreeTemplate
     /// 当前草稿。
     var draft: RedPacketCoverDraft = RedPacketCoverDraft(templateID: "", templateRevision: 1)
     /// 当前选中图层 ID（nil = 未选中）。

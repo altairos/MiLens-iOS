@@ -19,6 +19,7 @@
 //  字体体积见 Resources/Fonts/README.md（合计 ~3.37 MB）。
 
 import SwiftUI
+import UIKit
 
 extension Font {
     // MARK: - 语言感知 display 字体
@@ -81,14 +82,24 @@ extension Font {
 
     // MARK: - Workshop 编辑式小标（对照 Figma `15 · Image Workshop`）
 
+    /// 系统字体 + 固定字号 + Dynamic Type 缩放参照。
+    /// Font.system 无 relativeTo: 重载（App target 首次编译暴露），
+    /// 用 UIFontMetrics 等价实现 custom(_:size:relativeTo:) 的缩放语义。
+    private static func scaledSystemFont(
+        size: CGFloat, weight: UIFont.Weight = .regular, relativeTo style: UIFont.TextStyle
+    ) -> Font {
+        Font(UIFontMetrics(forTextStyle: style)
+            .scaledFont(for: UIFont.systemFont(ofSize: size, weight: weight)))
+    }
+
     /// Overline 小标（「CREATION DARKROOM」「READY TO KEEP」）。
     /// Figma `MiLens/UI/Overline`：10pt Medium + letterSpacing 0.04em。
     /// 文字间距通过调用方 `.tracking(0.4)` 补足（SwiftUI tracking 单位为 pt）。
-    static let editorialOverline = Font.system(size: 10, weight: .medium, relativeTo: .caption)
+    static let editorialOverline = scaledSystemFont(size: 10, weight: .medium, relativeTo: .caption)
 
     /// Metadata 元信息（「图纸 · 色号 · 用量」「2021.04.18」）。
     /// Figma `MiLens/UI/Metadata`：11pt Regular。
-    static let editorialMetadata = Font.system(size: 11, relativeTo: .caption)
+    static let editorialMetadata = scaledSystemFont(size: 11, relativeTo: .caption)
 
     /// 项目编号 / 步骤编号（「01」「02」「03」）。
     /// Figma `MiLens/Number/Index`：Fraunces-Bold 12pt。
@@ -96,9 +107,9 @@ extension Font {
 
     /// UI Title（「成品预览」「拼豆工作室」「选择两段时光」）。
     /// Figma `MiLens/UI/Title`：20pt Medium + letterSpacing -0.01em。
-    static let uiTitle = Font.system(size: 20, weight: .medium, relativeTo: .title3)
+    static let uiTitle = scaledSystemFont(size: 20, weight: .medium, relativeTo: .title3)
 
     /// UI Body Strong（「从生命档案选择」「窗边观察员」）。
     /// Figma `MiLens/UI/Body Strong`：15pt Medium。
-    static let uiBodyStrong = Font.system(size: 15, weight: .medium, relativeTo: .body)
+    static let uiBodyStrong = scaledSystemFont(size: 15, weight: .medium, relativeTo: .body)
 }

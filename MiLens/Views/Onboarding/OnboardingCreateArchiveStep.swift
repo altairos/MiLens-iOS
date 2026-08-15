@@ -19,7 +19,7 @@ struct OnboardingCreateArchiveStep: View {
                 EditorialSection(
                     overline: "LIFE ARCHIVE · 建立档案",
                     title: "先为伙伴建立\n生命档案",
-                    body: "先登记名字与伙伴类型；\n此时还不会扫描系统图库。"
+                    bodyText: "先登记名字与伙伴类型；\n此时还不会扫描系统图库。"
                 )
 
                 // Empty Identity 卡片

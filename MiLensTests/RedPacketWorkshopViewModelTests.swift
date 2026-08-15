@@ -14,7 +14,7 @@ final class RedPacketWorkshopViewModelTests: XCTestCase {
     // MARK: - 工厂
 
     private func makeVM(
-        template: RedPacketTemplate = .firstFreeTemplate,
+        template: RedPacketTemplate = RedPacketTemplateCatalog.firstFreeTemplate,
         templateID: String? = nil,
         isPro: Bool = false
     ) -> RedPacketWorkshopViewModel {

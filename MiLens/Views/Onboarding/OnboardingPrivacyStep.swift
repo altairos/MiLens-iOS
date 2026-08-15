@@ -16,7 +16,7 @@ struct OnboardingPrivacyStep: View {
                 EditorialSection(
                     overline: "FIRST LIGHT · 隐私摘要",
                     title: "你的照片，\n只属于这台设备",
-                    body: "「咪Lens」只读取访问范围内的本地照片，\n最终导入什么，始终由你确认。"
+                    bodyText: "「咪Lens」只读取访问范围内的本地照片，\n最终导入什么，始终由你确认。"
                 )
 
                 // On Device 卡片

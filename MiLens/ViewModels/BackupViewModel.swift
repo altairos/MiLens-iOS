@@ -30,7 +30,7 @@ final class BackupViewModel {
         case idle
         case estimating
         case readyToExport(BackupEstimate)  // 预估完成，待用户确认
-        case inProgress(Double, BackupPhase) // fraction 0…1 + 当前阶段
+        case inProgress(Double, BackupProgress.BackupPhase) // fraction 0…1 + 当前阶段
         case done([URL])                    // 临时备份文件列表，待 ShareSheet 分享
         case failed(String)
     }
@@ -38,7 +38,7 @@ final class BackupViewModel {
     /// 恢复状态机。
     enum RestoreState: Equatable {
         case idle
-        case inProgress(Double, RestorePhase)
+        case inProgress(Double, RestoreProgress.RestorePhase)
         case done(RestoreResult)
         case failed(String)
     }

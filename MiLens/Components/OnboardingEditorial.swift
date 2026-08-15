@@ -270,7 +270,8 @@ struct PrimaryActionMaterial: View {
 struct EditorialSection: View {
     let overline: String
     let title: String
-    var body: String? = nil
+    // 注：不能叫 body——会与 View 协议的计算属性 body 冲突（首次编译暴露）。
+    var bodyText: String? = nil
     /// 标题右上角的辅助元素（如特征注册页的「12 / 15」大数字）。
     var trailing: AnyView? = nil
 
@@ -291,8 +292,8 @@ struct EditorialSection: View {
             }
             .frame(maxWidth: .infinity, alignment: .leading)
 
-            if let body {
-                Text(body)
+            if let bodyText {
+                Text(bodyText)
                     .font(.bodyPrimary)
                     .foregroundStyle(Color.milensTextSecondary)
             }

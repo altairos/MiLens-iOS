@@ -45,7 +45,7 @@ struct OnboardingFeatureRegisterStep: View {
                 EditorialSection(
                     overline: "FEATURE REGISTER · 8—15 张",
                     title: "用 8–15 张照片，\n建立特征基准",
-                    body: "选择清晰、角度不同、只包含\(viewModel.petName)的照片；\n所有处理都在本机完成。",
+                    bodyText: "选择清晰、角度不同、只包含\(viewModel.petName)的照片；\n所有处理都在本机完成。",
                     trailing: AnyView(
                         VStack(alignment: .trailing, spacing: 0) {
                             Text("\(loadedImageDatas.count)")
@@ -263,7 +263,7 @@ struct OnboardingFeatureRegisterStep: View {
                 EditorialSection(
                     overline: "FEATURE REGISTER · 本机处理",
                     title: "正在本机建立\n\(viewModel.petName)的特征基准",
-                    body: "将 \(loadedImageDatas.count) 张照片汇总为比较基准；\n不会上传，也不会在此时扫描图库。"
+                    bodyText: "将 \(loadedImageDatas.count) 张照片汇总为比较基准；\n不会上传，也不会在此时扫描图库。"
                 )
 
                 // Lens 卡片（虚线轨道圆 + 百分比）
@@ -397,7 +397,7 @@ struct OnboardingFeatureRegisterStep: View {
                 EditorialSection(
                     overline: "FEATURE REGISTER · 已建立",
                     title: "\(viewModel.petName)的特征基准，\n已经建立",
-                    body: "现在「咪Lens」有了进行相似度比较的基准；\n候选仍不等于确定识别。"
+                    bodyText: "现在「咪Lens」有了进行相似度比较的基准；\n候选仍不等于确定识别。"
                 )
 
                 // Feature Seal 卡片

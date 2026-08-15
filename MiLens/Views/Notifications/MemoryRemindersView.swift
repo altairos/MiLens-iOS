@@ -325,16 +325,8 @@ private struct MemoryReminderRow: View {
     }
 }
 
-// MARK: - 分隔线（复用首页 ArchiveDivider 风格）
-
-/// 1pt 分隔线（浅色分隔线 token）。
-private struct ArchiveDivider: View {
-    var body: some View {
-        Rectangle()
-            .fill(Color.milensSeparator)
-            .frame(height: 1)
-    }
-}
+// 分隔线直接复用 ArchiveComponents 的共享 ArchiveDivider（像素对齐版），
+// 不再本地重复声明（首次编译暴露 invalid redeclaration）。
 
 #Preview {
     NavigationStack {

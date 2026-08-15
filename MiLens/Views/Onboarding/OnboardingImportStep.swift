@@ -32,7 +32,7 @@ struct OnboardingImportStep: View {
                 EditorialSection(
                     overline: "ARCHIVE IMPORT · 本机写入",
                     title: "正在写进\n\(viewModel.petName)的生命档案",
-                    body: "将已确认的 \(viewModel.selectedCandidateIDs.count) 张照片写入本地档案；\n复制与索引过程都不会离开这台设备。"
+                    bodyText: "将已确认的 \(viewModel.selectedCandidateIDs.count) 张照片写入本地档案；\n复制与索引过程都不会离开这台设备。"
                 )
 
                 lensCard

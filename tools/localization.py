@@ -499,7 +499,8 @@ def cmd_import(args: argparse.Namespace) -> int:
         if var:  # 复数变体行：与 stringUnit 互斥，合并进 variations.plural
             loc_node.pop("stringUnit", None)
             plural = loc_node.setdefault("variations", {}).setdefault("plural", {})
-            plural["pluralRuleType"] = "pluralRuleType"
+            # 注意：不写 pluralRuleType——它不是 xcstrings schema 的合法键，
+            # 会被 actool 拒绝编译（历史 import 写入过，21 处已于 2026-08 清理）
             plural[var] = {"stringUnit": {"state": state, "value": value}}
         else:  # 普通字符串行：替换为 stringUnit
             loc_node.pop("variations", None)

@@ -1158,8 +1158,7 @@
                   "state" : "translated",
                   "value" : "%lld年前的今天"
                 }
-              },
-              "pluralRuleType" : "pluralRuleType"
+              }
             }
           }
         }
@@ -1176,8 +1175,7 @@
                   "state" : "translated",
                   "value" : "第 %lld 张"
                 }
-              },
-              "pluralRuleType" : "pluralRuleType"
+              }
             }
           }
         }
@@ -1579,8 +1577,7 @@
                   "state" : "translated",
                   "value" : "%lld年前的今天：%@"
                 }
-              },
-              "pluralRuleType" : "pluralRuleType"
+              }
             }
           }
         }
@@ -1663,8 +1660,7 @@
                   "state" : "translated",
                   "value" : "%lld年前的今天，%@在做什么呢？"
                 }
-              },
-              "pluralRuleType" : "pluralRuleType"
+              }
             }
           }
         }
@@ -1681,8 +1677,7 @@
                   "state" : "translated",
                   "value" : "%lld年前的今天，%@这样陪伴着你"
                 }
-              },
-              "pluralRuleType" : "pluralRuleType"
+              }
             }
           }
         }
@@ -1699,8 +1694,7 @@
                   "state" : "translated",
                   "value" : "时光飞逝，%lld年前的今天"
                 }
-              },
-              "pluralRuleType" : "pluralRuleType"
+              }
             }
           }
         }
@@ -1717,8 +1711,7 @@
                   "state" : "translated",
                   "value" : "%lld年前的今天，%@"
                 }
-              },
-              "pluralRuleType" : "pluralRuleType"
+              }
             }
           }
         }
@@ -1735,8 +1728,7 @@
                   "state" : "translated",
                   "value" : "%lld年前的今天"
                 }
-              },
-              "pluralRuleType" : "pluralRuleType"
+              }
             }
           }
         }
@@ -1929,8 +1921,7 @@
                   "state" : "translated",
                   "value" : "免费试用 %d 天"
                 }
-              },
-              "pluralRuleType" : "pluralRuleType"
+              }
             }
           }
         }
@@ -2332,8 +2323,7 @@
                   "state" : "translated",
                   "value" : "前 %d 天免费"
                 }
-              },
-              "pluralRuleType" : "pluralRuleType"
+              }
             }
           }
         }
@@ -2361,8 +2351,7 @@
                   "state" : "translated",
                   "value" : "%lld个月"
                 }
-              },
-              "pluralRuleType" : "pluralRuleType"
+              }
             }
           }
         }
@@ -2390,8 +2379,7 @@
                   "state" : "translated",
                   "value" : "%lld岁"
                 }
-              },
-              "pluralRuleType" : "pluralRuleType"
+              }
             }
           }
         }
@@ -2408,8 +2396,7 @@
                   "state" : "translated",
                   "value" : "%lld岁生日"
                 }
-              },
-              "pluralRuleType" : "pluralRuleType"
+              }
             }
           }
         }
@@ -2426,8 +2413,7 @@
                   "state" : "translated",
                   "value" : "来到家%lld天"
                 }
-              },
-              "pluralRuleType" : "pluralRuleType"
+              }
             }
           }
         }
@@ -2477,8 +2463,7 @@
                   "state" : "translated",
                   "value" : "相处%lld天"
                 }
-              },
-              "pluralRuleType" : "pluralRuleType"
+              }
             }
           }
         }
@@ -8534,8 +8519,7 @@
                   "state" : "translated",
                   "value" : "来到家%lld天"
                 }
-              },
-              "pluralRuleType" : "pluralRuleType"
+              }
             }
           }
         }
@@ -8552,8 +8536,7 @@
                   "state" : "translated",
                   "value" : "相处%lld天"
                 }
-              },
-              "pluralRuleType" : "pluralRuleType"
+              }
             }
           }
         }
@@ -8647,8 +8630,7 @@
                   "state" : "translated",
                   "value" : "%lld 条记录"
                 }
-              },
-              "pluralRuleType" : "pluralRuleType"
+              }
             }
           }
         }
@@ -8753,8 +8735,7 @@
                   "state" : "translated",
                   "value" : "%lld月"
                 }
-              },
-              "pluralRuleType" : "pluralRuleType"
+              }
             }
           }
         }
@@ -8771,8 +8752,7 @@
                   "state" : "translated",
                   "value" : "完整时间线体验还剩 %lld 天"
                 }
-              },
-              "pluralRuleType" : "pluralRuleType"
+              }
             }
           }
         }
@@ -8888,8 +8868,7 @@
                   "state" : "translated",
                   "value" : "%lld年"
                 }
-              },
-              "pluralRuleType" : "pluralRuleType"
+              }
             }
           }
         }

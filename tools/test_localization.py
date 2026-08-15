@@ -32,7 +32,7 @@ def _entry(source_value: str, *lang_units: tuple[str, str, str], comment: str = 
 
 def _plural_entry(lang: str = "en", **variants: str) -> dict:
     """构造复数条目：variants 关键字为变体名 -> 值（均标 translated）。"""
-    plural = {"pluralRuleType": "pluralRuleType"}
+    plural = {}
     for var, value in variants.items():
         plural[var] = {"stringUnit": {"state": "translated", "value": value}}
     return {"localizations": {
@@ -199,6 +199,21 @@ class ExtractCodeKeysTests(unittest.TestCase):
                     '// loc:dynamic\n'
                     'let a = String(localized: "k.a")\n')
         self.assertEqual(loc.extract_code_keys(self.root), {"k.a"})
+
+
+class EntryPluralTests(unittest.TestCase):
+    def test_plural_rule_type_ignored(self):
+        # 历史 import 曾写入非法 pluralRuleType 键（已于 2026-08 清理），
+        # entry_plural 对残留文件保持容忍：跳过非变体键
+        entry = {"localizations": {"zh-Hans": {"variations": {"plural": {
+            "pluralRuleType": "pluralRuleType",
+            "other": {"stringUnit": {"state": "translated", "value": "%lld 天"}},
+        }}}}}
+        self.assertEqual(loc.entry_plural(entry, "zh-Hans"),
+                         {"other": ("%lld 天", "translated")})
+
+    def test_non_plural_entry_returns_none(self):
+        self.assertIsNone(loc.entry_plural({"localizations": {}}, "en"))
 
 
 class NormalizeKeyTests(unittest.TestCase):

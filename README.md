@@ -4,7 +4,7 @@
 
 ## 当前阶段
 
-**P0–P5 实现完成，上架准备中**。文档骨架、约束、目录结构、XcodeGen 声明、范围对齐全部就位；SwiftData schema、拼豆 Swift 核心（黄金规格通过）、相册 MVP、宠物档案、创作入口 + 完整图片编辑器、首页/设置/StoreKit 订阅/付费墙均已实现。严格并发 `complete` 下编译通过；CI 全绿（[run 31900122759](https://github.com/altairos/MiLens-iOS/actions/runs/31900122759)，2026-08-15）：**2009 XCTest 用例全绿**（MiLensKit 1113（Linux）+ App 894（模拟器）+ UI 2），覆盖率门禁实测校准为 13/13/0（App 加权 line 16.2%，见 DEVELOPMENT.md §2.2）。剩真机验证、性能基准、App Store 上架实测。详见 [PLAN.md](PLAN.md)。
+**P0–P5 实现完成，上架准备中**。文档骨架、约束、目录结构、XcodeGen 声明、范围对齐全部就位；SwiftData schema、拼豆 Swift 核心（黄金规格通过）、相册 MVP、宠物档案、创作入口 + 完整图片编辑器、首页/设置/StoreKit 订阅/付费墙均已实现。严格并发 `complete` 下编译通过；CI 全绿（最新 [run 31905505907](https://github.com/altairos/MiLens-iOS/actions/runs/31905505907)，2026-08-16）：**2062 XCTest 用例全绿**（MiLensKit 1113（Linux）+ App 943（模拟器）+ UI 6），覆盖率门禁基线回调为 18/18/0（App 加权 line/function 21.3%，见 DEVELOPMENT.md §2.2）。剩真机验证、性能基准、App Store 上架实测。详见 [PLAN.md](PLAN.md)。
 
 ## 快速开始（Mac）
 

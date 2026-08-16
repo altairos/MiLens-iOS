@@ -1,6 +1,6 @@
 # MiLens iOS 设计说明
 
-最后核对：2026-08-15（CI 全绿 run 31900122759：2009 XCTest 全绿 = Kit 1113（Linux）+ App 894（模拟器）+ UI 2；覆盖率门禁实测校准 13/13/0，App 加权 line 16.2%）
+最后核对：2026-08-16（CI 全绿 run 31905505907：2062 XCTest 全绿 = Kit 1113（Linux）+ App 943（模拟器）+ UI 6；覆盖率门禁基线回调 18/18/0，App 加权 line/function 21.3%）
 
 > 本文描述目标 iOS 架构。源 HarmonyOS 架构见 `e:\HarmonyProjects\MiPhoto2\DESIGN.md`，迁移映射见 [MIGRATION_ASSESSMENT.md](MIGRATION_ASSESSMENT.md)，约束见 [AGENTS.md](AGENTS.md)。**视觉与 UI 设计规范见 [UI-DESIGN.md](UI-DESIGN.md)**（色彩/字体/间距/动效/页面视觉的唯一事实来源）。
 
@@ -211,4 +211,4 @@ App 不会主动上传照片；编辑产物可能随用户启用的系统备份�
 - 家庭局域网备份后置 V1.x（离线备份接口已预留：ADR-0010 §8，`BackupService` 协议 + ZIP 打包 + ShareSheet，不联网）；AI 写真/回忆视频 V1.0 不做（无源端参照，需独立产品+技术方案），仅 V1.x 重新评估。
 - 商业化强化方案见 [ADR-0010](docs/adr/0010-commercialization-and-emotion-triggers.md)：照片配额（含降级后「可见但锁定」场景 §10.1.1）、导出水印、买断降价、分享增强、卡片多模板、时间线导出已实现；红包封面编辑器与聊天语境导出预览按 [docs/红包封面开发计划.md](docs/红包封面开发计划.md) 分期落地；离线备份、相簿模式、实体打印、编辑器装饰接口已预留。
 - **区域差异化基础设施已落地**：`MarketProfile`（`ViewModels/MarketProfile.swift`）作为按市场/地区差异的单一入口，当前承载字体策略与隐私叙事强度两个维度；新增维度时在该模型追加字段 + 纯逻辑 + 单测，UI 层从 `@Environment(\.marketProfile)` 消费，不在 View 内散写 `if Locale` 判断。
-- 编译与单元测试已验证（CI 全绿 run 31900122759（2026-08-15）：严格并发下 BUILD SUCCEEDED，MiLensKit 1113（Linux）+ App 894（模拟器）+ UI 2 全绿）；真机调试、模拟器 UI 人工验证、Instruments 性能分析仍需 Mac + iPhone 真机。
+- 编译与单元测试已验证（CI 全绿 run 31905505907（2026-08-16）：严格并发下 BUILD SUCCEEDED，MiLensKit 1113（Linux）+ App 943（模拟器）+ UI 6 全绿）；真机调试、模拟器 UI 人工验证、Instruments 性能分析仍需 Mac + iPhone 真机。

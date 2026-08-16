@@ -2,7 +2,7 @@
 
 配套 [architecture-review.md](architecture-review.md)（2026-08-14 审计）。优先级按「阻塞上架 → 一致性 → 债务清理」排序；每项含验收标准，完成后回写 PLAN.md。
 
-> **进度（2026-08-16）**：✅ P0-1、✅ P0-2、✅ P1-2（本链，25 轮 CI 修复至 run 31900122759 首绿，详见 [verification-recovery-report.md](verification-recovery-report.md)）；✅ P1-1、✅ P1-3、✅ P3-1（08-14 Windows 整改批次）；✅ P1-4、✅ P1-5、✅ P2-1、✅ P2-2（08-16 audit-6 §4 批次，明细见 PLAN.md 状态摘要：App 新增 49 单测 + UI 冒烟 2→6；三守卫全绿 + WSL2 Kit 1113 零回归；App/UI 测试待 CI）。待做：P2-3（真机验证轮）、P3-2、P3-3。
+> **进度（2026-08-16）**：✅ P0-1、✅ P0-2、✅ P1-2（本链，25 轮 CI 修复至 run 31900122759 首绿，详见 [verification-recovery-report.md](verification-recovery-report.md)）；✅ P1-1、✅ P1-3、✅ P3-1（08-14 Windows 整改批次）；✅ P1-4、✅ P1-5、✅ P2-1、✅ P2-2（08-16 audit-6 §4 批次，明细见 PLAN.md 状态摘要：App 新增 49 单测 + UI 冒烟 2→6；三守卫全绿 + WSL2 Kit 1113 零回归；App/UI 测试已 CI 验证：[run 31905505907](https://github.com/altairos/MiLens-iOS/actions/runs/31905505907) 全绿，2062 用例 0 failed，基线回调 18/18/0）。待做：P2-3（真机验证轮）、P3-2、P3-3。
 
 ---
 
@@ -46,7 +46,7 @@
 
 - **动作**：`PhotoLibraryAccess` 协议补 `save(imageData:as:)` 能力（若缺）；BeadExportService 改走协议注入；MockPhotoLibraryAccess 补实现；App 单测补保存路径（成功/失败/权限拒绝三分支）。
 - **验收**：BeadExportService 无 `import Photos`；新增 ≥3 用例；`PrintService` 若无法脱离 UIWindow 依赖则登记为「真机验证项」并注明原因。
-- **实际**：协议补 `save`、`IOSPhotoLibraryAccess` 真实实现 + Mock 补齐，`BeadExportService` 改协议注入并移除 `import Photos`；`BeadExportServiceSaveTests` 4 用例；check-imports `FILE_EXEMPTIONS` 清零 + [ADR-0011](../adr/0011-ci-guards-and-photos-exemption.md) §2.2/§5 关闭回写。App XCTest 待 CI。
+- **实际**：协议补 `save`、`IOSPhotoLibraryAccess` 真实实现 + Mock 补齐，`BeadExportService` 改协议注入并移除 `import Photos`；`BeadExportServiceSaveTests` 4 用例；check-imports `FILE_EXEMPTIONS` 清零 + [ADR-0011](../adr/0011-ci-guards-and-photos-exemption.md) §2.2/§5 关闭回写。App XCTest 已 CI 验证（run 31905505907，App 943 用例 0 failed）。
 
 ### P2-2 UI 冒烟清单扩展（收敛 R6）✅ 完成（2026-08-16，audit-6 §4 收口口径）
 

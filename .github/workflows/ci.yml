@@ -147,7 +147,7 @@ jobs:
             CODE_SIGNING_ALLOWED=NO \
             test
       # H3 覆盖率门禁：解析 xcresult 与基线比较，任一指标不达标即失败
-      # （基线为占位值，首次实测后校准，见 tools/check-coverage.sh 头注释）
+      # （基线分步回调中，当前 18/18/0，校准记录见 tools/check-coverage.sh 头注释）
       - name: Coverage script self-test
         run: tools/check-coverage.sh --selftest
       - name: Check coverage gate

@@ -1,6 +1,6 @@
 # MiLens iOS 开发说明
 
-最后核对：2026-08-15（P0–P5 实现完成；CI 全绿 run 31900122759：Kit 1113（Linux）+ App 894（模拟器）+ UI 2 = 2009 用例全绿，覆盖率门禁实测校准 13/13/0；真机与性能验收待做，清单见 docs/P2-待办清单.md）
+最后核对：2026-08-16（P0–P5 实现完成；CI 全绿 run 31905505907：Kit 1113（Linux）+ App 943（模拟器）+ UI 6 = 2062 用例全绿，覆盖率门禁基线回调 18/18/0（App 加权 line/function 21.3%）；真机与性能验收待做，清单见 docs/P2-待办清单.md）
 
 > 环境、命令、开发约定、可复现验证快照。架构见 [DESIGN.md](DESIGN.md)，计划见 [PLAN.md](PLAN.md)，约束见 [AGENTS.md](AGENTS.md)。
 
@@ -145,10 +145,11 @@ xcodebuild ... test -enableCodeCoverage YES
 # line 覆盖率为行数加权（Σ已覆盖行/Σ可执行行）；xccov 未提供行数时回退文件级算术
 # 平均并打印 [note]。另打印倒数 5 个最差文件报告（可执行行 ≥ FILE_MIN_LINES）。
 tools/check-coverage.sh build/TestResult.xcresult
-#   APP_LINE_MIN/APP_FUNCTION_MIN/APP_BRANCH_MIN   MiLens (App) 基线，默认 13/13/0
-#     （2026-08-15 首次实测校准：App-only 加权 line 16.2%（9907/60997）/function ~15.7%，
-#      快照 run 31898839674，按「实测值 -3pp 缓冲」得 13/13；branch=0 因 xccov
-#      新格式无 branches 数据，按 100% 计、未参与判罚）
+#   APP_LINE_MIN/APP_FUNCTION_MIN/APP_BRANCH_MIN   MiLens (App) 基线，默认 18/18/0
+#     （分步回调：2026-08-15 首次校准 13/13/0——App 加权 line 16.2%（9907/60997）
+#      /function ~15.7%，快照 run 31898839674；2026-08-16 P1-4 补测后回调 18/18/0
+#      ——加权 line/function 均 21.3%，快照 run 31905505907；均按「实测值 -3pp 缓冲」。
+#      branch=0 因 xccov 新格式无 branches 数据，按 100% 计、未参与判罚）
 #   KIT_LINE_MIN/KIT_FUNCTION_MIN/KIT_BRANCH_MIN   MiLensKit 基线（信息性不判罚：
 #     xccov 对 SPM 包 target 归属不稳定——run 31897080607/31897830212 混入 App
 #     target、run 31898839674 完全缺席——数据缺失时跳过、存在时仅展示；Kit 质量

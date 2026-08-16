@@ -8,10 +8,12 @@
 #   tools/check-coverage.sh build/TestResult.xcresult
 #   tools/check-coverage.sh --selftest      # 固定 fixture 自测（单位与比较逻辑）
 #
-# 基线（2026-08-15 首次实测校准，快照 run 31898839674，App-only 口径行数加权：
-#   line 16.2%（9907/60997）、function ~15.7%——按 remediation-plan P0-2「实测值
-#   -3pp 缓冲」得 13/13/0；branch=0 因 xccov 新格式无 branches 数据（按 100% 计，
-#   实际未参与判罚）。校准记录见 DEVELOPMENT.md §2.2）。环境变量可覆盖便于调参：
+# 基线（分步回调，目标 30/25/30——remediation-plan P0-2/P1-4）：
+#   2026-08-15 首次校准 13/13/0（快照 run 31898839674，App 加权 line 16.2%
+#   （9907/60997）/function ~15.7% - 3pp）；2026-08-16 P1-4 逻辑下沉补测后回调
+#   18/18/0（快照 run 31905505907，App 加权 line/function 均 21.3% - 3pp）。
+#   branch=0 因 xccov 新格式无 branches 数据（按 100% 计，实际未参与判罚）。
+#   校准记录见 DEVELOPMENT.md §2.2。环境变量可覆盖便于调参：
 #   APP_LINE_MIN / APP_FUNCTION_MIN / APP_BRANCH_MIN   MiLens App target 基线（判罚）
 #   KIT_LINE_MIN / KIT_FUNCTION_MIN / KIT_BRANCH_MIN   MiLensKit 基线（当前信息性，
 #       见下「Kit 口径」；保留对齐源端的 47/50/44 作恢复判罚时参考）
@@ -49,8 +51,8 @@ if [ "$XC_RESULT" != "--selftest" ] && [ ! -d "$XC_RESULT" ]; then
   exit 2
 fi
 
-APP_LINE_MIN="${APP_LINE_MIN:-13}"
-APP_FUNCTION_MIN="${APP_FUNCTION_MIN:-13}"
+APP_LINE_MIN="${APP_LINE_MIN:-18}"
+APP_FUNCTION_MIN="${APP_FUNCTION_MIN:-18}"
 APP_BRANCH_MIN="${APP_BRANCH_MIN:-0}"
 KIT_LINE_MIN="${KIT_LINE_MIN:-47}"
 KIT_FUNCTION_MIN="${KIT_FUNCTION_MIN:-50}"
@@ -247,7 +249,9 @@ def branch_coverage(files):
 
 def worst_files(files, limit=5):
     """返回 [(name, lineCoverage, executableLines)] 按覆盖率升序；过滤小文件
-    （可执行行 < FILE_MIN_LINES 不参与，避免 10 行文件噪点）。"""
+    （可执行行 < FILE_MIN_LINES 不参与，避免 10 行文件噪点）。executableLines 为
+    xccov 口径（含 @Observable/ViewBuilder 宏展开合成代码，SwiftUI 大视图实测
+    约为物理行 2.1~2.7 倍），勿与 check-file-size.py 的物理行守卫对照。"""
     rows = []
     for f in files:
         c, u = f.get("coveredLines"), f.get("uncoveredLines")
@@ -372,7 +376,9 @@ def run_gate(report, mins, kit_names, widget_names, selftest):
         # 倒数最差文件报告（透明化：暴露被均值掩盖的大体量低覆盖文件）
         wf = worst_files(files)
         if wf:
-            print(f"       最差文件（可执行行 ≥ {FILE_MIN_LINES}, 最多 5 个）:")
+            print(f"       最差文件（xccov 可执行行 ≥ {FILE_MIN_LINES}, 最多 5 个——")
+            print(f"         含宏展开合成代码，SwiftUI 大视图实测约为物理行 2.1~2.7 倍，")
+            print(f"         勿与 check-file-size.py 物理行守卫对照）:")
             for nm, lcov, total in wf:
                 print(f"         {pct(lcov):>7}  {nm}  ({total} 行)")
 

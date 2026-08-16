@@ -4,7 +4,8 @@
 //  export / prepareShareFile / preparePDFFile 的守卫与 toast 反馈、toast 自动清除。
 //  依赖全协议注入：InMemoryPhotoRepository + MockVisionService + MockClipInference +
 //  BeadExportService(photoLibrary: MockPhotoLibraryAccess) + QuotaSpy（自写配额记账 spy）。
-//  成功路径需要真实可解码图片：setUp 阶段写临时 PNG，tearDown 统一清理。
+//  成功路径需要真实可解码图片：写临时 PNG 后用 addTeardownBlock 注册清理
+//  （闭包继承 @MainActor 隔离；不用 nonisolated tearDown 访问 actor 属性）。
 
 import XCTest
 import UIKit
@@ -13,16 +14,6 @@ import MiLensKit
 
 @MainActor
 final class BeadViewModelTests: XCTestCase {
-
-    private var tempFilePaths: [String] = []
-
-    override func tearDown() {
-        for path in tempFilePaths {
-            try? FileManager.default.removeItem(atPath: path)
-        }
-        tempFilePaths.removeAll()
-        super.tearDown()
-    }
 
     // MARK: - 工厂与辅助
 
@@ -40,13 +31,13 @@ final class BeadViewModelTests: XCTestCase {
         return try XCTUnwrap(UIImage(cgImage: image).pngData())
     }
 
-    /// 写临时 PNG 并返回绝对路径（tearDown 统一清理）。
+    /// 写临时 PNG 并返回绝对路径（addTeardownBlock 注册清理）。
     @discardableResult
     private func writeSamplePNG(side: Int = 32) throws -> String {
         let url = FileManager.default.temporaryDirectory
             .appendingPathComponent("bead-vm-\(UUID().uuidString).png")
         try makePNGData(side: side).write(to: url)
-        tempFilePaths.append(url.path)
+        addTeardownBlock { try FileManager.default.removeItem(atPath: url.path) }
         return url.path
     }
 
@@ -253,7 +244,7 @@ final class BeadViewModelTests: XCTestCase {
         let badURL = FileManager.default.temporaryDirectory
             .appendingPathComponent("bead-vm-bad-\(UUID().uuidString).bin")
         try Data("not-an-image".utf8).write(to: badURL)
-        tempFilePaths.append(badURL.path)
+        addTeardownBlock { try FileManager.default.removeItem(atPath: badURL.path) }
         let photo = Photo(uri: badURL.path)
         let made = makeVM(photo: photo)
         await made.vm.load(photoID: photo.id)

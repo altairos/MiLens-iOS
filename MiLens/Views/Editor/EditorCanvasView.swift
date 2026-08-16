@@ -304,8 +304,12 @@ struct DecorationPreviewSource {
 
 /// 装饰图片解码缓存：NSCache（内存警告自动回收）+ 后台解码（参照 ThumbnailCache 模式，
 /// 阻塞项4：UIImage(named:) 的磁盘读取/解码移出 body）。
+/// 解码失败记录素材名（开发计划 §7.2 素材错误诊断），面板单元据此显示不可用状态。
+@MainActor
 enum DecorationImageLoader {
     private static let cache = NSCache<NSString, UIImage>()
+    /// 已知解码失败的素材名（§7.2：记录素材 ID；记录/查询均在主线程）。
+    private static var failedNames: Set<String> = []
 
     /// 取图：缓存命中直接返回；否则后台读取+解码后回填。
     static func load(_ name: String) async -> UIImage? {
@@ -315,8 +319,16 @@ enum DecorationImageLoader {
         }.value
         if let image {
             cache.setObject(image, forKey: name as NSString)
+            failedNames.remove(name) // 重试成功（如内存回收后再加载）解除不可用
+        } else {
+            failedNames.insert(name)
         }
         return image
+    }
+
+    /// 素材是否已知解码失败（面板不可用状态判定；导出预检走 VM 的同步预解码路径）。
+    static func hasFailed(_ name: String) -> Bool {
+        failedNames.contains(name)
     }
 }
 

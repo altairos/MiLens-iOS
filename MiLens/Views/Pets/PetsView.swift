@@ -67,7 +67,7 @@ struct PetsView: View {
             Image(systemName: "pawprint")
                 .font(.system(size: 44, weight: .light)) // ui-token:ok 空态装饰大图标
                 .foregroundStyle(Color.milensTextSecondary)
-            Text("还没有伙伴档案")
+            Text(String(localized: "pets.empty.title"))
                 .font(.displayMedium)
                 .foregroundStyle(Color.milensTextPrimary)
             Text(String(localized: "pets.empty.body"))
@@ -78,7 +78,7 @@ struct PetsView: View {
                 vm.resetForm()
                 showAddSheet = true
             } label: {
-                Label("添加伙伴", systemImage: "plus")
+                Label(String(localized: "pets.empty.cta"), systemImage: "plus")
                     .font(.buttonLabel)
                     .foregroundStyle(Color.milensTextOnActionPrimary)
                     .frame(minHeight: Sizing.touchTarget)

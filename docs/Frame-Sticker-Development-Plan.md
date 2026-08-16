@@ -1,6 +1,6 @@
 # MiLens 相框与贴纸开发计划
 
-最后核对：2026-08-15
+最后核对：2026-08-16
 
 > 本文定义图片编辑器「装饰」组中相框与贴纸的产品边界、交互、素材契约、工程实施顺序和验收标准。视觉与几何规格以 [UI-DESIGN.md §6.8](../UI-DESIGN.md#68-图片编辑器) 和 Figma `05A · Editor / Sticker`、`05B · Editor / Frame` 为准；编辑器架构与资源生命周期遵循 [DESIGN.md](../DESIGN.md)；里程碑状态见 [PLAN.md](../PLAN.md)。
 
@@ -205,14 +205,14 @@ python tools/frame_import.py list
 ### M0：数据与渲染地基
 
 - [ ] 修复快照字段、相框中心点、稳定合成顺序和画布重映射。（2026-08-15 代码落地：`EditorLayerSnapshot` 增可选 `resourcePath`/`visible` 且旧 JSON 容错、相框创建于画布中心并铺满、`orderedRenderLayers` 稳定序、`remapLayersForCanvas` 画布重映射；Kit 用例 WSL2 全绿，App VM 用例已写未跑，勾选待 Mac/CI XCTest）
-- [ ] 完成共享素材解析器，使 preview/export 对 `ratioSet` 与 `ninePatch` 一致。（2026-08-15 代码落地：Kit `resolveDecorationResource` 为唯一比例选图入口，预览 `resolveDecorationSource` 与导出 `makeDecorationProvider` 同源调用，ninePatch 预览/导出共用 `computeNinePatchTiles` 分块；勾选待 Mac/CI 补 §9.2 渲染级一致性测试）
-- [ ] 补 catalog 分组 ID、本地化映射和素材错误诊断。（2026-08-15 部分落地：分组稳定 ID `DecorationGroupIds` + `decoration.group.*` 本地化映射已完成；**素材错误诊断未达 §7.2 规格**——导出端素材缺失时仍静默跳过该层并提示保存成功，面板单元不可用状态未实现，待办见 PLAN.md Phase 4）
-- [ ] MiLensKit 新增纯逻辑测试，App 层新增渲染单测。（Kit 侧已落地：`DecorationCompositionTests`/`DecorationCatalogGroupTests`/`DecorationAssetResolverTests` 等 WSL2 全绿；**App 渲染单测未写**——现有为 VM 级用例，§9.2 逐像素一致/透明通道/缺素材用例待 Mac 环境补齐）
+- [ ] 完成共享素材解析器，使 preview/export 对 `ratioSet` 与 `ninePatch` 一致。（2026-08-15 代码落地：Kit `resolveDecorationResource` 为唯一比例选图入口，预览 `resolveDecorationSource` 与导出 `makeDecorationProvider` 同源调用，ninePatch 预览/导出共用 `computeNinePatchTiles` 分块；2026-08-16 补齐渲染级一致性测试：`EditorDecorationRenderTests` 以真实 `CoreImageEditorProcessing` 断导出像素，覆盖 §9.2 ①（stretch/ninePatch/ratioSet 各一）与 ②（透明贴纸 PNG/JPEG 边缘）；已写待 CI 跑绿）
+- [ ] 补 catalog 分组 ID、本地化映射和素材错误诊断。（2026-08-15 分组稳定 ID `DecorationGroupIds` + `decoration.group.*` 本地化映射落地；2026-08-16 素材错误诊断达 §7.2/§7.4 规格，三层防线：导出预检（`save` 预解码必需素材，缺失即中止并报素材名）+ 渲染兕底（provider 返回 nil → `renderExport` 整体失败，不产出缺层成功品）+ 面板不可用态（预览解码失败上报 → 四态单元警示占位 + 添加/应用双保险门禁）；VM 用例 `testSaveAbortsWhenDecorationAssetMissing`/`testUnavailableDecorationBlockedFromDocument` 已写待 CI）
+- [ ] MiLensKit 新增纯逻辑测试，App 层新增渲染单测。（Kit 侧已落地：`DecorationCompositionTests`/`DecorationCatalogGroupTests`/`DecorationAssetResolverTests` 等 WSL2 全绿；2026-08-16 App 渲染单测已补：`EditorDecorationRenderTests`（真实实现 + 像素断言）覆盖 §9.2 ①②③；④⑤ 由 `EditorViewModelTests`（手势合并 §9.2 ④ / Pro 门禁 §9.2 ⑤）守护，⑥ 作品分类回写由 `MediaLifecycleServiceTests` + VM 用例断言守护；已写待 CI）
 
 ### M1：可用交互与首批素材
 
-- [ ] 实现共用素材单元、分类轨、空态和 Pro 锁定态。（2026-08-15 代码落地：`EditorDecorationPanelView` 三态素材单元 + 分组胶囊轨 + 真实空态 + Pro 锁定态与付费墙意图；勾选待 Mac/CI XCTest）
-- [ ] 实现相框单选替换/移除，以及贴纸添加/选择/手势/删除。（2026-08-15 代码落地：`EditorDecorationPanelVM` 相框同素材不重建/替换整体一次 push、贴纸上限 20 + 非阻断提示、点选/拖动/双指缩放旋转/头部删除动作；VM 用例已写未跑，勾选待 Mac/CI XCTest 与真机手势验收）
+- [ ] 实现共用素材单元、分类轨、空态和 Pro 锁定态。（2026-08-15 代码落地：`EditorDecorationPanelView` 三态素材单元 + 分组胶囊轨 + 真实空态 + Pro 锁定态与付费墙意图；2026-08-16 A1 扩为四态（Default/Selected/Locked/Unavailable，§7.2 面板不可用态）+ `a11y.editor.decoration.unavailable` 本地化 key；勾选待 Mac/CI XCTest）
+- [ ] 实现相框单选替换/移除，以及贴纸添加/选择/手势/删除。（2026-08-15 代码落地：`EditorDecorationPanelVM` 相框同素材不重建/替换整体一次 push、贴纸上限 20 + 非阻断提示、点选/拖动/双指缩放旋转/头部删除动作；2026-08-16 补 §9.2 ④ 手势合并用例 `testDecorationGestureMergesIntoSingleUndoStep`；VM 用例已写未跑，勾选待 Mac/CI XCTest 与真机手势验收）
 - [ ] 导入并校验 6 个相框、6 个贴纸；补齐简中源文案与其他已支持语言 key。（**未开始**：`catalog.json` 仍为空目录，入口按 §10 门禁自动隐藏贴纸/相框工具；待 Figma 素材交付后经 `tools/frame_import.py` 入库，本地化 key 随导入流程补齐）
 - [ ] 接入撤销/重做、保存、返回未保存确认和付费墙。（2026-08-15 代码落地：面板操作恰好一次 push + 连续手势合并一条历史、保存成功 `resetHistory` 重置基线、`resolveBackAction` 未保存确认、`pendingPaywallItem` → 付费墙 sheet；勾选待 Mac/CI XCTest）
 

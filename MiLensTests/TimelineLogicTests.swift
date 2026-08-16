@@ -334,6 +334,48 @@ final class TimelineLogicTests: XCTestCase {
         XCTAssertEqual(entries[1].type, .photoNote)
     }
 
+    func testBuildTimelineEntriesTextNoteUsesDefaultTitleWhenEmpty() {
+        let petID = UUID()
+        // 空标题回退默认标签（timeline.memoryType.text），正文仍完整保留
+        let ev = TimelinePetEvent(
+            id: UUID(), petID: petID, eventType: "custom",
+            eventDate: date(2026, 5, 16), title: "",
+            body: "只有正文没有标题", sourceType: "user"
+        )
+        let entries = TimelineLogic.buildTimelineEntries(
+            input(pets: [pet(petID, name: "小满")], petEvents: [ev], now: date(2026, 6, 1)),
+            calendar: cal)
+        let notes = entries.filter { $0.type == .textNote }
+        XCTAssertEqual(notes.count, 1)
+        XCTAssertFalse(notes[0].title.isEmpty)
+        XCTAssertEqual(notes[0].bodyText, "只有正文没有标题")
+    }
+
+    func testBuildTimelineEntriesTextNoteLinksRelatedPhoto() {
+        let petID = UUID()
+        let photoID = UUID()
+        // AddMemorySheet 从照片页进入时预填 relatedPhotoID → textNote 回链来源照片
+        let ev = TimelinePetEvent(
+            id: UUID(), petID: petID, eventType: "custom",
+            eventDate: date(2026, 5, 16), title: "照片背后的故事",
+            body: "那天它第一次学会握手。", sourceType: "user",
+            relatedPhotoID: photoID
+        )
+        let photo = TimelinePhoto(
+            id: photoID, petID: petID, takenAt: date(2026, 5, 10),
+            note: "", uri: "file://src.jpg", thumbnailPath: "thumb.jpg"
+        )
+        let entries = TimelineLogic.buildTimelineEntries(
+            input(pets: [pet(petID, name: "小满")], petEvents: [ev],
+                  photoEvents: [photo], now: date(2026, 6, 1)),
+            calendar: cal)
+        let note = entries.first { $0.type == .textNote }
+        XCTAssertNotNil(note)
+        XCTAssertEqual(note?.photoID, photoID)
+        XCTAssertEqual(note?.photoURI, "file://src.jpg")
+        XCTAssertEqual(note?.thumbnailPath, "thumb.jpg")
+    }
+
     // MARK: - SchemaV2：作品记录（workRecord）
 
     func testBuildTimelineEntriesCreatesWorkRecordForWorkSource() {

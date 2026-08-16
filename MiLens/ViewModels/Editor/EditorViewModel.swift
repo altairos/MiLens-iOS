@@ -352,6 +352,14 @@ final class EditorViewModel {
         errorMessage = nil
         defer { isSaving = false }
 
+        // 导出预检（开发计划 §7.4）：预解码文档引用的全部装饰素材，必需素材缺失时
+        // 中止保存并给出可诊断错误（含素材名）——不允许静默缺层仍提示保存成功（§7.2）。
+        if let missing = firstMissingDecorationAssetName() {
+            logger.error("save: 装饰素材缺失，中止导出（missing=\(missing, privacy: .public)）")
+            errorMessage = "装饰素材缺失（\(missing)），请移除后重试"
+            return
+        }
+
         let format = saveFormat
         guard let data = imageProcessor.renderExport(
             baseImage: baseImage,
@@ -377,10 +385,28 @@ final class EditorViewModel {
         }
     }
 
+    /// 导出预检（开发计划 §7.4）：遍历文档中可见的相框/贴纸层，按导出相同规则
+    /// （resolveDecorationResource 选图）预解码素材；返回首个缺失的素材名——
+    /// catalog 缺项返回图层 resourcePath，图片解码失败返回解析后的 asset 名；
+    /// 全部可用返回 nil。渲染层另有兜底（provider 返回 nil → renderExport 整体失败）。
+    private func firstMissingDecorationAssetName() -> String? {
+        for layer in document.layers
+        where (layer.type == .frame || layer.type == .sticker) && layer.visible {
+            guard let item = decorationCatalog.items.first(where: { $0.resourcePath == layer.resourcePath })
+                ?? decorationCatalog.find(layer.resourcePath) else {
+                return layer.resourcePath
+            }
+            let assetName = resolveDecorationResource(item: item, targetRatio: photoAspectRatio)
+            guard UIImage(named: assetName) != nil else { return assetName }
+        }
+        return nil
+    }
+
     /// 构造装饰图层素材提供闭包（传给 renderExport）。
     ///
     /// 素材名解析统一走 MiLensKit.resolveDecorationResource（预览与导出共用同一
-    /// ratioSet 选图规则，阻塞项5 所见即所得）；加载失败返回 nil（renderExport 自动跳过）。
+    /// ratioSet 选图规则，阻塞项5 所见即所得）；加载失败返回 nil（§7.4：renderExport
+    /// 对必需素材缺失整体失败；save 预检已先行拦截并给出可诊断错误，此处为兜底）。
     private func makeDecorationProvider() -> (String) -> DecorationRenderSource? {
         let catalog = decorationCatalog
         let ratio = photoAspectRatio

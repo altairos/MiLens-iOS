@@ -186,16 +186,16 @@ struct GalleryView: View {
             Image(systemName: "pawprint.fill")
                 .font(.system(size: 60)) // ui-token:ok 空态装饰大图标
                 .foregroundStyle(Color.milensTextSecondary)
-            Text("还没有照片")
+            Text(String(localized: "gallery.empty.title"))
                 .font(.displayMedium)
-            Text("扫描系统相册，自动发现你的宠物照片")
+            Text(String(localized: "gallery.empty.body"))
                 .font(.bodyPrimary)
                 .foregroundStyle(Color.milensTextSecondary)
                 .multilineTextAlignment(.center)
             Button {
                 showScanFlow = true
             } label: {
-                Label("开始扫描", systemImage: "magnifyingglass")
+                Label(String(localized: "gallery.empty.cta"), systemImage: "magnifyingglass")
                     .padding(.horizontal, 24)
                     .padding(.vertical, 12)
             }
@@ -212,7 +212,7 @@ struct GalleryView: View {
             Image(systemName: "photo.on.ribbon.angled")
                 .font(.system(size: 48)) // ui-token:ok 空态装饰大图标
                 .foregroundStyle(Color.milensTextSecondary)
-            Text("没有符合条件的照片")
+            Text(String(localized: "gallery.empty.filtered"))
                 .font(.bodyPrimary)
                 .foregroundStyle(Color.milensTextSecondary)
         }

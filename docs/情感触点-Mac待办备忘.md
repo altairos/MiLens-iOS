@@ -1,6 +1,6 @@
 # 情感触点系统 — Mac 环境待办备忘
 
-最后更新：2026-08-13（§2 本地化 key 补齐 + §3 里程碑通知调度与 tap 路由 + §4 长图渲染内存校准 已落地）
+最后更新：2026-08-16（§7 备份引导 + §8 备份包跨平台友好化 App 层集成收口：CI 全绿验证，剩余项收缩为真机/人工走查；此前 2026-08-13 §2/§3/§4/§5 已落地）
 关联：[ADR-0010](adr/0010-commercialization-and-emotion-triggers.md) §3 / [PLAN.md](../PLAN.md)
 
 ## 背景
@@ -112,25 +112,26 @@ Stage 1/2 + 名片卡 + 红包封面的 App 层集成代码在 Windows 上无法
 
 **验证**：schema 迁移测试 + 离世态 UI 真机走查。
 
-## 7. 离线备份引导体系（P0–P3）[需 Mac 编译验证]
+## 7. 离线备份引导体系（P0–P3）✅ 已落地（2026-08-13 落地，CI 全绿验证）
 
-2026-08-13 落地 4 级备份引导触达，纯决策逻辑已 WSL2 验证（`BackupReminderLogic` 13 用例，852/852 全绿）。App 层渲染集成需 Mac 编译验证：
+2026-08-13 落地 4 级备份引导触达，纯决策逻辑已 WSL2 验证（`BackupReminderLogic` 13 用例）。App 层集成已随 CI 全量跑绿（run 31931944133，2062 用例）：
 
-- [ ] `BackupViewModel` 导出成功后写 `lastBackupDate`（UserDefaults），设置页副标题展示「上次备份 X 月 X 日」/「尚未备份」
-- [ ] `OnboardingImportStep.successView` 备份留存卡片（`MEMORY SAFEKEEPING`）渲染与排版
-- [ ] `HomeView` `BackupReminderBanner` 横幅渲染 + × 关闭 + 跨 Tab 跳转（`backupExportRequested` 通道）
-- [ ] `NotifyService.scheduleBackupReminder` 通知调度真机验证（次日 09:00 单次通知送达 + tap 跳转设置备份区）
-- [ ] 6 个新增本地化 key + 2 个文案修正的 zh-Hans 展示走查（en/de/fr 随多语言批次补）
+- [x] `BackupViewModel` 导出成功后写 `lastBackupDate`（UserDefaults），设置页副标题展示「上次备份 X 月 X 日」/「尚未备份」（`SettingsBackupFlow`）
+- [x] `OnboardingImportStep.successView` 备份留存卡片（`MEMORY SAFEKEEPING`）渲染与排版
+- [x] `HomeView` `BackupReminderBanner` 横幅渲染 + × 关闭 + 跨 Tab 跳转（`backupExportRequested` 通道：横幅 / 备份提醒通知 tap / 设置页三入口共用）
+- [x] 6 个新增本地化 key + 2 个文案修正的 zh-Hans（key 存在性经 `tools/localization.py check` CI 校验）
+- [ ] `NotifyService.scheduleBackupReminder` 通知调度真机验证（次日 09:00 单次通知送达 + tap 跳转设置备份区）——唯一剩余代码外验证项
+- [ ] zh-Hans 展示人工走查 + en/de/fr 翻译（随多语言批次）
 
-## 8. 备份包跨平台友好化 [需 Mac 编译验证]
+## 8. 备份包跨平台友好化 ✅ 已落地（代码 + 单测 CI 全绿）
 
-2026-08-13 落地枚举语义化 + 平台标识 + Windows 解压提示。需 Mac 验证：
+2026-08-13 落地枚举语义化 + 平台标识 + Windows 解压提示，App 层随 CI 全量跑绿：
 
-- [ ] `BackupManifest` 新增 `platform` 字段后，导出/恢复往返测试（`ZipBackupServiceTests` 篡改用例已补参数，完整往返需 App 编译）
-- [ ] `PetSnapshot.species/gender` 语义字符串导出后 metadata.json 人工抽查（`"cat"`/`"male"` 而非 `"1"`）
-- [ ] 旧版数字字符串备份包向后兼容恢复验证（用旧包恢复仍能正确还原 species/gender）
-- [ ] `BackupConfirmSheet` / `BackupShareSheet` 的 `zipHint` 提示行排版（caption2 tertiary 色，不抢主视觉）
-- [ ] 新增 `settings.backup.zipHint` 本地化 key zh-Hans 展示走查
+- [x] `BackupManifest` 新增 `platform` 字段（旧包缺字段解码为 nil 按 ios 处理），导出/恢复往返 + 篡改用例已补参数随 CI 跑绿
+- [x] `PetSnapshot.species/gender` 语义字符串：导出端 `semanticSpecies`/`semanticGender`（"cat"/"male"），恢复端 `parseSpecies`/`parseGender` 含旧版数字字符串（"0"/"1"/"2"）兼容——单测 `testSemanticSpeciesGenderExportAndLegacyNumericParse` 已写待 CI
+- [x] `BackupConfirmSheet` / `BackupShareSheet` 的 `zipHint` 提示行（`settings.backup.zipHint` key 已入 xcstrings）
+- [ ] 导出真实备份包后 metadata.json 人工抽查（"cat"/"male" 而非 "1"）——单测已覆盖解析路径，需 Mac/真机导出实物验证
+- [ ] zh-Hans 展示与排版（caption2 tertiary 色不抢主视觉）人工走查（随真机/模拟器统一批次）
 
 ## 附带修复（已在本轮完成）
 

@@ -113,6 +113,17 @@
         }
       }
     },
+    "a11y.editor.decoration.unavailable" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "素材不可用"
+          }
+        }
+      }
+    },
     "a11y.editor.deleteSticker" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -564,6 +575,50 @@
         }
       }
     },
+    "editor.cutout.action.applied" : {
+          "extractionState" : "manual",
+          "localizations" : {
+            "zh-Hans" : {
+              "stringUnit" : {
+                "state" : "translated",
+                "value" : "重新抠图"
+              }
+            }
+          }
+        },
+    "editor.cutout.action.error" : {
+          "extractionState" : "manual",
+          "localizations" : {
+            "zh-Hans" : {
+              "stringUnit" : {
+                "state" : "translated",
+                "value" : "重试"
+              }
+            }
+          }
+        },
+    "editor.cutout.action.idle" : {
+          "extractionState" : "manual",
+          "localizations" : {
+            "zh-Hans" : {
+              "stringUnit" : {
+                "state" : "translated",
+                "value" : "开始抠图"
+              }
+            }
+          }
+        },
+    "editor.cutout.action.processing" : {
+          "extractionState" : "manual",
+          "localizations" : {
+            "zh-Hans" : {
+              "stringUnit" : {
+                "state" : "translated",
+                "value" : "识别中…"
+              }
+            }
+          }
+        },
     "editor.cutout.notUploaded" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -1099,6 +1154,39 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "给记忆多一层守护"
+          }
+        }
+      }
+    },
+    "home.empty.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "先留下一张照片"
+          }
+        }
+      }
+    },
+    "home.empty.body" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "从相册里选几张和它有关的照片，\n我们会把每一天整理好。"
+          }
+        }
+      }
+    },
+    "home.empty.cta" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "添加照片"
           }
         }
       }
@@ -3228,6 +3316,17 @@
         }
       }
     },
+    "recovery.body" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "打开本地相册记录时出现问题。您可以重试，或重建本地数据：清除 MiLens 记录，同时也会删除沙盒中已保存的照片副本（导入/编辑产物）。系统相册中的原图不受影响。"
+          }
+        }
+      }
+    },
     "recovery.diagCreateFailed %@" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -3327,6 +3426,17 @@
         }
       }
     },
+    "recovery.rebuildConfirmBody" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "将清除 MiLens 中的相册记录、宠物档案及沙盒中已保存的照片副本（导入/编辑产物），且无法恢复。系统相册中的原图不会被删除。"
+          }
+        }
+      }
+    },
     "recovery.rebuildConfirmTitle" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -3356,6 +3466,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "重试"
+          }
+        }
+      }
+    },
+    "recovery.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "本地数据无法加载"
           }
         }
       }
@@ -5593,6 +5714,17 @@
         }
       }
     },
+    "businessCard.saveFailed" : {
+          "extractionState" : "manual",
+          "localizations" : {
+            "zh-Hans" : {
+              "stringUnit" : {
+                "state" : "translated",
+                "value" : "保存失败"
+              }
+            }
+          }
+        },
     "picker.businessCard.empty" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -8222,6 +8354,61 @@
         }
       }
     },
+    "gallery.empty.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "还没有照片"
+          }
+        }
+      }
+    },
+    "gallery.empty.body" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "扫描系统相册，自动发现你的宠物照片"
+          }
+        }
+      }
+    },
+    "gallery.empty.cta" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "开始扫描"
+          }
+        }
+      }
+    },
+    "gallery.empty.filtered" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "没有符合条件的照片"
+          }
+        }
+      }
+    },
+    "gallery.scan.permissionDenied" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "需要照片访问权限才能扫描相册。\n可在「设置 → 隐私 → 照片」中开启。"
+          }
+        }
+      }
+    },
     "gallery.scanImport" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -8824,6 +9011,28 @@
         }
       }
     },
+    "pets.empty.cta" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "添加伙伴"
+          }
+        }
+      }
+    },
+    "pets.empty.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "还没有伙伴档案"
+          }
+        }
+      }
+    },
     "timeline.type.adoption" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -8877,13 +9086,8 @@
     "·" : {},
     "−" : {},
     "为它创建第一份档案" : {},
-    "为它建立一份档案，\n照片、纪念日和故事都会留在这里。" : {},
-    "从相册里选几张和它有关的照片，\n我们会把每一天整理好。" : {},
-    "你的照片只属于你" : {},
     "保存" : {},
     "保存后将以 PNG 格式保留透明背景" : {},
-    "先到相册导入照片，再回来生成拼豆图纸" : {},
-    "先留下一张照片" : {},
     "分享" : {},
     "原图预览 · 生成后这里会实时显示拼豆效果" : {},
     "只会从咪Lens 的整理记录中移除，不会删除系统相册原图。" : {},
@@ -8897,37 +9101,24 @@
     "字号" : {},
     "它叫什么名字？" : {},
     "宠物卡片" : {},
-    "将清除 MiLens 中的相册记录、宠物档案及沙盒中已保存的照片副本（导入/编辑产物），且无法恢复。系统相册中的原图不会被删除。" : {},
     "开始使用" : {},
     "开始注册" : {},
     "当前方案" : {},
     "我们找到了它" : {},
     "我已阅读并同意" : {},
-    "打开本地相册记录时出现问题。您可以重试，或重建本地数据：清除 MiLens 记录，同时也会删除沙盒中已保存的照片副本（导入/编辑产物）。系统相册中的原图不受影响。" : {},
-    "扫描系统相册，自动发现你的宠物照片" : {},
     "把它的一生，留在这里" : {},
     "拼豆图纸" : {},
     "推荐：拼豆插画" : {},
     "未标注日期" : {},
-    "本地数据无法加载" : {},
     "材料清单" : {},
     "档案已创建" : {},
     "概括度" : {},
-    "没有符合条件的照片" : {},
-    "添加伙伴" : {},
-    "添加宠物档案和照片后，这里会自动生成成长时间线" : {},
-    "添加照片" : {},
     "特别的缘分" : {},
     "知道啦" : {},
     "视觉特征" : {},
-    "还没有伙伴档案" : {},
-    "还没有成长记录" : {},
-    "还没有照片" : {},
     "这位可爱的宝贝和本APP的开发者同一天出生。\n感谢屏幕前的你，呵护着如此珍贵的生命。" : {},
     "选择效果" : {},
-    "选择照片生成拼豆图纸" : {},
     "重要事件" : {},
-    "随时可以在相册页扫描并导入更多照片" : {},
     "隐私优先" : {},
     "颜色数量" : {},
     "颜色过渡" : {},

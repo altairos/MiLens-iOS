@@ -63,7 +63,7 @@
 
 - **P3-1**（R9）：RecapView fallback 改为失败即返回占位图/nil + 上报诊断，不走全尺寸解码。
 - **P3-2**（R10）：6 个首发语言翻译启动（xcstrings export → 翻译 → import → check）。
-- **P3-3**：Swift 6 迁移前置项收口（HomeView static DateFormatter 等 DESIGN.md §10 登记 项），目标 `strict-concurrency=complete` 零警告常态化。
+- **P3-3**：Swift 6 迁移前置项收口（HomeView static DateFormatter 已随 2026-08-10/08-12 本地化与首页重构消解，2026-08-16 复核全仓库零残留，DESIGN.md §9.1 登记已同步），目标 `strict-concurrency=complete` 零警告常态化。
 
 ---
 

@@ -301,7 +301,7 @@ final class GalleryViewModel {
                 self.scanProgressText = ""
                 self.permissionDenied = true
                 self.scanFailed = true
-                self.scanCompleteMessage = "需要照片访问权限才能扫描相册。\n可在「设置 → 隐私 → 照片」中开启。"
+                self.scanCompleteMessage = String(localized: "gallery.scan.permissionDenied")
                 self.showScanCompleteDialog = true
                 return
             }

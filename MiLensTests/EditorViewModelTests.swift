@@ -2,7 +2,8 @@
 //  覆盖：加载/失败、工具与组切换、裁剪（初始化/比例/确认=像素级重置历史）、旋转/翻转、
 //  调色滑块手势合并、锐化 end 触发、文字（添加/编辑/删除/撤销重做）、
 //  抠图（成功/失败无降级）、保存回写（文件 + Photo 就地更新）、返回动作与保存选择、
-//  装饰面板（工具门禁/贴纸添加与上限/相框单选替换/Pro 付费墙意图/画布重映射/分组记忆）。
+//  装饰面板（工具门禁/贴纸添加与上限/相框单选替换/Pro 付费墙意图/画布重映射/分组记忆/
+//  素材缺失中止保存与面板不可用门禁——开发计划 §7.2/§7.4）。
 //  使用 MockEditorImageProcessing + MockFileStorage + 内存 repo（不碰 SwiftData / Core Image）。
 //  注意：装饰区段测试未在本地执行（Windows 环境无法跑 App target XCTest），待 Mac/CI 验证。
 
@@ -411,6 +412,8 @@ final class EditorViewModelTests: XCTestCase {
         // 编辑产物写入 Edits 子目录（允许备份，与排除备份的导入副本分区）
         XCTAssertTrue(photo.uri.hasPrefix(sandboxDir + "/Edits/MiLens_Edit_"))
         XCTAssertTrue(storage.fileExists(at: photo.uri))
+        XCTAssertEqual(photo.category, PhotoCategory.edited.rawValue,
+                       "保存产物回写「作品」分类（§9.2 ⑥；Service 级见 MediaLifecycleServiceTests）")
         XCTAssertEqual(photo.thumbnailPath, "") // 缩略图回退 uri
         XCTAssertEqual(photo.width, 400)
         XCTAssertEqual(photo.height, 300)
@@ -683,6 +686,75 @@ final class EditorViewModelTests: XCTestCase {
         XCTAssertTrue(vm.decorationVM.hasActiveSticker)
         vm.decorationVM.deleteActiveSticker()
         XCTAssertEqual(vm.layers.filter { $0.type == .sticker }.count, 0)
+    }
+
+    /// 素材错误诊断（开发计划 §7.4）：导出预检发现必需素材缺失 → 中止保存，
+    /// errorMessage 含素材名（可诊断）且渲染层不被触碰（无「静默缺层成功品」）。
+    func testSaveAbortsWhenDecorationAssetMissing() async {
+        let vm = await makeLoadedVM(catalog: makeDecorationCatalog())
+        vm.selectTool(.frame)
+        vm.decorationVM.applyFrame(vm.decorationCatalog.find("frame_a")!, isPro: true)
+        XCTAssertEqual(vm.layers.filter { $0.type == .frame }.count, 1)
+
+        // catalog 有条目但 bundle 内无对应图片（测试环境天然缺失）
+        await vm.save()
+
+        XCTAssertNotNil(vm.errorMessage)
+        XCTAssertTrue(vm.errorMessage?.contains("frame_a") == true)
+        XCTAssertEqual(processor.renderExportCalls, 0, "预检拦截，渲染层不被触碰")
+    }
+
+    /// 面板不可用门禁（§7.2）：上报解码失败的素材被拦在文档外（贴纸/相框双路径）。
+    func testUnavailableDecorationBlockedFromDocument() async {
+        let vm = await makeLoadedVM(catalog: makeDecorationCatalog())
+
+        vm.selectTool(.sticker)
+        let sticker = vm.decorationCatalog.find("sticker_paw")!
+        vm.decorationVM.markPreviewUnavailable(sticker.previewPath)
+        XCTAssertTrue(vm.decorationVM.isAssetUnavailable(sticker))
+        vm.decorationVM.addSticker(sticker, isPro: true)
+        XCTAssertEqual(vm.layers.count, 1, "不可用贴纸不入文档")
+
+        vm.selectTool(.frame)
+        let frame = vm.decorationCatalog.find("frame_a")!
+        vm.decorationVM.markPreviewUnavailable(frame.previewPath)
+        vm.decorationVM.applyFrame(frame, isPro: true)
+        XCTAssertNil(vm.decorationVM.currentFrameResourcePath)
+        XCTAssertEqual(vm.layers.filter { $0.type == .frame }.count, 0, "不可用相框不入文档")
+    }
+
+    /// 手势合并（§9.2 ④）：装饰层连续拖/缩/旋一次撤销整段回退——View 层 onChanged
+    /// 高频调用 move/scale/rotate（每次 pushHistory），begin/endLayerGesture 之间
+    /// 只压一条手势前基线（Kit EditorHistory 手势合并）。
+    func testDecorationGestureMergesIntoSingleUndoStep() async {
+        let vm = await makeLoadedVM(catalog: makeDecorationCatalog())
+        vm.selectTool(.sticker)
+        vm.decorationVM.addSticker(vm.decorationCatalog.find("sticker_paw")!, isPro: true)
+        let base = vm.layers.first { $0.type == .sticker }!
+        // 拖 (254,96)→(269,111)：两轴距中心线均远超吸附阈值，断言不受吸附干扰
+        vm.beginLayerGesture()
+        vm.moveActiveLayer(dx: 5, dy: 5)
+        vm.moveActiveLayer(dx: 5, dy: 5)
+        vm.moveActiveLayer(dx: 5, dy: 5)
+        vm.scaleActiveLayer(by: 1.2)
+        vm.scaleActiveLayer(by: 1.1)
+        vm.rotateActiveLayer(by: 15)
+        vm.rotateActiveLayer(by: 15)
+        vm.endLayerGesture()
+
+        let moved = vm.layers.first { $0.type == .sticker }!
+        XCTAssertEqual(moved.x, base.x + 15, accuracy: 1e-9)
+        XCTAssertEqual(moved.y, base.y + 15, accuracy: 1e-9)
+        XCTAssertEqual(moved.scale, base.scale * 1.2 * 1.1, accuracy: 1e-9)
+        XCTAssertEqual(moved.rotation, base.rotation + 30, accuracy: 1e-9)
+
+        // 一次撤销整段手势回退到贴纸初始状态（不逐帧回退）
+        vm.undo()
+        let restored = vm.layers.first { $0.type == .sticker }!
+        XCTAssertEqual(restored.x, base.x, accuracy: 1e-9)
+        XCTAssertEqual(restored.y, base.y, accuracy: 1e-9)
+        XCTAssertEqual(restored.scale, base.scale, accuracy: 1e-9)
+        XCTAssertEqual(restored.rotation, base.rotation, accuracy: 1e-9)
     }
 
     /// 画布变化重映射（阻塞项7）：frame 重新铺满，sticker 中心按比例迁移 + scale 按短边比缩放。

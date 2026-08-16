@@ -191,7 +191,7 @@ tools/check-coverage.sh build/TestResult.xcresult
 - 页面 ViewModel 一律 `@MainActor`；跨隔离边界只发送 `Sendable` 值，`Task.detached` 以捕获值传参，不捕获非 Sendable 的 `self`/View struct。
 - 平台适配层/mock 的 `@unchecked Sendable` 必须附理由注释；禁止新增无说明的 `@unchecked Sendable`/`nonisolated(unsafe)`。
 - 页面 ViewModel 统一经 `ViewModelFactory`（`\.viewModelFactory`）构造，View 不直接持有 Repository/Service（分层收敛，详见 DESIGN.md §4.1）。
-- 并发遗留收口：`BeadViewModel` 4 处 `Task.detached` 已收敛（以捕获 `Sendable` 局部值方式传参，不捕获 `self`，complete 编译通过）；仅剩 `HomeView` 2 处 `static let DateFormatter` 为 Swift 6 语言模式迁移前置项（跟踪见 PLAN.md P5 进度）。
+- 并发遗留收口：`BeadViewModel` 4 处 `Task.detached` 已收敛（以捕获 `Sendable` 局部值方式传参，不捕获 `self`，complete 编译通过）；`HomeView` 2 处 `static let DateFormatter` 已随 2026-08-10/08-12 本地化与首页重构消解，2026-08-16 复核全仓库零残留（`HomeSections.weekdaySymbols` 为 Sendable `[String]` 静态缓存，不构成 SE-0412 违规），Swift 6 语言模式迁移无 formatter 前置项。
 
 ### 4.3 AI 模型转换工具链
 

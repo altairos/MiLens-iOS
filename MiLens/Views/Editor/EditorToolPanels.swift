@@ -630,10 +630,10 @@ struct EditorCutoutPanelView: View {
 
     private var actionLabel: String {
         switch viewModel.cutoutVM.phase {
-        case .processing: return "识别中…"
-        case .applied: return "重新抠图"
-        case .error: return "重试"
-        case .idle: return "开始抠图"
+        case .processing: return String(localized: "editor.cutout.action.processing")
+        case .applied: return String(localized: "editor.cutout.action.applied")
+        case .error: return String(localized: "editor.cutout.action.error")
+        case .idle: return String(localized: "editor.cutout.action.idle")
         }
     }
 }

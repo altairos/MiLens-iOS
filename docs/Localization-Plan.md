@@ -147,9 +147,9 @@ python tools/localization.py check \
 | 2 | **日期 / 数字格式** | HomeView `Text("第 \(count.formatted()) 张")`；TimelineExportLogic `dateRangeText`（"2024-01 — 2026-08"）；PetDisplayLogic `ageText`（"3岁2个月"）| ✅ 已收口 | 一律 `Date.FormatStyle` / `Number.FormatStyle` + locale（§4.8 已定原则，落代码）；纯逻辑层返回结构化数据或注入 formatter；固定 locale 快照测试（复用 utcCalendar 确定性测试模式）|
 | 3 | **无障碍标签** | 22 处 `accessibilityLabel`（TimelineView/OnboardingView/EditorView/EditorToolPanels/GalleryView/HomeView 等），含插值（"第 \(step) 步，共 \(count) 步"、"颜色 \(hex)"）| ✅ 已收口 | 全部核对并迁移（工作项 #7.6）；插值标签用 format 键；VoiceOver 每语言抽查读屏（§9）|
 | 4 | **系统权限文案** | `InfoPlist.xcstrings`（NSPhotoLibraryAdd/Usage 2 key）+ `settings.notifications.denied.*`（3 key）| 已有 5 key | 按各国法规语感翻译（GDPR/PIPA/個資法，§4.8）；权限弹窗文案与实际行为一致性核对（审核要点）；通知权限弹窗为系统模板无需文案 |
-| 5 | **错误提示** | paywall 失败系列（已收口 7 key）；StateView `"档案加载失败"`；MiLensApp `"未知错误"` 启动错误 | ✅ 已收口（editor 错误提示随 #7.8 收口）| 三段式规范：发生了什么 / 原因 / 怎么办；错误码与内部标识脱敏（沿用 AppErrorHandler.redactIdentifier）；不直接展示 StoreKit/Vision 原始错误（工作项 #7.8 盘点收口）|
+| 5 | **错误提示** | paywall 失败系列（已收口 7 key）；StateView `"档案加载失败"`；MiLensApp `"未知错误"` 启动错误 | ✅ 已收口 | 三段式规范：发生了什么 / 原因 / 怎么办；错误码与内部标识脱敏（沿用 AppErrorHandler.redactIdentifier）；不直接展示 StoreKit/Vision 原始错误（工作项 #7.8 盘点收口，含 editor 抠图四态与名片保存失败）|
 | 6 | **通知内容** | AnniversaryLogic `buildAnniversaryNotificationText`/`buildTimeMachineText`（6 个模板，"N年前的今天"系列）；NotifyService `notificationNote`（"\(petName)的生日"）| ✅ 已收口 | 逻辑层用 `String(localized:)`（App target）或注入文案提供者；通知 title ≤ 1 行、body ≤ 2-3 行长预算；语气按市场规范（日区て形+絵文字适度、韩区 합니다体、德区正式礼貌，§4）；"N年前的今天"是插值+复数复合点 |
-| 7 | **空状态** | StateView 组件（title/action 参数由调用方传字面量）："还没有照片"、"还没有伙伴档案"、"还没有成长记录"、"没有符合条件的照片" 等 | 字面量 key 在 catalog，但全部调用点未盘点 | 系统性盘点每个空状态场景（相册/时间线/拼豆/宠物列表/搜索结果/通知权限）并核对 catalog 覆盖（工作项 #7.8）；规范：说明现状 + 行动指引（CTA）|
+| 7 | **空状态** | StateView 组件（title/action 参数由调用方传字面量）："还没有照片"、"还没有伙伴档案"、"还没有成长记录"、"没有符合条件的照片" 等 | ✅ 已收口 | 系统性盘点每个空状态场景（相册/时间线/拼豆/宠物列表/搜索结果/通知权限）并核对 catalog 覆盖（工作项 #7.8）；规范：说明现状 + 行动指引（CTA）|
 | 8 | **订阅失败路径** | `paywall.purchase.failed/pending`、`paywall.restore.*`、`paywall.load.failed`（8 key）| 已收口 | StoreKit 错误分类映射表：用户取消（静默）/ 网络不可用 / 账单问题 / ask-to-buy 待处理 / 家长控制受限 / 系统错误——每类对应本地化文案，不直显系统英文错误；试用到期与续费失败提示文案 |
 | 9 | **宠物卡片 / 档案动态文案** | PetCardLogic（"这一天"、"值得记住的一天"、"来到家 N 天"）；PetDisplayLogic `speciesDisplayName`（"喵星人"等）与 `ageText` | ✅ 已收口 | 年龄文案复数化（en "3 yrs 2 mo"、ja "3歳2ヶ月"）；物种名市场适配（"喵星人"为中文网络语，ja 用 にゃんこ/ねこ、en 用 kitty/cat、ko 用 냥이/고양이）；宠物代词策略：英文统一单数 they（避免 he/she 性别假设），de/fr 用避免性别的句式（§4.3/§4.5）|
 | 10 | **导出水印与分享文案** | TimelineExportCanvas `Text("由 MiLens 制作")`（时间线水印）；SharePreviewSheet `"免费版导出带 MiLens 水印，升级 Pro 可去除"` | ✅ 已收口 | 水印是品牌传播载体（其他用户看到后搜索下载），必须本地化（en "Made with MiLens" 等）；分享默认 caption 与导出文件名（"拼豆图纸_20260810"）的日期格式一并本地化 |
@@ -162,9 +162,9 @@ python tools/localization.py check \
 | 2 | ✅ 已收口 | HomeView 照片计数（`home.photoCount %lld` plural）与「今天 HH:mm」前缀（`Date.FormatStyle` + locale + `home.todayTime %@`）；TimelineExportLogic `dateRangeText`（locale 注入 + `timeline.export.dateRange %@ %@`）；PetDisplayLogic `ageText`（复数 key + locale 注入）。杂志竖排日期保留固定装饰格式（纯数字无语言依赖，注释说明）|
 | 3 | ✅ 已收口 | 22 处 accessibilityLabel 全部核对迁移 + catalog 补 25 个 `a11y.*` key（zh-Hans translated）；插值标签用 `%@`/`%lld` key |
 | 4 | 待翻译 | 5 key 已就位（InfoPlist 2 + settings.notifications.denied 3），翻译阶段处理 |
-| 5 | ✅ 已收口 | 启动错误（`startup.unknownError`）、档案加载失败（`pet.profile.loadFailed`，PetEditViewModel/StateView/PetProfileView）、首页加载错误（`home.loadError`）、时间线导出错误（`timeline.renderFailed`/`timeline.exportFailedDetail`）、启动恢复界面全套（`recovery.*` + `common.ok/cancel/back`）；editor 错误「重试」等剩余点随 #7.8 收口 |
+| 5 | ✅ 已收口 | 启动错误（`startup.unknownError`）、档案加载失败（`pet.profile.loadFailed`，PetEditViewModel/StateView/PetProfileView）、首页加载错误（`home.loadError`）、时间线导出错误（`timeline.renderFailed`/`timeline.exportFailedDetail`）、启动恢复界面全套（`recovery.*` + `common.ok/cancel/back`）；editor 抠图四态（`editor.cutout.action.*`）与名片保存失败（`businessCard.saveFailed`）随 #7.8 收口 |
 | 6 | ✅ 已收口 | AnniversaryLogic 6 模板 + NotifyService `notificationNote` 全部 `String(localized:locale:)`（插值+复数复合） |
-| 7 | 待办 #7.8 | catalog 已有字面量 key（「还没有照片」等），调用点未全盘点 |
+| 7 | ✅ 已收口（#7.8）| 19 处硬编码迁移：`gallery.empty.*`、`pets.empty.title/cta`、`home.empty.*`、`recovery.title/body/rebuildConfirmBody`、`gallery.scan.permissionDenied`、`editor.cutout.action.*`、`businessCard.saveFailed`；Onboarding 编辑式文案（~19 处）遗留随 key 化批次处理 |
 | 8 | ✅ 已收口 | paywall 失败/恢复/加载 8 key + 错误分类映射 |
 | 9 | ✅ 已收口 | PetCardLogic（「这一天」/「来到家 N 天」plural）+ PetDisplayLogic（物种/性别/年龄复数 key）locale 注入 |
 | 10 | ✅ 已收口 | 时间线水印（`timeline.export.watermark`）、分享面板标题/副标题/4 平台名/更多/水印提示（`share.*`）；分享文件名保持英文内部标识（不含日期，无日期格式可本地化） |
@@ -548,8 +548,8 @@ App Store 元数据与 App 内翻译分别验收，提交 ASC 前逐语言核对
 | 7.5 | 工具链 plural 支持（export 拆行 `key[one]/[other]` / import 合并回写 / check 完整性 / GUI 与资产工作簿同步）| #7 | ✅ 已完成（端到端测试通过）|
 | 7.6 | accessibilityLabel 等 UI 字面量核对与迁移（22 处 → `String(localized:)` 或 catalog 补 key）| #7 | ✅ 已完成（25 个 `a11y.*` key）|
 | 7.7 | 纯逻辑层动态文案本地化（通知 6 模板 / 宠物卡片 / 物种名 / 年龄 / 时间线导出 / 水印 / 分享 / 首页 / 启动错误）| #7.6 | ✅ 已完成（代码部分；快照测试 → #7.7b）|
-| 7.7b | 动态文案固定 locale 快照测试（en_US/de_DE/ja_JP 断言，复用 utcCalendar 注入模式）| #7.7 | 0.5-1 天 |
-| 7.8 | 空状态与错误提示盘点收口（全部调用点核对、三段式规范、StoreKit 错误映射）| #7 | 0.5 天（错误提示已部分收口：启动/首页/时间线/档案；editor「重试」与空状态调用点待盘）|
+| 7.7b | 动态文案固定 locale 快照测试（en_US/de_DE/ja_JP 断言，复用 utcCalendar 注入模式）| #7.7 | ✅ 已完成（2026-08-16 `DynamicCopyLocaleSnapshotTests`：zh-Hans 全量精确快照（通知/档案/卡片/导出）+ en_US/de_DE/ja_JP 回退等值层；`String(localized:locale:)` 不切换查表语言，各语言精确快照随 #4–#6 翻译导入升级）|
+| 7.8 | 空状态与错误提示盘点收口（全部调用点核对、三段式规范、StoreKit 错误映射）| #7 | ✅ 已完成（2026-08-16：盘点 74 相关 key（69 used / 5 预留未接线——`picker.redPacket.*` 红包入口实际走 workshop 流程、`redpacket.export.saveFailed`/`redpacket.quality.badge|level.error` 预留）；迁移 19 处硬编码（相册/伙伴/首页空态、扫描权限提示、启动恢复三段、editor 抠图四态、名片保存失败）+18 key；清理 18 条 Xcode 自动提取空壳。遗留：Onboarding 编辑式文案（~19 处）与 MiLensKit `cutoutStatusText`（Kit 层中文、有 Kit 测试锚定）随翻译导入前的 key 化批次处理）|
 | 7.9 | 工作簿补充翻译上下文、禁用表达、审校人/日期和源文案版本字段 | #3 | 0.5 天 |
 | 8 | 伪本地化 + 模拟器走查 × 7 语言（长度/字体/截断/Dynamic Type/iPad/VoiceOver）| #5 #6 | 1-2 天 |
 | 9 | 商店元数据 7 语言 + 订阅描述 + 审核备注 + 独立一致性验收 | #5 #6 | 1-2 天 |

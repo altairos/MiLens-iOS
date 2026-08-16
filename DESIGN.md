@@ -202,7 +202,7 @@ App 不会主动上传照片；编辑产物可能随用户启用的系统备份�
 - 页面 ViewModel 一律 `@MainActor`；跨隔离边界（`Task.detached`、`async let`、协议值传递）只发送 `Sendable` 值，CPU 密集计算以捕获值的方式传入 detached 闭包，不捕获非 Sendable 的 `self`/View struct。
 - 平台适配层与 mock 的 `@unchecked Sendable` 声明必须附理由注释（内部锁保护 / 只在 MainActor 调用方访问等），禁止无说明地抑制检查。
 - 长监听任务（如 `ProEntitlementStore` 的订阅流）用 actor 隔离的注册表 + `[weak self]`，不留「静态容器 → Task → self」保活环。
-- 并发遗留收口：`BeadViewModel` 4 处 `Task.detached`（生成/导出/分享/PDF）已收敛——均以捕获 `Sendable` 局部值（`renderer`/`pattern`/`photoData`/`opts`）的方式传参，调用全局生成/渲染函数，不捕获非 Sendable 的 `self`，complete 编译通过。仅剩 `HomeView` 2 处 `static let DateFormatter` 在 Swift 5.9 complete 下不触发诊断（SE-0412 于 5.10 生效），列为 Swift 6 语言模式迁移前置项（跟踪见 PLAN.md）。
+- 并发遗留收口：`BeadViewModel` 4 处 `Task.detached`（生成/导出/分享/PDF）已收敛——均以捕获 `Sendable` 局部值（`renderer`/`pattern`/`photoData`/`opts`）的方式传参，调用全局生成/渲染函数，不捕获非 Sendable 的 `self`，complete 编译通过。曾登记的 `HomeView` 2 处 `static let DateFormatter` 已随 2026-08-10/08-12 本地化与首页重构消解，2026-08-16 复核全仓库零残留（`HomeSections.weekdaySymbols` 为 Sendable `[String]` 静态缓存，闭包内局部 formatter 不构成 SE-0412 违规），Swift 6 语言模式迁移无 formatter 前置项（跟踪见 PLAN.md）。
 
 ## 10. 已知限制
 

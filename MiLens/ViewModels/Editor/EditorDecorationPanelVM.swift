@@ -63,10 +63,26 @@ final class EditorDecorationPanelVM {
     /// 被点击的 Pro 锁定项（View 据此弹付费墙，完成后 clearPaywallIntent 复位）。
     private(set) var pendingPaywallItem: DecorationItem?
 
+    /// 已知不可用的素材预览名（开发计划 §7.2 素材错误诊断：预览图解码失败上报；
+    /// @Observable 追踪，面板单元据此显示不可用状态）。
+    private(set) var unavailablePreviews: Set<String> = []
+
     // MARK: - 动作
 
     func selectGroup(_ index: Int) {
         if category == .frame { frameGroupIndex = index } else { stickerGroupIndex = index }
+    }
+
+    /// 素材是否不可用（§7.2 面板不可用状态）：本面板上报失败 或 Loader 已知失败
+    /// （跨分组切回时立即生效，不等异步重试）。
+    func isAssetUnavailable(_ item: DecorationItem) -> Bool {
+        unavailablePreviews.contains(item.previewPath)
+            || DecorationImageLoader.hasFailed(item.previewPath)
+    }
+
+    /// 预览图解码失败上报（DecorationPreviewImage 回调；记录素材名供不可用态与门禁）。
+    func markPreviewUnavailable(_ previewPath: String) {
+        unavailablePreviews.insert(previewPath)
     }
 
     /// 添加贴纸：锁定项 → 付费墙；超限（STICKER_LAYER_LIMIT=20）→ 提示；
@@ -76,6 +92,8 @@ final class EditorDecorationPanelVM {
             pendingPaywallItem = item
             return
         }
+        // §7.2 双保险：不可用素材不入文档（cell 已 disabled；避免添加后预览缺层/导出中止）。
+        guard !isAssetUnavailable(item) else { return }
         let layers = document.layers
         guard !isStickerLimitReached(layers) else {
             showsStickerLimitToast = true
@@ -99,6 +117,7 @@ final class EditorDecorationPanelVM {
             pendingPaywallItem = item
             return
         }
+        guard !isAssetUnavailable(item) else { return } // §7.2 双保险，同 addSticker
         guard item.resourcePath != currentFrameResourcePath else { return }
         var layer = createDecorationLayer(
             from: item,

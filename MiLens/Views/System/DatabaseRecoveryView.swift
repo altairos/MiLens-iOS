@@ -27,9 +27,9 @@ struct DatabaseRecoveryView: View {
             Image(systemName: "externaldrive.badge.exclamationmark")
                 .font(.system(size: 48)) // ui-token:ok 错误态装饰大图标
                 .foregroundStyle(Color.milensTextSecondary)
-            Text("本地数据无法加载")
+            Text(String(localized: "recovery.title"))
                 .font(.displayMedium)
-            Text("打开本地相册记录时出现问题。您可以重试，或重建本地数据：清除 MiLens 记录，同时也会删除沙盒中已保存的照片副本（导入/编辑产物）。系统相册中的原图不受影响。")
+            Text(String(localized: "recovery.body"))
                 .font(.bodySecondary)
                 .foregroundStyle(Color.milensTextSecondary)
                 .multilineTextAlignment(.center)
@@ -84,7 +84,7 @@ struct DatabaseRecoveryView: View {
             Button(String(localized: "common.cancel"), role: .cancel) {}
             Button(String(localized: "recovery.rebuild"), role: .destructive) { onRebuild() }
         } message: {
-            Text("将清除 MiLens 中的相册记录、宠物档案及沙盒中已保存的照片副本（导入/编辑产物），且无法恢复。系统相册中的原图不会被删除。")
+            Text(String(localized: "recovery.rebuildConfirmBody"))
         }
         .alert(String(localized: "recovery.diagnosticsExported"), isPresented: Binding(
             get: { diagnosticsPath != nil },

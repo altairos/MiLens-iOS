@@ -1,6 +1,6 @@
 # MiLens iOS 迁移计划
 
-最后核对：2026-08-12（Figma 12 页 Release Candidate 设计稿落地推进中：07·我的、03·生命时间线、01·首页 三页已落地 Ledger 编辑式设计语言，含 PetEvent SchemaV2 扩展 + TimelineLogic 文本记忆/作品记录类型 + 首页纪念日倒计时；Windows 环境代码就绪，编译/UI/真机验证待 Mac；其余状态同前：情感触点系统 Stage 1–3 + 创作 Tab 新增「宠物名片」「红包封面」两个项目落地；纯决策逻辑全量下沉 MiLensKit，WSL2 `swift test` 全绿（MiLensKit 823 用例）；规模守卫审计拆分落地（6 个超标 View 全部降至 <600 行：TimelineView 1126→539 / PetProfileView 717→584 / GalleryView 704→437 / SettingsView 702→576 / BusinessCardView 687→392 / BeadPatternResultView 607→488，新增 8 个组件文件 + Date+Epoch 共享常量 + ShareItem/ShareSheet 通用组件归位 Components/），编译验证待 Mac；App 层渲染与集成代码就位待 Mac 编译验证，详见 [docs/情感触点-Mac待办备忘.md](docs/情感触点-Mac待办备忘.md)；P0–P4 状态全量同步；P5 首页/设置/订阅/付费墙/元数据已实现 + 上架流水线代码落地待实测；评审高优先级+中优先级修复全部落地；严格并发开启 + ViewModelFactory 分层收敛 + 评审阻塞修复落地；Figma Direction D「Memory Orbit」底部导航已接入真实 SwiftUI；本地化：工具链 plural + 动态文案 10 类收口 8 类，catalog 269+3 key，源语言检查全绿，其他 6 个首发语言仍待翻译；剩性能基准、截图、iPad/深色检查与真机验收，见 [P2-待办清单](docs/P2-待办清单.md)；本地导出功能体验补强落地（备份导出预预估+确认/阶段进度文案/isAvailable兑底/.milensbackup UTType 限定 + 作品保存统一成功反馈 ExportToast + 创作/设置页硬编码文案迁移 xcstrings 50 key，详见 P5 进度 ADR-0010 条 2026-08-12）
+最后核对：2026-08-16（相框贴纸 M0/M1 收口：素材缺失诊断 + App 渲染级单测 + 文档状态刷新；PLAN 待办收缩并整合用户 V1.0/V1.X 清单；CI 全绿基线 run 31931944133 四作业 2062 用例；此前 2026-08-12：Figma 12 页 Release Candidate 设计稿落地推进中：07·我的、03·生命时间线、01·首页 三页已落地 Ledger 编辑式设计语言，含 PetEvent SchemaV2 扩展 + TimelineLogic 文本记忆/作品记录类型 + 首页纪念日倒计时；Windows 环境代码就绪，编译/UI/真机验证待 Mac；其余状态同前：情感触点系统 Stage 1–3 + 创作 Tab 新增「宠物名片」「红包封面」两个项目落地；纯决策逻辑全量下沉 MiLensKit，WSL2 `swift test` 全绿（MiLensKit 823 用例）；规模守卫审计拆分落地（6 个超标 View 全部降至 <600 行：TimelineView 1126→539 / PetProfileView 717→584 / GalleryView 704→437 / SettingsView 702→576 / BusinessCardView 687→392 / BeadPatternResultView 607→488，新增 8 个组件文件 + Date+Epoch 共享常量 + ShareItem/ShareSheet 通用组件归位 Components/），编译验证待 Mac；App 层渲染与集成代码已随 CI 编译验证（四作业全绿，run 31931944133），真机/视觉走查项详见 [docs/情感触点-Mac待办备忘.md](docs/情感触点-Mac待办备忘.md)；P0–P4 状态全量同步；P5 首页/设置/订阅/付费墙/元数据已实现 + 上架流水线代码落地待实测；评审高优先级+中优先级修复全部落地；严格并发开启 + ViewModelFactory 分层收敛 + 评审阻塞修复落地；Figma Direction D「Memory Orbit」底部导航已接入真实 SwiftUI；本地化：工具链 plural + 动态文案 10 类收口 8 类，catalog 269+3 key，源语言检查全绿，其他 6 个首发语言仍待翻译；剩性能基准、截图、iPad/深色检查与真机验收，见 [P2-待办清单](docs/P2-待办清单.md)；本地导出功能体验补强落地（备份导出预预估+确认/阶段进度文案/isAvailable兑底/.milensbackup UTType 限定 + 作品保存统一成功反馈 ExportToast + 创作/设置页硬编码文案迁移 xcstrings 50 key，详见 P5 进度 ADR-0010 条 2026-08-12）
 
 > 里程碑与任务清单。架构见 [DESIGN.md](DESIGN.md)，映射与范围见 [MIGRATION_ASSESSMENT.md](MIGRATION_ASSESSMENT.md)，约束见 [AGENTS.md](AGENTS.md)。
 
@@ -426,7 +426,7 @@ P1 核心可靠性与性能六项修复全部落地（实现记录见状态摘�
 
 - 2026-08-10：**高优先级缺陷修复**——5 项代码修复 + 测试补充（详见 DEVELOPMENT.md 验证快照）：①ImportService 重复照片误算配额→候选列表优先去重再算配额；②ProEntitlementStore 墓碑误杀→UUID 令牌 + 条件墓碑；③BeadViewModel `Task.detached` 读取 `self.isPro`→提前捕获 Bool；④GalleryView/CreateView 缩略图陈旧→`.task(id: path)` + 清除旧图；⑤SharePreviewSheet 3 处字面色→品牌色 token。`check-ui-tokens.py` / `localization.py check` 本地全绿；App 编译与测试待 macOS CI 验证（未执行）。
 
-- 2026-08-09：**并发遗留收口确认（审计复核）**——P5 严格并发条目预留的 `BeadViewModel` 4 处 `Task.detached` 遗留经审计核实**已收敛**：4 处 detached（生成/导出/分享/PDF）均已改为以捕获 `Sendable` 局部值（`renderer`/`pattern`/`photoData`/`opts`）的方式传参，闭包内调用全局生成/渲染函数（`generateBeadPatternAsync`/`generateBeadPatternAutoAsync`/`BeadExportService.render*`），不捕获非 Sendable 的 `self`。验证：`SWIFT_STRICT_CONCURRENCY=complete` 下 `xcodebuild` BUILD SUCCEEDED。文档同步：DESIGN.md §9.1 与 DEVELOPMENT.md §4.2 的「已知遗留」描述已更新为「并发遗留收口」，仅剩 `HomeView` 2 处 `static let DateFormatter` 作为 Swift 6 语言模式迁移前置项。
+- 2026-08-09：**并发遗留收口确认（审计复核）**——P5 严格并发条目预留的 `BeadViewModel` 4 处 `Task.detached` 遗留经审计核实**已收敛**：4 处 detached（生成/导出/分享/PDF）均已改为以捕获 `Sendable` 局部值（`renderer`/`pattern`/`photoData`/`opts`）的方式传参，闭包内调用全局生成/渲染函数（`generateBeadPatternAsync`/`generateBeadPatternAutoAsync`/`BeadExportService.render*`），不捕获非 Sendable 的 `self`。验证：`SWIFT_STRICT_CONCURRENCY=complete` 下 `xcodebuild` BUILD SUCCEEDED。文档同步：DESIGN.md §9.1 与 DEVELOPMENT.md §4.2 的「已知遗留」描述已更新为「并发遗留收口」，仅剩 `HomeView` 2 处 `static let DateFormatter` 作为 Swift 6 语言模式迁移前置项（**后经复核已消解**：`timeFormatter` 随 2026-08-10 本地化收口、`dateFormatter` 随 2026-08-12 首页重构（`fe6f2be`）删除；2026-08-16 复核全仓库 `static let` + `DateFormatter` 零残留，`HomeSections.weekdaySymbols` 为 Sendable `[String]` 静态缓存、闭包内局部 formatter 不构成 SE-0412 违规，Swift 6 语言模式迁移无 formatter 前置项）。
 
 ### P5 进度（ADR-0010 商业化强化）
 
@@ -452,7 +452,7 @@ P1 核心可靠性与性能六项修复全部落地（实现记录见状态摘�
 
   **验证**：WSL2 Swift 6.1.3 `swift test` **761/761 通过**（本轮新增 138 用例全绿，零回归；预存 2 个 Linux 专属失败为 DecorationCatalog JSON 字段名测试，macOS 上全绿）。App 层编译/渲染/真机验证需 Mac（见 [docs/情感触点-Mac待办备忘.md](docs/情感触点-Mac待办备忘.md)）。附带修复：`DecorationCatalogCodableTests.swift:116` `.utf8` → `String.Encoding.utf8`（解锁 WSL2/Linux 测试编译）。UI-DESIGN.md §1.2/§6.6 创作 Tab 项目清单已同步更新。
 
-  **待完成（需 Mac）**：①App 编译验证 + 类型/并发修复（P0 阻塞）；②新增本地化 key（`pet.card.birthdayYears`/`memory.kind.*`/`businessCard.template.*`/`redpacket.guide.*` 等）；③NotifyService 里程碑通知调度（用 MilestoneLogic.upcomingMilestones 预排）；④RecapView + TimelineExportCanvas ExportQuality 扩展；⑤指标埋点接入各触点；⑥红包封面真机验证（导出 PNG 上传 cover.weixin.qq.com 规格校验 + PNG→JPEG 降级链）。
+  **待完成——2026-08-16 收口复核**：①~⑤已全部落地并经 CI 验证（①App 编译/类型/并发自 [run 31900122759](https://github.com/altairos/MiLens-iOS/actions/runs/31900122759) 起四作业全绿代偿；②本地化 key、③里程碑通知调度（MilestoneLogic.upcomingMilestones 预排）、④RecapView + TimelineExportCanvas ExportQuality 扩展、⑤指标埋点见[情感触点备忘](docs/情感触点-Mac待办备忘.md) §2–§5，2026-08-13 落地随 CI 跑绿）。仅剩真机项：⑥红包封面真机验证（导出 PNG 上传 cover.weixin.qq.com 规格校验 + PNG→JPEG 降级链）+ 备忘 §7 备份提醒通知真机送达。
 
 - 2026-08-13：**测试质量三项缺口修复（覆盖率加权 + 备份事件字段 + 恢复回滚）**——针对「UI 测试仅 2 冒烟用例」「ZipBackupServiceTests 缺部分失败回滚/事件字段完整性/孤儿文件清理」「check-coverage.sh 等权平均高估覆盖率」三项评审发现推进。
 
@@ -649,8 +649,33 @@ Figma 文件 `WnT7DCK1XCyPwnS38SE87p`（MiLens iOS Release Candidate · FINAL）
 ### 待办
 
 - [x] 剩余 8 页设计稿落地（04/05/06/08-12）——全部 12 页均已落地
-- [ ] macOS 编译验证（全部 Figma 落地改动的类型/并发/资源检查）
-- [ ] XCTest 验证（TimelineLogicTests 新增 4 textNote 用例 + 现有回归）
+- [x] macOS 编译验证（全部 Figma 落地改动的类型/并发/资源检查）——已由 CI 代偿（[run 31900122759](https://github.com/altairos/MiLens-iOS/actions/runs/31900122759) 起四作业全绿，最新 [run 31931944133](https://github.com/altairos/MiLens-iOS/actions/runs/31931944133)）
+- [x] XCTest 验证（TimelineLogicTests textNote 用例）：4 条主路径（生成/空 body 回落/system 跳过/排序）已随 [run 31931944133](https://github.com/altairos/MiLens-iOS/actions/runs/31931944133) 回归通过；2026-08-16 补充空标题回退默认标签 + relatedPhotoID 回链来源照片 2 条边界用例（共 6 条，随下个 CI run 验证）
 - [ ] UI 预览验证（深色模式 + Dynamic Type + iPhone/iPad 尺寸）
 - [ ] 真机视觉验收（设计稿一致性 + 交互流畅度）
 - [ ] Figma SVG 资源补充（如需精确还原图标，手动导出后放入 Assets.xcassets）
+
+---
+
+## V1.0 发布前待办（用户清单，2026-08-16 整合）
+
+用户自查待办，逐项标注现有代码基础与关联文档：
+
+1. **红包模版（+祝福语具体样式）**：基于现有红包工作室四层架构，为 `newYearRed`/`fortuneGold`/`floralSpring`/`petFresh` 四套模板制作并接入可交付的背景、前景、配饰资源；保留现有模板切换、草稿和导出逻辑，验证 957×1278 导出（`RedPacketCoverLogic`/`RedPacketCoverArtwork` 排版与降级链已就绪，缺素材；关联 [红包封面开发计划](docs/红包封面开发计划.md)）。
+2. **纪念式相框 6 种**：以纪念式相框为主（加深情感意义，强化分享冲动）；`DecorationCatalog` + 九宫格缩放/中心参考线/渲染管线已就绪，`catalog.json` 素材未导入（关联 [Frame-Sticker-Development-Plan](docs/Frame-Sticker-Development-Plan.md) §8 M2）。
+3. **贴纸 6 种起步、可批量制作**：同上走 `DecorationCatalog` 素材管线（`tools/frame_import.py` 批量导入 + §6 素材制作契约）。
+4. **红包封面预览页拟真化**：微信真机截图对照，画矢量实现（现有 `WeChatRedPacketMockView` 4 场景为中性 UI 预览，不复刻微信商标）。
+5. **Pro 用户 MiLens 水印开关**：允许 Pro 版用户自行选择水印开关；`ProFeature.watermarkFreeExport` 权益项已预留（2026-08-12），需补用户侧开关 UI。
+6. **英文装饰文字多语言方案**：规划英文装饰文字在其他语言版本中的实现方式（Fraunces/英文 label 的语言回退策略，关联 [Localization-Plan](docs/Localization-Plan.md)）。
+7. **相处章节自定义命名 UI**：`TimelineLogic` 纯函数已支持 `customNames` 参数，UI 输入未实现（Figma 已知限制 #1）。
+8. **App Icon 重做**：猫耳、背景色、背景散落的相片；矢量化（现有 1024×1024 PNG 为占位）。
+9. **引导页缺口饼形与 icon 重做**。
+10. **占位文字清查**：确认无残留硬编码（如「小橘」不再硬编码，改用宠物名变量/本地化 key）。
+
+## V1.X 待办（用户清单）
+
+1. **月度/年度精选模版精修**（V1.1，可能增加版式选择；`MemoryRecapLogic` + RecapView 基础已落地）。
+2. **相簿浏览模式**（V1.1；MiLensKit `GalleryMode` 枚举已预留：网格免费 / 剪贴簿 / 拍立得散页 / 杂志 Pro）。
+3. **触发强化**：时光机推送带缩略图、生日 Hero 替换、时间线门控倒计时条（关联[情感触点备忘](docs/情感触点-Mac待办备忘.md) §6 Stage 4）。
+4. **官网从 Cloudflare Pages 迁移到 GitHub 仓库**。
+5. **官网精修 + 产品图**。

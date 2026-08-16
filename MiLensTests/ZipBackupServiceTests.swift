@@ -658,6 +658,36 @@ final class ZipBackupServiceTests: XCTestCase {
         XCTAssertTrue(paths.contains(where: { $0.hasPrefix("\(BackupConfig.photosDirName)/") }))
     }
 
+    // MARK: - 枚举语义化与旧格式兼容（备份包跨平台友好化）
+
+    func testSemanticSpeciesGenderExportAndLegacyNumericParse() {
+        // 导出端：枚举 → 语义字符串（metadata.json 人类可读，跨平台转换器路由依据）
+        XCTAssertEqual(ZipBackupService.semanticSpecies(for: .cat), "cat")
+        XCTAssertEqual(ZipBackupService.semanticSpecies(for: .dog), "dog")
+        XCTAssertEqual(ZipBackupService.semanticSpecies(for: .unknown), "unknown")
+        XCTAssertEqual(ZipBackupService.semanticGender(for: .male), "male")
+        XCTAssertEqual(ZipBackupService.semanticGender(for: .female), "female")
+        XCTAssertEqual(ZipBackupService.semanticGender(for: .unknown), "unknown")
+
+        // 语义字符串恢复（新版备份包）
+        XCTAssertEqual(ZipBackupService.parseSpecies("cat"), .cat)
+        XCTAssertEqual(ZipBackupService.parseSpecies("dog"), .dog)
+        XCTAssertEqual(ZipBackupService.parseSpecies("unknown"), .unknown)
+        XCTAssertEqual(ZipBackupService.parseGender("male"), .male)
+        XCTAssertEqual(ZipBackupService.parseGender("female"), .female)
+        XCTAssertEqual(ZipBackupService.parseGender("unknown"), .unknown)
+
+        // 旧版数字字符串（"0"/"1"/"2"）向后兼容；大小写不敏感；未知值回退 unknown
+        XCTAssertEqual(ZipBackupService.parseSpecies("1"), .cat)
+        XCTAssertEqual(ZipBackupService.parseSpecies("2"), .dog)
+        XCTAssertEqual(ZipBackupService.parseSpecies("0"), .unknown)
+        XCTAssertEqual(ZipBackupService.parseGender("1"), .male)
+        XCTAssertEqual(ZipBackupService.parseGender("2"), .female)
+        XCTAssertEqual(ZipBackupService.parseGender("0"), .unknown)
+        XCTAssertEqual(ZipBackupService.parseSpecies("Cat"), .cat, "大小写不敏感")
+        XCTAssertEqual(ZipBackupService.parseSpecies("bunny"), .unknown, "未知值回退 unknown")
+    }
+
     // MARK: - 版本校验
 
     func testImportUnsupportedVersionThrows() async throws {

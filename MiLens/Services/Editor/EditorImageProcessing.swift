@@ -34,7 +34,9 @@ protocol EditorImageProcessing {
     ///
     /// - Parameter decorationProvider: 装饰图层（frame/sticker）素材提供闭包，
     ///   接收 resourcePath 返回 DecorationRenderSource（CGImage + fitMode + insets）；
-    ///   nil 或返回 nil 时跳过该装饰图层（仅渲染文字）。EditorViewModel.save 注入实现。
+    ///   provider 为 nil 时仅渲染文字（向后兼容）。返回 nil（必需素材缺失）时
+    ///   整体导出失败返回 nil——不允许静默缺层仍产出「成功」数据（开发计划 §7.4；
+    ///   EditorViewModel.save 预检先行拦截，此处为渲染层兜底）。
     func renderExport(
         baseImage: CGImage, layers: [EditorLayer], canvasSize: CGSize,
         format: EditorSaveFormatDecision,
@@ -172,6 +174,9 @@ final class CoreImageEditorProcessing: EditorImageProcessing {
         let scale = CGFloat(width) / max(canvasSize.width, 1)
 
         let renderer = UIGraphicsImageRenderer(size: CGSize(width: width, height: height))
+        // §7.4 渲染层兜底：必需装饰素材缺失（provider 返回 nil）时整体导出失败，
+        // 不产出缺层的「成功」数据（VM 预检先行拦截，正常不达此处）。
+        var decorationMissing = false
         let image = renderer.image { _ in
             guard let ctx = UIGraphicsGetCurrentContext() else { return }
 
@@ -198,8 +203,9 @@ final class CoreImageEditorProcessing: EditorImageProcessing {
                 for layer in orderedRenderLayers(layers) where layer.type != .photo && layer.visible {
                     if layer.type == .text {
                         drawTextLayer(layer, scale: scale)
-                    } else {
-                        drawDecorationLayer(layer, scale: scale, decorationProvider: provider)
+                    } else if !drawDecorationLayer(layer, scale: scale, decorationProvider: provider) {
+                        decorationMissing = true
+                        break
                     }
                 }
             } else {
@@ -208,6 +214,7 @@ final class CoreImageEditorProcessing: EditorImageProcessing {
                 }
             }
         }
+        guard !decorationMissing else { return nil }
         return encodeImage(image, format: format)
     }
 
@@ -265,17 +272,19 @@ final class CoreImageEditorProcessing: EditorImageProcessing {
     ///
     /// 图层变换：平移到中心 → 旋转 → 翻转（绕中心，与 drawTextLayer 一致），
     /// opacity 用 ctx.setAlpha。坐标空间为 UIGraphicsImageRenderer 的 UIKit 上下文（左上原点，Y 向下）。
+    /// - Returns: false = 素材缺失（§7.4：调用方据此中止导出，不静默缺层）；
+    ///   零尺寸层视为不可见跳过，不算失败（与预览行为一致）。
     private func drawDecorationLayer(
         _ layer: EditorLayer, scale: CGFloat,
         decorationProvider: (String) -> DecorationRenderSource?
-    ) {
-        guard let source = decorationProvider(layer.resourcePath) else { return }
-        guard let ctx = UIGraphicsGetCurrentContext() else { return }
+    ) -> Bool {
+        guard let source = decorationProvider(layer.resourcePath) else { return false }
+        guard let ctx = UIGraphicsGetCurrentContext() else { return true }
 
         // 目标尺寸：图层 width/height × 画布缩放 × 图层缩放 → 导出像素。
         let w = CGFloat(layer.width) * scale * CGFloat(layer.scale)
         let h = CGFloat(layer.height) * scale * CGFloat(layer.scale)
-        guard w > 0, h > 0 else { return }
+        guard w > 0, h > 0 else { return true }
 
         ctx.saveGState()
         // 平移到图层中心 + 旋转 + 翻转（绕中心）。
@@ -307,6 +316,7 @@ final class CoreImageEditorProcessing: EditorImageProcessing {
             UIImage(cgImage: source.image).draw(in: CGRect(x: -w / 2, y: -h / 2, width: w, height: h))
         }
         ctx.restoreGState()
+        return true
     }
 
     private func encodeImage(_ image: UIImage, format: EditorSaveFormatDecision) -> Data? {

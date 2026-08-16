@@ -72,11 +72,11 @@ struct BusinessCardView: View {
                 onDismiss: { sharePreview = nil }
             )
         }
-        .alert("保存失败", isPresented: Binding(
+        .alert(String(localized: "businessCard.saveFailed"), isPresented: Binding(
             get: { saveError != nil },
             set: { if !$0 { saveError = nil } }
         )) {
-            Button("好", role: .cancel) {}
+            Button(String(localized: "common.ok"), role: .cancel) {}
         } message: {
             Text(saveError ?? "")
         }

@@ -137,10 +137,12 @@ struct EditorDecorationPanelView: View {
         }
     }
 
-    /// 素材单元 60×56pt 三态：Default（Card 底 + hairline 描边）/ Selected（铜描边 2pt + AccentWash 底，
-    /// 仅相框有选中态）/ Locked（真实预览 + PRO 角标 + 降不透明度；点击触发付费墙而非禁用）。
+    /// 素材单元 60×56pt 四态：Default（Card 底 + hairline 描边）/ Selected（铜描边 2pt + AccentWash 底，
+    /// 仅相框有选中态）/ Locked（真实预览 + PRO 角标 + 降不透明度；点击触发付费墙而非禁用）/
+    /// Unavailable（预览图解码失败，§7.2：警示占位 + 降不透明度 + 禁用，不可入文档）。
     private func decorationCell(panelVM: EditorDecorationPanelVM, item: DecorationItem) -> some View {
         let isLocked = !item.isUsable(isPro: entitlement.isPro)
+        let isUnavailable = panelVM.isAssetUnavailable(item)
         let isSelected = panelVM.category == .frame
             && panelVM.currentFrameResourcePath == item.resourcePath
         return Button {
@@ -150,7 +152,9 @@ struct EditorDecorationPanelView: View {
                 panelVM.addSticker(item, isPro: entitlement.isPro)
             }
         } label: {
-            DecorationPreviewImage(name: item.previewPath)
+            DecorationPreviewImage(name: item.previewPath) {
+                panelVM.markPreviewUnavailable(item.previewPath)
+            }
                 .frame(width: 60, height: 56)
                 .background(isSelected ? Color.milensAccentWash : Color.milensCard)
                 .clipShape(RoundedRectangle(cornerRadius: Radius.small, style: .continuous))
@@ -162,10 +166,11 @@ struct EditorDecorationPanelView: View {
                 .overlay(alignment: .topTrailing) {
                     if isLocked { proBadge }
                 }
-                .opacity(isLocked ? 0.6 : 1)
+                .opacity(isLocked ? 0.6 : (isUnavailable ? 0.5 : 1))
         }
         .buttonStyle(.plain)
-        .accessibilityLabel(cellA11yLabel(item, isLocked: isLocked))
+        .disabled(isUnavailable)
+        .accessibilityLabel(cellA11yLabel(item, isLocked: isLocked, isUnavailable: isUnavailable))
         .accessibilityAddTraits(isSelected ? .isSelected : [])
     }
 
@@ -184,10 +189,16 @@ struct EditorDecorationPanelView: View {
 
     /// 素材名与锁定态均为动态 key 查表（NSLocalizedString，同 groupName 理由）；
     /// key 缺失时回退 key 原文（素材 name key 由导入流程手工维护于 xcstrings）。
-    private func cellA11yLabel(_ item: DecorationItem, isLocked: Bool) -> String {
+    private func cellA11yLabel(_ item: DecorationItem, isLocked: Bool, isUnavailable: Bool) -> String {
         let name = NSLocalizedString(item.name, comment: "装饰素材显示名（动态 key）")
-        guard isLocked else { return name }
-        return "\(name)，\(String(localized: "a11y.editor.decoration.proBadge"))"
+        var label = name
+        if isLocked {
+            label += "，\(String(localized: "a11y.editor.decoration.proBadge"))"
+        }
+        if isUnavailable {
+            label += "，\(String(localized: "a11y.editor.decoration.unavailable"))"
+        }
+        return label
     }
 
     // MARK: - 空态与提示
@@ -227,22 +238,38 @@ struct EditorDecorationPanelView: View {
 // MARK: - 素材预览图
 
 /// 素材预览图：DecorationImageLoader 异步解码 + NSCache（阻塞项4：解码移出 body）。
-/// 加载前不占位填充（透出单元底色 milensCard）。
+/// 加载前不占位填充（透出单元底色 milensCard）；解码失败显示警示占位并回调上报
+/// （§7.2：不静默空白，面板据此显示不可用状态并禁用添加）。
 private struct DecorationPreviewImage: View {
     let name: String
+    var onUnavailable: (() -> Void)? = nil
     @State private var uiImage: UIImage?
+    @State private var isLoadFailed = false
 
     var body: some View {
-        Group {
+        ZStack {
             if let uiImage {
                 Image(uiImage: uiImage)
                     .resizable()
                     .scaledToFit()
             }
+            if isLoadFailed {
+                Image(systemName: "exclamationmark.triangle")
+                    .font(.system(size: 14, weight: .medium)) // ui-token:ok 警示占位
+                    .foregroundStyle(Color.milensTextSecondary)
+                    .accessibilityHidden(true) // 单元 a11y 由 cellA11yLabel 统一描述
+            }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .task(id: name) {
-            uiImage = await DecorationImageLoader.load(name)
+            if let image = await DecorationImageLoader.load(name) {
+                uiImage = image
+                isLoadFailed = false
+            } else {
+                uiImage = nil
+                isLoadFailed = true
+                onUnavailable?()
+            }
         }
     }
 }

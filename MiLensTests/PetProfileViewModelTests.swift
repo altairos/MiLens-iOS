@@ -99,8 +99,9 @@ final class PetProfileViewModelTests: XCTestCase {
     }
 
     func testAddPetEnforcesFreeLimitOfOneThenAllowsPro() {
-        // free 用户上限 1 只：已有 1 只时新增被拒
+        // free 用户上限 1 只：已有 1 只时新增被拒（addPet 校验用 VM 内存列表，须先 load）
         let vm = makeVM(pets: [Pet(name: "小橘")], isPro: false)
+        vm.loadPets()
 
         XCTAssertFalse(vm.addPet(name: "小白"))
         XCTAssertEqual(

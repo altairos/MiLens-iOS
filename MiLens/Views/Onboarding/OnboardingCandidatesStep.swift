@@ -38,10 +38,10 @@ struct OnboardingCandidatesStep: View {
 
     private var sectionHeader: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text("似乎有熟悉的伙伴")
+            Text(String(localized: "onboarding.candidates.title"))
                 .font(.editorialSection)
                 .foregroundStyle(Color.milensTextPrimary)
-            Text("这些只是与\(viewModel.petName)特征基准相近的候选；请逐张确认。")
+            Text(String(localized: "onboarding.candidates.body \(viewModel.petName)"))
                 .font(.bodySecondary)
                 .foregroundStyle(Color.milensTextSecondary)
             Rectangle()
@@ -60,13 +60,13 @@ struct OnboardingCandidatesStep: View {
         let selected = viewModel.selectedCandidateIDs.count
         let pending = total - selected
         return HStack(spacing: 24) {
-            Text("全部 \(total)")
+            Text(String(localized: "onboarding.candidates.tab.all \(total)"))
                 .font(.editorialMetadata)
                 .foregroundStyle(Color.milensTextPrimary)
-            Text("已选 \(selected)")
+            Text(String(localized: "onboarding.candidates.tab.selected \(selected)"))
                 .font(.editorialMetadata)
                 .foregroundStyle(Color.milensActionPrimary)
-            Text("待确认 \(pending)")
+            Text(String(localized: "onboarding.candidates.tab.pending \(pending)"))
                 .font(.editorialMetadata)
                 .foregroundStyle(Color.milensTextTertiary)
             Spacer()
@@ -119,7 +119,9 @@ struct OnboardingCandidatesStep: View {
                         Text(String(format: "%02d", index))
                             .font(.custom("Fraunces-Bold", size: 12))
                             .foregroundStyle(Color.milensActionPrimary)
-                        Text(isSelected ? "已选" : "待确认")
+                        Text(isSelected
+                             ? String(localized: "onboarding.candidates.status.selected")
+                             : String(localized: "onboarding.candidates.status.pending"))
                             .font(.editorialMetadata)
                             .foregroundStyle(isSelected ? Color.milensActionPrimary : Color.milensTextSecondary)
                     }
@@ -144,7 +146,7 @@ struct OnboardingCandidatesStep: View {
     private var bottomActionBar: some View {
         let selected = viewModel.selectedCandidateIDs.count
         return ContactProofButton(
-            label: "确认将这 \(selected) 张照片写入\(viewModel.petName)的档案",
+            label: String(localized: "onboarding.candidates.cta \(selected) \(viewModel.petName)"),
             isEnabled: !viewModel.selectedCandidateIDs.isEmpty
         ) {
             viewModel.importConfirmedCandidates()

@@ -88,30 +88,30 @@ struct GalleryView: View {
         .alert(String(format: String(localized: "photo.batch.delete.confirm %lld"),
                       viewModel?.selectedPhotoIDs.count ?? 0),
                isPresented: $showBatchDeleteConfirm) {
-            Button("删除", role: .destructive) {
+            Button(String(localized: "common.delete"), role: .destructive) {
                 viewModel?.deleteSelected()
             }
-            Button("取消", role: .cancel) {}
+            Button(String(localized: "common.cancel"), role: .cancel) {}
         } message: {
-            Text("只会从咪Lens 的整理记录中移除，不会删除系统相册原图。")
+            Text(String(localized: "photo.remove.message"))
         }
         .navigationTitle("")
         .toolbar(.hidden, for: .navigationBar)
-        .alert("删除这张照片？", isPresented: Binding(
+        .alert(String(localized: "photo.delete.confirmSingle"), isPresented: Binding(
             get: { pendingDeleteID != nil },
             set: { if !$0 { pendingDeleteID = nil } }
         )) {
-            Button("删除", role: .destructive) {
+            Button(String(localized: "common.delete"), role: .destructive) {
                 if let id = pendingDeleteID {
                     viewModel?.deletePhoto(id: id)
                 }
                 pendingDeleteID = nil
             }
-            Button("取消", role: .cancel) {
+            Button(String(localized: "common.cancel"), role: .cancel) {
                 pendingDeleteID = nil
             }
         } message: {
-            Text("只会从咪Lens 的整理记录中移除，不会删除系统相册原图。")
+            Text(String(localized: "photo.remove.message"))
         }
         .safeAreaInset(edge: .bottom) {
             if let vm = viewModel, vm.isMultiSelectMode {
@@ -273,10 +273,10 @@ struct GalleryView: View {
     private func galleryHeader(_ vm: GalleryViewModel) -> some View {
         HStack(alignment: .bottom, spacing: Spacing.sm) {
             // 文楷标题 + 张数（对照 Figma #211:247-248）
-            Text("照片")
+            Text(String(localized: "gallery.title"))
                 .font(.custom("LXGWWenKai-Regular", size: 24, relativeTo: .largeTitle))
                 .foregroundStyle(Color.milensTextPrimary)
-            Text("\(vm.totalPhotoCount) 张")
+            Text(String(localized: "gallery.photoCount \(vm.totalPhotoCount)"))
                 .font(.editorialMetadata)
                 .foregroundStyle(Color.milensTextSecondary)
                 .padding(.bottom, 2)
@@ -288,7 +288,7 @@ struct GalleryView: View {
                     vm.toggleMultiSelect()
                 }
             } label: {
-                Text("选择")
+                Text(String(localized: "gallery.select"))
                     .font(.bodySecondary)
                     .foregroundStyle(Color.milensTextPrimary)
                     .frame(width: 66, height: 44)
@@ -381,7 +381,7 @@ struct GalleryView: View {
                     Button(role: .destructive) {
                         pendingDeleteID = photo.id
                     } label: {
-                        Label("从咪Lens 移除", systemImage: "trash")
+                        Label(String(localized: "photo.remove.title"), systemImage: "trash")
                     }
                 }
             } else {
@@ -405,7 +405,7 @@ struct GalleryView: View {
                     Button {
                         vm.setFavorite(photo)
                     } label: {
-                        Label(photo.isFavorite ? "取消收藏" : "收藏", systemImage: photo.isFavorite ? "heart.slash" : "heart")
+                        Label(photo.isFavorite ? String(localized: "photo.unfavorite") : String(localized: "photo.favorite"), systemImage: photo.isFavorite ? "heart.slash" : "heart")
                     }
                     Button {
                         assignmentPhotos = [photo]
@@ -413,12 +413,12 @@ struct GalleryView: View {
                         Label(String(localized: "photo.assign.title"), systemImage: "person.crop.circle.badge.plus")
                     }
                     NavigationLink(value: Route.beadPattern(photoID: photo.id)) {
-                        Label("创作拼豆图纸", systemImage: "square.grid.3x3.topleft.filled")
+                        Label(String(localized: "photo.bead.create"), systemImage: "square.grid.3x3.topleft.filled")
                     }
                     Button(role: .destructive) {
                         pendingDeleteID = photo.id
                     } label: {
-                        Label("从咪Lens 移除", systemImage: "trash")
+                        Label(String(localized: "photo.remove.title"), systemImage: "trash")
                     }
                 }
             }
@@ -429,10 +429,10 @@ struct GalleryView: View {
         HStack(spacing: 8) {
             ProgressView()
                 .scaleEffect(0.7)
-            Text("正在扫描 \(vm.scanProgressText)")
+            Text(String(localized: "gallery.scan.progress \(vm.scanProgressText)"))
                 .font(.caption)
             Spacer()
-            Button("取消") { vm.cancelScan() }
+            Button(String(localized: "common.cancel")) { vm.cancelScan() }
                 .font(.caption)
         }
         .padding(.horizontal, 16)

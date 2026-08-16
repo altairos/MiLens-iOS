@@ -336,7 +336,7 @@ struct BeadPatternResultView: View {
                 Text(String(localized: "create.bead.materialList"))
                     .font(.bodyPrimary)
                     .foregroundStyle(Color.milensTextPrimary)
-                Text("\(pattern.score.colorCount) 色 · 按用量排序")
+                Text(String(localized: "bead.result.materialSortedBy \(pattern.score.colorCount)"))
                     .font(.editorialMetadata)
                     .foregroundStyle(Color.milensTextTertiary)
                 Spacer()

@@ -43,8 +43,8 @@ struct AlbumImportSuccessView: View {
                     .frame(height: 78)
                     .frame(maxHeight: .infinity, alignment: .bottom)
 
-                // 日期标签
-                Text("\(petName) · \(Date(), format: .dateTime.year().month())")
+                // 日期标签（年月按系统 locale 格式化后再入本地化模板）
+                Text(String(localized: "album.success.dateMark \(petName) \(Date().formatted(.dateTime.year().month()))"))
                     .font(.editorialMetadata)
                     .foregroundStyle(Color.milensDarkroomText)
                     .padding(.leading, 18)
@@ -60,18 +60,18 @@ struct AlbumImportSuccessView: View {
                         .frame(width: 3)
 
                     VStack(alignment: .leading, spacing: 0) {
-                        Text("LIFE LOG ARCHIVE")
+                        Text(String(localized: "gallery.import.lifeLogMark"))
                             .font(.custom("JacquesFrancois-Regular", size: 10))
                             .tracking(0.4)
                             .foregroundStyle(Color.milensActionPrimary)
                             .padding(.top, 18)
 
-                        Text("\(count) 张照片已归档")
+                        Text(String(localized: "album.success.title \(count)"))
                             .font(.custom("LXGWWenKai-Regular", size: 28, relativeTo: .title2))
                             .foregroundStyle(Color.milensTextPrimary)
                             .padding(.top, 8)
 
-                        Text("已加入「\(petName)」的档案")
+                        Text(String(localized: "album.success.joined \(petName)"))
                             .font(.bodySecondary)
                             .foregroundStyle(Color.milensTextSecondary)
                             .padding(.top, 4)
@@ -122,18 +122,18 @@ struct AlbumImportSuccessView: View {
                 .frame(width: 3)
 
             VStack(alignment: .leading, spacing: 0) {
-                Text("LOCAL ARCHIVE")
+                Text(String(localized: "gallery.import.localMark"))
                     .font(.custom("JacquesFrancois-Regular", size: 10))
                     .tracking(0.4)
                     .foregroundStyle(Color.milensActionPrimary)
                     .padding(.top, 16)
 
-                Text("只在这台设备上")
+                Text(String(localized: "album.success.localTitle"))
                     .font(.uiBodyStrong)
                     .foregroundStyle(Color.milensTextPrimary)
                     .padding(.top, 8)
 
-                Text("照片不会上传；已有内容也不会被移动。")
+                Text(String(localized: "album.success.localBody"))
                     .font(.bodySecondary)
                     .foregroundStyle(Color.milensTextSecondary)
                     .padding(.top, 2)
@@ -146,11 +146,11 @@ struct AlbumImportSuccessView: View {
 
                 // 3 列统计
                 HStack(spacing: 0) {
-                    statColumn(value: String(format: "%02d", count), label: "原片")
+                    statColumn(value: String(format: "%02d", count), label: String(localized: "album.success.statOriginal"))
                     Spacer()
-                    statColumn(value: String(format: "%02d", count), label: "缩略图")
+                    statColumn(value: String(format: "%02d", count), label: String(localized: "album.success.statThumbnail"))
                     Spacer()
-                    statColumn(value: "01", label: "伙伴")
+                    statColumn(value: "01", label: String(localized: "album.success.statPet"))
                 }
                 .padding(.top, 16)
                 .padding(.bottom, 16)
@@ -186,7 +186,7 @@ struct AlbumImportSuccessView: View {
                 .fill(Color.milensActionPrimary)
                 .frame(width: 196, height: 2)
                 .clipShape(RoundedRectangle(cornerRadius: 1))
-            Text("归档完成 · 你仍可随时删除或重新分配照片")
+            Text(String(localized: "album.success.privacyNote"))
                 .font(.editorialMetadata)
                 .foregroundStyle(Color.milensTextTertiary)
         }
@@ -199,7 +199,7 @@ struct AlbumImportSuccessView: View {
     private var bottomActionBar: some View {
         Button(action: onViewPhotos) {
             HStack {
-                Text("查看\(petName)的照片")
+                Text(String(localized: "album.success.viewPhotos \(petName)"))
                     .font(.buttonLabel)
                     .foregroundStyle(Color.milensActionPrimary)
                 Spacer()

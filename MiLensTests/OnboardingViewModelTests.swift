@@ -330,15 +330,18 @@ final class OnboardingViewModelTests: XCTestCase {
 
     // MARK: - overline / stageIndexText
 
+    // overline 已 key 化（onboarding.overline.*，catalog 内含 en 译文）：
+    // 期望值用 String(localized:) 同表查取，与宿主语言无关，避免 CI 语言环境导致 flaky
+    // （参照 DynamicCopyLocaleSnapshotTests 的固定语言思路，查表一致性由本断言保证）。
     func testStepOverlineAndStageIndex() {
         let (vm, _, _) = makeVM()
-        XCTAssertEqual(vm.stepOverline, "FIRST LIGHT · 欢迎")
+        XCTAssertEqual(vm.stepOverline, String(localized: "onboarding.overline.welcome"))
         XCTAssertEqual(vm.stageIndexText, "01")
         vm.step = .createArchive
-        XCTAssertEqual(vm.stepOverline, "LIFE ARCHIVE · 建立档案")
+        XCTAssertEqual(vm.stepOverline, String(localized: "onboarding.overline.createArchive"))
         XCTAssertEqual(vm.stageIndexText, "02")
         vm.step = .fullScan
-        XCTAssertTrue(vm.stepOverline.contains("LOCAL SCAN"))
+        XCTAssertEqual(vm.stepOverline, String(localized: "onboarding.overline.fullScan"))
         XCTAssertEqual(vm.stageIndexText, "04")
     }
 }

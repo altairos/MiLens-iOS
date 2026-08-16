@@ -30,9 +30,9 @@ struct OnboardingImportStep: View {
         ScrollView {
             VStack(alignment: .leading, spacing: 0) {
                 EditorialSection(
-                    overline: "ARCHIVE IMPORT · 本机写入",
-                    title: "正在写进\n\(viewModel.petName)的生命档案",
-                    bodyText: "将已确认的 \(viewModel.selectedCandidateIDs.count) 张照片写入本地档案；\n复制与索引过程都不会离开这台设备。"
+                    overline: viewModel.stepOverline,
+                    title: String(localized: "onboarding.import.title \(viewModel.petName)"),
+                    bodyText: String(localized: "onboarding.import.body \(viewModel.selectedCandidateIDs.count)")
                 )
 
                 lensCard
@@ -44,7 +44,7 @@ struct OnboardingImportStep: View {
                 stagesCard
                     .padding(.top, Spacing.lg)
 
-                ContactProofButton(label: "正在写入 \(viewModel.selectedCandidateIDs.count) 张照片…",
+                ContactProofButton(label: String(localized: "onboarding.import.writing \(viewModel.selectedCandidateIDs.count)"),
                                    isEnabled: false) {}
                     .padding(.top, Spacing.xxl)
             }
@@ -77,7 +77,7 @@ struct OnboardingImportStep: View {
                 .frame(height: 200)
                 .padding(.top, 22)
 
-                Text("正在写入生命档案")
+                Text(String(localized: "onboarding.import.lens.title"))
                     .font(.bodySecondary)
                     .foregroundStyle(Color.milensTextSecondary)
                     .padding(.bottom, 22)
@@ -107,14 +107,18 @@ struct OnboardingImportStep: View {
         EditorialCard(cornerRadius: Radius.medium) {
             VStack(alignment: .leading, spacing: 0) {
                 let pct = viewModel.importPercent
-                stageRow(title: "复制原片",
-                         status: pct > 0.33 ? "已完成" : "进行中",
+                // 三态 status 与 stageRow 共用 onboarding.status.* key（同 locale 解析相等）
+                let doneText = String(localized: "onboarding.status.done")
+                let inProgressText = String(localized: "onboarding.status.inProgress")
+                let laterText = String(localized: "onboarding.status.later")
+                stageRow(title: String(localized: "onboarding.import.stage.copy"),
+                         status: pct > 0.33 ? doneText : inProgressText,
                          isActive: pct <= 0.33, isLast: false)
-                stageRow(title: "写入\(viewModel.petName)的档案",
-                         status: pct > 0.66 ? "已完成" : (pct > 0.33 ? "进行中" : "稍后"),
+                stageRow(title: String(localized: "onboarding.import.stage.archive \(viewModel.petName)"),
+                         status: pct > 0.66 ? doneText : (pct > 0.33 ? inProgressText : laterText),
                          isActive: pct > 0.33 && pct <= 0.66, isLast: false)
-                stageRow(title: "生成缩略图索引",
-                         status: pct >= 1 ? "已完成" : (pct > 0.66 ? "进行中" : "稍后"),
+                stageRow(title: String(localized: "onboarding.import.stage.thumbnails"),
+                         status: pct >= 1 ? doneText : (pct > 0.66 ? inProgressText : laterText),
                          isActive: pct > 0.66, isLast: true)
             }
             .padding(.leading, 14)
@@ -124,10 +128,13 @@ struct OnboardingImportStep: View {
     }
 
     private func stageRow(title: String, status: String, isActive: Bool, isLast: Bool) -> some View {
+        // status 与调用方共用同一 onboarding.status.done key：同 locale 下解析结果
+        // 相等，保留字符串比较即可判定“已完成”看色。
+        let isDone = status == String(localized: "onboarding.status.done")
         VStack(alignment: .leading, spacing: 0) {
             HStack(spacing: 8) {
                 Circle()
-                    .fill(status == "已完成" ? Color.milensActionPrimary
+                    .fill(isDone ? Color.milensActionPrimary
                           : (isActive ? Color.milensPrimary : Color.milensSeparator))
                     .frame(width: 8, height: 8)
                 Text(title)
@@ -136,7 +143,7 @@ struct OnboardingImportStep: View {
                 Spacer()
                 Text(status)
                     .font(.editorialMetadata)
-                    .foregroundStyle(status == "已完成" ? Color.milensActionPrimary
+                    .foregroundStyle(isDone ? Color.milensActionPrimary
                                      : (isActive ? Color.milensActionPrimary : Color.milensTextSecondary))
             }
             .padding(.vertical, 14)
@@ -165,7 +172,7 @@ struct OnboardingImportStep: View {
         }
         .scrollIndicators(.hidden)
         .safeAreaInset(edge: .bottom) {
-            ContactProofButton(label: "开启\(viewModel.petName)的生命档案") {
+            ContactProofButton(label: String(localized: "onboarding.import.cta \(viewModel.petName)")) {
                 viewModel.finishAfterImport()
             }
             .padding(.horizontal, Spacing.lg)
@@ -203,18 +210,18 @@ struct OnboardingImportStep: View {
                         .frame(width: 3)
 
                     VStack(alignment: .leading, spacing: 0) {
-                        Text("LIFE LONG ARCHIVE")
+                        Text(String(localized: "onboarding.import.longArchiveMark"))
                             .font(.editorialOverline)
                             .tracking(0.1)
                             .foregroundStyle(Color.milensActionPrimary)
                             .padding(.top, 18)
 
-                        Text("\(viewModel.importedCount) 张照片已写入档案")
+                        Text(String(localized: "onboarding.import.count \(viewModel.importedCount)"))
                             .font(.editorialSection)
                             .foregroundStyle(Color.milensTextPrimary)
                             .padding(.top, 8)
 
-                        Text("\(viewModel.petName)的第一段照片记忆已经就位")
+                        Text(String(localized: "onboarding.import.memoryTitle \(viewModel.petName)"))
                             .font(.bodySecondary)
                             .foregroundStyle(Color.milensTextSecondary)
                             .padding(.top, 4)
@@ -261,18 +268,18 @@ struct OnboardingImportStep: View {
                 .frame(width: 3)
 
             VStack(alignment: .leading, spacing: 0) {
-                Text("LOCAL ARCHIVE")
+                Text(String(localized: "onboarding.import.localMark"))
                     .font(.editorialOverline)
                     .tracking(0.1)
                     .foregroundStyle(Color.milensActionPrimary)
                     .padding(.top, 16)
 
-                Text("只在这台设备上")
+                Text(String(localized: "onboarding.import.local.title"))
                     .font(.uiBodyStrong)
                     .foregroundStyle(Color.milensTextPrimary)
                     .padding(.top, 8)
 
-                Text("照片不会上传；已有内容也不会被移动。")
+                Text(String(localized: "onboarding.import.local.body"))
                     .font(.bodySecondary)
                     .foregroundStyle(Color.milensTextSecondary)
                     .padding(.top, 2)
@@ -283,11 +290,11 @@ struct OnboardingImportStep: View {
                     .padding(.top, 16)
 
                 HStack(spacing: 0) {
-                    statColumn(value: String(format: "%02d", viewModel.importedCount), label: "原片")
+                    statColumn(value: String(format: "%02d", viewModel.importedCount), label: String(localized: "onboarding.import.stat.originals"))
                     Spacer()
-                    statColumn(value: String(format: "%02d", viewModel.importedCount), label: "缩略图")
+                    statColumn(value: String(format: "%02d", viewModel.importedCount), label: String(localized: "onboarding.import.stat.thumbnails"))
                     Spacer()
-                    statColumn(value: "01", label: "伙伴")
+                    statColumn(value: "01", label: String(localized: "onboarding.import.stat.pets"))
                 }
                 .padding(.top, 16)
                 .padding(.bottom, 16)
@@ -331,19 +338,19 @@ struct OnboardingImportStep: View {
                     Image(systemName: "externaldrive.badge.timemachine")
                         .font(.system(size: Sizing.iconSm))
                         .foregroundStyle(Color.milensActionPrimary)
-                    Text("MEMORY SAFEKEEPING")
+                    Text(String(localized: "onboarding.import.memoryMark"))
                         .font(.editorialOverline)
                         .tracking(0.1)
                         .foregroundStyle(Color.milensActionPrimary)
                 }
                 .padding(.top, 16)
 
-                Text("把这份珍贵的回忆好好留存")
+                Text(String(localized: "onboarding.import.keep.title"))
                     .font(.uiBodyStrong)
                     .foregroundStyle(Color.milensTextPrimary)
                     .padding(.top, 8)
 
-                Text("你和小伙伴的每一天都值得被完整记住。MiLens 可以把这些日子打包成一份专属的备份文件，无论时光怎样流转，温暖的瞬间都不会走散。")
+                Text(String(localized: "onboarding.import.keep.body"))
                     .font(.bodySecondary)
                     .foregroundStyle(Color.milensTextSecondary)
                     .padding(.top, 4)
@@ -369,7 +376,7 @@ struct OnboardingImportStep: View {
                 .fill(Color.milensActionPrimary)
                 .frame(width: 196, height: 2)
                 .clipShape(RoundedRectangle(cornerRadius: 1))
-            Text("归档完成 · 你仍可随时删除或重新分配照片")
+            Text(String(localized: "onboarding.import.note"))
                 .font(.editorialMetadata)
                 .foregroundStyle(Color.milensTextTertiary)
         }

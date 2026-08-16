@@ -10,11 +10,11 @@ final class RedPacketOptimizationLogicTests: XCTestCase {
 
     func testNoOptimizationForCleanReport() {
         let report = RedPacketQualityReport(items: [
-            RedPacketQualityItem(dimension: .clarity, level: .pass, detail: "", suggestionKey: ""),
-            RedPacketQualityItem(dimension: .brightness, level: .pass, detail: "", suggestionKey: ""),
-            RedPacketQualityItem(dimension: .composition, level: .pass, detail: "", suggestionKey: ""),
-            RedPacketQualityItem(dimension: .cutout, level: .pass, detail: "", suggestionKey: ""),
-            RedPacketQualityItem(dimension: .readability, level: .pass, detail: "", suggestionKey: ""),
+            RedPacketQualityItem(dimension: .clarity, level: .pass, detailKey: "", suggestionKey: ""),
+            RedPacketQualityItem(dimension: .brightness, level: .pass, detailKey: "", suggestionKey: ""),
+            RedPacketQualityItem(dimension: .composition, level: .pass, detailKey: "", suggestionKey: ""),
+            RedPacketQualityItem(dimension: .cutout, level: .pass, detailKey: "", suggestionKey: ""),
+            RedPacketQualityItem(dimension: .readability, level: .pass, detailKey: "", suggestionKey: ""),
         ])
 
         let result = RedPacketOptimizationLogic.generateOptimization(
@@ -29,7 +29,7 @@ final class RedPacketOptimizationLogicTests: XCTestCase {
 
     func testClarityIssueNotAutoAdjusted() {
         let report = RedPacketQualityReport(items: [
-            RedPacketQualityItem(dimension: .clarity, level: .warning, detail: "", suggestionKey: "redpacket.quality.clarity.soft"),
+            RedPacketQualityItem(dimension: .clarity, level: .warning, detailKey: "", suggestionKey: "redpacket.quality.clarity.soft"),
         ])
 
         let result = RedPacketOptimizationLogic.generateOptimization(
@@ -43,7 +43,7 @@ final class RedPacketOptimizationLogicTests: XCTestCase {
 
     func testBrightnessIssueNotAutoAdjusted() {
         let report = RedPacketQualityReport(items: [
-            RedPacketQualityItem(dimension: .brightness, level: .warning, detail: "", suggestionKey: "redpacket.quality.brightness.dark"),
+            RedPacketQualityItem(dimension: .brightness, level: .warning, detailKey: "", suggestionKey: "redpacket.quality.brightness.dark"),
         ])
 
         let result = RedPacketOptimizationLogic.generateOptimization(
@@ -57,7 +57,7 @@ final class RedPacketOptimizationLogicTests: XCTestCase {
 
     func testRepositionPetOutOfSafeZone() {
         let report = RedPacketQualityReport(items: [
-            RedPacketQualityItem(dimension: .composition, level: .error, detail: "", suggestionKey: "redpacket.quality.composition.safezone"),
+            RedPacketQualityItem(dimension: .composition, level: .error, detailKey: "", suggestionKey: "redpacket.quality.composition.safezone"),
         ])
 
         let petLayer = makeRedPacketPetLayer(x: 10, y: 1200) // 偏离安全区
@@ -72,7 +72,7 @@ final class RedPacketOptimizationLogicTests: XCTestCase {
 
     func testRepositionTextOutOfSafeZone() {
         let report = RedPacketQualityReport(items: [
-            RedPacketQualityItem(dimension: .readability, level: .error, detail: "", suggestionKey: "redpacket.quality.readability.zone"),
+            RedPacketQualityItem(dimension: .readability, level: .error, detailKey: "", suggestionKey: "redpacket.quality.readability.zone"),
         ])
 
         let textLayer = makeRedPacketTextLayer(text: "恭喜", x: 100, y: 1200)

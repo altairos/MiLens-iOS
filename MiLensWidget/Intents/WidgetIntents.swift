@@ -14,7 +14,7 @@ import MiLensKit
 
 /// 可配置的伙伴选项（全部伙伴 或 指定一只）。
 struct PetEntity: AppEntity {
-    static var typeDisplayRepresentation: TypeDisplayRepresentation = "伙伴"
+    static var typeDisplayRepresentation: TypeDisplayRepresentation = "widget.entity.pet"
     static var defaultQuery = PetEntityQuery()
 
     let id: String           // "all" 或 UUID 字符串
@@ -46,12 +46,12 @@ struct PetEntityQuery: EntityQuery {
     /// 用户未选择伙伴时 WidgetKit 使用的默认实体；同时是各 Intent
     /// `@Parameter` 省略 `default:` 后的默认值来源（值为「全部伙伴」）。
     func defaultResult() async -> PetEntity {
-        PetEntity(id: "all", displayName: "全部伙伴")
+        PetEntity(id: "all", displayName: String(localized: "widget.intents.pet.all"))
     }
 
     /// 从快照读取全部宠物 + 「全部伙伴」选项。
     private func allEntities() -> [PetEntity] {
-        var entities: [PetEntity] = [PetEntity(id: "all", displayName: "全部伙伴")]
+        var entities: [PetEntity] = [PetEntity(id: "all", displayName: String(localized: "widget.intents.pet.all"))]
         if let snapshot = WidgetSnapshotReader.read() {
             entities.append(contentsOf: snapshot.pets.map {
                 PetEntity(id: $0.id.uuidString, displayName: $0.name)
@@ -65,12 +65,12 @@ struct PetEntityQuery: EntityQuery {
 
 /// 选择 Widget 展示的伙伴（全部 或 指定一只）。
 struct SelectPetIntent: WidgetConfigurationIntent {
-    static var title: LocalizedStringResource = "选择伙伴"
-    static var description = IntentDescription("选择这个 Widget 展示的伙伴档案")
+    static var title: LocalizedStringResource = "widget.intents.selectPet.title"
+    static var description = IntentDescription("widget.intents.selectPet.description")
 
     // AppEntity 参数的 default: 只接受编译期字面量（构造调用被宏拒绝），
     // 默认值改由 PetEntityQuery.defaultResult() 提供（同一「全部伙伴」）。
-    @Parameter(title: "伙伴")
+    @Parameter(title: "widget.entity.pet")
     var pet: PetEntity
 
     init() {}
@@ -83,15 +83,15 @@ struct SelectPetIntent: WidgetConfigurationIntent {
 
 /// 相片回声 Widget 的完整配置（伙伴 + 内容源）。
 struct PhotoEchoConfigIntent: WidgetConfigurationIntent {
-    static var title: LocalizedStringResource = "相片回声设置"
-    static var description = IntentDescription("选择展示哪个伙伴的哪类照片")
+    static var title: LocalizedStringResource = "widget.intents.photoEcho.settings.title"
+    static var description = IntentDescription("widget.intents.photoEcho.settings.description")
 
     // AppEntity 参数的 default: 只接受编译期字面量（构造调用被宏拒绝），
     // 默认值改由 PetEntityQuery.defaultResult() 提供（同一「全部伙伴」）。
-    @Parameter(title: "伙伴")
+    @Parameter(title: "widget.entity.pet")
     var pet: PetEntity
 
-    @Parameter(title: "内容", default: PhotoEchoSourceAppEnum.todayOrRecent)
+    @Parameter(title: "widget.intents.photoEcho.content", default: PhotoEchoSourceAppEnum.todayOrRecent)
     var source: PhotoEchoSourceAppEnum
 
     init() {}
@@ -107,11 +107,11 @@ enum PhotoEchoSourceAppEnum: String, AppEnum, CaseIterable {
     case yearsAgoToday
     case recentWork
 
-    static var typeDisplayRepresentation: TypeDisplayRepresentation = "内容来源"
+    static var typeDisplayRepresentation: TypeDisplayRepresentation = "widget.intents.photoEcho.contentSource"
     static var caseDisplayRepresentations: [PhotoEchoSourceAppEnum: DisplayRepresentation] = [
-        .todayOrRecent: "今日 / 最近",
-        .yearsAgoToday: "往日回忆",
-        .recentWork: "最近作品",
+        .todayOrRecent: "widget.intents.photoEcho.source.todayOrRecent",
+        .yearsAgoToday: "widget.intents.photoEcho.source.yearsAgoToday",
+        .recentWork: "widget.intents.photoEcho.source.recentWork",
     ]
 
     /// 转换为 MiLensKit 的 PhotoEchoSource。
@@ -127,7 +127,7 @@ enum PhotoEchoSourceAppEnum: String, AppEnum, CaseIterable {
 /// 对应 `WidgetSelectionLogic.upcomingDay` 的 dayID 参数：`id == "auto"` 时
 /// 由系统按伙伴自动取最近一个；其余 id 精确点名某个纪念日。
 struct AnniversaryEntity: AppEntity {
-    static var typeDisplayRepresentation: TypeDisplayRepresentation = "纪念日"
+    static var typeDisplayRepresentation: TypeDisplayRepresentation = "widget.entity.anniversary"
     static var defaultQuery = AnniversaryEntityQuery()
 
     let id: String           // "auto" 或纪念日 id
@@ -168,14 +168,14 @@ struct AnniversaryEntityQuery: EntityQuery {
     /// 用户未选择纪念日时的默认实体（自动取最近），也是
     /// `@Parameter` 省略 `default:` 后的默认值来源。
     func defaultResult() async -> AnniversaryEntity {
-        AnniversaryEntity(id: "auto", displayName: "自动（最近）")
+        AnniversaryEntity(id: "auto", displayName: String(localized: "widget.intents.anniversary.auto"))
     }
 
     /// 「自动（最近）」选项 + 按伙伴过滤后的纪念日候选。
     /// `petID == nil` 表示「全部伙伴」，返回全部候选。
     private func suggestedEntities(petID: UUID?) -> [AnniversaryEntity] {
         var entities: [AnniversaryEntity] = [
-            AnniversaryEntity(id: "auto", displayName: "自动（最近）")
+            AnniversaryEntity(id: "auto", displayName: String(localized: "widget.intents.anniversary.auto"))
         ]
         guard let snapshot = WidgetSnapshotReader.read() else { return entities }
 
@@ -197,7 +197,7 @@ struct AnniversaryEntityQuery: EntityQuery {
     /// 统一的候选展示标题：「宠物名 · 纪念日标题」。
     /// 始终携带宠物名，避免多宠物场景下「成为家人的日子」这类不含名字的标题不可区分。
     static func displayTitle(_ day: UpcomingDayProjection) -> String {
-        "\(day.petName) · \(day.title)"
+        String(localized: "widget.common.join \(day.petName) \(day.title)")
     }
 }
 
@@ -208,16 +208,16 @@ struct AnniversaryEntityQuery: EntityQuery {
 /// 默认「自动（最近）」，与历史行为一致；用户可点名某个具体纪念日。当指定的纪念日
 /// 在当前快照中已不存在时，由 `WidgetSelectionLogic.upcomingDay` 安全回退到最近。
 struct SelectAnniversaryIntent: WidgetConfigurationIntent {
-    static var title: LocalizedStringResource = "纪念日设置"
-    static var description = IntentDescription("选择展示哪个伙伴的哪个纪念日倒计时")
+    static var title: LocalizedStringResource = "widget.intents.anniversary.settings.title"
+    static var description = IntentDescription("widget.intents.anniversary.settings.description")
 
     // AppEntity 参数的 default: 只接受编译期字面量（构造调用被宏拒绝），
     // 默认值改由 PetEntityQuery.defaultResult() 提供（同一「全部伙伴」）。
-    @Parameter(title: "伙伴")
+    @Parameter(title: "widget.entity.pet")
     var pet: PetEntity
 
     // 同上：默认值由 AnniversaryEntityQuery.defaultResult() 提供（自动取最近）。
-    @Parameter(title: "纪念日")
+    @Parameter(title: "widget.entity.anniversary")
     var anniversary: AnniversaryEntity
 
     init() {}

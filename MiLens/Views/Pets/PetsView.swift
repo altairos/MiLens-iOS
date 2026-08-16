@@ -110,7 +110,7 @@ struct PetsView: View {
                                 Task { await notifyService.removeReminders(for: pet) }
                             }
                         } label: {
-                            Label("删除伙伴", systemImage: "trash")
+                            Label(String(localized: "pets.delete"), systemImage: "trash")
                         }
                     }
                 }
@@ -197,7 +197,7 @@ private struct PetCard: View {
 
     private var photoCountLine: some View {
         HStack(spacing: Spacing.xs) {
-            Text("\(pet.photoCount) 张照片")
+            Text(String(localized: "pets.card.photoCount \(pet.photoCount)"))
                 .font(.caption)
                 .foregroundStyle(Color.milensActionPrimary)
             if pet.adoptionDay != nil {

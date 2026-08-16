@@ -10,24 +10,32 @@ final class RedPacketQualityLogicTests: XCTestCase {
         let input = makeInput(sharpness: 3000, imageWidth: 1920, imageHeight: 1080)
         let item = RedPacketQualityLogic.evaluateClarity(input)
         XCTAssertEqual(item.level, .pass)
+        XCTAssertEqual(item.detailKey, "redpacket.quality.clarity.pass.detail")
+        XCTAssertTrue(item.detailArgs.isEmpty)
     }
 
     func testClaritySoftWarning() {
         let input = makeInput(sharpness: 1000, imageWidth: 1920, imageHeight: 1080)
         let item = RedPacketQualityLogic.evaluateClarity(input)
         XCTAssertEqual(item.level, .warning)
+        XCTAssertEqual(item.detailKey, "redpacket.quality.clarity.soft.detail")
+        XCTAssertEqual(item.detailArgs, [1000])
     }
 
     func testClarityBlurError() {
         let input = makeInput(sharpness: 100, imageWidth: 1920, imageHeight: 1080)
         let item = RedPacketQualityLogic.evaluateClarity(input)
         XCTAssertEqual(item.level, .error)
+        XCTAssertEqual(item.detailKey, "redpacket.quality.clarity.blur.detail")
+        XCTAssertEqual(item.detailArgs, [100])
     }
 
     func testClarityLowResolutionWarning() {
         let input = makeInput(sharpness: 3000, imageWidth: 200, imageHeight: 200)
         let item = RedPacketQualityLogic.evaluateClarity(input)
         XCTAssertEqual(item.level, .warning)
+        XCTAssertEqual(item.detailKey, "redpacket.quality.clarity.resolution.detail")
+        XCTAssertEqual(item.detailArgs, [200, 200, 40_000])
     }
 
     // MARK: - 亮度
@@ -36,29 +44,50 @@ final class RedPacketQualityLogicTests: XCTestCase {
         let input = makeInput(brightness: 0.5)
         let item = RedPacketQualityLogic.evaluateBrightness(input)
         XCTAssertEqual(item.level, .pass)
+        XCTAssertEqual(item.detailKey, "redpacket.quality.brightness.pass.detail")
+        XCTAssertTrue(item.detailArgs.isEmpty)
     }
 
     func testBrightnessDarkWarning() {
         let input = makeInput(brightness: 0.1)
         let item = RedPacketQualityLogic.evaluateBrightness(input)
         XCTAssertEqual(item.level, .warning)
+        XCTAssertEqual(item.detailKey, "redpacket.quality.brightness.dark.detail")
+        XCTAssertEqual(item.detailArgs, [10])
     }
 
     func testBrightnessOverexposedWarning() {
         let input = makeInput(brightness: 0.9)
         let item = RedPacketQualityLogic.evaluateBrightness(input)
         XCTAssertEqual(item.level, .warning)
+        XCTAssertEqual(item.detailKey, "redpacket.quality.brightness.bright.detail")
+        XCTAssertEqual(item.detailArgs, [90])
     }
 
     func testBrightnessClippingWarning() {
         let input = makeInput(brightness: 0.5, shadowClipping: 0.4)
-        XCTAssertEqual(RedPacketQualityLogic.evaluateBrightness(input).level, .warning)
+        let item = RedPacketQualityLogic.evaluateBrightness(input)
+        XCTAssertEqual(item.level, .warning)
+        XCTAssertEqual(item.detailKey, "redpacket.quality.brightness.shadowClipping.detail")
+        XCTAssertEqual(item.detailArgs, [40])
+    }
+
+    func testBrightnessHighlightClippingWarning() {
+        let input = makeInput(brightness: 0.5, highlightClipping: 0.4)
+        let item = RedPacketQualityLogic.evaluateBrightness(input)
+        XCTAssertEqual(item.level, .warning)
+        XCTAssertEqual(item.detailKey, "redpacket.quality.brightness.highlightClipping.detail")
+        XCTAssertEqual(item.detailArgs, [40])
     }
 
     func testImageMetricsUnavailableIsDiagnosable() {
         let input = makeInput(imageMetricsAvailable: false)
-        XCTAssertEqual(RedPacketQualityLogic.evaluateClarity(input).level, .error)
-        XCTAssertEqual(RedPacketQualityLogic.evaluateBrightness(input).level, .error)
+        let clarity = RedPacketQualityLogic.evaluateClarity(input)
+        XCTAssertEqual(clarity.level, .error)
+        XCTAssertEqual(clarity.detailKey, "redpacket.quality.clarity.unavailable.detail")
+        let brightness = RedPacketQualityLogic.evaluateBrightness(input)
+        XCTAssertEqual(brightness.level, .error)
+        XCTAssertEqual(brightness.detailKey, "redpacket.quality.brightness.unavailable.detail")
     }
 
     // MARK: - 构图
@@ -67,23 +96,32 @@ final class RedPacketQualityLogicTests: XCTestCase {
         let input = makeInput(petCoverage: 0.5, petInSafeZone: true)
         let item = RedPacketQualityLogic.evaluateComposition(input)
         XCTAssertEqual(item.level, .pass)
+        XCTAssertEqual(item.detailKey, "redpacket.quality.composition.pass.detail")
+        XCTAssertTrue(item.detailArgs.isEmpty)
     }
 
     func testCompositionSmallSubject() {
         let input = makeInput(petCoverage: 0.05, petInSafeZone: true)
         let item = RedPacketQualityLogic.evaluateComposition(input)
         XCTAssertEqual(item.level, .warning)
+        XCTAssertEqual(item.detailKey, "redpacket.quality.composition.small.detail")
+        XCTAssertEqual(item.detailArgs, [5])
     }
 
     func testCompositionOutOfSafeZone() {
         let input = makeInput(petCoverage: 0.5, petInSafeZone: false)
         let item = RedPacketQualityLogic.evaluateComposition(input)
         XCTAssertEqual(item.level, .error)
+        XCTAssertEqual(item.detailKey, "redpacket.quality.composition.safezone.detail")
+        XCTAssertEqual(item.detailArgs, [100]) // petSafeZoneCoverageRatio 默认 1.0
     }
 
     func testCompositionClippedSubjectIsError() {
         let input = makeInput(petCanvasVisible: 0.7)
-        XCTAssertEqual(RedPacketQualityLogic.evaluateComposition(input).level, .error)
+        let item = RedPacketQualityLogic.evaluateComposition(input)
+        XCTAssertEqual(item.level, .error)
+        XCTAssertEqual(item.detailKey, "redpacket.quality.composition.clipped.detail")
+        XCTAssertEqual(item.detailArgs, [30])
     }
 
     // MARK: - 抠图
@@ -92,27 +130,56 @@ final class RedPacketQualityLogicTests: XCTestCase {
         let input = makeInput(cutoutRoughness: 0.1)
         let item = RedPacketQualityLogic.evaluateCutout(input)
         XCTAssertEqual(item.level, .pass)
+        XCTAssertEqual(item.detailKey, "redpacket.quality.cutout.pass.detail")
+        XCTAssertTrue(item.detailArgs.isEmpty)
     }
 
     func testCutoutRoughWarning() {
         let input = makeInput(cutoutRoughness: 0.5)
         let item = RedPacketQualityLogic.evaluateCutout(input)
         XCTAssertEqual(item.level, .warning)
+        XCTAssertEqual(item.detailKey, "redpacket.quality.cutout.rough.detail")
+        XCTAssertEqual(item.detailArgs, [50])
     }
 
     func testCutoutUnavailableIsError() {
         let input = makeInput(cutoutMetricsAvailable: false)
-        XCTAssertEqual(RedPacketQualityLogic.evaluateCutout(input).level, .error)
+        let item = RedPacketQualityLogic.evaluateCutout(input)
+        XCTAssertEqual(item.level, .error)
+        XCTAssertEqual(item.detailKey, "redpacket.quality.cutout.unavailable.detail")
+        XCTAssertTrue(item.detailArgs.isEmpty)
+    }
+
+    func testCutoutTooLittleForegroundIsError() {
+        let input = makeInput(cutoutForeground: 0.01)
+        let item = RedPacketQualityLogic.evaluateCutout(input)
+        XCTAssertEqual(item.level, .error)
+        XCTAssertEqual(item.detailKey, "redpacket.quality.cutout.retry.detail")
+        XCTAssertEqual(item.detailArgs, [1])
+    }
+
+    func testCutoutTooMuchForegroundIsWarning() {
+        let input = makeInput(cutoutForeground: 0.95)
+        let item = RedPacketQualityLogic.evaluateCutout(input)
+        XCTAssertEqual(item.level, .warning)
+        XCTAssertEqual(item.detailKey, "redpacket.quality.cutout.background.detail")
+        XCTAssertEqual(item.detailArgs, [95])
     }
 
     func testCutoutFragmentedIsWarning() {
         let input = makeInput(cutoutFragmentation: 0.3)
-        XCTAssertEqual(RedPacketQualityLogic.evaluateCutout(input).level, .warning)
+        let item = RedPacketQualityLogic.evaluateCutout(input)
+        XCTAssertEqual(item.level, .warning)
+        XCTAssertEqual(item.detailKey, "redpacket.quality.cutout.fragmented.detail")
+        XCTAssertEqual(item.detailArgs, [30])
     }
 
     func testCutoutBoundaryContactIsWarning() {
         let input = makeInput(cutoutBoundaryTouch: 0.3)
-        XCTAssertEqual(RedPacketQualityLogic.evaluateCutout(input).level, .warning)
+        let item = RedPacketQualityLogic.evaluateCutout(input)
+        XCTAssertEqual(item.level, .warning)
+        XCTAssertEqual(item.detailKey, "redpacket.quality.cutout.incomplete.detail")
+        XCTAssertEqual(item.detailArgs, [30])
     }
 
     // MARK: - 可读性
@@ -121,24 +188,32 @@ final class RedPacketQualityLogicTests: XCTestCase {
         let input = makeInput(textContent: "")
         let item = RedPacketQualityLogic.evaluateReadability(input)
         XCTAssertEqual(item.level, .pass)
+        XCTAssertEqual(item.detailKey, "redpacket.quality.readability.noText.detail")
+        XCTAssertTrue(item.detailArgs.isEmpty)
     }
 
     func testReadabilityPassWithGoodContrast() {
         let input = makeInput(textContent: "恭喜", textInSafeZone: true, textContrast: 0.8)
         let item = RedPacketQualityLogic.evaluateReadability(input)
         XCTAssertEqual(item.level, .pass)
+        XCTAssertEqual(item.detailKey, "redpacket.quality.readability.pass.detail")
+        XCTAssertTrue(item.detailArgs.isEmpty)
     }
 
     func testReadabilityContrastWarning() {
         let input = makeInput(textContent: "恭喜", textInSafeZone: true, textContrast: 0.2)
         let item = RedPacketQualityLogic.evaluateReadability(input)
         XCTAssertEqual(item.level, .warning)
+        XCTAssertEqual(item.detailKey, "redpacket.quality.readability.contrast.detail")
+        XCTAssertTrue(item.detailArgs.isEmpty)
     }
 
     func testReadabilityOutOfSafeZoneError() {
         let input = makeInput(textContent: "恭喜", textInSafeZone: false, textContrast: 0.8)
         let item = RedPacketQualityLogic.evaluateReadability(input)
         XCTAssertEqual(item.level, .error)
+        XCTAssertEqual(item.detailKey, "redpacket.quality.readability.zone.detail")
+        XCTAssertTrue(item.detailArgs.isEmpty)
     }
 
     // MARK: - 完整评估
@@ -241,8 +316,10 @@ final class RedPacketQualityLogicTests: XCTestCase {
         textContrast: Double = 0.6,
         imageMetricsAvailable: Bool = true,
         shadowClipping: Double = 0,
+        highlightClipping: Double = 0,
         petCanvasVisible: Double = 1,
         cutoutMetricsAvailable: Bool = true,
+        cutoutForeground: Double = 0.4,
         cutoutFragmentation: Double = 0,
         cutoutBoundaryTouch: Double = 0
     ) -> RedPacketQualityInput {
@@ -255,8 +332,10 @@ final class RedPacketQualityLogicTests: XCTestCase {
             textContrast: textContrast,
             imageMetricsAvailable: imageMetricsAvailable,
             shadowClippingRatio: shadowClipping,
+            highlightClippingRatio: highlightClipping,
             petCanvasVisibleRatio: petCanvasVisible,
             cutoutMetricsAvailable: cutoutMetricsAvailable,
+            cutoutForegroundRatio: cutoutForeground,
             cutoutFragmentationRatio: cutoutFragmentation,
             cutoutBoundaryTouchRatio: cutoutBoundaryTouch
         )

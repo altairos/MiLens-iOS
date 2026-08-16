@@ -354,8 +354,30 @@ def placeholder_problems(obj: dict, path: Path, known: list[str]
 
 
 # --------------------------------------------------------------------------- #
-# export 子命令
+# Excel sheet 命名与定位（export / import 共用）
 # --------------------------------------------------------------------------- #
+
+def sheet_name_for(path: Path, all_paths: list[Path]) -> str:
+    """Excel 工作表名：默认 stem；多 catalog 同 stem 时用「父目录.stem」去歧义。
+
+    App 与 Widget Extension 的 catalog 都叫 Localizable.xcstrings，导出到同一
+    工作簿会撞 sheet 名；冲突时改用 Resources.Localizable /
+    MiLensWidget.Localizable 区分归属。
+    """
+    stem = path.stem
+    if sum(1 for p in all_paths if p.stem == stem) > 1:
+        return f"{path.parent.name}.{stem}"
+    return stem
+
+
+def resolve_import_sheet(xc_path: Path, sheetnames: list[str]) -> str | None:
+    """import 时定位目标 sheet：优先 stem（旧表 / 单 catalog 导出），
+    回退「父目录.stem」去歧义名（App 与 Widget 同名 Localizable 并存时）；
+    均无则 None。"""
+    return next((name for name in (xc_path.stem,
+                                   f"{xc_path.parent.name}.{xc_path.stem}")
+                 if name in sheetnames), None)
+
 
 def cmd_export(args: argparse.Namespace) -> int:
     if Workbook is None:
@@ -365,9 +387,9 @@ def cmd_export(args: argparse.Namespace) -> int:
     out = Path(args.out)
     wb = Workbook()
     wb.remove(wb.active)  # 移除默认空 sheet
+    xc_paths = [Path(x) for x in args.xcstrings]
 
-    for xc_raw in args.xcstrings:
-        path = Path(xc_raw)
+    for path in xc_paths:
         obj = load_xcstrings(path)
         source = obj.get("sourceLanguage", "")
 
@@ -378,7 +400,7 @@ def cmd_export(args: argparse.Namespace) -> int:
         else:
             langs = collect_languages(obj)
 
-        ws = wb.create_sheet(title=path.stem)
+        ws = wb.create_sheet(title=sheet_name_for(path, xc_paths))
         header = ["key", "variation", "comment", "source_" + source if source else "source"]
         for lang in langs:
             if lang == source:
@@ -445,9 +467,11 @@ def cmd_import(args: argparse.Namespace) -> int:
     source = obj.get("sourceLanguage", "")
 
     wb = load_workbook(in_path)
-    if xc_path.stem not in wb.sheetnames:
-        sys.exit(f"错误：Excel 中找不到 sheet「{xc_path.stem}」")
-    rows = list(wb[xc_path.stem].iter_rows(values_only=True))
+    sheet = resolve_import_sheet(xc_path, wb.sheetnames)
+    if sheet is None:
+        sys.exit(f"错误：Excel 中找不到 sheet「{xc_path.stem}」"
+                 f"或「{xc_path.parent.name}.{xc_path.stem}」")
+    rows = list(wb[sheet].iter_rows(values_only=True))
     if not rows:
         sys.exit("错误：sheet 为空")
 
@@ -515,8 +539,21 @@ def cmd_import(args: argparse.Namespace) -> int:
 # check 子命令
 # --------------------------------------------------------------------------- #
 
-# 匹配 String(localized: "...") 与 NSLocalizedString("...")
-_KEY_RE = re.compile(r'(?:String\(localized:|NSLocalizedString\()\s*"((?:\\.|[^"\\])*)"')
+# 显式 key 引用形态（String Catalog manual key 的 Swift API 面）：
+# - String(localized:) / NSLocalizedString：通用本地化 API；
+# - configurationDisplayName / .description / IntentDescription：WidgetKit
+#   配置面板（参数类型 LocalizedStringResource，传 key 即查表）；
+# - @Parameter(title:) / LocalizedStringResource 等类型标注赋值：
+#   AppIntents 静态描述。这些 API 的字符串首参语义上只能是 key，无条件收。
+_KEY_RES = (
+    re.compile(r'(?:String\(localized:|NSLocalizedString\()\s*"((?:\\.|[^"\\])*)"'),
+    re.compile(r'\.configurationDisplayName\(\s*"((?:\\.|[^"\\])*)"\s*\)'),
+    re.compile(r'\.description\(\s*"((?:\\.|[^"\\])*)"\s*\)'),
+    re.compile(r'\bIntentDescription\(\s*"((?:\\.|[^"\\])*)"'),
+    re.compile(r'@\w+\(\s*title:\s*"((?:\\.|[^"\\])*)"'),
+    re.compile(r'\b(?:LocalizedStringResource|TypeDisplayRepresentation|DisplayRepresentation)'
+               r'\s*=\s*"((?:\\.|[^"\\])*)"'),
+)
 # 任意字符串字面量（Text("...") 等非 String(localized:) 引用）
 _LITERAL_RE = re.compile(r'"((?:\\.|[^"\\])*)"')
 
@@ -560,6 +597,35 @@ def normalize_localized_key(key: str) -> str:
     return key
 
 
+# 模糊形态：字面量可能是 key（LocalizedStringKey 运行时查表）也可能是普通文案
+# —— SwiftUI Text("...") 与 AppEnum caseDisplayRepresentations 的 `.case: "..."`。
+# 仅当字面量形如 dotted key（插值归一化后，如 widget.lifeArchive.name /
+# widget.stale.updated \(date)）才视为引用；"MiLens"、"FIRST LIGHT" 等品牌/
+# 装饰文案不匹配该形态，不会被误报缺 key。字典形态用 (?<!case\s) 排除
+# switch 映射（case .petProfiles: "pawprint.fill" 是 SF Symbol 名而非 key）。
+_AMBIGUOUS_KEY_RES = (
+    re.compile(r'\bText\(\s*"((?:\\.|[^"\\])*)"'),
+    re.compile(r'(?<!case\s)\.\s*[a-zA-Z]\w*\s*:\s*"((?:\\.|[^"\\])*)"'),
+)
+_DOTTED_KEY_RE = re.compile(r'[a-z]\w*(?:\.\w+)+')
+
+
+def _looks_like_key(literal: str) -> bool:
+    """字面量是否形如 dotted key（widget.lifeArchive.name / onboarding.welcome.hero）。"""
+    body = _replace_interpolations(literal).replace("%lld", "").strip()
+    return bool(_DOTTED_KEY_RE.fullmatch(body))
+
+
+def _iter_key_matches(text: str):
+    """遍历文本中的 key 引用匹配：显式 API 形态全收，模糊形态按 dotted key 过滤。"""
+    for rex in _KEY_RES:
+        yield from rex.finditer(text)
+    for rex in _AMBIGUOUS_KEY_RES:
+        for m in rex.finditer(text):
+            if _looks_like_key(m.group(1)):
+                yield m
+
+
 # 数据驱动动态 key 的行级豁免标记：调用所在行尾带此注释时跳过提取
 # （key 运行时拼接、无法静态枚举，如 NSLocalizedString("decoration.group.\(id)")）
 _DYNAMIC_MARK = "// loc:dynamic"
@@ -567,6 +633,10 @@ _DYNAMIC_MARK = "// loc:dynamic"
 
 def extract_code_keys(source_root: Path) -> set[str]:
     """扫描 Swift 源码中引用的本地化 key。
+
+    覆盖三类形态：通用本地化 API（String(localized:) 等）、WidgetKit/AppIntents
+    配置面 API（configurationDisplayName 等，见 _KEY_RES）、以及 dotted key
+    形态的 Text/字典字面量（LocalizedStringKey 运行时查表，见 _AMBIGUOUS_KEY_RES）。
 
     行内带 `// loc:dynamic` 标记的调用是数据驱动动态 key（运行时拼接查表，
     具体 key 由导入流程手工维护于 xcstrings），跳过以免 check 误报缺 key。
@@ -577,7 +647,7 @@ def extract_code_keys(source_root: Path) -> set[str]:
             text = swift.read_text(encoding="utf-8")
         except (OSError, UnicodeDecodeError):
             continue
-        for m in _KEY_RE.finditer(text):
+        for m in _iter_key_matches(text):
             line_start = text.rfind("\n", 0, m.start()) + 1
             line_end = text.find("\n", m.start())
             if line_end == -1:
@@ -623,9 +693,25 @@ _CJK_RE = re.compile(
     r"\u4e00-\u9fff\uac00-\ud7af\uf900-\ufaff]"
 )
 
+# 英文装饰文案（editorial overline / 档案编号等）检测：纯拉丁字面量中出现
+# 「全大写词」（≥2 连续字母且全大写，如 PATTERN PARAMETERS）。zh 源语言允许
+# 英文装饰（编辑风设计语言），但 en 等非源语言必须有真实译文——硬编码会
+# 原样漏入 EN 构建。品牌词 / 技术缩写全语言通用，白名单放过（warning 级）。
+_LATIN_DECOR_RE = re.compile(r"^[\x20-\x7e\u00b7\u00d7\u2013\u2014]+$")
+# 白名单同时容纳「单词」（按词命中即整串放过，如 PRO / PDF）与「整串」
+# （导出图品牌水印 MILENS + 装饰词复合，全语言通用，保留硬编码）。
+_DECORATION_WHITELIST = {
+    "m", "m lens", "milens", "pro", "pdf", "a4", "id", "ai",
+    "milens · life archive", "milens pet profile",
+}
+
 
 def _decode_swift_string(literal: str) -> str:
     """把 Swift 字符串字面量里的转义还原为实际字符（用于 catalog 比对）。"""
+    def _u(m: re.Match[str]) -> str:
+        return chr(int(m.group(1), 16))
+    literal = re.sub(r"\\u\{([0-9a-fA-F]{1,6})\}", _u, literal)
+    literal = re.sub(r"\\u([0-9a-fA-F]{4})", _u, literal)
     return (literal.replace("\\n", "\n")
             .replace("\\t", "\t")
             .replace('\\"', '"')
@@ -656,6 +742,46 @@ def hardcoded_problems(source_root: Path, catalog_keys: set[str]
             if not _CJK_RE.search(literal):
                 continue
             decoded = _decode_swift_string(literal)
+            if decoded in catalog_keys:
+                continue
+            if normalize_localized_key(decoded) in norm_keys:
+                continue
+            line = text.count("\n", 0, m.start()) + 1
+            problems.append((str(swift.relative_to(source_root)), line, decoded))
+    return problems
+
+
+def decoration_problems(source_root: Path, catalog_keys: set[str]
+                        ) -> list[tuple[str, int, str]]:
+    """扫描 Swift 源码中"疑似硬编码的英文装饰文案" [(file, line, str)]（warning 级）。
+
+    判定：SwiftUI 文案 API 首参为纯拉丁文本（无 CJK）且含全大写词
+    （≥2 连续字母且全大写，如 PATTERN PARAMETERS），排除品牌 / 技术词
+    白名单后仍命中，且不在 String Catalog（精确或归一化比对均不命中）。
+    含 CJK 的字面量由 hardcoded_problems 负责，此处不重复报。
+    """
+    norm_keys = {normalize_localized_key(k) for k in catalog_keys}
+    problems: list[tuple[str, int, str]] = []
+    for swift in source_root.rglob("*.swift"):
+        try:
+            text = swift.read_text(encoding="utf-8")
+        except (OSError, UnicodeDecodeError):
+            continue
+        for m in _UI_LITERAL_RE.finditer(text):
+            literal = m.group(1)
+            if _CJK_RE.search(literal):
+                continue
+            decoded = _decode_swift_string(literal)
+            if not _LATIN_DECOR_RE.match(decoded):
+                continue
+            upper_words = [w for w in re.findall(r"[A-Za-z]+", decoded)
+                           if len(w) >= 2 and w.isupper()]
+            if not upper_words:
+                continue
+            if decoded.lower() in _DECORATION_WHITELIST:
+                continue
+            if all(w.lower() in _DECORATION_WHITELIST for w in upper_words):
+                continue
             if decoded in catalog_keys:
                 continue
             if normalize_localized_key(decoded) in norm_keys:
@@ -745,6 +871,13 @@ def length_problems(obj: dict, path: Path, known: list[str], rules: dict
     return problems
 
 
+def catalog_roots(path: Path, source_roots: list[Path]) -> list[Path]:
+    """catalog 所属的源码根：取路径祖先根（App 的 Resources/… 对应 App 根，
+    Widget 的对应 Widget 根）；无祖先匹配时回退全部根并集。"""
+    return [r for r in source_roots
+            if path.resolve().is_relative_to(r.resolve())] or source_roots
+
+
 def cmd_check(args: argparse.Namespace) -> int:
     # 新参数用 getattr 兜底，保证 GUI run_check（只传基础参数）兼容
     strict = getattr(args, "strict", False)
@@ -756,9 +889,17 @@ def cmd_check(args: argparse.Namespace) -> int:
     problems = 0     # 阻断级问题数（决定退出码）
     warnings = 0     # 警告级问题数（多余 key / needs_review 非 strict，不阻断）
     project_yml = Path(args.project_yml) if args.project_yml else None
-    source_root = Path(args.source_root) if args.source_root else None
-    code_keys = extract_code_keys(source_root) if source_root else set()
-    code_literals = extract_literal_texts(source_root) if source_root else set()
+    # --source-root 可重复（App 与 Widget Extension 各自的源码根）；
+    # GUI run_check 传单个 Path，兼容为单元素列表。
+    raw_roots = args.source_root or []
+    if not isinstance(raw_roots, list):
+        raw_roots = [raw_roots]
+    source_roots = [Path(r) for r in raw_roots]
+    root_keys: dict[Path, set[str]] = {}
+    root_literals: dict[Path, set[str]] = {}
+    for root in source_roots:
+        root_keys[root] = extract_code_keys(root)
+        root_literals[root] = extract_literal_texts(root)
     known = parse_known_regions(project_yml) if project_yml else []
     loaded: list[tuple[Path, dict]] = []
     last_source = ""
@@ -789,21 +930,30 @@ def cmd_check(args: argparse.Namespace) -> int:
         if original != dumps_xcstrings(obj):
             print(f"  [格式] {path.name} 与规范化（Xcode 风格）不一致，运行 import 或 Xcode 保存可修正")
 
-        # ③ 代码引用一致性（仅 Localizable.xcstrings）
-        if source_root and path.stem == "Localizable":
-            norm_literals = {normalize_localized_key(t) for t in code_literals}
+        # ③ 代码引用一致性（仅 Localizable.xcstrings）：比对范围 = 路径祖先源码根
+        # （App 的 MiLens/Resources/... 对应 MiLens，Widget 的 MiLensWidget/ 对应
+        # MiLensWidget），各 catalog 只与所属 target 的代码比对，防止跨 target 的
+        # key 误报 missing；无祖先匹配时回退全部根并集。
+        if path.stem == "Localizable" and source_roots:
+            cat_roots = catalog_roots(path, source_roots)
+            cat_keys: set[str] = set()
+            cat_literals: set[str] = set()
+            for r in cat_roots:
+                cat_keys |= root_keys[r]
+                cat_literals |= root_literals[r]
+            norm_literals = {normalize_localized_key(t) for t in cat_literals}
             norm_xc = {normalize_localized_key(k) for k in strings.keys()}
-            missing = sorted(k for k in code_keys if normalize_localized_key(k) not in norm_xc)
+            missing = sorted(k for k in cat_keys if normalize_localized_key(k) not in norm_xc)
             # 多余 key 排除字面量引用：key 以中文文案形式存在时，代码常以
             # Text("...") 直接字面量引用（未走 String(localized:) API）；
             # 比较前把 JSON 解码的 \n 还原为源码 \n 文本、\" 还原为 \\",
             # 并对插值/占位符做归一化（复数 key 的 %lld 与 \\(days) 等价）。
             extra = set()
             for key in strings.keys():
-                if key in code_keys:
+                if key in cat_keys:
                     continue
                 source_form = key.replace("\n", "\\n").replace('"', '\\"')
-                if source_form not in code_literals and normalize_localized_key(source_form) not in norm_literals:
+                if source_form not in cat_literals and normalize_localized_key(source_form) not in norm_literals:
                     extra.add(key)
             if missing:
                 print(f"  [缺 key] 代码引用但 String Catalog 缺少：{missing}")
@@ -866,15 +1016,28 @@ def cmd_check(args: argparse.Namespace) -> int:
             print(f"[信息] knownRegions={known}，源语言={last_source}；"
                   f"非源语言 {non_source} 需在各 xcstrings 补齐译文。")
 
-    # ⑨ 硬编码用户可见文案检测（--hardcoded 开启）——阻断
-    if do_hardcoded and source_root and loaded:
+    # ⑨ 硬编码用户可见文案检测（--hardcoded 开启）——阻断；逐源码根扫描
+    # （App 与 Widget 各自），豁免集合用全部 catalog 的 key 并集（多宽不误报）。
+    if do_hardcoded and source_roots and loaded:
         all_keys: set[str] = set()
         for _p, o in loaded:
             all_keys.update(o.get("strings", {}).keys())
-        hards = hardcoded_problems(source_root, all_keys)
+        hards: list[tuple[str, int, str]] = []
+        decos: list[tuple[str, int, str]] = []
+        for source_root in source_roots:
+            hards += hardcoded_problems(source_root, all_keys)
         for f, line, text in hards:
             print(f"  [硬编码] {f}:{line} 疑似未本地化文案：{text!r}")
         problems += len(hards)
+
+        # ⑩ 英文装饰硬编码检测（--hardcoded 开启）——warning 不阻断：
+        # zh 源值允许英文装饰（编辑风设计语言），但 en 版需真实译文，
+        # 硬编码会原样漏入 EN 构建；品牌词白名单全语言通用。
+        for source_root in source_roots:
+            decos += decoration_problems(source_root, all_keys)
+        for f, line, text in decos:
+            print(f"  [英文装饰] {f}:{line} 疑似硬编码英文装饰（en 需真实译文，勿照抄原值）：{text!r}")
+        warnings += len(decos)
 
     if problems or warnings:
         parts = [f"{problems} 个阻断问题"] if problems else []
@@ -924,7 +1087,8 @@ def main() -> None:
     pc = sub.add_parser("check", help="校验 xcstrings 合法性与一致性")
     pc.add_argument("xcstrings", nargs="+", help="一个或多个 .xcstrings 文件")
     pc.add_argument("--project-yml", help="project.yml 路径（用于对比 knownRegions）")
-    pc.add_argument("--source-root", help="Swift 源码根目录（扫描代码引用的 key）")
+    pc.add_argument("--source-root", action="append", default=[], metavar="DIR",
+                    help="Swift 源码根目录，可多次传入（App 与 Widget 各自源码根）；仅 Localizable.xcstrings 按路径祖先根比对代码引用")
     pc.add_argument("--strict", action="store_true",
                     help="发布门禁：把 needs_review 初译待审也计为阻断问题")
     pc.add_argument("--allow-missing-translations", action="store_true",
@@ -932,7 +1096,7 @@ def main() -> None:
     pc.add_argument("--length-rules", metavar="JSON",
                     help="译文长度规则 JSON 路径（{default,keys,prefixes,comment_tag}）")
     pc.add_argument("--hardcoded", action="store_true",
-                    help="扫描 Swift 源码中疑似硬编码的用户可见文案（含 CJK 且不在 catalog）")
+                    help="扫描 Swift 源码中疑似硬编码的用户可见文案（含 CJK 且不在 catalog 为阻断；纯拉丁全大写英文装饰为 warning，白名单品牌词除外）")
     pc.set_defaults(func=cmd_check)
 
     args = p.parse_args()

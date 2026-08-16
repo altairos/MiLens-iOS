@@ -181,16 +181,16 @@ final class OnboardingViewModel {
     /// 当前步骤 overline 文案（对照 Figma Caption，供 OnboardingView header 显示）。
     var stepOverline: String {
         switch step {
-        case .welcome: return "FIRST LIGHT · 欢迎"
-        case .privacy: return "FIRST LIGHT · 隐私摘要"
-        case .createArchive: return "LIFE ARCHIVE · 建立档案"
-        case .featureIntro: return "FEATURE REGISTER · 8—15 张"
-        case .featureProcessing: return "FEATURE REGISTER · 本机处理"
-        case .featureDone: return "FEATURE REGISTER · 已建立"
-        case .fullScan: return "LOCAL SCAN · 特征基准已就绪"
-        case .candidates: return "ALBUM / CANDIDATES"
-        case .importing: return "ARCHIVE IMPORT · 本机写入"
-        case .success: return "ARCHIVE / ENTRY"
+        case .welcome: return String(localized: "onboarding.overline.welcome")
+        case .privacy: return String(localized: "onboarding.overline.privacy")
+        case .createArchive: return String(localized: "onboarding.overline.createArchive")
+        case .featureIntro: return String(localized: "onboarding.overline.featureIntro")
+        case .featureProcessing: return String(localized: "onboarding.overline.featureProcessing")
+        case .featureDone: return String(localized: "onboarding.overline.featureDone")
+        case .fullScan: return String(localized: "onboarding.overline.fullScan")
+        case .candidates: return String(localized: "onboarding.overline.candidates")
+        case .importing: return String(localized: "onboarding.overline.importing")
+        case .success: return String(localized: "onboarding.overline.success")
         }
     }
 
@@ -253,7 +253,7 @@ final class OnboardingViewModel {
             guard let self else { return }
             let result = await service.scanAlbum { progress in
                 guard self.scanGeneration == generation else { return }
-                self.scanProgressText = "正在寻找它的身影... \(progress.scanned)/\(progress.total)"
+                self.scanProgressText = String(localized: "onboarding.scan.progress \(progress.scanned) \(progress.total)")
                 self.scanScanned = progress.scanned
                 self.scanTotal = progress.total
                 self.scanFoundCount = progress.petPhotosFound
@@ -343,7 +343,7 @@ final class OnboardingViewModel {
             createdPetID = pet.id
             return true
         } catch {
-            scanError = "保存失败，请重试"
+            scanError = String(localized: "onboarding.createArchive.saveFailed")
             return false
         }
     }
@@ -363,11 +363,11 @@ final class OnboardingViewModel {
         guard let petID = createdPetID, !isRegisteringFeatures else { return }
         // 数量校验（对应源端 resolveRegistrationValidation）
         if imageDatas.count < PetFormConstants.minRegistrationPhotos {
-            featureRegistrationMessage = "请至少选择 \(PetFormConstants.minRegistrationPhotos) 张照片"
+            featureRegistrationMessage = String(localized: "onboarding.feature.minCount \(PetFormConstants.minRegistrationPhotos)")
             return
         }
         if imageDatas.count > PetFormConstants.maxRegistrationPhotos {
-            featureRegistrationMessage = "最多选择 \(PetFormConstants.maxRegistrationPhotos) 张照片"
+            featureRegistrationMessage = String(localized: "onboarding.feature.maxCount \(PetFormConstants.maxRegistrationPhotos)")
             return
         }
         isRegisteringFeatures = true
@@ -389,10 +389,10 @@ final class OnboardingViewModel {
             self.featureRegisterPercent = 1
             if ok {
                 self.featureRegistered = true
-                self.featureRegistrationMessage = "已注册 \(imageDatas.count) 张照片的视觉特征"
+                self.featureRegistrationMessage = String(localized: "onboarding.feature.registered \(imageDatas.count)")
                 self.step = .featureDone
             } else {
-                self.featureRegistrationMessage = "注册失败：\(matcher.lastRegisterDiagnostics)"
+                self.featureRegistrationMessage = String(localized: "onboarding.feature.registerFailed \(matcher.lastRegisterDiagnostics)")
             }
             self.featureTask = nil
         }

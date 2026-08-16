@@ -100,14 +100,14 @@ struct ArchiveContinuityNote: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("LIFE 02 · \(PetDisplayLogic.daysTogether(from: pet.adoptionDay)) DAYS")
+            Text(String(localized: "pet.profile.lifeMark \(PetDisplayLogic.daysTogether(from: pet.adoptionDay))"))
                 .font(.custom("JacquesFrancois-Regular", size: 10))
                 .tracking(0.4)
                 .foregroundStyle(Color.milensActionPrimary)
-            Text("将散落的记忆，\n装订成流动的时间之河")
+            Text(String(localized: "pet.profile.continuity.headline"))
                 .font(.custom("LXGWWenKai-Regular", size: 28, relativeTo: .title2))
                 .foregroundStyle(Color.milensTextPrimary)
-            Text("从第一张照片、第一次出门，到每天微小的变化；所有片段都回到它发生的时间里。")
+            Text(String(localized: "pet.profile.continuity.body"))
                 .font(.bodyPrimary)
                 .foregroundStyle(Color.milensTextSecondary)
                 .fixedSize(horizontal: false, vertical: true)
@@ -128,17 +128,17 @@ struct ArchiveContinuityNote: View {
 struct TimelineContinuationCard: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("NEXT LEAF · 2026.06")
+            Text(String(localized: "pet.profile.nextLeafMark"))
                 .font(.custom("JacquesFrancois-Regular", size: 10))
                 .tracking(0.4)
                 .foregroundStyle(Color.milensActionPrimary)
             Text("06. 18")
                 .font(.custom("Fraunces-Semibold", size: 34))
                 .foregroundStyle(Color.milensTextPrimary)
-            Text("夏天开始前的傍晚")
+            Text(String(localized: "pet.profile.timeline.sampleTitle"))
                 .font(.custom("LXGWWenKai-Regular", size: 20))
                 .foregroundStyle(Color.milensTextPrimary)
-            Text("一条风很大的路，一次主动跑进海水里的勇气。")
+            Text(String(localized: "pet.profile.timeline.sampleBody"))
                 .font(.bodySecondary)
                 .foregroundStyle(Color.milensTextSecondary)
             Rectangle()
@@ -146,7 +146,7 @@ struct TimelineContinuationCard: View {
                 .frame(height: 1)
             NavigationLink(value: Route.timeline) {
                 HStack(spacing: 4) {
-                    Text("打开完整生命时间线")
+                    Text(String(localized: "pet.profile.timeline.openFull"))
                         .font(.bodyPrimary)
                         .foregroundStyle(Color.milensActionPrimary)
                     Image(systemName: "arrow.right")

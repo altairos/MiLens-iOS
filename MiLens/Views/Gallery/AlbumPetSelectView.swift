@@ -36,7 +36,7 @@ struct AlbumPetSelectView: View {
                 .frame(width: 3)
 
             VStack(alignment: .leading, spacing: 0) {
-                Text("待归档照片")
+                Text(String(localized: "album.petSelect.evidenceMark"))
                     .font(.custom("JacquesFrancois-Regular", size: 10))
                     .tracking(0.4)
                     .foregroundStyle(Color.milensActionPrimary)
@@ -55,7 +55,7 @@ struct AlbumPetSelectView: View {
                         Text("\(selectedCount)")
                             .font(.numberStat)
                             .foregroundStyle(Color.milensTextPrimary)
-                        Text("张")
+                        Text(String(localized: "album.petSelect.countUnit"))
                             .font(.bodySecondary)
                             .foregroundStyle(Color.milensTextSecondary)
                     }
@@ -80,7 +80,7 @@ struct AlbumPetSelectView: View {
 
     private var sectionDivider: some View {
         VStack(alignment: .leading, spacing: 0) {
-            Text("伙伴档案")
+            Text(String(localized: "album.petSelect.sectionTitle"))
                 .font(.bodySecondary)
                 .foregroundStyle(Color.milensTextPrimary)
                 .padding(.horizontal, Spacing.lg)
@@ -155,14 +155,14 @@ struct AlbumPetSelectView: View {
                     Text(pet.name)
                         .font(.uiBodyStrong)
                         .foregroundStyle(Color.milensTextPrimary)
-                    Text("\(PetDisplayLogic.speciesDisplayName(pet.species)) · \(pet.photoCount) 张照片")
+                    Text(String(localized: "album.petSelect.petMeta \(PetDisplayLogic.speciesDisplayName(pet.species)) \(pet.photoCount)"))
                         .font(.editorialMetadata)
                         .foregroundStyle(Color.milensTextSecondary)
                 }
 
                 Spacer()
 
-                Text(isSelected ? "已选择" : "\u{2192}")
+                Text(isSelected ? String(localized: "album.petSelect.selectedMark") : "\u{2192}")
                     .font(.bodySecondary)
                     .foregroundStyle(isSelected ? Color.milensActionPrimary : Color.milensTextTertiary)
                     .padding(.trailing, 12)
@@ -192,10 +192,10 @@ struct AlbumPetSelectView: View {
                     )
 
                 VStack(alignment: .leading, spacing: 2) {
-                    Text("新建伙伴档案")
+                    Text(String(localized: "album.petSelect.newArchiveTitle"))
                         .font(.uiBodyStrong)
                         .foregroundStyle(Color.milensTextPrimary)
-                    Text("由你填写名字和资料")
+                    Text(String(localized: "album.petSelect.newArchiveHint"))
                         .font(.editorialMetadata)
                         .foregroundStyle(Color.milensTextSecondary)
                 }
@@ -215,7 +215,7 @@ struct AlbumPetSelectView: View {
     // MARK: - Import Register（对照 #31:51-56）
 
     private var importRegister: some View {
-        let petName = selectedPetID.flatMap { id in vm.pets.first { $0.id == id }?.name } ?? "新档案"
+        let petName = selectedPetID.flatMap { id in vm.pets.first { $0.id == id }?.name } ?? String(localized: "album.petSelect.defaultPetName")
         let remainingAfter = max(0, CommercialRules.freePhotoLimit - vm.totalPhotoCount - selectedCount)
         return HStack(spacing: 0) {
             Rectangle()
@@ -223,7 +223,7 @@ struct AlbumPetSelectView: View {
                 .frame(width: 3)
 
             VStack(alignment: .leading, spacing: 0) {
-                Text("本次导入")
+                Text(String(localized: "album.petSelect.importMark"))
                     .font(.custom("JacquesFrancois-Regular", size: 10))
                     .tracking(0.4)
                     .foregroundStyle(Color.milensActionPrimary)
@@ -233,13 +233,13 @@ struct AlbumPetSelectView: View {
                     Text("\(selectedCount)")
                         .font(.numberStat)
                         .foregroundStyle(Color.milensTextPrimary)
-                    Text("加入「\(petName)」的档案")
+                    Text(String(localized: "album.petSelect.importTarget \(petName)"))
                         .font(.uiBodyStrong)
                         .foregroundStyle(Color.milensTextPrimary)
                 }
                 .padding(.top, 7)
 
-                Text("确认后才会写入；导入后免费额度 \(vm.totalPhotoCount + selectedCount) / \(CommercialRules.freePhotoLimit)")
+                Text(String(localized: "album.petSelect.quotaNote \(vm.totalPhotoCount + selectedCount) \(CommercialRules.freePhotoLimit)"))
                     .font(.bodySecondary)
                     .foregroundStyle(Color.milensTextSecondary)
                     .padding(.top, 14)
@@ -260,10 +260,10 @@ struct AlbumPetSelectView: View {
     // MARK: - 底部 Action（对照 #31:57）
 
     private var bottomActionBar: some View {
-        let petName = selectedPetID.flatMap { id in vm.pets.first { $0.id == id }?.name } ?? "伙伴"
+        let petName = selectedPetID.flatMap { id in vm.pets.first { $0.id == id }?.name } ?? String(localized: "album.petSelect.defaultPetShort")
         let label = selectedPetID == nil
-            ? "确认导入 · \(selectedCount) 张"
-            : "确认并导入到\(petName)"
+            ? String(localized: "album.petSelect.confirm \(selectedCount)")
+            : String(localized: "album.petSelect.confirmTo \(petName)")
         return Button(action: onConfirm) {
             HStack {
                 Text(label)

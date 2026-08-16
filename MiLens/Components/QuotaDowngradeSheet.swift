@@ -72,7 +72,7 @@ struct QuotaDowngradeSheet: View {
                 Button {
                     dismiss()
                 } label: {
-                    Text("知道了")
+                    Text(String(localized: "settings.notifications.denied.ok"))
                         .font(.bodySecondary)
                         .foregroundStyle(Color.milensTextTertiary)
                 }

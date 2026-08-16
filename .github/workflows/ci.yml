@@ -79,7 +79,7 @@ jobs:
       # 7 语言翻译过渡期：--allow-missing-translations 把非源语言缺译降为警告，
       # 避免 lint 挂掉连带跳过 app 作业（needs: [kit, lint]）；翻译完成后移除该参数。
       - name: Check localization
-        run: python tools/localization.py check MiLens/Resources/Localizable.xcstrings MiLens/Resources/InfoPlist.xcstrings --project-yml project.yml --source-root MiLens --allow-missing-translations
+        run: python tools/localization.py check MiLens/Resources/Localizable.xcstrings MiLens/Resources/InfoPlist.xcstrings MiLensWidget/Localizable.xcstrings --project-yml project.yml --source-root MiLens --source-root MiLensWidget --allow-missing-translations
 
   # ── MiLens App：macOS runner 上 xcodegen + xcodebuild（PR 与 main/master push 均运行）──
   app:

@@ -211,7 +211,7 @@ struct RedPacketQualityReportView: View {
                     .frame(width: 58, alignment: .leading)
                     .padding(.leading, 9)
 
-                Text(item.detail.isEmpty ? "—" : item.detail)
+                Text(detailText(item))
                     .font(.system(size: 12))
                     .foregroundStyle(Color.milensTextSecondary)
                     .lineLimit(1)
@@ -279,6 +279,13 @@ struct RedPacketQualityReportView: View {
     }
 
     // MARK: - 辅助
+
+    /// 检测详情：动态 key 查表（NSLocalizedString）+ %lld 整数插值（%% 为字面百分号）。
+    private func detailText(_ item: RedPacketQualityItem) -> String {
+        guard !item.detailKey.isEmpty else { return "—" }
+        return String(format: NSLocalizedString(item.detailKey, comment: ""),
+                      arguments: item.detailArgs.map { $0 as CVarArg })
+    }
 
     private func dimensionName(_ dimension: RedPacketQualityDimension) -> String {
         switch dimension {

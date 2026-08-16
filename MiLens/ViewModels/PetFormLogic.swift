@@ -77,11 +77,12 @@ enum PetFormLogic {
 
     /// 校验备注条目长度，返回超长项的错误消息或 nil（对应源端 validateNoteItemLength）。
     static func validateNoteItemLength(
-        _ items: [String], maxLen: Int = PetFormConstants.maxNoteItemLength
+        _ items: [String], maxLen: Int = PetFormConstants.maxNoteItemLength,
+        locale: Locale = .current
     ) -> String? {
         for item in items {
             if item.count > maxLen {
-                return "重要事件备注不能超过\(maxLen)个字符，请修改后再保存"
+                return String(localized: "pet.edit.note.tooLongToSave \(maxLen)", locale: locale)
             }
         }
         return nil
@@ -148,12 +149,15 @@ enum PetFormLogic {
     /// 校验并构建备忘条目（对应源端 validateAndBuildNoteItem）。
     /// 空输入静默拒绝（ok=false, error=""）；超长拒绝并带错误文案。
     static func validateAndBuildNoteItem(
-        _ input: String, maxLen: Int = PetFormConstants.maxNoteItemLength
+        _ input: String, maxLen: Int = PetFormConstants.maxNoteItemLength,
+        locale: Locale = .current
     ) -> NoteItemValidationResult {
         let trimmed = input.trimmingCharacters(in: .whitespacesAndNewlines)
         if trimmed.isEmpty { return .rejectedEmpty }
         if trimmed.count > maxLen {
-            return NoteItemValidationResult(ok: false, item: "", error: "备忘条目不能超过\(maxLen)个字符")
+            return NoteItemValidationResult(
+                ok: false, item: "",
+                error: String(localized: "pet.edit.note.tooLong \(maxLen)", locale: locale))
         }
         return NoteItemValidationResult(ok: true, item: trimmed, error: "")
     }

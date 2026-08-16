@@ -314,7 +314,7 @@ private struct MemoryOrbitTabBarPreview: View {
     var body: some View {
         ZStack(alignment: .bottom) {
             Color.milensBackground.ignoresSafeArea()
-            Text("内容区")
+            Text(String(localized: "preview.contentArea"))
                 .font(.titleStandard)
             MemoryOrbitTabBar(selection: $selection)
         }

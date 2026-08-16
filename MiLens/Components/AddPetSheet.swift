@@ -34,16 +34,16 @@ struct AddPetSheet: View {
             .scrollContentBackground(.hidden)
             .listRowBackground(Color.milensGrouped)
             .background(Color.milensBackground)
-            .navigationTitle("添加伙伴")
+            .navigationTitle(String(localized: "pet.add.title"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
-                    Button("取消") { viewModel.resetForm(); dismiss() }
+                    Button(String(localized: "common.cancel")) { viewModel.resetForm(); dismiss() }
                 }
             }
             .safeAreaInset(edge: .bottom) {
                 Button { submit() } label: {
-                    Text("添加伙伴")
+                    Text(String(localized: "pet.add.title"))
                         .font(.buttonLabel)
                         .foregroundStyle(Color.milensTextOnActionPrimary)
                         .frame(maxWidth: .infinity, minHeight: Sizing.touchTarget)

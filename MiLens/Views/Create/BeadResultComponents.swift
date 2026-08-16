@@ -14,14 +14,14 @@ struct BeadResultOutputPanel: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            Text("ARCHIVE OUTPUT")
+            Text(String(localized: "bead.result.overline"))
                 .font(.custom("JacquesFrancois-Regular", size: 10))
                 .tracking(0.4)
                 .foregroundStyle(Color.milensActionPrimary)
                 .padding(.horizontal, 16)
                 .padding(.top, 18)
 
-            Text("将这一次的作品永久珍藏")
+            Text(String(localized: "bead.result.keepTitle"))
                 .font(.custom("LXGWWenKai-Regular", size: 20))
                 .foregroundStyle(Color.milensTextPrimary)
                 .padding(.horizontal, 16)
@@ -30,17 +30,17 @@ struct BeadResultOutputPanel: View {
 
             // 输出选项列表（对照 #313:1430-1447）
             outputRow(title: String(localized: "create.bead.saveHd"),
-                      desc: "原始像素 · 透明背景可选", badge: nil,
+                      desc: String(localized: "bead.result.saveHdDesc"), badge: nil,
                       action: onExport)
             outputSeparator
 
-            outputRow(title: "分享作品",
-                      desc: "系统分享面板", badge: nil,
+            outputRow(title: String(localized: "bead.result.shareTitle"),
+                      desc: String(localized: "bead.result.shareDesc"), badge: nil,
                       action: onShare)
             outputSeparator
 
-            outputRow(title: "A4 制作图纸",
-                      desc: "单页 PDF · 打印友好", badge: "PRO",
+            outputRow(title: String(localized: "bead.result.a4Title"),
+                      desc: String(localized: "bead.result.a4Desc"), badge: "PRO",
                       action: onA4Export)
             outputSeparator
 

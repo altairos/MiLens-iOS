@@ -37,20 +37,24 @@ public struct RedPacketQualityItem: Codable, Equatable, Sendable, Identifiable {
     public var dimension: RedPacketQualityDimension
     /// 结果级别。
     public var level: RedPacketQualityLevel
-    /// 检测详情（供诊断）。
-    public var detail: String
+    /// 检测详情本地化 key（View 层查 Localizable.xcstrings，用 %lld 插值 detailArgs）。
+    public var detailKey: String
+    /// 详情插值参数（百分比/分辨率/方差等整数）。
+    public var detailArgs: [Int]
     /// 本地化 key（建议动作文案）。
     public var suggestionKey: String
 
     public init(
         dimension: RedPacketQualityDimension,
         level: RedPacketQualityLevel,
-        detail: String,
+        detailKey: String,
+        detailArgs: [Int] = [],
         suggestionKey: String
     ) {
         self.dimension = dimension
         self.level = level
-        self.detail = detail
+        self.detailKey = detailKey
+        self.detailArgs = detailArgs
         self.suggestionKey = suggestionKey
     }
 }
@@ -235,7 +239,7 @@ public enum RedPacketQualityLogic {
             return RedPacketQualityItem(
                 dimension: .clarity,
                 level: .error,
-                detail: "无法读取原图像素，尚未完成清晰度检查",
+                detailKey: "redpacket.quality.clarity.unavailable.detail",
                 suggestionKey: "redpacket.quality.clarity.unavailable"
             )
         }
@@ -246,7 +250,8 @@ public enum RedPacketQualityLogic {
             return RedPacketQualityItem(
                 dimension: .clarity,
                 level: .warning,
-                detail: "原图分辨率 \(input.imageWidth)×\(input.imageHeight)（\(pixels) 像素），建议使用更高清的照片",
+                detailKey: "redpacket.quality.clarity.resolution.detail",
+                detailArgs: [input.imageWidth, input.imageHeight, pixels],
                 suggestionKey: "redpacket.quality.clarity.resolution"
             )
         }
@@ -256,7 +261,8 @@ public enum RedPacketQualityLogic {
             return RedPacketQualityItem(
                 dimension: .clarity,
                 level: .error,
-                detail: "清晰度偏低（Laplacian 方差 \(Int(input.sharpness))），照片可能模糊",
+                detailKey: "redpacket.quality.clarity.blur.detail",
+                detailArgs: [Int(input.sharpness)],
                 suggestionKey: "redpacket.quality.clarity.blur"
             )
         }
@@ -266,7 +272,8 @@ public enum RedPacketQualityLogic {
             return RedPacketQualityItem(
                 dimension: .clarity,
                 level: .warning,
-                detail: "清晰度一般（\(Int(input.sharpness))），建议更换更清晰的照片",
+                detailKey: "redpacket.quality.clarity.soft.detail",
+                detailArgs: [Int(input.sharpness)],
                 suggestionKey: "redpacket.quality.clarity.soft"
             )
         }
@@ -274,7 +281,7 @@ public enum RedPacketQualityLogic {
         return RedPacketQualityItem(
             dimension: .clarity,
             level: .pass,
-            detail: "清晰度良好",
+            detailKey: "redpacket.quality.clarity.pass.detail",
             suggestionKey: ""
         )
     }
@@ -287,7 +294,7 @@ public enum RedPacketQualityLogic {
             return RedPacketQualityItem(
                 dimension: .brightness,
                 level: .error,
-                detail: "无法读取原图像素，尚未完成亮度检查",
+                detailKey: "redpacket.quality.brightness.unavailable.detail",
                 suggestionKey: "redpacket.quality.brightness.unavailable"
             )
         }
@@ -295,7 +302,8 @@ public enum RedPacketQualityLogic {
             return RedPacketQualityItem(
                 dimension: .brightness,
                 level: .warning,
-                detail: "照片偏暗（亮度 \(Int(input.averageBrightness * 100))%），建议提亮",
+                detailKey: "redpacket.quality.brightness.dark.detail",
+                detailArgs: [Int(input.averageBrightness * 100)],
                 suggestionKey: "redpacket.quality.brightness.dark"
             )
         }
@@ -304,7 +312,8 @@ public enum RedPacketQualityLogic {
             return RedPacketQualityItem(
                 dimension: .brightness,
                 level: .warning,
-                detail: "照片偏亮（亮度 \(Int(input.averageBrightness * 100))%），可能过曝",
+                detailKey: "redpacket.quality.brightness.bright.detail",
+                detailArgs: [Int(input.averageBrightness * 100)],
                 suggestionKey: "redpacket.quality.brightness.overexposed"
             )
         }
@@ -313,7 +322,8 @@ public enum RedPacketQualityLogic {
             return RedPacketQualityItem(
                 dimension: .brightness,
                 level: .warning,
-                detail: "暗部细节较少（阴影剪切 \(Int(input.shadowClippingRatio * 100))%），建议适度提亮",
+                detailKey: "redpacket.quality.brightness.shadowClipping.detail",
+                detailArgs: [Int(input.shadowClippingRatio * 100)],
                 suggestionKey: "redpacket.quality.brightness.dark"
             )
         }
@@ -322,7 +332,8 @@ public enum RedPacketQualityLogic {
             return RedPacketQualityItem(
                 dimension: .brightness,
                 level: .warning,
-                detail: "高光细节较少（高光剪切 \(Int(input.highlightClippingRatio * 100))%），建议降低曝光",
+                detailKey: "redpacket.quality.brightness.highlightClipping.detail",
+                detailArgs: [Int(input.highlightClippingRatio * 100)],
                 suggestionKey: "redpacket.quality.brightness.overexposed"
             )
         }
@@ -330,7 +341,7 @@ public enum RedPacketQualityLogic {
         return RedPacketQualityItem(
             dimension: .brightness,
             level: .pass,
-            detail: "亮度适中",
+            detailKey: "redpacket.quality.brightness.pass.detail",
             suggestionKey: ""
         )
     }
@@ -343,7 +354,8 @@ public enum RedPacketQualityLogic {
             return RedPacketQualityItem(
                 dimension: .composition,
                 level: .error,
-                detail: "宠物主体有 \(Int((1 - input.petCanvasVisibleRatio) * 100))% 超出画布，可能被裁切",
+                detailKey: "redpacket.quality.composition.clipped.detail",
+                detailArgs: [Int((1 - input.petCanvasVisibleRatio) * 100)],
                 suggestionKey: "redpacket.quality.composition.clipped"
             )
         }
@@ -353,7 +365,8 @@ public enum RedPacketQualityLogic {
             return RedPacketQualityItem(
                 dimension: .composition,
                 level: .warning,
-                detail: "宠物主体占比偏小（\(Int(input.petCoverageRatio * 100))%），建议放大或移动",
+                detailKey: "redpacket.quality.composition.small.detail",
+                detailArgs: [Int(input.petCoverageRatio * 100)],
                 suggestionKey: "redpacket.quality.composition.small"
             )
         }
@@ -363,7 +376,8 @@ public enum RedPacketQualityLogic {
             return RedPacketQualityItem(
                 dimension: .composition,
                 level: .error,
-                detail: "宠物主体仅有 \(Int(input.petSafeZoneCoverageRatio * 100))% 位于安全区，红包控件可能遮挡主体",
+                detailKey: "redpacket.quality.composition.safezone.detail",
+                detailArgs: [Int(input.petSafeZoneCoverageRatio * 100)],
                 suggestionKey: "redpacket.quality.composition.safezone"
             )
         }
@@ -371,7 +385,7 @@ public enum RedPacketQualityLogic {
         return RedPacketQualityItem(
             dimension: .composition,
             level: .pass,
-            detail: "构图良好",
+            detailKey: "redpacket.quality.composition.pass.detail",
             suggestionKey: ""
         )
     }
@@ -384,7 +398,7 @@ public enum RedPacketQualityLogic {
             return RedPacketQualityItem(
                 dimension: .cutout,
                 level: .error,
-                detail: "尚未获得有效抠图蒙版，请重新抠图",
+                detailKey: "redpacket.quality.cutout.unavailable.detail",
                 suggestionKey: "redpacket.quality.cutout.unavailable"
             )
         }
@@ -393,7 +407,8 @@ public enum RedPacketQualityLogic {
             return RedPacketQualityItem(
                 dimension: .cutout,
                 level: .error,
-                detail: "识别到的主体过少（\(Int(input.cutoutForegroundRatio * 100))%），抠图可能失败",
+                detailKey: "redpacket.quality.cutout.retry.detail",
+                detailArgs: [Int(input.cutoutForegroundRatio * 100)],
                 suggestionKey: "redpacket.quality.cutout.retry"
             )
         }
@@ -402,7 +417,8 @@ public enum RedPacketQualityLogic {
             return RedPacketQualityItem(
                 dimension: .cutout,
                 level: .warning,
-                detail: "前景覆盖 \(Int(input.cutoutForegroundRatio * 100))%，可能混入较多背景",
+                detailKey: "redpacket.quality.cutout.background.detail",
+                detailArgs: [Int(input.cutoutForegroundRatio * 100)],
                 suggestionKey: "redpacket.quality.cutout.background"
             )
         }
@@ -411,7 +427,8 @@ public enum RedPacketQualityLogic {
             return RedPacketQualityItem(
                 dimension: .cutout,
                 level: .warning,
-                detail: "抠图包含较多零散区域（\(Int(input.cutoutFragmentationRatio * 100))%），建议重试",
+                detailKey: "redpacket.quality.cutout.fragmented.detail",
+                detailArgs: [Int(input.cutoutFragmentationRatio * 100)],
                 suggestionKey: "redpacket.quality.cutout.fragmented"
             )
         }
@@ -420,7 +437,8 @@ public enum RedPacketQualityLogic {
             return RedPacketQualityItem(
                 dimension: .cutout,
                 level: .warning,
-                detail: "主体与画面边缘接触较多（\(Int(input.cutoutBoundaryTouchRatio * 100))%），请确认耳朵或尾巴是否完整",
+                detailKey: "redpacket.quality.cutout.incomplete.detail",
+                detailArgs: [Int(input.cutoutBoundaryTouchRatio * 100)],
                 suggestionKey: "redpacket.quality.cutout.incomplete"
             )
         }
@@ -429,7 +447,8 @@ public enum RedPacketQualityLogic {
             return RedPacketQualityItem(
                 dimension: .cutout,
                 level: .warning,
-                detail: "抠图边缘较粗糙（破碎度 \(Int(input.cutoutEdgeRoughness * 100))%），建议重试",
+                detailKey: "redpacket.quality.cutout.rough.detail",
+                detailArgs: [Int(input.cutoutEdgeRoughness * 100)],
                 suggestionKey: "redpacket.quality.cutout.rough"
             )
         }
@@ -437,7 +456,7 @@ public enum RedPacketQualityLogic {
         return RedPacketQualityItem(
             dimension: .cutout,
             level: .pass,
-            detail: "抠图良好",
+            detailKey: "redpacket.quality.cutout.pass.detail",
             suggestionKey: ""
         )
     }
@@ -451,7 +470,7 @@ public enum RedPacketQualityLogic {
             return RedPacketQualityItem(
                 dimension: .readability,
                 level: .pass,
-                detail: "无文本内容",
+                detailKey: "redpacket.quality.readability.noText.detail",
                 suggestionKey: ""
             )
         }
@@ -461,7 +480,7 @@ public enum RedPacketQualityLogic {
             return RedPacketQualityItem(
                 dimension: .readability,
                 level: .error,
-                detail: "文字位置在风险区内，红包场景中可能被遮挡",
+                detailKey: "redpacket.quality.readability.zone.detail",
                 suggestionKey: "redpacket.quality.readability.zone"
             )
         }
@@ -471,7 +490,7 @@ public enum RedPacketQualityLogic {
             return RedPacketQualityItem(
                 dimension: .readability,
                 level: .warning,
-                detail: "文字与背景对比度偏低，建议更换文字风格",
+                detailKey: "redpacket.quality.readability.contrast.detail",
                 suggestionKey: "redpacket.quality.readability.contrast"
             )
         }
@@ -479,7 +498,7 @@ public enum RedPacketQualityLogic {
         return RedPacketQualityItem(
             dimension: .readability,
             level: .pass,
-            detail: "文字可读性良好",
+            detailKey: "redpacket.quality.readability.pass.detail",
             suggestionKey: ""
         )
     }

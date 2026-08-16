@@ -35,6 +35,7 @@ OUT = OUT_DIR / "global-localization.xlsx"
 XCSTRINGS = [
     ROOT / "MiLens" / "Resources" / "Localizable.xcstrings",
     ROOT / "MiLens" / "Resources" / "InfoPlist.xcstrings",
+    ROOT / "MiLensWidget" / "Localizable.xcstrings",
 ]
 
 # 首发 6 种非源语言（源语言 zh-Hans 固定第一列）
@@ -70,7 +71,7 @@ def sheet_from_xcstrings(wb: Workbook, path: Path) -> None:
     source = obj.get("sourceLanguage", "")
     langs = [source] + [x for x in LANGS if x != source]
 
-    ws = wb.create_sheet(title=path.stem)
+    ws = wb.create_sheet(title=loc.sheet_name_for(path, XCSTRINGS))
     header = ["key", "variation", "comment", "source_" + source]
     for lang in langs:
         if lang == source:

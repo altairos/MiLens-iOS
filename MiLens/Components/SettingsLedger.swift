@@ -391,7 +391,7 @@ struct SettingsFooter: View {
                 }
                 LedgerRow(index: "02", label: "外观") {
                     HStack(spacing: 6) {
-                        Text("跟随系统")
+                        Text(String(localized: "settings.appearance.system"))
                             .font(.bodySecondary)
                             .foregroundStyle(Color.milensTextSecondary)
                         Image(systemName: "chevron.right")

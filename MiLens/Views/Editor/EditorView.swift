@@ -45,37 +45,37 @@ struct EditorView: View {
             if shouldDismiss { dismiss() }
         }
         .confirmationDialog(
-            "保存编辑？",
+            String(localized: "editor.exit.dialog.saveTitle"),
             isPresented: Binding(
                 get: { vm.showSaveChoice },
                 set: { if !$0 { vm.dismissSaveChoice() } }
             ),
             titleVisibility: .visible
         ) {
-            Button("保存并退出") { Task { await vm.saveAndBack() } }
-            Button("仅保存") { Task { await vm.save() } }
-            Button("取消", role: .cancel) { vm.dismissSaveChoice() }
+            Button(String(localized: "editor.exit.saveAndQuit")) { Task { await vm.saveAndBack() } }
+            Button(String(localized: "editor.exit.saveOnly")) { Task { await vm.save() } }
+            Button(String(localized: "common.cancel"), role: .cancel) { vm.dismissSaveChoice() }
         }
         .confirmationDialog(
-            "有未保存的修改",
+            String(localized: "editor.exit.dialog.unsavedTitle"),
             isPresented: Binding(
                 get: { vm.showBackConfirm },
                 set: { if !$0 { vm.dismissBackConfirm() } }
             ),
             titleVisibility: .visible
         ) {
-            Button("保存并退出") { Task { await vm.saveAndBack() } }
-            Button("放弃修改", role: .destructive) { vm.discardAndBack() }
-            Button("取消", role: .cancel) { vm.dismissBackConfirm() }
+            Button(String(localized: "editor.exit.saveAndQuit")) { Task { await vm.saveAndBack() } }
+            Button(String(localized: "pet.edit.unsaved.discard"), role: .destructive) { vm.discardAndBack() }
+            Button(String(localized: "common.cancel"), role: .cancel) { vm.dismissBackConfirm() }
         }
         .alert(
-            "无法继续",
+            String(localized: "editor.error.title"),
             isPresented: Binding(
                 get: { vm.errorMessage != nil },
                 set: { if !$0 { vm.dismissError() } }
             )
         ) {
-            Button("好", role: .cancel) { vm.dismissError() }
+            Button(String(localized: "common.ok"), role: .cancel) { vm.dismissError() }
         } message: {
             Text(vm.errorMessage ?? "")
         }

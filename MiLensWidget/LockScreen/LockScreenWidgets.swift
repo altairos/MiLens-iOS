@@ -124,8 +124,8 @@ struct LockScreenCircularWidget: Widget {
             LockScreenCircularView(entry: entry)
                 .containerBackground(.background, for: .widget)
         }
-        .configurationDisplayName("倒计时")
-        .description("指定一个纪念日的倒计时，或自动取最近的一个")
+        .configurationDisplayName("widget.lockscreen.countdown.name")
+        .description("widget.upcoming.description")
         .supportedFamilies([.accessoryCircular])
     }
 }
@@ -157,7 +157,7 @@ struct LockScreenCircularView: View {
                         .minimumScaleFactor(0.6)
                         .lineLimit(1)
                     if selection.daysUntil > 0 {
-                        Text("天后")
+                        Text("widget.common.daysLater")
                             .font(.system(size: 9, weight: .regular))
                             .opacity(0.7)
                     }
@@ -173,7 +173,7 @@ struct LockScreenCircularView: View {
     }
 
     private func countdownText(_ selection: UpcomingDaySelection) -> String {
-        selection.daysUntil == 0 ? "今天" : "\(selection.daysUntil)"
+        selection.daysUntil == 0 ? String(localized: "widget.common.today") : "\(selection.daysUntil)"
     }
 
     /// 点击深链：指定命中时携带纪念日定位（anniversary），自动/回退时跳伙伴档案（pet）。
@@ -198,8 +198,8 @@ struct LockScreenRectangularWidget: Widget {
             LockScreenRectangularView(entry: entry)
                 .containerBackground(.background, for: .widget)
         }
-        .configurationDisplayName("一段回忆")
-        .description("宠物名与一段回忆的日期和标题")
+        .configurationDisplayName("widget.lockscreen.memory.name")
+        .description("widget.lockscreen.memory.description")
         .supportedFamilies([.accessoryRectangular])
     }
 }
@@ -231,7 +231,9 @@ struct LockScreenRectangularView: View {
                 Image(systemName: "pawprint")
                     .font(.system(size: 13))
                     .opacity(0.6)
-                Text(entry.snapshot?.pets.isEmpty ?? true ? "建档" : "待记录")
+                Text(entry.snapshot?.pets.isEmpty ?? true
+                     ? String(localized: "widget.lockscreen.memory.createFile")
+                     : String(localized: "widget.lockscreen.memory.pending"))
                     .font(.system(size: 12))
                     .opacity(0.6)
             }
@@ -250,8 +252,8 @@ struct LockScreenRectangularView: View {
     /// 副标题：倒计时 + 纪念日标题。
     private func rectangularSubtitle(_ selection: UpcomingDaySelection) -> String {
         let prefix = selection.daysUntil == 0
-            ? "今天"
-            : "\(selection.daysUntil) 天后"
-        return "\(prefix) · \(selection.day.title)"
+            ? String(localized: "widget.common.today")
+            : String(localized: "widget.common.daysLaterCount \(selection.daysUntil)")
+        return String(localized: "widget.common.join \(prefix) \(selection.day.title)")
     }
 }

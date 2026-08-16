@@ -43,9 +43,9 @@ struct OnboardingFeatureRegisterStep: View {
         ScrollView {
             VStack(alignment: .leading, spacing: 0) {
                 EditorialSection(
-                    overline: "FEATURE REGISTER · 8—15 张",
-                    title: "用 8–15 张照片，\n建立特征基准",
-                    bodyText: "选择清晰、角度不同、只包含\(viewModel.petName)的照片；\n所有处理都在本机完成。",
+                    overline: viewModel.stepOverline,
+                    title: String(localized: "onboarding.feature.intro.title"),
+                    bodyText: String(localized: "onboarding.feature.intro.body \(viewModel.petName)"),
                     trailing: AnyView(
                         VStack(alignment: .trailing, spacing: 0) {
                             Text("\(loadedImageDatas.count)")
@@ -86,8 +86,9 @@ struct OnboardingFeatureRegisterStep: View {
                              maxSelectionCount: PetFormConstants.maxRegistrationPhotos,
                              matching: .images) {
                     HStack {
-                        Text(loadedImageDatas.isEmpty ? "选择 8–15 张照片"
-                             : "重新选择（已选 \(loadedImageDatas.count) 张）")
+                        Text(loadedImageDatas.isEmpty
+                             ? String(localized: "onboarding.feature.select")
+                             : String(localized: "onboarding.feature.reselect \(loadedImageDatas.count)"))
                             .font(.buttonLabel)
                             .foregroundStyle(Color.milensActionPrimary)
                         Spacer()
@@ -111,7 +112,7 @@ struct OnboardingFeatureRegisterStep: View {
                 // Focus Dial（选满下限后显示）
                 if loadedImageDatas.count >= PetFormConstants.minRegistrationPhotos {
                     FocusDialButton(
-                        label: "建立特征基准",
+                        label: String(localized: "onboarding.feature.cta"),
                         systemImage: "checkmark"
                     ) {
                         startRegistration()
@@ -152,7 +153,7 @@ struct OnboardingFeatureRegisterStep: View {
                             .foregroundStyle(Color.milensActionPrimary)
                         Spacer()
                         VStack(alignment: .trailing, spacing: 0) {
-                            Text("特征基准")
+                            Text(String(localized: "onboarding.feature.badge"))
                                 .font(.bodySecondary)
                                 .foregroundStyle(Color.milensTextSecondary)
                             Rectangle()
@@ -197,9 +198,15 @@ struct OnboardingFeatureRegisterStep: View {
     private var guidanceCard: some View {
         EditorialCard(cornerRadius: Radius.medium) {
             VStack(alignment: .leading, spacing: 0) {
-                guidanceRow(number: "01", title: "清晰可见", subtitle: "避免严重模糊或遮挡", isLast: false)
-                guidanceRow(number: "02", title: "角度有变化", subtitle: "正面、侧面与全身照", isLast: false)
-                guidanceRow(number: "03", title: "只包含\(viewModel.petName)", subtitle: "减少其他动物干扰", isLast: true)
+                guidanceRow(number: "01",
+                            title: String(localized: "onboarding.feature.guidance.clarity"),
+                            subtitle: String(localized: "onboarding.feature.guidance.clarity.detail"), isLast: false)
+                guidanceRow(number: "02",
+                            title: String(localized: "onboarding.feature.guidance.angle"),
+                            subtitle: String(localized: "onboarding.feature.guidance.angle.detail"), isLast: false)
+                guidanceRow(number: "03",
+                            title: String(localized: "onboarding.feature.guidance.single \(viewModel.petName)"),
+                            subtitle: String(localized: "onboarding.feature.guidance.single.detail"), isLast: true)
             }
             .padding(.leading, 14)
             .padding(.trailing, 16)
@@ -239,10 +246,10 @@ struct OnboardingFeatureRegisterStep: View {
                 .fill(Color.milensActionPrimary)
                 .frame(width: 2)
             VStack(alignment: .leading, spacing: 2) {
-                Text("\(loadedImageDatas.count) 张已准备好")
+                Text(String(localized: "onboarding.feature.ready \(loadedImageDatas.count)"))
                     .font(.uiBodyStrong)
                     .foregroundStyle(Color.milensActionPrimary)
-                Text("只用来建立\(viewModel.petName)的本机特征基准。")
+                Text(String(localized: "onboarding.feature.ready.note \(viewModel.petName)"))
                     .font(.bodySecondary)
                     .foregroundStyle(Color.milensTextSecondary)
             }
@@ -261,9 +268,9 @@ struct OnboardingFeatureRegisterStep: View {
         ScrollView {
             VStack(alignment: .leading, spacing: 0) {
                 EditorialSection(
-                    overline: "FEATURE REGISTER · 本机处理",
-                    title: "正在本机建立\n\(viewModel.petName)的特征基准",
-                    bodyText: "将 \(loadedImageDatas.count) 张照片汇总为比较基准；\n不会上传，也不会在此时扫描图库。"
+                    overline: viewModel.stepOverline,
+                    title: String(localized: "onboarding.feature.processing.title \(viewModel.petName)"),
+                    bodyText: String(localized: "onboarding.feature.processing.body \(loadedImageDatas.count)")
                 )
 
                 // Lens 卡片（虚线轨道圆 + 百分比）
@@ -280,7 +287,7 @@ struct OnboardingFeatureRegisterStep: View {
 
                 // Focus Dial disabled
                 FocusDialButton(
-                    label: "正在建立基准…",
+                    label: String(localized: "onboarding.feature.processing.cta"),
                     systemImage: "ellipsis",
                     isEnabled: false
                 ) {}
@@ -321,7 +328,7 @@ struct OnboardingFeatureRegisterStep: View {
                 .frame(height: 200)
                 .padding(.top, 22)
 
-                Text("正在汇总特征基准")
+                Text(String(localized: "onboarding.feature.processing.status"))
                     .font(.bodySecondary)
                     .foregroundStyle(Color.milensTextSecondary)
                     .padding(.bottom, 22)
@@ -353,11 +360,14 @@ struct OnboardingFeatureRegisterStep: View {
         EditorialCard(cornerRadius: Radius.medium) {
             VStack(alignment: .leading, spacing: 0) {
                 let pct = viewModel.featureRegisterPercent
-                stageRow(title: "检查照片质量", status: pct > 0.33 ? "已完成" : "进行中",
+                stageRow(title: String(localized: "onboarding.feature.stage.quality"),
+                         status: pct > 0.33 ? String(localized: "onboarding.status.done") : String(localized: "onboarding.status.inProgress"),
                          isActive: pct <= 0.33, isLast: false)
-                stageRow(title: "提取本机特征", status: pct > 0.66 ? "已完成" : (pct > 0.33 ? "进行中" : "稍后"),
+                stageRow(title: String(localized: "onboarding.feature.stage.extract"),
+                         status: pct > 0.66 ? String(localized: "onboarding.status.done") : (pct > 0.33 ? String(localized: "onboarding.status.inProgress") : String(localized: "onboarding.status.later")),
                          isActive: pct > 0.33 && pct <= 0.66, isLast: false)
-                stageRow(title: "汇总为\(viewModel.petName)的基准", status: pct >= 1 ? "已完成" : (pct > 0.66 ? "进行中" : "稍后"),
+                stageRow(title: String(localized: "onboarding.feature.stage.summarize \(viewModel.petName)"),
+                         status: pct >= 1 ? String(localized: "onboarding.status.done") : (pct > 0.66 ? String(localized: "onboarding.status.inProgress") : String(localized: "onboarding.status.later")),
                          isActive: pct > 0.66, isLast: true)
             }
             .padding(.leading, 14)
@@ -367,10 +377,13 @@ struct OnboardingFeatureRegisterStep: View {
     }
 
     private func stageRow(title: String, status: String, isActive: Bool, isLast: Bool) -> some View {
+        // status 与调用方共用同一 onboarding.status.done key：同 locale 下解析结果
+        // 相等，保留字符串比较即可判定“已完成”看色。
+        let isDone = status == String(localized: "onboarding.status.done")
         VStack(alignment: .leading, spacing: 0) {
             HStack(spacing: 8) {
                 Circle()
-                    .fill(status == "已完成" ? Color.milensActionPrimary
+                    .fill(isDone ? Color.milensActionPrimary
                           : (isActive ? Color.milensPrimary : Color.milensSeparator))
                     .frame(width: 8, height: 8)
                 Text(title)
@@ -379,7 +392,7 @@ struct OnboardingFeatureRegisterStep: View {
                 Spacer()
                 Text(status)
                     .font(.bodySecondary)
-                    .foregroundStyle(status == "已完成" ? Color.milensActionPrimary
+                    .foregroundStyle(isDone ? Color.milensActionPrimary
                                      : (isActive ? Color.milensActionPrimary : Color.milensTextSecondary))
             }
             .padding(.vertical, 14)
@@ -395,9 +408,9 @@ struct OnboardingFeatureRegisterStep: View {
         ScrollView {
             VStack(alignment: .leading, spacing: 0) {
                 EditorialSection(
-                    overline: "FEATURE REGISTER · 已建立",
-                    title: "\(viewModel.petName)的特征基准，\n已经建立",
-                    bodyText: "现在「咪Lens」有了进行相似度比较的基准；\n候选仍不等于确定识别。"
+                    overline: viewModel.stepOverline,
+                    title: String(localized: "onboarding.feature.done.title \(viewModel.petName)"),
+                    bodyText: String(localized: "onboarding.feature.done.body")
                 )
 
                 // Feature Seal 卡片
@@ -409,7 +422,7 @@ struct OnboardingFeatureRegisterStep: View {
                     .padding(.top, Spacing.lg)
 
                 // ContactProofButton「允许扫描系统图库」
-                ContactProofButton(label: "允许扫描系统图库") {
+                ContactProofButton(label: String(localized: "onboarding.feature.done.cta")) {
                     viewModel.proceedToFullScan()
                 }
                 .padding(.top, Spacing.xxl)
@@ -432,16 +445,16 @@ struct OnboardingFeatureRegisterStep: View {
                     .frame(width: 132, height: 166)
 
                 VStack(alignment: .leading, spacing: 6) {
-                    Text("FEATURE BASELINE")
+                    Text(String(localized: "onboarding.feature.baseline"))
                         .font(.bodySecondary)
                         .foregroundStyle(Color.milensTextSecondary)
                     Text(viewModel.petName)
                         .font(.uiTitle)
                         .foregroundStyle(Color.milensTextPrimary)
-                    Text("\(loadedImageDatas.count) 张注册照片")
+                    Text(String(localized: "onboarding.feature.done.count \(loadedImageDatas.count)"))
                         .font(.uiBodyStrong)
                         .foregroundStyle(Color.milensTextPrimary)
-                    Text("仅保存在本机")
+                    Text(String(localized: "onboarding.feature.done.localOnly"))
                         .font(.bodySecondary)
                         .foregroundStyle(Color.milensTextSecondary)
                     HStack {
@@ -481,13 +494,13 @@ struct OnboardingFeatureRegisterStep: View {
                 .fill(Color.milensActionPrimary)
                 .frame(width: 2)
             VStack(alignment: .leading, spacing: 4) {
-                Text("下一步：全面扫描系统图库")
+                Text(String(localized: "onboarding.feature.done.next.title"))
                     .font(.uiBodyStrong)
                     .foregroundStyle(Color.milensTextPrimary)
-                Text("需要在系统面板允许访问全部照片。\n扫描只会生成候选，不会自动导入。")
+                Text(String(localized: "onboarding.feature.done.next.body"))
                     .font(.bodyPrimary)
                     .foregroundStyle(Color.milensTextSecondary)
-                Text("你仍可随时停止扫描或撤回权限。")
+                Text(String(localized: "onboarding.feature.done.next.note"))
                     .font(.bodySecondary)
                     .foregroundStyle(Color.milensTextSecondary)
                     .padding(.top, 4)

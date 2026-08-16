@@ -38,18 +38,18 @@ enum PetProfileLogic {
     // ─── 校验 ───
 
     /// 校验新宠物名称。返回 nil 表示通过，否则返回错误文案（对应源端 validateNewPetName）。
-    static func validateNewPetName(_ name: String) -> String? {
+    static func validateNewPetName(_ name: String, locale: Locale = .current) -> String? {
         if name.trimmingCharacters(in: .whitespaces).isEmpty {
-            return "请输入宠物名字"
+            return String(localized: "pet.form.name.required", locale: locale)
         }
         return nil
     }
 
     /// 检查宠物数量是否已达上限（对应源端 checkPetCountLimit）。
     /// 返回 nil 表示通过，否则返回错误文案。
-    static func checkPetCountLimit(currentCount: Int, maxPets: Int = PetProfileConstants.maxPets) -> String? {
+    static func checkPetCountLimit(currentCount: Int, maxPets: Int = PetProfileConstants.maxPets, locale: Locale = .current) -> String? {
         if currentCount >= maxPets {
-            return "最多支持管理 \(maxPets) 只伙伴"
+            return String(localized: "pet.form.countLimit \(maxPets)", locale: locale)
         }
         return nil
     }

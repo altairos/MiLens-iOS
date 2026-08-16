@@ -259,19 +259,20 @@ final class BusinessCardMilensIDTests: XCTestCase {
 
 final class BusinessCardPresetTagsTests: XCTestCase {
 
-    func testAvailableTagsNotEmpty() {
-        XCTAssertFalse(PetBusinessCardLogic.availableTags.isEmpty)
+    func testAvailableTagKeysNotEmpty() {
+        XCTAssertFalse(PetBusinessCardLogic.availableTagKeys.isEmpty)
     }
 
-    func testAllPresetTagsPassValidation() {
-        for tag in PetBusinessCardLogic.availableTags {
-            XCTAssertTrue(PetBusinessCardLogic.validateTag(tag), "预设标签「\(tag)」未通过自身校验")
+    func testAvailableTagKeysAreUnique() {
+        let keys = PetBusinessCardLogic.availableTagKeys
+        XCTAssertEqual(Set(keys).count, keys.count, "预设标签 key 不应重复")
+    }
+
+    func testAvailableTagKeysUseCanonicalPrefix() {
+        // Kit 只守护 key 规范；展示串由 App 层查 Localizable.xcstrings 解析
+        for key in PetBusinessCardLogic.availableTagKeys {
+            XCTAssertTrue(key.hasPrefix("businesscard.tag."), "预设标签 key「\(key)」缺少规范前缀")
         }
-    }
-
-    func testAvailableTagsAreUnique() {
-        let tags = PetBusinessCardLogic.availableTags
-        XCTAssertEqual(Set(tags).count, tags.count, "预设标签不应重复")
     }
 }
 

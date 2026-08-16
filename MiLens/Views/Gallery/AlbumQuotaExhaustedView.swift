@@ -39,7 +39,7 @@ struct AlbumQuotaExhaustedView: View {
                 .frame(width: 3)
 
             VStack(alignment: .leading, spacing: 0) {
-                Text("免费照片额度")
+                Text(String(localized: "album.quota.mark"))
                     .font(.custom("JacquesFrancois-Regular", size: 10))
                     .tracking(0.4)
                     .foregroundStyle(Color.milensActionPrimary)
@@ -55,12 +55,12 @@ struct AlbumQuotaExhaustedView: View {
                 }
                 .padding(.top, 18)
 
-                Text("已全部使用")
+                Text(String(localized: "album.quota.usedUp"))
                     .font(.uiBodyStrong)
                     .foregroundStyle(Color.milensTextPrimary)
                     .padding(.top, 18)
 
-                Text("现有档案仍在设备上")
+                Text(String(localized: "album.quota.existingKept"))
                     .font(.bodySecondary)
                     .foregroundStyle(Color.milensTextSecondary)
                     .padding(.top, 2)
@@ -110,10 +110,10 @@ struct AlbumQuotaExhaustedView: View {
 
     private var titleSection: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text("免费 \(CommercialRules.freePhotoLimit) 张额度已用完")
+            Text(String(localized: "album.quota.title \(CommercialRules.freePhotoLimit)"))
                 .font(.custom("LXGWWenKai-Regular", size: 28, relativeTo: .title2))
                 .foregroundStyle(Color.milensTextPrimary)
-            Text("升级后可以继续导入；不升级也不会影响已经保存的内容。")
+            Text(String(localized: "album.quota.subtitle"))
                 .font(.bodySecondary)
                 .foregroundStyle(Color.milensTextSecondary)
                 .fixedSize(horizontal: false, vertical: true)
@@ -124,7 +124,7 @@ struct AlbumQuotaExhaustedView: View {
 
     private var resilienceRegister: some View {
         VStack(alignment: .leading, spacing: 0) {
-            Text("RESILIENCE / LOCAL")
+            Text(String(localized: "gallery.quota.resilienceMark"))
                 .font(.custom("JacquesFrancois-Regular", size: 10))
                 .tracking(0.4)
                 .foregroundStyle(Color.milensActionPrimary)
@@ -138,22 +138,22 @@ struct AlbumQuotaExhaustedView: View {
 
             resilienceRow(
                 index: "01",
-                title: "现有档案保持原样",
-                desc: "不会删除、压缩或移动已有照片"
+                title: String(localized: "album.quota.resilience1.title"),
+                desc: String(localized: "album.quota.resilience1.desc")
             )
             divider
 
             resilienceRow(
                 index: "02",
-                title: "继续由你确认归属",
-                desc: "候选照片不会自动写入任何伙伴档案"
+                title: String(localized: "album.quota.resilience2.title"),
+                desc: String(localized: "album.quota.resilience2.desc")
             )
             divider
 
             resilienceRow(
                 index: "03",
-                title: "升级信息来自 App Store",
-                desc: "方案与实际价格在购买前显示"
+                title: String(localized: "album.quota.resilience3.title"),
+                desc: String(localized: "album.quota.resilience3.desc")
             )
         }
     }
@@ -191,7 +191,7 @@ struct AlbumQuotaExhaustedView: View {
                 showPaywall = true
             } label: {
                 HStack {
-                    Text("查看 MiLens Pro")
+                    Text(String(localized: "album.quota.viewPro"))
                         .font(.buttonLabel)
                         .foregroundStyle(Color.milensActionPrimary)
                     Spacer()
@@ -212,7 +212,7 @@ struct AlbumQuotaExhaustedView: View {
             }
             .buttonStyle(.plain)
 
-            Button("暂不升级") {
+            Button(String(localized: "album.quota.later")) {
                 onDismiss()
             }
             .font(.bodySecondary)

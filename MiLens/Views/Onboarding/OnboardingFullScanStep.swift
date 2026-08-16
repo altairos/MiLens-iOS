@@ -14,10 +14,10 @@ struct OnboardingFullScanStep: View {
         ScrollView {
             VStack(alignment: .leading, spacing: 0) {
                 EditorialSection(
-                    overline: "LOCAL SCAN · 特征基准已就绪",
-                    title: viewModel.isScanning ? "正在全面扫描\n系统图库" : scanCompleteTitle,
+                    overline: viewModel.stepOverline,
+                    title: viewModel.isScanning ? String(localized: "onboarding.scan.title") : scanCompleteTitle,
                     bodyText: viewModel.isScanning
-                        ? "正在以\(viewModel.petName)的特征基准进行比较；\n发现的内容仍需要你逐张确认。"
+                        ? String(localized: "onboarding.scan.body \(viewModel.petName)")
                         : scanCompleteBody
                 )
 
@@ -45,23 +45,23 @@ struct OnboardingFullScanStep: View {
 
                 // 主操作
                 if viewModel.isScanning {
-                    ContactProofButton(label: "正在全面扫描…", isEnabled: false) {}
+                    ContactProofButton(label: String(localized: "onboarding.scan.scanning"), isEnabled: false) {}
                         .padding(.top, Spacing.xxl)
                 } else if viewModel.scanCompleted && !viewModel.scanError.isEmpty {
                     // 失败：允许跳过
-                    ContactProofButton(label: "跳过扫描，继续") {
+                    ContactProofButton(label: String(localized: "onboarding.scan.skip")) {
                         viewModel.skipScan()
                         viewModel.goToNextStep()
                     }
                     .padding(.top, Spacing.xxl)
                 } else if viewModel.scanCompleted && viewModel.scanFoundCount > 0 {
-                    ContactProofButton(label: "查看 \(viewModel.scanFoundCount) 张候选") {
+                    ContactProofButton(label: String(localized: "onboarding.scan.viewCandidates \(viewModel.scanFoundCount)")) {
                         viewModel.goToNextStep()
                     }
                     .padding(.top, Spacing.xxl)
                 } else {
                     // 无候选：直接完成
-                    ContactProofButton(label: "完成引导") {
+                    ContactProofButton(label: String(localized: "onboarding.scan.finish")) {
                         viewModel.finish()
                     }
                     .padding(.top, Spacing.xxl)
@@ -75,17 +75,17 @@ struct OnboardingFullScanStep: View {
     }
 
     private var scanCompleteTitle: String {
-        if !viewModel.scanError.isEmpty { return "扫描暂时没完成" }
-        return "扫描完成"
+        if !viewModel.scanError.isEmpty { return String(localized: "onboarding.scan.incomplete") }
+        return String(localized: "onboarding.scan.complete")
     }
 
     private var scanCompleteBody: String {
         if !viewModel.scanError.isEmpty {
-            return "你可以跳过扫描，稍后在相册页随时开始。"
+            return String(localized: "onboarding.scan.incomplete.hint")
         }
         return viewModel.scanFoundCount > 0
-            ? "发现 \(viewModel.scanFoundCount) 张可能包含\(viewModel.petName)的照片，\n需要你逐张确认。"
-            : "没有发现可能包含\(viewModel.petName)的照片，\n你仍可以手动导入。"
+            ? String(localized: "onboarding.scan.found \(viewModel.scanFoundCount) \(viewModel.petName)")
+            : String(localized: "onboarding.scan.none \(viewModel.petName)")
     }
 
     // MARK: - Viewfinder 卡片（对照 #47:9 Scan / Viewfinder）
@@ -122,7 +122,9 @@ struct OnboardingFullScanStep: View {
                 Circle()
                     .fill(Color.milensPrimary)
                     .frame(width: 9, height: 9)
-                Text(viewModel.isScanning ? "本机扫描 · 正在比较" : "本机扫描 · 已完成")
+                Text(viewModel.isScanning
+                     ? String(localized: "onboarding.scan.status.comparing")
+                     : String(localized: "onboarding.scan.status.completed"))
                     .font(.uiBodyStrong)
                     .foregroundStyle(Color.milensTextPrimary)
                 Spacer()
@@ -144,10 +146,10 @@ struct OnboardingFullScanStep: View {
         EditorialCard(cornerRadius: Radius.medium) {
             HStack(spacing: 0) {
                 VStack(alignment: .leading, spacing: 4) {
-                    Text("当前相似候选")
+                    Text(String(localized: "onboarding.scan.candidates.title"))
                         .font(.uiBodyStrong)
                         .foregroundStyle(Color.milensTextPrimary)
-                    Text("扫描完成后由你确认")
+                    Text(String(localized: "onboarding.scan.candidates.hint"))
                         .font(.bodySecondary)
                         .foregroundStyle(Color.milensTextSecondary)
                 }
@@ -155,7 +157,7 @@ struct OnboardingFullScanStep: View {
                 Text("\(viewModel.scanFoundCount)")
                     .font(.numberStat)
                     .foregroundStyle(Color.milensActionPrimary)
-                Text("张")
+                Text(String(localized: "onboarding.scan.unit"))
                     .font(.bodySecondary)
                     .foregroundStyle(Color.milensTextSecondary)
                     .padding(.leading, 2)
@@ -174,11 +176,13 @@ struct OnboardingFullScanStep: View {
                 .fill(Color.milensActionPrimary)
                 .frame(width: 2)
             HStack {
-                Text("读取系统图库缩略图")
+                Text(String(localized: "onboarding.scan.stage.thumbnails"))
                     .font(.uiBodyStrong)
                     .foregroundStyle(Color.milensTextPrimary)
                 Spacer()
-                Text(viewModel.isScanning ? "进行中" : "已完成")
+                Text(viewModel.isScanning
+                     ? String(localized: "onboarding.status.inProgress")
+                     : String(localized: "onboarding.status.done"))
                     .font(.bodySecondary)
                     .foregroundStyle(viewModel.isScanning ? Color.milensActionPrimary : Color.milensTextSecondary)
             }

@@ -107,8 +107,8 @@ struct UpcomingDayWidget: Widget {
         ) { entry in
             UpcomingDayWidgetView(entry: entry)
         }
-        .configurationDisplayName("纪念日")
-        .description("指定一个纪念日的倒计时，或自动取最近的一个")
+        .configurationDisplayName("widget.upcoming.name")
+        .description("widget.upcoming.description")
         .supportedFamilies([.systemSmall, .systemMedium])
     }
 }
@@ -136,10 +136,12 @@ struct UpcomingDayWidgetView: View {
     /// empty 状态文案：用户指定过的纪念日被删除且无候选回退时，提示「该纪念日已不存在」。
     private var emptyMessage: String {
         if entry.specifiedDayMissing {
-            return "该纪念日已不存在"
+            return String(localized: "widget.upcoming.empty.missing")
         }
         let hasPets = !(entry.snapshot?.pets.isEmpty ?? true)
-        return hasPets ? "还没有纪念日" : "先建立一份伙伴档案"
+        return hasPets
+            ? String(localized: "widget.upcoming.empty.none")
+            : String(localized: "widget.empty.createPetFirst")
     }
 
     // ViewBuilder 不支持 guard 语句（首次编译暴露）：改用 if let / else，
@@ -188,7 +190,7 @@ struct UpcomingDaySmallView: View {
                     .foregroundStyle(WidgetPalette.secondary)
                     .lineLimit(2)
                 if selection.daysUntil == 0 {
-                    Text("今天是这个日子")
+                    Text("widget.upcoming.today")
                         .font(WidgetFont.registryCaption)
                         .foregroundStyle(WidgetPalette.copper)
                 }
@@ -210,7 +212,7 @@ struct UpcomingDaySmallView: View {
     }
 
     private var countdownText: String {
-        selection.daysUntil == 0 ? "今天" : "\(selection.daysUntil)"
+        selection.daysUntil == 0 ? String(localized: "widget.common.today") : "\(selection.daysUntil)"
     }
 
     private var countdownFont: Font {
@@ -275,7 +277,7 @@ struct UpcomingDayMediumView: View {
                             .font(WidgetFont.editorialLarge)
                             .foregroundStyle(WidgetPalette.ink)
                         if selection.daysUntil > 0 {
-                            Text("天后")
+                            Text("widget.common.daysLater")
                                 .font(WidgetFont.bodySecondary)
                                 .foregroundStyle(WidgetPalette.secondary)
                         }
@@ -304,7 +306,7 @@ struct UpcomingDayMediumView: View {
     }
 
     private var countdownText: String {
-        selection.daysUntil == 0 ? "今天" : "\(selection.daysUntil)"
+        selection.daysUntil == 0 ? String(localized: "widget.common.today") : "\(selection.daysUntil)"
     }
 
     /// 点击深链：指定命中时携带纪念日定位（anniversary），自动/回退时跳伙伴档案（pet）。
@@ -325,7 +327,7 @@ struct UpcomingDayMediumView: View {
                 .fill(WidgetPalette.copperDeep.opacity(0.4))
                 .frame(height: 1.5)
                 .frame(maxWidth: .infinity)
-            Text("还有 \(selection.daysUntil) 天")
+            Text("widget.upcoming.remainingDays \(selection.daysUntil)")
                 .font(WidgetFont.registryCaption)
                 .foregroundStyle(WidgetPalette.tertiary)
         }
@@ -334,9 +336,9 @@ struct UpcomingDayMediumView: View {
     /// 根据来源类型使用不同文案语义。
     private var daysTogetherLabel: String {
         switch selection.day.kind {
-        case .birthday: return "出生至今 \(selection.daysTogether) 天"
-        case .adoption: return "已陪伴 \(selection.daysTogether) 天"
-        case .memorial: return "已记录 \(selection.daysTogether) 天"
+        case .birthday: return String(localized: "widget.upcoming.daysTogether.birthday \(selection.daysTogether)")
+        case .adoption: return String(localized: "widget.upcoming.daysTogether.adoption \(selection.daysTogether)")
+        case .memorial: return String(localized: "widget.upcoming.daysTogether.memorial \(selection.daysTogether)")
         }
     }
 }

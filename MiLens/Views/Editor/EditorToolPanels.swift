@@ -152,7 +152,7 @@ struct EditorCropPanelView: View {
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 0) {
                     ForEach(labels.indices, id: \.self) { index in
-                        ratioSlot(index: index, label: labels[index])
+                        ratioSlot(index: index, label: localizedRatioLabel(labels[index]))
                     }
                 }
                 .padding(.horizontal, Spacing.lg)
@@ -170,9 +170,9 @@ struct EditorCropPanelView: View {
 
             // 确认/取消裁剪
             HStack(spacing: Spacing.md) {
-                Button("取消") { viewModel.cropVM.cancelCrop() }
+                Button(String(localized: "common.cancel")) { viewModel.cropVM.cancelCrop() }
                     .buttonStyle(EditorPanelButtonStyle(role: .secondary))
-                Button("确认") { viewModel.cropVM.confirmCrop() }
+                Button(String(localized: "common.confirm")) { viewModel.cropVM.confirmCrop() }
                     .buttonStyle(EditorPanelButtonStyle(role: .primary))
             }
             .padding(.horizontal, Spacing.lg)
@@ -180,6 +180,12 @@ struct EditorCropPanelView: View {
             .padding(.bottom, Spacing.sm)
         }
         .background(Color.milensBackground)
+    }
+
+    /// Kit 的 CROP_RATIOS label 与源端 parity（含「自由」），App 层渲染时映射为本地化文案，
+    /// 其余为数字形态（1:1 等）无需翻译。
+    private func localizedRatioLabel(_ label: String) -> String {
+        label == "自由" ? String(localized: "editor.crop.ratio.free") : label
     }
 
     /// 比例槽（文字 + 选中底部校准线），对照 Figma `Ratio Slot`。

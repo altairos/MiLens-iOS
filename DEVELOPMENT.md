@@ -294,14 +294,15 @@ UI 文案与 Info.plist 权限说明用 Apple String Catalog（`.xcstrings`）�
 
 - `MiLens/Resources/Localizable.xcstrings`——UI 文案（Tab 标题、占位说明等）。
 - `MiLens/Resources/InfoPlist.xcstrings`——权限说明、App 显示名。
-- 代码统一用 `String(localized: "key", comment: "...")`，不用 `NSLocalizedString`。
+- `MiLensWidget/Localizable.xcstrings`——Widget Extension 文案（47 个 `widget.*` 语义 key；2026-08-16 接入，桌面/锁屏/PhotoEcho/年轮/倒数日五族 widget 与 Intents 配置）。
+- 代码统一用 `String(localized: "key", comment: "...")`，不用 `NSLocalizedString`（Extension 内默认查自身 `.appex` bundle，无需显式 `bundle:`）。
 
 **新增语言步骤**：
 1. 在 `project.yml` 的 `knownRegions` 追加语言代码（如 `"en"`）。
-2. 导出待翻译 Excel：`python tools/localization.py export MiLens/Resources/Localizable.xcstrings MiLens/Resources/InfoPlist.xcstrings build/loc.xlsx --lang en`。
+2. 导出待翻译 Excel：`python tools/localization.py export MiLens/Resources/Localizable.xcstrings MiLens/Resources/InfoPlist.xcstrings MiLensWidget/Localizable.xcstrings build/loc.xlsx --lang en`。
 3. 翻译人员填写 Excel 中的 `en` 列。
 4. 导入回写（各 `.xcstrings` 分别执行）：`python tools/localization.py import build/loc.xlsx MiLens/Resources/Localizable.xcstrings --lang en`。
-5. 校验：`python tools/localization.py check MiLens/Resources/Localizable.xcstrings MiLens/Resources/InfoPlist.xcstrings --project-yml project.yml --source-root MiLens`。
+5. 校验：`python tools/localization.py check MiLens/Resources/Localizable.xcstrings MiLens/Resources/InfoPlist.xcstrings MiLensWidget/Localizable.xcstrings --project-yml project.yml --source-root MiLens --source-root MiLensWidget`。
 
 > 依赖 `openpyxl`（`pip install -r tools/requirements.txt`）。工具支持任意语言，不限于英文；check 可接入 CI。脚本入口已内置 `stdout` UTF-8 重配置——Windows 默认 GBK 控制台无需 `PYTHONUTF8=1` 即可输出 `−` 等 Unicode 字符（2026-08-09 评审修复）。
 
@@ -316,6 +317,10 @@ UI 文案与 Info.plist 权限说明用 Apple String Catalog（`.xcstrings`）�
 > 核心统计语义（`LangStatus`/`scan_statuses`）已从 GUI 下沉到 `localization.py`，CLI 与 GUI 共用。单测：`python tools/test_localization.py`（纯 stdlib，不依赖 openpyxl）。
 
 > **缺译降级放行（2026-08-15）**：`check` 新增 `--allow-missing-translations`——非源语言缺译降为警告并聚合输出（不逐行刷屏）。CI 已带此参数：7 语言 knownRegions 已定而 6 语言翻译未开始，缺译阻断会让 lint 作业挂掉并连带跳过 app 作业（`needs: [kit, lint]`）。`--strict`（发布门禁）下缺译仍阻断，不可被该参数绕过；翻译完成后从 CI 命令移除该参数（见 [Localization-Plan](docs/Localization-Plan.md) §6）。
+
+> **多 catalog × 多源码根（2026-08-16）**：`--source-root` 可重复传多个（App 与 Widget Extension 各自根）；每个 `Localizable` catalog 按「路径是哪个源码根的后代」配对各自代码做缺 key/多余 key 比对（无祖先匹配时对全部根并集），`widget.*` key 不会与 App 代码互报。export/import 遇到 App 与 Widget 同名 `Localizable.xcstrings` 时 Excel sheet 自动去歧义（`Resources.Localizable` / `MiLensWidget.Localizable`）；import 优先匹配裸 `Localizable`（兼容旧工作簿）。CLI / GUI / 资产工作簿 / CI lint 已全部同步。
+
+> **key 引用提取形态扩展（2026-08-16）**：`extract_code_keys` 在 `String(localized:)/NSLocalizedString` 之外新增两类口径——WidgetKit/AppIntents 配置面 API（`configurationDisplayName`/`.description`/`IntentDescription`/`@Parameter(title:)`/`LocalizedStringResource` 等赋值，参数类型即 key，无条件收）与 dotted key 形态的 `Text("...")`/`.case: "..."` 字典字面量（`LocalizedStringKey` 运行时查表，按 dotted 形态过滤防品牌/装饰文案误报；`switch` 映射 `case .xxx: "sf.symbol"` 是 SF Symbol 名，用 `(?<!case\s)` 排除）。消除 Widget catalog 缺 key 检测盲区，单测 38 用例；本地验证口径另带 `--hardcoded`（中文硬编码检测，D 类清收后纳入 CI）。
 
 **桌面 GUI（可选）**：`python tools/localization-gui.py` 启动 tkinter 本地化工作台——语言进度总览（7 语种实时统计）、缺译清单（双击复制 key）、一键完整 check / 导出 / 导入 / 生成资产工作簿 / 打开工作簿；任务在后台线程执行不冻结界面。无显示环境可用 `python tools/localization-gui.py --self-check` 做结构自检。GUI 复用 `localization.py` 与 `localization-assets.py` 的全部逻辑，不引入额外依赖。
 

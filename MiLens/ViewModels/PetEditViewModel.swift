@@ -135,7 +135,7 @@ final class PetEditViewModel {
     @discardableResult
     func save() -> Bool {
         guard let petID else {
-            errorMessage = "档案未加载"
+            errorMessage = String(localized: "pet.edit.notLoaded")
             return false
         }
         // 名称校验
@@ -178,7 +178,7 @@ final class PetEditViewModel {
             // 编辑宠物后刷新 Widget 快照（§6.1）
             WidgetReload.notifyDataChanged()
         } catch {
-            errorMessage = "保存失败，请重试"
+            errorMessage = String(localized: "pet.edit.saveFailed")
             isSaving = false
             return false
         }
@@ -194,11 +194,11 @@ final class PetEditViewModel {
         guard let petID, !isRegisteringFeatures else { return }
         // 数量校验（对应源端 resolveRegistrationValidation）
         if imageDatas.count < PetFormConstants.minRegistrationPhotos {
-            featureRegistrationMessage = "请至少选择 \(PetFormConstants.minRegistrationPhotos) 张照片"
+            featureRegistrationMessage = String(localized: "pet.edit.feature.minPhotos \(PetFormConstants.minRegistrationPhotos)")
             return
         }
         if imageDatas.count > PetFormConstants.maxRegistrationPhotos {
-            featureRegistrationMessage = "最多选择 \(PetFormConstants.maxRegistrationPhotos) 张照片"
+            featureRegistrationMessage = String(localized: "pet.edit.feature.maxPhotos \(PetFormConstants.maxRegistrationPhotos)")
             return
         }
         isRegisteringFeatures = true
@@ -215,9 +215,9 @@ final class PetEditViewModel {
             self.isRegisteringFeatures = false
             if ok {
                 self.featureRegistered = true
-                self.featureRegistrationMessage = "已注册 \(imageDatas.count) 张照片的视觉特征"
+                self.featureRegistrationMessage = String(localized: "pet.edit.feature.success \(imageDatas.count)")
             } else {
-                self.featureRegistrationMessage = "注册失败：\(matcher.lastRegisterDiagnostics)"
+                self.featureRegistrationMessage = String(localized: "pet.edit.feature.failed \(matcher.lastRegisterDiagnostics)")
             }
             self.featureTask = nil
         }

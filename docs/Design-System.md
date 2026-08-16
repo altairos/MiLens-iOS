@@ -46,7 +46,6 @@
 | `milensProCardDark` | `#14110F` | `#2A2520` | Pro Hero Card 背景 |
 | `milensProBody` | `#B5A89C` | — | Pro 卡辅文暖灰 |
 | `milensHeroGradientEnd` | `#060606` | — | 出血 Hero 底部渐变终点 |
-| `milensRedPacketRed` | `#D1291E` | — | 微信红包封面品牌红 |
 
 ### 2.3 编辑式 palette（`Color+Theme.swift` 内联常量）
 

@@ -138,10 +138,13 @@ public enum PetBusinessCardLogic {
 
     // MARK: - 预设标签
 
-    /// 预设性格标签候选（用户可从中选择，也可自定义）。
-    public static let availableTags: [String] = [
-        "活泼", "黏人", "贪吃", "高冷", "好奇", "温顺",
-        "调皮", "胆小", "爱睡", "话痨", "懂事", "傲娇",
+    /// 预设性格标签候选的本地化 key（App 层用 NSLocalizedString 查 Localizable.xcstrings；
+    /// 草稿与选中态持久化亦存 key，跨语言稳定。用户自定义标签存展示文本）。
+    public static let availableTagKeys: [String] = [
+        "businesscard.tag.lively", "businesscard.tag.clingy", "businesscard.tag.foodie",
+        "businesscard.tag.aloof", "businesscard.tag.curious", "businesscard.tag.gentle",
+        "businesscard.tag.mischievous", "businesscard.tag.timid", "businesscard.tag.sleepy",
+        "businesscard.tag.chatty", "businesscard.tag.sensible", "businesscard.tag.tsundere",
     ]
 
     // MARK: - 校验

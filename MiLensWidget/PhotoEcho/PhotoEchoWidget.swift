@@ -68,8 +68,8 @@ struct PhotoEchoWidget: Widget {
         ) { entry in
             PhotoEchoWidgetView(entry: entry)
         }
-        .configurationDisplayName("相片回声")
-        .description("回看今天、往日或最近的一张照片")
+        .configurationDisplayName("widget.photoEcho.name")
+        .description("widget.photoEcho.description")
         .supportedFamilies([.systemSmall, .systemMedium, .systemLarge])
     }
 }
@@ -96,7 +96,9 @@ struct PhotoEchoWidgetView: View {
 
     private var emptyMessage: String {
         let hasPets = !(entry.snapshot?.pets.isEmpty ?? true)
-        return hasPets ? "留下一张照片" : "先建立一份伙伴档案"
+        return hasPets
+            ? String(localized: "widget.photoEcho.empty.noPhoto")
+            : String(localized: "widget.empty.createPetFirst")
     }
 
     // ViewBuilder 不支持 guard 语句（首次编译暴露）：改用 if let 结构，
@@ -122,7 +124,7 @@ struct PhotoEchoWidgetView: View {
                 WidgetEmptyState(message: emptyMessage)
             }
         } else {
-            WidgetEmptyState(message: "等待数据同步")
+            WidgetEmptyState(message: String(localized: "widget.stale.waitingSync"))
         }
     }
 }
@@ -151,7 +153,7 @@ struct PhotoEchoSmallView: View {
 
             VStack {
                 HStack {
-                    Text("MiLens · \(dateText)")
+                    Text("widget.photoEcho.header \(dateText)")
                         .font(WidgetFont.registryCaption)
                         .foregroundStyle(.white.opacity(0.9))
                     Spacer()
@@ -186,9 +188,13 @@ struct PhotoEchoSmallView: View {
     }
 
     private func buildCaption() -> String {
-        let prefix = WidgetSelectionLogic.isToday(takenAt: photo.takenAt, now: now) ? "今天" : "最近"
+        let prefix = WidgetSelectionLogic.isToday(takenAt: photo.takenAt, now: now)
+            ? String(localized: "widget.common.today")
+            : String(localized: "widget.common.recent")
         let name = photo.petName ?? ""
-        return name.isEmpty ? prefix : "\(prefix) · \(name)"
+        return name.isEmpty
+            ? prefix
+            : String(localized: "widget.common.join \(prefix) \(name)")
     }
 }
 

@@ -182,7 +182,7 @@ struct ScanCompleteSheet: View {
                     .font(.system(size: 48)) // ui-token:ok 结果态装饰大图标
                     .foregroundStyle(viewModel.scanFailed ? Color.milensWarning : Color.milensPrimary)
 
-                Text(viewModel.scanFailed ? "扫描未完成" : "扫描完成")
+                Text(viewModel.scanFailed ? String(localized: "gallery.scan.failedTitle") : String(localized: "gallery.scan.completeTitle"))
                     .font(.displayMedium)
 
                 Text(viewModel.scanCompleteMessage)
@@ -198,7 +198,7 @@ struct ScanCompleteSheet: View {
                     Button {
                         viewModel.importScannedPhotos()
                     } label: {
-                        Label("导入 \(pendingCount) 张照片", systemImage: "square.and.arrow.down")
+                        Label(String(localized: "gallery.scan.importPhotos \(pendingCount)"), systemImage: "square.and.arrow.down")
                             .frame(maxWidth: .infinity)
                             .padding(.vertical, 12)
                     }
@@ -209,7 +209,7 @@ struct ScanCompleteSheet: View {
 
                 // 权限被拒时提供系统设置引导（「设置 → 隐私 → 照片」）
                 if viewModel.permissionDenied {
-                    Button("去设置") {
+                    Button(String(localized: "gallery.scan.openSettings")) {
                         if let url = URL(string: UIApplication.openSettingsURLString) {
                             openURL(url)
                         }
@@ -219,7 +219,7 @@ struct ScanCompleteSheet: View {
                     .tint(Color.milensActionPrimary)
                 }
 
-                Button("完成") {
+                Button(String(localized: "common.done")) {
                     viewModel.showScanCompleteDialog = false
                 }
                 .font(.bodyPrimary)

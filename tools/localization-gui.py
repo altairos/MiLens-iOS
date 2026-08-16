@@ -44,9 +44,11 @@ RES = ROOT / "MiLens" / "Resources"
 XCSTRINGS = [
     RES / "Localizable.xcstrings",
     RES / "InfoPlist.xcstrings",
+    ROOT / "MiLensWidget" / "Localizable.xcstrings",
 ]
 PROJECT_YML = ROOT / "project.yml"
-SOURCE_ROOT = ROOT / "MiLens"
+# check 的源码根：App 与 Widget Extension 各自 catalog 对应各自代码
+SOURCE_ROOTS = [ROOT / "MiLens", ROOT / "MiLensWidget"]
 ASSETS_XLSX = ROOT / "docs" / "localization" / "global-localization.xlsx"
 
 # LangStatus / LANG_NAMES / scan_statuses 的统计语义已下沉到核心库 localization.py，
@@ -90,7 +92,7 @@ def run_check() -> str:
     ns = argparse.Namespace(
         xcstrings=[str(p) for p in XCSTRINGS],
         project_yml=str(PROJECT_YML),
-        source_root=str(SOURCE_ROOT),
+        source_root=[str(p) for p in SOURCE_ROOTS],
     )
     loc.cmd_check(ns)
     return "check 完成"

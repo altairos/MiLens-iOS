@@ -1,0 +1,523 @@
+{
+  "sourceLanguage" : "zh-Hans",
+  "strings" : {
+    "widget.common.daysLater" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "天后"
+          }
+        }
+      }
+    },
+    "widget.common.daysLaterCount %lld" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld 天后"
+          }
+        }
+      }
+    },
+    "widget.common.join %@ %@" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ · %2$@"
+          }
+        }
+      }
+    },
+    "widget.common.recent" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "最近"
+          }
+        }
+      }
+    },
+    "widget.common.today" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "今天"
+          }
+        }
+      }
+    },
+    "widget.empty.createPetFirst" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "先建立一份伙伴档案"
+          }
+        }
+      }
+    },
+    "widget.entity.anniversary" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "纪念日"
+          }
+        }
+      }
+    },
+    "widget.entity.pet" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "伙伴"
+          }
+        }
+      }
+    },
+    "widget.intents.anniversary.auto" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "自动（最近）"
+          }
+        }
+      }
+    },
+    "widget.intents.anniversary.settings.description" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "选择展示哪个伙伴的哪个纪念日倒计时"
+          }
+        }
+      }
+    },
+    "widget.intents.anniversary.settings.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "纪念日设置"
+          }
+        }
+      }
+    },
+    "widget.intents.pet.all" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "全部伙伴"
+          }
+        }
+      }
+    },
+    "widget.intents.photoEcho.content" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "内容"
+          }
+        }
+      }
+    },
+    "widget.intents.photoEcho.contentSource" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "内容来源"
+          }
+        }
+      }
+    },
+    "widget.intents.photoEcho.settings.description" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "选择展示哪个伙伴的哪类照片"
+          }
+        }
+      }
+    },
+    "widget.intents.photoEcho.settings.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "相片回声设置"
+          }
+        }
+      }
+    },
+    "widget.intents.photoEcho.source.recentWork" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "最近作品"
+          }
+        }
+      }
+    },
+    "widget.intents.photoEcho.source.todayOrRecent" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "今日 / 最近"
+          }
+        }
+      }
+    },
+    "widget.intents.photoEcho.source.yearsAgoToday" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "往日回忆"
+          }
+        }
+      }
+    },
+    "widget.intents.selectPet.description" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "选择这个 Widget 展示的伙伴档案"
+          }
+        }
+      }
+    },
+    "widget.intents.selectPet.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "选择伙伴"
+          }
+        }
+      }
+    },
+    "widget.lifeArchive.description" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "这份档案已经积累了多久、多少照片和多少记忆"
+          }
+        }
+      }
+    },
+    "widget.lifeArchive.empty.noPhotos" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "档案还没有照片"
+          }
+        }
+      }
+    },
+    "widget.lifeArchive.name" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "档案年轮"
+          }
+        }
+      }
+    },
+    "widget.lifeArchive.stat.memories" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "记忆"
+          }
+        }
+      }
+    },
+    "widget.lifeArchive.stat.photos" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "照片"
+          }
+        }
+      }
+    },
+    "widget.lifeArchive.stat.works" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "作品"
+          }
+        }
+      }
+    },
+    "widget.lockscreen.countdown.name" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "倒计时"
+          }
+        }
+      }
+    },
+    "widget.lockscreen.memory.createFile" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "建档"
+          }
+        }
+      }
+    },
+    "widget.lockscreen.memory.description" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "宠物名与一段回忆的日期和标题"
+          }
+        }
+      }
+    },
+    "widget.lockscreen.memory.name" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "一段回忆"
+          }
+        }
+      }
+    },
+    "widget.lockscreen.memory.pending" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "待记录"
+          }
+        }
+      }
+    },
+    "widget.photoEcho.description" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "回看今天、往日或最近的一张照片"
+          }
+        }
+      }
+    },
+    "widget.photoEcho.empty.noPhoto" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "留下一张照片"
+          }
+        }
+      }
+    },
+    "widget.photoEcho.header %@" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "MiLens · %@"
+          }
+        }
+      }
+    },
+    "widget.photoEcho.name" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "相片回声"
+          }
+        }
+      }
+    },
+    "widget.stale.updated %@" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "更新于 %@"
+          }
+        }
+      }
+    },
+    "widget.stale.waitingSync" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "等待数据同步"
+          }
+        }
+      }
+    },
+    "widget.upcoming.daysTogether.adoption %lld" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "已陪伴 %lld 天"
+          }
+        }
+      }
+    },
+    "widget.upcoming.daysTogether.birthday %lld" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "出生至今 %lld 天"
+          }
+        }
+      }
+    },
+    "widget.upcoming.daysTogether.memorial %lld" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "已记录 %lld 天"
+          }
+        }
+      }
+    },
+    "widget.upcoming.description" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "指定一个纪念日的倒计时，或自动取最近的一个"
+          }
+        }
+      }
+    },
+    "widget.upcoming.empty.missing" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "该纪念日已不存在"
+          }
+        }
+      }
+    },
+    "widget.upcoming.empty.none" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "还没有纪念日"
+          }
+        }
+      }
+    },
+    "widget.upcoming.name" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "纪念日"
+          }
+        }
+      }
+    },
+    "widget.upcoming.remainingDays %lld" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "还有 %lld 天"
+          }
+        }
+      }
+    },
+    "widget.upcoming.today" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "今天是这个日子"
+          }
+        }
+      }
+    }
+  },
+  "version" : "1.0"
+}

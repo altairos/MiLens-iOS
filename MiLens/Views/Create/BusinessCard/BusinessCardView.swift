@@ -13,6 +13,12 @@ import os
 
 private let logger = Logger(subsystem: "com.milens.app", category: "BusinessCard")
 
+/// 预设标签 key → 展示文本（动态 key 规范：NSLocalizedString 查 Localizable.xcstrings；
+/// 未命中的旧中文草稿值原样返回，宽容保留为自定义标签）。
+private func localizedTag(_ key: String) -> String {
+    NSLocalizedString(key, comment: "")
+}
+
 struct BusinessCardView: View {
     let petID: UUID
 
@@ -24,7 +30,7 @@ struct BusinessCardView: View {
     @State private var avatarImage: UIImage?
     @State private var isLoading = true
 
-    // 用户输入（草稿）
+    // 用户输入（草稿）。selectedTags 存预设标签 key（businesscard.tag.*）或自定义展示文本
     @State private var tagline = ""
     @State private var ownerName = ""
     @State private var selectedTags: [String] = []
@@ -194,7 +200,7 @@ struct BusinessCardView: View {
                         )
                         WorkshopFieldRow(
                             label: String(localized: "field.tags"),
-                            value: selectedTags.isEmpty ? String(localized: "field.tags.placeholder") : selectedTags.joined(separator: " / "),
+                            value: selectedTags.isEmpty ? String(localized: "field.tags.placeholder") : selectedTags.map(localizedTag).joined(separator: " / "),
                             onEdit: { editingField = .tags },
                             showsRule: false
                         )
@@ -274,7 +280,7 @@ struct BusinessCardView: View {
             profileCreatedAt: pet.createdAt
         )
         return PetBusinessCardLogic.buildData(
-            from: input, tags: selectedTags, tagline: tagline, ownerName: ownerName)
+            from: input, tags: selectedTags.map(localizedTag), tagline: tagline, ownerName: ownerName)
     }
 
     private func renderCard(pet: Pet) -> UIImage? {
@@ -341,7 +347,7 @@ struct BusinessCardView: View {
             Image(systemName: "exclamationmark.triangle")
                 .font(.system(size: 40)) // ui-token:ok 错误态装饰大图标
                 .foregroundStyle(Color.milensTextSecondary)
-            Text("宠物加载失败")
+            Text(String(localized: "businesscard.loadFailed"))
                 .font(.bodyPrimary)
                 .foregroundStyle(Color.milensTextSecondary)
         }
@@ -370,6 +376,8 @@ struct BusinessCardView: View {
     }
 
     // MARK: - 草稿（UserDefaults，按 petID 缓存）
+    // tags 存预设标签 key（跨语言稳定，切换语言后选中态不受影响）；
+    // 旧版中文草稿值原样保留为自定义展示文本（不做迁移，V1.0 未上架）。
 
     private func loadDraft(petID: UUID) {
         let defaults = UserDefaults.standard
@@ -443,8 +451,8 @@ private struct BusinessCardFieldEditorSheet: View {
                         Text("\(String(localized: "field.tags"))（最多 \(PetBusinessCardLogic.maxTagCount) 个）")
                             .font(.uiBodyStrong)
                         FlowLayout(spacing: Spacing.sm) {
-                            ForEach(PetBusinessCardLogic.availableTags, id: \.self) { tag in
-                                tagChip(tag)
+                            ForEach(PetBusinessCardLogic.availableTagKeys, id: \.self) { key in
+                                tagChip(key)
                             }
                         }
                     }
@@ -461,17 +469,18 @@ private struct BusinessCardFieldEditorSheet: View {
         }
     }
 
-    private func tagChip(_ tag: String) -> some View {
-        let isSelected = selectedTags.contains(tag)
+    /// chip 以 key 判定选中态（草稿与选中态均存 key），label 查表展示。
+    private func tagChip(_ key: String) -> some View {
+        let isSelected = selectedTags.contains(key)
         let atLimit = selectedTags.count >= PetBusinessCardLogic.maxTagCount && !isSelected
         return Button {
             if isSelected {
-                selectedTags.removeAll { $0 == tag }
+                selectedTags.removeAll { $0 == key }
             } else if !atLimit {
-                selectedTags.append(tag)
+                selectedTags.append(key)
             }
         } label: {
-            Text(tag)
+            Text(localizedTag(key))
                 .font(.caption.weight(.medium))
                 .padding(.horizontal, Spacing.md)
                 .padding(.vertical, Spacing.xs)

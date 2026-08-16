@@ -13,7 +13,7 @@ struct OnboardingWelcomeStep: View {
         ScrollView {
             VStack(alignment: .leading, spacing: 0) {
                 // MARK: overline + 品牌名 + Hero
-                Text("FIRST LIGHT · 欢迎")
+                Text(viewModel.stepOverline)
                     .font(.editorialOverline)
                     .tracking(0.1)
                     .foregroundStyle(Color.milensTextSecondary)
@@ -24,7 +24,7 @@ struct OnboardingWelcomeStep: View {
                     .foregroundStyle(Color.milensTextPrimary)
                     .padding(.top, 8)
 
-                Text("把相伴的一生，\n留在这里")
+                Text(String(localized: "onboarding.welcome.hero"))
                     .font(.editorialHero)
                     .foregroundStyle(Color.milensTextPrimary)
                     .padding(.top, 6)
@@ -35,7 +35,11 @@ struct OnboardingWelcomeStep: View {
                     .padding(.top, 18)
 
                 // MARK: 3 waypoint
-                WaypointRow(items: ["本机整理", "由你确认", "随时可删"])
+                WaypointRow(items: [
+                    String(localized: "onboarding.welcome.waypoint.organize"),
+                    String(localized: "onboarding.welcome.waypoint.confirm"),
+                    String(localized: "onboarding.welcome.waypoint.deletable")
+                ])
                     .padding(.top, Spacing.xxl)
 
                 // MARK: Divider
@@ -50,7 +54,7 @@ struct OnboardingWelcomeStep: View {
 
                 // MARK: Focus Dial
                 FocusDialButton(
-                    label: "建立第一份档案",
+                    label: String(localized: "onboarding.welcome.cta"),
                     systemImage: "plus",
                     isEnabled: viewModel.privacyAgreed
                 ) {
@@ -71,7 +75,7 @@ struct OnboardingWelcomeStep: View {
         EditorialCard {
             VStack(alignment: .leading, spacing: 0) {
                 // EMPTY ARCHIVE / 00 caption
-                Text("EMPTY ARCHIVE / 00")
+                Text(String(localized: "onboarding.welcome.archiveMark"))
                     .font(.editorialMetadata)
                     .foregroundStyle(Color.milensTextTertiary)
                     .padding(.top, 22)
@@ -104,13 +108,13 @@ struct OnboardingWelcomeStep: View {
                 .padding(.top, 16)
 
                 // 「等待一位伙伴」
-                Text("等待第一位伙伴")
+                Text(String(localized: "onboarding.welcome.emptyTitle"))
                     .font(.uiTitle)
                     .foregroundStyle(Color.milensTextPrimary)
                     .padding(.top, 4)
                     .padding(.leading, 22)
 
-                Text("档案现在是空的。\n从第一段相伴开始。")
+                Text(String(localized: "onboarding.welcome.emptyBody"))
                     .font(.bodyPrimary)
                     .foregroundStyle(Color.milensTextSecondary)
                     .padding(.top, 4)
@@ -123,7 +127,7 @@ struct OnboardingWelcomeStep: View {
                     .padding(.trailing, 16)
 
                 // 底部说明
-                Text("照片留在设备上，记录由你命名。")
+                Text(String(localized: "onboarding.welcome.emptyNote"))
                     .font(.bodySecondary)
                     .foregroundStyle(Color.milensTextTertiary)
                     .padding(.top, 6)
@@ -148,11 +152,11 @@ struct OnboardingWelcomeStep: View {
                 set: { viewModel.privacyAgreed = $0 }
             )) {
                 HStack(spacing: 4) {
-                    Text("我已阅读并同意")
+                    Text(String(localized: "onboarding.welcome.agreePrefix"))
                         .font(.bodyPrimary)
                         .foregroundStyle(Color.milensTextSecondary)
                     if let url = URL(string: SettingsLogic.Links.privacyPolicy) {
-                        Link("《隐私政策》", destination: url)
+                        Link(String(localized: "onboarding.welcome.privacyLink"), destination: url)
                             .font(.bodyPrimary)
                             .foregroundStyle(Color.milensActionPrimary)
                     }

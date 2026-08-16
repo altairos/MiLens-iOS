@@ -122,7 +122,7 @@ struct PaywallView: View {
                     .padding(.top, Spacing.lg)
 
                 // 副标题（对照 Figma #37:29）
-                Text("更多伙伴 · 完整回顾 · 高质量导出")
+                Text(String(localized: "paywall.hero.features"))
                     .font(.bodySecondary)
                     .foregroundStyle(Color.milensDarkroomText)
                     .padding(.top, 4)
@@ -294,7 +294,7 @@ struct PaywallView: View {
                             .font(.editorialMetadata)
                             .foregroundStyle(Color.milensTextSecondary)
                     }
-                    Text("从 App Store 获取")
+                    Text(String(localized: "paywall.plan.getApp"))
                         .font(.editorialMetadata)
                         .foregroundStyle(Color.milensTextSecondary)
                 }

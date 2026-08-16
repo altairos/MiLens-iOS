@@ -45,12 +45,12 @@ struct PetEditView: View {
                 ProgressView()
             }
         }
-        .navigationTitle("编辑档案")
+        .navigationTitle(String(localized: "pet.profile.edit"))
         .navigationBarTitleDisplayMode(.inline)
         .safeAreaInset(edge: .bottom) {
             if let vm = viewModel, !vm.isLoading {
                 Button { save(vm) } label: {
-                    Text("保存")
+                    Text(String(localized: "common.save"))
                         .font(.buttonLabel)
                         .foregroundStyle(Color.milensTextOnActionPrimary)
                         .frame(maxWidth: .infinity, minHeight: Sizing.touchTarget)
@@ -73,17 +73,17 @@ struct PetEditView: View {
         .onDisappear {
             featureLoadTask?.cancel()
         }
-        .alert("删除伙伴档案", isPresented: $showDeleteConfirm) {
-            Button("取消", role: .cancel) {}
-            Button("删除", role: .destructive) { deletePet() }
+        .alert(String(localized: "pet.edit.delete.title"), isPresented: $showDeleteConfirm) {
+            Button(String(localized: "common.cancel"), role: .cancel) {}
+            Button(String(localized: "common.delete"), role: .destructive) { deletePet() }
         } message: {
             if let vm = viewModel {
-                Text("确定删除「\(vm.form.name)」吗？\n关联照片将解除归属但不会删除。")
+                Text(String(localized: "pet.edit.delete.message \(vm.form.name)"))
             }
         }
-        .alert("有未保存的修改", isPresented: $showBackConfirm) {
-            Button("放弃修改", role: .destructive) { dismiss() }
-            Button("继续编辑", role: .cancel) {}
+        .alert(String(localized: "pet.edit.unsaved.title"), isPresented: $showBackConfirm) {
+            Button(String(localized: "pet.edit.unsaved.discard"), role: .destructive) { dismiss() }
+            Button(String(localized: "pet.edit.unsaved.continue"), role: .cancel) {}
         }
         .interactiveDismissDisabled(viewModel?.hasUnsavedChanges ?? false)
     }
@@ -98,20 +98,20 @@ struct PetEditView: View {
             avatarSection(vm)
 
             // 基本信息
-            Section("基本信息") {
+            Section(String(localized: "pet.edit.section.basic")) {
                 TextField(String(localized: "pet.edit.name.placeholder"), text: $bindable.form.name)
                     .font(.bodyPrimary)
             }
 
             // 物种与性别
-            Section("物种与性别") {
-                Picker("物种", selection: $bindable.form.species) {
+            Section(String(localized: "pet.edit.section.speciesGender")) {
+                Picker(String(localized: "pet.edit.species"), selection: $bindable.form.species) {
                     ForEach(Species.allCases, id: \.self) { s in
                         Text("\(PetProfileLogic.speciesEmoji(s)) \(PetDisplayLogic.speciesDisplayName(s))")
                             .tag(s)
                     }
                 }
-                Picker("性别", selection: $bindable.form.gender) {
+                Picker(String(localized: "pet.edit.gender"), selection: $bindable.form.gender) {
                     ForEach(Gender.allCases, id: \.self) { g in
                         Text(PetDisplayLogic.genderDisplayName(g)).tag(g)
                     }
@@ -141,7 +141,7 @@ struct PetEditView: View {
                 Button(role: .destructive) {
                     showDeleteConfirm = true
                 } label: {
-                    Label("删除伙伴档案", systemImage: "trash")
+                    Label(String(localized: "pet.edit.delete.title"), systemImage: "trash")
                         .frame(maxWidth: .infinity)
                 }
             }
@@ -184,7 +184,9 @@ struct PetEditView: View {
                 Spacer()
                 // 头像选择入口（PhotosPicker 单选）
                 PhotosPicker(selection: $avatarPickerItem, matching: .images) {
-                    Text(vm.avatarPath.isEmpty ? "选择" : "更换")
+                    Text(vm.avatarPath.isEmpty
+                         ? String(localized: "pet.edit.avatar.choose")
+                         : String(localized: "pet.edit.avatar.change"))
                         .font(.caption)
                         .foregroundStyle(Color.milensActionPrimary)
                 }
@@ -194,9 +196,9 @@ struct PetEditView: View {
             }
             .padding(.vertical, Spacing.xs)
         } header: {
-            Text("头像")
+            Text(String(localized: "pet.edit.section.avatar"))
         } footer: {
-            Text("选择一张照片裁切为圆形头像")
+            Text(String(localized: "pet.edit.avatar.footer"))
                 .font(.caption)
         }
         .sheet(isPresented: $showAvatarCropSheet) {
@@ -235,7 +237,7 @@ struct PetEditView: View {
     private func featureSection(_ vm: PetEditViewModel) -> some View {
         Section {
             if vm.featureRegistered {
-                Label("已注册视觉特征", systemImage: "checkmark.circle.fill")
+                Label(String(localized: "pet.edit.feature.registered"), systemImage: "checkmark.circle.fill")
                     .font(.bodyPrimary)
                     .foregroundStyle(Color.milensSuccess)
             }
@@ -243,39 +245,41 @@ struct PetEditView: View {
             if vm.isRegisteringFeatures {
                 HStack(spacing: Spacing.md) {
                     ProgressView()
-                    Text("正在提取特征 \(vm.featureRegistrationProgress)/\(selectedFeatureItems.count)")
+                    Text(String(localized: "pet.edit.feature.progress \(vm.featureRegistrationProgress)/\(selectedFeatureItems.count)"))
                         .font(.bodyPrimary)
                 }
-                Button("取消") { vm.cancelFeatureRegistration() }
+                Button(String(localized: "common.cancel")) { vm.cancelFeatureRegistration() }
                     .font(.caption)
             } else {
                 // PhotosPicker 的 label 闭包是 Sendable：先取出局部值，不在闭包内读 MainActor 隔离属性
                 let isRegistered = vm.featureRegistered
+                let registerTitle = isRegistered
+                    ? String(localized: "pet.edit.feature.reregister")
+                    : String(localized: "pet.edit.feature.register")
                 PhotosPicker(
                     selection: $selectedFeatureItems,
                     maxSelectionCount: PetFormConstants.maxRegistrationPhotos,
                     matching: .images
                 ) {
-                    Label(isRegistered ? "重新注册（更新特征）" : "选择照片注册",
-                          systemImage: "photo.on.rectangle")
+                    Label(registerTitle, systemImage: "photo.on.rectangle")
                         .frame(maxWidth: .infinity)
                 }
                 .disabled(!vm.isFeatureRegistrationAvailable)
 
                 if !vm.isFeatureRegistrationAvailable {
-                    Text("AI 模型未就绪，暂不能注册视觉特征")
+                    Text(String(localized: "pet.edit.feature.unavailable"))
                         .font(.caption)
                         .foregroundStyle(Color.milensTextSecondary)
                 }
 
                 if !selectedFeatureItems.isEmpty {
-                    Text("已选 \(selectedFeatureItems.count) 张")
+                    Text(String(localized: "pet.edit.feature.selected \(selectedFeatureItems.count)"))
                         .font(.caption)
                         .foregroundStyle(Color.milensTextSecondary)
                     Button {
                         loadAndRegister(vm)
                     } label: {
-                        Text("开始注册")
+                        Text(String(localized: "pet.edit.feature.start"))
                             .frame(maxWidth: .infinity)
                     }
                     .disabled(selectedFeatureItems.count < PetFormConstants.minRegistrationPhotos)
@@ -288,11 +292,11 @@ struct PetEditView: View {
                     .foregroundStyle(vm.featureRegistered ? Color.milensTextSecondary : Color.milensDanger)
             }
         } header: {
-            Text("视觉特征")
+            Text(String(localized: "pet.edit.section.feature"))
         } footer: {
             Text(vm.featureRegistered
-                 ? "更新特征需要重新选择照片（\(PetFormConstants.minRegistrationPhotos)–\(PetFormConstants.maxRegistrationPhotos) 张）"
-                 : "选择 \(PetFormConstants.minRegistrationPhotos)–\(PetFormConstants.maxRegistrationPhotos) 张不同角度与光线的照片，导入新照片时将自动归入此档案")
+                 ? String(localized: "pet.edit.feature.footer.update \(PetFormConstants.minRegistrationPhotos) \(PetFormConstants.maxRegistrationPhotos)")
+                 : String(localized: "pet.edit.feature.footer.new \(PetFormConstants.minRegistrationPhotos) \(PetFormConstants.maxRegistrationPhotos)"))
                 .font(.caption)
         }
     }
@@ -320,9 +324,9 @@ struct PetEditView: View {
     private func dateSection(_ vm: PetEditViewModel) -> some View {
         @Bindable var bindable = vm
 
-        return Section("重要日期") {
+        return Section(String(localized: "pet.edit.section.dates")) {
             DatePicker(
-                "生日",
+                String(localized: "pet.edit.birthday"),
                 selection: Binding(
                     get: { vm.form.birthday ?? Date() },
                     set: { vm.updateBirthday($0) }
@@ -332,7 +336,7 @@ struct PetEditView: View {
             )
 
             DatePicker(
-                "领养日",
+                String(localized: "pet.edit.adoptionDay"),
                 selection: Binding(
                     get: { vm.form.adoptionDay ?? Date() },
                     set: { vm.updateAdoptionDay($0) }
@@ -343,7 +347,7 @@ struct PetEditView: View {
 
             // 清除日期
             if vm.form.birthday != nil || vm.form.adoptionDay != nil {
-                Button("清除日期", role: .destructive) {
+                Button(String(localized: "pet.edit.clearDates"), role: .destructive) {
                     vm.updateBirthday(nil)
                     vm.updateAdoptionDay(nil)
                 }
@@ -372,14 +376,14 @@ struct PetEditView: View {
                     Button(role: .destructive) {
                         vm.removeNoteItem(at: index)
                     } label: {
-                        Label("删除", systemImage: "trash")
+                        Label(String(localized: "common.delete"), systemImage: "trash")
                     }
                 }
             }
 
             // 新增备忘输入
             HStack {
-                TextField("添加重要事件（可选）", text: $newNoteItem)
+                TextField(String(localized: "pet.edit.note.placeholder"), text: $newNoteItem)
                     .font(.bodyPrimary)
                     .onSubmit { addNote(vm) }
                 Button {
@@ -391,9 +395,9 @@ struct PetEditView: View {
                 .disabled(newNoteItem.trimmingCharacters(in: .whitespaces).isEmpty)
             }
         } header: {
-            Text("重要事件")
+            Text(String(localized: "pet.edit.section.notes"))
         } footer: {
-            Text("每条不超过 \(PetFormConstants.maxNoteItemLength) 字")
+            Text(String(localized: "pet.edit.note.footer \(PetFormConstants.maxNoteItemLength)"))
                 .font(.caption)
         }
     }

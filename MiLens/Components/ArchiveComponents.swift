@@ -277,7 +277,7 @@ struct IdentityStrip<Thumbnail: View>: View {
             ArchiveMarker(label: "记忆标记")
             ArchiveSectionHeader(title: "它的故事", supporting: "向左看看")
             ArchivePrimaryButton(action: {}) {
-                Text("继续")
+                Text(String(localized: "common.continue"))
                     .font(.buttonLabel)
             }
 
@@ -302,10 +302,10 @@ struct IdentityStrip<Thumbnail: View>: View {
             // ArchivePanel 示例
             ArchivePanel {
                 VStack(alignment: .leading, spacing: 16) {
-                    Text("连续档案纸")
+                    Text(String(localized: "archive.preview.panelTitle"))
                         .font(.titleStandard)
                     ArchiveDivider()
-                    Text("统计、记忆与近期照片属于同一张连续档案纸。")
+                    Text(String(localized: "archive.preview.panelBody"))
                         .font(.bodySecondary)
                         .foregroundStyle(Color.milensTextSecondary)
                 }

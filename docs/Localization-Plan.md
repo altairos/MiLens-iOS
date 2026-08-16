@@ -1,6 +1,6 @@
 # MiLens 全球本地化计划
 
-最后更新：2026-08-15（CI 缺译门禁过渡期降级 `--allow-missing-translations`；2026-08-10 定案首发 7 语言：zh-Hans / zh-Hant / ja / ko / en / fr / de）
+最后更新：2026-08-16（MiLensWidget 接入 String Catalog，工具链支持多 catalog × 多源码根与 Excel sheet 去歧义；2026-08-15 CI 缺译门禁过渡期降级 `--allow-missing-translations`；2026-08-10 定案首发 7 语言：zh-Hans / zh-Hant / ja / ko / en / fr / de）
 
 > 本文档是 MiLens 全球首发本地化工作的唯一事实来源：语言矩阵、各国市场注意要点、翻译工作流、质量门禁、ASO 关键词策略与时间线。工具与命令见 [DEVELOPMENT.md](../DEVELOPMENT.md) §4.5，商店文案见 [AppStore-metadata.md](AppStore-metadata.md)，商业决策见 [ADR-0010](adr/0010-commercialization-and-emotion-triggers.md)。
 
@@ -62,6 +62,7 @@
 python tools/localization.py export \
     MiLens/Resources/Localizable.xcstrings \
     MiLens/Resources/InfoPlist.xcstrings \
+    MiLensWidget/Localizable.xcstrings \
     build/loc.xlsx --lang en,ja,zh-Hant,ko,de,fr
 
 # 3. 翻译后逐语言导入回写
@@ -72,10 +73,19 @@ python tools/localization.py import build/loc.xlsx \
 python tools/localization.py check \
     MiLens/Resources/Localizable.xcstrings \
     MiLens/Resources/InfoPlist.xcstrings \
-    --project-yml project.yml --source-root MiLens
+    MiLensWidget/Localizable.xcstrings \
+    --project-yml project.yml --source-root MiLens --source-root MiLensWidget
 
 # CI 过渡期命令额外带 --allow-missing-translations（非源语言缺译降为警告；
 # 7 语言翻译完成后移除，恢复缺译阻断）。--strict 发布门禁不受该参数影响。
+#
+# key 引用提取口径（tools/localization.py extract_code_keys）：
+# - 显式 API 全收：String(localized:)/NSLocalizedString + WidgetKit/AppIntents
+#   配置面（configurationDisplayName/.description/IntentDescription/
+#   @Parameter(title:)/LocalizedStringResource 等赋值——参数类型即 key）；
+# - 模糊形态按 dotted key 过滤：Text("...") 与 `.case: "..."` 字典条目
+#   （LocalizedStringKey 运行时查表），switch-case SF Symbol 映射排除；
+# 本地带 --hardcoded 做中文硬编码检测（D 类清收后纳入 CI 口径）。
 ```
 
 ---
@@ -164,7 +174,7 @@ python tools/localization.py check \
 | 4 | 待翻译 | 5 key 已就位（InfoPlist 2 + settings.notifications.denied 3），翻译阶段处理 |
 | 5 | ✅ 已收口 | 启动错误（`startup.unknownError`）、档案加载失败（`pet.profile.loadFailed`，PetEditViewModel/StateView/PetProfileView）、首页加载错误（`home.loadError`）、时间线导出错误（`timeline.renderFailed`/`timeline.exportFailedDetail`）、启动恢复界面全套（`recovery.*` + `common.ok/cancel/back`）；editor 抠图四态（`editor.cutout.action.*`）与名片保存失败（`businessCard.saveFailed`）随 #7.8 收口 |
 | 6 | ✅ 已收口 | AnniversaryLogic 6 模板 + NotifyService `notificationNote` 全部 `String(localized:locale:)`（插值+复数复合） |
-| 7 | ✅ 已收口（#7.8）| 19 处硬编码迁移：`gallery.empty.*`、`pets.empty.title/cta`、`home.empty.*`、`recovery.title/body/rebuildConfirmBody`、`gallery.scan.permissionDenied`、`editor.cutout.action.*`、`businessCard.saveFailed`；Onboarding 编辑式文案（~19 处）遗留随 key 化批次处理 |
+| 7 | ✅ 已收口（#7.8）| 19 处硬编码迁移：`gallery.empty.*`、`pets.empty.title/cta`、`home.empty.*`、`recovery.title/body/rebuildConfirmBody`、`gallery.scan.permissionDenied`、`editor.cutout.action.*`、`businessCard.saveFailed`；Onboarding 编辑式文案（~19 处）已随 #7.13 收口 |
 | 8 | ✅ 已收口 | paywall 失败/恢复/加载 8 key + 错误分类映射 |
 | 9 | ✅ 已收口 | PetCardLogic（「这一天」/「来到家 N 天」plural）+ PetDisplayLogic（物种/性别/年龄复数 key）locale 注入 |
 | 10 | ✅ 已收口 | 时间线水印（`timeline.export.watermark`）、分享面板标题/副标题/4 平台名/更多/水印提示（`share.*`）；分享文件名保持英文内部标识（不含日期，无日期格式可本地化） |
@@ -176,6 +186,36 @@ python tools/localization.py check \
 - **插值完整性**：`%d`/`%@`/`\n` 与 plural 参数由升级后的 `localization.py check` 守护（§6）；
 - **动态文案也进 Excel 工作簿**：工具链支持 plural 后，export 将 plural key 拆行导出（`key[one]` / `key[other]`），import 时合并回写，翻译人员在 Excel 中与静态文案同流程处理（工作项 #7.5）；
 - **固定 locale 快照测试**：日期/数字/复数/通知模板各语言用一个固定 locale（如 en_US / de_DE / ja_JP）断言输出快照，纳入现有纯逻辑测试（复用 utcCalendar 注入模式），避免只在模拟器人工发现。
+
+### 3.7 装饰性英文文案规范（2026-08-16 增补）
+
+> 「编辑风」设计语言中存在大量英文装饰文案（editorial overline / 档案编号 / 元数据标签，如 `FIRST LIGHT · 欢迎`、`ARCHIVE 001`、`PATTERN PARAMETERS`）。**zh 源语言允许英文装饰**（它们是排版元素而非待翻译语义，zh 值保持原装饰形态不改写）；但硬编码会原样漏入 EN 等非源语言构建——翻译阶段无法覆盖。本节定义其收口与翻译规范。
+
+**规范**
+
+- **必须 key 化**：装饰文案一律走 `String(localized:)` 进 catalog；Swift 代码中不得新增硬编码英文装饰；
+- **非源语言必须给真实译文**：en/ja/ko 等翻译**禁止照抄英文原值**——按语义译出（如 `EMPTY ARCHIVE / 00` → en "Empty Archive / 00"）；大小写随目标语言排版习惯：显示层已有 `.textCase(.uppercase)` 的组件 en 值用自然大小写（Title Case），无 textCase 的直接 `Text` 保持视觉风格仍用 Title Case 译文；
+- **品牌词与徽标例外（全语言通用，不进 catalog）**：MiLens / MiLens Pro / M / MILENS 品牌词；PRO 徽标 ×3（WorkshopComponents / EditorDecorationPanelView / BeadResultComponents，用户裁定全语言通用）；MILENS 复合导出水印（`MILENS · LIFE ARCHIVE` / `MILENS PET PROFILE`，PetCardArtwork / BusinessCardArtwork，已入检测整串白名单）；
+- **门禁**：`localization.py check --hardcoded` 对「UI 文案 API 首参纯拉丁 + 含全大写词（≥2 连续大写字母）」输出 warning 级 `[英文装饰]` 提示，白名单（词级 PRO/PDF/A4/ID/AI/MiLens 系 + 上述水印整串）放过，已在 catalog（精确或插值归一化）命中的不报，见 §6。
+
+**既有 C 类 key（12 个，本批前已 key 化；en 翻译不得照抄原值）**
+
+| key | zh 值（装饰原样保留） | en 译文方向 |
+|---|---|---|
+| `businesscard.overline` | HORIZONTAL NAMECARD | Horizontal Namecard |
+| `create.studio.overline` | CREATION DARKROOM | Creation Darkroom |
+| `growthcompare.overline` | GROWTH COMPARE | Growth Compare |
+| `petcard.overline` | PET CARD | Pet Card |
+| `redpacket.overline` | WECHAT RED ENVELOPES | WeChat Red Envelopes |
+| `redpacket.export.sceneOverline` | SCENE PREVIEW | Scene Preview |
+| `redpacket.quality.overline` | QUALITY | Quality |
+| `share.preview.overline` | READY TO KEEP | Ready to Keep |
+| `pet.profile.eyebrow` | LIFE LONG ARCHIVE | A Lifetime Archive |
+| `pet.profile.pinned.section` | 置顶记忆 · PAGE 01 | Pinned Memories · Page 01 |
+| `create.bead.a4pdf` | Pro 版 · A4 PDF | Pro · A4 PDF（技术词保留）|
+| `bead.generating.step3` | 匹配 MARD 色卡 | Matching the MARD palette（MARD 技术词保留）|
+
+**本批收口（2026-08-16）**：25 处硬编码英文装饰迁移 `String(localized:)` + 25 key 落库（zh=translated 原样 / en=needs_review 初译，含 plural `pet.profile.lifeMark %lld`），Onboarding 全流程 overline 统一走 `OnboardingViewModel.stepOverline`（7 个 step 视图消除重复副本）；明细见工作项 #7.11。
 
 ---
 
@@ -374,13 +414,16 @@ python tools/localization.py check \
 python tools/localization-assets.py        # 重新生成工作簿
 python tools/localization.py import docs/localization/global-localization.xlsx MiLens/Resources/Localizable.xcstrings --lang en
 python tools/localization.py import docs/localization/global-localization.xlsx MiLens/Resources/InfoPlist.xcstrings --lang ja
+python tools/localization.py import docs/localization/global-localization.xlsx MiLensWidget/Localizable.xcstrings --lang ja
 ```
 
-工作簿 9 个 sheet：
+工作簿 10 个 sheet：
 
 | sheet | 内容 | 与工具链关系 |
 |---|---|---|
-| `Localizable` / `InfoPlist` | 全部 key × 7 语言（列结构与 `localization.py export` 一致）| 可直接 `import` 回写 `.xcstrings`；其他 sheet 不影响 import（按 sheet 名匹配）|
+| `Resources.Localizable`（App）| 全部 key × 7 语言（列结构与 `localization.py export` 一致）| 可直接 `import` 回写 `.xcstrings`；其他 sheet 不影响 import（按 sheet 名匹配）|
+| `InfoPlist` | 同上 |
+| `MiLensWidget.Localizable`（Widget Extension，47 个 `widget.*` key）| 同上 |
 | `状态总览` | 6 类资产 × 7 语言完成度 | 人工维护 |
 | `AppStore元数据` | 名称/副标题/描述/关键词/推广文本/审核备注 | 录入 ASC 时人工搬运 |
 | `订阅产品描述` | 3 产品 × 显示名/描述 | 同上 |
@@ -427,6 +470,7 @@ python tools/localization.py import docs/localization/global-localization.xlsx M
 | 占位符漂移 | `localization.py check` | 同上 | 普通条目译文 `%d`/`%@` 占位符集合与源一致（默认阻断）；复数条目由 plural 校验 |
 | 译文长度 | `localization.py check --length-rules` | 每语言导入后 | 按 `tools/loc-length-rules.example.json` 规则校验超限（精确 key > comment `[len:N]` > 最长前缀 > default）|
 | 硬编码文案 | `localization.py check --hardcoded` | 翻译前 + CI | 无 SwiftUI 文案 API（Text/Label/Button/navigationTitle 等）首参含 CJK 且不在 catalog 的硬编码 |
+| 英文装饰文案 | `localization.py check --hardcoded` | 翻译前 + CI | UI 文案 API 首参纯拉丁且含全大写词（warning 级 `[英文装饰]`，不阻断）；品牌词/技术缩写/水印整串白名单放过；已 key 化（catalog 命中）不报（§3.7）|
 | 动态文案完整性 | `localization.py check`（plural 支持已落地）+ 固定 locale 快照测试 | 每语言导入后 | plural 键完整（en/de/fr one/other，zh/ja/ko 单条）；`%d`/`%@`/`\n` 占位符与代码引用一致（§3.6）|
 | 术语一致性 | 术语表人工走查 | 每语言翻译完成 | 核心术语逐条对照 §8 |
 | 长度/截断（视觉） | 模拟器截图走查 | 每语言导入后 | 无截断、无溢出、无重叠（de/fr 必查）|
@@ -434,7 +478,9 @@ python tools/localization.py import docs/localization/global-localization.xlsx M
 | 商店文案一致性 | 人工核对 | 上架前 | 描述/截图/审核备注与实际功能一致（诚实原则）|
 | 隐私政策可访问 | 人工核对 | 上架前 | 各语言 URL 可访问、内容与 App 行为一致 |
 
-> check 增强（2026-08-12）：每语言缺译计数、占位符漂移（默认阻断）、`--strict`（needs_review 阻断）、`--length-rules`、`--hardcoded` 均已落地，单测见 `tools/test_localization.py`（17 用例）。CI 接入 `--strict` 即可作发布门禁；多余 key 与格式不一致（非 Xcode 风格）仍仅告警。
+> check 增强（2026-08-12）：每语言缺译计数、占位符漂移（默认阻断）、`--strict`（needs_review 阻断）、`--length-rules`、`--hardcoded` 均已落地，单测见 `tools/test_localization.py`。CI 接入 `--strict` 即可作发布门禁；多余 key 与格式不一致（非 Xcode 风格）仍仅告警。
+> check 增强（2026-08-16）：`--hardcoded` 新增英文装饰检测（warning 级，§3.7）；Swift 字符串 Unicode 转义（`\u{XXXX}`）还原后再比对，单测增至 25 用例。
+> check 增强（2026-08-16，多 catalog）：MiLensWidget 接入第三个 catalog（47 个 `widget.*` key）；`--source-root` 可重复，每个 Localizable catalog 与其路径祖先源码根的代码配对比对（App 与 Widget 互不误报）；App 与 Widget 同名 catalog 导出 Excel 时 sheet 名以父目录去歧义（`Resources.Localizable` / `MiLensWidget.Localizable`），import 兼容旧表裸 stem；单测增至 34 用例。
 >
 > 缺译降级（2026-08-15）：7 语言 knownRegions 已定而 6 语言翻译未开始，缺译阻断使 CI lint 必挂并连带跳过 app 作业（`needs: [kit, lint]`）。过渡期 CI 命令带 `--allow-missing-translations`：非源语言缺译降为警告（聚合输出）不阻断；`--strict` 发布门禁下缺译仍阻断。全部语言翻译完成后移除该参数，恢复默认缺译阻断。
 
@@ -511,7 +557,7 @@ App Store 元数据与 App 内翻译分别验收，提交 ASC 前逐语言核对
 
 - [ ] `project.yml` knownRegions 含 7 语言，CI 构建通过
 - [ ] 每种语言分别记录翻译、UI 验收、商店资产、隐私政策上线四项状态；P0/P1 降级策略已明确
-- [ ] 260+3 key × 6 种非源语言全部翻译完成，`localization.py check` 0 缺译，且无 `needs_review`
+- [ ] 全部 String Catalog key（App `Localizable` / `InfoPlist` / Widget `Localizable`，随 key 化批次增长）× 6 种非源语言全部翻译完成，`localization.py check` 0 缺译，且无 `needs_review`
 - [ ] MarketProfile 区域差异化已落地（字体策略 + 隐私叙事强度），并完成 7 语言模拟器走查（文楷仅 zh-Hans，ja/ko/zh-Hant 不缺字；GDPR 区 PrivacyInfoView 4 条承诺不截断）
 - [ ] de/fr 长度专项走查：Tab/按钮/付费墙/卡片无截断溢出
 - [ ] 术语表定稿且全文一致（§8 清单）
@@ -549,8 +595,12 @@ App Store 元数据与 App 内翻译分别验收，提交 ASC 前逐语言核对
 | 7.6 | accessibilityLabel 等 UI 字面量核对与迁移（22 处 → `String(localized:)` 或 catalog 补 key）| #7 | ✅ 已完成（25 个 `a11y.*` key）|
 | 7.7 | 纯逻辑层动态文案本地化（通知 6 模板 / 宠物卡片 / 物种名 / 年龄 / 时间线导出 / 水印 / 分享 / 首页 / 启动错误）| #7.6 | ✅ 已完成（代码部分；快照测试 → #7.7b）|
 | 7.7b | 动态文案固定 locale 快照测试（en_US/de_DE/ja_JP 断言，复用 utcCalendar 注入模式）| #7.7 | ✅ 已完成（2026-08-16 `DynamicCopyLocaleSnapshotTests`：zh-Hans 全量精确快照（通知/档案/卡片/导出）+ en_US/de_DE/ja_JP 回退等值层；`String(localized:locale:)` 不切换查表语言，各语言精确快照随 #4–#6 翻译导入升级）|
-| 7.8 | 空状态与错误提示盘点收口（全部调用点核对、三段式规范、StoreKit 错误映射）| #7 | ✅ 已完成（2026-08-16：盘点 74 相关 key（69 used / 5 预留未接线——`picker.redPacket.*` 红包入口实际走 workshop 流程、`redpacket.export.saveFailed`/`redpacket.quality.badge|level.error` 预留）；迁移 19 处硬编码（相册/伙伴/首页空态、扫描权限提示、启动恢复三段、editor 抠图四态、名片保存失败）+18 key；清理 18 条 Xcode 自动提取空壳。遗留：Onboarding 编辑式文案（~19 处）与 MiLensKit `cutoutStatusText`（Kit 层中文、有 Kit 测试锚定）随翻译导入前的 key 化批次处理）|
+| 7.8 | 空状态与错误提示盘点收口（全部调用点核对、三段式规范、StoreKit 错误映射）| #7 | ✅ 已完成（2026-08-16：盘点 74 相关 key（69 used / 5 预留未接线——`picker.redPacket.*` 红包入口实际走 workshop 流程、`redpacket.export.saveFailed`/`redpacket.quality.badge|level.error` 预留）；迁移 19 处硬编码（相册/伙伴/首页空态、扫描权限提示、启动恢复三段、editor 抠图四态、名片保存失败）+18 key；清理 18 条 Xcode 自动提取空壳。遗留：Onboarding 编辑式文案（~19 处）已随 #7.13 收口；MiLensKit 侧 `availableTags`→`availableTagKeys`（12 key）与 `RedPacketQualityItem.detail`→`detailKey`+`detailArgs`（26 分支）已 key 化（2026-08-16，+38 manual key，草稿改存 key 旧值宽容保留），剩余 `cutoutStatusText`（Kit 层中文、有 Kit 测试锚定））|
 | 7.9 | 工作簿补充翻译上下文、禁用表达、审校人/日期和源文案版本字段 | #3 | 0.5 天 |
+| 7.10 | 页面级 key 化批次（按页迁移裸中文 → `String(localized:)`）：PetEditView 整页 | #7.8 | ✅ 已完成（2026-08-16：View 19 处 + PetEditViewModel 6 处（错误/特征注册提示）+ 纯逻辑层 3 处（PetFormLogic 备忘校验、PetProfileLogic 名字必填，`locale: Locale = .current` 注入模式）；catalog +40 key（38 个 `pet.edit.*` + `common.delete` + `pet.form.name.required`，zh-Hans 与原裸中文逐字一致，既有中文断言测试不动）；清理 5 条无引用空壳（“保存”保留——EditorView 仍字面量引用）；check（CI 同款 `--allow-missing-translations`）0 阻断、无缺 key、无多余新 key，`--hardcoded` 中本页 4 文件清零。遗留：EditorView 等其余页面同批次推进；Onboarding 已随 #7.13 收口）|
+| 7.11 | 装饰性英文文案 key 化收口（25 处硬编码 → `String(localized:)` + 25 key 落库 zh 原样/en 初译 needs_review；OnboardingViewModel.stepOverline 统一 7 个 step 视图 overline 消重复；`--hardcoded` 增英文装饰 warning 检测 + 词级白名单与 MILENS 水印整串白名单；§3.7 规范增补）| #7.10 | ✅ 已完成（2026-08-16：含 plural `pet.profile.lifeMark %lld`；`OnboardingViewModelTests` 断言改 catalog 同表查取防语言环境 flaky；资产工作簿再生成 en 初译 181 条。遗留登记（随 #7.10 页面级批次推进）：BeadResultComponents:24 副标题中文、PetProfileComponents:107-141 样例卡中文叙事、BusinessCardArtwork 中文 fieldLabel、PetsView:230-243 生日彩蛋、Onboarding 编辑式正文中文 ~19 处（已随 #7.13 收口）；`NEXT LEAF · 2026.06` 等假日期数据改真数据另走产品决策）|
+| 7.12 | Widget Extension 本地化接入（`MiLensWidget/Localizable.xcstrings`；7 个 Widget Swift 文件硬编码迁移 `String(localized:)` `widget.*` 语义 key；`check` 多 catalog × 多源码根配对；Excel sheet 去歧义 + GUI/资产工作簿/CI lint 同步）| #7 | ✅ 已完成（2026-08-16：47 key = intents 13 / lifeArchive 7 / upcoming 7 / common 5 / lockscreen 5 / photoEcho 5 / stale 2 / entity 2 / empty 1；catalog 经 XcodeGen 整目录（`sources: [MiLensWidget]`）编入 Widget target，Extension 内 `String(localized:)` 默认查自身 `.appex` bundle；check 验证 Widget catalog 0 缺 key / 0 多余 key，单测 34 用例。同日提取器形态扩展收盲区：配置面 API（configurationDisplayName/.description/IntentDescription/@Parameter(title:)/LocalizedStringResource 赋值）+ Text/字典 dotted key 模糊形态（switch-case SF Symbol 映射排除），widget 49 refs 全命中 0 缺 key，单测增至 38 用例。遗留：非源语言译文随 #4–#6 翻译批次导入，Widget 桌面/锁屏渲染文案同步进入走查 #8）|
+| 7.13 | Onboarding 引导流程整页 key 化（7 个 step 视图 + OnboardingViewModel + PetProfileLogic 数量校验；裸中文 → `String(localized:)`）| #7.10 | ✅ 已完成（2026-08-16：Welcome/Privacy/CreateArchive/FeatureRegister/FullScan/Candidates/Import 7 视图 113 处 + ViewModel 6 处（扫描进度/保存失败/张数上下限/注册结果）+ `checkPetCountLimit`（`pet.form.countLimit %lld`，locale 注入）；catalog +137 key（脚本插入 120 zh-Hans manual + 人工补录 17 含 en needs_review 初译：`onboarding.overline.*`×10 + mark/baseline/onDevice 装饰 7），zh value 与原裸中文逐字一致（`...`/`…`/`–`/`—` 逐字符保真，保证既有中文断言测试零改动）；物种 chip 复用 `PetDisplayLogic.speciesDisplayName`；三处 stageRow isDone 改「同 locale 解析结果相等」比较；check（CI 同款 `--allow-missing-translations`）0 阻断、无缺 key、无多余新 key。遗留：120 个新 key 仅 zh-Hans，en 等非源语言随 #4–#6 翻译批次导入）|
 | 8 | 伪本地化 + 模拟器走查 × 7 语言（长度/字体/截断/Dynamic Type/iPad/VoiceOver）| #5 #6 | 1-2 天 |
 | 9 | 商店元数据 7 语言 + 订阅描述 + 审核备注 + 独立一致性验收 | #5 #6 | 1-2 天 |
 | 10 | 截图素材本地化（文案覆盖层）| #9 | 1-2 天 |

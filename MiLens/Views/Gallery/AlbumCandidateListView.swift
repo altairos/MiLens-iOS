@@ -35,10 +35,10 @@ struct AlbumCandidateListView: View {
 
     private var sectionHeader: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text("似乎有熟悉的伙伴")
+            Text(String(localized: "album.candidates.title"))
                 .font(.custom("LXGWWenKai-Regular", size: 28, relativeTo: .title2))
                 .foregroundStyle(Color.milensTextPrimary)
-            Text("以下只是候选，请由你确认后再导入。")
+            Text(String(localized: "album.candidates.subtitle"))
                 .font(.bodySecondary)
                 .foregroundStyle(Color.milensTextSecondary)
             Rectangle()
@@ -57,13 +57,13 @@ struct AlbumCandidateListView: View {
         let selected = selectedIdentifiers.count
         let pending = total - selected
         return HStack(spacing: 24) {
-            Text("全部 \(total)")
+            Text(String(localized: "album.candidates.tabAll \(total)"))
                 .font(.editorialMetadata)
                 .foregroundStyle(Color.milensTextPrimary)
-            Text("已选 \(selected)")
+            Text(String(localized: "album.candidates.tabSelected \(selected)"))
                 .font(.editorialMetadata)
                 .foregroundStyle(Color.milensActionPrimary)
-            Text("待确认 \(pending)")
+            Text(String(localized: "album.candidates.tabPending \(pending)"))
                 .font(.editorialMetadata)
                 .foregroundStyle(Color.milensTextTertiary)
         }
@@ -133,7 +133,7 @@ struct AlbumCandidateListView: View {
                         Text(String(format: "%02d", index))
                             .font(.custom("Fraunces-Bold", size: 12))
                             .foregroundStyle(Color.milensActionPrimary)
-                        Text(isSelected ? "已选" : "待确认")
+                        Text(isSelected ? String(localized: "album.candidates.cardSelected") : String(localized: "album.candidates.cardPending"))
                             .font(.editorialMetadata)
                             .foregroundStyle(isSelected ? Color.milensActionPrimary : Color.milensTextSecondary)
                     }
@@ -161,7 +161,7 @@ struct AlbumCandidateListView: View {
                 .fill(Color.milensActionPrimary)
                 .frame(width: 3)
             VStack(alignment: .leading, spacing: 2) {
-                Text("FREE ARCHIVE")
+                Text(String(localized: "gallery.import.freeArchiveMark"))
                     .font(.custom("JacquesFrancois-Regular", size: 10))
                     .tracking(0.4)
                     .foregroundStyle(Color.milensActionPrimary)
@@ -170,7 +170,7 @@ struct AlbumCandidateListView: View {
                     .foregroundStyle(Color.milensTextPrimary)
             }
             Spacer()
-            Text("更大容量，请使用 MiLens Pro")
+            Text(String(localized: "album.candidates.quotaHint"))
                 .font(.buttonLabel)
                 .foregroundStyle(Color.milensActionPrimary)
                 .multilineTextAlignment(.trailing)
@@ -189,7 +189,7 @@ struct AlbumCandidateListView: View {
     private var bottomActionBar: some View {
         Button(action: onContinue) {
             HStack {
-                Text("继续确认归属 · \(selectedIdentifiers.count) 张")
+                Text(String(localized: "album.candidates.continue \(selectedIdentifiers.count)"))
                     .font(.buttonLabel)
                     .foregroundStyle(Color.milensActionPrimary)
                 Spacer()

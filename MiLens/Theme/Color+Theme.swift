@@ -111,8 +111,6 @@ extension Color {
     static let milensBrandWechat = Color("BrandWechat")
     /// 小红书品牌红（#F2446B 近似）
     static let milensBrandRedNote = Color("BrandRedNote")
-    /// 微信红包封面品牌红（#D1291E 近似）—— 仅 WeChatRedPacketMockView
-    static let milensRedPacketRed = Color("RedPacketRed")
 
     /// 分隔线（浅：#ECE7E1 / 深：#2E2823）
     static let milensSeparator = Color("Separator")

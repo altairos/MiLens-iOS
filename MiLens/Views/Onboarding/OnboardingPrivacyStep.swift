@@ -14,9 +14,9 @@ struct OnboardingPrivacyStep: View {
         ScrollView {
             VStack(alignment: .leading, spacing: 0) {
                 EditorialSection(
-                    overline: "FIRST LIGHT · 隐私摘要",
-                    title: "你的照片，\n只属于这台设备",
-                    bodyText: "「咪Lens」只读取访问范围内的本地照片，\n最终导入什么，始终由你确认。"
+                    overline: viewModel.stepOverline,
+                    title: String(localized: "onboarding.privacy.title"),
+                    bodyText: String(localized: "onboarding.privacy.body")
                 )
 
                 // On Device 卡片
@@ -28,7 +28,7 @@ struct OnboardingPrivacyStep: View {
                     .padding(.top, Spacing.lg)
 
                 // 底部说明
-                Text("稍后也可以在系统设置中调整照片访问范围。")
+                Text(String(localized: "onboarding.privacy.hint"))
                     .font(.bodySecondary)
                     .foregroundStyle(Color.milensTextTertiary)
                     .padding(.top, Spacing.xl)
@@ -39,7 +39,9 @@ struct OnboardingPrivacyStep: View {
 
                 // Focus Dial
                 FocusDialButton(
-                    label: viewModel.isRequestingAuth ? "请求中…" : "继续建档",
+                    label: viewModel.isRequestingAuth
+                        ? String(localized: "onboarding.privacy.requesting")
+                        : String(localized: "onboarding.privacy.cta"),
                     systemImage: "arrow.right",
                     isEnabled: !viewModel.isRequestingAuth
                 ) {
@@ -78,12 +80,12 @@ struct OnboardingPrivacyStep: View {
                             .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
                     }
                     VStack(alignment: .leading, spacing: 4) {
-                        Text("ON DEVICE")
+                        Text(String(localized: "onboarding.privacy.onDevice"))
                             .font(.editorialOverline)
                             .tracking(0.1)
                             .foregroundStyle(Color.milensActionPrimary)
                             .textCase(.uppercase)
-                        Text("只在本机整理")
+                        Text(String(localized: "onboarding.privacy.card.title"))
                             .font(.uiTitle)
                             .foregroundStyle(Color.milensTextPrimary)
                     }
@@ -91,7 +93,7 @@ struct OnboardingPrivacyStep: View {
                 }
                 .padding(.top, 22)
 
-                Text("不上传照片；不在云端留副本。")
+                Text(String(localized: "onboarding.privacy.card.body"))
                     .font(.bodyPrimary)
                     .foregroundStyle(Color.milensTextSecondary)
                     .padding(.top, 8)
@@ -99,7 +101,7 @@ struct OnboardingPrivacyStep: View {
                 RegisterMark(leadWidth: 42, tailWidth: 200)
                     .padding(.top, 14)
 
-                Text("本机特征基准 · 由你命名")
+                Text(String(localized: "onboarding.privacy.card.note"))
                     .font(.bodySecondary)
                     .foregroundStyle(Color.milensTextTertiary)
                     .padding(.top, 6)
@@ -115,12 +117,15 @@ struct OnboardingPrivacyStep: View {
     private var rulesCard: some View {
         EditorialCard(cornerRadius: Radius.large) {
             VStack(alignment: .leading, spacing: 0) {
-                ruleRow(number: "01", title: "照片不离开设备",
-                        subtitle: "不会上传到服务器", isLast: false)
-                ruleRow(number: "02", title: "分析在本机完成",
-                        subtitle: "只处理相册缩略图", isLast: false)
-                ruleRow(number: "03", title: "由你确认导入",
-                        subtitle: "候选不等于识别结果", isLast: true)
+                ruleRow(number: "01",
+                        title: String(localized: "onboarding.privacy.rule.leave"),
+                        subtitle: String(localized: "onboarding.privacy.rule.leave.detail"), isLast: false)
+                ruleRow(number: "02",
+                        title: String(localized: "onboarding.privacy.rule.local"),
+                        subtitle: String(localized: "onboarding.privacy.rule.local.detail"), isLast: false)
+                ruleRow(number: "03",
+                        title: String(localized: "onboarding.privacy.rule.confirm"),
+                        subtitle: String(localized: "onboarding.privacy.rule.confirm.detail"), isLast: true)
             }
             .padding(.leading, 14)
             .padding(.trailing, 16)
@@ -161,19 +166,19 @@ struct OnboardingPrivacyStep: View {
     private var authStatusHint: some View {
         switch viewModel.authStatus {
         case .authorized:
-            Label("已获得全部照片访问权限", systemImage: "checkmark.circle.fill")
+            Label(String(localized: "onboarding.privacy.auth.full"), systemImage: "checkmark.circle.fill")
                 .font(.caption)
                 .foregroundStyle(Color.milensSuccess)
         case .limited:
-            Label("已获得部分照片访问权限", systemImage: "checkmark.circle.fill")
+            Label(String(localized: "onboarding.privacy.auth.limited"), systemImage: "checkmark.circle.fill")
                 .font(.caption)
                 .foregroundStyle(Color.milensSuccess)
         case .denied, .restricted:
             VStack(alignment: .leading, spacing: 4) {
-                Label("相册权限未开启", systemImage: "exclamationmark.triangle.fill")
+                Label(String(localized: "onboarding.privacy.auth.denied"), systemImage: "exclamationmark.triangle.fill")
                     .font(.caption)
                     .foregroundStyle(Color.milensWarning)
-                Text("可在「设置 → 隐私 → 照片」中开启，扫描需要访问照片才能筛选候选")
+                Text(String(localized: "onboarding.privacy.auth.denied.hint"))
                     .font(.caption)
                     .foregroundStyle(Color.milensTextTertiary)
             }

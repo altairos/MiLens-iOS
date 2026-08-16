@@ -52,8 +52,8 @@ struct LifeArchiveWidget: Widget {
         ) { entry in
             LifeArchiveWidgetView(entry: entry)
         }
-        .configurationDisplayName("档案年轮")
-        .description("这份档案已经积累了多久、多少照片和多少段记忆")
+        .configurationDisplayName("widget.lifeArchive.name")
+        .description("widget.lifeArchive.description")
         .supportedFamilies([.systemMedium, .systemLarge])
     }
 }
@@ -80,7 +80,9 @@ struct LifeArchiveWidgetView: View {
 
     private var emptyMessage: String {
         let hasPets = !(entry.snapshot?.pets.isEmpty ?? true)
-        return hasPets ? "档案还没有照片" : "先建立一份伙伴档案"
+        return hasPets
+            ? String(localized: "widget.lifeArchive.empty.noPhotos")
+            : String(localized: "widget.empty.createPetFirst")
     }
 
     // ViewBuilder 不支持 guard 语句（首次编译暴露）：改用 if let / else，语义不变。
@@ -97,7 +99,7 @@ struct LifeArchiveWidgetView: View {
                 LifeArchiveMediumView(stats: stats, snapshot: snapshot)
             }
         } else {
-            WidgetEmptyState(message: "等待数据同步")
+            WidgetEmptyState(message: String(localized: "widget.stale.waitingSync"))
         }
     }
 }
@@ -113,9 +115,9 @@ struct ArchiveStatRow {
 /// 把 ArchiveStats 转为三行统计项。
 func archiveStatRows(_ stats: ArchiveStats) -> [ArchiveStatRow] {
     [
-        ArchiveStatRow(value: stats.totalPhotos, label: "照片"),
-        ArchiveStatRow(value: stats.totalMemories, label: "记忆"),
-        ArchiveStatRow(value: stats.totalWorks, label: "作品"),
+        ArchiveStatRow(value: stats.totalPhotos, label: String(localized: "widget.lifeArchive.stat.photos")),
+        ArchiveStatRow(value: stats.totalMemories, label: String(localized: "widget.lifeArchive.stat.memories")),
+        ArchiveStatRow(value: stats.totalWorks, label: String(localized: "widget.lifeArchive.stat.works")),
     ]
 }
 
@@ -135,7 +137,7 @@ struct LifeArchiveMediumView: View {
 
             // 三项统计
             VStack(alignment: .leading, spacing: 6) {
-                Text("档案年轮")
+                Text("widget.lifeArchive.name")
                     .font(WidgetFont.registryCaption)
                     .foregroundStyle(WidgetPalette.copperDeep)
                 ForEach(archiveStatRows(stats).indices, id: \.self) { i in

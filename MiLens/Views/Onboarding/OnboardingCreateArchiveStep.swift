@@ -17,9 +17,9 @@ struct OnboardingCreateArchiveStep: View {
         ScrollView {
             VStack(alignment: .leading, spacing: 0) {
                 EditorialSection(
-                    overline: "LIFE ARCHIVE · 建立档案",
-                    title: "先为伙伴建立\n生命档案",
-                    bodyText: "先登记名字与伙伴类型；\n此时还不会扫描系统图库。"
+                    overline: viewModel.stepOverline,
+                    title: String(localized: "onboarding.createArchive.title"),
+                    bodyText: String(localized: "onboarding.createArchive.body")
                 )
 
                 // Empty Identity 卡片
@@ -27,7 +27,7 @@ struct OnboardingCreateArchiveStep: View {
                     .padding(.top, Spacing.xxl)
 
                 // 名字字段
-                Text("伙伴叫什么名字？")
+                Text(String(localized: "onboarding.createArchive.nameLabel"))
                     .font(.uiBodyStrong)
                     .foregroundStyle(Color.milensTextPrimary)
                     .padding(.top, Spacing.xxl)
@@ -36,7 +36,7 @@ struct OnboardingCreateArchiveStep: View {
                     .padding(.top, Spacing.sm)
 
                 // 种类选择
-                Text("选择伙伴类型")
+                Text(String(localized: "onboarding.createArchive.speciesLabel"))
                     .font(.uiBodyStrong)
                     .foregroundStyle(Color.milensTextPrimary)
                     .padding(.top, Spacing.xl)
@@ -58,7 +58,7 @@ struct OnboardingCreateArchiveStep: View {
 
                 // Focus Dial
                 FocusDialButton(
-                    label: "创建第一份档案",
+                    label: String(localized: "onboarding.createArchive.cta"),
                     systemImage: "checkmark",
                     isEnabled: !viewModel.petName.trimmingCharacters(in: .whitespaces).isEmpty
                 ) {
@@ -91,13 +91,13 @@ struct OnboardingCreateArchiveStep: View {
                 .frame(width: 132, height: 132)
 
                 VStack(alignment: .leading, spacing: 6) {
-                    Text("ARCHIVE 001")
+                    Text(String(localized: "onboarding.createArchive.mark"))
                         .font(.bodySecondary)
                         .foregroundStyle(Color.milensTextSecondary)
-                    Text("等待一位伙伴")
+                    Text(String(localized: "onboarding.createArchive.card.waiting"))
                         .font(.uiTitle)
                         .foregroundStyle(Color.milensTextPrimary)
-                    Text("肖像会在注册照片后\n由你确认。")
+                    Text(String(localized: "onboarding.createArchive.card.body"))
                         .font(.bodySecondary)
                         .foregroundStyle(Color.milensTextSecondary)
                 }
@@ -116,7 +116,7 @@ struct OnboardingCreateArchiveStep: View {
             Rectangle()
                 .fill(Color.milensActionPrimary)
                 .frame(width: 2)
-            TextField("小满", text: $viewModel.petName)
+            TextField(String(localized: "onboarding.createArchive.namePlaceholder"), text: $viewModel.petName)
                 .font(.bodyPrimary)
                 .foregroundStyle(Color.milensTextPrimary)
                 .focused($nameFocused)
@@ -143,9 +143,9 @@ struct OnboardingCreateArchiveStep: View {
 
     private var speciesChips: some View {
         HStack(spacing: Spacing.sm) {
-            speciesChip(title: "喵星人", species: .cat, width: 102)
-            speciesChip(title: "汪星人", species: .dog, width: 102)
-            speciesChip(title: "其他伙伴", species: .unknown, width: 118)
+            speciesChip(title: PetDisplayLogic.speciesDisplayName(.cat), species: .cat, width: 102)
+            speciesChip(title: PetDisplayLogic.speciesDisplayName(.dog), species: .dog, width: 102)
+            speciesChip(title: String(localized: "onboarding.createArchive.species.other"), species: .unknown, width: 118)
             Spacer(minLength: 0)
         }
     }
@@ -177,7 +177,7 @@ struct OnboardingCreateArchiveStep: View {
                 Rectangle()
                     .fill(Color.milensActionPrimary)
                     .frame(width: 2)
-                Text("先有档案，后有特征基准；\n扫描结果不会自动进入档案。")
+                Text(String(localized: "onboarding.createArchive.note"))
                     .font(.bodySecondary)
                     .foregroundStyle(Color.milensTextSecondary)
                     .padding(.leading, 14)

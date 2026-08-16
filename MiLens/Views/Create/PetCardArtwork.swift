@@ -138,7 +138,7 @@ struct PetCardArtwork: View {
                         .strokeBorder(CardInk.bronze, lineWidth: 1))
                 .place(203, 233, w: 138, h: 180)
 
-            Text("生命档案·纪念卡")
+            Text(String(localized: "petcard.museum.label"))
                 .font(.custom("LXGWWenKai-Regular", size: 12))
                 .foregroundStyle(CardInk.taupe)
                 .place(42, 355, w: 140, h: 16)
@@ -210,7 +210,7 @@ struct PetCardArtwork: View {
                 .foregroundStyle(.white.opacity(0.85))
                 .lineLimit(1).minimumScaleFactor(0.7)
                 .place(26, 407, w: 150, h: 17)
-            Text("生命档案 · 纪念卡")
+            Text(String(localized: "petcard.gallery.label"))
                 .font(.system(size: 12))
                 .foregroundStyle(.white.opacity(0.75))
                 .place(224, 407, w: 110, h: 17)

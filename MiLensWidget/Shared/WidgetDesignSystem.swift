@@ -192,11 +192,11 @@ struct WidgetStaleState: View {
                 .font(.system(size: 20))
                 .foregroundStyle(WidgetPalette.tertiary)
             if let lastUpdated {
-                Text("更新于 \(lastUpdated.formatted(.dateTime.month().day().hour().minute()))")
+                Text("widget.stale.updated \(lastUpdated.formatted(.dateTime.month().day().hour().minute()))")
                     .font(WidgetFont.caption)
                     .foregroundStyle(WidgetPalette.tertiary)
             } else {
-                Text("等待数据同步")
+                Text("widget.stale.waitingSync")
                     .font(WidgetFont.caption)
                     .foregroundStyle(WidgetPalette.tertiary)
             }

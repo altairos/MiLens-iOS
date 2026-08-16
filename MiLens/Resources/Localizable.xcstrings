@@ -2678,6 +2678,28 @@
         }
       }
     },
+    "pet.edit.name.placeholder" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "名字"
+          }
+        }
+      }
+    },
+    "pet.edit.name.unnamed" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "未命名"
+          }
+        }
+      }
+    },
     "pet.profile.eyebrow" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -6099,6 +6121,17 @@
         }
       }
     },
+    "field.tagline.placeholder" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "如：家里的开心果"
+          }
+        }
+      }
+    },
     "field.owner" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -6110,6 +6143,28 @@
         }
       }
     },
+    "field.owner.placeholder %@" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "如：%@妈妈"
+          }
+        }
+      }
+    },
+    "field.owner.placeholder.fallback" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "如：小橘妈妈"
+          }
+        }
+      }
+    },
     "field.tags" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -6117,6 +6172,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "个性标签"
+          }
+        }
+      }
+    },
+    "field.tags.placeholder" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "选择性格标签"
           }
         }
       }
@@ -8791,6 +8857,28 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "%@正在快速成长，建议重新选择照片注册"
+          }
+        }
+      }
+    },
+    "timeline.photo.title %@" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@的照片"
+          }
+        }
+      }
+    },
+    "timeline.photo.title.default" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "照片"
           }
         }
       }

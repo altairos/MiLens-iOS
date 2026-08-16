@@ -307,7 +307,9 @@ enum TimelineLogic {
             let pet = photo.petID.flatMap { id in input.pets.first { $0.id == id } }
             let petName = pet?.name ?? ""
             let title = photo.note.isEmpty
-                ? (petName.isEmpty ? "照片" : "\(petName)的照片")
+                ? (petName.isEmpty
+                    ? String(localized: "timeline.photo.title.default", locale: locale)
+                    : String(localized: "timeline.photo.title \(petName)", locale: locale))
                 : photo.note
             entries.append(TimelineEntry(
                 id: "photo_\(photo.id.uuidString)",

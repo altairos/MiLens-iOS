@@ -99,7 +99,7 @@ struct PetEditView: View {
 
             // 基本信息
             Section("基本信息") {
-                TextField("名字", text: $bindable.form.name)
+                TextField(String(localized: "pet.edit.name.placeholder"), text: $bindable.form.name)
                     .font(.bodyPrimary)
             }
 
@@ -175,7 +175,7 @@ struct PetEditView: View {
                     }
                 }
                 VStack(alignment: .leading, spacing: Spacing.xs) {
-                    Text(vm.form.name.isEmpty ? "未命名" : vm.form.name)
+                    Text(vm.form.name.isEmpty ? String(localized: "pet.edit.name.unnamed") : vm.form.name)
                         .font(.titleStandard)
                     Text(PetDisplayLogic.speciesDisplayName(vm.form.species))
                         .font(.caption)

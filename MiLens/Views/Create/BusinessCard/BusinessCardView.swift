@@ -88,7 +88,8 @@ struct BusinessCardView: View {
                 field: field,
                 tagline: $tagline,
                 ownerName: $ownerName,
-                selectedTags: $selectedTags
+                selectedTags: $selectedTags,
+                ownerPlaceholder: ownerPlaceholder
             )
         }
         .task { await load() }
@@ -100,6 +101,16 @@ struct BusinessCardView: View {
     enum EditableField: String, Identifiable {
         case tagline, owner, tags
         var id: String { rawValue }
+    }
+
+    // MARK: - 占位文案
+
+    /// 照护人占位：优先用当前宠物名动态生成（如「如：小橘妈妈」），宠物名为空时回退通用示例。
+    private var ownerPlaceholder: String {
+        let name = pet?.name ?? ""
+        return name.isEmpty
+            ? String(localized: "field.owner.placeholder.fallback")
+            : String(localized: "field.owner.placeholder \(name)")
     }
 
     // MARK: - 内容
@@ -173,17 +184,17 @@ struct BusinessCardView: View {
                     VStack(spacing: 0) {
                         WorkshopFieldRow(
                             label: String(localized: "field.tagline"),
-                            value: tagline.isEmpty ? "如：家里的开心果" : tagline,
+                            value: tagline.isEmpty ? String(localized: "field.tagline.placeholder") : tagline,
                             onEdit: { editingField = .tagline }
                         )
                         WorkshopFieldRow(
                             label: String(localized: "field.owner"),
-                            value: ownerName.isEmpty ? "如：小橘妈妈" : ownerName,
+                            value: ownerName.isEmpty ? ownerPlaceholder : ownerName,
                             onEdit: { editingField = .owner }
                         )
                         WorkshopFieldRow(
                             label: String(localized: "field.tags"),
-                            value: selectedTags.isEmpty ? "选择性格标签" : selectedTags.joined(separator: " / "),
+                            value: selectedTags.isEmpty ? String(localized: "field.tags.placeholder") : selectedTags.joined(separator: " / "),
                             onEdit: { editingField = .tags },
                             showsRule: false
                         )
@@ -395,6 +406,7 @@ private struct BusinessCardFieldEditorSheet: View {
     @Binding var tagline: String
     @Binding var ownerName: String
     @Binding var selectedTags: [String]
+    let ownerPlaceholder: String
     @Environment(\.dismiss) private var dismiss
 
     var body: some View {
@@ -405,7 +417,7 @@ private struct BusinessCardFieldEditorSheet: View {
                     case .tagline:
                         Text(String(localized: "field.tagline"))
                             .font(.uiBodyStrong)
-                        TextField("如：家里的开心果", text: $tagline, axis: .horizontal)
+                        TextField(String(localized: "field.tagline.placeholder"), text: $tagline, axis: .horizontal)
                             .textFieldStyle(.roundedBorder)
                             .onChange(of: tagline) { _, newValue in
                                 if newValue.count > PetBusinessCardLogic.maxTaglineLength {
@@ -419,7 +431,7 @@ private struct BusinessCardFieldEditorSheet: View {
                     case .owner:
                         Text(String(localized: "field.owner"))
                             .font(.uiBodyStrong)
-                        TextField("如：小橘妈妈", text: $ownerName, axis: .horizontal)
+                        TextField(ownerPlaceholder, text: $ownerName, axis: .horizontal)
                             .textFieldStyle(.roundedBorder)
                             .onChange(of: ownerName) { _, newValue in
                                 if newValue.count > PetBusinessCardLogic.maxOwnerNameLength {

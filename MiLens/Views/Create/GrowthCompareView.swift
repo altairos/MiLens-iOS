@@ -316,7 +316,7 @@ struct GrowthCompareArtwork: View {
                 // 中间间隔标签条
                 ZStack {
                     Color.black
-                    Text(result.gapLabel.isEmpty ? "成长对比" : result.gapLabel)
+                    Text(result.gapLabel.isEmpty ? String(localized: "create.growthCompare.title") : result.gapLabel)
                         .font(.custom("LXGWWenKai-Regular", size: w * 0.05))
                         .foregroundStyle(.white.opacity(0.92))
                 }
@@ -364,12 +364,12 @@ struct GrowthCompareArtwork: View {
     private func footerBlock(w: CGFloat, h: CGFloat) -> some View {
         ZStack(alignment: .bottomTrailing) {
             VStack(spacing: w * 0.015) {
-                Text(petName.isEmpty ? "成长对比" : petName)
+                Text(petName.isEmpty ? String(localized: "create.growthCompare.title") : petName)
                     .font(.custom("LXGWWenKai-Regular", size: w * 0.06))
                     .foregroundStyle(Color.milensTextPrimary)
                     .lineLimit(1)
                     .minimumScaleFactor(0.6)
-                Text("成长对比")
+                Text(String(localized: "create.growthCompare.title"))
                     .font(.system(size: w * 0.028, weight: .regular, design: .rounded))
                     .foregroundStyle(Color.milensTextTertiary)
             }

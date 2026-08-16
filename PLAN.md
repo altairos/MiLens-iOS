@@ -668,7 +668,7 @@ Figma 文件 `WnT7DCK1XCyPwnS38SE87p`（MiLens iOS Release Candidate · FINAL）
 5. **Pro 用户 MiLens 水印开关**：允许 Pro 版用户自行选择水印开关；`ProFeature.watermarkFreeExport` 权益项已预留（2026-08-12），需补用户侧开关 UI。
 6. **英文装饰文字多语言方案**：规划英文装饰文字在其他语言版本中的实现方式（Fraunces/英文 label 的语言回退策略，关联 [Localization-Plan](docs/Localization-Plan.md)）。
 7. **相处章节自定义命名 UI**：`TimelineLogic` 纯函数已支持 `customNames` 参数，UI 输入未实现（Figma 已知限制 #1）。
-8. **App Icon 重做**：猫耳、背景色、背景散落的相片；矢量化（现有 1024×1024 PNG 为占位）。
+8. **App Icon 重做**：猫耳、背景色、背景散落的相片；矢量化（现有 1024×1024 PNG 为占位）。（2026/8/16完成）
 9. **引导页缺口饼形与 icon 重做**。
 10. **占位文字清查**：确认无残留硬编码（如「小橘」不再硬编码，改用宠物名变量/本地化 key）。
 
@@ -676,6 +676,6 @@ Figma 文件 `WnT7DCK1XCyPwnS38SE87p`（MiLens iOS Release Candidate · FINAL）
 
 1. **月度/年度精选模版精修**（V1.1，可能增加版式选择；`MemoryRecapLogic` + RecapView 基础已落地）。
 2. **相簿浏览模式**（V1.1；MiLensKit `GalleryMode` 枚举已预留：网格免费 / 剪贴簿 / 拍立得散页 / 杂志 Pro）。
-3. **触发强化**：时光机推送带缩略图、生日 Hero 替换、时间线门控倒计时条（关联[情感触点备忘](docs/情感触点-Mac待办备忘.md) §6 Stage 4）。
+3. **彩虹桥 - 触发强化**：时光机推送带缩略图、生日 Hero 替换、时间线门控倒计时条（关联[情感触点备忘](docs/情感触点-Mac待办备忘.md) §6 Stage 4）。
 4. **官网从 Cloudflare Pages 迁移到 GitHub 仓库**。
 5. **官网精修 + 产品图**。

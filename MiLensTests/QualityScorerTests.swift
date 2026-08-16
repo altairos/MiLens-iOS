@@ -166,7 +166,7 @@ final class QualityScorerTests: XCTestCase {
     }
 
     func testComputeScoresReturnsZeroWhenPendingFetchFails() async throws {
-        let (scorer, repo, fs, _, _, failing) = makeFailingScorer()
+        let (scorer, repo, fs, _, container, failing) = makeFailingScorer()
         try insertPending(into: repo, fileStorage: fs)
         failing.failGetPending = true
 
@@ -175,7 +175,7 @@ final class QualityScorerTests: XCTestCase {
     }
 
     func testFindDuplicatesReturnsZeroWhenCandidatesFetchFails() async throws {
-        let (scorer, repo, fs, _, _, failing) = makeFailingScorer()
+        let (scorer, repo, fs, _, container, failing) = makeFailingScorer()
         let a = try insertPending(into: repo, fileStorage: fs, uri: "/a.jpg", phash: "0000000000000000")
         _ = try insertPending(into: repo, fileStorage: fs, uri: "/b.jpg", phash: "0000000000000001")
         try repo.updateQualityData(a, sharpness: 5000, qualityScore: 0.9, phash: "0000000000000000")
@@ -186,7 +186,7 @@ final class QualityScorerTests: XCTestCase {
     }
 
     func testFindDuplicatesStillReturnsGroupsWhenMarksWriteFails() async throws {
-        let (scorer, repo, fs, _, _, failing) = makeFailingScorer()
+        let (scorer, repo, fs, _, container, failing) = makeFailingScorer()
         let a = try insertPending(into: repo, fileStorage: fs, uri: "/a.jpg", phash: "0000000000000000")
         _ = try insertPending(into: repo, fileStorage: fs, uri: "/b.jpg", phash: "0000000000000001")
         try repo.updateQualityData(a, sharpness: 5000, qualityScore: 0.9, phash: "0000000000000000")

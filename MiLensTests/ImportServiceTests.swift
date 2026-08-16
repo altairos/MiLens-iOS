@@ -437,16 +437,21 @@ final class ImportServiceTests: XCTestCase {
         XCTAssertTrue(photos.isEmpty, "目录创建失败时不得有任何入库")
     }
 
-    /// 读取既有 originalURI 失败 -> 降级空 Set 继续导入（去重失效但不中断）。
+    /// 读取既有 originalURI 失败 -> 降级空 Set 继续导入（去重失效但不中断导入流程）。
+    /// 注：内存去重失效后，与既有记录重复的 URI 仍会被 DB 的 unique 约束兜底拒绝
+    /// （双层防御），故用全新 ID 验证「降级不中断」语义本身。
     func testImportContinuesWithoutDedupWhenExistingURIsFetchFails() async throws {
         let (service, photoRepo, _) = makeFailingRepoService(failGetAllOriginalURIs: true)
         // DB 已有 originalURI = "a" 的记录（正常应被去重跳过）
         try photoRepo.insertPhoto(Photo(uri: "/documents/MiPhotos/xyz.jpg", originalURI: "a"))
 
-        let result = await service.importPhotos(identifiers: ["a"])
+        // 导入全新 ID：读取既有 URI 失败只影响去重，不应中断导入流程
+        let result = await service.importPhotos(identifiers: ["b"])
         XCTAssertEqual(result.imported, 1, "读取既有 URI 失败时降级为不去重，导入不中断")
+        XCTAssertEqual(result.failed, 0)
+        XCTAssertEqual(result.quotaBlocked, 0)
 
-        // 降级代价：同 originalURI 出现两条记录（重复导入优于中断导入）
+        // 预设记录 + 新导入各 1 条（重复 URI 的 DB unique 兜底由 flush 用例覆盖）
         let photos = try photoRepo.getPhotosPage(offset: 0, limit: 10)
         XCTAssertEqual(photos.count, 2)
     }

@@ -421,6 +421,177 @@ final class ImportServiceTests: XCTestCase {
             "有 2 张照片导入失败")
     }
 
+    // MARK: - 环境级失败与降级（建目录/去重读取/批量入库）
+
+    /// 沙盒目录创建失败是环境级错误：直接终止本次导入（不计单张失败、不入库）。
+    func testImportReturnsZeroWhenSandboxDirectoryCreationFails() async {
+        let (service, photoRepo, fs, _) = makeService(assets: [asset("a")])
+        fs.failCreateDirectory = true
+
+        let result = await service.importPhotos(identifiers: ["a"])
+        XCTAssertEqual(result.imported, 0)
+        XCTAssertEqual(result.failed, 0, "目录创建失败是环境级错误，不计为单张失败")
+        XCTAssertEqual(result.quotaBlocked, 0)
+
+        let photos = try! photoRepo.getPhotosPage(offset: 0, limit: 10)
+        XCTAssertTrue(photos.isEmpty, "目录创建失败时不得有任何入库")
+    }
+
+    /// 读取既有 originalURI 失败 -> 降级空 Set 继续导入（去重失效但不中断）。
+    func testImportContinuesWithoutDedupWhenExistingURIsFetchFails() async throws {
+        let (service, photoRepo, _) = makeFailingRepoService(failGetAllOriginalURIs: true)
+        // DB 已有 originalURI = "a" 的记录（正常应被去重跳过）
+        try photoRepo.insertPhoto(Photo(uri: "/documents/MiPhotos/xyz.jpg", originalURI: "a"))
+
+        let result = await service.importPhotos(identifiers: ["a"])
+        XCTAssertEqual(result.imported, 1, "读取既有 URI 失败时降级为不去重，导入不中断")
+
+        // 降级代价：同 originalURI 出现两条记录（重复导入优于中断导入）
+        let photos = try photoRepo.getPhotosPage(offset: 0, limit: 10)
+        XCTAssertEqual(photos.count, 2)
+    }
+
+    /// 批量入库失败（insertPhotos 抛错）-> 计数回本批数量，回滚已写沙盒文件。
+    func testFlushFailureRollsBackFilesAndCountsBatchAsFailed() async throws {
+        let (service, photoRepo, fs) = makeFailingRepoService(failInsertPhotos: true)
+
+        let result = await service.importPhotos(identifiers: ["a", "b"])
+        XCTAssertEqual(result.imported, 0)
+        XCTAssertEqual(result.failed, 2, "整批入库失败计数回本批数量")
+        XCTAssertTrue(result.importedPhotoIDs.isEmpty)
+
+        // 回滚验证：DB 无记录、已写沙盒副本被清理（不留孤儿文件）
+        let photos = try photoRepo.getPhotosPage(offset: 0, limit: 10)
+        XCTAssertTrue(photos.isEmpty)
+        XCTAssertTrue(fs.listFiles(in: "/documents/MiPhotos").isEmpty,
+                      "批量入库失败须回滚删除本批已写文件")
+    }
+
+    // MARK: - 重入守卫 / 取消 / 配额进度 / Pro 切换
+
+    /// 导入进行中的二次调用被重入守卫拦截：立即返回全 0，不影响首个调用。
+    func testImportRejectsConcurrentInvocationWhileImporting() async {
+        let gate = ImportGateLibrary(assets: [asset("a")])
+        let (service, _, _) = makeServiceWithLibrary(gate)
+
+        let first = Task { await service.importPhotos(identifiers: ["a"]) }
+        // 等首个调用推进到 loadImageData（此刻 isImporting 已置位）
+        await gate.waitForFirstLoad()
+
+        let second = await service.importPhotos(identifiers: ["a"])
+        XCTAssertEqual(second.imported, 0)
+        XCTAssertEqual(second.failed, 0)
+        XCTAssertEqual(second.quotaBlocked, 0)
+        XCTAssertFalse(second.cancelled)
+
+        gate.release()
+        let firstResult = await first.value
+        XCTAssertEqual(firstResult.imported, 1, "首个调用不受重入守卫影响")
+    }
+
+    /// 处理中取消：循环 break 后尾批 flush——已处理照片照常入库（不留孤儿文件）。
+    func testImportCancellationFlushesPendingPhotos() async {
+        let gate = ImportGateLibrary(assets: [asset("a"), asset("b")])
+        let (service, photoRepo, _) = makeServiceWithLibrary(gate)
+
+        let task = Task { await service.importPhotos(identifiers: ["a", "b"]) }
+        await gate.waitForFirstLoad()
+        task.cancel()
+        gate.release()
+
+        let result = await task.value
+        XCTAssertTrue(result.cancelled, "取消后结果须标记 cancelled 供 UI 区分提示")
+        XCTAssertEqual(result.imported, 1, "取消前已处理的照片经尾批 flush 入库")
+        XCTAssertEqual(result.failed, 0)
+
+        let photos = try! photoRepo.getPhotosPage(offset: 0, limit: 10)
+        XCTAssertEqual(photos.count, 1)
+    }
+
+    /// 配额耗尽的照片不再入库，但进度回调仍逐张推进（调用方进度条不滞留）。
+    func testQuotaExhaustedPhotosStillReportProgress() async {
+        let existingIDs = (0..<49).map { i in "existing_\(i)" }
+        let assets = existingIDs.map { id in asset(id) }
+            + [asset("new1"), asset("new2"), asset("new3")]
+        let (service, _, _, _) = makeService(assets: assets)
+        _ = await service.importPhotos(identifiers: existingIDs)
+
+        var reported: [Int] = []
+        let result = await service.importPhotos(
+            identifiers: ["new1", "new2", "new3"]) { progress in
+                reported.append(progress.current)
+            }
+        XCTAssertEqual(result.imported, 1)
+        XCTAssertEqual(result.quotaBlocked, 2)
+        XCTAssertEqual(reported, [1, 2, 3],
+                       "被配额拦截的照片仍须推进进度（配额 continue 分支不跳过进度回调）")
+    }
+
+    /// 购买 Pro 后 updateProStatus 动态解除配额限制（无需重建服务）。
+    func testUpdateProStatusLiftsQuotaLimit() async {
+        let existingIDs = (0..<49).map { i in "existing_\(i)" }
+        let assets = existingIDs.map { id in asset(id) }
+            + [asset("new1"), asset("new2"), asset("new3")]
+        let (service, photoRepo, _, _) = makeService(assets: assets)
+        _ = await service.importPhotos(identifiers: existingIDs)
+
+        service.updateProStatus(true)
+        let result = await service.importPhotos(identifiers: ["new1", "new2", "new3"])
+        XCTAssertEqual(result.imported, 3, "Pro 用户不受 50 张免费配额限制")
+        XCTAssertEqual(result.quotaBlocked, 0)
+
+        let photos = try! photoRepo.getPhotosPage(offset: 0, limit: 100)
+        XCTAssertEqual(photos.count, 52)
+    }
+
+    // MARK: - 环境级失败辅助
+
+    /// 构造使用失败注入仓储的导入服务（container 保活同 makeService）。
+    private func makeFailingRepoService(
+        failGetAllOriginalURIs: Bool = false,
+        failInsertPhotos: Bool = false
+    ) -> (ImportService, SwiftDataPhotoRepository, MockFileStorage) {
+        let schema = Schema(versionedSchema: SchemaV2.self)
+        let config = ModelConfiguration(isStoredInMemoryOnly: true)
+        let container = try! ModelContainer(for: schema, configurations: [config])
+        keepAlive.append(container)
+        let photoRepo = SwiftDataPhotoRepository(context: container.mainContext)
+        let petRepo = SwiftDataPetRepository(context: container.mainContext)
+        let failing = ImportFailurePhotoRepository(base: photoRepo)
+        failing.failGetAllOriginalURIs = failGetAllOriginalURIs
+        failing.failInsertPhotos = failInsertPhotos
+        let fileStorage = MockFileStorage()
+        let service = ImportService(
+            photoLibrary: MockPhotoLibraryAccess(assets: [asset("a"), asset("b")]),
+            fileStorage: fileStorage,
+            photoRepo: failing,
+            mediaLifecycle: MediaLifecycleService(
+                photoRepo: failing, petRepo: petRepo,
+                fileStorage: fileStorage, sandboxDir: "/documents/MiPhotos"),
+            sandboxDir: "/documents/MiPhotos", petRepo: petRepo)
+        return (service, photoRepo, fileStorage)
+    }
+
+    /// 构造使用外部照片库实现的导入服务（重入/取消时序测试用）。
+    private func makeServiceWithLibrary(
+        _ library: any PhotoLibraryAccess
+    ) -> (ImportService, SwiftDataPhotoRepository, MockFileStorage) {
+        let schema = Schema(versionedSchema: SchemaV2.self)
+        let config = ModelConfiguration(isStoredInMemoryOnly: true)
+        let container = try! ModelContainer(for: schema, configurations: [config])
+        keepAlive.append(container)
+        let photoRepo = SwiftDataPhotoRepository(context: container.mainContext)
+        let petRepo = SwiftDataPetRepository(context: container.mainContext)
+        let fileStorage = MockFileStorage()
+        let service = ImportService(
+            photoLibrary: library, fileStorage: fileStorage,
+            photoRepo: photoRepo,
+            mediaLifecycle: MediaLifecycleService(
+                photoRepo: photoRepo, petRepo: petRepo,
+                fileStorage: fileStorage, sandboxDir: "/documents/MiPhotos"),
+            sandboxDir: "/documents/MiPhotos", petRepo: petRepo)
+        return (service, photoRepo, fileStorage)
+    }
     // MARK: - 自动归属辅助
 
     /// 构造带可选 CLIP mock 的导入服务（返回 petRepo 供注册特征）。
@@ -473,4 +644,132 @@ final class ImportServiceTests: XCTestCase {
 private enum ImportTestError: Error {
     case extractionFailed
     case loadFailed
+}
+
+/// 可控挂起的照片库 mock：首次 loadImageData 挂起直至 release（重入/取消时序测试用）。
+/// loadCount 仅在 MainActor 串行导入循环中递增，无并发竞争。
+private final class ImportGateLibrary: PhotoLibraryAccess, @unchecked Sendable {
+    private let assets: [PhotoAssetMetadata]
+    private var loadCount = 0
+    private let firstLoadSignal = AsyncStream<Void>.makeStream()
+    private let releaseGate = AsyncStream<Void>.makeStream()
+
+    init(assets: [PhotoAssetMetadata]) {
+        self.assets = assets
+    }
+
+    /// 等待首个 loadImageData 进入挂起（此刻调用方 importPhotos 已置 isImporting）。
+    func waitForFirstLoad() async {
+        for await _ in firstLoadSignal.stream { break }
+    }
+
+    /// 放行首次挂起的 loadImageData。
+    func release() {
+        releaseGate.continuation.yield()
+    }
+
+    func loadImageData(forIdentifier identifier: String, maxDimension: Int) async throws -> Data {
+        loadCount += 1
+        if loadCount == 1 {
+            firstLoadSignal.continuation.yield()
+            for await _ in releaseGate.stream { break }
+        }
+        return Data([0xFF, 0xD8, 0xFF])
+    }
+
+    func streamPhotos(_ consumer: @escaping (PhotoAssetMetadata) async throws -> Bool) async throws -> Int {
+        var visited = 0
+        for asset in assets {
+            visited += 1
+            if !(try await consumer(asset)) { break }
+        }
+        return visited
+    }
+
+    func photoCount() async throws -> Int { assets.count }
+
+    func countPhotosAddedSince(_ date: Date?) async throws -> Int {
+        if let date {
+            return assets.filter { a in (a.dateAdded ?? a.dateTaken) ?? .distantPast >= date }.count
+        }
+        return assets.count
+    }
+
+    func metadata(forIdentifier identifier: String) async throws -> PhotoAssetMetadata? {
+        assets.first { a in a.identifier == identifier }
+    }
+
+    func save(imageData: Data, as kind: PhotoLibrarySaveKind) async throws {}
+
+    func authorizationStatus() async -> PhotoLibraryAuthorizationStatus { .authorized }
+
+    func requestAuthorization() async -> PhotoLibraryAuthorizationStatus { .authorized }
+}
+
+/// 仓储失败注入 wrapper（导入编排错误分支测试用）：
+/// 默认全量转发 base，开关打开后对应方法抛 PhotoRepositoryFailure。
+@MainActor
+private final class ImportFailurePhotoRepository: PhotoRepositoryProtocol {
+    private let base: SwiftDataPhotoRepository
+    /// getAllOriginalURIs 抛错（导入去重读取失败降级路径）。
+    var failGetAllOriginalURIs = false
+    /// insertPhotos 抛错（导入批量入库失败回滚路径）。
+    var failInsertPhotos = false
+
+    init(base: SwiftDataPhotoRepository) {
+        self.base = base
+    }
+
+    func getAllOriginalURIs() throws -> Set<String> {
+        guard !failGetAllOriginalURIs else { throw PhotoRepositoryFailure() }
+        return try base.getAllOriginalURIs()
+    }
+
+    func insertPhotos(_ photos: [Photo]) throws {
+        guard !failInsertPhotos else { throw PhotoRepositoryFailure() }
+        try base.insertPhotos(photos)
+    }
+
+    // -- 其余全量转发 --
+    func getPhoto(id: UUID) throws -> Photo? { try base.getPhoto(id: id) }
+    func getPhotoByURI(_ uri: String) throws -> Photo? { try base.getPhotoByURI(uri) }
+    func getPhotoByOriginalURI(_ originalURI: String) throws -> Photo? {
+        try base.getPhotoByOriginalURI(originalURI)
+    }
+    func getAllPhotoURIs() throws -> Set<String> { try base.getAllPhotoURIs() }
+    func countAllPhotos() throws -> Int { try base.countAllPhotos() }
+    func getLatestPhotoDate() throws -> Date? { try base.getLatestPhotoDate() }
+    func getPhotosPage(offset: Int, limit: Int) throws -> [Photo] {
+        try base.getPhotosPage(offset: offset, limit: limit)
+    }
+    func getPhotosByPet(_ pet: Pet) throws -> [Photo] { try base.getPhotosByPet(pet) }
+    func getUnassignedPhotos(limit: Int) throws -> [Photo] {
+        try base.getUnassignedPhotos(limit: limit)
+    }
+    func getAnniversaryPhotos(month: Int, day: Int, excludeYear: Int?) throws -> [Photo] {
+        try base.getAnniversaryPhotos(month: month, day: day, excludeYear: excludeYear)
+    }
+    func insertPhoto(_ photo: Photo) throws { try base.insertPhoto(photo) }
+    func deletePhoto(_ photo: Photo) throws { try base.deletePhoto(photo) }
+    func updatePhoto(_ photo: Photo) throws { try base.updatePhoto(photo) }
+    func assignPhoto(_ photo: Photo, to pet: Pet?) throws { try base.assignPhoto(photo, to: pet) }
+    func batchAssignPhotos(_ photos: [Photo], to targetPet: Pet?) throws -> [Pet] {
+        try base.batchAssignPhotos(photos, to: targetPet)
+    }
+    func setFavorite(_ photo: Photo, favorite: Bool) throws {
+        try base.setFavorite(photo, favorite: favorite)
+    }
+    func updateNote(_ photo: Photo, note: String) throws {
+        try base.updateNote(photo, note: note)
+    }
+    func getPendingQualityScorePhotos(limit: Int) throws -> [Photo] {
+        try base.getPendingQualityScorePhotos(limit: limit)
+    }
+    func getDuplicateCandidates() throws -> [Photo] { try base.getDuplicateCandidates() }
+    func updateQualityData(_ photo: Photo, sharpness: Double, qualityScore: Double, phash: String) throws {
+        try base.updateQualityData(photo, sharpness: sharpness, qualityScore: qualityScore, phash: phash)
+    }
+    func replaceDuplicateMarks(_ groups: [DuplicateMarkGroup]) throws {
+        try base.replaceDuplicateMarks(groups)
+    }
 }

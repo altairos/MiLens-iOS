@@ -39,6 +39,9 @@ final class MockFileStorage: FileStorage, @unchecked Sendable {
     private var files: [String: Data] = [:]
     private var directories: Set<String> = ["/tmp", "/documents", "/cache"]
 
+    /// 失败注入：createDirectory 抛错（导入沙盒目录创建失败路径）。
+    var failCreateDirectory = false
+
     /// 预设文件内容（测试辅助方法，对应源端 presetFile）。
     func preset(_ data: Data, at path: String) {
         files[path] = data
@@ -71,6 +74,9 @@ final class MockFileStorage: FileStorage, @unchecked Sendable {
     }
 
     func createDirectory(at path: String) async throws {
+        guard !failCreateDirectory else {
+            throw FileStorageError.directoryNotFound(path)
+        }
         directories.insert(path)
     }
 

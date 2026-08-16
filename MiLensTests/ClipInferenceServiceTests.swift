@@ -38,7 +38,7 @@ final class ClipInferenceServiceTests: XCTestCase {
                 bitsPerComponent: 8, bitsPerPixel: 32,
                 bytesPerRow: width * 4,
                 space: CGColorSpaceCreateDeviceRGB(),
-                bitmapInfo: CGImageAlphaInfo.premultipliedLast,
+                bitmapInfo: CGBitmapInfo(rawValue: CGImageAlphaInfo.premultipliedLast.rawValue),
                 provider: provider, decode: nil,
                 shouldInterpolate: false, intent: .defaultIntent)
         else { return Data() }

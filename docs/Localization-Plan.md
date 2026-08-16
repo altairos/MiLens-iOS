@@ -1,6 +1,6 @@
 # MiLens 全球本地化计划
 
-最后更新：2026-08-16（MiLensWidget 接入 String Catalog，工具链支持多 catalog × 多源码根与 Excel sheet 去歧义；2026-08-15 CI 缺译门禁过渡期降级 `--allow-missing-translations`；2026-08-10 定案首发 7 语言：zh-Hans / zh-Hant / ja / ko / en / fr / de）
+最后更新：2026-08-17（回退 1c623e9 误入主 catalog 的 117 条 en 初译，修复 commit b3b0a79，CI 全绿 run 31961932575——红线教训见 §5.4：翻译完整导入前 catalog 只能含源语言；2026-08-16 MiLensWidget 接入 String Catalog，工具链支持多 catalog × 多源码根与 Excel sheet 去歧义；2026-08-15 CI 缺译门禁过渡期降级 `--allow-missing-translations`；2026-08-10 定案首发 7 语言：zh-Hans / zh-Hant / ja / ko / en / fr / de）
 
 > 本文档是 MiLens 全球首发本地化工作的唯一事实来源：语言矩阵、各国市场注意要点、翻译工作流、质量门禁、ASO 关键词策略与时间线。工具与命令见 [DEVELOPMENT.md](../DEVELOPMENT.md) §4.5，商店文案见 [AppStore-metadata.md](AppStore-metadata.md)，商业决策见 [ADR-0010](adr/0010-commercialization-and-emotion-triggers.md)。
 
@@ -433,6 +433,8 @@ python tools/localization.py import docs/localization/global-localization.xlsx M
 | `术语表` | §8 核心术语 × 7 语言 | 翻译时参照 |
 
 **state 列语义**（工具链原生约定）：初译由脚本以 `needs_review` 状态写入（当前工作簿 en 列 150 条已就位，尚未回写到 `.xcstrings`）；人工审校后**清空该语言 state 列**再 `import`，工具即按 `translated` 落库。数值/占位符/换行符在 Excel 中保持不变。当前 `check` 会拦截缺失、空值和 `new`，但不会拦截 `needs_review`；发布门禁需补充这一规则。
+
+> **红线（2026-08-17 事件教训）**：翻译完整导入前，`.xcstrings` 只能含源语言 zh-Hans。catalog 一旦出现某语言的任何条目，该语言即进入 bundle 可用语言表，对应偏好的模拟器/设备上其余 key 缺译时 `String(localized:)` 会返回 key 本身而非回退源语言——1c623e9 曾混入 117 条 en 初译，en 模拟器上 AnniversaryTimeMachineLogicTests 等 15+ 例断言拿到 key 本身，App 作业 exit 65（run 31961031119）；b3b0a79 回退后全绿（run 31961932575）。批量回写必须走 `import --lang <L>`，且译文已人工审校。
 
 > 不想碰命令行时可用桌面 GUI：`python tools/localization-gui.py`（tkinter 工作台，见 DEVELOPMENT.md §4.5）——语言进度总览、缺译清单、一键导出/导入/check/生成工作簿；无显示环境用 `--self-check` 自检。
 

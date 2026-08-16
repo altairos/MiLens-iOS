@@ -173,7 +173,14 @@ final class CoreImageEditorProcessing: EditorImageProcessing {
         // 画布坐标 → 导出像素坐标的缩放（画布 fit 显示，导出全尺寸）。
         let scale = CGFloat(width) / max(canvasSize.width, 1)
 
-        let renderer = UIGraphicsImageRenderer(size: CGSize(width: width, height: height))
+        // scale=1：导出像素与 baseImage 像素 1:1。UIGraphicsImageRenderer 默认取
+        // 设备 scale（iPhone 3x），会把 pt 坐标系光栅化成 3 倍尺寸的插值放大图
+        // 写进导出文件（EditorDecorationRenderTests 像素采样抓出，2026-08-16）。
+        let exportFormat = UIGraphicsImageRendererFormat()
+        exportFormat.scale = 1
+        exportFormat.opaque = false
+        let renderer = UIGraphicsImageRenderer(
+            size: CGSize(width: width, height: height), format: exportFormat)
         // §7.4 渲染层兜底：必需装饰素材缺失（provider 返回 nil）时整体导出失败，
         // 不产出缺层的「成功」数据（VM 预检先行拦截，正常不达此处）。
         var decorationMissing = false

@@ -572,6 +572,10 @@ P1 核心可靠性与性能六项修复全部落地（实现记录见状态摘�
 
   **下轮补测目标（方法沿用，非文件清单）**：VM 层零测试目标已清零，继续提升覆盖率应从 xcresult artifact 的 xccov 报告定位剩余 **0%/低覆盖 Service 层**（如 ScanService 分支、AiInference 周边服务、NotifyService 未覆盖路径等）与已有测试文件的未覆盖分支（GalleryViewModel 分页/扫描分支等），按「协议注入 + 行为路径断言」模式逐个补测；View body 本身仍由 UI 冒烟（6 条）+ 真机走查覆盖，不堆 View 单测。
 
+- 2026-08-17：**Service 层与 Gallery 分支补测 17 用例（App 覆盖率 23.7% → 23.8%）**——按上轮「下轮补测目标」执行（46c0eef）：ScanServiceTests 19→24（扫描暂停/恢复/取消状态机——阶段 1 进度回调内同步暂停存断点、resume 跳过断点前与断点本身、阶段 2 批次间暂停存批首断点、取消清断点、resetScanState 后全新全量；onProgress 在 streamPhotos consumer 内同步执行，直接在进度回调里触发 pauseScan/cancelScan，无需自制暂停 mock）、NotifyServiceTests 14→18（备份提醒三态判定：从未备份/恰 60 天过期/59 天未达 + 次日 09:00 日期组件断言 + 不满足时先幂等清理旧通知）、GalleryViewModelTests 13→21（60 张分页边界：61 张首页 60+hasMore/恰好 60 张需拉空页确认结束/30 张无更多 no-op；宠物+收藏叠加筛选且不动原始分页数组；selectPet(nil) 关筛选；setFavorite 成功翻转与仓储失败保留状态）；InMemoryPhotoRepository 加 setFavoriteError 失败注入开关（final class 不能子类化，仿 MockPhotoLibraryAccess 属性开关惯例）。**CI 全绿 [run 31972006447](https://github.com/altairos/MiLens-iOS/actions/runs/31972006447)**：Kit 1116（Linux）+ App 1079（=1062+17，模拟器）+ UI 6 = **2201 用例 0 失败**；gate PASS（App 加权 line/function 均 23.8%，基线 18/18/0；最差 5 文件仍全为 0% View 渲染层，与上轮一致）。
+
+  **下轮补测目标**：扫描暂停/备份提醒两大 Service 状态机已覆盖；剩余提升点为 AiInference 周边服务、ImportService/QualityScorer 未覆盖分支，以及最差 5 文件（TimelineView/RedPacketUploadGuideView/PhotoViewView/TimelineMemoryCards/BeadPatternResultView，均 0% 渲染层）中尚未下沉的决策逻辑；View body 仍由 UI 冒烟（6 条）+ 真机走查覆盖。
+
 ---
 
 ## 数据安全与跨设备迁移（2026-08-12 规划）

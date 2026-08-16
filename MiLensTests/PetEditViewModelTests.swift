@@ -386,6 +386,6 @@ final class PetEditViewModelTests: XCTestCase {
 
         XCTAssertEqual(deleted.id, pet.id, "删除应返回被删记录供撤销纪念提醒")
         XCTAssertNil(try repo.getPet(id: pet.id))
-        XCTAssertNil(vm.deletePet(), "档案不存在时再次删除应返回 nil")
+        XCTAssertNil(try vm.deletePet(), "档案不存在时再次删除应返回 nil")
     }
 }

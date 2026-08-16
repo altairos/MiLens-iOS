@@ -256,10 +256,140 @@ final class GalleryViewModelTests: XCTestCase {
         XCTAssertTrue(vm.isMultiSelectMode)
         XCTAssertFalse(vm.showOverLimitBanner)
     }
+
+    // MARK: - 分页加载与筛选
+
+    /// 辅助：构造指定张数照片并完成首页加载的 VM（返回仓储引用，供 setFavorite 失败注入）。
+    private func makePagedVM(photoCount: Int) -> (vm: GalleryViewModel, photoRepo: InMemoryPhotoRepository) {
+        let photoRepo = InMemoryPhotoRepository()
+        let base = Date(timeIntervalSince1970: 1000)
+        for i in 0..<photoCount {
+            let photo = Photo(uri: "/documents/MiPhotos/p\(i).jpg",
+                              takenAt: base.addingTimeInterval(Double(i) * 100))
+            try? photoRepo.insertPhoto(photo)
+        }
+        let vm = GalleryViewModel(
+            photoRepo: photoRepo, petRepo: InMemoryPetRepository(),
+            photoLibrary: MockPhotoLibraryAccess(assets: []), vision: MockVisionService(),
+            fileStorage: MockFileStorage(), sandboxDir: "/documents/MiPhotos",
+            cursorStore: MockScanCursorStore()
+        )
+        vm.loadInitial()
+        return (vm, photoRepo)
+    }
+
+    func testLoadInitialLoadsFirstPageWithHasMore() {
+        let (vm, _) = makePagedVM(photoCount: 61)
+        XCTAssertEqual(vm.photos.count, 60, "首页最多加载一页（pageSize=60）")
+        XCTAssertTrue(vm.hasMorePhotos)
+        XCTAssertEqual(vm.totalPhotoCount, 61)
+        // 首页为最新 60 张（拍摄时间倒序），最旧的 p0 不在首页
+        XCTAssertFalse(vm.photos.contains { $0.uri == "/documents/MiPhotos/p0.jpg" })
+    }
+
+    func testLoadMoreAppendsSecondPage() {
+        let (vm, _) = makePagedVM(photoCount: 61)
+        vm.loadMore()
+        XCTAssertEqual(vm.photos.count, 61)
+        XCTAssertFalse(vm.hasMorePhotos, "尾页不足 pageSize 应结束分页")
+        XCTAssertEqual(vm.photos.first?.uri, "/documents/MiPhotos/p60.jpg", "按拍摄时间倒序，最新在前")
+    }
+
+    func testExactlyPageSizeReportsHasMoreUntilEmptyPage() {
+        // 恰好 60 张：首页满页无法预知总量，需拉到空页确认分页结束
+        let (vm, _) = makePagedVM(photoCount: 60)
+        XCTAssertTrue(vm.hasMorePhotos)
+        vm.loadMore()
+        XCTAssertEqual(vm.photos.count, 60, "空页不得追加")
+        XCTAssertFalse(vm.hasMorePhotos)
+    }
+
+    func testLoadMoreNoOpWhenNoMorePhotos() {
+        let (vm, _) = makePagedVM(photoCount: 30)
+        XCTAssertFalse(vm.hasMorePhotos)
+        vm.loadMore()
+        XCTAssertEqual(vm.photos.count, 30, "无更多内容时 loadMore 不得追加")
+    }
+
+    /// 辅助：构造带宠物归属与收藏状态的 VM（p0/p1/p4 归属 pet1，p2 归属 pet2，p3 未归属；p1/p2/p3 预置收藏）。
+    private func makeFilteredVM() -> (vm: GalleryViewModel, pet1: Pet, pet2: Pet) {
+        let pet1 = Pet(name: "小橘")
+        let pet2 = Pet(name: "小黑")
+        let photoRepo = InMemoryPhotoRepository()
+        let base = Date(timeIntervalSince1970: 1000)
+        let owners: [Pet?] = [pet1, pet1, pet2, nil, pet1]
+        let favorites = [false, true, true, true, false]
+        for i in 0..<5 {
+            let photo = Photo(uri: "/documents/MiPhotos/p\(i).jpg",
+                              pet: owners[i],
+                              takenAt: base.addingTimeInterval(Double(i) * 100),
+                              note: "")
+            photo.isFavorite = favorites[i]
+            try? photoRepo.insertPhoto(photo)
+        }
+        let vm = GalleryViewModel(
+            photoRepo: photoRepo, petRepo: InMemoryPetRepository(pets: [pet1, pet2]),
+            photoLibrary: MockPhotoLibraryAccess(assets: []), vision: MockVisionService(),
+            fileStorage: MockFileStorage(), sandboxDir: "/documents/MiPhotos",
+            cursorStore: MockScanCursorStore()
+        )
+        vm.loadInitial()
+        return (vm, pet1, pet2)
+    }
+
+    func testFilteredPhotosCombinesPetAndFavorites() {
+        let (vm, pet1, _) = makeFilteredVM()
+        // 只按宠物筛选：pet1 的 p0/p1/p4
+        vm.selectPet(pet1.id)
+        XCTAssertTrue(vm.filterEnabled)
+        XCTAssertEqual(vm.filteredPhotos.count, 3)
+        // 叠加收藏筛选：pet1 中仅 p1 已收藏
+        vm.toggleFavorites()
+        XCTAssertTrue(vm.favoritesEnabled)
+        XCTAssertEqual(vm.filteredPhotos.count, 1)
+        XCTAssertEqual(vm.filteredPhotos.first?.uri, "/documents/MiPhotos/p1.jpg")
+    }
+
+    func testFilteredPhotosKeepsOriginalArrayIntact() {
+        let (vm, pet1, _) = makeFilteredVM()
+        vm.selectPet(pet1.id)
+        XCTAssertEqual(vm.filteredPhotos.count, 3)
+        XCTAssertEqual(vm.photos.count, 5, "筛选是计算属性，不得改动原始分页数组")
+        // 取消筛选恢复全量（分页偏移不受筛选影响）
+        vm.selectPet(nil)
+        XCTAssertEqual(vm.filteredPhotos.count, 5)
+    }
+
+    func testSelectPetNilDisablesFilter() {
+        let (vm, pet1, _) = makeFilteredVM()
+        vm.selectPet(pet1.id)
+        XCTAssertTrue(vm.filterEnabled)
+        vm.selectPet(nil)
+        XCTAssertFalse(vm.filterEnabled, "清除宠物选择应关闭筛选")
+        XCTAssertNil(vm.selectedFilter.petID)
+    }
+
+    func testSetFavoriteTogglesAndFailureKeepsState() {
+        let (vm, photoRepo) = makePagedVM(photoCount: 1)
+        let photo = vm.photos[0]
+        XCTAssertFalse(photo.isFavorite)
+        // 成功路径：翻转并回写
+        vm.setFavorite(photo)
+        XCTAssertTrue(photo.isFavorite)
+        // 失败路径：仓储抛错时保留当前状态，避免 UI 假装完成
+        photoRepo.setFavoriteError = GalleryTestError.favoriteFailure
+        vm.setFavorite(photo)
+        XCTAssertTrue(photo.isFavorite, "仓储失败时收藏状态不得翻转")
+        // 恢复后可正常再翻转
+        photoRepo.setFavoriteError = nil
+        vm.setFavorite(photo)
+        XCTAssertFalse(photo.isFavorite)
+    }
 }
 
 /// 测试用错误。
 private enum GalleryTestError: Error {
     case streamFailure
     case countFailure
+    case favoriteFailure
 }

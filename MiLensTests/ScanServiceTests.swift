@@ -369,6 +369,138 @@ final class ScanServiceTests: XCTestCase {
         let result = await service.scanAlbum()
         XCTAssertEqual(result.processedCount, 1)
     }
+
+    // MARK: - 暂停 / 恢复 / 取消（断点状态机，对应源端 shouldPause/shouldCancel）
+
+    /// 阶段 1 暂停：consumer 头部检查点保存断点并中断遍历（阶段 2 不启动）。
+    /// 触发方式：已导入跳过路径的进度回调内请求暂停——进度回调在 consumer 内同步执行，
+    /// "a" 处理完毕后 "b" 命中暂停检查点。
+    func testPauseDuringCollectSavesResumePoint() async {
+        let (service, photoRepo, container) = makeService(
+            assets: [asset("a"), asset("b"), asset("c")]
+        )
+        // "a" 已导入：处理 "a" 走跳过路径发进度 → 回调内请求暂停
+        try! photoRepo.insertPhoto(Photo(uri: "a"))
+
+        let result = await service.scanAlbum { progress in
+            if progress.currentIdentifier == "a" { service.pauseScan() }
+        }
+
+        // 暂停不是失败：返回部分结果且无错误/未取消（上层用 hasResumableState 判定可恢复）
+        XCTAssertEqual(result.processedCount, 0)
+        XCTAssertTrue(result.unassignedPetUris.isEmpty)
+        XCTAssertNil(result.error)
+        XCTAssertFalse(result.canceled)
+        // 断点已保存（= "b"），"b"/"c" 未遍历，可从断点恢复
+        XCTAssertTrue(service.isPaused)
+        XCTAssertFalse(service.isScanning)
+        XCTAssertTrue(service.hasResumableState)
+    }
+
+    /// 恢复扫描：断点本身与其之前的照片全部跳过（updateResumePoint 语义），
+    /// 只处理断点之后的照片；完整完成后断点清除（不可再恢复）。
+    func testResumeScanSkipsPhotosBeforeResumePoint() async {
+        let petBox = DetectionBox(x: 0, y: 0, width: 0.5, height: 0.5, label: "cat", confidence: 0.9)
+        let (service, photoRepo, container) = makeService(
+            assets: [asset("a"), asset("b"), asset("c")],
+            detections: [petBox]
+        )
+        try! photoRepo.insertPhoto(Photo(uri: "a"))
+
+        // 第一次：处理 "a"（已导入跳过路径）时暂停 → 断点 = "b"
+        _ = await service.scanAlbum { progress in
+            if progress.currentIdentifier == "a" { service.pauseScan() }
+        }
+        XCTAssertTrue(service.hasResumableState)
+
+        // 恢复前重置标志（断点保留，由下次 scanAlbum 消费）
+        service.prepareResume()
+        XCTAssertFalse(service.isPaused)
+        XCTAssertTrue(service.hasResumableState)
+
+        // 第二次：跳过 "a"（断点之前）与 "b"（断点本身），只处理 "c"
+        let result = await service.scanAlbum()
+        XCTAssertEqual(result.processedCount, 1)
+        XCTAssertEqual(result.unassignedPetUris, ["c"])
+        XCTAssertTrue(result.completedSuccessfully)
+        // 完整完成后断点清除
+        XCTAssertFalse(service.hasResumableState)
+        XCTAssertFalse(service.isPaused)
+    }
+
+    /// 阶段 2 暂停：分析批次之间的循环头检查点保存断点（= 下一批次起点的候选），
+    /// 已完成批次的结果随部分 ScanResult 返回。
+    func testPauseDuringAnalysisSavesBatchResumePoint() async {
+        let petBox = DetectionBox(x: 0, y: 0, width: 0.5, height: 0.5, label: "cat", confidence: 0.9)
+        let (service, _, container) = makeService(
+            assets: [asset("a"), asset("b"), asset("c")],
+            detections: [petBox]
+        )
+        // 阶段 1 全部收集为候选（进度延后到分析完成）；分析完 "a" 的进度回调触发暂停
+        let result = await service.scanAlbum { progress in
+            if progress.currentIdentifier == "a" { service.pauseScan() }
+        }
+
+        XCTAssertEqual(result.processedCount, 1)
+        XCTAssertEqual(result.unassignedPetUris, ["a"])
+        XCTAssertNil(result.error)
+        XCTAssertFalse(result.canceled)
+        XCTAssertTrue(service.isPaused)
+        XCTAssertFalse(service.isScanning)
+        // 断点 = 下一批次起点的候选 "b"（串行执行器保证批次顺序）
+        XCTAssertTrue(service.hasResumableState)
+    }
+
+    /// 扫描中取消：不保存断点，返回 canceled=true；上层不得当作完整完成（不保存游标）。
+    func testCancelDuringScanClearsResumeState() async {
+        let petBox = DetectionBox(x: 0, y: 0, width: 0.5, height: 0.5, label: "cat", confidence: 0.9)
+        let (service, photoRepo, container) = makeService(
+            assets: [asset("a"), asset("b"), asset("c")],
+            detections: [petBox]
+        )
+        try! photoRepo.insertPhoto(Photo(uri: "a"))
+        // 处理 "a"（跳过路径）时请求取消 → "b" 命中取消检查点（不保存断点）
+        let result = await service.scanAlbum { progress in
+            if progress.currentIdentifier == "a" { service.cancelScan() }
+        }
+
+        XCTAssertTrue(result.canceled)
+        XCTAssertNil(result.error)
+        XCTAssertFalse(result.completedSuccessfully)
+        // 取消后不可恢复：断点已清除、状态全部复位
+        XCTAssertFalse(service.hasResumableState)
+        XCTAssertFalse(service.isPaused)
+        XCTAssertFalse(service.isScanning)
+    }
+
+    /// 暂停后 resetScanState：断点清除，后续扫描为全新全量（不再按断点跳过）。
+    func testResetScanStateAfterPauseClearsResumePoint() async {
+        let petBox = DetectionBox(x: 0, y: 0, width: 0.5, height: 0.5, label: "cat", confidence: 0.9)
+        let (service, photoRepo, container) = makeService(
+            assets: [asset("a"), asset("b"), asset("c")],
+            detections: [petBox]
+        )
+        try! photoRepo.insertPhoto(Photo(uri: "a"))
+
+        // 第一次：在 "a" 之后暂停（断点 = "b"）
+        _ = await service.scanAlbum { progress in
+            if progress.currentIdentifier == "a" { service.pauseScan() }
+        }
+        XCTAssertTrue(service.hasResumableState)
+
+        // 重置：清除断点与暂停状态
+        service.resetScanState()
+        XCTAssertFalse(service.hasResumableState)
+        XCTAssertFalse(service.isPaused)
+
+        // 第二次：全新全量——"a" 按已导入跳过，"b"/"c" 正常处理
+        let result = await service.scanAlbum()
+        XCTAssertEqual(result.processedCount, 2)
+        XCTAssertEqual(result.unassignedPetUris, ["b", "c"])
+        XCTAssertTrue(result.completedSuccessfully)
+        XCTAssertFalse(service.hasResumableState)
+    }
+
     // MARK: - 自动归属辅助
 
     /// 构造带自动归属（CLIP 预匹配）的扫描服务；返回 petRepo 供注册特征。

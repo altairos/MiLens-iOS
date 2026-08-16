@@ -355,4 +355,81 @@ final class NotifyServiceTests: XCTestCase {
         XCTAssertTrue(poster.removedIdentifiers.contains(NotifyService.newPhotoReminderIdentifier),
                       "重调度时应先撤销旧的新照片提醒")
     }
+
+    // MARK: - 备份提醒调度
+
+    /// 构造带上次备份时间 provider 的服务
+    private func makeServiceWithBackup(
+        lastBackupDate: Date?
+    ) -> (NotifyService, MockNotificationPoster) {
+        let photoRepo = InMemoryPhotoRepository()
+        let petRepo = InMemoryPetRepository()
+        let poster = MockNotificationPoster()
+        let service = NotifyService(
+            photoRepo: photoRepo, petRepo: petRepo, poster: poster,
+            lastBackupDateProvider: { lastBackupDate }
+        )
+        return (service, poster)
+    }
+
+    func testBackupReminderScheduledWhenNeverBackedUp() async {
+        let now = date(2026, 8, 13)
+        let (service, poster) = makeServiceWithBackup(lastBackupDate: nil)
+
+        await service.rescheduleAllReminders(now: now, calendar: calendar)
+
+        let backup = poster.scheduled.first {
+            $0.identifier == NotifyService.backupReminderIdentifier
+        }
+        XCTAssertNotNil(backup, "从未备份时应调度备份提醒")
+        // 次日 09:00 单次通知（组件断言）
+        XCTAssertEqual(backup?.dateComponents.year, 2026)
+        XCTAssertEqual(backup?.dateComponents.month, 8)
+        XCTAssertEqual(backup?.dateComponents.day, 14)
+        XCTAssertEqual(backup?.dateComponents.hour, NotifyService.reminderHour)
+        XCTAssertEqual(backup?.dateComponents.minute, NotifyService.reminderMinute)
+        XCTAssertEqual(backup?.repeats, false)
+    }
+
+    func testBackupReminderScheduledWhenStale() async {
+        let now = date(2026, 8, 13)
+        let lastBackup = date(2026, 6, 14)  // 60 天前（≥ reminderStaleDays 阈值）
+        let (service, poster) = makeServiceWithBackup(lastBackupDate: lastBackup)
+
+        await service.rescheduleAllReminders(now: now, calendar: calendar)
+
+        let backup = poster.scheduled.first {
+            $0.identifier == NotifyService.backupReminderIdentifier
+        }
+        XCTAssertNotNil(backup, "距上次备份 ≥ 60 天时应调度提醒")
+    }
+
+    func testBackupReminderSkippedButCleanedWhenRecentlyBackedUp() async {
+        let now = date(2026, 8, 13)
+        let lastBackup = date(2026, 8, 1)  // 12 天前（刚备份过）
+        let (service, poster) = makeServiceWithBackup(lastBackupDate: lastBackup)
+
+        await service.rescheduleAllReminders(now: now, calendar: calendar)
+
+        let backup = poster.scheduled.first {
+            $0.identifier == NotifyService.backupReminderIdentifier
+        }
+        XCTAssertNil(backup, "刚备份过（< 60 天）不应调度")
+        // 幂等清理：无论是否调度都先撤销旧的备份提醒通知（不残留过期提醒）
+        XCTAssertTrue(poster.removedIdentifiers.contains(NotifyService.backupReminderIdentifier),
+                      "不调度时也应先撤销旧的备份提醒")
+    }
+
+    func testBackupReminderNotScheduledAt59Days() async {
+        let now = date(2026, 8, 13)
+        let lastBackup = date(2026, 6, 15)  // 59 天前（阈值边界内侧）
+        let (service, poster) = makeServiceWithBackup(lastBackupDate: lastBackup)
+
+        await service.rescheduleAllReminders(now: now, calendar: calendar)
+
+        let backup = poster.scheduled.first {
+            $0.identifier == NotifyService.backupReminderIdentifier
+        }
+        XCTAssertNil(backup, "59 天（< 60 天阈值）不应调度")
+    }
 }

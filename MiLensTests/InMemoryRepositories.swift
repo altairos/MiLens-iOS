@@ -13,6 +13,8 @@ import Foundation
 /// 内存照片仓储。
 @MainActor
 final class InMemoryPhotoRepository: PhotoRepositoryProtocol {
+    /// 失败注入：setFavorite 抛错（GalleryViewModel 收藏失败保留状态路径测试用）。
+    var setFavoriteError: Error?
     /// 历史 private 版语义超集（EditorViewModelTests 需读 photos 断言回写）。
     private(set) var photos: [Photo]
     private(set) var updatedPhoto: Photo?
@@ -104,7 +106,10 @@ final class InMemoryPhotoRepository: PhotoRepositoryProtocol {
         }
         return affectedPets
     }
-    func setFavorite(_ photo: Photo, favorite: Bool) throws { photo.isFavorite = favorite }
+    func setFavorite(_ photo: Photo, favorite: Bool) throws {
+        if let setFavoriteError { throw setFavoriteError }
+        photo.isFavorite = favorite
+    }
     func updateNote(_ photo: Photo, note: String) throws { photo.note = note }
     func getPendingQualityScorePhotos(limit: Int) throws -> [Photo] { [] }
     func getDuplicateCandidates() throws -> [Photo] { [] }

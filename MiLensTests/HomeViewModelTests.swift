@@ -117,16 +117,20 @@ final class HomeViewModelTests: XCTestCase {
 
     override func setUp() {
         super.setUp()
-        let key = BackupViewModel.lastBackupDateKey
-        let saved = UserDefaults.standard.object(forKey: key)
-        addTeardownBlock {
-            if let saved {
-                UserDefaults.standard.set(saved, forKey: key)
-            } else {
-                UserDefaults.standard.removeObject(forKey: key)
+        // setUp 继承 nonisolated：经 assumeIsolated 进入主隔离读 @MainActor static key；
+        // 备份值先拆成 Sendable 的 Date? 再交给 @Sendable teardown 闭包捕获。
+        MainActor.assumeIsolated {
+            let key = BackupViewModel.lastBackupDateKey
+            let saved = UserDefaults.standard.object(forKey: key) as? Date
+            UserDefaults.standard.removeObject(forKey: key)
+            addTeardownBlock {
+                if let saved {
+                    UserDefaults.standard.set(saved, forKey: key)
+                } else {
+                    UserDefaults.standard.removeObject(forKey: key)
+                }
             }
         }
-        UserDefaults.standard.removeObject(forKey: key)
     }
 
     private func setLastBackup(_ date: Date?) {
@@ -140,10 +144,10 @@ final class HomeViewModelTests: XCTestCase {
     // MARK: - 问候
 
     func testGreetingFollowsLocalHourSegments() {
-        XCTAssertEqual(makeVM(now: { localHour(8) }).greeting, "早上好")
-        XCTAssertEqual(makeVM(now: { localHour(14) }).greeting, "下午好")
-        XCTAssertEqual(makeVM(now: { localHour(20) }).greeting, "晚上好")
-        XCTAssertEqual(makeVM(now: { localHour(3) }).greeting, "晚上好", "凌晨归属晚间段")
+        XCTAssertEqual(makeVM(now: { self.localHour(8) }).greeting, "早上好")
+        XCTAssertEqual(makeVM(now: { self.localHour(14) }).greeting, "下午好")
+        XCTAssertEqual(makeVM(now: { self.localHour(20) }).greeting, "晚上好")
+        XCTAssertEqual(makeVM(now: { self.localHour(3) }).greeting, "晚上好", "凌晨归属晚间段")
     }
 
     // MARK: - load 快照装配
@@ -152,7 +156,7 @@ final class HomeViewModelTests: XCTestCase {
         let pet = Pet(name: "小橘")
         // 2024-08-17：两年前的今天 → 回忆区命中「N 年前的今天」
         let photo = Photo(uri: "test://1", pet: pet, takenAt: utcDate(2024, 8, 17), note: "散步")
-        let vm = makeVM(pets: [pet], photos: [photo], now: { now })
+        let vm = makeVM(pets: [pet], photos: [photo], now: { self.now })
 
         vm.load()
 
@@ -173,7 +177,7 @@ final class HomeViewModelTests: XCTestCase {
         let vm = HomeViewModel(
             photoRepository: repo,
             petRepository: InMemoryPetRepository(pets: [Pet(name: "小橘")]),
-            now: { now }
+            now: { self.now }
         )
 
         vm.load()
@@ -195,7 +199,7 @@ final class HomeViewModelTests: XCTestCase {
             Photo(uri: "test://earlier", pet: pet, takenAt: now.addingTimeInterval(-60), qualityScore: 0.1),
             Photo(uri: "test://latest", pet: pet, takenAt: now, qualityScore: 0.1),
         ]
-        let vm = makeVM(pets: [pet], photos: photos, now: { now })
+        let vm = makeVM(pets: [pet], photos: photos, now: { self.now })
         vm.load()
 
         XCTAssertEqual(vm.heroPhoto?.uri, "test://latest", "今日有多张时取最新一张（与质量分无关）")
@@ -207,7 +211,7 @@ final class HomeViewModelTests: XCTestCase {
         let pet = Pet(name: "小橘")
         // 单张候选：top 池必含该照片，随机种子模 1 恒定
         let photo = Photo(uri: "test://1", pet: pet, takenAt: utcDate(2026, 8, 1), qualityScore: 0.5)
-        let vm = makeVM(pets: [pet], photos: [photo], now: { now })
+        let vm = makeVM(pets: [pet], photos: [photo], now: { self.now })
         vm.load()
 
         XCTAssertEqual(vm.heroPhoto?.id, photo.id)
@@ -216,7 +220,7 @@ final class HomeViewModelTests: XCTestCase {
     }
 
     func testHeroPhotoNilWhenNoTimestampedPhotos() {
-        let vm = makeVM(photos: [Photo(uri: "test://a"), Photo(uri: "test://b")], now: { now })
+        let vm = makeVM(photos: [Photo(uri: "test://a"), Photo(uri: "test://b")], now: { self.now })
         vm.load()
 
         XCTAssertNil(vm.heroPhoto, "全部无拍摄时间时无 hero 候选")
@@ -228,7 +232,7 @@ final class HomeViewModelTests: XCTestCase {
 
     func testHasTodayContentTrueOnBirthdayMatch() {
         let pet = Pet(name: "小橘", birthday: utcDate(2020, 8, 17))
-        let vm = makeVM(pets: [pet], now: { now })
+        let vm = makeVM(pets: [pet], now: { self.now })
         vm.load()
 
         XCTAssertTrue(vm.hasTodayContent)
@@ -236,7 +240,7 @@ final class HomeViewModelTests: XCTestCase {
 
     func testHasTodayContentFalseOnOrdinaryDay() {
         let pet = Pet(name: "小橘", birthday: utcDate(2020, 12, 25))
-        let vm = makeVM(pets: [pet], now: { now })
+        let vm = makeVM(pets: [pet], now: { self.now })
         vm.load()
 
         XCTAssertFalse(vm.hasTodayContent)
@@ -245,7 +249,7 @@ final class HomeViewModelTests: XCTestCase {
     // MARK: - 新照片提醒
 
     func testRefreshReminderWithoutPlatformDependenciesIsNone() async {
-        let vm = makeVM(now: { now })
+        let vm = makeVM(now: { self.now })
 
         await vm.refreshNewPhotoReminder()
 
@@ -259,7 +263,7 @@ final class HomeViewModelTests: XCTestCase {
         let vm = makeVM(
             photoLibrary: photoLibrary,
             scanCursorStore: MockScanCursorStore(lastSuccessfulScan: utcDate(2026, 8, 16)),
-            now: { now }
+            now: { self.now }
         )
 
         await vm.refreshNewPhotoReminder()
@@ -278,7 +282,7 @@ final class HomeViewModelTests: XCTestCase {
             petRepository: InMemoryPetRepository(),
             photoLibrary: photoLibrary,
             scanCursorStore: MockScanCursorStore(lastSuccessfulScan: utcDate(2026, 8, 16)),
-            now: { now }
+            now: { self.now }
         )
 
         await vm.refreshNewPhotoReminder()
@@ -292,7 +296,7 @@ final class HomeViewModelTests: XCTestCase {
         let vm = makeVM(
             photoLibrary: photoLibrary,
             scanCursorStore: MockScanCursorStore(lastSuccessfulScan: utcDate(2026, 8, 16)),
-            now: { now }
+            now: { self.now }
         )
 
         await vm.refreshNewPhotoReminder()
@@ -304,14 +308,14 @@ final class HomeViewModelTests: XCTestCase {
     // MARK: - 备份提醒横幅
 
     func testBackupBannerHiddenBelowPhotoThreshold() {
-        let vm = makeVM(now: { now })
+        let vm = makeVM(now: { self.now })
         vm.photoTotalCount = 19
 
         XCTAssertFalse(vm.shouldShowBackupBanner, "照片不足 20 张不打扰")
     }
 
     func testBackupBannerShowsAtThresholdAndDismissHidesForSession() {
-        let vm = makeVM(now: { now })
+        let vm = makeVM(now: { self.now })
         vm.photoTotalCount = 20
 
         XCTAssertTrue(vm.shouldShowBackupBanner, "达标 + 从未备份应展示")
@@ -321,7 +325,7 @@ final class HomeViewModelTests: XCTestCase {
     }
 
     func testBackupBannerHiddenAfterRecentBackup() {
-        let vm = makeVM(now: { now })
+        let vm = makeVM(now: { self.now })
         vm.photoTotalCount = 25
         setLastBackup(now.addingTimeInterval(-86_400)) // 1 天前
 
@@ -329,7 +333,7 @@ final class HomeViewModelTests: XCTestCase {
     }
 
     func testBackupBannerReturnsAfterStaleBackup() {
-        let vm = makeVM(now: { now })
+        let vm = makeVM(now: { self.now })
         vm.photoTotalCount = 25
         setLastBackup(now.addingTimeInterval(-31 * 86_400)) // 31 天前
 
@@ -340,7 +344,7 @@ final class HomeViewModelTests: XCTestCase {
 
     func testUpcomingDayRollsToNextYearWhenPassed() throws {
         let pet = Pet(name: "小橘", birthday: localDate(2020, 1, 15))
-        let vm = makeVM(pets: [pet], now: { localNow })
+        let vm = makeVM(pets: [pet], now: { self.localNow })
         vm.load()
 
         let upcoming = try XCTUnwrap(vm.upcomingDay)
@@ -362,7 +366,7 @@ final class HomeViewModelTests: XCTestCase {
     func testUpcomingDayPrefersTodayOverLaterCandidates() throws {
         let petA = Pet(name: "小橘", birthday: localDate(2020, 8, 17)) // 今天
         let petB = Pet(name: "小白", adoptionDay: localDate(2020, 8, 20)) // 3 天后
-        let vm = makeVM(pets: [petA, petB], now: { localNow })
+        let vm = makeVM(pets: [petA, petB], now: { self.localNow })
         vm.load()
 
         let upcoming = try XCTUnwrap(vm.upcomingDay)
@@ -381,7 +385,7 @@ final class HomeViewModelTests: XCTestCase {
         let vm = HomeViewModel(
             photoRepository: InMemoryPhotoRepository(),
             petRepository: petRepo,
-            now: { localNow }
+            now: { self.localNow }
         )
         vm.load()
 
@@ -397,13 +401,13 @@ final class HomeViewModelTests: XCTestCase {
             Photo(uri: "test://a", pet: pet, takenAt: utcDate(2026, 8, 1), thumbnailPath: "thumb://a"),
             Photo(uri: "test://b", pet: pet, takenAt: utcDate(2026, 7, 1), thumbnailPath: ""),
         ]
-        let vm = makeVM(pets: [pet], photos: photos, now: { localNow })
+        let vm = makeVM(pets: [pet], photos: photos, now: { self.localNow })
         vm.load()
 
         XCTAssertEqual(vm.upcomingDay?.thumbnailPath, "thumb://a", "取归属宠物最新一张照片的缩略图")
 
         // 无归属照片时缩略图为 nil（空串不外露）
-        let bare = makeVM(pets: [pet], now: { localNow })
+        let bare = makeVM(pets: [pet], now: { self.localNow })
         bare.load()
         XCTAssertNil(bare.upcomingDay?.thumbnailPath)
     }

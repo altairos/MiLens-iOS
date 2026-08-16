@@ -9,8 +9,9 @@ import XCTest
 
 /// BackupService mock：可预设结果/错误/进度序列；
 /// 可在预估或导出处挂起，构造「进行中」并发窗口以验证幂等/互斥 guard。
-@MainActor
-private final class MockBackupService: BackupService {
+/// nonisolated + @unchecked Sendable（MockPhotoLibraryAccess 同款）：协议的
+/// isAvailable 是 nonisolated 同步要求，@MainActor 隔离的 witness 无法满足。
+private final class MockBackupService: BackupService, @unchecked Sendable {
     var stubbedIsAvailable = true
     var estimate = BackupEstimate(petCount: 2, photoCount: 10, estimatedBytes: 2048)
     var estimateError: Error?
@@ -49,7 +50,7 @@ private final class MockBackupService: BackupService {
         progress: @escaping @Sendable @MainActor (BackupProgress) -> Void
     ) async throws -> BackupResult {
         exportCallCount += 1
-        for p in exportProgresses { progress(p) }
+        for p in exportProgresses { await progress(p) }
         if holdExport {
             await withCheckedContinuation { exportWaiters.append($0) }
         }
@@ -70,7 +71,7 @@ private final class MockBackupService: BackupService {
     ) async throws -> RestoreResult {
         importCallCount += 1
         lastImportedURLs = urls
-        progress(RestoreProgress(current: 3, total: 3, phase: .done))
+        await progress(RestoreProgress(current: 3, total: 3, phase: .done))
         if let restoreError { throw restoreError }
         return restoreResult
     }
@@ -93,8 +94,10 @@ final class BackupViewModelTests: XCTestCase {
     private func makeDefaults() throws -> UserDefaults {
         let name = "MiLens.BackupViewModelTests"
         let defaults = try XCTUnwrap(UserDefaults(suiteName: name))
-        defaults.removePersistentDomain(forDomainName: name)
-        addTeardownBlock { defaults.removePersistentDomain(forDomainName: name) }
+        defaults.removePersistentDomain(forName: name)
+        // teardown 捕获 String（Sendable）而非 UserDefaults 实例；
+        // removePersistentDomain 按域名删持久化域，经哪个实例调用效果相同。
+        addTeardownBlock { UserDefaults.standard.removePersistentDomain(forName: name) }
         return defaults
     }
 
@@ -119,7 +122,7 @@ final class BackupViewModelTests: XCTestCase {
 
     // MARK: - 预估
 
-    func testPrepareExportPublishesEstimate() throws {
+    func testPrepareExportPublishesEstimate() async throws {
         let defaults = try makeDefaults()
         let service = MockBackupService()
         service.estimate = BackupEstimate(petCount: 3, photoCount: 42, estimatedBytes: 999)
@@ -131,7 +134,7 @@ final class BackupViewModelTests: XCTestCase {
         XCTAssertEqual(service.estimateCallCount, 1)
     }
 
-    func testPrepareExportFailureProducesFailedState() throws {
+    func testPrepareExportFailureProducesFailedState() async throws {
         let defaults = try makeDefaults()
         let service = MockBackupService()
         service.estimateError = BackupServiceError.serviceUnavailable
@@ -144,7 +147,7 @@ final class BackupViewModelTests: XCTestCase {
             .failed(BackupServiceError.serviceUnavailable.localizedDescription))
     }
 
-    func testPrepareExportIgnoredWhileEstimating() throws {
+    func testPrepareExportIgnoredWhileEstimating() async throws {
         let defaults = try makeDefaults()
         let service = MockBackupService()
         service.holdEstimate = true
@@ -164,7 +167,7 @@ final class BackupViewModelTests: XCTestCase {
 
     // MARK: - 导出
 
-    func testExportBackupRecordsLastBackupDateAndDone() throws {
+    func testExportBackupRecordsLastBackupDateAndDone() async throws {
         let defaults = try makeDefaults()
         let service = MockBackupService()
         service.exportProgresses = [
@@ -184,7 +187,7 @@ final class BackupViewModelTests: XCTestCase {
         XCTAssertEqual(service.exportCallCount, 1)
     }
 
-    func testExportBackupFailureSkipsLastBackupDate() throws {
+    func testExportBackupFailureSkipsLastBackupDate() async throws {
         let defaults = try makeDefaults()
         let service = MockBackupService()
         service.exportError = BackupServiceError.backupFailed("disk full")
@@ -198,7 +201,7 @@ final class BackupViewModelTests: XCTestCase {
 
     // MARK: - 恢复
 
-    func testImportBackupPublishesRestoreStats() throws {
+    func testImportBackupPublishesRestoreStats() async throws {
         let defaults = try makeDefaults()
         let service = MockBackupService()
         let vm = BackupViewModel(backupService: service, defaults: defaults)
@@ -210,7 +213,7 @@ final class BackupViewModelTests: XCTestCase {
         XCTAssertEqual(service.lastImportedURLs, urls)
     }
 
-    func testImportBackupFailureProducesFailedState() throws {
+    func testImportBackupFailureProducesFailedState() async throws {
         let defaults = try makeDefaults()
         let service = MockBackupService()
         service.restoreError = BackupServiceError.invalidFormat
@@ -223,7 +226,7 @@ final class BackupViewModelTests: XCTestCase {
             .failed(BackupServiceError.invalidFormat.localizedDescription))
     }
 
-    func testImportBackupIgnoredWhileExporting() throws {
+    func testImportBackupIgnoredWhileExporting() async throws {
         let defaults = try makeDefaults()
         let service = MockBackupService()
         service.holdExport = true
@@ -248,7 +251,7 @@ final class BackupViewModelTests: XCTestCase {
 
     // MARK: - 状态复位
 
-    func testResetStatesReturnToIdle() throws {
+    func testResetStatesReturnToIdle() async throws {
         let defaults = try makeDefaults()
         let service = MockBackupService()
         let vm = BackupViewModel(backupService: service, defaults: defaults)

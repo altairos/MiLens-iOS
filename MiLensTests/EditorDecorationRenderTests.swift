@@ -28,7 +28,7 @@ final class EditorDecorationRenderTests: XCTestCase {
             id: "frame_1", type: .frame, zIndex: 1,
             x: 30, y: 30, width: 60, height: 60, resourcePath: "frame_stretch"
         )
-        let source = DecorationRenderSource(image: try makeColorImage(side: 8, color: .red), fitMode: .stretch)
+        let source = DecorationRenderSource(image: try makeColorImage(side: 8, color: .red), fitMode: .stretch, ninePatchInsets: nil)
 
         let data = processor.renderExport(
             baseImage: base, layers: [photoLayer(side: 60), frame],
@@ -89,7 +89,7 @@ final class EditorDecorationRenderTests: XCTestCase {
             id: "frame_r", type: .frame, zIndex: 1,
             x: 30, y: 30, width: 60, height: 60, resourcePath: "frame_ratio_4x3"
         )
-        let source = DecorationRenderSource(image: try makeColorImage(side: 60, color: .blue), fitMode: .ratioSet)
+        let source = DecorationRenderSource(image: try makeColorImage(side: 60, color: .blue), fitMode: .ratioSet, ninePatchInsets: nil)
 
         let data = processor.renderExport(
             baseImage: base, layers: [photoLayer(side: 60), frame],
@@ -114,7 +114,8 @@ final class EditorDecorationRenderTests: XCTestCase {
         )
         let source = DecorationRenderSource(
             image: try makeAlphaStickerImage().cgImage ?? makeColorImage(side: 20, color: .red),
-            fitMode: .stretch
+            fitMode: .stretch,
+            ninePatchInsets: nil
         )
 
         let data = processor.renderExport(
@@ -142,7 +143,8 @@ final class EditorDecorationRenderTests: XCTestCase {
         )
         let source = DecorationRenderSource(
             image: try makeAlphaStickerImage().cgImage ?? makeColorImage(side: 20, color: .red),
-            fitMode: .stretch
+            fitMode: .stretch,
+            ninePatchInsets: nil
         )
 
         let data = processor.renderExport(
@@ -269,7 +271,7 @@ final class EditorDecorationRenderTests: XCTestCase {
         file: StaticString = #filePath, line: UInt = #line
     ) {
         var red: CGFloat = 0, green: CGFloat = 0, blue: CGFloat = 0, alpha: CGFloat = 0
-        expected.getRed(&red, &green, &blue, &alpha)
+        expected.getRed(&red, green: &green, blue: &blue, alpha: &alpha)
         let er = UInt8(red * 255), eg = UInt8(green * 255), eb = UInt8(blue * 255)
         let diffs = (
             abs(Int(pixel.0) - Int(er)), abs(Int(pixel.1) - Int(eg)), abs(Int(pixel.2) - Int(eb))

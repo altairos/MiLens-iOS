@@ -576,6 +576,10 @@ P1 核心可靠性与性能六项修复全部落地（实现记录见状态摘�
 
   **下轮补测目标**：扫描暂停/备份提醒两大 Service 状态机已覆盖；剩余提升点为 AiInference 周边服务、ImportService/QualityScorer 未覆盖分支，以及最差 5 文件（TimelineView/RedPacketUploadGuideView/PhotoViewView/TimelineMemoryCards/BeadPatternResultView，均 0% 渲染层）中尚未下沉的决策逻辑；View body 仍由 UI 冒烟（6 条）+ 真机走查覆盖。
 
+- 2026-08-17：**AiInference 周边与 Import/Quality 错误分支补测 31 用例（App 覆盖率 23.8% -> 24.1%）**——按上轮「下轮补测目标」执行（fb6076e，两轮 CI 红灯修复 4ff8729/6083058）：新建 ClipInferenceServiceTests 17（CLIP 推理服务：模型资源目录布局/加载失败降级/预处理输入构造与批次切分/嵌入输出形状）、新建 PetTextEmbeddingsTests 4（文本嵌入 bundle 资源布局/文件缺失抛错/维度不匹配抛错）、ImportServiceTests 24->31（重入互斥直接返回/Pro 配额放行/取消传播中断/沙盒目录创建失败环境级终止不计单张失败/内存去重降级——getAllOriginalURIs 失败降级空 Set 继续导入/双层去重防御——内存去重失效后 DB unique 约束兜底拒绝重复 URI 并回滚本批文件/批量 flush 失败计数回本批并清理孤儿文件）、QualityScorerTests 8->11（QualityFailurePhotoRepository wrapper 注入 getPending/getCandidates/replaceMarks 三失败分支）；FileStorage 协议与 Mock 补 failCreateDirectory 失败注入开关。**两轮 CI 红灯修复教训**：①CGImage bitmapInfo 参数需 CGBitmapInfo(rawValue: CGImageAlphaInfo.xxx.rawValue) 桥接——Windows 无 iOS SDK 类型错误只能 CI 暴露，CoreGraphics 构造须对照既有测试写法先例（4ff8729）；②makeXxx 辅助返回的 ModelContainer 解构到 _ 不持有引用——in-memory store 随即释放致后续 fetch SIGTRAP 套件反复重启，用例须命名绑定 container 保活；同轮修复去重降级用例断言与双层防御语义冲突（改导入全新 ID 验证降级不中断语义本身，重复 URI 兜底由 flush 用例覆盖）（6083058）。**CI 全绿 [run 31978432202](https://github.com/altairos/MiLens-iOS/actions/runs/31978432202)**：Kit 1116（Linux）+ App 1110（=1079+31，模拟器）+ UI 6 = **2232 用例 0 失败**；gate PASS（App 加权 line/function 均 24.1%，基线 18/18/0；最差 5 文件仍全为 0% View 渲染层，与上轮一致）。
+
+  **下轮补测目标**：AiInference 周边与 Import/Quality 错误分支已覆盖；剩余提升点收敛为最差 5 文件（TimelineView/RedPacketUploadGuideView/PhotoViewView/TimelineMemoryCards/BeadPatternResultView，均 0% 渲染层）中可下沉的决策逻辑，以及下一份 xccov 报告重新定位的低覆盖 Service/ViewModel 分支（方法沿用：协议注入 + 行为路径断言）；View body 仍由 UI 冒烟（6 条）+ 真机走查覆盖。
+
 ---
 
 ## 数据安全与跨设备迁移（2026-08-12 规划）

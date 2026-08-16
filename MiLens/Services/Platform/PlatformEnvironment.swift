@@ -132,7 +132,7 @@ extension EnvironmentValues {
 // MARK: - NotifyService（纪念提醒调度，测试环境不注入为 nil）
 
 private struct NotifyServiceKey: EnvironmentKey {
-    @MainActor
+    // 默认值为 nil：不构造 @MainActor 实例，无需隔离即可满足非隔离协议要求。
     static var defaultValue: NotifyService? { nil }
 }
 
@@ -159,7 +159,7 @@ extension EnvironmentValues {
 // MARK: - MediaLifecycleService（媒体文件-数据库事务一致性）
 
 private struct MediaLifecycleServiceKey: EnvironmentKey {
-    @MainActor
+    // 默认值为 nil：不构造 @MainActor 实例，无需隔离即可满足非隔离协议要求。
     static var defaultValue: MediaLifecycleService? { nil }
 }
 
@@ -188,9 +188,13 @@ extension EnvironmentValues {
 // MARK: - ProEntitlementStore（应用级权益状态；proStatusUpdates 的唯一流消费者）
 
 private struct ProEntitlementKey: EnvironmentKey {
-    @MainActor
+    // EnvironmentKey.defaultValue 要求非隔离，而 ProEntitlementStore 为 @MainActor；
+    // SwiftUI 只在主线程读取环境默认值（视图更新路径），assumeIsolated 显式固化
+    // 该不变量——离主访问立即崩溃暴露，而非静默数据竞争。
     static var defaultValue: ProEntitlementStore {
-        ProEntitlementStore(store: MockStoreService())
+        MainActor.assumeIsolated {
+            ProEntitlementStore(store: MockStoreService())
+        }
     }
 }
 

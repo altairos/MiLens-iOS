@@ -29,7 +29,10 @@ public enum MetricsEvent: String, CaseIterable, Sendable {
 /// 本地匿名指标记录器（单例语义，但可注入自定义 UserDefaults 便于测试）。
 public struct MetricsRecorder: Sendable {
 
-    private let defaults: UserDefaults
+    // UserDefaults 自身线程安全（Apple 文档：可从任意线程调用），iOS SDK 未给该
+    // 类型标注 Sendable；nonisolated(unsafe) 仅解除 struct 的 Sendable 合成检查，
+    // 不引入新风险（init 后只读、值语义转发调用）。
+    nonisolated(unsafe) private let defaults: UserDefaults
 
     /// 使用标准 UserDefaults。
     public init() {

@@ -67,7 +67,9 @@ enum StoreServiceError: Error, Equatable {
 }
 
 /// 订阅服务窄协议。组合根注入真实实现；测试与预览注入 MockStoreService。
-protocol StoreService {
+/// Sendable：实例会跨隔离传递（ProEntitlementStore 经 Task 捕获持有），
+/// 实现方以 @unchecked Sendable 显式承诺线程安全。
+protocol StoreService: Sendable {
     /// 拉取产品（含本地化价格与试用信息）。失败抛错，UI 进入可重试降级态。
     func loadProducts() async throws -> [StoreProductInfo]
     /// 购买指定产品。用户取消返回 .userCancelled（不抛错）。

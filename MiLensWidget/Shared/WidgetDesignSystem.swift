@@ -239,4 +239,4 @@ enum WidgetDeepLinkBuilder {
 
 /// Widget 侧使用的本地日历（跟随用户时区，与 MiLensKit 纯逻辑的 UTC 日历区分）。
 /// Widget 渲染日期标签时使用用户本地日历更自然；倒计时计算经 WidgetSelectionLogic（UTC）保证一致性。
-var widgetLocalCalendar: Calendar = .current
+let widgetLocalCalendar: Calendar = .current

@@ -6,7 +6,9 @@
 
 import Foundation
 
-final class MockStoreService: StoreService {
+/// @unchecked Sendable：满足 StoreService 协议约束；测试/预览专用，
+/// 用例内顺序使用无真实跨线程并发访问，可变状态不加锁。
+final class MockStoreService: StoreService, @unchecked Sendable {
 
     enum PurchaseBehavior: Sendable {
         case success

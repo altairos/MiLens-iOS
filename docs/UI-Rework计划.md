@@ -287,6 +287,7 @@ cd MiLensKit && swift test
 - **lint 守护工具落地**：`tools/check-ui-tokens.py`——检测颜色硬门禁违规（ERROR，CI 可强制）与硬编码字号/white 叠加（INFO，渐进收敛）；业务动态色（拼豆调色板 `Color(red:)`）行尾 `// ui-token:ok` 豁免。当前 **120 文件 0 ERROR / 64 INFO**。
 - **验证**：`xcodebuild … build CODE_SIGNING_ALLOWED=NO`：**BUILD SUCCEEDED**；`xcodebuild … test CODE_SIGNING_ALLOWED=NO`：**TEST SUCCEEDED**（含 MiLensUITests 2 冒烟，无回归）；`python3 tools/check-ui-tokens.py`：0 ERROR（64 INFO 渐进项）。
 - **遗留**：64 INFO（SF Symbol 图标尺寸 `.font(.system(size:))` 与照片/黑底画布 white 叠加）属渐进项，不阻断门禁，后续批次按场景复核。
+- **INFO 复评（2026-08-17，audit N8）**：INFO 增至 143（0 ERROR 不变），增长全部来自后续上线的 artwork/画布渲染功能——RedPacket 系列（约 70）、PetCardArtwork/BusinessCardArtwork/GrowthCompare（约 40）等绘制到固定尺寸 UIImage 的导出渲染，字号与白色叠加对照 Figma 固定像素规格，不参与 Dynamic Type/主题 token 体系；其余为屏幕 UI 白字叠加（CreateView hero、PaywallView 等压在照片/深色底上，white 不在命名彩色违规集合）。**结论：均属设计合理场景，不机械 token 化也不逐行加 ui-token:ok（豁免语义是业务动态色）**，维持 INFO 不判罚；新增 artwork 渲染文件如需消噪，可在后续把渲染目录纳入 lint 排除名单，需先审慎界定边界。
 
 #### 批次 B — 深色模式 + 高对比双外观 🔄（2026-08-09，代码层完成）
 

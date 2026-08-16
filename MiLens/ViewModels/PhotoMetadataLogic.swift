@@ -8,8 +8,10 @@ import Foundation
 
 enum PhotoMetadataLogic {
 
-    /// EXIF 日期正则：支持 "YYYY:MM:DD HH:MM:SS" 与 "YYYY-MM-DD HH:MM:SS"
-    private static let exifDatePattern = #/(\d{4})[:\-](\d{2})[:\-](\d{2})\s+(\d{2}):(\d{2}):(\d{2})/#
+    /// EXIF 日期正则：支持 "YYYY:MM:DD HH:MM:SS" 与 "YYYY-MM-DD HH:MM:SS"。
+    /// Regex 字面量：编译期常量、无内部可变状态，跨隔离共享安全；
+    /// iOS SDK 未给 Regex 标注 Sendable，nonisolated(unsafe) 豁免 static let 的并发检查。
+    nonisolated(unsafe) private static let exifDatePattern = #/(\d{4})[:\-](\d{2})[:\-](\d{2})\s+(\d{2}):(\d{2}):(\d{2})/#
 
     /// 解析 EXIF 日期字符串为 Date。
     /// 支持 "YYYY:MM:DD HH:MM:SS" 和 "YYYY-MM-DD HH:MM:SS" 格式；

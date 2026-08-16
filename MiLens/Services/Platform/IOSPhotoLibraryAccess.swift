@@ -33,7 +33,9 @@ protocol PHImageRequesting: Sendable {
 
 /// PHImageManager 是线程安全的（Apple 文档声明可在任意线程调用 request/cancel），
 /// 显式声明 @unchecked Sendable 使其可经协议注入（理由同文件内其它 @unchecked）。
-extension PHImageManager: @unchecked Sendable, PHImageRequesting {}
+/// @retroactive：类与协议均来自外部模块，显式声明这是有意为之的追溯 conformance，
+/// 抑制「未来 Photos 模块自带 Sendable 会冲突」的上游演进警告。
+extension PHImageManager: @unchecked @retroactive Sendable, PHImageRequesting {}
 
 /// 照片库授权状态 → iOS 枚举映射（对应源端 PermissionHelper）。
 private extension PHAuthorizationStatus {

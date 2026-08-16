@@ -31,9 +31,13 @@ enum FallbackContainer {
 // MARK: - PetRepository
 
 private struct PetRepositoryKey: EnvironmentKey {
-    @MainActor
+    // EnvironmentKey.defaultValue 要求非隔离，而 fallback 容器为 @MainActor；
+    // SwiftUI 只在主线程读取环境默认值（视图更新路径），assumeIsolated 显式固化
+    // 该不变量——离主访问立即崩溃暴露，而非静默数据竞争。
     static var defaultValue: any PetRepositoryProtocol {
-        SwiftDataPetRepository(context: FallbackContainer.shared.mainContext)
+        MainActor.assumeIsolated {
+            SwiftDataPetRepository(context: FallbackContainer.shared.mainContext)
+        }
     }
 }
 
@@ -47,9 +51,11 @@ extension EnvironmentValues {
 // MARK: - PhotoRepository
 
 private struct PhotoRepositoryKey: EnvironmentKey {
-    @MainActor
+    // 同 PetRepositoryKey：非隔离要求 + 主线程读取不变量。
     static var defaultValue: any PhotoRepositoryProtocol {
-        SwiftDataPhotoRepository(context: FallbackContainer.shared.mainContext)
+        MainActor.assumeIsolated {
+            SwiftDataPhotoRepository(context: FallbackContainer.shared.mainContext)
+        }
     }
 }
 
@@ -65,20 +71,22 @@ extension EnvironmentValues {
 private struct ViewModelFactoryKey: EnvironmentKey {
     /// 默认工厂（Preview/测试 host）：in-memory 容器 + mock 平台适配，
     /// 与 RepositoryEnvironment/PlatformEnvironment 的既有默认值语义一致。
-    @MainActor
+    /// 同上：defaultValue 要求非隔离，经 assumeIsolated 固化主线程读取不变量。
     static var defaultValue: ViewModelFactory {
-        ViewModelFactory(
-            container: FallbackContainer.shared,
-            photoRepo: SwiftDataPhotoRepository(context: FallbackContainer.shared.mainContext),
-            petRepo: SwiftDataPetRepository(context: FallbackContainer.shared.mainContext),
-            photoLibrary: MockPhotoLibraryAccess(),
-            vision: MockVisionService(),
-            fileStorage: MockFileStorage(),
-            clipService: nil,
-            poseService: nil,
-            cursorStore: UserDefaultsScanCursorStore(),
-            mediaLifecycle: nil
-        )
+        MainActor.assumeIsolated {
+            ViewModelFactory(
+                container: FallbackContainer.shared,
+                photoRepo: SwiftDataPhotoRepository(context: FallbackContainer.shared.mainContext),
+                petRepo: SwiftDataPetRepository(context: FallbackContainer.shared.mainContext),
+                photoLibrary: MockPhotoLibraryAccess(),
+                vision: MockVisionService(),
+                fileStorage: MockFileStorage(),
+                clipService: nil,
+                poseService: nil,
+                cursorStore: UserDefaultsScanCursorStore(),
+                mediaLifecycle: nil
+            )
+        }
     }
 }
 

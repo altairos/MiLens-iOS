@@ -81,31 +81,15 @@ struct OnboardingFeatureRegisterStep: View {
                         .padding(.top, Spacing.md)
                 }
 
-                // PhotosPicker（ContactProofButton 样式触发选图）
+                // PhotosPicker（ContactProofButton 样式触发选图）。
+                // label 闭包是 Sendable 上下文：读不了 MainActor 属性（loadedImageDatas），
+                // 也调不了 MainActor init（如 Spacer/minLength）——闭包外先取值，
+                // 视觉结构整体提取为 FeaturePhotosPickerLabel（View body 是 MainActor）。
+                let featureImageCount = loadedImageDatas.count
                 PhotosPicker(selection: $selectedFeatureItems,
                              maxSelectionCount: PetFormConstants.maxRegistrationPhotos,
                              matching: .images) {
-                    HStack {
-                        Text(loadedImageDatas.isEmpty
-                             ? String(localized: "onboarding.feature.select")
-                             : String(localized: "onboarding.feature.reselect \(loadedImageDatas.count)"))
-                            .font(.buttonLabel)
-                            .foregroundStyle(Color.milensActionPrimary)
-                        Spacer()
-                        ZStack {
-                            RoundedRectangle(cornerRadius: 7, style: .continuous)
-                                .stroke(Color.milensActionPrimary, lineWidth: 1)
-                                .frame(width: 42, height: 32)
-                            Text("\u{2192}")
-                                .font(.system(size: 20)) // ui-token:ok 装饰箭头字符
-                                .foregroundStyle(Color.milensActionPrimary)
-                        }
-                    }
-                    .padding(.leading, 18)
-                    .padding(.trailing, 5)
-                    .frame(height: 54)
-                    .background(Color.milensAccentWash)
-                    .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+                    FeaturePhotosPickerLabel(imageCount: featureImageCount)
                 }
                 .padding(.top, Spacing.xxl)
 
@@ -380,7 +364,7 @@ struct OnboardingFeatureRegisterStep: View {
         // status 与调用方共用同一 onboarding.status.done key：同 locale 下解析结果
         // 相等，保留字符串比较即可判定“已完成”看色。
         let isDone = status == String(localized: "onboarding.status.done")
-        VStack(alignment: .leading, spacing: 0) {
+        return VStack(alignment: .leading, spacing: 0) {
             HStack(spacing: 8) {
                 Circle()
                     .fill(isDone ? Color.milensActionPrimary
@@ -537,5 +521,36 @@ struct OnboardingFeatureRegisterStep: View {
     private func startRegistration() {
         guard loadedImageDatas.count >= PetFormConstants.minRegistrationPhotos else { return }
         viewModel.registerCreatedPetFeature(imageDatas: loadedImageDatas)
+    }
+}
+
+/// OnboardingFeatureRegisterStep 选图按钮的 label（ContactProofButton 样式）。
+/// 独立子 View：body 是 MainActor，可自由使用 Spacer 等 MainActor init；
+/// PhotosPicker 的 label 闭包（Sendable）只负责用已取好的 imageCount 构造本视图。
+private struct FeaturePhotosPickerLabel: View {
+    let imageCount: Int
+
+    var body: some View {
+        HStack {
+            Text(imageCount == 0
+                 ? String(localized: "onboarding.feature.select")
+                 : String(localized: "onboarding.feature.reselect \(imageCount)"))
+                .font(.buttonLabel)
+                .foregroundStyle(Color.milensActionPrimary)
+            Spacer()
+            ZStack {
+                RoundedRectangle(cornerRadius: 7, style: .continuous)
+                    .stroke(Color.milensActionPrimary, lineWidth: 1)
+                    .frame(width: 42, height: 32)
+                Text("\u{2192}")
+                    .font(.system(size: 20)) // ui-token:ok 装饰箭头字符
+                    .foregroundStyle(Color.milensActionPrimary)
+            }
+        }
+        .padding(.leading, 18)
+        .padding(.trailing, 5)
+        .frame(height: 54)
+        .background(Color.milensAccentWash)
+        .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
     }
 }

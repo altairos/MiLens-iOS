@@ -322,6 +322,8 @@ struct CreateView: View {
             Text(String(localized: "create.empty.title"))
                 .font(.bodyPrimary.weight(.semibold))
                 .foregroundStyle(Color.milensTextPrimary)
+                // UI 冒烟测试按 identifier 断言，不依赖中文文案（多语言下文案会变）。
+                .accessibilityIdentifier("create.empty.title")
             Text(String(localized: "create.empty.body"))
                 .font(.bodySecondary)
                 .foregroundStyle(Color.milensTextSecondary)
@@ -337,6 +339,7 @@ struct CreateView: View {
                 .frame(minHeight: Sizing.touchTarget)
             }
             .buttonStyle(.plain)
+            .accessibilityIdentifier("create.empty.cta")
         }
         .padding(.top, Spacing.lg)
     }

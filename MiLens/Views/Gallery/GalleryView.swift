@@ -188,6 +188,8 @@ struct GalleryView: View {
                 .foregroundStyle(Color.milensTextSecondary)
             Text(String(localized: "gallery.empty.title"))
                 .font(.displayMedium)
+                // UI 冒烟测试按 identifier 断言，不依赖中文文案（多语言下文案会变）。
+                .accessibilityIdentifier("gallery.empty.title")
             Text(String(localized: "gallery.empty.body"))
                 .font(.bodyPrimary)
                 .foregroundStyle(Color.milensTextSecondary)
@@ -202,6 +204,7 @@ struct GalleryView: View {
             .buttonStyle(.borderedProminent)
             .tint(Color.milensActionPrimary)
             .disabled(vm.isScanning)
+            .accessibilityIdentifier("gallery.empty.cta")
         }
         .padding()
         .frame(maxWidth: .infinity, maxHeight: .infinity)

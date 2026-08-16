@@ -251,6 +251,7 @@ struct SettingsView: View {
                             ? .milensActionPrimary : .milensTextSecondary)
                 }
                 .buttonStyle(.plain)
+                .accessibilityIdentifier("settings.backup.export")
                 .disabled(backupVM?.isExporting == true
                           || backupVM?.isEstimating == true
                           || backupVM?.isRestoring == true
@@ -270,6 +271,7 @@ struct SettingsView: View {
                         tint: .milensTextSecondary)
                 }
                 .buttonStyle(.plain)
+                .accessibilityIdentifier("settings.backup.restore")
                 .disabled(backupVM?.isRestoring == true
                           || backupVM?.isExporting == true
                           || backupVM?.isEstimating == true

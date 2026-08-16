@@ -16,7 +16,8 @@ import Foundation
 import os
 
 /// 缩略图内存 LRU 缓存（线程安全）。
-final class ThumbnailCache {
+/// @unchecked Sendable：全部可变状态经 NSLock 保护（见 lock），可跨 actor 安全共享。
+final class ThumbnailCache: @unchecked Sendable {
 
     private let logger = Logger(subsystem: "com.milens.app", category: "ThumbnailCache")
 

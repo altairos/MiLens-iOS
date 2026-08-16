@@ -76,8 +76,8 @@ public enum RedPacketOptimizationLogic {
                 // （不透明度变化是变透明不是变亮），不自动处理。
                 break
             case .composition:
-                // 宠物位置适配到安全区中心
-                if let petLayer, item.level == .error {
+                // 宠物位置适配到安全区中心（只依赖图层是否存在，不读图层内容）
+                if petLayer != nil, item.level == .error {
                     let safeCenterX = template.safeZone.x * rpCanvasWidth +
                                       template.safeZone.width * rpCanvasWidth / 2
                     let safeCenterY = template.safeZone.y * rpCanvasHeight +
@@ -90,8 +90,8 @@ public enum RedPacketOptimizationLogic {
                 // 抠图问题无法自动修复，只提示
                 break
             case .readability:
-                // 文字移入安全区
-                if let textLayer, item.level == .error {
+                // 文字移入安全区（只依赖图层是否存在，不读图层内容）
+                if textLayer != nil, item.level == .error {
                     let safeCenterX = template.defaultTextPosition.x
                     let safeCenterY = template.defaultTextPosition.y
                     result.textNewX = safeCenterX

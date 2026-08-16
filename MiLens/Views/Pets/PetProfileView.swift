@@ -263,7 +263,6 @@ struct PetProfileView: View {
     // MARK: - 统计行
 
     private func archiveStatsRow(_ pet: Pet) -> some View {
-        let workCount = photos.filter { PetPhotoCategoryLogic.isEditedPhoto($0) }.count
         let memoryCount = pet.events.count
         // P3.6：重要日子数 = 生日 + 领养日 + 用户标记事件
         let importantDayCount = pet.events.filter {

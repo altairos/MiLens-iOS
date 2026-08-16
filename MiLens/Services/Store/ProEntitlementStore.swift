@@ -36,7 +36,6 @@ final class ProEntitlementStore {
     /// 即 cancel 时 tasks 中找不到该令牌，说明 init 的 register Task 尚未到达 actor。
     /// 墓碑由随后到达的 register 消费并移除。正常路径（cancel 在 register 之后）不创建墓碑，
     /// 避免对象释放后墓碑长期残留。
-    /// nonisolated(unsafe)：init 赋值后只读，deinit（非隔离）需要访问实例注册表；
     /// 测试注入独立实例，避免与宿主 App/并行测试类共享 .shared 的计数相互干扰。
     actor ListenerRegistry {
         private var tasks: [UUID: Task<Void, Never>] = [:]
@@ -69,8 +68,9 @@ final class ProEntitlementStore {
     /// 生产默认注册表（测试注入独立实例，见 ProEntitlementStoreTests）。
     static let shared = ListenerRegistry()
 
-    /// 实例注册表：init 注入后只读；deinit 经 nonisolated(unsafe) 访问提交取消任务。
-    nonisolated(unsafe) private let registry: ListenerRegistry
+    /// 实例注册表：init 注入后只读；ListenerRegistry 是 actor（天然 Sendable），
+    /// deinit（非隔离）可直接访问提交取消任务。
+    private let registry: ListenerRegistry
     /// 实例监听令牌（UUID 全局唯一，不会因对象回收复用而误杀新实例）。
     private let listenerToken = UUID()
 

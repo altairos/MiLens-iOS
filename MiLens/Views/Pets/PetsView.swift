@@ -70,6 +70,8 @@ struct PetsView: View {
             Text(String(localized: "pets.empty.title"))
                 .font(.displayMedium)
                 .foregroundStyle(Color.milensTextPrimary)
+                // UI 冒烟测试按 identifier 断言，不依赖中文文案（多语言下文案会变）。
+                .accessibilityIdentifier("pets.empty.title")
             Text(String(localized: "pets.empty.body"))
                 .font(.bodyPrimary)
                 .foregroundStyle(Color.milensTextSecondary)
@@ -87,6 +89,7 @@ struct PetsView: View {
                     .clipShape(Capsule())
             }
             .buttonStyle(.plain)
+            .accessibilityIdentifier("pets.empty.cta")
         }
         .padding(.horizontal, Spacing.pagePad)
         .frame(maxWidth: .infinity, maxHeight: .infinity)

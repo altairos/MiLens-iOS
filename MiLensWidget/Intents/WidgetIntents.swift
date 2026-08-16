@@ -13,9 +13,11 @@ import MiLensKit
 // MARK: - 宠物实体
 
 /// 可配置的伙伴选项（全部伙伴 或 指定一只）。
+/// 静态协议要求（typeDisplayRepresentation/defaultQuery 等）实现为计算属性：
+/// 存储属性会以 nonisolated 全局可变状态触发并发检查警告，计算属性只读无状态。
 struct PetEntity: AppEntity {
-    static var typeDisplayRepresentation: TypeDisplayRepresentation = "widget.entity.pet"
-    static var defaultQuery = PetEntityQuery()
+    static var typeDisplayRepresentation: TypeDisplayRepresentation { "widget.entity.pet" }
+    static var defaultQuery: PetEntityQuery { PetEntityQuery() }
 
     let id: String           // "all" 或 UUID 字符串
     let displayName: String  // 「全部伙伴」/「小橘」
@@ -65,8 +67,8 @@ struct PetEntityQuery: EntityQuery {
 
 /// 选择 Widget 展示的伙伴（全部 或 指定一只）。
 struct SelectPetIntent: WidgetConfigurationIntent {
-    static var title: LocalizedStringResource = "widget.intents.selectPet.title"
-    static var description = IntentDescription("widget.intents.selectPet.description")
+    static var title: LocalizedStringResource { "widget.intents.selectPet.title" }
+    static var description: IntentDescription { IntentDescription("widget.intents.selectPet.description") }
 
     // AppEntity 参数的 default: 只接受编译期字面量（构造调用被宏拒绝），
     // 默认值改由 PetEntityQuery.defaultResult() 提供（同一「全部伙伴」）。
@@ -83,8 +85,8 @@ struct SelectPetIntent: WidgetConfigurationIntent {
 
 /// 相片回声 Widget 的完整配置（伙伴 + 内容源）。
 struct PhotoEchoConfigIntent: WidgetConfigurationIntent {
-    static var title: LocalizedStringResource = "widget.intents.photoEcho.settings.title"
-    static var description = IntentDescription("widget.intents.photoEcho.settings.description")
+    static var title: LocalizedStringResource { "widget.intents.photoEcho.settings.title" }
+    static var description: IntentDescription { IntentDescription("widget.intents.photoEcho.settings.description") }
 
     // AppEntity 参数的 default: 只接受编译期字面量（构造调用被宏拒绝），
     // 默认值改由 PetEntityQuery.defaultResult() 提供（同一「全部伙伴」）。
@@ -107,12 +109,14 @@ enum PhotoEchoSourceAppEnum: String, AppEnum, CaseIterable {
     case yearsAgoToday
     case recentWork
 
-    static var typeDisplayRepresentation: TypeDisplayRepresentation = "widget.intents.photoEcho.contentSource"
-    static var caseDisplayRepresentations: [PhotoEchoSourceAppEnum: DisplayRepresentation] = [
-        .todayOrRecent: "widget.intents.photoEcho.source.todayOrRecent",
-        .yearsAgoToday: "widget.intents.photoEcho.source.yearsAgoToday",
-        .recentWork: "widget.intents.photoEcho.source.recentWork",
-    ]
+    static var typeDisplayRepresentation: TypeDisplayRepresentation { "widget.intents.photoEcho.contentSource" }
+    static var caseDisplayRepresentations: [PhotoEchoSourceAppEnum: DisplayRepresentation] {
+        [
+            .todayOrRecent: "widget.intents.photoEcho.source.todayOrRecent",
+            .yearsAgoToday: "widget.intents.photoEcho.source.yearsAgoToday",
+            .recentWork: "widget.intents.photoEcho.source.recentWork",
+        ]
+    }
 
     /// 转换为 MiLensKit 的 PhotoEchoSource。
     var toLogic: PhotoEchoSource {
@@ -127,8 +131,8 @@ enum PhotoEchoSourceAppEnum: String, AppEnum, CaseIterable {
 /// 对应 `WidgetSelectionLogic.upcomingDay` 的 dayID 参数：`id == "auto"` 时
 /// 由系统按伙伴自动取最近一个；其余 id 精确点名某个纪念日。
 struct AnniversaryEntity: AppEntity {
-    static var typeDisplayRepresentation: TypeDisplayRepresentation = "widget.entity.anniversary"
-    static var defaultQuery = AnniversaryEntityQuery()
+    static var typeDisplayRepresentation: TypeDisplayRepresentation { "widget.entity.anniversary" }
+    static var defaultQuery: AnniversaryEntityQuery { AnniversaryEntityQuery() }
 
     let id: String           // "auto" 或纪念日 id
     let displayName: String  // 「自动（最近）」/「小橘的生日」
@@ -208,8 +212,8 @@ struct AnniversaryEntityQuery: EntityQuery {
 /// 默认「自动（最近）」，与历史行为一致；用户可点名某个具体纪念日。当指定的纪念日
 /// 在当前快照中已不存在时，由 `WidgetSelectionLogic.upcomingDay` 安全回退到最近。
 struct SelectAnniversaryIntent: WidgetConfigurationIntent {
-    static var title: LocalizedStringResource = "widget.intents.anniversary.settings.title"
-    static var description = IntentDescription("widget.intents.anniversary.settings.description")
+    static var title: LocalizedStringResource { "widget.intents.anniversary.settings.title" }
+    static var description: IntentDescription { IntentDescription("widget.intents.anniversary.settings.description") }
 
     // AppEntity 参数的 default: 只接受编译期字面量（构造调用被宏拒绝），
     // 默认值改由 PetEntityQuery.defaultResult() 提供（同一「全部伙伴」）。

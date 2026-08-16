@@ -131,7 +131,7 @@ struct OnboardingImportStep: View {
         // status 与调用方共用同一 onboarding.status.done key：同 locale 下解析结果
         // 相等，保留字符串比较即可判定“已完成”看色。
         let isDone = status == String(localized: "onboarding.status.done")
-        VStack(alignment: .leading, spacing: 0) {
+        return VStack(alignment: .leading, spacing: 0) {
             HStack(spacing: 8) {
                 Circle()
                     .fill(isDone ? Color.milensActionPrimary

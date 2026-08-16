@@ -40,11 +40,14 @@ struct WidgetSnapshotReader {
     }
 
     /// 加载缩略图并降采样到 Widget 所需尺寸（避免内存超限）。
+    /// @MainActor：UIScreen.main 是 UIKit 主线程 API（读取 scale）；
+    /// 全部调用点位于 Widget Extension 的 View body（主线程）。
     ///
     /// - Parameters:
     ///   - fileName: 缩略图文件名（PhotoProjection.thumbnailFileName）
     ///   - maxSize: 最大边长（pt）；默认 300
     /// - Returns: 降采样后的 UIImage；文件缺失或解码失败返回 nil
+    @MainActor
     static func loadImage(_ fileName: String, maxSize: CGFloat = 300) -> UIImage? {
         guard let fileURL = thumbnailURL(fileName),
               let source = CGImageSourceCreateWithURL(fileURL as CFURL, nil) else {

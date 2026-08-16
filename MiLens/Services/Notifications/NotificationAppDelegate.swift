@@ -33,7 +33,11 @@ final class NotificationAppDelegate: NSObject, UIApplicationDelegate, Observable
 extension NotificationAppDelegate: UNUserNotificationCenterDelegate {
 
     /// 前台收到通知时仍展示横幅 + 声音（纪念提醒需即时感知）。
-    func userNotificationCenter(
+    /// UNUserNotificationCenterDelegate 协议要求未标注 MainActor，而非 Sendable 的
+    /// center/notification 参数无法跨隔离进入 MainActor 实现——两方法标 nonisolated
+    /// 匹配协议；需要触碰 @Published 状态时显式 hop 到 MainActor（delegate 回调
+    /// 本就不保证在主线程，手动 hop 同时修正了隐式依赖主线程的旧语义）。
+    nonisolated func userNotificationCenter(
         _ center: UNUserNotificationCenter,
         willPresent notification: UNNotification
     ) async -> UNNotificationPresentationOptions {
@@ -41,19 +45,20 @@ extension NotificationAppDelegate: UNUserNotificationCenterDelegate {
     }
 
     /// 用户 tap 通知 → 解析标识符 → 发布待路由目的地（里程碑）或备份提醒 tap 标记。
-    func userNotificationCenter(
+    nonisolated func userNotificationCenter(
         _ center: UNUserNotificationCenter,
         didReceive response: UNNotificationResponse
     ) async {
         let identifier = response.notification.request.identifier
         if NotificationDeepLink.isBackupReminder(identifier: identifier) {
-            pendingBackupTap = true
+            await MainActor.run { self.pendingBackupTap = true }
             return
         }
         if NotificationDeepLink.isNewPhotoReminder(identifier: identifier) {
-            pendingNewPhotoScanTap = true
+            await MainActor.run { self.pendingNewPhotoScanTap = true }
             return
         }
-        pendingDestination = NotificationDeepLink.destination(fromIdentifier: identifier)
+        let destination = NotificationDeepLink.destination(fromIdentifier: identifier)
+        await MainActor.run { self.pendingDestination = destination }
     }
 }

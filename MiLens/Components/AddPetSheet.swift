@@ -39,6 +39,9 @@ struct AddPetSheet: View {
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
                     Button(String(localized: "common.cancel")) { viewModel.resetForm(); dismiss() }
+                        // UI 冒烟测试按 identifier 断言；common.cancel 语义太泛，
+                        // 用 addpet.cancel 限定到本 sheet，避免同屏多义。
+                        .accessibilityIdentifier("addpet.cancel")
                 }
             }
             .safeAreaInset(edge: .bottom) {

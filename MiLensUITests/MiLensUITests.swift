@@ -5,6 +5,10 @@
 //  （audit-6 §4 P2-2：冒烟清单从 2 条扩到 6 条）。
 //  运行方式：Mac 上 xcodegen generate 后选择 MiLens scheme → Test（包含 MiLensUITests）。
 //
+//  断言约定：元素以 accessibilityIdentifier 定位（源码侧用同名 loc key 标注，
+//  AddPetSheet 取消按钮用 addpet.cancel 限定），不按中文文案断言——多语言下
+//  文案随 locale 变化（audit N6 迁移）。
+//
 //  环境说明：launchEnvironment 注入 XCTestConfigurationFilePath 触发 App 的
 //  isTesting 路径（MiLensApp.init）——in-memory 容器 + 跳过 onboarding + mock Store，
 //  与单元测试 host 环境语义一致，保证冒烟用例不依赖本地 UserDefaults/相册授权。
@@ -49,7 +53,7 @@ final class MiLensUITests: XCTestCase {
         app.buttons["tab.pets"].tap()
         XCTAssertTrue(app.buttons["tab.pets"].isSelected, "宠物 Tab 未进入选中态")
         XCTAssertTrue(
-            app.staticTexts["还没有伙伴档案"].waitForExistence(timeout: 5),
+            app.staticTexts["pets.empty.title"].waitForExistence(timeout: 5),
             "宠物页空状态未渲染"
         )
 
@@ -57,7 +61,7 @@ final class MiLensUITests: XCTestCase {
         app.buttons["tab.create"].tap()
         XCTAssertTrue(app.buttons["tab.create"].isSelected, "创作 Tab 未进入选中态")
         XCTAssertTrue(
-            app.staticTexts["先保存一张照片"].waitForExistence(timeout: 5),
+            app.staticTexts["create.empty.title"].waitForExistence(timeout: 5),
             "创作页空状态未渲染"
         )
 
@@ -76,7 +80,7 @@ final class MiLensUITests: XCTestCase {
         let app = launchApp()
 
         app.buttons["tab.create"].tap()
-        let galleryLink = app.buttons["去相册添加"]
+        let galleryLink = app.buttons["create.empty.cta"]
         XCTAssertTrue(
             galleryLink.waitForExistence(timeout: 5),
             "创作页空态缺少「去相册添加」入口"
@@ -84,11 +88,11 @@ final class MiLensUITests: XCTestCase {
         galleryLink.tap()
 
         XCTAssertTrue(
-            app.staticTexts["还没有照片"].waitForExistence(timeout: 5),
+            app.staticTexts["gallery.empty.title"].waitForExistence(timeout: 5),
             "相册页空状态未渲染"
         )
         XCTAssertTrue(
-            app.buttons["开始扫描"].exists,
+            app.buttons["gallery.empty.cta"].exists,
             "相册页空态缺少「开始扫描」入口"
         )
     }
@@ -99,13 +103,13 @@ final class MiLensUITests: XCTestCase {
 
         app.buttons["tab.pets"].tap()
         XCTAssertTrue(
-            app.buttons["添加伙伴"].waitForExistence(timeout: 5),
+            app.buttons["pets.empty.cta"].waitForExistence(timeout: 5),
             "宠物页空态缺少「添加伙伴」按钮"
         )
-        app.buttons["添加伙伴"].firstMatch.tap()
+        app.buttons["pets.empty.cta"].firstMatch.tap()
 
         // sheet 弹出：导航栏「取消」按钮出现（AddPetSheet toolbar）
-        let cancelButton = app.buttons["取消"]
+        let cancelButton = app.buttons["addpet.cancel"]
         XCTAssertTrue(
             cancelButton.waitForExistence(timeout: 5),
             "添加伙伴 sheet 未弹出或缺少取消按钮"
@@ -114,11 +118,11 @@ final class MiLensUITests: XCTestCase {
         cancelButton.tap()
         // 取消后 sheet 关闭，空态文案重新可见
         XCTAssertFalse(
-            app.buttons["取消"].waitForExistence(timeout: 3),
+            app.buttons["addpet.cancel"].waitForExistence(timeout: 3),
             "取消后 sheet 未关闭"
         )
         XCTAssertTrue(
-            app.staticTexts["还没有伙伴档案"].waitForExistence(timeout: 5),
+            app.staticTexts["pets.empty.title"].waitForExistence(timeout: 5),
             "取消建档后宠物页空状态未恢复"
         )
     }
@@ -129,7 +133,7 @@ final class MiLensUITests: XCTestCase {
         let app = launchApp()
 
         app.buttons["tab.settings"].tap()
-        let exportEntry = app.staticTexts["备份导出"]
+        let exportEntry = app.buttons["settings.backup.export"]
         XCTAssertTrue(
             exportEntry.waitForExistence(timeout: 5),
             "设置页未渲染"
@@ -140,7 +144,7 @@ final class MiLensUITests: XCTestCase {
             "滚动后「备份导出」行仍不可达"
         )
         XCTAssertTrue(
-            app.staticTexts["备份恢复"].exists,
+            app.buttons["settings.backup.restore"].exists,
             "「备份恢复」行缺失"
         )
     }
@@ -151,16 +155,16 @@ final class MiLensUITests: XCTestCase {
         let app = launchApp()
 
         app.buttons["tab.settings"].tap()
-        let exportEntry = app.staticTexts["备份导出"]
+        let exportEntry = app.buttons["settings.backup.export"]
         XCTAssertTrue(exportEntry.waitForExistence(timeout: 5), "设置页未渲染")
         scrollToElement(exportEntry, in: app)
         exportEntry.tap()
 
-        // 付费墙 sheet：ready 态才渲染关闭按钮（accessibilityLabel「关闭」，付费墙
+        // 付费墙 sheet：ready 态才渲染关闭按钮（identifier "paywall.close"，付费墙
         // 独有；勿用 "MiLens Pro"——设置页 ProHeroCard 首屏同名文本会使断言恒真）。
         // 勿按 hero 文案断言：paywall.hero.title 为多行文本（label 含换行，匹配不稳）；
         // 上一版误用无代码引用的孤儿文案 paywall.title，CI 首跑即失败。
-        let closeButton = app.buttons["关闭"].firstMatch
+        let closeButton = app.buttons["paywall.close"].firstMatch
         XCTAssertTrue(
             closeButton.waitForExistence(timeout: 10),
             "非 Pro 点「备份导出」未弹出付费墙"
@@ -168,7 +172,7 @@ final class MiLensUITests: XCTestCase {
 
         closeButton.tap()
         XCTAssertFalse(
-            app.buttons["关闭"].waitForExistence(timeout: 3),
+            app.buttons["paywall.close"].waitForExistence(timeout: 3),
             "点关闭后付费墙未关闭"
         )
         // 返回设置页后备份入口仍在

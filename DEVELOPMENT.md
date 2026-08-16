@@ -1,6 +1,6 @@
 # MiLens iOS 开发说明
 
-最后核对：2026-08-16（P0–P5 实现完成；CI 全绿 run 31905505907：Kit 1113（Linux）+ App 943（模拟器）+ UI 6 = 2062 用例全绿，覆盖率门禁基线回调 18/18/0（App 加权 line/function 21.3%）；真机与性能验收待做，清单见 docs/P2-待办清单.md）
+最后核对：2026-08-17（质量复评 N1-N8 修复收口：N1 两处 Onboarding stageRow 编译错误（CI 红灯根因）；N7 Swift 6 严格并发警告源码层清理（App/Widget/Kit 17 文件）+ PetEditView 头像按钮三元分支语义修正；N6 UI 测试 11 处中文文案断言迁移 accessibilityIdentifier（identifier = loc key 约定，6 个视图文件同步标注）；N8 token lint 143 处 INFO 复评维持不判罚（docs/UI-Rework计划.md 批次 A）；N2 main 分支保护落地（见 §2.2）；CI 验证进行中，run 号待回填；此前 2026-08-16：P0–P5 实现完成；CI 全绿 run 31905505907：Kit 1113（Linux）+ App 943（模拟器）+ UI 6 = 2062 用例全绿，覆盖率门禁基线回调 18/18/0（App 加权 line/function 21.3%）；真机与性能验收待做，清单见 docs/P2-待办清单.md）
 
 > 环境、命令、开发约定、可复现验证快照。架构见 [DESIGN.md](DESIGN.md)，计划见 [PLAN.md](PLAN.md)，约束见 [AGENTS.md](AGENTS.md)。
 
@@ -79,6 +79,8 @@ apt-get install -y --no-install-recommends \
 3. `MiLens App (macOS)`——macos-15 runner 上 `tools/fetch-models.sh`（从 Release 下载生产模型 + SHA256 校验，`actions/cache` 缓存 `MiLens/Resources/Models`，命中则幂等跳过）→ **再** `xcodegen generate`（顺序约束：XcodeGen 生成工程时模型必须已存在，否则 `.mlpackage` 不会进入 Resources Build Phase，正式包会静默降级到 Vision）→ `xcodebuild build` → **产物断言**（`tools/assert-built-models.sh` 校验 `.app` 内含编译后 `.mlmodelc`，防静默降级）→ `xcodebuild test`（含覆盖率，`-resultBundlePath build/TestResult.xcresult`）→ **覆盖率门禁**（`tools/check-coverage.sh --selftest` 固定 fixture 自测 + 解析 xcresult，line 覆盖率按行数加权（非等权平均，避免大文件低覆盖被小高覆盖文件稀释高估），按 MiLens/MiLensKit 目标与基线比较，任一指标不达标即失败；基线为占位值，首次实测后校准，见脚本头注释），约 4-5 分钟（依赖 MiLensKit + Lint 作业通过）。
 
 查看：`gh run list --repo altairos/MiLens-iOS` 或 https://github.com/altairos/MiLens-iOS/actions。
+
+**分支保护（2026-08-17 配置）**：`main` 已启用温和版保护——三个 CI check（`MiLensKit (Linux)` / `Lint (tokens + size + isolation + i18n)` / `MiLens App (macOS)`）设为 required，禁止 force push 与删除分支；`enforce_admins=false` 刻意保留单人直推工作流（直推不被拦截，CI 不绿仅标记红叉，靠 run 盯梢收敛）；PR 合并须等三检查通过。调整走 `gh api -X PUT repos/altairos/MiLens-iOS/branches/main/protection`（布尔参数必须用 `-F` 传类型化值，`-f` 传字符串会 422）。
 
 #### 上架路径（免 Mac 一条龙）
 

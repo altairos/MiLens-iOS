@@ -182,11 +182,14 @@ struct PetEditView: View {
                         .foregroundStyle(Color.milensTextSecondary)
                 }
                 Spacer()
-                // 头像选择入口（PhotosPicker 单选）
+                // 头像选择入口（PhotosPicker 单选）。
+                // label 闭包是 Sendable 上下文，不能直接读 vm 的 MainActor 属性——
+                // 在闭包外（body 主线程上下文）先取值再由闭包捕获局部 let。
+                let hasAvatar = !vm.avatarPath.isEmpty
                 PhotosPicker(selection: $avatarPickerItem, matching: .images) {
-                    Text(vm.avatarPath.isEmpty
-                         ? String(localized: "pet.edit.avatar.choose")
-                         : String(localized: "pet.edit.avatar.change"))
+                    Text(hasAvatar
+                         ? String(localized: "pet.edit.avatar.change")
+                         : String(localized: "pet.edit.avatar.choose"))
                         .font(.caption)
                         .foregroundStyle(Color.milensActionPrimary)
                 }

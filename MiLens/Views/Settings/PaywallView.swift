@@ -149,6 +149,8 @@ struct PaywallView: View {
             }
         }
         .accessibilityLabel(String(localized: "paywall.close"))
+        // UI 冒烟测试按 identifier 断言；label 保留给 VoiceOver。
+        .accessibilityIdentifier("paywall.close")
     }
 
     // MARK: - 下半屏 Purchase Sheet（对照 Figma #64:424）

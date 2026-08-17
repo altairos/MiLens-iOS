@@ -142,23 +142,23 @@ final class EditorPanelVMTests: XCTestCase {
 
     // MARK: - EditorTextPanelVM
 
-    /// 编辑面板可见性三态：text 层选中且 text 工具 / 工具关闭 / photo 层选中（工具开启）。
-    func testShowEditPanelOnlyForActiveTextLayerWithTextTool() async {
+    /// 编辑面板可见性（shouldShowTextLayerEditPanel）：text 层激活且**退出**文本添加模式时
+    /// 显示编辑面板（.text 工具打开时显示的是添加面板）；photo 层激活时任何工具下都不显示。
+    func testShowEditPanelOnlyForActiveTextLayerOutsideTextTool() async {
         let vm = await makeLoadedVM()
         vm.textVM.textInput = "hello"
         vm.textVM.add()
         XCTAssertEqual(vm.document.activeLayer?.type, .text)
 
         vm.selectTool(.text)
-        XCTAssertTrue(vm.textVM.showEditPanel, "text 层 + text 工具 = 可编辑")
+        XCTAssertFalse(vm.textVM.showEditPanel, "text 工具打开时为添加模式，编辑面板隐藏")
 
         vm.selectTool(.none)
-        XCTAssertFalse(vm.textVM.showEditPanel, "工具关闭后隐藏（选中层保留）")
+        XCTAssertTrue(vm.textVM.showEditPanel, "工具关闭后选中的文字层显示编辑面板")
 
-        vm.selectTool(.text)
         let photoID = vm.document.photoLayer()?.id
         vm.document.select(photoID)
-        XCTAssertFalse(vm.textVM.showEditPanel, "photo 层选中时不可编辑文字")
+        XCTAssertFalse(vm.textVM.showEditPanel, "photo 层选中时任何工具下都不可编辑文字")
     }
 
     /// photo 层选中时 updateActiveText 为 no-op：面板值与历史均不变。

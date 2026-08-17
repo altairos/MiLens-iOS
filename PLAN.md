@@ -580,6 +580,10 @@ P1 核心可靠性与性能六项修复全部落地（实现记录见状态摘�
 
   **下轮补测目标**：AiInference 周边与 Import/Quality 错误分支已覆盖；剩余提升点收敛为最差 5 文件（TimelineView/RedPacketUploadGuideView/PhotoViewView/TimelineMemoryCards/BeadPatternResultView，均 0% 渲染层）中可下沉的决策逻辑，以及下一份 xccov 报告重新定位的低覆盖 Service/ViewModel 分支（方法沿用：协议注入 + 行为路径断言）；View body 仍由 UI 冒烟（6 条）+ 真机走查覆盖。
 
+- 2026-08-17：**零覆盖纯逻辑文件补测 49 用例（App 覆盖率 24.1% -> 24.4%）**——按上轮「下轮补测目标」以源码-测试映射重新定位零测试纯逻辑文件（2ba17b3，两轮 CI 红灯修复 d7aeec9/8b2002f）：TimelineArchiveLogicTests 18（档案统计——photoCount 透传/作品计数过滤 /Edits//重要日子 user+birthday+adoption/档案起点取最早/相伴天数领养日优先回退起点并钳 0、置顶记忆——pinned 优先取最近/回退用户文本记忆/无候选 nil/字段映射与标题兜底、相处章节——按年正序分组+末章标记+自定义名优先/无日期跳过/空输入、年度回看——年份过滤/每月第一条+精选升序/空快照、删除边界重算）、PhotoMetadataLogicTests 11（EXIF 冒号/横线格式、引号与空白剥离、ISO8601 含毫秒降级、垃圾与日/月/年格式 nil、兜底拍摄时间 EXIF 优先于 mtime 优先于 now 三级回退）、RedPacketQualityInputBuilderTests 12（清晰度用原图亮度优先抠图主体/cutout 缺失回退/source 缺失禁用 imageMetrics/宠物面积公式与钳 1/隐藏层 0 覆盖/无 pet 层安全区归零/无文本层可读性默认通过/WCAG 真实对比度/无效样式满分回退/cutoutMetricsAvailable 四象限/蒙版缺失归零）、RedPacketDraftStoreTests 8（save/load 往返含图层/覆盖式保存/listAll 降序且只列 json/损坏 JSON 静默跳过/抠图 PNG 往返与缺失 nil/delete 联动删除幂等）。**两轮 CI 红灯修复教训**：①PowerShell 双引号 here-string 会展开 Swift 闭包首参隐式变量——map 闭包简写落盘后丢失参数引用编译错（closure argument list expects 1 argument），改 key path 写法规避（d7aeec9）；②Date() 亚秒精度经 ISO8601（无毫秒）编码往返被截断致草稿 Equatable 不等，测试构造固定整秒时间戳（8b2002f）。**CI 全绿 [run 31995526845](https://github.com/altairos/MiLens-iOS/actions/runs/31995526845)**：Kit 1116（Linux）+ App 1159（=1110+49，模拟器）+ UI 6 = **2281 用例 0 失败**；gate PASS（App 加权 line/function 均 24.4%，基线 18/18/0；最差 5 文件仍全为 0% View 渲染层，与上轮一致）。
+
+  **下轮补测目标**：零覆盖纯逻辑文件已清零；剩余提升点为 Editor 面板 VM（EditorAdjustPanelVM/EditorCropPanelVM/EditorCutoutPanelVM/EditorTextPanelVM/EditorDocumentController，合计约 445 行无专门测试）与最差 5 文件 View 渲染层中可下沉的交互决策；平台包装层（PrintService/WidgetReload/NotificationAppDelegate）需先补协议抽象；View body 仍由 UI 冒烟（6 条）+ 真机走查覆盖。
+
 ---
 
 ## 数据安全与跨设备迁移（2026-08-12 规划）

@@ -79,7 +79,7 @@ final class RedPacketDraftStoreTests: XCTestCase {
         try store.saveCutoutPNG(Data([0x89, 0x50, 0x4E, 0x47]), for: older.id)
 
         let all = try store.listAll()
-        XCTAssertEqual(all.map { .petName }, ["新", "旧"], "按 updatedAt 降序")
+        XCTAssertEqual(all.map(\.petName), ["新", "旧"], "按 updatedAt 降序")
         XCTAssertEqual(all.count, 2, "PNG 文件不计入草稿列表")
     }
 
@@ -94,7 +94,7 @@ final class RedPacketDraftStoreTests: XCTestCase {
         try Data("{ not valid json !!".utf8).write(to: corruptURL)
 
         let all = try store.listAll()
-        XCTAssertEqual(all.map { .petName }, ["完好"], "损坏文件被静默跳过")
+        XCTAssertEqual(all.map(\.petName), ["完好"], "损坏文件被静默跳过")
     }
 
     // MARK: - 抠图 PNG

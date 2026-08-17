@@ -210,8 +210,8 @@ final class TimelineArchiveLogicTests: XCTestCase {
             now: utcDate(2026, 8, 17), calendar: cal)
 
         XCTAssertEqual(chapters.count, 3)
-        XCTAssertEqual(chapters.map { .entries.count }, [2, 1, 1], "章节按年正序排列")
-        XCTAssertEqual(chapters.map { .isLastChapter }, [false, false, true])
+        XCTAssertEqual(chapters.map(\.entries.count), [2, 1, 1], "章节按年正序排列")
+        XCTAssertEqual(chapters.map(\.isLastChapter), [false, false, true])
 
         XCTAssertEqual(chapters[0].startDate, utcDate(2024, 1, 10))
         XCTAssertEqual(chapters[0].endDate, utcDate(2024, 9, 20))
@@ -229,7 +229,7 @@ final class TimelineArchiveLogicTests: XCTestCase {
             entries: entries, now: utcDate(2026, 8, 17), calendar: cal)
 
         XCTAssertEqual(chapters.count, 1)
-        XCTAssertEqual(chapters[0].entries.map { .id }, ["dated"])
+        XCTAssertEqual(chapters[0].entries.map(\.id), ["dated"])
     }
 
     /// 空输入返回空章节列表。
@@ -267,7 +267,7 @@ final class TimelineArchiveLogicTests: XCTestCase {
 
         XCTAssertEqual(recap.monthlyPicks[1]?.id, "jan1", "每月取第一条")
         XCTAssertEqual(recap.monthlyPicks[3]?.id, "mar1")
-        XCTAssertEqual(recap.highlights.map { .id }, ["jan1", "mar1"], "精选按日期升序、每月至多一条")
+        XCTAssertEqual(recap.highlights.map(\.id), ["jan1", "mar1"], "精选按日期升序、每月至多一条")
     }
 
     /// 无该年记录返回空快照。

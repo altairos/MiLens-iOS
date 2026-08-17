@@ -28,10 +28,12 @@ final class RedPacketDraftStoreTests: XCTestCase {
 
     private func makeDraft(petName: String = "咪咪",
                            updatedAt: Date = Date(timeIntervalSince1970: 1_700_000_000),
+                           createdAt: Date = Date(timeIntervalSince1970: 1_700_000_001),
                            layers: [RedPacketLayer] = []) -> RedPacketCoverDraft {
         RedPacketCoverDraft(templateID: "newYearRed", templateRevision: 1,
                             layers: layers, petName: petName,
-                            coverTitle: "新年快乐", updatedAt: updatedAt)
+                            coverTitle: "新年快乐",
+                            createdAt: createdAt, updatedAt: updatedAt)
     }
 
     // MARK: - save / load

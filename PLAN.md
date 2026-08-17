@@ -584,6 +584,10 @@ P1 核心可靠性与性能六项修复全部落地（实现记录见状态摘�
 
   **下轮补测目标**：零覆盖纯逻辑文件已清零；剩余提升点为 Editor 面板 VM（EditorAdjustPanelVM/EditorCropPanelVM/EditorCutoutPanelVM/EditorTextPanelVM/EditorDocumentController，合计约 445 行无专门测试）与最差 5 文件 View 渲染层中可下沉的交互决策；平台包装层（PrintService/WidgetReload/NotificationAppDelegate）需先补协议抽象；View body 仍由 UI 冒烟（6 条）+ 真机走查覆盖。
 
+- 2026-08-18：**Editor 面板 VM 编排分支补测 12 用例（App 覆盖率 24.4% 持平）**——按上轮「下轮补测目标」补齐 Editor 面板 VM 约 445 行无专门测试缝隙（9bcb7aa，一轮 CI 红灯修复 da84fd7）：EditorPanelVMTests 12 与 EditorViewModelTests 互补（主流程已测，覆盖缝隙分支）——EditorAdjustPanelVM（中性态 reset no-op 不入历史不渲染/滤镜缩略图按 photoGeneration 缓存命中与代际失效重算/resetSharpness 只复位滑块保留 renderedSharpness 基准与图层值的 releaseSharpenBase 语义）、EditorCropPanelVM（updateCropRect 透传 clampCropRect 负偏移归零超画布截断）、EditorTextPanelVM（showEditPanel 可见性——text 层激活且退出文本添加模式时显示编辑面板/updateActiveText 对 photo 层 no-op 不入历史/deleteActiveLayer 保护底图）、EditorDocumentController（点选顶层优先且 photo 底图不可选中/贴纸缩放视觉钳制对齐 clampStickerVisualScale/非贴纸层 [MIN,MAX]_LAYER_SCALE 钳制/旋转累计/addPassive 不抢占选中）、EditorCutoutPanelVM（processing 中二次 start 被 canStartCutout 拒绝——自写 GatedVisionService 可控挂起验证状态提示+不重复 encode+放行后 result nil 走 error 无降级）。**红灯修复**：showEditPanel 断言方向写反——shouldShowTextLayerEditPanel = text 层激活且 tool != .text（.text 打开时为添加面板，退出后才显示编辑面板）（da84fd7）。**CI 全绿 [run 32075135798](https://github.com/altairos/MiLens-iOS/actions/runs/32075135798)**：Kit 1116（Linux）+ App 1171（=1159+12，模拟器）+ UI 6 = **2293 用例 0 失败**；gate PASS（App 加权 line/function 均 24.4%，与上轮持平——面板 VM 在 xccov 加权口径下贡献小，但 5 文件脱离零测试；最差 5 文件仍全为 0% View 渲染层，与上轮一致）。
+
+  **下轮补测目标**：Editor 面板 VM 已覆盖；剩余提升点为最差 5 文件 View 渲染层中可下沉的交互决策（本轮核查 TimelineView/RedPacketUploadGuideView/PhotoViewView/TimelineMemoryCards/BeadPatternResultView 决策逻辑已大量下沉至 Logic 文件，纯 body 组装剩余价值低）与平台包装层（PrintService/WidgetReload/NotificationAppDelegate，需先补协议抽象）；或转向其他质量维度（真机验证清单 docs/P2-待办清单.md）；View body 仍由 UI 冒烟（6 条）+ 真机走查覆盖。
+
 ---
 
 ## 数据安全与跨设备迁移（2026-08-12 规划）

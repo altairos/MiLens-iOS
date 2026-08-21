@@ -233,6 +233,18 @@ struct SettingsView: View {
                     ArchiveDivider().padding(.leading, 32)
                 }
 
+                // 服务条款：免费用户也能在设置中稳定访问，避免只在付费墙出现。
+                if let url = URL(string: SettingsLogic.Links.termsOfService) {
+                    Link(destination: url) {
+                        settingsPlainRow(
+                            icon: "doc.text.magnifyingglass",
+                            title: String(localized: "paywall.link.terms")
+                        )
+                    }
+                    .buttonStyle(.plain)
+                    ArchiveDivider().padding(.leading, 32)
+                }
+
                 // 离线备份导出（Pro 门控；isAvailable=false 时禁用并提示「即将上线」）
                 Button {
                     if backupVM?.isServiceAvailable == false {

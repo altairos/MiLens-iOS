@@ -14,8 +14,8 @@ options:
   # 译文维护在 MiLens/Resources/Localizable.xcstrings（UI 文案）与
   # InfoPlist.xcstrings（权限说明 / App 显示名）。导出/导入工作流见
   # DEVELOPMENT.md §4.5、docs/Localization-Plan.md 与 tools/localization.py。
-  # 全球首发 7 语言：zh-Hant/ja/ko/en/fr/de 译文待翻译（见 Localization-Plan.md）。
-  knownRegions: [zh-Hans, zh-Hant, ja, ko, en, fr, de]
+  # 全球首发 6 语言：zh-Hant/ja/en/fr/de；ko 延期（见 Localization-Plan.md）。
+  knownRegions: [zh-Hans, zh-Hant, ja, en, fr, de]
 
 settings:
   base:

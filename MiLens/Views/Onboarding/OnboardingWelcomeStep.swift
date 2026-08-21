@@ -1,8 +1,8 @@
 //  OnboardingWelcomeStep —— 首次启动 01 欢迎 / 空态（对照 Figma #47:6）。
 //  品牌瞬间：FIRST LIGHT overline + "MiLens" 品牌名 + 文楷 Hero「把相伴的一生，留在这里」。
 //  Empty Archive Surface 卡片：虚线轨道 + 品牌印章 + 「等待第一位伙伴」+ Register 标记。
-//  3 waypoint（本机整理/由你确认/随时可删）+ Divider + 隐私政策行。
-//  底部 FocusDialButton「建立第一份档案」（未同意隐私政策时 disabled）。
+//  3 waypoint（本机整理/由你确认/随时可删）+ Divider + 法律文档同意行。
+//  底部 FocusDialButton「建立第一份档案」（未同时同意两份文档时 disabled）。
 
 import SwiftUI
 
@@ -48,15 +48,15 @@ struct OnboardingWelcomeStep: View {
                     .frame(height: 1)
                     .padding(.top, Spacing.xl)
 
-                // MARK: 隐私政策行
-                privacyRow
+                // MARK: 法律文档同意行
+                legalDocumentsRow
                     .padding(.top, Spacing.md)
 
                 // MARK: Focus Dial
                 FocusDialButton(
                     label: String(localized: "onboarding.welcome.cta"),
                     systemImage: "plus",
-                    isEnabled: viewModel.privacyAgreed
+                    isEnabled: viewModel.legalDocumentsAgreed
                 ) {
                     viewModel.goToNextStep()
                 }
@@ -137,47 +137,70 @@ struct OnboardingWelcomeStep: View {
         }
     }
 
-    // MARK: - 隐私政策行（对照 #47:6 Privacy / Read Policy）
+    // MARK: - 法律文档同意行（对照 #47:6 Privacy / Read Policy）
 
-    private var privacyRow: some View {
-        HStack(spacing: 0) {
-            // Active Rail（已同意时显示珊瑚竖线）
-            Rectangle()
-                .fill(viewModel.privacyAgreed ? Color.milensActionPrimary : Color.clear)
-                .frame(width: 3, height: 22)
-                .cornerRadius(Radius.accentRail)
+    private var legalDocumentsRow: some View {
+        VStack(alignment: .leading, spacing: Spacing.sm) {
+            legalAgreementRow(
+                isAgreed: Binding(
+                    get: { viewModel.privacyAgreed },
+                    set: { viewModel.privacyAgreed = $0 }
+                ),
+                linkTitle: String(localized: "onboarding.welcome.privacyLink"),
+                urlString: SettingsLogic.Links.privacyPolicy
+            )
 
-            Toggle(isOn: Binding(
-                get: { viewModel.privacyAgreed },
-                set: { viewModel.privacyAgreed = $0 }
-            )) {
-                HStack(spacing: 4) {
-                    Text(String(localized: "onboarding.welcome.agreePrefix"))
+            legalAgreementRow(
+                isAgreed: Binding(
+                    get: { viewModel.termsAgreed },
+                    set: { viewModel.termsAgreed = $0 }
+                ),
+                linkTitle: String(localized: "onboarding.welcome.termsLink"),
+                urlString: SettingsLogic.Links.termsOfService
+            )
+        }
+        .padding(.vertical, Spacing.xs)
+    }
+
+    private func legalAgreementRow(
+        isAgreed: Binding<Bool>,
+        linkTitle: String,
+        urlString: String
+    ) -> some View {
+        HStack(alignment: .top, spacing: Spacing.sm) {
+            Button {
+                isAgreed.wrappedValue.toggle()
+            } label: {
+                Image(systemName: isAgreed.wrappedValue ? "checkmark.square.fill" : "square")
+                    .font(.system(size: 22, weight: .medium))
+                    .foregroundStyle(isAgreed.wrappedValue
+                                     ? Color.milensActionPrimary : Color.milensTextSecondary)
+                    .frame(width: Sizing.touchTarget, height: Sizing.touchTarget)
+            }
+            .buttonStyle(.plain)
+            .accessibilityLabel(
+                String(localized: "onboarding.welcome.agreePrefix") + linkTitle
+            )
+            .accessibilityValue(
+                isAgreed.wrappedValue
+                    ? String(localized: "common.selected")
+                    : String(localized: "common.notSelected")
+            )
+
+            HStack(alignment: .firstTextBaseline, spacing: 4) {
+                Text(String(localized: "onboarding.welcome.agreePrefix"))
+                    .font(.bodyPrimary)
+                    .foregroundStyle(Color.milensTextSecondary)
+                if let url = URL(string: urlString) {
+                    Link(linkTitle, destination: url)
                         .font(.bodyPrimary)
-                        .foregroundStyle(Color.milensTextSecondary)
-                    if let url = URL(string: SettingsLogic.Links.privacyPolicy) {
-                        Link(String(localized: "onboarding.welcome.privacyLink"), destination: url)
-                            .font(.bodyPrimary)
-                            .foregroundStyle(Color.milensActionPrimary)
-                    }
+                        .foregroundStyle(Color.milensActionPrimary)
                 }
             }
-            // ToggleStyle 无 .plain（那是 ButtonStyle 成员）；.button 样式无边框、
-            // label 原样显示，点击由 Toggle 消费不与外层整行 tap 手势叠加。
-            .toggleStyle(.button)
-            .padding(.leading, 11)
+            .fixedSize(horizontal: false, vertical: true)
 
-            Spacer()
-
-            // → 箭头
-            Text("\u{2192}")
-                .font(.uiBodyStrong)
-                .foregroundStyle(Color.milensActionPrimary)
-                .opacity(viewModel.privacyAgreed ? 1 : 0.3)
+            Spacer(minLength: 0)
         }
         .contentShape(Rectangle())
-        .onTapGesture {
-            viewModel.privacyAgreed.toggle()
-        }
     }
 }

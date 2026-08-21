@@ -1,93 +1,111 @@
 {
-  "sourceLanguage" : "zh-Hans",
-  "strings" : {
-    "CFBundleDisplayName" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "MiLens"
+  "sourceLanguage": "zh-Hans",
+  "strings": {
+    "CFBundleDisplayName": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "MiLens"
           }
         },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "MiLens"
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "MiLens"
           }
         },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "咪Lens"
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "咪Lens"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "咪Lens"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "咪Lens"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "MiLens"
           }
         }
       }
     },
-    "NSPhotoLibraryAddUsageDescription" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "MiLens needs permission to save bead patterns, pal cards, and timeline export images to your Photos."
+    "NSPhotoLibraryAddUsageDescription": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "MiLens needs permission to save bead patterns, pal cards, and timeline export images to your Photos."
           }
         },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "MiLens a besoin de votre autorisation pour enregistrer les modèles de perles, les cartes et les images exportées dans vos Photos."
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "MiLens enregistre vos créations dans Photos avec votre autorisation."
           }
         },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "咪Lens 需要保存导出的拼豆图纸和照片到相册。"
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "咪Lens 需要保存导出的拼豆图纸和照片到相册。"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "咪Lens 需要取得權限，以便將匯出的拼豆圖稿、毛小孩卡片及照片儲存至「照片」圖庫。"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "咪Lens 需要取得權限，以便將匯出的拼豆圖稿、毛小孩卡片及照片儲存至「照片」圖庫。"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "MiLens benötigt die Berechtigung, um Bügelperlen-Vorlagen, Begleiter-Karten und Zeitleisten-Bilder in deinen Fotos zu speichern."
           }
         }
       }
     },
-    "NSPhotoLibraryUsageDescription" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Find your pal's photos and build profiles. Photos stay on device; edited works may be backed up."
+    "NSPhotoLibraryUsageDescription": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Find your pal's photos and build profiles. Photos stay on device; edited works may be backed up."
           }
         },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "MiLens a besoin d'accéder à vos photos pour retrouver les moments de votre compagnon et créer son profil. Vos photos restent sur votre appareil ; les créations peuvent être conservées dans les sauvegardes système que vous activez."
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "MiLens utilise vos photos pour créer le profil de votre compagnon. Elles restent sur l'appareil."
           }
         },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "咪Lens 需要访问相册来发现和整理你伙伴的照片。所有分析在本地完成。App 不会主动上传照片；编辑产物可能随用户启用的系统备份保存。"
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "咪Lens 需要访问相册来发现和整理你伙伴的照片。所有分析在本地完成。App 不会主动上传照片；编辑产物可能随用户启用的系统备份保存。"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "咪Lens 需要存取相簿以尋找並整理您的毛小孩照片。所有分析均在本機完成，App 不會主動上傳照片；編輯後的作品可能隨您啟用的系統備份進行儲存。"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "咪Lens 需要存取相簿以尋找並整理您的毛小孩照片。所有分析均在本機完成，App 不會主動上傳照片；編輯後的作品可能隨您啟用的系統備份進行儲存。"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Finde die Fotos deines Begleiters und erstelle Profile. Fotos bleiben auf dem Gerät; bearbeitete Werke können gesichert werden."
           }
         }
       }
     }
   },
-  "version" : "1.0"
+  "version": "1.0"
 }

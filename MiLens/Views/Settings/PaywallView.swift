@@ -13,6 +13,8 @@ struct PaywallView: View {
     @Environment(\.proEntitlement) private var entitlement
     @Environment(\.dismiss) private var dismiss
     @State private var model: PaywallViewModel?
+    /// 购买前必须明确确认服务条款与隐私政策；每次打开付费墙都重新确认。
+    @State private var purchaseLegalAgreed = false
 
     var body: some View {
         Group {
@@ -172,6 +174,10 @@ struct PaywallView: View {
             planSection(model)
                 .padding(.top, Spacing.xl)
 
+            // 购买前披露：价格、周期、试用/续费和重大条款集中展示。
+            purchaseDisclosure(model)
+                .padding(.top, Spacing.lg)
+
             // CTA
             purchaseButton(model)
                 .padding(.top, Spacing.lg)
@@ -253,6 +259,9 @@ struct PaywallView: View {
         VStack(spacing: 0) {
             ForEach(model.products) { product in
                 planRow(product: product, isSelected: model.selectedID == product.id) {
+                    if model.selectedID != product.id {
+                        purchaseLegalAgreed = false
+                    }
                     model.selectedID = product.id
                 }
                 if product != model.products.last {
@@ -291,6 +300,9 @@ struct PaywallView: View {
 
                 // 右侧：试用/价格信息（对照 Figma #37:49/51）
                 VStack(alignment: .trailing, spacing: 2) {
+                    Text(product.displayPrice)
+                        .font(.bodyPrimary.weight(.semibold))
+                        .foregroundStyle(Color.milensTextPrimary)
                     if isSelected, let trial = product.trialDays, trial > 0 {
                         Text(String(localized: "paywall.trial.hint \(trial)"))
                             .font(.editorialMetadata)
@@ -307,6 +319,10 @@ struct PaywallView: View {
             .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
         }
         .buttonStyle(.plain)
+    }
+
+    private func purchaseDisclosure(_ model: PaywallViewModel) -> some View {
+        PaywallPurchaseDisclosure(model: model, legalAgreed: $purchaseLegalAgreed)
     }
 
     /// 从 StoreProductInfo 推导方案显示名。
@@ -338,6 +354,8 @@ struct PaywallView: View {
                     Text(ctaTitle(for: model))
                         .font(.buttonLabel)
                         .foregroundStyle(Color.milensDarkroomText)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.7)
                     Spacer()
                     // 箭头印章（对照 Purchase Seal #328:693）
                     ZStack {
@@ -363,18 +381,11 @@ struct PaywallView: View {
                 .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
             }
             .buttonStyle(.plain)
-            .disabled(PaywallLogic.ctaKind(for: model.selectedProduct) == .unavailable || model.isPurchasing)
+            .disabled(PaywallLogic.ctaKind(for: model.selectedProduct) == .unavailable
+                      || model.isPurchasing
+                      || !purchaseLegalAgreed)
             .padding(.horizontal, Spacing.pagePad)
         }
-
-        // 续订条款（随选中方案变化）
-        Text(termsText(for: model))
-            .font(.caption)
-            .foregroundStyle(Color.milensTextTertiary)
-            .multilineTextAlignment(.center)
-            .frame(maxWidth: .infinity)
-            .padding(.horizontal, Spacing.pagePad)
-            .padding(.top, Spacing.sm)
     }
 
     /// CTA 文案：试用天数/价格均来自 Product 投影。
@@ -394,26 +405,6 @@ struct PaywallView: View {
             )
         case .unavailable:
             return String(localized: "paywall.cta.unavailable")
-        }
-    }
-
-    /// 诚实续订条款：随选中方案形态变化（§6.10）。
-    private func termsText(for model: PaywallViewModel) -> String {
-        let product = model.selectedProduct
-        switch PaywallLogic.termsKind(for: product) {
-        case .trialSubscription:
-            return String(
-                format: String(localized: "paywall.terms.trial"),
-                product?.trialDays ?? 0,
-                product?.displayPrice ?? ""
-            )
-        case .plainSubscription:
-            return String(
-                format: String(localized: "paywall.terms.subscription"),
-                product?.displayPrice ?? ""
-            )
-        case .lifetime:
-            return String(localized: "paywall.terms.lifetime")
         }
     }
 

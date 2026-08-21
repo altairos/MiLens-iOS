@@ -135,10 +135,10 @@ enum SettingsLogic {
     // MARK: 外链（单一事实来源）
 
     enum Links {
-        /// 隐私政策（docs/AppStore-metadata.md §1：privacy-policy.html 托管地址）
-        static let privacyPolicy = "https://miovelle.cn/private-privacy.html"
-        /// 服务条款：未自建条款前使用 Apple 标准 EULA（App Store 审核认可做法）
-        static let termsOfService = "https://www.apple.com/legal/internet-services/itunes/dev/stdeula/"
+        /// 隐私政策（docs/AppStore-metadata.md §1：MiLens 托管地址）
+        static let privacyPolicy = "https://miovelle.cn/milens/privacy-policy.html"
+        /// 服务条款（MiLens 托管页面；购买仍受 Apple 相关条款约束）
+        static let termsOfService = "https://miovelle.cn/milens/terms-of-service.html"
         /// App Store 订阅管理页（Pro 已解锁时「管理订阅」入口）
         static let manageSubscriptions = "https://apps.apple.com/account/subscriptions"
     }

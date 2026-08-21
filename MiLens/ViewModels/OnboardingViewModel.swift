@@ -60,6 +60,13 @@ final class OnboardingViewModel {
     var step: Step = .welcome
     /// 隐私政策已勾选（welcome 前进前置条件）
     var privacyAgreed = false
+    /// 服务条款已勾选（welcome 前进前置条件）
+    var termsAgreed = false
+
+    /// 两份法律文档都明确确认后才允许离开欢迎页。
+    var legalDocumentsAgreed: Bool {
+        privacyAgreed && termsAgreed
+    }
 
     // 权限
     var authStatus: PhotoLibraryAuthorizationStatus = .notDetermined
@@ -151,7 +158,7 @@ final class OnboardingViewModel {
     /// 当前步骤是否允许前进（按钮禁用条件）。
     var canAdvance: Bool {
         switch step {
-        case .welcome: return privacyAgreed
+        case .welcome: return legalDocumentsAgreed
         case .privacy: return true   // denied 也允许继续（可在系统设置补授权）
         case .createArchive: return !petName.trimmingCharacters(in: .whitespaces).isEmpty
         case .featureIntro: return featureSelectionReady

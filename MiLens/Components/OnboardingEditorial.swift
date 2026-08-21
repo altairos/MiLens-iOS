@@ -35,6 +35,7 @@ struct FocusDialButton: View {
                     .font(.buttonLabel)
                     .foregroundStyle(Color.milensDarkroomText)
                     .lineLimit(1)
+                    .minimumScaleFactor(0.7)
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(.leading, 18)
 
@@ -108,6 +109,7 @@ struct ContactProofButton: View {
                     .font(.buttonLabel)
                     .foregroundStyle(Color.milensActionPrimary)
                     .lineLimit(1)
+                    .minimumScaleFactor(0.7)
                 Spacer()
                 arrowBox
             }
@@ -175,6 +177,7 @@ struct DarkroomPulseButton: View {
                         .font(.buttonLabel)
                         .foregroundStyle(Color.milensDarkroomText)
                         .lineLimit(1)
+                        .minimumScaleFactor(0.7)
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(.leading, 18)

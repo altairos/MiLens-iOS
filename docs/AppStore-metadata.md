@@ -17,8 +17,8 @@
 | 次要类别 | 生活 (Lifestyle) | — |
 | 内容分级 | 4+（无不良内容） | — |
 | 价格 | 免费（含应用内订阅） | — |
-| 隐私政策 URL | https://miovelle.cn/private-privacy.html | 已起草（[privacy-policy.html](privacy-policy.html)） | — |
-| 支持 URL | 待准备 | — |
+| 隐私政策 URL | https://miovelle.cn/milens/privacy-policy.html | 已制作（[privacy-policy.html](https://miovelle.cn/milens/privacy-policy.html)） | — |
+| 支持 URL | https://miovelle.cn/milens/support.html | 已制作（[support.html](https://miovelle.cn/milens/support.html)） | — |
 | 营销 URL | 可留空 | — |
 
 ### 1.1 English (en-US)
@@ -32,8 +32,8 @@
 | Secondary category | Lifestyle | — |
 | Content rating | 4+ | — |
 | Price | Free with in-app purchases | — |
-| Privacy policy URL | https://miovelle.cn/private-privacy.html | Draft exists ([privacy-policy.html](privacy-policy.html)) |
-| Support URL | To be prepared | — |
+| Privacy policy URL | https://miovelle.cn/milens/privacy-policy.html | Ready ([privacy-policy.html](https://miovelle.cn/milens/privacy-policy.html)) |
+| Support URL | https://miovelle.cn/milens/support.html | Ready ([support.html](https://miovelle.cn/milens/support.html)) |
 | Marketing URL | Optional | — |
 
 ---
@@ -82,8 +82,8 @@ MiLens Pro 订阅：
 月度和年度订阅的免费试用结束后将自动续费，除非在当前周期结束前至少 24 小时关闭自动续费。试用资格以 App Store 购买页显示为准。
 管理订阅或取消可在 App Store 账户设置中操作。
 
-隐私政策：https://miovelle.cn/private-privacy.html
-服务条款：待准备
+隐私政策：https://miovelle.cn/milens/privacy-policy.html
+服务条款：https://miovelle.cn/milens/terms-of-service.html
 ```
 
 ### 2.2 English (en-US)
@@ -120,8 +120,8 @@ Photos and AI analysis stay on your device. MiLens does not actively upload your
 
 MiLens Pro is available as a monthly subscription, annual subscription, or one-time purchase. Monthly and annual plans include a 7-day free trial when offered. Subscriptions renew automatically unless canceled at least 24 hours before the end of the current period. Manage or cancel subscriptions in your App Store account settings.
 
-Privacy policy: https://miovelle.cn/private-privacy.html
-Terms of service: To be prepared
+Privacy policy: https://miovelle.cn/milens/privacy-policy.html
+Terms of service: https://miovelle.cn/milens/terms-of-service.html
 ```
 
 ---
@@ -427,7 +427,8 @@ Monthly, annual, or lifetime · Price shown in the App Store
 ### 上架前必须完成（需 Mac）
 
 - [ ] 截图制作（3 种设备尺寸 × 5 张）
-- [ ] 隐私政策网页托管（[privacy-policy.html](privacy-policy.html) 已起草，上传到 miovelle.cn）
+- [ ] 隐私政策网页托管（[privacy-policy.html](https://miovelle.cn/milens/privacy-policy.html) 已制作，待部署到 miovelle.cn）
+- [ ] 支持页与服务条款网页托管（[support.html](https://miovelle.cn/milens/support.html)、[terms-of-service.html](https://miovelle.cn/milens/terms-of-service.html) 已制作，待部署）
 - [ ] App Store Connect 录入全部元数据
 - [ ] App Store Connect 录入订阅产品 + 本地化
 - [ ] 审核备注确认

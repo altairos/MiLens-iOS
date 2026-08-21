@@ -55,18 +55,24 @@ final class OnboardingViewModelTests: XCTestCase {
         let (vm, _, _) = makeVM()
         XCTAssertEqual(vm.step, .welcome)
         XCTAssertFalse(vm.privacyAgreed)
+        XCTAssertFalse(vm.termsAgreed)
         XCTAssertFalse(vm.canAdvance)
         XCTAssertEqual(vm.authStatus, .notDetermined)
         XCTAssertEqual(vm.majorStage, 0)
     }
 
-    func testWelcomeRequiresPrivacyAgreementToAdvance() {
+    func testWelcomeRequiresBothLegalDocumentAgreementsToAdvance() {
         let (vm, _, _) = makeVM()
         // 未勾选不能前进
         vm.goToNextStep()
         XCTAssertEqual(vm.step, .welcome)
-        // 勾选后前进到隐私摘要步骤
+        // 只同意隐私政策仍不能前进
         vm.privacyAgreed = true
+        XCTAssertFalse(vm.canAdvance)
+        vm.goToNextStep()
+        XCTAssertEqual(vm.step, .welcome)
+        // 两份文档都同意后前进到隐私摘要步骤
+        vm.termsAgreed = true
         XCTAssertTrue(vm.canAdvance)
         vm.goToNextStep()
         XCTAssertEqual(vm.step, .privacy)
@@ -81,6 +87,7 @@ final class OnboardingViewModelTests: XCTestCase {
     func testMajorStageMapping() {
         let (vm, _, _) = makeVM()
         vm.privacyAgreed = true
+        vm.termsAgreed = true
         vm.goToNextStep() // welcome → privacy
         XCTAssertEqual(vm.majorStage, 0)
         vm.goToNextStep() // privacy → createArchive

@@ -111,6 +111,10 @@ final class SettingsLogicTests: XCTestCase {
     func testLinksAreValidAndMatchMetadata() {
         XCTAssertTrue(SettingsLogic.Links.privacyPolicy.contains("miovelle.cn"))
         XCTAssertNotNil(URL(string: SettingsLogic.Links.privacyPolicy))
+        XCTAssertEqual(
+            SettingsLogic.Links.termsOfService,
+            "https://miovelle.cn/milens/terms-of-service.html"
+        )
         XCTAssertNotNil(URL(string: SettingsLogic.Links.termsOfService))
         XCTAssertNotNil(URL(string: SettingsLogic.Links.manageSubscriptions))
     }

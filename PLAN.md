@@ -305,7 +305,7 @@ P1 核心可靠性与性能六项修复全部落地（实现记录见状态摘�
 - [x] App Store 截图/描述/ASO 关键词——文案已定稿（[docs/AppStore-metadata.md](docs/AppStore-metadata.md)：描述/关键词/订阅产品/审核备注/隐私问卷，2026-08-08）；**截图制作待 Mac**
 - [ ] 性能基准：大图库（5000+）滚动/内存
 - [ ] iPhone/iPad 适配（[ADR-0008](docs/adr/0008-v1-scope-decision.md)：iPad 为 V1.0 目标）+ 深色模式 + Dynamic Type 检查
-- [ ] **全球首发多语言（7 语言：zh-Hans/zh-Hant/ja/ko/en/fr/de）**——计划与各国市场注意要点见 [docs/Localization-Plan.md](docs/Localization-Plan.md)：knownRegions 追加 + **区域差异化基础设施已落地**（`MarketProfile` 模型 + `@Environment(\.marketProfile)` 注入，承载字体策略与 GDPR 区隐私叙事强度；5 处硬编码 `zh_CN` 已清理）+ 260+3 key × 6 语言翻译（动态文案 10 类已收口 8 类，见 §3.6 收口进度；固定 locale 快照测试待补 #7.7b）+ 术语表定稿 + 商店元数据/订阅描述/审核备注/隐私政策多语言 + 截图本地化；`localization.py check` 补每语言缺译断言并接入 CI
+- [ ] **全球首发多语言（6 语言：zh-Hans/zh-Hant/ja/en/fr/de）**——计划与市场注意要点见 [docs/Localization-Plan.md](docs/Localization-Plan.md)：knownRegions 追加 + **区域差异化基础设施已落地**（`MarketProfile` 模型 + `@Environment(\.marketProfile)` 注入，承载字体策略与 GDPR 区隐私叙事强度；5 处硬编码 `zh_CN` 已清理）+ 260+3 key × 5 种非源语言翻译（动态文案 10 类已收口 8 类，见 §3.6 收口进度；固定 locale 快照测试待补 #7.7b）+ 术语表定稿 + 商店元数据/订阅描述/审核备注/隐私政策多语言 + 截图本地化；`localization.py check` 补每语言缺译断言并接入 CI
 - [ ] **UI 测试扩展（发布前质量门禁）**——`MiLensUITests` 冒烟已扩至 **6 条**（2026-08-16 audit-6 §4 P2-2：冷启动 4 Tab + 空态导航 + 创作页→相册扫描入口 / 建档 sheet 开合 / 设置备份入口 / 非 Pro 弹付费墙并可关闭，待 CI 首轮跑通），但核心用户路径与错误态仍未覆盖。目标用例：
   - **导入流程**：Onboarding 扫描发现 → 手动导入 → 入库后图库渲染（验证照片出现在网格 + 计数更新）
   - **编辑器**：照片进入编辑 → 裁切/标注等关键操作 → 保存回写（验证编辑产物标记 `category=="edited"` + 出现在「作品」分类）

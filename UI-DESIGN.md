@@ -134,7 +134,7 @@ Fraunces 不进入常规 App 界面；仅可用于英文营销物料或最终 wo
 
 **Figma UI 文本样式 → iOS 字体映射（已知替换）。** Figma 中名为 `MiLens/UI/Title`、`MiLens/UI/Body Strong`、`MiLens/UI/Overline`、`MiLens/UI/Metadata` 等 UI 文本样式标注字体为 **Noto Sans SC Medium**，iOS 实现统一回退**系统字体**（简体中文 PingFang SC / 拉丁 SF Pro），对应 `Typography` 的 `uiTitle` / `uiBodyStrong` / `editorialOverline` / `editorialMetadata` token。理由：零包体积、保持原生字体感、Dynamic Type 全程参与缩放。Figma 节点引用（如 `458:1145`、`422:845`）保留原文「Noto Sans SC Medium」作为设计稿出处，映射规则集中在本节——iOS 不打包 Noto Sans SC 是有意的产品决策，非缺陷。
 
-字体选择由区域差异化模型 `MarketProfile.usesWenKaiDisplay` 控制（`MiLens/ViewModels/MarketProfile.swift`）：仅 zh-Hans 使用霞鹜文楷，zh-Hant/ja/ko 等语言回退系统衬线字体——文楷子集仅覆盖 GB2312 简体字符，其他语言使用会缺字。详见 [docs/Localization-Plan.md](docs/Localization-Plan.md) §4.8。
+标题字体选择由区域差异化模型 `MarketProfile.displayFontFamily` 控制（`MiLens/ViewModels/MarketProfile.swift`）：zh-Hans 使用霞鹜文楷 GB，zh-Hant-TW 使用霞鶩文楷 TC，zh-Hant-HK 使用芫茜雅楷，ja 使用 Klee One，en/fr/de 使用带 Latin Extended 的 Fraunces；正文/UI 字体策略不变。详见 [docs/Localization-Plan.md](docs/Localization-Plan.md) §4.8。
 
 所有样式必须基于 Dynamic Type；最大辅助字号时允许标题换行、横向按钮改为纵向、统计行改为两列或单列。自定义字体缺字时回退系统字体，不显示方框字。
 

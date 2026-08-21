@@ -4,8 +4,8 @@
 //  语言翻译由 String Catalog 管理；MarketProfile 管理的是审美、隐私叙事强度、
 //  法律区域等无法靠文本翻译表达的差异维度。
 //
-//  当前已落地的维度（从 Typography.usesWenKai 与 Localization-Plan §4.3/§4.5 提取）：
-//  - usesWenKaiDisplay：仅 zh-Hans 用霞鹜文楷（字体层差异，源于语言+script）
+//  当前已落地的维度（从 Typography 与 Localization-Plan §4.3/§4.5 提取）：
+//  - displayFontFamily：按语言+script 选择标题字体族
 //  - privacyNarrativeStrength：DE/FR 为 .strong（GDPR 区需更显式隐私措辞）
 //
 //  未来扩展方向（待代码层出现承载点后再落地，避免过度设计）：
@@ -23,11 +23,24 @@ struct MarketProfile: Equatable, Sendable {
     /// 市场/地区标识，用于日志、调试与资产命名。
     let market: Market
 
-    /// 是否使用霞鹜文楷作为 display 字体。
-    /// 文楷子集仅覆盖 GB2312 简体字符，zh-Hant/ja/ko 使用会缺字（豆腐块），
-    /// 必须回退系统衬线字体。判断依据是语言+script，与地区无关。
+    /// 标题（display）字体族。这里只描述标题字体，不包含正文/UI 字体。
+    /// 判断依据是语言 + script + 地区：繁中台湾与香港使用不同的区域字形，
+    /// 日文使用日文手写标题字体，拉丁市场使用带 Latin Extended 的 Fraunces。
     /// 见 Typography.swift displayFont 与 docs/Localization-Plan.md §4.8 字体策略。
-    let usesWenKaiDisplay: Bool
+    let displayFontFamily: DisplayFontFamily
+
+    enum DisplayFontFamily: String, Sendable, Equatable {
+        case wenKaiGB
+        case wenKaiTC
+        case jyunsaiKaai
+        case kleeOne
+        case fraunces
+        case systemSerif
+    }
+
+    /// 兼容现有测试和调用点；新代码应读取 `displayFontFamily`。
+    @available(*, deprecated, message: "Use displayFontFamily instead")
+    var usesWenKaiDisplay: Bool { displayFontFamily == .wenKaiGB }
 
     /// 隐私叙事强度。
     /// DE/FR 等 GDPR 区为 .strong，需要更显式的本地化隐私措辞
@@ -38,7 +51,7 @@ struct MarketProfile: Equatable, Sendable {
 
     /// 从 Locale 解析出市场差异化配置。
     ///
-    /// 字体差异基于**语言+script**（zh+Hans）；隐私叙事强度基于**地区**（GDPR 区）。
+    /// 字体差异基于**语言+script+地区**；隐私叙事强度基于**地区**（GDPR 区）。
     /// 两者维度独立，因此 Profile 同时需要 locale 的语言与地区信息。
     ///
     /// - Parameter locale: 用户当前 locale（测试传固定 locale 保证可测）。
@@ -46,12 +59,40 @@ struct MarketProfile: Equatable, Sendable {
     static func resolve(from locale: Locale) -> MarketProfile {
         let market = Market.from(regionCode: locale.region?.identifier)
         let lang = locale.language
-        let usesWenKai = lang.languageCode?.identifier == "zh" && lang.script?.identifier == "Hans"
+        let languageCode = lang.languageCode?.identifier
+        let scriptCode = lang.script?.identifier
+        let displayFontFamily: DisplayFontFamily
+        if languageCode == "zh" {
+            if scriptCode == "Hans" || (scriptCode == nil && market == .china) {
+                displayFontFamily = .wenKaiGB
+            } else {
+                displayFontFamily = market == .hongKong ? .jyunsaiKaai : .wenKaiTC
+            }
+        } else {
+            switch languageCode ?? "" {
+            case "ja":
+                displayFontFamily = .kleeOne
+            case "en", "fr", "de":
+                displayFontFamily = .fraunces
+            default:
+                displayFontFamily = .systemSerif
+            }
+        }
         let privacy: PrivacyStrength = (market == .germany || market == .france) ? .strong : .standard
         return MarketProfile(
             market: market,
-            usesWenKaiDisplay: usesWenKai,
+            displayFontFamily: displayFontFamily,
             privacyNarrativeStrength: privacy
+        )
+    }
+
+    /// 过渡初始化器：保留旧测试/预览构造方式，避免把字体迁移与其他配置改动耦合。
+    @available(*, deprecated, message: "Use init(market:displayFontFamily:privacyNarrativeStrength:) instead")
+    init(market: Market, usesWenKaiDisplay: Bool, privacyNarrativeStrength: PrivacyStrength) {
+        self.init(
+            market: market,
+            displayFontFamily: usesWenKaiDisplay ? .wenKaiGB : .systemSerif,
+            privacyNarrativeStrength: privacyNarrativeStrength
         )
     }
 
@@ -69,10 +110,11 @@ struct MarketProfile: Equatable, Sendable {
 extension MarketProfile {
 
     /// 主要发布市场，按地理区域聚合（与语言不完全对齐）。
-    /// 例如 en 覆盖美/英/澳/加，但都归入 `.english` 市场。
+    /// 繁体中文的台湾与香港单独保留，以便使用各自的标题字形。
     enum Market: String, Sendable, CaseIterable, Equatable {
         case china
         case taiwan
+        case hongKong
         case japan
         case korea
         case germany
@@ -85,7 +127,8 @@ extension MarketProfile {
         static func from(regionCode: String?) -> Market {
             switch regionCode?.uppercased() {
             case "CN":                     return .china
-            case "TW", "HK":               return .taiwan
+            case "TW":                      return .taiwan
+            case "HK":                      return .hongKong
             case "JP":                     return .japan
             case "KR":                     return .korea
             case "DE", "AT", "CH":         return .germany

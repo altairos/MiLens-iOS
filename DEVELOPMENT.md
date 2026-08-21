@@ -75,7 +75,7 @@ apt-get install -y --no-install-recommends \
 仓库 https://github.com/altairos/MiLens-iOS（私有）。推送即触发 `.github/workflows/ci.yml`（PR 与 main/master push 均运行三个作业）：
 
 1. `MiLensKit (Linux)`——ubuntu-24.04 上 `swift build/test`，约 50s。
-2. `Lint (tokens + size + isolation + i18n)`——ubuntu-24.04 上 `check-ui-tokens.py`（色值硬门禁）+ `check-file-size.py`（600/800 行规模守卫，白名单豁免挂 ADR 且冻结行数，[ADR-0011](docs/adr/0011-ci-guards-and-photos-exemption.md)）+ `check-imports.py`（Photos 平台隔离：Views 禁 import/符号，Services 仅 Platform/ 与 ADR 豁免）+ `localization.py check`（key 完整性 + 占位符门禁；CI 带 `--allow-missing-translations` 把非源语言缺译降为警告——7 语言翻译过渡期放行，避免 lint 挂掉连带跳过 app 作业，翻译完成后移除），约 10s。
+2. `Lint (tokens + size + isolation + i18n)`——ubuntu-24.04 上 `check-ui-tokens.py`（色值硬门禁）+ `check-file-size.py`（600/800 行规模守卫，白名单豁免挂 ADR 且冻结行数，[ADR-0011](docs/adr/0011-ci-guards-and-photos-exemption.md)）+ `check-imports.py`（Photos 平台隔离：Views 禁 import/符号，Services 仅 Platform/ 与 ADR 豁免）+ `localization.py check`（key 完整性 + 占位符门禁；CI 带 `--allow-missing-translations` 把非源语言缺译降为警告——6 语言翻译过渡期放行，避免 lint 挂掉连带跳过 app 作业，翻译完成后移除），约 10s。
 3. `MiLens App (macOS)`——macos-15 runner 上 `tools/fetch-models.sh`（从 Release 下载生产模型 + SHA256 校验，`actions/cache` 缓存 `MiLens/Resources/Models`，命中则幂等跳过）→ **再** `xcodegen generate`（顺序约束：XcodeGen 生成工程时模型必须已存在，否则 `.mlpackage` 不会进入 Resources Build Phase，正式包会静默降级到 Vision）→ `xcodebuild build` → **产物断言**（`tools/assert-built-models.sh` 校验 `.app` 内含编译后 `.mlmodelc`，防静默降级）→ `xcodebuild test`（含覆盖率，`-resultBundlePath build/TestResult.xcresult`）→ **覆盖率门禁**（`tools/check-coverage.sh --selftest` 固定 fixture 自测 + 解析 xcresult，line 覆盖率按行数加权（非等权平均，避免大文件低覆盖被小高覆盖文件稀释高估），按 MiLens/MiLensKit 目标与基线比较，任一指标不达标即失败；基线为占位值，首次实测后校准，见脚本头注释），约 4-5 分钟（依赖 MiLensKit + Lint 作业通过）。
 
 查看：`gh run list --repo altairos/MiLens-iOS` 或 https://github.com/altairos/MiLens-iOS/actions。
@@ -318,15 +318,15 @@ UI 文案与 Info.plist 权限说明用 Apple String Catalog（`.xcstrings`）�
 >
 > 核心统计语义（`LangStatus`/`scan_statuses`）已从 GUI 下沉到 `localization.py`，CLI 与 GUI 共用。单测：`python tools/test_localization.py`（纯 stdlib，不依赖 openpyxl）。
 
-> **缺译降级放行（2026-08-15）**：`check` 新增 `--allow-missing-translations`——非源语言缺译降为警告并聚合输出（不逐行刷屏）。CI 已带此参数：7 语言 knownRegions 已定而 6 语言翻译未开始，缺译阻断会让 lint 作业挂掉并连带跳过 app 作业（`needs: [kit, lint]`）。`--strict`（发布门禁）下缺译仍阻断，不可被该参数绕过；翻译完成后从 CI 命令移除该参数（见 [Localization-Plan](docs/Localization-Plan.md) §6）。
+> **缺译降级放行（2026-08-15）**：`check` 新增 `--allow-missing-translations`——非源语言缺译降为警告并聚合输出（不逐行刷屏）。CI 已带此参数：6 语言 knownRegions 已定而 2 语言翻译未开始，缺译阻断会让 lint 作业挂掉并连带跳过 app 作业（`needs: [kit, lint]`）。`--strict`（发布门禁）下缺译仍阻断，不可被该参数绕过；翻译完成后从 CI 命令移除该参数（见 [Localization-Plan](docs/Localization-Plan.md) §6）。
 
 > **多 catalog × 多源码根（2026-08-16）**：`--source-root` 可重复传多个（App 与 Widget Extension 各自根）；每个 `Localizable` catalog 按「路径是哪个源码根的后代」配对各自代码做缺 key/多余 key 比对（无祖先匹配时对全部根并集），`widget.*` key 不会与 App 代码互报。export/import 遇到 App 与 Widget 同名 `Localizable.xcstrings` 时 Excel sheet 自动去歧义（`Resources.Localizable` / `MiLensWidget.Localizable`）；import 优先匹配裸 `Localizable`（兼容旧工作簿）。CLI / GUI / 资产工作簿 / CI lint 已全部同步。
 
 > **key 引用提取形态扩展（2026-08-16）**：`extract_code_keys` 在 `String(localized:)/NSLocalizedString` 之外新增两类口径——WidgetKit/AppIntents 配置面 API（`configurationDisplayName`/`.description`/`IntentDescription`/`@Parameter(title:)`/`LocalizedStringResource` 等赋值，参数类型即 key，无条件收）与 dotted key 形态的 `Text("...")`/`.case: "..."` 字典字面量（`LocalizedStringKey` 运行时查表，按 dotted 形态过滤防品牌/装饰文案误报；`switch` 映射 `case .xxx: "sf.symbol"` 是 SF Symbol 名，用 `(?<!case\s)` 排除）。消除 Widget catalog 缺 key 检测盲区，单测 38 用例；本地验证口径另带 `--hardcoded`（中文硬编码检测，D 类清收后纳入 CI）。
 
-**桌面 GUI（可选）**：`python tools/localization-gui.py` 启动 tkinter 本地化工作台——语言进度总览（7 语种实时统计）、缺译清单（双击复制 key）、一键完整 check / 导出 / 导入 / 生成资产工作簿 / 打开工作簿；任务在后台线程执行不冻结界面。无显示环境可用 `python tools/localization-gui.py --self-check` 做结构自检。GUI 复用 `localization.py` 与 `localization-assets.py` 的全部逻辑，不引入额外依赖。
+**桌面 GUI（可选）**：`python tools/localization-gui.py` 启动 tkinter 本地化工作台——语言进度总览（6 语种实时统计）、缺译清单（双击复制 key）、一键完整 check / 导出 / 导入 / 生成资产工作簿 / 打开工作簿；任务在后台线程执行不冻结界面。无显示环境可用 `python tools/localization-gui.py --self-check` 做结构自检。GUI 复用 `localization.py` 与 `localization-assets.py` 的全部逻辑，不引入额外依赖。
 
-> **全球首发多语言计划（7 语言：zh-Hans/zh-Hant/ja/ko/en/fr/de）见 [docs/Localization-Plan.md](docs/Localization-Plan.md)**——含各国市场注意要点（日本丁寧語/韩国 반려동물 红线/德语 Bügelperlen 术语与长度预算/法语阴阳性等）、术语表、ASO 策略、翻译批次与验收标准。首次接入新语言前先读该文档，并按其中 §10 工作项顺序执行。
+> **全球首发多语言计划（6 语言：zh-Hans/zh-Hant/ja/en/fr/de）见 [docs/Localization-Plan.md](docs/Localization-Plan.md)**——含市场注意要点、术语表、ASO 策略、翻译批次与验收标准。首次接入新语言前先读该文档，并按其中 §10 工作项顺序执行。
 >
 > **区域差异化（2026-08-13）**：文本翻译之外，按市场/地区的 UI 与逻辑差异由 `MarketProfile`（`MiLens/ViewModels/MarketProfile.swift`）承载，经 `@Environment(\.marketProfile)` 注入。当前落地两个维度：字体策略（zh-Hans 文楷 vs 系统衬线回退）与隐私叙事强度（GDPR 区 DE/FR 追加第 4 条强化声明，`PrivacyNarrativeLogic` 纯逻辑 + `PrivacyInfoView` 消费）。新增差异维度时在 `MarketProfile` 追加字段 + 纯逻辑 + 单测，不在 View 内散写 `if Locale` 判断。
 

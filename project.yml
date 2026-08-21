@@ -69,9 +69,12 @@ targets:
             CFBundleURLSchemes:
               - milens
         ITSAppUsesNonExemptEncryption: false
-        # 自定义字体（霞鹜文楷 GB2312 子集 + Fraunces + Jacques Francois，均 SIL OFL）
+        # 标题字体（简中/繁中/日文区域字形 + 拉丁 Extended，均 SIL OFL）
         UIAppFonts:
           - LXGWWenKaiGB-Regular.ttf
+          - LXGWWenKaiTC-Regular.ttf
+          - JyunsaiKaai-Regular.ttf
+          - KleeOne-Regular.ttf
           - Fraunces-Bold.ttf
           - Fraunces-Semibold.ttf
           - JacquesFrancois-Regular.ttf

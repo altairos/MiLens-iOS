@@ -2,7 +2,7 @@
 //
 //  验证 Locale → MarketProfile 映射的正确性，重点守护：
 //  1. 市场按地区聚合（德语区 DE/AT/CH → .germany，英语区多国 → .english）
-//  2. usesWenKai 仅 zh-Hans 为 true（zh-Hant/ja/ko 必须回退系统字体，否则缺字）
+//  2. 标题字体按语言/地区选择，不把繁中、日文误当作简中
 //  3. privacy strong 仅 GDPR 区（germany/france）
 //  4. 字体差异（语言层）与市场差异（地区层）相互独立
 
@@ -16,35 +16,42 @@ final class MarketProfileTests: XCTestCase {
     func testChinaSimplifiedChinese() {
         let p = MarketProfile.resolve(from: Locale(identifier: "zh-Hans_CN"))
         XCTAssertEqual(p.market, .china)
-        XCTAssertTrue(p.usesWenKaiDisplay, "简中应使用霞鹜文楷")
+        XCTAssertEqual(p.displayFontFamily, .wenKaiGB)
         XCTAssertEqual(p.privacyNarrativeStrength, .standard)
     }
 
     func testTaiwanTraditionalChinese() {
         let p = MarketProfile.resolve(from: Locale(identifier: "zh-Hant_TW"))
         XCTAssertEqual(p.market, .taiwan)
-        XCTAssertFalse(p.usesWenKaiDisplay, "繁中不能用文楷（缺字）")
+        XCTAssertEqual(p.displayFontFamily, .wenKaiTC)
+        XCTAssertEqual(p.privacyNarrativeStrength, .standard)
+    }
+
+    func testHongKongTraditionalChinese() {
+        let p = MarketProfile.resolve(from: Locale(identifier: "zh-Hant_HK"))
+        XCTAssertEqual(p.market, .hongKong)
+        XCTAssertEqual(p.displayFontFamily, .jyunsaiKaai)
         XCTAssertEqual(p.privacyNarrativeStrength, .standard)
     }
 
     func testJapan() {
         let p = MarketProfile.resolve(from: Locale(identifier: "ja_JP"))
         XCTAssertEqual(p.market, .japan)
-        XCTAssertFalse(p.usesWenKaiDisplay)
+        XCTAssertEqual(p.displayFontFamily, .kleeOne)
         XCTAssertEqual(p.privacyNarrativeStrength, .standard)
     }
 
     func testKorea() {
         let p = MarketProfile.resolve(from: Locale(identifier: "ko_KR"))
         XCTAssertEqual(p.market, .korea)
-        XCTAssertFalse(p.usesWenKaiDisplay)
+        XCTAssertEqual(p.displayFontFamily, .systemSerif)
         XCTAssertEqual(p.privacyNarrativeStrength, .standard)
     }
 
     func testEnglishUS() {
         let p = MarketProfile.resolve(from: Locale(identifier: "en_US"))
         XCTAssertEqual(p.market, .english)
-        XCTAssertFalse(p.usesWenKaiDisplay)
+        XCTAssertEqual(p.displayFontFamily, .fraunces)
         XCTAssertEqual(p.privacyNarrativeStrength, .standard)
     }
 
@@ -53,14 +60,14 @@ final class MarketProfileTests: XCTestCase {
     func testGermanyPrivacyStrong() {
         let p = MarketProfile.resolve(from: Locale(identifier: "de_DE"))
         XCTAssertEqual(p.market, .germany)
-        XCTAssertFalse(p.usesWenKaiDisplay)
+        XCTAssertEqual(p.displayFontFamily, .fraunces)
         XCTAssertEqual(p.privacyNarrativeStrength, .strong, "德语区(GDPR 发源地)隐私叙事应为 strong")
     }
 
     func testFrancePrivacyStrong() {
         let p = MarketProfile.resolve(from: Locale(identifier: "fr_FR"))
         XCTAssertEqual(p.market, .france)
-        XCTAssertFalse(p.usesWenKaiDisplay)
+        XCTAssertEqual(p.displayFontFamily, .fraunces)
         XCTAssertEqual(p.privacyNarrativeStrength, .strong, "法语区(GDPR)隐私叙事应为 strong")
     }
 
@@ -89,20 +96,20 @@ final class MarketProfileTests: XCTestCase {
     }
 
     // MARK: - 字体差异（语言层）与市场差异（地区层）独立性
-    // 核心不变量：usesWenKai 只看 language+script，market 只看 region，互不影响。
+    // 核心不变量：简中标题族只看 language+script，繁中香港额外看 region。
 
     func testSimplifiedChineseInEnglishRegionStillUsesWenKai() {
         // 海外华人用户：系统语言 zh-Hans 但地区设为美国
         let p = MarketProfile.resolve(from: Locale(identifier: "zh-Hans_US"))
         XCTAssertEqual(p.market, .english, "地区 US → english 市场")
-        XCTAssertTrue(p.usesWenKaiDisplay, "语言 zh-Hans → 仍应用文楷，与地区无关")
+        XCTAssertEqual(p.displayFontFamily, .wenKaiGB, "语言 zh-Hans → 仍应用简中字形，与地区无关")
         XCTAssertEqual(p.privacyNarrativeStrength, .standard)
     }
 
     func testSimplifiedChineseInGermanyRegionStillUsesWenKai() {
         let p = MarketProfile.resolve(from: Locale(identifier: "zh-Hans_DE"))
         XCTAssertEqual(p.market, .germany)
-        XCTAssertTrue(p.usesWenKaiDisplay, "语言 zh-Hans + 地区 DE → 文楷 + GDPR strong")
+        XCTAssertEqual(p.displayFontFamily, .wenKaiGB, "语言 zh-Hans + 地区 DE → 简中标题字体 + GDPR strong")
         XCTAssertEqual(p.privacyNarrativeStrength, .strong)
     }
 
@@ -118,7 +125,7 @@ final class MarketProfileTests: XCTestCase {
         // Locale(identifier: "zh-Hans") 无 region
         let p = MarketProfile.resolve(from: Locale(identifier: "zh-Hans"))
         XCTAssertEqual(p.market, .other, "无地区信息 → other")
-        XCTAssertTrue(p.usesWenKaiDisplay, "无地区不影响语言层判断")
+        XCTAssertEqual(p.displayFontFamily, .wenKaiGB, "无地区不影响语言层判断")
     }
 
     func testMarketFromNilRegionCode() {
@@ -135,14 +142,14 @@ final class MarketProfileTests: XCTestCase {
     // MARK: - Equatable / Sendable 结构不变量
 
     func testEquatableSameValues() {
-        let a = MarketProfile(market: .japan, usesWenKaiDisplay: false, privacyNarrativeStrength: .standard)
-        let b = MarketProfile(market: .japan, usesWenKaiDisplay: false, privacyNarrativeStrength: .standard)
+        let a = MarketProfile(market: .japan, displayFontFamily: .kleeOne, privacyNarrativeStrength: .standard)
+        let b = MarketProfile(market: .japan, displayFontFamily: .kleeOne, privacyNarrativeStrength: .standard)
         XCTAssertEqual(a, b)
     }
 
     func testEquatableDifferentMarket() {
-        let a = MarketProfile(market: .japan, usesWenKaiDisplay: false, privacyNarrativeStrength: .standard)
-        let b = MarketProfile(market: .korea, usesWenKaiDisplay: false, privacyNarrativeStrength: .standard)
+        let a = MarketProfile(market: .japan, displayFontFamily: .kleeOne, privacyNarrativeStrength: .standard)
+        let b = MarketProfile(market: .korea, displayFontFamily: .systemSerif, privacyNarrativeStrength: .standard)
         XCTAssertNotEqual(a, b)
     }
 }

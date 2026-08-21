@@ -101,6 +101,24 @@ enum SettingsLogic {
             sourceURL: "https://github.com/lxgw/LxgwWenKai"
         ),
         FontCredit(
+            name: "霞鶩文楷 TC LXGW WenKai TC",
+            author: "LXGW（繁體版，基於 Fontworks Klee）",
+            licenseName: "SIL Open Font License 1.1",
+            sourceURL: "https://github.com/lxgw/LxgwWenKaiTC"
+        ),
+        FontCredit(
+            name: "芫茜雅楷 JyunsaiKaai",
+            author: "ItMarki（基於 Klee One、芫荽與霞鶩文楷）",
+            licenseName: "SIL Open Font License 1.1",
+            sourceURL: "https://github.com/ItMarki/jyunsaikaai"
+        ),
+        FontCredit(
+            name: "Klee One",
+            author: "Fontworks",
+            licenseName: "SIL Open Font License 1.1",
+            sourceURL: "https://github.com/fontworks-fonts/Klee"
+        ),
+        FontCredit(
             name: "Fraunces",
             author: "Undercase Type",
             licenseName: "SIL Open Font License 1.1",

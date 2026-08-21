@@ -10,6 +10,12 @@
             "value" : "In"
           }
         },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dans"
+          }
+        },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
@@ -33,6 +39,12 @@
             "value" : "In %lld days"
           }
         },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dans %lld jours"
+          }
+        },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
@@ -51,6 +63,12 @@
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ · %2$@"
+          }
+        },
+        "fr" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "%1$@ · %2$@"
@@ -79,6 +97,12 @@
             "value" : "Recent"
           }
         },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Récents"
+          }
+        },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
@@ -100,6 +124,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Today"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aujourd'hui"
           }
         },
         "zh-Hans" : {
@@ -125,6 +155,12 @@
             "value" : "Create a pal profile first"
           }
         },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Créez d'abord le profil d'un compagnon"
+          }
+        },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
@@ -134,7 +170,7 @@
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "先建立一份毛孩檔案"
+            "value" : "先建立一份毛小孩檔案"
           }
         }
       }
@@ -146,6 +182,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Anniversary"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Anniversaire"
           }
         },
         "zh-Hans" : {
@@ -171,6 +213,12 @@
             "value" : "Pal"
           }
         },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Compagnon"
+          }
+        },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
@@ -180,7 +228,7 @@
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "毛孩"
+            "value" : "毛小孩"
           }
         }
       }
@@ -192,6 +240,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Auto"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Automatique"
           }
         },
         "zh-Hans" : {
@@ -217,6 +271,12 @@
             "value" : "Select which pal's anniversary to display on the widget"
           }
         },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Choisissez l'anniversaire du compagnon à afficher sur le widget"
+          }
+        },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
@@ -226,7 +286,7 @@
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "選擇要在小工具中顯示哪位毛孩的哪項紀念日倒數"
+            "value" : "選擇要在小工具中顯示哪位毛小孩的哪項紀念日倒數"
           }
         }
       }
@@ -238,6 +298,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Anniversary"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Anniversaire"
           }
         },
         "zh-Hans" : {
@@ -263,6 +329,12 @@
             "value" : "All Pals"
           }
         },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tous les compagnons"
+          }
+        },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
@@ -272,7 +344,7 @@
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "所有毛孩"
+            "value" : "所有毛小孩"
           }
         }
       }
@@ -284,6 +356,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Content"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Contenu"
           }
         },
         "zh-Hans" : {
@@ -309,6 +387,12 @@
             "value" : "Content Source"
           }
         },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Source du contenu"
+          }
+        },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
@@ -332,6 +416,12 @@
             "value" : "Select which photos to display on the widget"
           }
         },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Choisissez les photos à afficher sur le widget"
+          }
+        },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
@@ -341,7 +431,7 @@
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "選擇要在小工具中顯示哪位毛孩的哪類照片"
+            "value" : "選擇要在小工具中顯示哪位毛小孩的哪類照片"
           }
         }
       }
@@ -353,6 +443,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Photo Echo"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Écho photo"
           }
         },
         "zh-Hans" : {
@@ -378,6 +474,12 @@
             "value" : "Recent Works"
           }
         },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Créations récentes"
+          }
+        },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
@@ -399,6 +501,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Today / Recent"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aujourd'hui / Récents"
           }
         },
         "zh-Hans" : {
@@ -424,6 +532,12 @@
             "value" : "This Day in Past Years"
           }
         },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ce jour les années passées"
+          }
+        },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
@@ -447,6 +561,12 @@
             "value" : "Select the pal profile to display in the widget"
           }
         },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sélectionnez le profil du compagnon à afficher dans le widget"
+          }
+        },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
@@ -456,7 +576,7 @@
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "選擇此小工具要顯示的毛孩檔案"
+            "value" : "選擇此小工具要顯示的毛小孩檔案"
           }
         }
       }
@@ -470,6 +590,12 @@
             "value" : "Select Pal"
           }
         },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Choisir un compagnon"
+          }
+        },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
@@ -479,7 +605,7 @@
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "選擇毛孩"
+            "value" : "選擇毛小孩"
           }
         }
       }
@@ -491,6 +617,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "See how long you have been together, plus recent photos and memories"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Retrouvez le temps partagé ensemble, vos photos et souvenirs récents"
           }
         },
         "zh-Hans" : {
@@ -516,6 +648,12 @@
             "value" : "No photos yet"
           }
         },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aucune photo pour l'instant"
+          }
+        },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
@@ -537,6 +675,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Life Archive"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Archive de vie"
           }
         },
         "zh-Hans" : {
@@ -562,6 +706,12 @@
             "value" : "Memories"
           }
         },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Souvenirs"
+          }
+        },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
@@ -580,6 +730,12 @@
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Photos"
+          }
+        },
+        "fr" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Photos"
@@ -608,6 +764,12 @@
             "value" : "Works"
           }
         },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Créations"
+          }
+        },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
@@ -629,6 +791,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Countdown"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Compte à rebours"
           }
         },
         "zh-Hans" : {
@@ -654,6 +822,12 @@
             "value" : "Add Pal"
           }
         },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ajouter un profil"
+          }
+        },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
@@ -677,6 +851,12 @@
             "value" : "A memory with your pal and days together"
           }
         },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Un souvenir avec votre compagnon et vos jours partagés"
+          }
+        },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
@@ -686,7 +866,7 @@
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "毛孩名字與一段回憶的日期與標題"
+            "value" : "毛小孩名字與一段回憶的日期與標題"
           }
         }
       }
@@ -698,6 +878,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "A Memory"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Un souvenir"
           }
         },
         "zh-Hans" : {
@@ -723,6 +909,12 @@
             "value" : "Pending"
           }
         },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "En attente"
+          }
+        },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
@@ -744,6 +936,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Relive today's photos and memories from past years"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Revivez les photos d'aujourd'hui et les souvenirs des années passées"
           }
         },
         "zh-Hans" : {
@@ -769,6 +967,12 @@
             "value" : "No photos yet"
           }
         },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aucune photo pour l'instant"
+          }
+        },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
@@ -787,6 +991,12 @@
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "MiLens · %@"
+          }
+        },
+        "fr" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "MiLens · %@"
@@ -815,6 +1025,12 @@
             "value" : "Photo Echo"
           }
         },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Écho photo"
+          }
+        },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
@@ -836,6 +1052,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Updated %@"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mis à jour %@"
           }
         },
         "zh-Hans" : {
@@ -861,6 +1083,12 @@
             "value" : "Waiting for sync"
           }
         },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "En attente de synchronisation"
+          }
+        },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
@@ -882,6 +1110,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "%lld days since adoption"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld jours depuis l'adoption"
           }
         },
         "zh-Hans" : {
@@ -907,6 +1141,12 @@
             "value" : "%lld days old"
           }
         },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld jours d'âge"
+          }
+        },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
@@ -928,6 +1168,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Recorded for %lld days"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld jours enregistrés"
           }
         },
         "zh-Hans" : {
@@ -953,6 +1199,12 @@
             "value" : "Counts down to your pal's next important day, automatically picking the closest anniversary"
           }
         },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Compte à rebours jusqu'à la prochaine date clé, en choisissant automatiquement la plus proche"
+          }
+        },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
@@ -962,7 +1214,7 @@
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "倒數毛孩的下一個重要日子，或自動選取最近的紀念日"
+            "value" : "倒數毛小孩的下一個重要日子，或自動選取最近的紀念日"
           }
         }
       }
@@ -974,6 +1226,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Profile not found"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Profil introuvable"
           }
         },
         "zh-Hans" : {
@@ -999,6 +1257,12 @@
             "value" : "No upcoming anniversaries"
           }
         },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aucun anniversaire à venir"
+          }
+        },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1020,6 +1284,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Upcoming Anniversaries"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Anniversaires à venir"
           }
         },
         "zh-Hans" : {
@@ -1045,6 +1315,12 @@
             "value" : "In %lld days"
           }
         },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dans %lld jours"
+          }
+        },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1066,6 +1342,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Today"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aujourd'hui"
           }
         },
         "zh-Hans" : {

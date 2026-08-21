@@ -95,8 +95,11 @@ final class SettingsLogicTests: XCTestCase {
 
     func testFontCreditsCoverAllEmbeddedFontsWithOFL() {
         let names = SettingsLogic.fontCredits.map(\.name)
-        XCTAssertEqual(names.count, 3)
+        XCTAssertEqual(names.count, 6)
         XCTAssertTrue(names.contains { $0.contains("霞鹜文楷") })
+        XCTAssertTrue(names.contains { $0.contains("霞鶩文楷 TC") })
+        XCTAssertTrue(names.contains { $0.contains("Klee One") })
+        XCTAssertTrue(names.contains { $0.contains("芫茜雅楷") })
         XCTAssertTrue(names.contains { $0.contains("Fraunces") })
         XCTAssertTrue(names.contains { $0.contains("Jacques Francois") })
         for credit in SettingsLogic.fontCredits {

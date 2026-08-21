@@ -10,6 +10,12 @@
             "value" : "MiLens"
           }
         },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "MiLens"
+          }
+        },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
@@ -33,6 +39,12 @@
             "value" : "MiLens needs permission to save bead patterns, pal cards, and timeline export images to your Photos."
           }
         },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "MiLens a besoin de votre autorisation pour enregistrer les modèles de perles, les cartes et les images exportées dans vos Photos."
+          }
+        },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
@@ -42,7 +54,7 @@
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "咪Lens 需要取得權限，以便將匯出的拼豆圖稿、毛孩卡片及照片儲存至「照片」圖庫。"
+            "value" : "咪Lens 需要取得權限，以便將匯出的拼豆圖稿、毛小孩卡片及照片儲存至「照片」圖庫。"
           }
         }
       }
@@ -56,6 +68,12 @@
             "value" : "Find your pal's photos and build profiles. Photos stay on device; edited works may be backed up."
           }
         },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "MiLens a besoin d'accéder à vos photos pour retrouver les moments de votre compagnon et créer son profil. Vos photos restent sur votre appareil ; les créations peuvent être conservées dans les sauvegardes système que vous activez."
+          }
+        },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
@@ -65,7 +83,7 @@
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "咪Lens 需要存取相簿以尋找並整理您的毛孩照片。所有分析均在本機完成，App 不會主動上傳照片；編輯後的作品可能隨您啟用的系統備份進行儲存。"
+            "value" : "咪Lens 需要存取相簿以尋找並整理您的毛小孩照片。所有分析均在本機完成，App 不會主動上傳照片；編輯後的作品可能隨您啟用的系統備份進行儲存。"
           }
         }
       }

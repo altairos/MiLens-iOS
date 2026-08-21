@@ -96,8 +96,8 @@
 - 390×844pt 参考稿：`Navigation / Back` 为 `x=18 / y=57 / 44×44pt`，24pt 返回矢量在圆内 `10pt` 居中并复用 `MiLens/Elevation/Floating`；标题为 `MiLens/UI/Title`、`color/text/primary`，起点 `x=72 / y=64`。
 - 右侧动作使用现有 UI 控件字级和 `color/action/brand`，与标题垂直居中；撤销/重做等多动作从右向左排列，但不得挤压标题的可读宽度。
 - `01 · Creation / Studio Index` 保留 Tab 根页品牌头，不强行套返回栏。SwiftUI 通过 safe area 与 toolbar placement 还原相对关系，不硬编码 Figma 的 47pt 顶部参考安全区。
-- Fraunces 只用于纯英文（品牌名 / 编号 / 日期），中文标题不可用 Fraunces
-- 非 zh-Hans locale 文楷自动回退系统衬线（Typography.swift `usesWenKai` 守卫）
+- Fraunces 用于 en/fr/de display 标题（品牌名 / 编号 / 日期），中文和日文标题使用各自区域字体
+- 标题字体由 `MarketProfile.displayFontFamily` 选择：zh-Hans=霞鹜文楷 GB、zh-Hant-TW=霞鶩文楷 TC、zh-Hant-HK=芫茜雅楷、ja=Klee One；未知语言回退系统衬线
 
 ---
 

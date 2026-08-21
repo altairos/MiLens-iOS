@@ -23,6 +23,9 @@
 	<key>UIAppFonts</key>
 	<array>
 		<string>LXGWWenKaiGB-Regular.ttf</string>
+		<string>LXGWWenKaiTC-Regular.ttf</string>
+		<string>JyunsaiKaai-Regular.ttf</string>
+		<string>KleeOne-Regular.ttf</string>
 		<string>Fraunces-Bold.ttf</string>
 		<string>Fraunces-Semibold.ttf</string>
 		<string>JacquesFrancois-Regular.ttf</string>

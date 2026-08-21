@@ -175,7 +175,7 @@ extension EnvironmentValues {
 struct MarketProfileKey: EnvironmentKey {
     static let defaultValue = MarketProfile(
         market: .other,
-        usesWenKaiDisplay: false,
+        displayFontFamily: .systemSerif,
         privacyNarrativeStrength: .standard
     )
 }

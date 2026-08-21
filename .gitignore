@@ -52,6 +52,7 @@ Package.resolved
 *~
 tmp/
 tools/*.py
+!tools/subset-display-fonts.py
 
 # Python 生成产物（模型转换工具链）
 __pycache__/

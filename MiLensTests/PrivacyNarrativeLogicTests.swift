@@ -11,7 +11,7 @@ final class PrivacyNarrativeLogicTests: XCTestCase {
     // MARK: - 标准市场（3 条）
 
     func testStandardMarketReturnsThreeItems() {
-        let profile = MarketProfile(market: .china, usesWenKaiDisplay: true,
+        let profile = MarketProfile(market: .china, displayFontFamily: .wenKaiGB,
                                     privacyNarrativeStrength: .standard)
         let kinds = PrivacyNarrativeLogic.commitmentKinds(for: profile)
         XCTAssertEqual(kinds.count, 3)
@@ -19,14 +19,14 @@ final class PrivacyNarrativeLogicTests: XCTestCase {
     }
 
     func testEnglishMarketStandard() {
-        let profile = MarketProfile(market: .english, usesWenKaiDisplay: false,
+        let profile = MarketProfile(market: .english, displayFontFamily: .fraunces,
                                     privacyNarrativeStrength: .standard)
         let kinds = PrivacyNarrativeLogic.commitmentKinds(for: profile)
         XCTAssertEqual(kinds.count, 3)
     }
 
     func testJapanStandard() {
-        let profile = MarketProfile(market: .japan, usesWenKaiDisplay: false,
+        let profile = MarketProfile(market: .japan, displayFontFamily: .kleeOne,
                                     privacyNarrativeStrength: .standard)
         let kinds = PrivacyNarrativeLogic.commitmentKinds(for: profile)
         XCTAssertEqual(kinds.count, 3)
@@ -36,7 +36,7 @@ final class PrivacyNarrativeLogicTests: XCTestCase {
     // MARK: - GDPR 区（4 条，含强化声明）
 
     func testGermanyStrongReturnsFourItems() {
-        let profile = MarketProfile(market: .germany, usesWenKaiDisplay: false,
+        let profile = MarketProfile(market: .germany, displayFontFamily: .fraunces,
                                     privacyNarrativeStrength: .strong)
         let kinds = PrivacyNarrativeLogic.commitmentKinds(for: profile)
         XCTAssertEqual(kinds.count, 4)
@@ -44,7 +44,7 @@ final class PrivacyNarrativeLogicTests: XCTestCase {
     }
 
     func testFranceStrongReturnsFourItems() {
-        let profile = MarketProfile(market: .france, usesWenKaiDisplay: false,
+        let profile = MarketProfile(market: .france, displayFontFamily: .fraunces,
                                     privacyNarrativeStrength: .strong)
         let kinds = PrivacyNarrativeLogic.commitmentKinds(for: profile)
         XCTAssertEqual(kinds.count, 4)
@@ -54,7 +54,7 @@ final class PrivacyNarrativeLogicTests: XCTestCase {
     // MARK: - 顺序不变量
 
     func testStrongMarketOrderPreserved() {
-        let profile = MarketProfile(market: .germany, usesWenKaiDisplay: false,
+        let profile = MarketProfile(market: .germany, displayFontFamily: .fraunces,
                                     privacyNarrativeStrength: .strong)
         let kinds = PrivacyNarrativeLogic.commitmentKinds(for: profile)
         // 强化声明始终在最后，不破坏前三条顺序
@@ -62,9 +62,9 @@ final class PrivacyNarrativeLogicTests: XCTestCase {
     }
 
     func testStandardMarketNeverContainsGdpr() {
-        let standardMarkets: [MarketProfile.Market] = [.china, .taiwan, .japan, .korea, .english, .other]
+            let standardMarkets: [MarketProfile.Market] = [.china, .taiwan, .hongKong, .japan, .korea, .english, .other]
         for market in standardMarkets {
-            let profile = MarketProfile(market: market, usesWenKaiDisplay: false,
+            let profile = MarketProfile(market: market, displayFontFamily: .systemSerif,
                                         privacyNarrativeStrength: .standard)
             let kinds = PrivacyNarrativeLogic.commitmentKinds(for: profile)
             XCTAssertFalse(kinds.contains(.gdpr), "\(market) 不应含 GDPR 强化声明")

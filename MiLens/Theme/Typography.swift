@@ -1,9 +1,9 @@
 //  字体层级 —— UI-DESIGN.md §2.2。
 //
-//  自定义字体（霞鹜文楷 LXGW WenKai + Fraunces + Jacques Francois，均 SIL OFL，子集化嵌入）。
-//  - 中文 display：霞鹜文楷 Regular（PostScript: LXGWWenKai-Regular），仅引入 Regular
-//    一个字重——楷书 Regular 已有足够分量感，display 大/中标题靠字号区分而非字重。
-//  - 英文 display：Fraunces（衬线，Bold/Semibold 两个字重），供纯英文大标题/品牌名使用。
+//  自定义字体均采用 SIL OFL 1.1，按语言/地区子集化嵌入：
+//  - 简中：霞鹜文楷 GB；繁中台湾：霞鹜文楷 TC；繁中香港：芫茜雅楷。
+//  - 日文：Klee One；英文/法文/德文：Fraunces（Latin Extended）。
+//  - CJK 标题使用 Regular；Fraunces 使用 Bold/Semibold 两个静态字重。
 //  - 编辑式衬线 overline：Jacques Francois Regular（PostScript: JacquesFrancois-Regular），
 //    10pt 小标（「LIFE 02 · …」「ARCHIVE OUTPUT」），调用方配 .tracking(0.4)。
 //  - 正文/UI/数字：系统字体（SF Pro + PingFang），零体积成本，保持原生感。
@@ -13,8 +13,7 @@
 //  拉丁 SF Pro），分别对应 uiTitle / uiBodyStrong / editorialOverline / editorialMetadata。
 //  详见 UI-DESIGN.md §4.1「Figma UI 文本样式 → iOS 字体映射（已知替换）」。
 //
-//  SwiftUI `.custom` 不自动按字符切栈：中文标题用 displayLarge（文楷），纯英文标题手动
-//  用 displayLargeEN/displayMediumEN（Fraunces）。文楷自带基础拉丁可做回退。
+//  SwiftUI `.custom` 不自动按字符切栈；标题字体由 MarketProfile 选择。
 //
 //  字体体积见 Resources/Fonts/README.md（合计 ~3.37 MB）。
 
@@ -24,24 +23,34 @@ import UIKit
 extension Font {
     // MARK: - 语言感知 display 字体
 
-    /// 是否使用霞鹜文楷作为 display 字体：仅简体中文（zh-Hans）。
-    /// 字体策略判断已下沉到 `MarketProfile.usesWenKaiDisplay`（区域差异化单一入口），
+    /// 标题字体族按语言+script 选择；正文/UI 仍走系统字体 token。
     /// 这里读全局 current——View 层如需按注入的 profile 选择字体，可用
     /// `@Environment(\.marketProfile)` 自行判断。
     /// 见 MiLens/ViewModels/MarketProfile.swift 与 docs/Localization-Plan.md §4.8。
-    private static var usesWenKai: Bool {
-        MarketProfile.current.usesWenKaiDisplay
+    private static var displayFontFamily: MarketProfile.DisplayFontFamily {
+        MarketProfile.current.displayFontFamily
     }
 
-    /// 简体中文用文楷；其他语言回退系统衬线（保留 display 编辑感，避免缺字）。
+    /// 标题使用 MarketProfile 选择的区域字体；未知语言回退系统衬线。
     private static func displayFont(_ size: CGFloat, relativeTo style: Font.TextStyle) -> Font {
-        if usesWenKai {
+        switch displayFontFamily {
+        case .wenKaiGB:
             return Font.custom("LXGWWenKai-Regular", size: size, relativeTo: style)
+        case .wenKaiTC:
+            return Font.custom("LXGWWenKaiTC-Regular", size: size, relativeTo: style)
+        case .jyunsaiKaai:
+            return Font.custom("JyunsaiKaai", size: size, relativeTo: style)
+        case .kleeOne:
+            return Font.custom("KleeOne-Regular", size: size, relativeTo: style)
+        case .fraunces:
+            let postScriptName = size >= 32 ? "Fraunces-Bold" : "Fraunces-Semibold"
+            return Font.custom(postScriptName, size: size, relativeTo: style)
+        case .systemSerif:
+            return Font.system(style, design: .serif)
         }
-        return Font.system(style, design: .serif)
     }
 
-    // MARK: - Display 中文（简中用霞鹜文楷 Regular，其他语言系统衬线）
+    // MARK: - Display（按语言/地区选择标题字体）
 
     /// 首页问候（「晚上好」）、档案名字。`.largeTitle` 级别。
     static let displayLarge = displayFont(34, relativeTo: .largeTitle)

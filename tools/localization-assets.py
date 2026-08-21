@@ -28,7 +28,11 @@ from openpyxl.styles import Alignment, Font, PatternFill
 from openpyxl.utils import get_column_letter
 
 import localization as loc
-from en_corrections import CORRECTIONS, CORRECTION_PLURALS
+try:
+    from en_corrections import CORRECTIONS, CORRECTION_PLURALS
+except ImportError:
+    CORRECTIONS = {}
+    CORRECTION_PLURALS = {}
 
 ROOT = Path(__file__).resolve().parent.parent
 OUT_DIR = ROOT / "docs" / "localization"

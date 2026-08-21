@@ -1,6 +1,8 @@
 # MiLens 全球本地化计划
 
-最后更新：2026-08-21（全量英文本地化 100% 完成：全部 1239 个 key 注入 String Catalog，遵循 pal/pals 术语规范，0 缺译、0 占位符漂移、0 格式问题；2026-08-17（回退 1c623e9 误入主 catalog 的 117 条 en 初译，修复 commit b3b0a79，CI 全绿 run 31961932575——红线教训见 §5.4：翻译完整导入前 catalog 只能含源语言；2026-08-16 MiLensWidget 接入 String Catalog，工具链支持多 catalog × 多源码根与 Excel sheet 去歧义；2026-08-15 CI 缺译门禁过渡期降级 `--allow-missing-translations`；2026-08-10 定案首发 7 语言：zh-Hans / zh-Hant / ja / ko / en / fr / de）
+> **首发范围变更（2026-08-22）**：首发支持 6 种语言：zh-Hans、zh-Hant、ja、en、fr、de。韩文（ko）延期，不纳入首发翻译、商店资产、隐私政策、截图和验收；文档中保留的韩国市场内容仅作为后续版本备忘。
+
+最后更新：2026-08-22（全量法文本地化 100% 完成：全部 1245 个 key 注入 String Catalog，遵循 compagnon / perles à repasser 术语规范，0 缺译、0 占位符漂移、0 格式问题；2026-08-21 全量英文本地化 100% 完成：全部 1239 个 key 注入 String Catalog，遵循 pal/pals 术语规范，0 缺译、0 占位符漂移、0 格式问题；2026-08-17 回退 1c623e9 误入主 catalog 的 117 条 en 初译，修复 commit b3b0a79，CI 全绿 run 31961932575——红线教训见 §5.4：翻译完整导入前 catalog 只能含源语言；2026-08-16 MiLensWidget 接入 String Catalog，工具链支持多 catalog × 多源码根与 Excel sheet 去歧义；2026-08-15 CI 缺译门禁过渡期降级 `--allow-missing-translations`；2026-08-10 定案首发 7 语言：zh-Hans / zh-Hant / ja / ko / en / fr / de）
 
 > 本文档是 MiLens 全球首发本地化工作的唯一事实来源：语言矩阵、各国市场注意要点、翻译工作流、质量门禁、ASO 关键词策略与时间线。工具与命令见 [DEVELOPMENT.md](../DEVELOPMENT.md) §4.5，商店文案见 [AppStore-metadata.md](AppStore-metadata.md)，商业决策见 [ADR-0010](adr/0010-commercialization-and-emotion-triggers.md)。
 
@@ -20,7 +22,7 @@
 |---|---|
 | 源语言唯一 | 简中（zh-Hans）是唯一事实来源，英文作为**第二参照语言**（用于校验译义漂移） |
 | 工具链驱动 | 全部走 `tools/localization.py`（export/import/check）+ CI 门禁，不手工改 `.xcstrings` |
-| 术语一致性 | 核心术语表（§8）先行定稿，7 语言对照，避免一义多译 |
+| 术语一致性 | 核心术语表（§8）先行定稿，6 语言对照，避免一义多译 |
 | 诚实标注 | "计划加入"的能力不得在任一语言中写成已交付（沿用 ADR-0009 规则） |
 
 ### 1.3 发布分层与降级策略
@@ -30,7 +32,7 @@
 | 层级 | 语言 | 发布要求 |
 |---|---|---|
 | P0 | zh-Hans、en、ja | App 内文案、商店元数据、截图、隐私政策和审核备注全部完成并验收 |
-| P1 | zh-Hant、ko、de、fr | 优先首发；若某一语言未达到发布门槛，必须明确选择延期该语言，或临时复用英文商店素材，不得让 App 内出现简中漏出 |
+| P1 | zh-Hant、de、fr | 首发候选；若某一语言未达到发布门槛，必须明确选择延期该语言，或临时复用英文商店素材，不得让 App 内出现简中漏出 |
 
 - 开发阶段允许目标语言缺译时回退到源语言，正式发布包不允许出现未审校译文或 `needs_review` 状态。
 - 每种语言独立记录“翻译完成”“UI 验收完成”“商店资产完成”“隐私政策上线”四个状态；不能用总完成度代替单语言验收。
@@ -48,7 +50,6 @@
 | en | 美/英/澳/加/新等 | S 级（体量最大）| P0 | ✅ | App 内统一美式英语 |
 | ja | 日本 | S 级（拼豆文化原点）| P0 | ✅ | 最吃本地化质量的市场 |
 | zh-Hant | 台湾、香港 | B 级（稳定）| P1 | ✅ | 以台湾用语为准，香港差异记录 |
-| ko | 韩国 | A 级（高潜力）| P1 | ✅ | 必须用"반려동물" |
 | de | 德国/奥地利/瑞士 | S 级（隐私杀手锏）| P1 | ✅ | 文案长度预算最大 |
 | fr | 法国/魁北克/比利时 | A 级（低成本高回报）| P1 | ✅ | 以法国法语（fr-FR）为准 |
 
@@ -63,7 +64,7 @@ python tools/localization.py export \
     MiLens/Resources/Localizable.xcstrings \
     MiLens/Resources/InfoPlist.xcstrings \
     MiLensWidget/Localizable.xcstrings \
-    build/loc.xlsx --lang en,ja,zh-Hant,ko,de,fr
+    build/loc.xlsx --lang en,ja,zh-Hant,de,fr
 
 # 3. 翻译后逐语言导入回写
 python tools/localization.py import build/loc.xlsx \
@@ -217,6 +218,8 @@ python tools/localization.py check \
 
 **本批收口（2026-08-16）**：25 处硬编码英文装饰迁移 `String(localized:)` + 25 key 落库（zh=translated 原样 / en=needs_review 初译，含 plural `pet.profile.lifeMark %lld`），Onboarding 全流程 overline 统一走 `OnboardingViewModel.stepOverline`（7 个 step 视图消除重复副本）；明细见工作项 #7.11。
 
+**en 译文落地（2026-08-22）**：C 类 12 key 与收口 25 key 中 en 值照抄全大写装饰的 35 key 已全部按 Title Case 方向修正（含 `pet.profile.lifeMark %lld`）；zh/zh-Hant 源装饰原样保留。复检：en 全大写照抄清单已清零（`build/loc-verify.txt`）。
+
 ---
 
 ## 4. 各国市场注意要点（重点）
@@ -260,7 +263,7 @@ python tools/localization.py check \
 - App 内统一美式英语（color / favorite / organize）；元数据可另备 en-GB 版本（colour / favourite），优先级低；
 - 日期 MM/DD/YYYY，金额 $ 符号，千分位逗号；
 - 语气：温暖但不油腻，避免过度营销化形容词（"adorable" 用在宠物语境可以，"revolutionary" 不行）；
-- 注意 pet 与 companion animal 的语境差异：UI 用 pet，营销文案可提 companion。
+- **产品文案禁用 pet（2026-08-22 裁定）**：UI 与产品文案一律用 **pal / companion（伙伴）**，不得使用 pet（与 §8 「pal profile（禁用 pet）」一致）；ASO 关键词与 App 显示名中的 "pet photos" 等仅为用户搜索词，不属于产品用语；zh-Hans 源的存量「宠物」（41 处，含「宠物档案」5 处）收敛为「伙伴／生命档案」需 6 语言联动重翻，另行评估（§4.7）。
 
 **产品与术语**
 - 图纸术语：bead pattern（通用）、perler pattern（用户搜索习惯词，可用于 ASO）；
@@ -298,13 +301,13 @@ python tools/localization.py check \
 - 高价值词：Bügelperlen / Bügelperlen Vorlagen / Haustier / Hund / Katze / Fotoalbum / Fotos sortieren；
 - "Bügelperlen Vorlagen"（熨烫珠图纸）是强购买意图词，优先拿下。
 
-### 4.4 韩国（ko）— A 级
+### 4.4 韩国市场（延期，不纳入首发）
 
 **市场特征**
 - 반려동물（伴侣动物）文化快速兴起，宠物经济高速增长；
 - iPhone 市占率较高，iOS 付费习惯好；DIY/手工（비즈공예）在女性用户中流行。
 
-**语言与文案**
+**语言与文案（后续版本备忘，不参与首发）**
 - **必须用 반려동물（伴侣动物），禁用 애완동물（玩赏动物）**——后者被视为过时甚至冒犯，这是韩国市场的红线；
 - 敬语：建议统一 합니다体（服务类 App 惯例，正式得体）；选定后全文一致，不得混用 해요体；
 - 韩文单词间有空格（与中文不同），标点用韩式（마침표/쉼표 与西文同形）；
@@ -354,17 +357,17 @@ python tools/localization.py check \
 - 全角标点正确使用。
 
 **产品与术语**
-- 拼豆术语：台灣普遍稱「拼豆」「拼拼豆豆」，图纸 = 拼豆圖紙；
+- 拼豆术语：台灣普遍稱「拼豆」「拼拼豆豆」，图纸 = 拼豆圖稿（2026-08-22 裁定，全文統一，不用「拼豆圖紙」）；
 - 彩虹橋概念在台湾宠物界普遍，纪念文案可直接使用；
 - 隐私叙事：台湾用户对個資（个资）敏感，"照片不會離開手機"表述有效。
 
 **ASO 方向**
-- 高价值词：寵物照片 / 寵物相簿 / 拼豆 / 拼豆圖紙 / 毛小孩 / 貓咪 / 狗狗；
+- 高价值词：寵物照片 / 寵物相簿 / 拼豆 / 拼豆圖稿 / 毛小孩 / 貓咪 / 狗狗（寵物照片/相簿為搜尋詞，產品文案稱呼統一「毛小孩」，見 §8）；
 - 繁中区竞争低，长尾词易拿排名。
 
 ### 4.7 中国大陆（zh-Hans）— 源语言 / 基本盘
 
-- 保持现有文案与术语（拼豆图纸、宠物档案、成长时间线、往日回忆、时光机）；
+- 保持现有文案与术语（拼豆图纸、宠物档案、成长时间线、往日回忆、时光机）；源文案存量「宠物」（41 处）的伙伴化收敛需 6 语言联动重翻，另行评估（§4.2 禁用 pet 裁定）；
 - 校验现有文案中无"拟上架但未交付"的能力描述（ADR-0009 诚实原则，已由 App Store 文案去重收口）；
 - 国内称呼多样（拼豆/拼拼豆豆/豆豆画/熨豆），产品内统一"拼豆"建立品牌一致性。
 
@@ -373,7 +376,7 @@ python tools/localization.py check \
 **技术**
 - 日期/数字/日历：UI 展示一律走系统 locale（`Date.FormatStyle` / `Number.FormatStyle`），禁止硬编码格式串（现有 `utcCalendar` 纯逻辑仅用于测试确定性，展示路径不受影响）；
 - 时区：通知、纪念日全部按用户本地时区调度（现有实现已满足）；
-- **字体策略**：霞鹜文楷子集仅覆盖 GB2312 简体字符——**zh-Hant / ja / ko 不能使用文楷**（缺字）。字体判断已下沉到区域差异化模型 `MarketProfile.usesWenKaiDisplay`（`MiLens/ViewModels/MarketProfile.swift`），`Typography.swift` 委托读取——zh-Hans 用文楷，其他语言回退系统字体；en 的 Fraunces 仍用于纯英文标题。首发前剩余工作是逐语言模拟器走查，确认混排、缺字和 Dynamic Type 表现；
+- **字体策略**：标题字体判断已下沉到区域差异化模型 `MarketProfile.displayFontFamily`（`MiLens/ViewModels/MarketProfile.swift`）：zh-Hans 使用霞鹜文楷 GB，zh-Hant-TW 使用霞鶩文楷 TC，zh-Hant-HK 使用芫茜雅楷，ja 使用 Klee One，en/fr/de 使用带 Latin Extended 的 Fraunces；正文/UI 仍使用系统字体。字体文件均在 `MiLens/Resources/Fonts/` 按当前本地化文案子集化，首发前需逐语言模拟器走查，确认混排、缺字和 Dynamic Type 表现；
 - 长度预算：UI 按德语/法语最坏情况预留 30-40%，每语言在模拟器走查 Tab 标题、按钮、卡片、付费墙；
 - 换行规则：CJK 逐字换行 vs 西文断词，长文本测试；
 - 订阅价格：由 App Store Connect 价格层级按地区自动生效，App 内不硬编码金额文案（现有实现已满足）。
@@ -421,16 +424,16 @@ python tools/localization.py import docs/localization/global-localization.xlsx M
 
 | sheet | 内容 | 与工具链关系 |
 |---|---|---|
-| `Resources.Localizable`（App）| 全部 key × 7 语言（列结构与 `localization.py export` 一致）| 可直接 `import` 回写 `.xcstrings`；其他 sheet 不影响 import（按 sheet 名匹配）|
+| `Resources.Localizable`（App）| 全部 key × 6 语言（列结构与 `localization.py export` 一致）| 可直接 `import` 回写 `.xcstrings`；其他 sheet 不影响 import（按 sheet 名匹配）|
 | `InfoPlist` | 同上 |
 | `MiLensWidget.Localizable`（Widget Extension，47 个 `widget.*` key）| 同上 |
-| `状态总览` | 6 类资产 × 7 语言完成度 | 人工维护 |
+| `状态总览` | 6 类资产 × 6 语言完成度 | 人工维护 |
 | `AppStore元数据` | 名称/副标题/描述/关键词/推广文本/审核备注 | 录入 ASC 时人工搬运 |
 | `订阅产品描述` | 3 产品 × 显示名/描述 | 同上 |
 | `隐私政策` | 章节级译文 | 同步到 `privacy-policy.html` |
 | `截图素材` | 每设备 3-5 张截图 × 画面说明/叠加文案 | 制作截图时人工搬运 |
 | `ASO关键词` | 每语言关键词 + 竞争度/长尾备注 | 录入 ASC 时人工搬运 |
-| `术语表` | §8 核心术语 × 7 语言 | 翻译时参照 |
+| `术语表` | §8 核心术语 × 6 语言 | 翻译时参照 |
 
 **state 列语义**（工具链原生约定）：初译由脚本以 `needs_review` 状态写入（当前工作簿 en 列 150 条已就位，尚未回写到 `.xcstrings`）；人工审校后**清空该语言 state 列**再 `import`，工具即按 `translated` 落库。数值/占位符/换行符在 Excel 中保持不变。当前 `check` 会拦截缺失、空值和 `new`，但不会拦截 `needs_review`；发布门禁需补充这一规则。
 
@@ -444,7 +447,7 @@ python tools/localization.py import docs/localization/global-localization.xlsx M
 |---|---|---|
 | 批次 0 | en | 第二参照语言，锁定术语的英文形态，其他语言翻译时对照 |
 | 批次 1 | ja、zh-Hant | 两个高价值东亚市场，与中文语法结构接近度高 |
-| 批次 2 | ko、de、fr | 剩余首发市场，de/fr 需要长度与词性专项处理 |
+| 批次 2 | de、fr | 剩余首发市场，de/fr 需要长度与词性专项处理 |
 
 ### 5.3 翻译质量要求
 
@@ -535,9 +538,10 @@ App Store 元数据与 App 内翻译分别验收，提交 ASC 前逐语言核对
 
 | 中文（源）| en | ja | ko | de | fr | zh-Hant |
 |---|---|---|---|---|---|---|
-| 拼豆图纸 | bead pattern | アイロンビーズ図案 | 비즈 도안 | Bügelperlen-Vorlage | modèle de perles à repasser | 拼豆圖紙 |
+| 拼豆图纸 | bead pattern | アイロンビーズ図案 | 비즈 도안 | Bügelperlen-Vorlage | modèle de perles à repasser | 拼豆圖稿 |
 | 拼豆工作室 | bead studio | ビーズスタジオ | 비즈 스튜디오 | Bead-Studio | studio de perles | 拼豆工作室 |
-| 宠物档案 | pal profile (严禁用 pet) | ペットのプロフィール | 반려동물 프로필 | Haustierprofil | profil de l'animal | 寵物檔案 |
+| 宠物档案 | pal profile（禁用 pet，一律 pal/companion） | ペットのプロフィール | 반려동물 프로필 | Haustierprofil | profil de l'animal | 生命檔案／毛小孩檔案 |
+| 宠物（产品称呼） | pal / companion（禁用 pet） | ペット（日语中性，可用） | 반려동물 | Haustier / Freund | animal de compagnie | 毛小孩（2026-08-22 统一，不用「毛孩」） |
 | 成长时间线 | growth timeline | 成長タイムライン | 성장 타임라인 | Wachstumszeitleiste | chronologie de croissance | 成長時間軸 |
 | 往日回忆 | memories | 思い出 | 추억 | Erinnerungen | souvenirs | 往日回憶 |
 | 时光机 | time machine | タイムマシン | 타임머신 | Zeitmaschine | machine à remonter le temps | 時光機 |
@@ -557,17 +561,17 @@ App Store 元数据与 App 内翻译分别验收，提交 ASC 前逐语言核对
 
 ## 9. 验收标准（首发前逐条打勾）
 
-- [ ] `project.yml` knownRegions 含 7 语言，CI 构建通过
+- [ ] `project.yml` knownRegions 含 6 语言，CI 构建通过；`ko` 不纳入首发目标
 - [ ] 每种语言分别记录翻译、UI 验收、商店资产、隐私政策上线四项状态；P0/P1 降级策略已明确
 - [ ] 全部 String Catalog key（App `Localizable` / `InfoPlist` / Widget `Localizable`，随 key 化批次增长）× 6 种非源语言全部翻译完成，`localization.py check` 0 缺译，且无 `needs_review`
-- [ ] MarketProfile 区域差异化已落地（字体策略 + 隐私叙事强度），并完成 7 语言模拟器走查（文楷仅 zh-Hans，ja/ko/zh-Hant 不缺字；GDPR 区 PrivacyInfoView 4 条承诺不截断）
+- [ ] MarketProfile 区域差异化已落地（标题字体策略 + 隐私叙事强度），并完成 6 语言模拟器走查（zh-Hans/zh-Hant/ja 区域标题字体不缺字，fr/de Latin Extended 字符不缺字；GDPR 区 PrivacyInfoView 4 条承诺不截断）
 - [ ] de/fr 长度专项走查：Tab/按钮/付费墙/卡片无截断溢出
 - [ ] 术语表定稿且全文一致（§8 清单）
-- [ ] App Store 元数据 7 语言录入（名称/副标题/描述/关键词/推广文本/审核备注）
+- [ ] App Store 元数据 6 语言录入（名称/副标题/描述/关键词/推广文本/审核备注）
 - [ ] 商店元数据独立完成字符限制、关键词/商标、权益价格、截图和审核备注一致性验收
-- [ ] 订阅产品 3 个 × 7 语言本地化描述录入
-- [ ] 截图 7 语言（或至少 en/ja/zh-Hans + 其余复用英文，后续补齐）文案覆盖层走查
-- [ ] 隐私政策 7 语言可访问且与 App 行为一致
+- [ ] 订阅产品 3 个 × 6 语言本地化描述录入
+- [ ] 截图 6 语言（或至少 en/ja/zh-Hans + 其余复用英文，后续补齐）文案覆盖层走查
+- [ ] 隐私政策 6 语言可访问且与 App 行为一致
 - [ ] 审核备注：英文通用版 + ja/ko/zh-Hant 当地语言版
 - [ ] 动态文案 10 类覆盖清单（§3.6）逐类走查，无遗漏硬编码用户可见文案
 - [ ] 伪本地化扩展测试、长文本/Dynamic Type/深色模式/iPad/VoiceOver 回归完成并留存证据
@@ -591,7 +595,7 @@ App Store 元数据与 App 内翻译分别验收，提交 ASC 前逐语言核对
 | 3 | 术语表定稿（批次 0 前）| — | 0.5 天 |
 | 4 | en 全量审校 + 导入 + check | #3 | ✅ 已完成（2026-08-21，1239 key 100% 注入，0 缺译，pal 规范落地）|
 | 5 | ja + zh-Hant 翻译 | #4 | 1-2 天 |
-| 6 | ko + de + fr 翻译（de/fr 长度专项）| #4 | 1-2 天 |
+| 6 | ko + de + fr 翻译（de/fr 长度专项）| #4 | fr ✅ 100% 完成（2026-08-22，全部 1245 key 注入）；ko/de 待完成 |
 | 7 | `localization.py check` 增强：每语言统计 + `needs_review`(`--strict`)/占位符漂移(默认阻断)/长度规则(`--length-rules`)/硬编码检测(`--hardcoded`)；单测 `tools/test_localization.py` | #4 | ✅ 已完成（2026-08-12）|
 | 7.5 | 工具链 plural 支持（export 拆行 `key[one]/[other]` / import 合并回写 / check 完整性 / GUI 与资产工作簿同步）| #7 | ✅ 已完成（端到端测试通过）|
 | 7.6 | accessibilityLabel 等 UI 字面量核对与迁移（22 处 → `String(localized:)` 或 catalog 补 key）| #7 | ✅ 已完成（25 个 `a11y.*` key）|

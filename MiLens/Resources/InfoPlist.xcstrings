@@ -41,7 +41,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "MiLens needs access to your photo library to discover photos of your pal and create local profiles. Photos are never uploaded; edited works may be saved by system backups you have enabled."
+            "value" : "Find your pal's photos and build profiles. Photos stay on device; edited works may be backed up."
           }
         },
         "zh-Hans" : {

@@ -27,6 +27,7 @@ from en_data_p5a import P5A_EN
 from en_data_p5b import P5B_EN
 from en_data_final import FINAL_EN
 from en_data_last import LAST_EN
+from en_corrections import CORRECTIONS, CORRECTION_PLURALS
 
 PLACEHOLDER_RE = re.compile(r"%(?:\d+\$)?[-+0-9.]*[a-zA-Z@]+")
 
@@ -78,8 +79,11 @@ ALL_PLAIN["redpacket.quality.cutout.retry.detail"] = "Cutout precision score is 
 ALL_PLAIN["redpacket.quality.cutout.rough.detail"] = "Cutout edge roughness is %lld"
 ALL_PLAIN["home.upcoming.adoption %@"] = "Adoption Anniversary"
 ALL_PLAIN["notify.anniversary.adoption.body %@"] = "Relive the wonderful memories from the past year."
+# Reviewed corrections must be applied after the legacy explicit overrides above.
+ALL_PLAIN.update(CORRECTIONS)
 
 ALL_PLURALS: dict[str, dict[str, str]] = dict(PLURALS_EN)
+ALL_PLURALS.update(CORRECTION_PLURALS)
 
 print(f"Loaded {len(ALL_PLAIN)} plain translations and {len(ALL_PLURALS)} plural translations.")
 

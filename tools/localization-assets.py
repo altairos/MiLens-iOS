@@ -28,6 +28,7 @@ from openpyxl.styles import Alignment, Font, PatternFill
 from openpyxl.utils import get_column_letter
 
 import localization as loc
+from en_corrections import CORRECTIONS, CORRECTION_PLURALS
 
 ROOT = Path(__file__).resolve().parent.parent
 OUT_DIR = ROOT / "docs" / "localization"
@@ -667,6 +668,11 @@ EN_PLURALS = {
         "other": "Together for %lld days",
     },
 }
+
+# Reviewed overrides are also used when rebuilding the translation workbook,
+# so a fresh export does not resurrect placeholder or misaligned English copy.
+EN_TRANSLATIONS.update(CORRECTIONS)
+EN_PLURALS.update(CORRECTION_PLURALS)
 
 # --------------------------------------------------------------------------- #
 # main

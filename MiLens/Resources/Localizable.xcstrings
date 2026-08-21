@@ -697,7 +697,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Album candidates subtitle"
+            "value" : "These are only candidates. Confirm each one before importing."
           }
         },
         "zh-Hans" : {
@@ -765,7 +765,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Candidate Photos"
+            "value" : "Familiar Photos Found"
           }
         },
         "zh-Hans" : {
@@ -816,7 +816,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Album pal select count unit"
+            "value" : "photos"
           }
         },
         "zh-Hans" : {
@@ -833,7 +833,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Album pal select default pal name"
+            "value" : "New Pal Profile"
           }
         },
         "zh-Hans" : {
@@ -850,7 +850,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Album pal select default pal short"
+            "value" : "Pal"
           }
         },
         "zh-Hans" : {
@@ -867,7 +867,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Album pal select evidence mark"
+            "value" : "Photos to Archive"
           }
         },
         "zh-Hans" : {
@@ -884,7 +884,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Album pal select import mark"
+            "value" : "This Import"
           }
         },
         "zh-Hans" : {
@@ -918,7 +918,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Album pal select new archive hint"
+            "value" : "Enter a name and details"
           }
         },
         "zh-Hans" : {
@@ -935,7 +935,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Pal Profile"
+            "value" : "New Pal Profile"
           }
         },
         "zh-Hans" : {
@@ -986,7 +986,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Pal Profile"
+            "value" : "Pal Profiles"
           }
         },
         "zh-Hans" : {
@@ -1003,7 +1003,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Album pal select selected mark"
+            "value" : "Selected"
           }
         },
         "zh-Hans" : {
@@ -1020,7 +1020,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Album quota existing kept"
+            "value" : "Existing Profiles Kept"
           }
         },
         "zh-Hans" : {
@@ -1037,7 +1037,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Album quota later"
+            "value" : "Not Now"
           }
         },
         "zh-Hans" : {
@@ -1054,7 +1054,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Album quota mark"
+            "value" : "Free Photo Limit"
           }
         },
         "zh-Hans" : {
@@ -1071,7 +1071,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Album quota resilience1 desc"
+            "value" : "Existing photos won't be deleted, compressed, or moved."
           }
         },
         "zh-Hans" : {
@@ -1088,7 +1088,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Album quota resilience1 title"
+            "value" : "Existing Profiles Stay Untouched"
           }
         },
         "zh-Hans" : {
@@ -1105,7 +1105,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Album quota resilience2 desc"
+            "value" : "Candidate photos are never added to a pal profile automatically."
           }
         },
         "zh-Hans" : {
@@ -1122,7 +1122,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Album quota resilience2 title"
+            "value" : "You Stay in Control"
           }
         },
         "zh-Hans" : {
@@ -1139,7 +1139,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Album quota resilience3 desc"
+            "value" : "Plan and actual price are shown before purchase."
           }
         },
         "zh-Hans" : {
@@ -1156,7 +1156,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Album quota resilience3 title"
+            "value" : "Clear Upgrade Details"
           }
         },
         "zh-Hans" : {
@@ -1173,7 +1173,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Album quota subtitle"
+            "value" : "Upgrade to keep importing. Staying on the free plan won't affect anything already saved."
           }
         },
         "zh-Hans" : {
@@ -1207,7 +1207,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Album quota used up"
+            "value" : "Fully Used"
           }
         },
         "zh-Hans" : {
@@ -1224,7 +1224,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Album quota view pro"
+            "value" : "View MiLens Pro"
           }
         },
         "zh-Hans" : {
@@ -1275,7 +1275,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Album success local body"
+            "value" : "Photos are never uploaded; existing content won't be moved."
           }
         },
         "zh-Hans" : {
@@ -1292,7 +1292,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Album success local title"
+            "value" : "On This Device Only"
           }
         },
         "zh-Hans" : {
@@ -1309,7 +1309,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Album success privacy note"
+            "value" : "Archive complete · You can delete or reassign photos anytime."
           }
         },
         "zh-Hans" : {
@@ -1326,7 +1326,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Album success stat original"
+            "value" : "Originals"
           }
         },
         "zh-Hans" : {
@@ -1343,7 +1343,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Album success stat pal"
+            "value" : "Pals"
           }
         },
         "zh-Hans" : {
@@ -1360,7 +1360,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Album success stat thumbnail"
+            "value" : "Thumbnails"
           }
         },
         "zh-Hans" : {
@@ -1411,7 +1411,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Archive preview panel body"
+            "value" : "Stats, memories, and recent photos belong to one continuous archive."
           }
         },
         "zh-Hans" : {
@@ -1428,7 +1428,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Archive preview panel title"
+            "value" : "Continuous Archive"
           }
         },
         "zh-Hans" : {
@@ -1479,7 +1479,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Bead generating cancel"
+            "value" : "Cancel Generation"
           }
         },
         "zh-Hans" : {
@@ -1496,7 +1496,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Bead generating log"
+            "value" : "Processing Log"
           }
         },
         "zh-Hans" : {
@@ -1530,7 +1530,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Computing color quantization & pixel grid"
+            "value" : "Smart Cutout"
           }
         },
         "zh-Hans" : {
@@ -1581,7 +1581,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Bead generating subtitle"
+            "value" : "Preserving the outline first, then mapping every color to the MARD palette."
           }
         },
         "zh-Hans" : {
@@ -1615,7 +1615,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Bead pattern parameters overline"
+            "value" : "PATTERN PARAMETERS"
           }
         },
         "zh-Hans" : {
@@ -1632,7 +1632,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Bead pattern parameters title"
+            "value" : "Pattern Parameters"
           }
         },
         "zh-Hans" : {
@@ -1649,7 +1649,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Bead phase locked"
+            "value" : "Subject locked · Matching colors"
           }
         },
         "zh-Hans" : {
@@ -1666,7 +1666,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Bead result a4 desc"
+            "value" : "Single-page PDF · Print-ready"
           }
         },
         "zh-Hans" : {
@@ -1683,7 +1683,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Bead result a4 title"
+            "value" : "A4 Bead Pattern"
           }
         },
         "zh-Hans" : {
@@ -1700,7 +1700,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Bead result keep title"
+            "value" : "Keep This Creation Forever"
           }
         },
         "zh-Hans" : {
@@ -1734,7 +1734,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Bead result overline"
+            "value" : "ARCHIVE OUTPUT"
           }
         },
         "zh-Hans" : {
@@ -1751,7 +1751,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Bead result save hd desc"
+            "value" : "Original pixels · Optional transparent background"
           }
         },
         "zh-Hans" : {
@@ -1768,7 +1768,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Bead result share desc"
+            "value" : "System Share Sheet"
           }
         },
         "zh-Hans" : {
@@ -1785,7 +1785,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Bead result share title"
+            "value" : "Share Creation"
           }
         },
         "zh-Hans" : {
@@ -1802,7 +1802,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Bead step done"
+            "value" : "Done"
           }
         },
         "zh-Hans" : {
@@ -1819,7 +1819,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Bead step in progress"
+            "value" : "In Progress"
           }
         },
         "zh-Hans" : {
@@ -1836,7 +1836,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Bead step waiting"
+            "value" : "Waiting"
           }
         },
         "zh-Hans" : {
@@ -1853,7 +1853,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Bell confirm body new"
+            "value" : "Your photo library may have new photos of your pal. Add them now?"
           }
         },
         "zh-Hans" : {
@@ -1870,7 +1870,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Bell confirm body stale"
+            "value" : "It's been two weeks since you added new photos."
           }
         },
         "zh-Hans" : {
@@ -1887,7 +1887,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Bell confirm cancel"
+            "value" : "Later"
           }
         },
         "zh-Hans" : {
@@ -1904,7 +1904,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Bell confirm confirm"
+            "value" : "Add Photos"
           }
         },
         "zh-Hans" : {
@@ -1921,7 +1921,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Bell confirm title new"
+            "value" : "New Photos May Be Waiting"
           }
         },
         "zh-Hans" : {
@@ -1938,7 +1938,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Bell confirm title stale"
+            "value" : "Time to Add New Photos"
           }
         },
         "zh-Hans" : {
@@ -1955,7 +1955,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Bell menu memories"
+            "value" : "View Today's Memories"
           }
         },
         "zh-Hans" : {
@@ -1972,7 +1972,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Bell menu new photo"
+            "value" : "Add New Photos"
           }
         },
         "zh-Hans" : {
@@ -1989,7 +1989,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Bell menu title"
+            "value" : "New Reminder"
           }
         },
         "zh-Hans" : {
@@ -2006,7 +2006,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Failed to save pal card image"
+            "value" : "Couldn't save pal card image"
           }
         },
         "zh-Hans" : {
@@ -2091,7 +2091,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Businesscard load failed"
+            "value" : "Couldn't load pal"
           }
         },
         "zh-Hans" : {
@@ -2125,7 +2125,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Businesscard select template"
+            "value" : "Choose a Template"
           }
         },
         "zh-Hans" : {
@@ -2142,7 +2142,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Businesscard spec"
+            "value" : "PNG · High Resolution"
           }
         },
         "zh-Hans" : {
@@ -2159,7 +2159,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Businesscard tag aloof"
+            "value" : "Aloof"
           }
         },
         "zh-Hans" : {
@@ -2176,7 +2176,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Businesscard tag chatty"
+            "value" : "Talkative"
           }
         },
         "zh-Hans" : {
@@ -2193,7 +2193,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Businesscard tag clingy"
+            "value" : "Clingy"
           }
         },
         "zh-Hans" : {
@@ -2210,7 +2210,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Businesscard tag curious"
+            "value" : "Curious"
           }
         },
         "zh-Hans" : {
@@ -2227,7 +2227,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Businesscard tag foodie"
+            "value" : "Foodie"
           }
         },
         "zh-Hans" : {
@@ -2244,7 +2244,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Businesscard tag gentle"
+            "value" : "Gentle"
           }
         },
         "zh-Hans" : {
@@ -2261,7 +2261,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Businesscard tag lively"
+            "value" : "Lively"
           }
         },
         "zh-Hans" : {
@@ -2278,7 +2278,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Businesscard tag mischievous"
+            "value" : "Mischievous"
           }
         },
         "zh-Hans" : {
@@ -2295,7 +2295,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Businesscard tag sensible"
+            "value" : "Thoughtful"
           }
         },
         "zh-Hans" : {
@@ -2312,7 +2312,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Businesscard tag sleepy"
+            "value" : "Sleepy"
           }
         },
         "zh-Hans" : {
@@ -2329,7 +2329,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Businesscard tag timid"
+            "value" : "Timid"
           }
         },
         "zh-Hans" : {
@@ -2346,7 +2346,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Businesscard tag tsundere"
+            "value" : "Tsundere"
           }
         },
         "zh-Hans" : {
@@ -2397,7 +2397,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Common confirm"
+            "value" : "Confirm"
           }
         },
         "zh-Hans" : {
@@ -2533,7 +2533,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Create bead abstraction"
+            "value" : "Abstraction"
           }
         },
         "zh-Hans" : {
@@ -2550,7 +2550,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Create bead adjust"
+            "value" : "Adjust Recipe"
           }
         },
         "zh-Hans" : {
@@ -2567,7 +2567,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Create bead advanced"
+            "value" : "Advanced Settings"
           }
         },
         "zh-Hans" : {
@@ -2584,7 +2584,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Create bead board size"
+            "value" : "Pattern Size"
           }
         },
         "zh-Hans" : {
@@ -2601,7 +2601,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Create bead change"
+            "value" : "Change"
           }
         },
         "zh-Hans" : {
@@ -2618,7 +2618,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Create bead collapsed"
+            "value" : "Collapsed"
           }
         },
         "zh-Hans" : {
@@ -2635,7 +2635,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Create bead color"
+            "value" : "Color"
           }
         },
         "zh-Hans" : {
@@ -2652,7 +2652,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Create bead current recipe"
+            "value" : "Current Recipe"
           }
         },
         "zh-Hans" : {
@@ -2669,7 +2669,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Create bead cutout only"
+            "value" : "Subject Only"
           }
         },
         "zh-Hans" : {
@@ -2686,7 +2686,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Create bead daily quota"
+            "value" : "5 times daily"
           }
         },
         "zh-Hans" : {
@@ -2703,7 +2703,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Create bead denoise"
+            "value" : "Reduce Noise"
           }
         },
         "zh-Hans" : {
@@ -2720,7 +2720,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Create bead desc"
+            "value" : "Turn a photo into a hands-on pattern with a color palette and materials list."
           }
         },
         "zh-Hans" : {
@@ -2754,7 +2754,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Create bead expanded"
+            "value" : "Expanded"
           }
         },
         "zh-Hans" : {
@@ -2771,7 +2771,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Create bead export desc"
+            "value" : "HD pattern export · Grid numbers and full palette"
           }
         },
         "zh-Hans" : {
@@ -2788,7 +2788,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Create bead export title"
+            "value" : "Keep This Creation Forever"
           }
         },
         "zh-Hans" : {
@@ -2805,7 +2805,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Create bead exporting"
+            "value" : "Exporting…"
           }
         },
         "zh-Hans" : {
@@ -2822,7 +2822,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Create bead generate pattern"
+            "value" : "Generate Bead Pattern"
           }
         },
         "zh-Hans" : {
@@ -2856,7 +2856,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Create bead local process hint"
+            "value" : "Photos are processed on device only · If cutout fails, the original photo is used safely"
           }
         },
         "zh-Hans" : {
@@ -2890,7 +2890,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Create bead material list"
+            "value" : "Materials List"
           }
         },
         "zh-Hans" : {
@@ -2907,7 +2907,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Create bead mode color"
+            "value" : "Color"
           }
         },
         "zh-Hans" : {
@@ -2924,7 +2924,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Create bead mode letter"
+            "value" : "Letter Codes"
           }
         },
         "zh-Hans" : {
@@ -2941,7 +2941,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Create bead outline"
+            "value" : "Outline"
           }
         },
         "zh-Hans" : {
@@ -2958,7 +2958,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Create bead save album"
+            "value" : "Save to Photos"
           }
         },
         "zh-Hans" : {
@@ -2975,7 +2975,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Create bead save hd"
+            "value" : "Save HD Pattern"
           }
         },
         "zh-Hans" : {
@@ -2992,7 +2992,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Create bead select effect"
+            "value" : "Choose Effect"
           }
         },
         "zh-Hans" : {
@@ -3009,7 +3009,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Create bead source"
+            "value" : "Source Photo"
           }
         },
         "zh-Hans" : {
@@ -3026,7 +3026,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Create bead source meta"
+            "value" : "Original"
           }
         },
         "zh-Hans" : {
@@ -3043,7 +3043,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Create bead studio"
+            "value" : "Bead Studio"
           }
         },
         "zh-Hans" : {
@@ -3077,7 +3077,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Create bead transition"
+            "value" : "Transition"
           }
         },
         "zh-Hans" : {
@@ -3094,7 +3094,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Create bead unlimited"
+            "value" : "Unlimited"
           }
         },
         "zh-Hans" : {
@@ -3111,7 +3111,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Create bead view all"
+            "value" : "View All"
           }
         },
         "zh-Hans" : {
@@ -3128,7 +3128,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Create bead view export"
+            "value" : "View Pattern & Export"
           }
         },
         "zh-Hans" : {
@@ -3145,7 +3145,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Create bead zoom hint"
+            "value" : "💡 Zoom in to reveal pattern numbers"
           }
         },
         "zh-Hans" : {
@@ -3162,7 +3162,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Create business card desc"
+            "value" : "Create a social card with an avatar, personality tags, and a short introduction."
           }
         },
         "zh-Hans" : {
@@ -3179,7 +3179,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Create business card title"
+            "value" : "Pal Card"
           }
         },
         "zh-Hans" : {
@@ -3196,7 +3196,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Create empty body"
+            "value" : "Import photos from your library to start creating here."
           }
         },
         "zh-Hans" : {
@@ -3213,7 +3213,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Create empty cta"
+            "value" : "Add from Photos"
           }
         },
         "zh-Hans" : {
@@ -3230,7 +3230,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Create empty title"
+            "value" : "Save a Photo First"
           }
         },
         "zh-Hans" : {
@@ -3247,7 +3247,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Create encode failed"
+            "value" : "Couldn't encode image. Try again."
           }
         },
         "zh-Hans" : {
@@ -3264,7 +3264,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Create growth compare desc"
+            "value" : "Choose two photos from different times to see how life has changed side by side."
           }
         },
         "zh-Hans" : {
@@ -3281,7 +3281,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Create growth compare hint"
+            "value" : "Two photos, one stretch of time. Save to Photos or share with family."
           }
         },
         "zh-Hans" : {
@@ -3298,7 +3298,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Create growth compare title"
+            "value" : "Growth Compare"
           }
         },
         "zh-Hans" : {
@@ -3315,7 +3315,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Create subtitle"
+            "value" : "Uses photos on this device only · Created on device"
           }
         },
         "zh-Hans" : {
@@ -3332,7 +3332,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Creative Studio"
+            "value" : "Turn shared life into something you can keep"
           }
         },
         "zh-Hans" : {
@@ -3349,7 +3349,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Create headline"
+            "value" : "Give every photo somewhere to go."
           }
         },
         "zh-Hans" : {
@@ -3366,7 +3366,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Create load failed"
+            "value" : "Couldn't load photos"
           }
         },
         "zh-Hans" : {
@@ -3383,7 +3383,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Digital archive for your pal"
+            "value" : "Turn a photo into a vertical keepsake card with their name and the day they became family."
           }
         },
         "zh-Hans" : {
@@ -3400,7 +3400,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Create pal card hint"
+            "value" : "Long-press or save to Photos to use as wallpaper or share with family."
           }
         },
         "zh-Hans" : {
@@ -3417,7 +3417,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Create pal card select photo"
+            "value" : "Choose a photo to create a keepsake card"
           }
         },
         "zh-Hans" : {
@@ -3434,7 +3434,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Pal Profile"
+            "value" : "Pal Card"
           }
         },
         "zh-Hans" : {
@@ -3451,7 +3451,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Create project bead desc"
+            "value" : "Pattern · Color Codes · Quantity"
           }
         },
         "zh-Hans" : {
@@ -3468,7 +3468,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Create project business card desc"
+            "value" : "Share the sweetness"
           }
         },
         "zh-Hans" : {
@@ -3485,7 +3485,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Create project growth compare desc"
+            "value" : "From then to now"
           }
         },
         "zh-Hans" : {
@@ -3502,7 +3502,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Digital archive for your pal"
+            "value" : "A keepsake card for your pal"
           }
         },
         "zh-Hans" : {
@@ -3519,7 +3519,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Create project red packet desc"
+            "value" : "Four WeChat Red Packet cover templates + upload guide"
           }
         },
         "zh-Hans" : {
@@ -3536,7 +3536,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Create red packet"
+            "value" : "Red Packet"
           }
         },
         "zh-Hans" : {
@@ -3553,7 +3553,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Create red packet desc"
+            "value" : "Create WeChat Red Packet cover artwork (957 × 1278) and preview it in four scenes."
           }
         },
         "zh-Hans" : {
@@ -3570,7 +3570,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Create red packet title"
+            "value" : "Red Packet Cover"
           }
         },
         "zh-Hans" : {
@@ -3587,7 +3587,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Create red packet wechat"
+            "value" : "WeChat"
           }
         },
         "zh-Hans" : {
@@ -3604,7 +3604,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Create render failed"
+            "value" : "Couldn't render card. Try again."
           }
         },
         "zh-Hans" : {
@@ -3621,7 +3621,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Create save failed"
+            "value" : "Save failed"
           }
         },
         "zh-Hans" : {
@@ -3638,7 +3638,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Failed to save to Photos: %@"
+            "value" : "Couldn't save to Photos: %@"
           }
         },
         "zh-Hans" : {
@@ -3655,7 +3655,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Saved successfully"
+            "value" : "Saved"
           }
         },
         "zh-Hans" : {
@@ -3672,7 +3672,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Create section supporting"
+            "value" : "Choose a photo"
           }
         },
         "zh-Hans" : {
@@ -3689,7 +3689,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Create section title"
+            "value" : "Projects to Make"
           }
         },
         "zh-Hans" : {
@@ -3723,7 +3723,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Studio"
+            "value" : "Let beautiful memories live on at your fingertips."
           }
         },
         "zh-Hans" : {
@@ -3740,7 +3740,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Create subheadline"
+            "value" : "Start with a saved photo and make something truly theirs."
           }
         },
         "zh-Hans" : {
@@ -4086,7 +4086,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Decoration panel empty"
+            "value" : "Decoration assets aren't installed yet."
           }
         },
         "zh-Hans" : {
@@ -4684,7 +4684,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Editor adjust manual"
+            "value" : "Manual Adjustments"
           }
         },
         "zh-Hans" : {
@@ -4718,7 +4718,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Editor crop ratio free"
+            "value" : "Free"
           }
         },
         "zh-Hans" : {
@@ -4735,7 +4735,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Edit"
+            "value" : "Re-cutout"
           }
         },
         "zh-Hans" : {
@@ -4752,7 +4752,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Edit"
+            "value" : "Retry"
           }
         },
         "zh-Hans" : {
@@ -4769,7 +4769,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Edit"
+            "value" : "Start Cutout"
           }
         },
         "zh-Hans" : {
@@ -4786,7 +4786,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Edit"
+            "value" : "Recognizing…"
           }
         },
         "zh-Hans" : {
@@ -4803,7 +4803,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Editor cutout done"
+            "value" : "Done"
           }
         },
         "zh-Hans" : {
@@ -4820,7 +4820,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Editor cutout local processing"
+            "value" : "On-Device Processing"
           }
         },
         "zh-Hans" : {
@@ -4837,7 +4837,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Editor cutout not uploaded"
+            "value" : "Photo Not Uploaded"
           }
         },
         "zh-Hans" : {
@@ -4854,7 +4854,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Editor cutout output format"
+            "value" : "Output Format"
           }
         },
         "zh-Hans" : {
@@ -4871,7 +4871,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Editor cutout transparent png"
+            "value" : "Transparent PNG"
           }
         },
         "zh-Hans" : {
@@ -4888,7 +4888,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Editor error title"
+            "value" : "Unable to Continue"
           }
         },
         "zh-Hans" : {
@@ -4905,7 +4905,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Editor exit dialog save title"
+            "value" : "Save Edits?"
           }
         },
         "zh-Hans" : {
@@ -4922,7 +4922,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Editor exit dialog unsaved title"
+            "value" : "Unsaved Changes"
           }
         },
         "zh-Hans" : {
@@ -4939,7 +4939,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Editor exit save and quit"
+            "value" : "Save & Exit"
           }
         },
         "zh-Hans" : {
@@ -4956,7 +4956,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Editor exit save only"
+            "value" : "Save Only"
           }
         },
         "zh-Hans" : {
@@ -4973,7 +4973,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Editor filter cool"
+            "value" : "Cool"
           }
         },
         "zh-Hans" : {
@@ -4990,7 +4990,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Editor filter mono"
+            "value" : "Monochrome"
           }
         },
         "zh-Hans" : {
@@ -5007,7 +5007,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Editor filter original"
+            "value" : "Original"
           }
         },
         "zh-Hans" : {
@@ -5024,7 +5024,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Editor filter soft"
+            "value" : "Soft"
           }
         },
         "zh-Hans" : {
@@ -5075,7 +5075,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Editor panel adjust"
+            "value" : "Adjust Colors"
           }
         },
         "zh-Hans" : {
@@ -5092,7 +5092,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Editor panel crop"
+            "value" : "Crop Ratio"
           }
         },
         "zh-Hans" : {
@@ -5109,7 +5109,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Editor panel cutout"
+            "value" : "Subject Cutout"
           }
         },
         "zh-Hans" : {
@@ -5126,7 +5126,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Editor panel flip"
+            "value" : "Flip"
           }
         },
         "zh-Hans" : {
@@ -5143,7 +5143,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Editor panel frame"
+            "value" : "Frame"
           }
         },
         "zh-Hans" : {
@@ -5160,7 +5160,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Editor panel rotate"
+            "value" : "Rotate"
           }
         },
         "zh-Hans" : {
@@ -5177,7 +5177,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Editor panel sticker"
+            "value" : "Sticker"
           }
         },
         "zh-Hans" : {
@@ -5194,7 +5194,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Editor panel text"
+            "value" : "Text Layer"
           }
         },
         "zh-Hans" : {
@@ -5262,7 +5262,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Editor text stroke"
+            "value" : "Stroke"
           }
         },
         "zh-Hans" : {
@@ -5420,7 +5420,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Editor transform ccw"
+            "value" : "Rotate Left"
           }
         },
         "zh-Hans" : {
@@ -5437,7 +5437,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Editor transform cw"
+            "value" : "Rotate Right"
           }
         },
         "zh-Hans" : {
@@ -5454,7 +5454,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Editor transform flip h"
+            "value" : "Horizontal"
           }
         },
         "zh-Hans" : {
@@ -5471,7 +5471,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Editor transform flip v"
+            "value" : "Vertical"
           }
         },
         "zh-Hans" : {
@@ -5488,7 +5488,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Annotation label"
+            "value" : "Note"
           }
         },
         "zh-Hans" : {
@@ -5505,7 +5505,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Annotation placeholder"
+            "value" : "Write a note for this card"
           }
         },
         "zh-Hans" : {
@@ -5539,7 +5539,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Owner"
+            "value" : "Caregiver"
           }
         },
         "zh-Hans" : {
@@ -5573,7 +5573,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Owner placeholder fallback"
+            "value" : "e.g. Luna's Human"
           }
         },
         "zh-Hans" : {
@@ -5590,7 +5590,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Tagline"
+            "value" : "One Line"
           }
         },
         "zh-Hans" : {
@@ -5607,7 +5607,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Tagline placeholder"
+            "value" : "e.g. The joy of our home"
           }
         },
         "zh-Hans" : {
@@ -5624,7 +5624,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Tags"
+            "value" : "Personality Tags"
           }
         },
         "zh-Hans" : {
@@ -5641,7 +5641,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Tags placeholder"
+            "value" : "Choose personality tags"
           }
         },
         "zh-Hans" : {
@@ -5692,7 +5692,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Gallery empty filtered"
+            "value" : "No Matching Photos"
           }
         },
         "zh-Hans" : {
@@ -5726,7 +5726,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Gallery import free archive mark"
+            "value" : "FREE ARCHIVE"
           }
         },
         "zh-Hans" : {
@@ -5743,7 +5743,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Gallery import life log mark"
+            "value" : "LIFE LOG ARCHIVE"
           }
         },
         "zh-Hans" : {
@@ -5760,7 +5760,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Gallery import local mark"
+            "value" : "LOCAL ARCHIVE"
           }
         },
         "zh-Hans" : {
@@ -5794,7 +5794,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Gallery quota resilience mark"
+            "value" : "RESILIENCE / LOCAL"
           }
         },
         "zh-Hans" : {
@@ -5811,7 +5811,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Gallery scan complete title"
+            "value" : "Scan Complete"
           }
         },
         "zh-Hans" : {
@@ -5828,7 +5828,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Gallery scan failed title"
+            "value" : "Scan Incomplete"
           }
         },
         "zh-Hans" : {
@@ -5862,7 +5862,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Gallery scan open settings"
+            "value" : "Open Settings"
           }
         },
         "zh-Hans" : {
@@ -5913,7 +5913,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Gallery scan import"
+            "value" : "Scan & Import Photos"
           }
         },
         "zh-Hans" : {
@@ -5930,7 +5930,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Gallery select"
+            "value" : "Select"
           }
         },
         "zh-Hans" : {
@@ -5947,7 +5947,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Gallery"
+            "value" : "Photos"
           }
         },
         "zh-Hans" : {
@@ -5981,7 +5981,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "MiLens scans your photo library on device using local AI models to discover photos featuring your pal, then lets you confirm matches."
+            "value" : "Tap \"Scan\" on the album page — MiLens finds photos that may contain your pal on your device, then lets you confirm and import them."
           }
         },
         "zh-Hans" : {
@@ -5998,7 +5998,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "No. All photo analysis, categorization, and editing run 100% locally on your device. Your photos never leave your phone."
+            "value" : "Pick a pal when reviewing scan results; you can also select multiple photos in the album and assign them to a pal."
           }
         },
         "zh-Hans" : {
@@ -6015,7 +6015,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Go to the Create tab, select Bead Pattern, pick a photo of your pal, choose pegboard size and palette, then tap Generate."
+            "value" : "Go to the Create tab, choose \"Bead Pattern\", pick a photo, adjust size and style, then generate and export."
           }
         },
         "zh-Hans" : {
@@ -6032,7 +6032,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "MiLens Pro unlocks up to 20 pal profiles, unlimited bead pattern generation, full lifetime growth timeline, and watermark-free exports."
+            "value" : "Bead patterns can be saved to your photo library or shared with others via the system share sheet."
           }
         },
         "zh-Hans" : {
@@ -6066,7 +6066,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Are my photos uploaded to any servers?"
+            "value" : "How do I assign photos to a pal profile?"
           }
         },
         "zh-Hans" : {
@@ -6100,7 +6100,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "What benefits does MiLens Pro include?"
+            "value" : "Where are my exported works saved?"
           }
         },
         "zh-Hans" : {
@@ -6117,7 +6117,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Home backup banner"
+            "value" : "Export Backup"
           }
         },
         "zh-Hans" : {
@@ -6168,7 +6168,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Home editorial title"
+            "value" : "Tonight, save a little time for them"
           }
         },
         "zh-Hans" : {
@@ -6185,7 +6185,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Create a profile for your pal and import photos to begin"
+            "value" : "Choose a few photos from your library and we'll organize each day."
           }
         },
         "zh-Hans" : {
@@ -6253,7 +6253,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Home hero title"
+            "value" : "Today, take a moment to remember them"
           }
         },
         "zh-Hans" : {
@@ -6270,7 +6270,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Home hero today label"
+            "value" : "Today's Togetherness"
           }
         },
         "zh-Hans" : {
@@ -6287,7 +6287,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Failed to load home data"
+            "value" : "Couldn't load home data"
           }
         },
         "zh-Hans" : {
@@ -6356,7 +6356,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Home memory open"
+            "value" : "View This Memory"
           }
         },
         "zh-Hans" : {
@@ -6373,7 +6373,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Home memory title"
+            "value" : "Recent Memories"
           }
         },
         "zh-Hans" : {
@@ -6393,13 +6393,13 @@
               "one" : {
                 "stringUnit" : {
                   "state" : "translated",
-                  "value" : "Photo #%lld"
+                  "value" : "%lld photo"
                 }
               },
               "other" : {
                 "stringUnit" : {
                   "state" : "translated",
-                  "value" : "Photo #%lld"
+                  "value" : "%lld photos"
                 }
               }
             }
@@ -6425,7 +6425,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Home retry"
+            "value" : "Try Again"
           }
         },
         "zh-Hans" : {
@@ -6442,7 +6442,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Home today"
+            "value" : "Today"
           }
         },
         "zh-Hans" : {
@@ -6527,7 +6527,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "In %lld days · %lld days home"
+            "value" : "In %lld days · Home for %lld days"
           }
         },
         "zh-Hans" : {
@@ -6578,7 +6578,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "In %lld days · %lld years old"
+            "value" : "In %lld days · %lld days since birth"
           }
         },
         "zh-Hans" : {
@@ -6612,7 +6612,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Home upcoming look back"
+            "value" : "Look Back on That Day →"
           }
         },
         "zh-Hans" : {
@@ -6629,7 +6629,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Home upcoming section label"
+            "value" : "Coming Up"
           }
         },
         "zh-Hans" : {
@@ -6646,7 +6646,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Home yearly recap body"
+            "value" : "Bind this year's best moments into a keepsake"
           }
         },
         "zh-Hans" : {
@@ -6663,7 +6663,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Home yearly recap title"
+            "value" : "Year in Review"
           }
         },
         "zh-Hans" : {
@@ -6680,7 +6680,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Memory add more"
+            "value" : "Add More"
           }
         },
         "zh-Hans" : {
@@ -6697,7 +6697,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Memory archive hint"
+            "value" : "Saved memories appear on the timeline and can be edited anytime"
           }
         },
         "zh-Hans" : {
@@ -6714,7 +6714,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Memory body label"
+            "value" : "What happened?"
           }
         },
         "zh-Hans" : {
@@ -6731,7 +6731,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Memory draft"
+            "value" : "Draft Saved Automatically"
           }
         },
         "zh-Hans" : {
@@ -6748,7 +6748,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Memory kind adoption day"
+            "value" : "Adoption Day"
           }
         },
         "zh-Hans" : {
@@ -6765,7 +6765,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Memory kind birthday"
+            "value" : "Birthday"
           }
         },
         "zh-Hans" : {
@@ -6782,7 +6782,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Memory kind growth compare"
+            "value" : "Growth Compare"
           }
         },
         "zh-Hans" : {
@@ -6799,7 +6799,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Memory kind milestone"
+            "value" : "Milestone"
           }
         },
         "zh-Hans" : {
@@ -6816,7 +6816,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Memory kind monthly recap"
+            "value" : "Monthly Highlights"
           }
         },
         "zh-Hans" : {
@@ -6833,7 +6833,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Memory kind yearly recap"
+            "value" : "Year in Review"
           }
         },
         "zh-Hans" : {
@@ -6850,7 +6850,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Memory occurred at"
+            "value" : "When It Happened"
           }
         },
         "zh-Hans" : {
@@ -6867,7 +6867,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Memory photo evidence"
+            "value" : "Photo Evidence"
           }
         },
         "zh-Hans" : {
@@ -6901,7 +6901,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Memory title label"
+            "value" : "Title"
           }
         },
         "zh-Hans" : {
@@ -6918,7 +6918,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Memory type date"
+            "value" : "Important Date"
           }
         },
         "zh-Hans" : {
@@ -6935,7 +6935,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Memory type photo"
+            "value" : "Photo Memory"
           }
         },
         "zh-Hans" : {
@@ -6952,7 +6952,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Memory type text"
+            "value" : "Text Memory"
           }
         },
         "zh-Hans" : {
@@ -6969,7 +6969,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Memory type work"
+            "value" : "Creation"
           }
         },
         "zh-Hans" : {
@@ -6986,7 +6986,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Memory type label"
+            "value" : "Memory Type"
           }
         },
         "zh-Hans" : {
@@ -7122,7 +7122,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Notify memory title"
+            "value" : "Past Memories"
           }
         },
         "zh-Hans" : {
@@ -7139,7 +7139,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Today's memory: %@"
+            "value" : "Memories from this day in past years: %@"
           }
         },
         "zh-Hans" : {
@@ -7225,7 +7225,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Notify new photo body new"
+            "value" : "Your pal may have new photos. Take a look?"
           }
         },
         "zh-Hans" : {
@@ -7242,7 +7242,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Notify new photo body stale"
+            "value" : "No new photos added in two weeks. Have you taken any lately?"
           }
         },
         "zh-Hans" : {
@@ -7259,7 +7259,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Notify new photo title"
+            "value" : "New Photos in Your Library"
           }
         },
         "zh-Hans" : {
@@ -7419,13 +7419,13 @@
               "one" : {
                 "stringUnit" : {
                   "state" : "translated",
-                  "value" : "Today, 1 year ago"
+                  "value" : "1 year ago today"
                 }
               },
               "other" : {
                 "stringUnit" : {
                   "state" : "translated",
-                  "value" : "Today, %lld years ago"
+                  "value" : "%lld years ago today"
                 }
               }
             }
@@ -7451,7 +7451,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "These are candidate photos matching %@'s profile. Please confirm to import."
+            "value" : "These are candidate photos matching %@'s profile. Confirm to import."
           }
         },
         "zh-Hans" : {
@@ -7587,7 +7587,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Create a profile for your pal first,\nthen scan your library anytime."
+            "value" : "Enter a name and pal type first; your library won't be scanned yet."
           }
         },
         "zh-Hans" : {
@@ -7706,7 +7706,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Each pal profile automatically organizes photos during scans."
+            "value" : "Create the profile first, then build its feature baseline; scan results are never imported automatically."
           }
         },
         "zh-Hans" : {
@@ -7723,7 +7723,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Save failed. Please try again."
+            "value" : "Couldn't save. Try again."
           }
         },
         "zh-Hans" : {
@@ -7757,7 +7757,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Choose category"
+            "value" : "Choose Pal Type"
           }
         },
         "zh-Hans" : {
@@ -7791,7 +7791,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Profile Photo"
+            "value" : "Feature Baseline"
           }
         },
         "zh-Hans" : {
@@ -8029,7 +8029,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Avoid blurry or dark photos"
+            "value" : "Avoid blurry or obstructed photos"
           }
         },
         "zh-Hans" : {
@@ -8233,7 +8233,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Only used as comparison baseline for %@"
+            "value" : "Used only to build %@'s on-device feature baseline"
           }
         },
         "zh-Hans" : {
@@ -8386,7 +8386,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%lld photos being imported"
+            "value" : "%lld photos imported"
           }
         },
         "zh-Hans" : {
@@ -8471,7 +8471,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Photos are never uploaded to the cloud"
+            "value" : "Photos are never uploaded; existing content won't be moved."
           }
         },
         "zh-Hans" : {
@@ -8573,7 +8573,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "All data is stored locally. You can delete or re-classify anytime."
+            "value" : "Archive complete · You can delete or reassign photos anytime."
           }
         },
         "zh-Hans" : {
@@ -8913,7 +8913,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Please enable in Settings → Privacy → Photos to allow scanning candidate photos."
+            "value" : "Allow access in Settings > Privacy > Photos to scan for candidate photos."
           }
         },
         "zh-Hans" : {
@@ -9321,7 +9321,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Scan in progress"
+            "value" : "Scan Didn't Finish"
           }
         },
         "zh-Hans" : {
@@ -9338,7 +9338,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "You can pause now and continue from the album page anytime."
+            "value" : "You can skip the scan and start it anytime from the album page."
           }
         },
         "zh-Hans" : {
@@ -9406,7 +9406,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Skip scanning, confirm later"
+            "value" : "Skip Scan, Continue"
           }
         },
         "zh-Hans" : {
@@ -9984,7 +9984,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Paywall benefit1 desc"
+            "value" : "Unlimited pals, with a clear profile for each one"
           }
         },
         "zh-Hans" : {
@@ -10001,7 +10001,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Paywall benefit1 title"
+            "value" : "Separate Profiles for Every Pal"
           }
         },
         "zh-Hans" : {
@@ -10018,7 +10018,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Paywall benefit2 desc"
+            "value" : "Yearly recaps are built from real dates"
           }
         },
         "zh-Hans" : {
@@ -10035,7 +10035,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Paywall benefit2 title"
+            "value" : "Turn Time into Life Chapters"
           }
         },
         "zh-Hans" : {
@@ -10052,7 +10052,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Paywall benefit3 desc"
+            "value" : "Export photos, memories, and bead patterns in high quality"
           }
         },
         "zh-Hans" : {
@@ -10069,7 +10069,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Paywall benefit3 title"
+            "value" : "Take High-Quality Memories with You"
           }
         },
         "zh-Hans" : {
@@ -10103,7 +10103,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Paywall cta confirm"
+            "value" : "Confirm & Continue"
           }
         },
         "zh-Hans" : {
@@ -10206,7 +10206,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Paywall links"
+            "value" : "Restore Purchases · Terms of Service · Privacy Policy"
           }
         },
         "zh-Hans" : {
@@ -10240,7 +10240,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Paywall hero features"
+            "value" : "More Pals · Full History · High-Quality Exports"
           }
         },
         "zh-Hans" : {
@@ -10257,7 +10257,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Paywall hero subtitle"
+            "value" : "More Pals · Full History · High-Quality Exports"
           }
         },
         "zh-Hans" : {
@@ -10274,7 +10274,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Paywall hero title"
+            "value" : "Keep Their Whole Life Close"
           }
         },
         "zh-Hans" : {
@@ -10325,7 +10325,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Unable to load subscription info. Please check your connection and try again."
+            "value" : "Couldn't load subscription info. Check your connection and try again."
           }
         },
         "zh-Hans" : {
@@ -10393,7 +10393,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Paywall plan annual"
+            "value" : "Annual Plan"
           }
         },
         "zh-Hans" : {
@@ -10410,7 +10410,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Paywall plan get app"
+            "value" : "From the App Store"
           }
         },
         "zh-Hans" : {
@@ -10427,7 +10427,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Paywall plan monthly"
+            "value" : "Monthly Plan"
           }
         },
         "zh-Hans" : {
@@ -10461,7 +10461,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Purchase didn't complete. Please try again later."
+            "value" : "Purchase didn't complete. Try again later."
           }
         },
         "zh-Hans" : {
@@ -10495,7 +10495,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Paywall purchase title"
+            "value" : "A Life Archive Worth Keeping"
           }
         },
         "zh-Hans" : {
@@ -10546,7 +10546,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Restore failed. Please try again later."
+            "value" : "Couldn't restore purchases. Try again later."
           }
         },
         "zh-Hans" : {
@@ -10597,7 +10597,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Paywall source"
+            "value" : "From the App Store"
           }
         },
         "zh-Hans" : {
@@ -11234,7 +11234,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Are you sure you want to delete %@'s profile? Original photos in your library won't be deleted."
+            "value" : "Delete %@'s profile? Original photos in your library won't be affected."
           }
         },
         "zh-Hans" : {
@@ -11370,7 +11370,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Pal edit feature register"
+            "value" : "Register Photos"
           }
         },
         "zh-Hans" : {
@@ -11387,7 +11387,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Pal edit feature registered"
+            "value" : "Visual Features Registered"
           }
         },
         "zh-Hans" : {
@@ -11404,7 +11404,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Pal edit feature reregister"
+            "value" : "Re-register Features"
           }
         },
         "zh-Hans" : {
@@ -11438,7 +11438,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Pal edit feature start"
+            "value" : "Start Registration"
           }
         },
         "zh-Hans" : {
@@ -11455,7 +11455,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Successfully registered %lld baseline photos"
+            "value" : "Registered %lld baseline photos"
           }
         },
         "zh-Hans" : {
@@ -11472,7 +11472,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Pal edit feature unavailable"
+            "value" : "AI model not ready; visual features can't be registered yet"
           }
         },
         "zh-Hans" : {
@@ -11523,7 +11523,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Pal edit name unnamed"
+            "value" : "Unnamed"
           }
         },
         "zh-Hans" : {
@@ -11540,7 +11540,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Pal edit not loaded"
+            "value" : "Profile Not Loaded"
           }
         },
         "zh-Hans" : {
@@ -11574,7 +11574,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Pal edit note placeholder"
+            "value" : "Add an important event (optional)"
           }
         },
         "zh-Hans" : {
@@ -11608,7 +11608,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Notes exceed %lld characters — please shorten before saving"
+            "value" : "Notes exceed %lld characters — shorten before saving"
           }
         },
         "zh-Hans" : {
@@ -11625,7 +11625,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Pal edit save failed"
+            "value" : "Couldn't save. Try again."
           }
         },
         "zh-Hans" : {
@@ -11642,7 +11642,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Pal edit avatar"
+            "value" : "Avatar"
           }
         },
         "zh-Hans" : {
@@ -11676,7 +11676,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Pal edit dates"
+            "value" : "Important Dates"
           }
         },
         "zh-Hans" : {
@@ -11693,7 +11693,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Pal edit feature"
+            "value" : "Visual Features"
           }
         },
         "zh-Hans" : {
@@ -11710,7 +11710,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Pal edit notes"
+            "value" : "Important Events"
           }
         },
         "zh-Hans" : {
@@ -11727,7 +11727,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Pal edit species gender"
+            "value" : "Species & Gender"
           }
         },
         "zh-Hans" : {
@@ -11761,7 +11761,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Pal edit unsaved continue"
+            "value" : "Keep Editing"
           }
         },
         "zh-Hans" : {
@@ -11778,7 +11778,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Pal edit unsaved discard"
+            "value" : "Discard Changes"
           }
         },
         "zh-Hans" : {
@@ -11795,7 +11795,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Pal Profile"
+            "value" : "Unsaved Changes"
           }
         },
         "zh-Hans" : {
@@ -11829,7 +11829,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Please enter a name for your pal"
+            "value" : "Enter a name for your pal"
           }
         },
         "zh-Hans" : {
@@ -11846,7 +11846,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Girl"
+            "value" : "Female"
           }
         },
         "zh-Hans" : {
@@ -11863,7 +11863,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Boy"
+            "value" : "Male"
           }
         },
         "zh-Hans" : {
@@ -11880,7 +11880,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Secret"
+            "value" : "Unknown"
           }
         },
         "zh-Hans" : {
@@ -11897,7 +11897,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Pal profile add memory"
+            "value" : "Add a Memory"
           }
         },
         "zh-Hans" : {
@@ -11931,7 +11931,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Pal profile archive origin"
+            "value" : "Archive Start"
           }
         },
         "zh-Hans" : {
@@ -11948,7 +11948,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Pal profile born"
+            "value" : "Born"
           }
         },
         "zh-Hans" : {
@@ -11965,7 +11965,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Pal profile continue recording"
+            "value" : "Keep Recording"
           }
         },
         "zh-Hans" : {
@@ -11982,7 +11982,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Pal profile continuity body"
+            "value" : "From the first photo and first outing to the little changes each day, every moment returns to when it happened."
           }
         },
         "zh-Hans" : {
@@ -11999,7 +11999,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Pal profile continuity headline"
+            "value" : "Bind scattered memories into a living timeline"
           }
         },
         "zh-Hans" : {
@@ -12016,7 +12016,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Home Together"
+            "value" : "Days at Home"
           }
         },
         "zh-Hans" : {
@@ -12050,7 +12050,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Pal profile edit"
+            "value" : "Edit Profile"
           }
         },
         "zh-Hans" : {
@@ -12084,7 +12084,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Pal profile important events"
+            "value" : "Important Events"
           }
         },
         "zh-Hans" : {
@@ -12101,7 +12101,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Pal profile intro"
+            "value" : "Put every photo back in its moment."
           }
         },
         "zh-Hans" : {
@@ -12118,7 +12118,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "LIFE MARK · %lld"
+            "value" : "LIFE MARK · %lld DAYS"
           }
         },
         "zh-Hans" : {
@@ -12135,7 +12135,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Failed to Load Pal Profile"
+            "value" : "Couldn't load pal profile"
           }
         },
         "zh-Hans" : {
@@ -12169,7 +12169,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Pal profile next leaf mark"
+            "value" : "NEXT LEAF · 2026.06"
           }
         },
         "zh-Hans" : {
@@ -12186,7 +12186,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Pal profile no category photos"
+            "value" : "No photos in this category yet"
           }
         },
         "zh-Hans" : {
@@ -12203,7 +12203,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Pal profile no photos"
+            "value" : "No Photos Yet"
           }
         },
         "zh-Hans" : {
@@ -12220,7 +12220,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Pal profile pinned recent"
+            "value" : "Most Recent"
           }
         },
         "zh-Hans" : {
@@ -12237,7 +12237,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Pinned Memories · Page 01"
+            "value" : "Pinned Memories · PAGE 01"
           }
         },
         "zh-Hans" : {
@@ -12254,7 +12254,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Pal profile recent photos"
+            "value" : "Recent Photos"
           }
         },
         "zh-Hans" : {
@@ -12305,7 +12305,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Pal profile stat important days"
+            "value" : "Important Days"
           }
         },
         "zh-Hans" : {
@@ -12373,7 +12373,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Pal profile timeline open full"
+            "value" : "Open Full Life Timeline"
           }
         },
         "zh-Hans" : {
@@ -12390,7 +12390,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Pal profile timeline sample body"
+            "value" : "A windy road, and the courage to run straight into the sea."
           }
         },
         "zh-Hans" : {
@@ -12407,7 +12407,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Pal Profile"
+            "value" : "The Evening Before Summer"
           }
         },
         "zh-Hans" : {
@@ -12424,7 +12424,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Pal profile timeline link"
+            "value" : "View Full Life Timeline →"
           }
         },
         "zh-Hans" : {
@@ -12441,7 +12441,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Pal profile unassigned hint"
+            "value" : "Photos Not Assigned to a Pal"
           }
         },
         "zh-Hans" : {
@@ -12458,7 +12458,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Pal profile unassigned hint body"
+            "value" : "Photos imported or scanned in the album that aren't assigned to a pal appear here."
           }
         },
         "zh-Hans" : {
@@ -12492,7 +12492,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Pal profile works hint body"
+            "value" : "Photos saved in the editor appear here."
           }
         },
         "zh-Hans" : {
@@ -12560,7 +12560,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Petcard gallery label"
+            "value" : "LIFE ARCHIVE · KEEPSAKE CARD"
           }
         },
         "zh-Hans" : {
@@ -12577,7 +12577,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Petcard museum label"
+            "value" : "LIFE ARCHIVE · KEEPSAKE CARD"
           }
         },
         "zh-Hans" : {
@@ -12611,7 +12611,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Petcard spec"
+            "value" : "4:5 · Portrait"
           }
         },
         "zh-Hans" : {
@@ -12662,7 +12662,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Pal empty body"
+            "value" : "Create a profile for them—photos, anniversaries, and stories will stay here."
           }
         },
         "zh-Hans" : {
@@ -12730,7 +12730,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Photo assign empty"
+            "value" : "No pals yet. Create one first"
           }
         },
         "zh-Hans" : {
@@ -12747,7 +12747,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Photo assign failed"
+            "value" : "Couldn't Assign Photo"
           }
         },
         "zh-Hans" : {
@@ -12764,7 +12764,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Photo assign title"
+            "value" : "Assign to Pal"
           }
         },
         "zh-Hans" : {
@@ -12781,7 +12781,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Photo assign unassign"
+            "value" : "Remove Assignment"
           }
         },
         "zh-Hans" : {
@@ -12798,7 +12798,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Photo assign unassign hint"
+            "value" : "Don't assign to a pal"
           }
         },
         "zh-Hans" : {
@@ -12815,7 +12815,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Photo batch assign"
+            "value" : "Assign to Pal"
           }
         },
         "zh-Hans" : {
@@ -12883,7 +12883,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Photo bead create"
+            "value" : "Create Bead Pattern"
           }
         },
         "zh-Hans" : {
@@ -12900,7 +12900,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Photo delete confirm single"
+            "value" : "Delete Photo?"
           }
         },
         "zh-Hans" : {
@@ -12917,7 +12917,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Photo detail add to memory"
+            "value" : "Add to Memory"
           }
         },
         "zh-Hans" : {
@@ -12934,7 +12934,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Photo detail archived"
+            "value" : "Archived"
           }
         },
         "zh-Hans" : {
@@ -12951,7 +12951,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Photo detail assign"
+            "value" : "Assign to Pal"
           }
         },
         "zh-Hans" : {
@@ -12968,7 +12968,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Photo detail edit info"
+            "value" : "Edit Details"
           }
         },
         "zh-Hans" : {
@@ -12985,7 +12985,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Photo detail share"
+            "value" : "Share & Export"
           }
         },
         "zh-Hans" : {
@@ -13002,7 +13002,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Photo favorite"
+            "value" : "Favorite"
           }
         },
         "zh-Hans" : {
@@ -13019,7 +13019,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Photo remove message"
+            "value" : "Removes this photo from MiLens only. The original photo in your library will not be deleted."
           }
         },
         "zh-Hans" : {
@@ -13036,7 +13036,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Photo remove title"
+            "value" : "Remove from MiLens"
           }
         },
         "zh-Hans" : {
@@ -13053,7 +13053,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Photo unfavorite"
+            "value" : "Unfavorite"
           }
         },
         "zh-Hans" : {
@@ -13070,7 +13070,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Picker bead empty"
+            "value" : "No Photos Yet"
           }
         },
         "zh-Hans" : {
@@ -13087,7 +13087,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Picker bead empty desc"
+            "value" : "Import photos from the album first, then come back to create a bead pattern"
           }
         },
         "zh-Hans" : {
@@ -13104,7 +13104,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Picker bead from archive"
+            "value" : "Choose a Photo from Archive"
           }
         },
         "zh-Hans" : {
@@ -13121,7 +13121,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Picker bead title"
+            "value" : "Choose Photo"
           }
         },
         "zh-Hans" : {
@@ -13138,7 +13138,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Picker business card empty"
+            "value" : "No Pal Profiles Yet"
           }
         },
         "zh-Hans" : {
@@ -13155,7 +13155,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Picker business card empty desc"
+            "value" : "Create a pal profile in the Pals tab first, then come back to make a card"
           }
         },
         "zh-Hans" : {
@@ -13172,7 +13172,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Picker business card from archive"
+            "value" : "Choose a Pal"
           }
         },
         "zh-Hans" : {
@@ -13189,7 +13189,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Picker business card title"
+            "value" : "Choose Pal"
           }
         },
         "zh-Hans" : {
@@ -13206,7 +13206,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Picker compare clear"
+            "value" : "Clear"
           }
         },
         "zh-Hans" : {
@@ -13223,7 +13223,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Picker compare empty"
+            "value" : "No Photos Yet"
           }
         },
         "zh-Hans" : {
@@ -13240,7 +13240,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Picker compare empty desc"
+            "value" : "Import photos from the album first, then come back to create a growth comparison card"
           }
         },
         "zh-Hans" : {
@@ -13257,7 +13257,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Picker compare from archive"
+            "value" : "Choose from Life Archive"
           }
         },
         "zh-Hans" : {
@@ -13274,7 +13274,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Picker compare headline"
+            "value" : "Put then and now side by side."
           }
         },
         "zh-Hans" : {
@@ -13291,7 +13291,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Picker compare hint"
+            "value" : "Tap a selected photo to replace it"
           }
         },
         "zh-Hans" : {
@@ -13308,7 +13308,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Picker compare start"
+            "value" : "Start Compare"
           }
         },
         "zh-Hans" : {
@@ -13325,7 +13325,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Picker compare title"
+            "value" : "Choose Two Moments"
           }
         },
         "zh-Hans" : {
@@ -13359,7 +13359,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Picker pal card empty"
+            "value" : "No Photos Yet"
           }
         },
         "zh-Hans" : {
@@ -13376,7 +13376,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Digital archive for your pal"
+            "value" : "Import photos from the album first, then come back to create a pal card"
           }
         },
         "zh-Hans" : {
@@ -13393,7 +13393,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Picker pal card from archive"
+            "value" : "Choose a Photo for a Pal Card"
           }
         },
         "zh-Hans" : {
@@ -13410,7 +13410,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Pal Profile"
+            "value" : "Choose Photo"
           }
         },
         "zh-Hans" : {
@@ -13427,7 +13427,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Picker red packet empty"
+            "value" : "No Photos Yet"
           }
         },
         "zh-Hans" : {
@@ -13444,7 +13444,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Picker red packet empty desc"
+            "value" : "Import photos from the album first, then come back to create a Red Packet cover"
           }
         },
         "zh-Hans" : {
@@ -13461,7 +13461,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Picker red packet from archive"
+            "value" : "Choose a portrait photo for best results (WeChat cover: 957 × 1278)"
           }
         },
         "zh-Hans" : {
@@ -13478,7 +13478,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Select Photo for Cover"
+            "value" : "Choose Cover Photo"
           }
         },
         "zh-Hans" : {
@@ -13495,7 +13495,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Picker role earlier"
+            "value" : "Then"
           }
         },
         "zh-Hans" : {
@@ -13512,7 +13512,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Picker role recent"
+            "value" : "Now"
           }
         },
         "zh-Hans" : {
@@ -13580,7 +13580,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Privacy commit gdpr"
+            "value" : "On-Device Processing"
           }
         },
         "zh-Hans" : {
@@ -13597,7 +13597,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Privacy commit gdpr detail"
+            "value" : "Photo recognition and feature extraction happen entirely on your device. We do not use cloud services or upload your photos to any external servers."
           }
         },
         "zh-Hans" : {
@@ -13869,7 +13869,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Recap empty body"
+            "value" : "Import photos to generate an annual recap here"
           }
         },
         "zh-Hans" : {
@@ -13903,7 +13903,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Recap export failed"
+            "value" : "Export Failed"
           }
         },
         "zh-Hans" : {
@@ -13971,7 +13971,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Failed to generate life review"
+            "value" : "Couldn't generate life review"
           }
         },
         "zh-Hans" : {
@@ -14039,7 +14039,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Failed to create directory: %@"
+            "value" : "Couldn't create directory: %@"
           }
         },
         "zh-Hans" : {
@@ -14107,7 +14107,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Failed to write log file: %@"
+            "value" : "Couldn't write log file: %@"
           }
         },
         "zh-Hans" : {
@@ -14158,7 +14158,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Diagnostics export failed"
+            "value" : "Diagnostics Export Failed"
           }
         },
         "zh-Hans" : {
@@ -14277,7 +14277,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Bowknot"
+            "value" : "Bow"
           }
         },
         "zh-Hans" : {
@@ -14430,7 +14430,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Share Cover"
+            "value" : "Share"
           }
         },
         "zh-Hans" : {
@@ -14566,7 +14566,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Cutout failed. Please try manual brush."
+            "value" : "Cutout failed. Try manual brush."
           }
         },
         "zh-Hans" : {
@@ -14991,7 +14991,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Failed to prepare export image"
+            "value" : "Couldn't prepare export image"
           }
         },
         "zh-Hans" : {
@@ -15059,7 +15059,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Multi-scene WeChat preview simulation"
+            "value" : "Preview only; actual display is controlled by WeChat"
           }
         },
         "zh-Hans" : {
@@ -15110,7 +15110,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Failed to save cover image"
+            "value" : "Couldn't save cover to Photos"
           }
         },
         "zh-Hans" : {
@@ -15280,7 +15280,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Failed to share cover"
+            "value" : "Couldn't share cover"
           }
         },
         "zh-Hans" : {
@@ -15382,7 +15382,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "2. Select exported PNG image"
+            "value" : "2. Save the Image"
           }
         },
         "zh-Hans" : {
@@ -15399,7 +15399,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "3. Submit for official review"
+            "value" : "3. Choose Custom Cover"
           }
         },
         "zh-Hans" : {
@@ -15501,7 +15501,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Layout auto-adjusted to comply with WeChat safe area guidelines"
+            "value" : "Auto-optimization is not a promise that the platform will approve the cover."
           }
         },
         "zh-Hans" : {
@@ -15807,7 +15807,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Pal subject has good sharpness and crisp details"
+            "value" : "Sharpness is good"
           }
         },
         "zh-Hans" : {
@@ -15824,7 +15824,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Resolution meets requirement (%1$lld × %2$lld ≥ %3$lld px)"
+            "value" : "Original resolution: %1$lld × %2$lld (%3$lld pixels); a higher-resolution photo is recommended"
           }
         },
         "zh-Hans" : {
@@ -15926,7 +15926,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Subject is near safe zone boundary (%lld)"
+            "value" : "Only %lld%% of the subject is in the safe area; WeChat controls may cover it"
           }
         },
         "zh-Hans" : {
@@ -15960,7 +15960,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Background complexity is high (%lld)"
+            "value" : "Foreground covers %lld%%; background may be included"
           }
         },
         "zh-Hans" : {
@@ -15994,7 +15994,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Cutout subject completeness is %lld%%"
+            "value" : "The subject touches the edges in %lld%% of the mask; check that ears or tail are complete"
           }
         },
         "zh-Hans" : {
@@ -16028,7 +16028,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Cutout precision score is %lld — please retry"
+            "value" : "Cutout precision score is %lld — try again"
           }
         },
         "zh-Hans" : {
@@ -16232,7 +16232,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Passed Specification"
+            "value" : "Meets Specifications"
           }
         },
         "zh-Hans" : {
@@ -16249,7 +16249,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Minor Issues Found"
+            "value" : "Suggestions Available"
           }
         },
         "zh-Hans" : {
@@ -16368,7 +16368,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Text is positioned within the recommended message area"
+            "value" : "Text is in a risk area and may be covered in WeChat scenes"
           }
         },
         "zh-Hans" : {
@@ -16453,7 +16453,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Notice"
+            "value" : "Suggestion"
           }
         },
         "zh-Hans" : {
@@ -16487,7 +16487,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Cover Quality Score"
+            "value" : "Quality Check"
           }
         },
         "zh-Hans" : {
@@ -16504,7 +16504,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Failed to render cover preview"
+            "value" : "Couldn't render cover preview"
           }
         },
         "zh-Hans" : {
@@ -16521,7 +16521,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Failed to save cover to Photos"
+            "value" : "Couldn't save cover to Photos"
           }
         },
         "zh-Hans" : {
@@ -16589,7 +16589,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Golden Auspicious"
+            "value" : "Lucky Gold"
           }
         },
         "zh-Hans" : {
@@ -16827,7 +16827,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Exported PNG images meet official WeChat submission requirements."
+            "value" : "After export, upload the image to the WeChat Red Packet Cover Platform before using it."
           }
         },
         "zh-Hans" : {
@@ -17082,7 +17082,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Failed to load photo"
+            "value" : "Couldn't load photo"
           }
         },
         "zh-Hans" : {
@@ -17099,7 +17099,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Failed to load template"
+            "value" : "Couldn't load template"
           }
         },
         "zh-Hans" : {
@@ -17286,7 +17286,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Diagnose"
+            "value" : "Optimize"
           }
         },
         "zh-Hans" : {
@@ -17490,7 +17490,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Failed to load reminders"
+            "value" : "Couldn't load reminders"
           }
         },
         "zh-Hans" : {
@@ -17830,7 +17830,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Backup includes pal profiles, metadata, and archived photos"
+            "value" : "The export bundles originals and all archive data into a .milensbackup file. Large libraries may take some time."
           }
         },
         "zh-Hans" : {
@@ -18051,7 +18051,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Backup preferences have been saved"
+            "value" : "Existing photos have been relabeled according to the new policy."
           }
         },
         "zh-Hans" : {
@@ -18068,7 +18068,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Split into %1$lld volumes due to large library size"
+            "value" : "This export is split into %1$lld volumes. Save all of them."
           }
         },
         "zh-Hans" : {
@@ -18085,7 +18085,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "No backup records found"
+            "value" : "Not backed up yet · Keep your memories complete"
           }
         },
         "zh-Hans" : {
@@ -18170,7 +18170,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Backup finished"
+            "value" : "Almost Done"
           }
         },
         "zh-Hans" : {
@@ -18204,7 +18204,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Photo Storage Mode"
+            "value" : "Photo Copies in System Backup"
           }
         },
         "zh-Hans" : {
@@ -18221,7 +18221,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Choose whether to include full-resolution originals in backups"
+            "value" : "Turn off to save iCloud storage (originals can be rebuilt from Photos). When on, imported copies are included in system backups."
           }
         },
         "zh-Hans" : {
@@ -18289,7 +18289,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Restored %1$lld pals, %2$lld photos, %3$lld works, %4$lld memories"
+            "value" : "Restored %1$lld profiles, %2$lld photos, %3$lld events (%4$lld already existed and were skipped)"
           }
         },
         "zh-Hans" : {
@@ -18323,7 +18323,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "ZIP Archive Format"
+            "value" : "The backup is a standard ZIP archive. On Windows, rename .milensbackup to .zip to view the photos and metadata."
           }
         },
         "zh-Hans" : {
@@ -18408,7 +18408,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Memorial Bell Shake"
+            "value" : "Reminder Bell"
           }
         },
         "zh-Hans" : {
@@ -18425,7 +18425,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "All photos and data stay on your device."
+            "value" : "No network features · No data collection · No account required."
           }
         },
         "zh-Hans" : {
@@ -18442,7 +18442,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Please enable notifications for MiLens in System Settings to receive anniversary reminders."
+            "value" : "Enable notifications for MiLens in System Settings to receive anniversary reminders."
           }
         },
         "zh-Hans" : {
@@ -18527,7 +18527,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "On-Device Processing"
+            "value" : "On-Device Analysis · Export Anytime"
           }
         },
         "zh-Hans" : {
@@ -18544,7 +18544,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Privacy First"
+            "value" : "Photos Stay on Device"
           }
         },
         "zh-Hans" : {
@@ -18612,7 +18612,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Unlock unlimited bead patterns, 20 pal profiles, and full timeline history."
+            "value" : "More pals · Longer history · Full exports"
           }
         },
         "zh-Hans" : {
@@ -19037,7 +19037,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Your photos remain private and are only shared when you confirm."
+            "value" : "Photos are created on your device and leave MiLens only when you choose to share them."
           }
         },
         "zh-Hans" : {
@@ -19054,7 +19054,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Share with Friends"
+            "value" : "Save & Share"
           }
         },
         "zh-Hans" : {
@@ -19156,7 +19156,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Share Keepsake"
+            "value" : "This photo has another way to stay with you."
           }
         },
         "zh-Hans" : {
@@ -19224,7 +19224,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Share the sweet moments of your pal"
+            "value" : "Share your creation with family and friends"
           }
         },
         "zh-Hans" : {
@@ -19241,7 +19241,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Share"
+            "value" : "Share Creation"
           }
         },
         "zh-Hans" : {
@@ -19275,7 +19275,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Pal Card Archive"
+            "value" : "Profile Avatar"
           }
         },
         "zh-Hans" : {
@@ -19292,7 +19292,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Change Source"
+            "value" : "Change"
           }
         },
         "zh-Hans" : {
@@ -19309,7 +19309,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Pal ID Card"
+            "value" : "Source Photo"
           }
         },
         "zh-Hans" : {
@@ -19326,7 +19326,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Red Packet Cover"
+            "value" : "Cover Artwork"
           }
         },
         "zh-Hans" : {
@@ -19445,7 +19445,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Write down this moment with your pal..."
+            "value" : "Write a sentence (optional)"
           }
         },
         "zh-Hans" : {
@@ -19462,7 +19462,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Memory creation coming soon"
+            "value" : "Memory creation is coming soon."
           }
         },
         "zh-Hans" : {
@@ -19479,7 +19479,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Memory Content"
+            "value" : "Content"
           }
         },
         "zh-Hans" : {
@@ -19496,7 +19496,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Memory Date"
+            "value" : "Date"
           }
         },
         "zh-Hans" : {
@@ -19513,7 +19513,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "No pal selected"
+            "value" : "Create a pal profile first"
           }
         },
         "zh-Hans" : {
@@ -19547,7 +19547,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Memory Options"
+            "value" : "Options"
           }
         },
         "zh-Hans" : {
@@ -19581,7 +19581,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Pin Memory"
+            "value" : "Pin to Profile"
           }
         },
         "zh-Hans" : {
@@ -19632,7 +19632,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Failed to save memory"
+            "value" : "Couldn't save memory"
           }
         },
         "zh-Hans" : {
@@ -19649,7 +19649,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Memory Title"
+            "value" : "Give it a title"
           }
         },
         "zh-Hans" : {
@@ -19666,7 +19666,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Please enter a title for this memory"
+            "value" : "Enter a title"
           }
         },
         "zh-Hans" : {
@@ -19734,7 +19734,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Growth Chapter"
+            "value" : "Daily moments, becoming a shared history"
           }
         },
         "zh-Hans" : {
@@ -19751,7 +19751,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Day %lld Together"
+            "value" : "Year %lld Together"
           }
         },
         "zh-Hans" : {
@@ -19888,7 +19888,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Made with MiLens · Digital Life Archive for Pals"
+            "value" : "Made with MiLens"
           }
         },
         "zh-Hans" : {
@@ -20041,7 +20041,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Text Story"
+            "value" : "Text Memory"
           }
         },
         "zh-Hans" : {
@@ -20058,7 +20058,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Bead Artwork"
+            "value" : "Creation"
           }
         },
         "zh-Hans" : {
@@ -20127,7 +20127,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Memory Photo"
+            "value" : "Photo Memory"
           }
         },
         "zh-Hans" : {
@@ -20230,7 +20230,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Failed to render timeline poster"
+            "value" : "Couldn't render timeline poster"
           }
         },
         "zh-Hans" : {
@@ -20264,7 +20264,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Adoption"
+            "value" : "Adoption Day"
           }
         },
         "zh-Hans" : {
@@ -20332,7 +20332,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Saved Artwork"
+            "value" : "Saved Creation"
           }
         },
         "zh-Hans" : {
@@ -20401,7 +20401,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Import Pal Photos"
+            "value" : "The cover is ready. Now it's time for WeChat."
           }
         },
         "zh-Hans" : {
@@ -20418,7 +20418,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Photos are processed locally on device"
+            "value" : "MiLens creates and exports the cover; upload, review, and publishing happen in WeChat."
           }
         },
         "zh-Hans" : {
@@ -20435,7 +20435,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Specifications Verified"
+            "value" : "957 × 1278 px · PNG"
           }
         },
         "zh-Hans" : {
@@ -20452,7 +20452,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Proofing Preview"
+            "value" : "Export Specifications Passed"
           }
         },
         "zh-Hans" : {
@@ -20469,7 +20469,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "MiLens Archive"
+            "value" : "Free Plan · Includes a small MiLens watermark"
           }
         },
         "zh-Hans" : {
@@ -20486,7 +20486,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Pick candidate photos of your pal"
+            "value" : "Choose the original size when saving."
           }
         },
         "zh-Hans" : {
@@ -20503,7 +20503,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Select Photos"
+            "value" : "Save the Cover to Photos"
           }
         },
         "zh-Hans" : {
@@ -20520,7 +20520,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Confirm which pal each photo belongs to"
+            "value" : "Sign in in your browser and open Personal Customization."
           }
         },
         "zh-Hans" : {
@@ -20537,7 +20537,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Assign to Pal"
+            "value" : "Open the WeChat Red Packet Cover Platform"
           }
         },
         "zh-Hans" : {
@@ -20554,7 +20554,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Assess sharpness and visual quality"
+            "value" : "Don't recompress the image; make sure the subject is complete."
           }
         },
         "zh-Hans" : {
@@ -20571,7 +20571,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Quality Check"
+            "value" : "Upload the Cover and Check the Crop"
           }
         },
         "zh-Hans" : {
@@ -20588,7 +20588,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Save into your digital life archive"
+            "value" : "WeChat provides the review status and result."
           }
         },
         "zh-Hans" : {
@@ -20605,7 +20605,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Archive Photos"
+            "value" : "Submit for Platform Review"
           }
         },
         "zh-Hans" : {
@@ -20622,7 +20622,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Import Photos"
+            "value" : "Upload Guide"
           }
         },
         "zh-Hans" : {

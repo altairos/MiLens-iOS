@@ -15,6 +15,12 @@
             "state" : "translated",
             "value" : "咪Lens"
           }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "咪Lens"
+          }
         }
       }
     },
@@ -32,6 +38,12 @@
             "state" : "translated",
             "value" : "咪Lens 需要保存导出的拼豆图纸和照片到相册。"
           }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "咪Lens 需要取得權限，以便將匯出的拼豆圖稿、毛孩卡片及照片儲存至「照片」圖庫。"
+          }
         }
       }
     },
@@ -48,6 +60,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "咪Lens 需要访问相册来发现和整理你的宠物照片。所有分析在本地完成。App 不会主动上传照片；编辑产物可能随用户启用的系统备份保存。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "咪Lens 需要存取相簿以尋找並整理您的毛孩照片。所有分析均在本機完成，App 不會主動上傳照片；編輯後的作品可能隨您啟用的系統備份進行儲存。"
           }
         }
       }

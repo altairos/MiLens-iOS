@@ -89,7 +89,7 @@ struct PinnedMemorySection: View {
                         .foregroundStyle(Color.milensActionPrimary)
                     // 文楷标题（对照 #I319:1101;296:597）
                     Text(pinned.title)
-                        .font(.custom("LXGWWenKai-Regular", size: 16, relativeTo: .body))
+                        .font(.localeDisplayFont(size: 16, relativeTo: .body))
                         .foregroundStyle(Color.milensTextPrimary)
                     // 正文（对照 #I319:1101;296:598）
                     if !pinned.note.isEmpty {

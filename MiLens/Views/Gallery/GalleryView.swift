@@ -277,7 +277,7 @@ struct GalleryView: View {
         HStack(alignment: .bottom, spacing: Spacing.sm) {
             // 文楷标题 + 张数（对照 Figma #211:247-248）
             Text(String(localized: "gallery.title"))
-                .font(.custom("LXGWWenKai-Regular", size: 24, relativeTo: .largeTitle))
+                .font(.localeDisplayFont(size: 24, relativeTo: .largeTitle))
                 .foregroundStyle(Color.milensTextPrimary)
             Text(String(localized: "gallery.photoCount \(vm.totalPhotoCount)"))
                 .font(.editorialMetadata)

@@ -150,7 +150,7 @@ struct BeadPatternView: View {
                                 .tracking(0.4)
                                 .foregroundStyle(Color.milensActionPrimary)
                             Text(String(localized: "bead.pattern.parametersTitle"))
-                                .font(.custom("LXGWWenKai-Regular", size: 26))
+                                .font(.localeDisplayFont(size: 26))
                                 .foregroundStyle(Color.milensTextPrimary)
                         }
                         .frame(maxWidth: .infinity, alignment: .leading)

@@ -59,7 +59,7 @@ struct PhotoMemoryCard: View {
                 // 文楷标题
                 if !entry.title.isEmpty {
                     Text(entry.title)
-                        .font(.custom("LXGWWenKai-Regular", size: 18, relativeTo: .title3))
+                        .font(.localeDisplayFont(size: 18, relativeTo: .title3))
                         .foregroundStyle(Color.milensTextPrimary)
                 }
 

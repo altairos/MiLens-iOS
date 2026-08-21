@@ -131,13 +131,33 @@ struct RedPacketCoverRenderer: View {
             ?? RedPacketTextStylePreset.festive.style
         let fontSize = style.fontSizeRatio * rpCanvasWidth * scaleX
         Text(layer.text)
-            .font(.custom(style.fontFamily, size: fontSize))
+            .font(.custom(resolvedFontFamily(style.fontFamily), size: fontSize))
             .foregroundStyle(Color(hex: style.colorHex))
             .multilineTextAlignment(textAlignment(style.alignment))
             .rotationEffect(.degrees(layer.rotation))
             .opacity(layer.opacity)
             .frame(width: layer.width * scaleX, height: layer.height * scaleY)
             .position(x: layer.x * scaleX, y: layer.y * scaleY)
+    }
+
+    /// 红包预设历史上保存的是 LXGW WenKai 别名；按当前标题字体族解析，
+    /// 避免繁中/日文市场继续加载简中字形。非 LXGW 预设（如系统宋体）保持原样。
+    private func resolvedFontFamily(_ requested: String) -> String {
+        guard requested.hasPrefix("LXGWWenKai") else { return requested }
+        switch MarketProfile.current.displayFontFamily {
+        case .wenKaiGB:
+            return "LXGWWenKai-Regular"
+        case .wenKaiTC:
+            return "LXGWWenKaiTC-Regular"
+        case .jyunsaiKaai:
+            return "JyunsaiKaai"
+        case .kleeOne:
+            return "KleeOne-Regular"
+        case .fraunces:
+            return "Fraunces-Semibold"
+        case .systemSerif:
+            return "Songti-SC-Bold"
+        }
     }
 
     // MARK: - 背景

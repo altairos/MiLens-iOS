@@ -463,7 +463,7 @@ struct TimelineView: View {
                             .foregroundStyle(Color.milensActionPrimary)
                     }
                     Text(chapterTitle(group.year, timelineFirstYear: timelineFirstYear))
-                        .font(.custom("LXGWWenKai-Regular", size: 19, relativeTo: .title3))
+                        .font(.localeDisplayFont(size: 19, relativeTo: .title3))
                         .foregroundStyle(Color.milensTextPrimary)
                     Text(String(localized: "timeline.chapter.subtitle"))
                         .font(.bodySecondary)

@@ -36,7 +36,7 @@ struct AlbumCandidateListView: View {
     private var sectionHeader: some View {
         VStack(alignment: .leading, spacing: 8) {
             Text(String(localized: "album.candidates.title"))
-                .font(.custom("LXGWWenKai-Regular", size: 28, relativeTo: .title2))
+                .font(.localeDisplayFont(size: 28, relativeTo: .title2))
                 .foregroundStyle(Color.milensTextPrimary)
             Text(String(localized: "album.candidates.subtitle"))
                 .font(.bodySecondary)

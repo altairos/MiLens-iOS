@@ -15,7 +15,7 @@
 //
 //  SwiftUI `.custom` 不自动按字符切栈；标题字体由 MarketProfile 选择。
 //
-//  字体体积见 Resources/Fonts/README.md（合计 ~3.37 MB）。
+//  字体体积见 Resources/Fonts/README.md（合计 ~6.81 MB）。
 
 import SwiftUI
 import UIKit
@@ -48,6 +48,11 @@ extension Font {
         case .systemSerif:
             return Font.system(style, design: .serif)
         }
+    }
+
+    /// 供导出画布和少数固定字号标题使用的语言感知 display 字体入口。
+    static func localeDisplayFont(size: CGFloat, relativeTo style: Font.TextStyle = .body) -> Font {
+        displayFont(size, relativeTo: style)
     }
 
     // MARK: - Display（按语言/地区选择标题字体）

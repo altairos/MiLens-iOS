@@ -82,7 +82,7 @@ struct HomeHero: View {
 
                     // 文楷大标题（对照 #319:1036，37pt 文楷）
                     Text(String(localized: "home.hero.title"))
-                        .font(.custom("LXGWWenKai-Regular", size: 37, relativeTo: .largeTitle))
+                        .font(.localeDisplayFont(size: 37, relativeTo: .largeTitle))
                         .foregroundStyle(.white)
                         .fixedSize(horizontal: false, vertical: true)
 
@@ -379,7 +379,7 @@ struct YearlyRecapEntry: View {
                 .frame(width: 3, height: 36)
             VStack(alignment: .leading, spacing: 2) {
                 Text(String(localized: "home.yearlyRecap.title"))
-                    .font(.custom("LXGWWenKai-Regular", size: 17, relativeTo: .headline))
+                        .font(.localeDisplayFont(size: 17, relativeTo: .headline))
                     .foregroundStyle(Color.milensTextPrimary)
                 Text(String(localized: "home.yearlyRecap.body"))
                     .font(.bodySecondary)

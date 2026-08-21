@@ -67,7 +67,7 @@ struct AlbumImportSuccessView: View {
                             .padding(.top, 18)
 
                         Text(String(localized: "album.success.title \(count)"))
-                            .font(.custom("LXGWWenKai-Regular", size: 28, relativeTo: .title2))
+                            .font(.localeDisplayFont(size: 28, relativeTo: .title2))
                             .foregroundStyle(Color.milensTextPrimary)
                             .padding(.top, 8)
 

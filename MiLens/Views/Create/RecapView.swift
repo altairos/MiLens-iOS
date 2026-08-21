@@ -200,7 +200,7 @@ struct RecapView: View {
     private func statsHeader(_ recap: YearlyRecap) -> some View {
         VStack(alignment: .leading, spacing: 4) {
             Text(MemoryRecapLogic.yearlyTitle(year: recap.year))
-                .font(.custom("LXGWWenKai-Regular", size: 28, relativeTo: .title2))
+                .font(.localeDisplayFont(size: 28, relativeTo: .title2))
                 .foregroundStyle(Color.milensTextPrimary)
             Text(String(localized: "recap.totalPhotos \(recap.totalPhotoCount)"))
                 .font(.bodySecondary)

@@ -102,7 +102,7 @@ struct ArchiveShareCover: View {
                     .tracking(0.5)
                     .foregroundStyle(Color.milensActionPrimary)
                 Text(title)
-                    .font(.custom("LXGWWenKai-Regular", size: 28))
+                            .font(.localeDisplayFont(size: 28))
                     .foregroundStyle(Color.milensTextPrimary)
                     .lineLimit(2)
                     .padding(.top, 10)
@@ -135,7 +135,7 @@ struct ArchiveShareMonthHeader: View {
                 .fill(Color.milensActionPrimary)
                 .frame(width: 3, height: 28)
             Text(String(localized: "timeline.month \(month)"))
-                .font(.custom("LXGWWenKai-Regular", size: 24))
+                .font(.localeDisplayFont(size: 24))
                 .foregroundStyle(Color.milensTextPrimary)
                 .padding(.leading, 16)
             Spacer()
@@ -187,7 +187,7 @@ struct ArchiveShareTimelineEntry: View {
                     .font(.system(size: 8, weight: .medium)) // ui-token:ok 固定导出画布字号
                     .foregroundStyle(Color.milensActionPrimary)
                 Text(entry.title)
-                    .font(.custom("LXGWWenKai-Regular", size: 19))
+                    .font(.localeDisplayFont(size: 19))
                     .foregroundStyle(Color.milensTextPrimary)
                     .lineLimit(2)
                 if !note.isEmpty {

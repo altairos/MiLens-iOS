@@ -111,7 +111,7 @@ struct PaywallView: View {
                     .padding(.top, 61)
 
                 Text(String(localized: "paywall.hero.title"))
-                    .font(.custom("LXGWWenKai-Regular", size: 37, relativeTo: .largeTitle))
+                    .font(.localeDisplayFont(size: 37, relativeTo: .largeTitle))
                     .foregroundStyle(.white)
                     .fixedSize(horizontal: false, vertical: true)
                     .padding(.top, Spacing.lg)

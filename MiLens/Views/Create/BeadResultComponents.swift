@@ -22,7 +22,7 @@ struct BeadResultOutputPanel: View {
                 .padding(.top, 18)
 
             Text(String(localized: "bead.result.keepTitle"))
-                .font(.custom("LXGWWenKai-Regular", size: 20))
+                .font(.localeDisplayFont(size: 20))
                 .foregroundStyle(Color.milensTextPrimary)
                 .padding(.horizontal, 16)
                 .padding(.top, 4)

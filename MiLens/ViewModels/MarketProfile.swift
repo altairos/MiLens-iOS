@@ -38,10 +38,6 @@ struct MarketProfile: Equatable, Sendable {
         case systemSerif
     }
 
-    /// 兼容现有测试和调用点；新代码应读取 `displayFontFamily`。
-    @available(*, deprecated, message: "Use displayFontFamily instead")
-    var usesWenKaiDisplay: Bool { displayFontFamily == .wenKaiGB }
-
     /// 隐私叙事强度。
     /// DE/FR 等 GDPR 区为 .strong，需要更显式的本地化隐私措辞
     /// （如德语版描述建议专门加一段，见 Localization-Plan §4.3）。
@@ -83,16 +79,6 @@ struct MarketProfile: Equatable, Sendable {
             market: market,
             displayFontFamily: displayFontFamily,
             privacyNarrativeStrength: privacy
-        )
-    }
-
-    /// 过渡初始化器：保留旧测试/预览构造方式，避免把字体迁移与其他配置改动耦合。
-    @available(*, deprecated, message: "Use init(market:displayFontFamily:privacyNarrativeStrength:) instead")
-    init(market: Market, usesWenKaiDisplay: Bool, privacyNarrativeStrength: PrivacyStrength) {
-        self.init(
-            market: market,
-            displayFontFamily: usesWenKaiDisplay ? .wenKaiGB : .systemSerif,
-            privacyNarrativeStrength: privacyNarrativeStrength
         )
     }
 

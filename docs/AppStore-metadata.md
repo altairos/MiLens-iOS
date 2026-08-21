@@ -1,6 +1,6 @@
 # App Store 上架元数据准备
 
-最后更新：2026-08-09（ADR-0010 商业化强化：照片限制 + 水印 + 定价调整）
+最后更新：2026-08-22（首发 P0：zh-Hans / en-US 商店文案初稿）
 
 > 本文档汇总 App Store Connect 需要的全部文案、关键词、截图规格、审核备注，供上架时直接复制粘贴。Pro 权益以 [ADR-0009](adr/0009-pro-entitlement-rules.md) 为准；产品叙事见 [设计稿](MiLens_iOS_V1.0_页面原型与交互流程设计稿.md)，视觉规范见 [UI-DESIGN.md](../UI-DESIGN.md)。
 
@@ -21,49 +21,107 @@
 | 支持 URL | 待准备 | — |
 | 营销 URL | 可留空 | — |
 
+### 1.1 English (en-US)
+
+| Field | Copy | Limit |
+|---|---|---|
+| App name | MiLens - Pet Photos & Bead Art | 30 characters |
+| Subtitle | Organize pet photos & memories | 30 characters |
+| Bundle ID | `com.milens.app` | — |
+| Primary category | Photo & Video | — |
+| Secondary category | Lifestyle | — |
+| Content rating | 4+ | — |
+| Price | Free with in-app purchases | — |
+| Privacy policy URL | https://miovelle.cn/private-privacy.html | Draft exists ([privacy-policy.html](privacy-policy.html)) |
+| Support URL | To be prepared | — |
+| Marketing URL | Optional | — |
+
 ---
 
 ## 2. App 描述（4000 字符以内）
 
+### 2.1 简体中文（zh-Hans）
+
 ```
 咪Lens 是宠物家庭的数字生命档案。
 
-它会帮你找到手机里的宠物照片，为每只宠物建立档案，保存它们的成长回忆，还能把照片变成拼豆图纸——让这份陪伴以另一种形式留在身边。
+从相册里找回散落的宠物照片，为每只宠物建立档案，记录成长与纪念日，再把喜欢的瞬间做成拼豆图纸、宠物卡片和可分享的回忆作品。
 
-【自动发现】
-扫描相册，AI 自动找出宠物照片；你可以把照片归到每只宠物的档案里。照片不会离开手机，所有分析都在本地完成。
+【发现照片】
+扫描相册，使用设备端 AI 找出宠物照片。你可以先查看结果，再把照片整理到对应档案。
 
-【成长回忆】
-记录每只宠物的档案，自动生成成长时间线。首次打开后的 14 天内可完整浏览历史，之后免费版查看最近一年；MiLens Pro 帮你找回更早的故事。
+【整理回忆】
+质量评分帮助你挑出更清晰的照片，重复检测帮助你处理连拍和相似照片。
 
-【照片整理】
-质量评分帮你筛选最清晰的照片，重复检测自动标记连拍和相似图。不再在几百张照片里翻找。
+【保存它的一生】
+为每只宠物建立档案，记录生日、成为家人的日子和其他重要时刻，在成长时间线里随时回看。
+
+【把照片变成作品】
+使用裁切、调色、抠图、文字等编辑工具；把照片做成拼豆图纸、宠物卡片、成长对比和时间线回忆作品。
 
 【拼豆创作】
-把宠物照片变成拼豆图纸。免费版每天可生成 5 张，MiLens Pro 不限次数。智能色彩匹配，多种风格与配色方案可选。
+将宠物照片转换为拼豆图纸，可调整尺寸、风格与配色。免费版每天最多生成 5 张，MiLens Pro 不限次数。
 
-【完整编辑器】
-裁切、调色、抠图与文字工具免费使用，让每张照片都更接近你记忆里的样子。
+【本地备份】
+MiLens Pro 可导出一份本地备份，保留整理结果、宠物档案、编辑成品与时间线数据。无需注册账号，也不依赖 MiLens 云服务。
 
-免费版可创建 1 个宠物档案、保存 50 张照片；MiLens Pro 支持最多 20 个档案、不限照片存储、不限拼豆生成和完整成长历史，导出作品无水印。
+【免费开始】
+免费版：1 个宠物档案、最多保存 50 张照片、每天最多生成 5 张拼豆图纸。
+MiLens Pro：最多 20 个宠物档案、不限照片、不限拼豆生成、完整成长历史、无水印导出、高级卡片模板、时间线导出、相簿模式与离线备份。
 
 【隐私至上】
-所有照片分析在设备本地完成。App 不会主动上传照片；编辑产物可能随用户启用的系统备份保存。
+照片与 AI 分析在设备本地完成。咪Lens 不会主动上传你的照片；你启用的系统备份可能保存编辑产物。
 
 ---
 
 MiLens Pro 订阅：
-- 月度订阅：每月自动续费
-- 年度订阅：每年自动续费，约合每月 8 元
+- 月度订阅：7 天免费试用，每月自动续费
+- 年度订阅：7 天免费试用，每年自动续费
 - 永久版：一次购买，永久解锁当前 Pro 权益
 
-V1.0 计划加入高级创作模板与高清导出，Pro 用户上线后自动解锁。
-
-订阅会自动续费，除非在当前周期结束前至少 24 小时关闭自动续费。
+月度和年度订阅的免费试用结束后将自动续费，除非在当前周期结束前至少 24 小时关闭自动续费。试用资格以 App Store 购买页显示为准。
 管理订阅或取消可在 App Store 账户设置中操作。
 
-隐私政策：[待填]
-服务条款：[待填]
+隐私政策：https://miovelle.cn/private-privacy.html
+服务条款：待准备
+```
+
+### 2.2 English (en-US)
+
+```
+MiLens is a private life archive for the pets you love.
+
+Find the pet photos scattered across your library. Build a profile for each pet, keep a living timeline of their milestones, and turn favorite moments into bead patterns, pet cards, and shareable keepsakes.
+
+DISCOVER PET PHOTOS
+Scan your Photos library and use on-device AI to surface pet photos. Review what MiLens finds, then organize photos into each pet's archive.
+
+KEEP THE BEST MOMENTS
+Quality scoring helps you find clearer shots. Duplicate grouping helps you sort through bursts and similar photos without losing the memories that matter.
+
+BUILD A LIFE ARCHIVE
+Create a profile for each pet, record birthdays, gotcha days, and other important moments, then revisit them on a growing timeline.
+
+CREATE SOMETHING TO KEEP
+Edit photos with crop, color, cutout, and text tools. Turn favorite photos into bead patterns, pet cards, growth comparisons, and timeline keepsakes.
+
+MAKE BEAD PATTERNS
+Convert a pet photo into a bead pattern with adjustable size, style, and color matching. Free users can generate up to 5 patterns per day; MiLens Pro removes the daily limit.
+
+KEEP YOUR ARCHIVE SAFE
+MiLens Pro can export a local backup containing your organized data, pet profiles, edited works, and timeline records. No account or MiLens cloud is required.
+
+START FREE
+Free: 1 pet profile, up to 50 saved photos, and up to 5 bead-pattern generations per day.
+MiLens Pro: up to 20 pet profiles, unlimited photo storage, unlimited bead-pattern generations, full timeline history, watermark-free exports, advanced card templates, timeline exports, album modes, and offline backup.
+
+PRIVACY BY DESIGN
+Photos and AI analysis stay on your device. MiLens does not actively upload your photos. Edited works may be included in system backups you choose to enable.
+
+MiLens Pro is available as a monthly subscription, annual subscription, or one-time purchase. Monthly and annual plans include a 7-day free trial when offered. Subscriptions renew automatically unless canceled at least 24 hours before the end of the current period. Manage or cancel subscriptions in your App Store account settings.
+
+Privacy policy: https://miovelle.cn/private-privacy.html
+Terms of service: To be prepared
 ```
 
 ---
@@ -76,12 +134,26 @@ V1.0 计划加入高级创作模板与高清导出，Pro 用户上线后自动�
 
 > ASO 策略：覆盖「宠物照片」「宠物相册」「拼豆」三个核心搜索意图。避免与 Apple Photos/Google Photos 竞争通用词。竞品词（如「照片管理」）作为补充。
 
+**English (en-US):**
+
+```
+pet photos,pet album,photo organizer,bead art,bead patterns,pet profile,pet memories,cat,dog
+```
+
+> ASO strategy: prioritize pet-photo organization and bead-pattern intent; keep broad photo-library terms secondary.
+
 ---
 
 ## 4. 推广文本（170 字符以内，可随时更新）
 
 ```
 用 AI 找出手机里每一张宠物照片，自动整理成专属相册。还能把照片变成拼豆图纸！免费试用 7 天 MiLens Pro。
+```
+
+**English (en-US):**
+
+```
+Find your pet photos on-device, keep a life archive, and turn favorite moments into bead patterns and keepsakes. Your photos stay on your device.
 ```
 
 ---
@@ -99,6 +171,22 @@ V1.0 计划加入高级创作模板与高清导出，Pro 用户上线后自动�
 5. 免费版可创建 1 个宠物档案、每天生成 5 张拼豆图纸；首次打开时间线后 14 天内可查看完整历史，之后显示最近一年。MiLens Pro 解锁 20 个档案、不限生成和完整历史。图片编辑器当前免费。
 
 测试账号：无需登录，App 不含任何账号系统。
+```
+
+**English (global review note):**
+
+```
+MiLens is a pet photo organizer and creative life archive. No account or test credentials are needed.
+
+Review steps:
+1. Allow Photos access when prompted. Scan results are reviewed before the user imports photos.
+2. On-device AI uses Core ML and Vision; no network connection is required for photo analysis.
+3. Create a pet profile during onboarding, or open Pets and create one before importing photos.
+4. To make a bead pattern, open Create > Bead Pattern, choose a photo, adjust the size/style, and tap Generate.
+5. Free limits are 1 pet profile, 50 saved photos, and up to 5 successful bead-pattern generations per local day. After the first 14 days of full timeline access, free users can view the most recent 365 days. MiLens Pro unlocks up to 20 profiles, unlimited photo storage and bead generation, full timeline history, and Pro export/backup features.
+6. Purchases and Restore Purchases are available under Settings > MiLens Pro. Monthly and annual products include a 7-day introductory free trial in the StoreKit configuration.
+
+Test account: not applicable. The app has no account system.
 ```
 
 ---
@@ -123,7 +211,18 @@ V1.0 计划加入高级创作模板与高清导出，Pro 用户上线后自动�
 | 4 | 拼豆图纸生成 | 把照片变成拼豆作品 |
 | 5 | 成长时间线 | 保存它的一生 |
 
+**English screenshot overlay copy:**
+
+| # | Screen | Overlay copy |
+|---|---|---|
+| 1 | Scan / discovery | Find the pet photos in your library |
+| 2 | Pet profile | Build a profile for every pet |
+| 3 | Photo grid | Keep the moments worth saving |
+| 4 | Bead pattern | Turn a photo into a bead pattern |
+| 5 | Life timeline | Keep their story close |
+
 > 截图需在 Mac 模拟器截取后处理（加文案/设备框）。App Preview 视频（可选）15-30 秒。
+> Screenshot copy is intentionally short and benefit-led. Final device screenshots still need visual QA on iPhone and iPad.
 
 ---
 
@@ -143,7 +242,20 @@ V1.0 计划加入高级创作模板与高清导出，Pro 用户上线后自动�
 | `com.milens.pro.yearly` | 1 年 | ¥98 | ✅ | 7 天 |
 | `com.milens.pro.lifetime` | 永久 | ¥168 | ✅ | 无 |
 
-### 7.3 订阅本地化描述（App Store Connect）
+### 7.3 订阅本地化短字段（App Store Connect 直接录入）
+
+> Apple 当前限制：内购显示名最多 30 字符，描述最多 45 字符。以下字段按该限制压缩；后面的长版只用于付费墙、截图或营销说明，不能直接替代 ASC 描述字段。[Apple 内购字段说明](https://developer.apple.com/help/app-store-connect/reference/in-app-purchases-and-subscriptions/in-app-purchase-information)
+
+| Product | Locale | Display name | Description | Description length |
+|---|---|---|---|---:|
+| Monthly | zh-Hans | MiLens Pro 月度订阅 | 不限照片与拼豆生成·完整成长历史·无水印导出 | 22 |
+| Annual | zh-Hans | MiLens Pro 年度订阅 | 不限照片与拼豆生成·完整成长历史·无水印导出 | 22 |
+| Lifetime | zh-Hans | MiLens Pro 永久版 | 一次购买·不限照片与拼豆生成·完整成长历史 | 21 |
+| Monthly | en-US | MiLens Pro Monthly | Unlimited photos & patterns · full history | 42 |
+| Annual | en-US | MiLens Pro Annual | Unlimited photos & patterns · full history | 42 |
+| Lifetime | en-US | MiLens Pro Lifetime | One-time purchase · unlimited patterns | 38 |
+
+### 7.3.1 订阅长版权益说明（参考文案）
 
 **月度（zh-Hans）：**
 ```
@@ -151,13 +263,14 @@ MiLens Pro 月度订阅
 
 解锁当前 Pro 权益：
 • 最多 20 个宠物档案
+• 不限照片存储
 • 拼豆图纸不限次数生成
 • 查看完整成长时间线
+• 高级卡片模板与无水印导出
+• 时间线导出与离线备份
 • 支持 Apple 家庭共享
 
-V1.0 计划加入高级创作模板与高清导出，Pro 用户上线后自动解锁。
-
-每月自动续费，可随时取消。
+7 天免费试用，每月自动续费。可随时取消。
 ```
 
 **年度（zh-Hans）：**
@@ -166,13 +279,14 @@ MiLens Pro 年度订阅
 
 解锁当前 Pro 权益：
 • 最多 20 个宠物档案
+• 不限照片存储
 • 拼豆图纸不限次数生成
 • 查看完整成长时间线
+• 高级卡片模板与无水印导出
+• 时间线导出与离线备份
 • 支持 Apple 家庭共享
 
-V1.0 计划加入高级创作模板与高清导出，Pro 用户上线后自动解锁。
-
-每年自动续费，约合每月 8 元，比月度节省 55%。可随时取消。
+7 天免费试用，每年自动续费。约合每月 8 元，比月度节省 55%。可随时取消。
 ```
 
 **永久（zh-Hans）：**
@@ -181,13 +295,62 @@ MiLens Pro 永久版
 
 一次购买，永久解锁当前 Pro 权益：
 • 最多 20 个宠物档案
+• 不限照片存储
 • 拼豆图纸不限次数生成
 • 查看完整成长时间线
+• 高级卡片模板与无水印导出
+• 时间线导出与离线备份
 • 支持 Apple 家庭共享
 
-V1.0 计划加入高级创作模板与高清导出，Pro 用户上线后自动解锁。
-
 一次付费，无后续费用，永久使用。
+```
+
+**Monthly (en-US):**
+```
+MiLens Pro Monthly
+
+Unlock current Pro benefits:
+• Up to 20 pet profiles
+• Unlimited photo storage
+• Unlimited bead-pattern generations
+• Full timeline history
+• Advanced card templates and watermark-free exports
+• Timeline exports and offline backup
+• Apple Family Sharing
+
+7-day free trial. Renews monthly. Cancel anytime.
+```
+
+**Annual (en-US):**
+```
+MiLens Pro Annual
+
+Unlock current Pro benefits:
+• Up to 20 pet profiles
+• Unlimited photo storage
+• Unlimited bead-pattern generations
+• Full timeline history
+• Advanced card templates and watermark-free exports
+• Timeline exports and offline backup
+• Apple Family Sharing
+
+7-day free trial. Renews annually. Cancel anytime.
+```
+
+**Lifetime (en-US):**
+```
+MiLens Pro Lifetime
+
+One-time purchase. Permanently unlock:
+• Up to 20 pet profiles
+• Unlimited photo storage
+• Unlimited bead-pattern generations
+• Full timeline history
+• Advanced card templates and watermark-free exports
+• Timeline exports and offline backup
+• Apple Family Sharing
+
+No recurring charges.
 ```
 
 ### 7.4 付费墙文案（App 内，设计稿 §三）
@@ -198,14 +361,33 @@ V1.0 计划加入高级创作模板与高清导出，Pro 用户上线后自动�
 MiLens Pro
 
 ✓ 最多 20 个宠物档案
+✓ 不限照片存储
 ✓ 拼豆图纸不限次数生成
 ✓ 查看完整成长时间线
+✓ 高级卡片模板与无水印导出
+✓ 时间线导出与离线备份
 ✓ 支持 Apple 家庭共享
 
-V1.0 计划：高级创作模板与高清导出
-
 月度 ¥18 / 年度 ¥98 / 永久 ¥168
-免费试用 7 天
+月度和年度含 7 天免费试用
+```
+
+**Paywall copy (en-US):**
+```
+Keep their story growing
+
+MiLens Pro
+
+✓ Up to 20 pet profiles
+✓ Unlimited photo storage
+✓ Unlimited bead-pattern generations
+✓ Full timeline history
+✓ Advanced card templates and watermark-free exports
+✓ Timeline exports and offline backup
+✓ Apple Family Sharing
+
+Monthly, annual, or lifetime · Price shown in the App Store
+7-day free trial on monthly and annual plans
 ```
 
 > ⚠️ V1.0 范围调整（[ADR-0008](adr/0008-v1-scope-decision.md)）：设计稿中的「AI 成长视频」后置到 V1.x，付费墙文案不列入此项。

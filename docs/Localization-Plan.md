@@ -97,7 +97,7 @@ python tools/localization.py check \
 |---|---|---|---|---|
 | 1 | App UI 文案 | `Localizable.xcstrings`（260 key）| 统一由 String Catalog 管理；代码使用 `String(localized:)` 或 SwiftUI `LocalizedStringKey` API，结构已支持任意语言 | 待翻译 |
 | 2 | 权限说明 + App 显示名 | `InfoPlist.xcstrings`（3 key）| 权限文案需按各国法规语感撰写，App 显示名按语言本地化 | 待翻译 |
-| 3 | App Store 元数据 | [AppStore-metadata.md](AppStore-metadata.md) | 名称/副标题/描述/关键词/推广文本/审核备注，每语言一份 | 中文草案，其他语言待制作 |
+| 3 | App Store 元数据 | [AppStore-metadata.md](AppStore-metadata.md) | 名称/副标题/描述/关键词/推广文本/审核备注，每语言一份 | zh-Hans + en-US 草案，截图与 ASC 录入待完成 |
 | 4 | 订阅产品本地化 | App Store Connect | 订阅组 + 3 个产品的本地化描述（§3.4）| 待录入 |
 | 5 | 隐私政策网页 | `docs/privacy-policy.html` | 中文草稿已存在，需提供多语言版本并完成线上 URL 验收（建议按语言 URL 或 `?lang=`）| 中文草稿，部署待验收 |
 | 6 | 截图/预览素材 | App Store Connect | 每语言 3-5 张截图 + 文案覆盖层 | 待制作 |
@@ -130,13 +130,13 @@ python tools/localization.py check \
 
 ### 3.3 描述/推广文本/审核备注
 
-- 描述：按 §2 工作流翻译 `AppStore-metadata.md` §2 的中文描述，每语言控制在 4000 字符内；
+- 描述：zh-Hans + en-US 初稿已整理在 `AppStore-metadata.md` §2，每语言控制在 4000 字符内；其余首发语言按同一事实版本翻译；
 - 推广文本（170 字符）：每语言按市场热点可随时更新（App Store 无需审核）；
 - 审核备注：**用英文撰写一份全球通用版**，另为 ja/ko/zh-Hant 各准备一份当地语言版（审核员阅读效率 = 过审速度）。
 
 ### 3.4 订阅产品本地化描述（App Store Connect 必填）
 
-每个产品（月/年/永久）每种语言都要填写本地化描述与显示名。结构沿用 [AppStore-metadata.md](AppStore-metadata.md) §7.3 中文版，翻译时注意：
+每个产品（月/年/永久）每种语言都要填写本地化描述与显示名。直接录入字段以 [AppStore-metadata.md](AppStore-metadata.md) §7.3 中英文短字段为准，§7.3.1 仅作长版权益说明，翻译时注意：
 
 - 订阅权益描述按语言惯例调整（如日语加"自動更新はいつでも解除できます"）；
 - 价格文案不写死金额（由 ASC 层级自动显示）；
@@ -263,7 +263,7 @@ python tools/localization.py check \
 - App 内统一美式英语（color / favorite / organize）；元数据可另备 en-GB 版本（colour / favourite），优先级低；
 - 日期 MM/DD/YYYY，金额 $ 符号，千分位逗号；
 - 语气：温暖但不油腻，避免过度营销化形容词（"adorable" 用在宠物语境可以，"revolutionary" 不行）；
-- **产品文案禁用 pet（2026-08-22 裁定）**：UI 与产品文案一律用 **pal / companion（伙伴）**，不得使用 pet（与 §8 「pal profile（禁用 pet）」一致）；ASO 关键词与 App 显示名中的 "pet photos" 等仅为用户搜索词，不属于产品用语；zh-Hans 源的存量「宠物」（41 处，含「宠物档案」5 处）收敛为「伙伴／生命档案」需 6 语言联动重翻，另行评估（§4.7）。
+- **产品文案禁用 pet（2026-08-22 裁定）**：UI 与产品文案一律用 **pal / companion（伙伴）**，不得使用 pet（与 §8 「pal profile（禁用 pet）」一致）；ASO 关键词与 App 显示名中的 "pet photos" 等仅为用户搜索词，不属于产品用语；zh-Hans 源的存量「宠物」（41 处）已于 2026-08-22 全量收口为「伙伴／伙伴档案」（40 key + zh-Hant 残留 2 处；四点裁定：档案统一「伙伴档案」、`photo.assign.empty` 改「还没有伙伴，先去登记」、隐私叙事用「哪位伙伴」、petFresh 模板名改「茸茸清新」）。en/fr 原已 pal／compagnon 化零改动；de/ja/ko 该批 key 均缺译，将来按新源翻译（`build/locpal-report.txt`：残留 0）。
 
 **产品与术语**
 - 图纸术语：bead pattern（通用）、perler pattern（用户搜索习惯词，可用于 ASO）；
@@ -367,7 +367,7 @@ python tools/localization.py check \
 
 ### 4.7 中国大陆（zh-Hans）— 源语言 / 基本盘
 
-- 保持现有文案与术语（拼豆图纸、宠物档案、成长时间线、往日回忆、时光机）；源文案存量「宠物」（41 处）的伙伴化收敛需 6 语言联动重翻，另行评估（§4.2 禁用 pet 裁定）；
+- 保持现有文案与术语（拼豆图纸、伙伴档案（原「宠物档案」，2026-08-22 §4.2 收口）、成长时间线、往日回忆、时光机）；源文案存量「宠物」（41 处）已全量伙伴化（§4.2，`build/locpal-report.txt`：残留 0）；
 - 校验现有文案中无"拟上架但未交付"的能力描述（ADR-0009 诚实原则，已由 App Store 文案去重收口）；
 - 国内称呼多样（拼豆/拼拼豆豆/豆豆画/熨豆），产品内统一"拼豆"建立品牌一致性。
 
@@ -540,8 +540,8 @@ App Store 元数据与 App 内翻译分别验收，提交 ASC 前逐语言核对
 |---|---|---|---|---|---|---|
 | 拼豆图纸 | bead pattern | アイロンビーズ図案 | 비즈 도안 | Bügelperlen-Vorlage | modèle de perles à repasser | 拼豆圖稿 |
 | 拼豆工作室 | bead studio | ビーズスタジオ | 비즈 스튜디오 | Bead-Studio | studio de perles | 拼豆工作室 |
-| 宠物档案 | pal profile（禁用 pet，一律 pal/companion） | ペットのプロフィール | 반려동물 프로필 | Haustierprofil | profil de l'animal | 生命檔案／毛小孩檔案 |
-| 宠物（产品称呼） | pal / companion（禁用 pet） | ペット（日语中性，可用） | 반려동물 | Haustier / Freund | animal de compagnie | 毛小孩（2026-08-22 统一，不用「毛孩」） |
+| 伙伴档案（原宠物档案，2026-08-22 收口） | pal profile（禁用 pet，一律 pal/companion） | ペットのプロフィール | 반려동물 프로필 | Haustierprofil | profil du compagnon | 生命檔案／毛小孩檔案 |
+| 伙伴（产品称呼，原「宠物」已收口） | pal / companion（禁用 pet） | ペット（日语中性，可用） | 반려동물 | Haustier / Freund | compagnon | 毛小孩（2026-08-22 统一，不用「毛孩」） |
 | 成长时间线 | growth timeline | 成長タイムライン | 성장 타임라인 | Wachstumszeitleiste | chronologie de croissance | 成長時間軸 |
 | 往日回忆 | memories | 思い出 | 추억 | Erinnerungen | souvenirs | 往日回憶 |
 | 时光机 | time machine | タイムマシン | 타임머신 | Zeitmaschine | machine à remonter le temps | 時光機 |

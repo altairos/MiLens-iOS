@@ -47,7 +47,7 @@ struct AlbumQuotaExhaustedView: View {
 
                 HStack(alignment: .firstTextBaseline, spacing: 4) {
                     Text("\(CommercialRules.freePhotoLimit)")
-                        .font(.custom("LXGWWenKai-Regular", size: 40, relativeTo: .largeTitle))
+                        .font(.localeDisplayFont(size: 40, relativeTo: .largeTitle))
                         .foregroundStyle(Color.milensTextPrimary)
                     Text("/ \(CommercialRules.freePhotoLimit)")
                         .font(.uiTitle)
@@ -111,7 +111,7 @@ struct AlbumQuotaExhaustedView: View {
     private var titleSection: some View {
         VStack(alignment: .leading, spacing: 8) {
             Text(String(localized: "album.quota.title \(CommercialRules.freePhotoLimit)"))
-                .font(.custom("LXGWWenKai-Regular", size: 28, relativeTo: .title2))
+                        .font(.localeDisplayFont(size: 28, relativeTo: .title2))
                 .foregroundStyle(Color.milensTextPrimary)
             Text(String(localized: "album.quota.subtitle"))
                 .font(.bodySecondary)

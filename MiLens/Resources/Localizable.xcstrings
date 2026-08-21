@@ -99,7 +99,7 @@
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "宠物卡片，选择照片开始"
+            "value" : "伙伴卡片，选择照片开始"
           }
         },
         "zh-Hant" : {
@@ -795,7 +795,7 @@
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "生成宠物卡片"
+            "value" : "生成伙伴卡片"
           }
         },
         "zh-Hant" : {
@@ -882,7 +882,7 @@
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "归属到宠物"
+            "value" : "归属到伙伴"
           }
         },
         "zh-Hant" : {
@@ -2593,7 +2593,7 @@
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "识别宠物主体"
+            "value" : "识别伙伴主体"
           }
         },
         "zh-Hant" : {
@@ -3579,7 +3579,7 @@
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "宠物加载失败"
+            "value" : "伙伴加载失败"
           }
         },
         "zh-Hant" : {
@@ -5435,7 +5435,7 @@
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "宠物名片"
+            "value" : "伙伴名片"
           }
         },
         "zh-Hant" : {
@@ -5870,7 +5870,7 @@
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "宠物卡片"
+            "value" : "伙伴卡片"
           }
         },
         "zh-Hant" : {
@@ -9216,7 +9216,7 @@
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "扫描系统相册，自动发现你的宠物照片"
+            "value" : "扫描系统相册，自动发现你伙伴的照片"
           }
         },
         "zh-Hant" : {
@@ -9767,7 +9767,7 @@
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "在相册页使用「扫描」，咪Lens 会在本机找出可能含宠物的照片，确认后导入。"
+            "value" : "在相册页使用「扫描」，咪Lens 会在本机找出可能含伙伴的照片，确认后导入。"
           }
         },
         "zh-Hant" : {
@@ -9796,7 +9796,7 @@
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "扫描确认时选择宠物即可；相册里也可以多选照片后归档到指定宠物。"
+            "value" : "扫描确认时选择伙伴即可；相册里也可以多选照片后归档到指定伙伴。"
           }
         },
         "zh-Hant" : {
@@ -9883,7 +9883,7 @@
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "如何找到手机里的宠物照片？"
+            "value" : "如何找到手机里伙伴的照片？"
           }
         },
         "zh-Hant" : {
@@ -9912,7 +9912,7 @@
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "如何把照片归到宠物档案？"
+            "value" : "如何把照片归到伙伴档案？"
           }
         },
         "zh-Hant" : {
@@ -13367,7 +13367,7 @@
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "避免多隻寵物同框，確保特徵提取純淨"
+            "value" : "避免多隻毛小孩同框，確保特徵提取純淨"
           }
         }
       }
@@ -16493,7 +16493,7 @@
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "不限量保存宠物照片"
+            "value" : "不限量保存伙伴照片"
           }
         },
         "zh-Hant" : {
@@ -16522,7 +16522,7 @@
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "最多管理 20 个宠物档案"
+            "value" : "最多管理 20 个伙伴档案"
           }
         },
         "zh-Hant" : {
@@ -19833,7 +19833,7 @@
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "请输入宠物名字"
+            "value" : "请输入伙伴名字"
           }
         },
         "zh-Hant" : {
@@ -20877,7 +20877,7 @@
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "尚未归属宠物的照片"
+            "value" : "尚未归属伙伴的照片"
           }
         },
         "zh-Hant" : {
@@ -20906,7 +20906,7 @@
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "在相册中导入或扫描照片后，尚未归属宠物的照片会出现在这里。"
+            "value" : "在相册中导入或扫描照片后，尚未归属伙伴的照片会出现在这里。"
           }
         },
         "zh-Hant" : {
@@ -21370,7 +21370,7 @@
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "还没有宠物，先去创建一只"
+            "value" : "还没有伙伴，先去登记"
           }
         },
         "zh-Hant" : {
@@ -21428,7 +21428,7 @@
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "归属到宠物"
+            "value" : "归属到伙伴"
           }
         },
         "zh-Hant" : {
@@ -21486,7 +21486,7 @@
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "不归属任何宠物"
+            "value" : "不归属任何伙伴"
           }
         },
         "zh-Hant" : {
@@ -21515,7 +21515,7 @@
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "归属到宠物"
+            "value" : "归属到伙伴"
           }
         },
         "zh-Hant" : {
@@ -22095,7 +22095,7 @@
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "先到「伙伴」Tab 建立宠物档案，再来生成名片"
+            "value" : "先到「伙伴」Tab 建立档案，再来生成名片"
           }
         },
         "zh-Hant" : {
@@ -22472,7 +22472,7 @@
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "先到相册导入照片，再回来生成宠物卡片"
+            "value" : "先到相册导入照片，再回来生成伙伴卡片"
           }
         },
         "zh-Hant" : {
@@ -22501,7 +22501,7 @@
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "选择照片生成宠物卡片"
+            "value" : "选择照片生成伙伴卡片"
           }
         },
         "zh-Hant" : {
@@ -22791,7 +22791,7 @@
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "扫描只找出候选照片；导入哪张、归给哪只宠物，都由你确认。"
+            "value" : "扫描只找出候选照片；导入哪张、归给哪位伙伴，都由你确认。"
           }
         },
         "zh-Hant" : {
@@ -22907,7 +22907,7 @@
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "宠物照片识别由设备本地的模型完成，不经过任何服务器。"
+            "value" : "伙伴照片识别由设备本地的模型完成，不经过任何服务器。"
           }
         },
         "zh-Hant" : {
@@ -23864,7 +23864,7 @@
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "将清除 MiLens 中的相册记录、宠物档案及沙盒中已保存的照片副本（导入/编辑产物），且无法恢复。系统相册中的原图不会被删除。"
+            "value" : "将清除 MiLens 中的相册记录、伙伴档案及沙盒中已保存的照片副本（导入/编辑产物），且无法恢复。系统相册中的原图不会被删除。"
           }
         },
         "zh-Hant" : {
@@ -24328,7 +24328,7 @@
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "宠物名"
+            "value" : "伙伴名"
           }
         },
         "zh-Hant" : {
@@ -26213,7 +26213,7 @@
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "宠物移入安全区"
+            "value" : "伙伴主体移入安全区"
           }
         },
         "zh-Hant" : {
@@ -26764,7 +26764,7 @@
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "宠物主体有 %lld%% 超出画布，可能被裁切"
+            "value" : "伙伴主体有 %lld%% 超出画布，可能被裁切"
           }
         },
         "zh-Hant" : {
@@ -26822,7 +26822,7 @@
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "宠物主体仅有 %lld%% 位于安全区，红包控件可能遮挡主体"
+            "value" : "伙伴主体仅有 %lld%% 位于安全区，红包控件可能遮挡主体"
           }
         },
         "zh-Hant" : {
@@ -26851,7 +26851,7 @@
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "宠物主体占比偏小（%lld%%），建议放大或移动"
+            "value" : "伙伴主体占比偏小（%lld%%），建议放大或移动"
           }
         },
         "zh-Hant" : {
@@ -28272,13 +28272,13 @@
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "宠物清新"
+            "value" : "茸茸清新"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "寵物清新"
+            "value" : "茸茸清新"
           }
         }
       }
@@ -28881,7 +28881,7 @@
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "先在首页导入宠物照片"
+            "value" : "先在首页导入伙伴照片"
           }
         },
         "zh-Hant" : {
@@ -28968,7 +28968,7 @@
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "从相册选择宠物照片"
+            "value" : "从相册选择伙伴照片"
           }
         },
         "zh-Hant" : {
@@ -30099,7 +30099,7 @@
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "宠物档案：%1$lld 个"
+            "value" : "伙伴档案：%1$lld 个"
           }
         },
         "zh-Hant" : {
@@ -32738,7 +32738,7 @@
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "宠物"
+            "value" : "伙伴"
           }
         },
         "zh-Hant" : {
@@ -33231,7 +33231,7 @@
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "全部宠物"
+            "value" : "全部伙伴"
           }
         },
         "zh-Hant" : {

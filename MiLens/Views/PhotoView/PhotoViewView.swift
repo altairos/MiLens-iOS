@@ -176,7 +176,7 @@ struct PhotoViewView: View {
                     .font(.editorialMetadata)
                     .foregroundStyle(Color.milensActionPrimary)
                 Text(titleText)
-                    .font(.custom("LXGWWenKai-Regular", size: 25, relativeTo: .title2))
+                    .font(.localeDisplayFont(size: 25, relativeTo: .title2))
                     .foregroundStyle(Color.milensTextPrimary)
                 Text(metadataText)
                     .font(.editorialMetadata)

@@ -84,13 +84,13 @@ struct PetCardArtwork: View {
                 .place(26, 357, w: 308, h: 1)
 
             Text(content.title)
-                .font(.custom("LXGWWenKai-Regular", size: 32))
+                .font(.localeDisplayFont(size: 32))
                 .foregroundStyle(CardInk.inkBlack)
                 .lineLimit(1).minimumScaleFactor(0.5)
                 .place(33, 363, w: 160, h: 36)
             if !season.isEmpty {
                 Text(season)
-                    .font(.custom("LXGWWenKai-Regular", size: 30))
+                .font(.localeDisplayFont(size: 30))
                     .foregroundStyle(CardInk.vermilion)
                     .lineLimit(1).minimumScaleFactor(0.6)
                     .place(201, 365, w: 130, h: 34)
@@ -139,7 +139,7 @@ struct PetCardArtwork: View {
                 .place(203, 233, w: 138, h: 180)
 
             Text(String(localized: "petcard.museum.label"))
-                .font(.custom("LXGWWenKai-Regular", size: 12))
+                .font(.localeDisplayFont(size: 12))
                 .foregroundStyle(CardInk.taupe)
                 .place(42, 355, w: 140, h: 16)
             Text("MiLens")
@@ -150,7 +150,7 @@ struct PetCardArtwork: View {
             // 护页内三行（季节/物种/名）
             if !season.isEmpty {
                 Text(season)
-                    .font(.custom("LXGWWenKai-Regular", size: 18))
+                    .font(.localeDisplayFont(size: 18))
                     .foregroundStyle(CardInk.bronze)
                     .lineLimit(1).minimumScaleFactor(0.6)
                     .place(211, 326, w: 122, h: 22)
@@ -161,7 +161,7 @@ struct PetCardArtwork: View {
                 .lineLimit(1).minimumScaleFactor(0.6)
                 .place(211, 348, w: 122, h: 16)
             Text(content.title)
-                .font(.custom("LXGWWenKai-Regular", size: 22))
+                .font(.localeDisplayFont(size: 22))
                 .foregroundStyle(CardInk.inkBlack)
                 .lineLimit(1).minimumScaleFactor(0.5)
                 .place(211, 368, w: 122, h: 26)
@@ -201,7 +201,7 @@ struct PetCardArtwork: View {
                     .place(283, 338, w: 51, h: 15)
             }
             Text(content.title)
-                .font(.custom("LXGWWenKai-Regular", size: 42))
+                .font(.localeDisplayFont(size: 42))
                 .foregroundStyle(.white)
                 .lineLimit(1).minimumScaleFactor(0.5)
                 .place(26, 342, w: 240, h: 48)
@@ -257,13 +257,13 @@ struct PetCardArtwork: View {
                 .foregroundStyle(CardInk.bronze)
                 .place(26, 354, w: 190, h: 16)
             Text(content.title)
-                .font(.custom("LXGWWenKai-Regular", size: 32))
+                .font(.localeDisplayFont(size: 32))
                 .foregroundStyle(CardInk.paperWhite)
                 .lineLimit(1).minimumScaleFactor(0.5)
                 .place(26, 374, w: 160, h: 36)
             if !season.isEmpty {
                 Text(season)
-                    .font(.custom("LXGWWenKai-Regular", size: 28))
+                    .font(.localeDisplayFont(size: 28))
                     .foregroundStyle(CardInk.linenWhite)
                     .lineLimit(1).minimumScaleFactor(0.6)
                     .place(210, 378, w: 124, h: 32)

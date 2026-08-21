@@ -317,7 +317,7 @@ struct GrowthCompareArtwork: View {
                 ZStack {
                     Color.black
                     Text(result.gapLabel.isEmpty ? String(localized: "create.growthCompare.title") : result.gapLabel)
-                        .font(.custom("LXGWWenKai-Regular", size: w * 0.05))
+                        .font(.localeDisplayFont(size: w * 0.05))
                         .foregroundStyle(.white.opacity(0.92))
                 }
                 .frame(width: w, height: h * 0.04)
@@ -365,7 +365,7 @@ struct GrowthCompareArtwork: View {
         ZStack(alignment: .bottomTrailing) {
             VStack(spacing: w * 0.015) {
                 Text(petName.isEmpty ? String(localized: "create.growthCompare.title") : petName)
-                    .font(.custom("LXGWWenKai-Regular", size: w * 0.06))
+                    .font(.localeDisplayFont(size: w * 0.06))
                     .foregroundStyle(Color.milensTextPrimary)
                     .lineLimit(1)
                     .minimumScaleFactor(0.6)

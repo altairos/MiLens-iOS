@@ -53,8 +53,8 @@ struct PortraitHero: View {
             // 名字 + 副标题（对照 #319:1099-1100）
             VStack(alignment: .leading, spacing: 4) {
                 Text(name)
-                    .font(.custom("LXGWWenKai-Regular", size: height > 400 ? 42 : 38,
-                                  relativeTo: .largeTitle))
+                    .font(.localeDisplayFont(size: height > 400 ? 42 : 38,
+                                             relativeTo: .largeTitle))
                     .foregroundStyle(.white)
                 subtitle
                     .font(.bodySecondary)
@@ -105,7 +105,7 @@ struct ArchiveContinuityNote: View {
                 .tracking(0.4)
                 .foregroundStyle(Color.milensActionPrimary)
             Text(String(localized: "pet.profile.continuity.headline"))
-                .font(.custom("LXGWWenKai-Regular", size: 28, relativeTo: .title2))
+                .font(.localeDisplayFont(size: 28, relativeTo: .title2))
                 .foregroundStyle(Color.milensTextPrimary)
             Text(String(localized: "pet.profile.continuity.body"))
                 .font(.bodyPrimary)
@@ -136,7 +136,7 @@ struct TimelineContinuationCard: View {
                 .font(.custom("Fraunces-Semibold", size: 34))
                 .foregroundStyle(Color.milensTextPrimary)
             Text(String(localized: "pet.profile.timeline.sampleTitle"))
-                .font(.custom("LXGWWenKai-Regular", size: 20))
+                        .font(.localeDisplayFont(size: 20))
                 .foregroundStyle(Color.milensTextPrimary)
             Text(String(localized: "pet.profile.timeline.sampleBody"))
                 .font(.bodySecondary)

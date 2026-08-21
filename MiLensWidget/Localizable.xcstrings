@@ -7,13 +7,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "In"
+            "value": "days later"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Dans"
+            "value": "jours plus tard"
           }
         },
         "zh-Hans": {
@@ -31,7 +31,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "In"
+            "value": "Tage später"
           }
         }
       }
@@ -206,7 +206,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Erstelle zuerst ein Profil für deinen Begleiter"
+            "value": "Erstelle zuerst ein Profil für dein Haustier"
           }
         }
       }
@@ -276,7 +276,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Begleiter"
+            "value": "Haustier"
           }
         }
       }
@@ -346,7 +346,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Wähle aus, welcher Jahrestag deines Begleiters auf dem Widget angezeigt werden soll"
+            "value": "Wähle aus, welcher Jahrestag deines Haustiers auf dem Widget angezeigt werden soll"
           }
         }
       }
@@ -416,7 +416,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Alle Begleiter"
+            "value": "Alle Haustiere"
           }
         }
       }
@@ -696,7 +696,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Wähle das Profil deines Begleiters für das Widget aus"
+            "value": "Wähle das Profil deines Haustiers für das Widget aus"
           }
         }
       }
@@ -731,7 +731,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Begleiter auswählen"
+            "value": "Haustier auswählen"
           }
         }
       }
@@ -1011,7 +1011,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Begleiter hinzufügen"
+            "value": "Haustier hinzufügen"
           }
         }
       }
@@ -1046,7 +1046,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Eine Erinnerung mit deinem Begleiter und den gemeinsamen Tagen"
+            "value": "Eine Erinnerung mit deinem Haustier und den gemeinsamen Tagen"
           }
         }
       }
@@ -1273,7 +1273,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Mis à jour %@"
+            "value": "Mis à jour : %@"
           }
         },
         "zh-Hans": {
@@ -1291,7 +1291,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Aktualisiert %@"
+            "value": "Aktualisiert: %@"
           }
         }
       }
@@ -1466,7 +1466,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Zählt bis zum nächsten wichtigen Tag deines Begleiters herunter und wählt automatisch den nächsten Jahrestag"
+            "value": "Zählt bis zum nächsten wichtigen Tag deines Haustiers herunter und wählt automatisch den nächsten Jahrestag"
           }
         }
       }

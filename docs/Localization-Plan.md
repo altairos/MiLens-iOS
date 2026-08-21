@@ -2,7 +2,7 @@
 
 > **首发范围变更（2026-08-22）**：首发支持 6 种语言：zh-Hans、zh-Hant、ja、en、fr、de。韩文（ko）延期，不纳入首发翻译、商店资产、隐私政策、截图和验收；文档中保留的韩国市场内容仅作为后续版本备忘。
 
-最后更新：2026-08-22（全量德文本地化 100% 完成：全部 1256 个 key 注入 String Catalog，遵循 Bügelperlen / Fellnase / du 亲昵称谓规范，0 缺译、0 占位符漂移、21 条 plural 规范化；全量法文本地化 100% 完成：全部 1245 个 key 注入 String Catalog，遵循 compagnon / perles à repasser 术语规范，0 缺译、0 占位符漂移、0 格式问题；2026-08-21 全量英文本地化 100% 完成：全部 1239 个 key 注入 String Catalog，遵循 pal/pals 术语规范，0 缺译、0 占位符漂移、0 格式问题；2026-08-17 回退 1c623e9 误入主 catalog 的 117 条 en 初译，修复 commit b3b0a79，CI 全绿 run 31961932575——红线教训见 §5.4：翻译完整导入前 catalog 只能含源语言；2026-08-16 MiLensWidget 接入 String Catalog，工具链支持多 catalog × 多源码根与 Excel sheet 去歧义；2026-08-15 CI 缺译门禁过渡期降级 `--allow-missing-translations`；2026-08-10 定案首发 7 语言：zh-Hans / zh-Hant / ja / ko / en / fr / de）
+最后更新：2026-08-22（全量德文本地化 100% 完成：全部 1256 个 key 注入 String Catalog，遵循 Bügelperlen / Haustier（功能层）/ dein Liebling（情感层）/ du 亲昵称谓规范，0 缺译、0 占位符漂移、21 条 plural 规范化；全量法文本地化 100% 完成：全部 1245 个 key 注入 String Catalog，遵循 compagnon / perles à repasser 术语规范，0 缺译、0 占位符漂移、0 格式问题；2026-08-21 全量英文本地化 100% 完成：全部 1239 个 key 注入 String Catalog，遵循 pal/pals 术语规范，0 缺译、0 占位符漂移、0 格式问题；2026-08-17 回退 1c623e9 误入主 catalog 的 117 条 en 初译，修复 commit b3b0a79，CI 全绿 run 31961932575——红线教训见 §5.4：翻译完整导入前 catalog 只能含源语言；2026-08-16 MiLensWidget 接入 String Catalog，工具链支持多 catalog × 多源码根与 Excel sheet 去歧义；2026-08-15 CI 缺译门禁过渡期降级 `--allow-missing-translations`；2026-08-10 定案首发 7 语言：zh-Hans / zh-Hant / ja / ko / en / fr / de）
 
 > 本文档是 MiLens 全球首发本地化工作的唯一事实来源：语言矩阵、各国市场注意要点、翻译工作流、质量门禁、ASO 关键词策略与时间线。工具与命令见 [DEVELOPMENT.md](../DEVELOPMENT.md) §4.5，商店文案见 [AppStore-metadata.md](AppStore-metadata.md)，商业决策见 [ADR-0010](adr/0010-commercialization-and-emotion-triggers.md)。
 
@@ -286,6 +286,7 @@ python tools/localization.py check \
 **语言与文案**
 - **德语复合词极长**：UI 必须预留 30-40% 长度空间，Tab、按钮、卡片逐项做截断测试；
 - 术语：品类词必须是 **Bügelperlen**（熨烫珠）；Steckperlen 是另一种工艺（插珠），**不可混用**；图纸 = Vorlage / Muster；
+- 宠物称谓采用双层策略：功能、权限、档案和设置使用 **Haustier / Haustierprofil**；回忆、通知和编辑式叙事使用自然句式 **dein Liebling**。禁止使用 `Pal`、`Begleiter`、`Gefährte` 或 `Liebling-Profil` 等不自然表达；
 - 称呼：消费级 App 惯例用 du（informal），但全文必须一致（设置页与弹窗不得混用 du/Sie）；
 - 名词首字母大写规则必须正确；标点使用德式引号（„…"）；
 - 动物名词词性：der Hund / die Katze——文案避免依赖性别表述，或统一用 Haustier（宠物）；
@@ -540,8 +541,8 @@ App Store 元数据与 App 内翻译分别验收，提交 ASC 前逐语言核对
 |---|---|---|---|---|---|---|
 | 拼豆图纸 | bead pattern | アイロンビーズ図案 | 비즈 도안 | Bügelperlen-Vorlage | modèle de perles à repasser | 拼豆圖稿 |
 | 拼豆工作室 | bead studio | ビーズスタジオ | 비즈 스튜디오 | Bead-Studio | studio de perles | 拼豆工作室 |
-| 伙伴档案（原宠物档案，2026-08-22 收口） | pal profile（禁用 pet，一律 pal/companion） | ペットのプロフィール | 반려동물 프로필 | Haustierprofil | profil du compagnon | 生命檔案／毛小孩檔案 |
-| 伙伴（产品称呼，原「宠物」已收口） | pal / companion（禁用 pet） | ペット（日语中性，可用） | 반려동물 | Haustier / Freund | compagnon | 毛小孩（2026-08-22 统一，不用「毛孩」） |
+| 伙伴档案（原宠物档案，2026-08-22 收口） | pal profile（禁用 pet，一律 pal/companion） | ペットのプロフィール | 반려동물 프로필 | Haustierprofil（功能层） | profil du compagnon | 生命檔案／毛小孩檔案 |
+| 伙伴（产品称呼，原「宠物」已收口） | pal / companion（禁用 pet） | ペット（日语中性，可用） | 반려동물 | Haustier（功能层）／Liebling（情感层） | compagnon | 毛小孩（2026-08-22 统一，不用「毛孩」） |
 | 成长时间线 | growth timeline | 成長タイムライン | 성장 타임라인 | Wachstumszeitleiste | chronologie de croissance | 成長時間軸 |
 | 往日回忆 | memories | 思い出 | 추억 | Erinnerungen | souvenirs | 往日回憶 |
 | 时光机 | time machine | タイムマシン | 타임머신 | Zeitmaschine | machine à remonter le temps | 時光機 |

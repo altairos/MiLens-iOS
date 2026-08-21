@@ -105,7 +105,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Begleiter-Karte — wähle ein Foto zum Starten"
+            "value" : "Haustierkarte — wähle ein Foto zum Starten"
           }
         },
         "en" : {
@@ -945,7 +945,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Begleiter-Karte erstellen"
+            "value" : "Haustierkarte erstellen"
           }
         },
         "en" : {
@@ -1050,7 +1050,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Begleiter zuweisen"
+            "value" : "Haustier zuweisen"
           }
         },
         "en" : {
@@ -1715,7 +1715,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Neues Begleiter-Profil"
+            "value" : "Neues Haustierprofil"
           }
         },
         "en" : {
@@ -1750,7 +1750,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Begleiter"
+            "value" : "Haustier"
           }
         },
         "en" : {
@@ -1925,7 +1925,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Neues Begleiter-Profil"
+            "value" : "Neues Haustierprofil"
           }
         },
         "en" : {
@@ -2030,7 +2030,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Begleiter-Profile"
+            "value" : "Haustierprofile"
           }
         },
         "en" : {
@@ -2415,7 +2415,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Upgrade, um weiter zu importieren. Wenn du im kostenlosen Tarif bleibst, hat das keine Auswirkungen auf bereits gespeicherte Inhalte."
+            "value" : "Upgrade zum Weiterimportieren. Gespeicherte Inhalte bleiben auch im kostenlosen Tarif erhalten."
           }
         },
         "en" : {
@@ -2765,7 +2765,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Begleiter"
+            "value" : "Haustier"
           }
         },
         "en" : {
@@ -3115,7 +3115,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Analysiere die Merkmale deines Begleiters"
+            "value" : "Analysiere die Merkmale deines Haustiers"
           }
         },
         "en" : {
@@ -3815,7 +3815,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Deine Fotomediathek hat möglicherweise neue Fotos von deinem Begleiter. Jetzt hinzufügen?"
+            "value" : "Deine Fotomediathek enthält möglicherweise neue Fotos deines Haustiers. Jetzt hinzufügen?"
           }
         },
         "en" : {
@@ -4130,7 +4130,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Begleiter-Karte konnte nicht gespeichert werden"
+            "value" : "Haustierkarte konnte nicht gespeichert werden"
           }
         },
         "en" : {
@@ -4165,19 +4165,19 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Visitenkarten-Vorlage Bindung"
+            "value" : "Einband"
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Business card template binding"
+            "value" : "Binding"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Modèle de carte reliure"
+            "value" : "Reliure"
           }
         },
         "zh-Hans" : {
@@ -4200,19 +4200,19 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Visitenkarten-Vorlage Dunkelkammer"
+            "value" : "Dunkelkammer"
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Business card template darkroom"
+            "value" : "Darkroom"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Modèle de carte chambre noire"
+            "value" : "Chambre noire"
           }
         },
         "zh-Hans" : {
@@ -4235,19 +4235,19 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Visitenkarten-Vorlage Galerie"
+            "value" : "Galerie"
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Business card template gallery"
+            "value" : "Gallery"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Modèle de carte galerie"
+            "value" : "Galerie"
           }
         },
         "zh-Hans" : {
@@ -4270,19 +4270,19 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Visitenkarten-Vorlage Museum"
+            "value" : "Museum"
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Business card template museum"
+            "value" : "Museum"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Modèle de carte musée"
+            "value" : "Musée"
           }
         },
         "zh-Hans" : {
@@ -4305,7 +4305,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Begleiter konnte nicht geladen werden"
+            "value" : "Haustier konnte nicht geladen werden"
           }
         },
         "en" : {
@@ -5915,13 +5915,13 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Vorlage wird erstellt..."
+            "value" : "Vorlage wird erstellt…"
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Generating Pattern..."
+            "value" : "Generating Pattern…"
           }
         },
         "fr" : {
@@ -6615,7 +6615,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Begleiter-Karte"
+            "value" : "Haustierkarte"
           }
         },
         "en" : {
@@ -7035,7 +7035,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Verwandle ein Foto in eine vertikale Erinnerungskarte mit dem Namen und dem Tag, an dem dein Liebling zur Familie wurde."
+            "value" : "Verwandle ein Foto in eine Erinnerungskarte mit dem Namen und dem Tag, an dem dein Liebling zur Familie kam."
           }
         },
         "en" : {
@@ -7140,7 +7140,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Pal-Karte"
+            "value" : "Haustierkarte"
           }
         },
         "en" : {
@@ -7315,7 +7315,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Vier WeChat Red Packet Cover-Vorlagen + Upload-Anleitung"
+            "value" : "Vier Red-Packet-Cover-Vorlagen + Anleitung zum Hochladen"
           }
         },
         "en" : {
@@ -7350,7 +7350,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Red Packet"
+            "value" : "Red-Packet-Cover"
           }
         },
         "en" : {
@@ -7385,7 +7385,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Erstelle ein WeChat Red Packet Cover (957 × 1278) und zeige es in vier Szenen an."
+            "value" : "Erstelle ein Red-Packet-Cover (957 × 1278) und zeige es in vier Szenen an."
           }
         },
         "en" : {
@@ -7420,7 +7420,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Red Packet Cover"
+            "value" : "Red-Packet-Cover"
           }
         },
         "en" : {
@@ -10170,13 +10170,13 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Text eingeben..."
+            "value" : "Text eingeben…"
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Enter text..."
+            "value" : "Enter text…"
           }
         },
         "fr" : {
@@ -10906,7 +10906,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Scanne deine Mediathek oder füge Fotos deines Lieblings hinzu, um loszulegen"
+            "value" : "Scanne deine Mediathek oder füge Haustierfotos hinzu."
           }
         },
         "en" : {
@@ -11081,7 +11081,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Life Log Archiv"
+            "value" : "Lebensarchiv"
           }
         },
         "en" : {
@@ -11361,7 +11361,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Der Zugriff auf die Fotomediathek wird benötigt, um Fotos deines Lieblings zu finden.\nAktiviere ihn unter Einstellungen → Datenschutz → Fotos."
+            "value" : "Fotomediathek-Zugriff nötig: Haustierfotos finden.\nAktiviere ihn unter Einstellungen → Datenschutz → Fotos."
           }
         },
         "en" : {
@@ -11571,7 +11571,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Tippe auf der Album-Seite auf „Scannen“ – MiLens sucht auf deinem Gerät nach Fotos, die deinen Liebling zeigen könnten, damit du sie bestätigen und importieren kannst."
+            "value" : "Tippe auf „Scannen“ – MiLens sucht auf deinem Gerät nach möglichen Haustierfotos. Bestätige sie zum Import."
           }
         },
         "en" : {
@@ -11606,7 +11606,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Wähle einen Liebling, wenn du die Scan-Ergebnisse überprüfst; du kannst auch mehrere Fotos im Album auswählen und sie einem Liebling zuweisen."
+            "value" : "Wähle beim Prüfen der Scan-Ergebnisse ein Haustier; du kannst Fotos auch mehreren Haustieren zuweisen."
           }
         },
         "en" : {
@@ -11641,7 +11641,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Gehe zum Tab Erstellen, wähle „Perlenmuster“, nimm ein Foto, passe Größe und Stil an, erstelle es und exportiere es."
+            "value" : "Gehe zum Tab Erstellen, wähle „Bügelperlen-Muster“, nimm ein Foto, passe Größe und Stil an, erstelle es und exportiere es."
           }
         },
         "en" : {
@@ -11676,7 +11676,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Perlenmuster können in deiner Fotomediathek gespeichert oder über die Systemfreigabe mit anderen geteilt werden."
+            "value" : "Bügelperlen-Muster können in deiner Fotomediathek gespeichert oder über die Systemfreigabe mit anderen geteilt werden."
           }
         },
         "en" : {
@@ -11711,7 +11711,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Wie findet MiLens Fotos von meinem Liebling?"
+            "value" : "Wie findet MiLens Fotos von meinem Haustier?"
           }
         },
         "en" : {
@@ -11746,7 +11746,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Wie weise ich Fotos einem Liebling zu?"
+            "value" : "Wie weise ich Fotos einem Haustier zu?"
           }
         },
         "en" : {
@@ -11781,7 +11781,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Wie erstelle ich ein Perlenmuster?"
+            "value" : "Wie erstelle ich ein Bügelperlen-Muster?"
           }
         },
         "en" : {
@@ -12026,7 +12026,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Liebling hinzufügen"
+            "value" : "Haustier hinzufügen"
           }
         },
         "en" : {
@@ -13697,7 +13697,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Erlebe die wundervollen Erinnerungen aus dem vergangenen Jahr noch einmal."
+            "value" : "Erlebe eure Erinnerungen aus dem letzten Jahr erneut."
           }
         },
         "en" : {
@@ -13767,7 +13767,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Erlebe die wundervollen Erinnerungen von %@ aus dem vergangenen Jahr noch einmal."
+            "value" : "Erlebe die Erinnerungen von %@ erneut."
           }
         },
         "en" : {
@@ -13837,7 +13837,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Schütze die Erinnerungen deines Lieblings – exportiere heute ein lokales Backup."
+            "value" : "Erinnerungen sichern: Jetzt ein lokales Backup exportieren."
           }
         },
         "en" : {
@@ -13907,7 +13907,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Kleines"
+            "value" : "Kleiner Schatz"
           }
         },
         "en" : {
@@ -14165,7 +14165,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Es gibt vielleicht neue Fotos von deinem Liebling. Möchtest du sie ansehen?"
+            "value" : "Neue Fotos deines Lieblings ansehen?"
           }
         },
         "en" : {
@@ -14200,7 +14200,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Seit zwei Wochen keine neuen Fotos mehr hinzugefügt. Hast du in letzter Zeit welche gemacht?"
+            "value" : "Seit zwei Wochen keine neuen Fotos. Jetzt nachsehen?"
           }
         },
         "en" : {
@@ -14965,7 +14965,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Gib zuerst einen Namen und die Art des Lieblings ein;\ndeine Mediathek wird noch nicht gescannt."
+            "value" : "Gib zuerst Name und Tierart ein;\ndeine Mediathek wird noch nicht gescannt."
           }
         },
         "en" : {
@@ -15315,7 +15315,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Art des Lieblings wählen"
+            "value" : "Tierart wählen"
           }
         },
         "en" : {
@@ -15945,7 +15945,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Vermeide Fotos mit mehreren Lieblingen"
+            "value" : "Vermeide Fotos mit mehreren Haustieren"
           }
         },
         "en" : {
@@ -16155,13 +16155,13 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Basis wird erstellt..."
+            "value" : "Basis wird erstellt…"
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Building Baseline..."
+            "value" : "Building Baseline…"
           }
         },
         "fr" : {
@@ -17170,7 +17170,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Fellnasen"
+            "value" : "Haustiere"
           }
         },
         "en" : {
@@ -17275,13 +17275,13 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%lld Fotos werden gespeichert..."
+            "value" : "%lld Fotos werden gespeichert…"
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Writing %lld photos..."
+            "value" : "Writing %lld photos…"
           }
         },
         "fr" : {
@@ -17345,7 +17345,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Lebensarchiv · Fellnasen-Profil"
+            "value" : "Lebensarchiv · Haustierprofil"
           }
         },
         "en" : {
@@ -17695,7 +17695,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Erlaube den Zugriff unter Einstellungen > Datenschutz > Fotos, um nach passenden Fotos zu suchen."
+            "value" : "Erlaube den Zugriff unter Einstellungen → Datenschutz → Fotos, um nach passenden Fotos zu suchen."
           }
         },
         "en" : {
@@ -18045,13 +18045,13 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Berechtigung wird angefragt..."
+            "value" : "Berechtigung wird angefragt…"
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Requesting authorization..."
+            "value" : "Requesting authorization…"
           }
         },
         "fr" : {
@@ -18640,13 +18640,13 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Fotos werden gescannt... %lld/%lld"
+            "value" : "Fotos werden gescannt… %lld/%lld"
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Scanning photos... %lld/%lld"
+            "value" : "Scanning photos… %lld/%lld"
           }
         },
         "fr" : {
@@ -18675,13 +18675,13 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Mediathek wird auf dem Gerät gescannt..."
+            "value" : "Mediathek wird auf dem Gerät gescannt…"
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Scanning library on device..."
+            "value" : "Scanning library on device…"
           }
         },
         "fr" : {
@@ -19130,7 +19130,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Erstes Fellnasen-Profil erstellen"
+            "value" : "Erstes Haustierprofil erstellen"
           }
         },
         "en" : {
@@ -19165,7 +19165,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Das Archiv ist leer.\nLass uns mit deiner ersten Fellnase beginnen."
+            "value" : "Das Archiv ist leer.\nBeginne mit deinem ersten Liebling."
           }
         },
         "en" : {
@@ -19235,7 +19235,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Warten auf deine erste Fellnase"
+            "value" : "Warte auf deinen ersten Liebling"
           }
         },
         "en" : {
@@ -19760,7 +19760,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Unbegrenzter Fotospeicher für deine Fellnasen"
+            "value" : "Unbegrenzter Speicher für deine Haustierfotos"
           }
         },
         "en" : {
@@ -19795,7 +19795,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Verwalte bis zu 20 Fellnasen-Profile"
+            "value" : "Verwalte bis zu 20 Haustierprofile"
           }
         },
         "en" : {
@@ -19935,7 +19935,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Unbegrenzte Anzahl an Fellnasen, mit einem klaren Profil für jede einzelne"
+            "value" : "Unbegrenzte Haustiere – jeweils mit eigenem Profil"
           }
         },
         "en" : {
@@ -19970,7 +19970,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Eigene Profile für jede Fellnase"
+            "value" : "Ein Profil für jedes Haustier"
           }
         },
         "en" : {
@@ -20613,7 +20613,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Mehr Fellnasen · Kompletter Verlauf · Hochwertige Exporte"
+            "value" : "Mehr Haustiere · Kompletter Verlauf · Hochwertige Exporte"
           }
         },
         "en" : {
@@ -20648,7 +20648,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Mehr Fellnasen · Kompletter Verlauf · Hochwertige Exporte"
+            "value" : "Mehr Haustiere · Kompletter Verlauf · Hochwertige Exporte"
           }
         },
         "en" : {
@@ -20718,7 +20718,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Bitte lies vor dem Kauf die wichtigen Bestimmungen zu Haftungsbeschränkungen, automatischer Verlängerung und weiteren Bedingungen in den Nutzungsbedingungen."
+            "value" : "Bitte lies vor dem Kauf die Nutzungsbedingungen zu Verlängerung und Kündigung."
           }
         },
         "en" : {
@@ -21628,7 +21628,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%1$d Tage kostenlos, verlängert sich danach für %2$@. Kann jederzeit in den App Store-Accounteinstellungen gekündigt werden; dein aktueller Zeitraum bleibt nach der Kündigung gültig."
+            "value" : "%1$d Tage gratis, danach %2$@. Jederzeit in den App Store Account Einstellungen kündbar; der aktuelle Zeitraum bleibt gültig."
           }
         },
         "en" : {
@@ -21781,7 +21781,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Fellnase hinzufügen"
+            "value" : "Haustier hinzufügen"
           }
         },
         "en" : {
@@ -22922,7 +22922,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Fellnasen-Profil löschen"
+            "value" : "Haustierprofil löschen"
           }
         },
         "en" : {
@@ -23657,7 +23657,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Notizen überschreiten %lld Zeichen — bitte vor dem Speichern kürzen"
+            "value" : "Notizen überschreiten %lld Zeichen – bitte vor dem Speichern kürzen"
           }
         },
         "en" : {
@@ -24077,7 +24077,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Der kostenlose Plan unterstützt bis zu %lld Fellnasen-Profil. Upgrade auf Pro für bis zu 20 Fellnasen."
+            "value" : "Der kostenlose Plan unterstützt bis zu %lld Haustiere. Pro erweitert das Limit auf 20."
           }
         },
         "en" : {
@@ -24112,7 +24112,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Gib einen Namen für deine Fellnase ein"
+            "value" : "Gib einen Namen für dein Haustier ein"
           }
         },
         "en" : {
@@ -24742,7 +24742,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Konnte Fellnasen-Profil nicht laden"
+            "value" : "Haustierprofil konnte nicht geladen werden"
           }
         },
         "en" : {
@@ -25372,7 +25372,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Fotos ohne Fellnasen-Zuordnung"
+            "value" : "Fotos ohne Haustierzuordnung"
           }
         },
         "en" : {
@@ -25407,7 +25407,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Importierte oder gescannte Fotos im Album, die keiner Fellnase zugeordnet sind, erscheinen hier."
+            "value" : "Importierte oder gescannte Fotos ohne Haustierzuordnung erscheinen hier."
           }
         },
         "en" : {
@@ -25687,7 +25687,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Fellnasen-Karte"
+            "value" : "Haustierkarte"
           }
         },
         "en" : {
@@ -25792,13 +25792,13 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Fellnase löschen"
+            "value" : "Haustier löschen"
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Pal delete"
+            "value" : "Delete Pal"
           }
         },
         "fr" : {
@@ -25862,7 +25862,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Fellnase hinzufügen"
+            "value" : "Haustier hinzufügen"
           }
         },
         "en" : {
@@ -25897,7 +25897,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Noch keine Fellnasen-Profile"
+            "value" : "Noch keine Haustierprofile"
           }
         },
         "en" : {
@@ -25967,7 +25967,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Noch keine Gefährten. Erstelle zuerst einen"
+            "value" : "Noch keine Haustiere. Erstelle zuerst ein Profil."
           }
         },
         "en" : {
@@ -26037,7 +26037,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Gefährten zuweisen"
+            "value" : "Haustier zuweisen"
           }
         },
         "en" : {
@@ -26107,7 +26107,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Keinem Gefährten zuweisen"
+            "value" : "Keinem Haustier zuweisen"
           }
         },
         "en" : {
@@ -26142,7 +26142,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Gefährten zuweisen"
+            "value" : "Haustier zuweisen"
           }
         },
         "en" : {
@@ -26422,7 +26422,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Gefährten zuweisen"
+            "value" : "Haustier zuweisen"
           }
         },
         "en" : {
@@ -26807,7 +26807,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Noch keine Gefährten-Profile"
+            "value" : "Noch keine Haustierprofile"
           }
         },
         "en" : {
@@ -26842,7 +26842,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Erstelle zuerst ein Gefährten-Profil im Tab Gefährten, dann komm zurück, um eine Karte zu erstellen"
+            "value" : "Erstelle zuerst ein Haustierprofil im Tab Haustiere und komm dann zurück."
           }
         },
         "en" : {
@@ -26877,7 +26877,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Einen Gefährten auswählen"
+            "value" : "Ein Haustier auswählen"
           }
         },
         "en" : {
@@ -26912,7 +26912,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Gefährten auswählen"
+            "value" : "Haustier auswählen"
           }
         },
         "en" : {
@@ -27297,7 +27297,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Importiere zuerst Fotos aus dem Album, dann komm zurück, um eine Gefährten-Karte zu erstellen"
+            "value" : "Importiere zuerst Fotos und komm zurück, um eine Haustierkarte zu erstellen"
           }
         },
         "en" : {
@@ -27332,7 +27332,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Ein Foto für eine Gefährten-Karte auswählen"
+            "value" : "Ein Foto für eine Haustierkarte auswählen"
           }
         },
         "en" : {
@@ -27437,7 +27437,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Importiere zuerst Fotos aus dem Album, dann komm zurück, um ein Rote-Umschlag-Cover zu erstellen"
+            "value" : "Importiere zuerst Fotos aus dem Album, dann komm zurück, um ein Red-Packet-Cover zu erstellen"
           }
         },
         "en" : {
@@ -27472,7 +27472,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Wähle ein Porträtfoto für die besten Ergebnisse (WeChat-Cover: 957 × 1278)"
+            "value" : "Wähle ein Porträtfoto für die besten Ergebnisse (Red-Packet-Cover: 957 × 1278)"
           }
         },
         "en" : {
@@ -27682,7 +27682,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Beim Scannen werden nur mögliche Fotos entdeckt; du bestätigst, was importiert wird und zu welchem Gefährten es gehört."
+            "value" : "Beim Scannen werden mögliche Fotos gefunden; du bestätigst Import und Haustierzuordnung."
           }
         },
         "en" : {
@@ -27822,7 +27822,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Die Erkennung von Gefährten-Fotos läuft komplett über lokale Modelle — keine Server involviert."
+            "value" : "Haustierfotos werden vollständig lokal erkannt – ohne Server."
           }
         },
         "en" : {
@@ -28172,7 +28172,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Der kostenlose Plan zeigt deine letzten 50 Fotos; ältere Fotos sind gesperrt. Abonniere, um vollen Zugriff wiederherzustellen, oder lösche überschüssige Fotos, um Platz zu schaffen."
+            "value" : "Der kostenlose Plan zeigt die letzten 50 Fotos; ältere sind gesperrt. Abonniere Pro oder lösche Fotos, um Platz zu schaffen."
           }
         },
         "en" : {
@@ -28312,7 +28312,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Importiere Fotos, um hier einen Jahresrückblick zu generieren"
+            "value" : "Importiere Fotos für deinen Jahresrückblick."
           }
         },
         "en" : {
@@ -28977,7 +28977,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Dadurch werden Albumeinträge, Gefährten-Profile und Sandbox-Fotokopien in MiLens gelöscht. Diese Aktion kann nicht rückgängig gemacht werden. Originale in deiner System-Fotomediathek bleiben unberührt."
+            "value" : "Dadurch werden Albumeinträge, Haustierprofile und Sandbox-Fotokopien gelöscht. Diese Aktion kann nicht rückgängig gemacht werden. Originale bleiben in deiner Fotomediathek erhalten."
           }
         },
         "en" : {
@@ -29537,13 +29537,13 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Cover-Titel eingeben..."
+            "value" : "Cover-Titel eingeben…"
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Enter cover title..."
+            "value" : "Enter cover title…"
           }
         },
         "fr" : {
@@ -29817,13 +29817,13 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Ausschnitt wird auf dem Gerät verarbeitet..."
+            "value" : "Ausschnitt wird auf dem Gerät verarbeitet…"
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Processing cutout on device..."
+            "value" : "Processing cutout on device…"
           }
         },
         "fr" : {
@@ -29887,13 +29887,13 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Gefährte wird auf dem Gerät freigestellt..."
+            "value" : "Haustier wird auf dem Gerät freigestellt…"
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Isolating pal subject on device..."
+            "value" : "Isolating pal subject on device…"
           }
         },
         "fr" : {
@@ -30027,7 +30027,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Gefährte vom Hintergrund freigestellt"
+            "value" : "Haustier vom Hintergrund freigestellt"
           }
         },
         "en" : {
@@ -31287,7 +31287,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "WeChat-Cover teilen"
+            "value" : "Red-Packet-Cover teilen"
           }
         },
         "en" : {
@@ -31392,7 +31392,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "1. Öffne die WeChat-Cover-Plattform"
+            "value" : "1. Öffne die WeChat-Plattform für Red-Packet-Cover"
           }
         },
         "en" : {
@@ -31497,7 +31497,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "WeChat-Cover exportieren"
+            "value" : "Red-Packet-Cover exportieren"
           }
         },
         "en" : {
@@ -31812,7 +31812,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Gefährte im oberen mittleren sicheren Bereich neu positioniert"
+            "value" : "Haustier im oberen mittleren Sicherheitsbereich platziert"
           }
         },
         "en" : {
@@ -31847,7 +31847,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Segenswunsch-Text wurde aus dem Bereich des WeChat-Öffnen-Buttons verschoben"
+            "value" : "Glückwunsch-Text wurde aus dem Bereich des WeChat-Öffnen-Buttons verschoben"
           }
         },
         "en" : {
@@ -31917,7 +31917,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "WeChat Rote Umschläge"
+            "value" : "Red-Packet-Cover"
           }
         },
         "en" : {
@@ -32057,7 +32057,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Das Foto ist zu %lld%% überbelichtet — erwäge, die Helligkeit zu reduzieren"
+            "value" : "Das Foto ist um %lld%% überbelichtet – erwäge, die Helligkeit zu reduzieren"
           }
         },
         "en" : {
@@ -32092,7 +32092,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Das Foto ist zu %lld%% unterbelichtet — erwäge, die Helligkeit zu erhöhen"
+            "value" : "Das Foto ist um %lld%% unterbelichtet – erwäge, die Helligkeit zu erhöhen"
           }
         },
         "en" : {
@@ -32722,7 +32722,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Gefährten-Ausschnitt ist sauber und glatt"
+            "value" : "Der Ausschnitt des Haustiers ist sauber und glatt"
           }
         },
         "en" : {
@@ -32792,7 +32792,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Rauheit der Ausschnittkante ist %lld"
+            "value" : "Die Rauheit der Ausschnittkante liegt bei %lld"
           }
         },
         "en" : {
@@ -33422,7 +33422,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Segenswunsch-Text ist klar und leicht lesbar"
+            "value" : "Glückwunsch-Text ist klar und leicht lesbar"
           }
         },
         "en" : {
@@ -33819,19 +33819,19 @@
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Spécifications WeChat"
+            "value" : "957 × 1278 px PNG (< 500 KB)"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "957 × 1278 · 固定"
+            "value" : "957 × 1278 px PNG（< 500 KB）"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "957 × 1278 · 固定"
+            "value" : "957 × 1278 px PNG（< 500 KB）"
           }
         }
       }
@@ -33947,13 +33947,13 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Segenswunsch des Gefährten"
+            "value" : "Kosename"
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Pal's Blessing"
+            "value" : "Nickname"
           }
         },
         "fr" : {
@@ -34157,7 +34157,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Kostenloses Template"
+            "value" : "Kostenlose Vorlage"
           }
         },
         "en" : {
@@ -34262,7 +34262,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Sauberer, erfrischender Stil, der deinen Gefährten ins Rampenlicht rückt"
+            "value" : "Sauberer, frischer Stil, der deinen Liebling ins Rampenlicht rückt"
           }
         },
         "en" : {
@@ -34297,7 +34297,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Gefährten-Frische"
+            "value" : "Frischer Stil"
           }
         },
         "en" : {
@@ -34332,7 +34332,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Rote-Umschlag-Cover"
+            "value" : "Red-Packet-Cover"
           }
         },
         "en" : {
@@ -34367,7 +34367,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Besuche die WeChat-Plattform für Rote-Umschlag-Cover"
+            "value" : "Besuche die WeChat-Plattform für Red-Packet-Cover"
           }
         },
         "en" : {
@@ -34402,7 +34402,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Lade das Bild nach dem Export auf die WeChat-Plattform für Rote-Umschlag-Cover hoch, bevor du es verwendest."
+            "value" : "Lade das Bild nach dem Export auf die WeChat-Plattform für Red-Packet-Cover hoch, bevor du es verwendest."
           }
         },
         "en" : {
@@ -34542,7 +34542,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Segen & Text"
+            "value" : "Glückwunsch & Text"
           }
         },
         "en" : {
@@ -34577,7 +34577,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Gefährte (Motiv)"
+            "value" : "Haustier (Motiv)"
           }
         },
         "en" : {
@@ -34612,7 +34612,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Template auswählen"
+            "value" : "Vorlage auswählen"
           }
         },
         "en" : {
@@ -34717,7 +34717,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Werkstatt betreten"
+            "value" : "Werkstatt öffnen"
           }
         },
         "en" : {
@@ -34857,7 +34857,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Liebling-Ebene"
+            "value" : "Ebene des Haustiers"
           }
         },
         "en" : {
@@ -35032,7 +35032,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Importiere zuerst Fotos von deinem Liebling, um ein eigenes Cover zu erstellen"
+            "value" : "Importiere zuerst Fotos deines Lieblings, um ein eigenes Cover zu erstellen"
           }
         },
         "en" : {
@@ -35277,7 +35277,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Rote Umschläge Cover-Werkstatt"
+            "value" : "Werkstatt für Red-Packet-Cover"
           }
         },
         "en" : {
@@ -35662,7 +35662,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Füge Geburtstage, Adoptionstage und Meilensteine mit deinem Liebling hinzu."
+            "value" : "Füge Geburtstage, Adoptionstage und Meilensteine hinzu."
           }
         },
         "en" : {
@@ -35697,7 +35697,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Erinnerungen benachrichtigen dich um 9:00 Uhr am Tag des Ereignisses."
+            "value" : "Erinnerungen benachrichtigen dich am Ereignistag um 9 Uhr."
           }
         },
         "en" : {
@@ -36012,7 +36012,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Erinnerungen an heute vor %lld Jahren"
+            "value" : "Heute vor %lld Jahren"
           }
         },
         "en" : {
@@ -36502,7 +36502,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%1$lld Liebling-Profile"
+            "value" : "%1$lld Haustierprofile"
           }
         },
         "en" : {
@@ -37062,13 +37062,13 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Daten deines Lieblings werden gesammelt..."
+            "value" : "Daten deiner Haustiere werden gesammelt…"
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Collecting pal data..."
+            "value" : "Collecting pal data…"
           }
         },
         "fr" : {
@@ -37097,13 +37097,13 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Backup-Archiv wird komprimiert..."
+            "value" : "Backup-Archiv wird komprimiert…"
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Compressing backup archive..."
+            "value" : "Compressing backup archive…"
           }
         },
         "fr" : {
@@ -37132,13 +37132,13 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Fotodateien werden kopiert..."
+            "value" : "Fotodateien werden kopiert…"
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Copying photo files..."
+            "value" : "Copying photo files…"
           }
         },
         "fr" : {
@@ -37272,7 +37272,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Deaktiviere dies, um iCloud-Speicherplatz zu sparen (Originale können aus Fotos wiederhergestellt werden). Wenn aktiviert, werden importierte Kopien in System-Backups eingeschlossen."
+            "value" : "Deaktiviere dies, um iCloud-Speicher zu sparen. Originale bleiben in Fotos verfügbar; aktivierte Backups sichern importierte Kopien."
           }
         },
         "en" : {
@@ -37832,7 +37832,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Wenn aktiviert: Erinnerungen um 9:00 Uhr an Geburtstagen und Adoptionsjahrestagen; tägliche Zeitmaschinen-Erinnerungen um 9:00 Uhr, wenn Fotos von diesem Tag aus vergangenen Jahren existieren."
+            "value" : "Bei Aktivierung erhältst du um 9:00 Uhr Erinnerungen an Geburtstage und Jahrestage sowie tägliche Zeitmaschinen-Erinnerungen, wenn Fotos dieses Tages existieren."
           }
         },
         "en" : {
@@ -37867,7 +37867,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Gedenkerinnerungen"
+            "value" : "Erinnerungen"
           }
         },
         "en" : {
@@ -39127,7 +39127,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "WeChat Freunde"
+            "value" : "WeChat-Freunde"
           }
         },
         "en" : {
@@ -39407,7 +39407,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Kostenloser Export enthält ein Wasserzeichen · Pro entfernt das Wasserzeichen"
+            "value" : "Gratisexport mit Wasserzeichen · Pro entfernt es"
           }
         },
         "en" : {
@@ -39687,7 +39687,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Lieblinge"
+            "value" : "Haustiere"
           }
         },
         "en" : {
@@ -39932,7 +39932,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Erstelle zuerst ein Liebling-Profil"
+            "value" : "Erstelle zuerst ein Haustierprofil"
           }
         },
         "en" : {
@@ -39967,7 +39967,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Kein Foto angehängt"
+            "value" : "Kein Foto verknüpft"
           }
         },
         "en" : {
@@ -40037,7 +40037,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Liebling"
+            "value" : "Haustier"
           }
         },
         "en" : {
@@ -40282,7 +40282,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Alle Lieblinge"
+            "value" : "Alle Haustiere"
           }
         },
         "en" : {
@@ -40820,7 +40820,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Alle Lieblinge"
+            "value" : "Alle Haustiere"
           }
         },
         "en" : {
@@ -40890,7 +40890,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Der kostenlose Plan beinhaltet die Zeitleiste des letzten 1 Jahres"
+            "value" : "Im kostenlosen Tarif ist die Zeitleiste des letzten Jahres enthalten"
           }
         },
         "en" : {
@@ -41256,13 +41256,13 @@
               "one" : {
                 "stringUnit" : {
                   "state" : "translated",
-                  "value" : "1 Tag verbleibend in der Vollvorschau"
+                  "value" : "Noch 1 Tag in der Vollvorschau"
                 }
               },
               "other" : {
                 "stringUnit" : {
                   "state" : "translated",
-                  "value" : "%lld Tage verbleibend in der Vollvorschau"
+                  "value" : "Noch %lld Tage in der Vollvorschau"
                 }
               }
             }
@@ -41839,7 +41839,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "MiLens erstellt und exportiert das Cover; Upload, Überprüfung und Veröffentlichung erfolgen in WeChat."
+            "value" : "MiLens erstellt und exportiert das Cover; Hochladen, Prüfung und Veröffentlichung erfolgen in WeChat."
           }
         },
         "en" : {
@@ -42084,7 +42084,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Öffne die WeChat Red Packet Cover-Plattform"
+            "value" : "Öffne die WeChat-Plattform für Red-Packet-Cover"
           }
         },
         "en" : {
@@ -42259,7 +42259,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Upload-Anleitung"
+            "value" : "Anleitung zum Hochladen"
           }
         },
         "en" : {
@@ -42349,7 +42349,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Erstelle sein erstes Profil"
+            "value" : "Erstelle das erste Haustierprofil"
           }
         },
         "en" : {
@@ -42405,7 +42405,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Transparenter Hintergrund bleibt nach dem Speichern als PNG erhalten"
+            "value" : "PNG-Speicherung bewahrt den transparenten Hintergrund."
           }
         },
         "en" : {
@@ -42461,7 +42461,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Originalvorschau · der Perleneffekt wird nach der Generierung hier angezeigt"
+            "value" : "Originalvorschau · Der Perleneffekt erscheint hier nach der Generierung"
           }
         },
         "en" : {
@@ -42517,7 +42517,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Wenn „Nur Motiv“ aktiviert ist, wird das Liebling-Motiv automatisch freigestellt; falls dies fehlschlägt, wird die Generierung mit dem Originalfoto fortgesetzt"
+            "value" : "Wenn „Nur Motiv“ aktiviert ist, wird das Haustiermotiv automatisch freigestellt; bei Fehlschlag wird das Originalfoto verwendet."
           }
         },
         "en" : {
@@ -42629,7 +42629,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Die Avatar-Auswahl wird in einem zukünftigen Update verfügbar sein"
+            "value" : "Avatar-Auswahl folgt in einer späteren Version."
           }
         },
         "en" : {
@@ -42713,7 +42713,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Liebling-Karte"
+            "value" : "Haustierkarte"
           }
         },
         "en" : {
@@ -42881,7 +42881,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Perlenmuster"
+            "value" : "Bügelperlen-Muster"
           }
         },
         "en" : {
@@ -42909,7 +42909,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Empfohlen: Perlenillustration"
+            "value" : "Empfohlen: Bügelperlen-Illustration"
           }
         },
         "en" : {
@@ -43189,7 +43189,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Farbwahl"
+            "value" : "Farbanzahl"
           }
         },
         "en" : {

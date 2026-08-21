@@ -66,7 +66,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "MiLens benötigt die Berechtigung, um Bügelperlen-Vorlagen, Begleiter-Karten und Zeitleisten-Bilder in deinen Fotos zu speichern."
+            "value": "MiLens benötigt Zugriff auf Fotos, um Bügelperlen-Muster, Haustierkarten und Zeitleistenbilder zu speichern."
           }
         }
       }
@@ -101,7 +101,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Finde die Fotos deines Begleiters und erstelle Profile. Fotos bleiben auf dem Gerät; bearbeitete Werke können gesichert werden."
+            "value": "Finde Fotos deines Haustiers und erstelle Profile. Alles bleibt auf dem Gerät."
           }
         }
       }

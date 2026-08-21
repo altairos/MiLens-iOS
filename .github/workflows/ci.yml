@@ -70,6 +70,8 @@ jobs:
           python-version: "3.x"
       - name: Check UI token discipline
         run: python tools/check-ui-tokens.py
+      - name: Check decoration asset catalog
+        run: python -m unittest tools.test_frame_import -v
       # ADR-0011：规模守卫（600/800 行）+ 平台隔离（Photos 越界），
       # 豁免白名单挂 ADR，根治 R2/R3 复发（remediation-plan P1-3）。
       - name: Check file size guard

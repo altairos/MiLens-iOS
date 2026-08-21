@@ -143,16 +143,16 @@ def find_pngs(frame_dir: Path, item_id: str, fit_mode: str) -> list[tuple[str, P
     """返回 [(ratio_token, png_path)]。
 
     - stretch / nine_patch：单张 <id>.png，ratio_token 为空串。
-    - ratio_set：所有 <id>_*.png，ratio_token 为后缀（如 "1x1"）。
+    - ratio_set：所有 <id>_<ratio>.png，ratio_token 为后缀（如 "1x1"），排除 preview/thumb。
     """
     if fit_mode in ("stretch", "nine_patch"):
         p = frame_dir / f"{item_id}.png"
         return [("", p)] if p.exists() else []
-    # ratio_set：扫描所有 <id>_*.png
+    # ratio_set：扫描所有 <id>_*.png，排除 preview 与 thumb
     results: list[tuple[str, Path]] = []
     for png in sorted(frame_dir.glob(f"{item_id}_*.png")):
         ratio = png.stem[len(item_id) + 1:]  # 去掉 "<id>_" 前缀
-        if ratio:
+        if ratio and ratio not in ("preview", "thumb"):
             results.append((ratio, png))
     return results
 
@@ -160,6 +160,52 @@ def find_pngs(frame_dir: Path, item_id: str, fit_mode: str) -> list[tuple[str, P
 def ratio_token_valid(token: str) -> bool:
     """校验 "WxH" 格式（W/H 为正数，如 1x1 / 3x4 / 16x9）。"""
     return bool(re.fullmatch(r"\d+(?:\.\d+)?x\d+(?:\.\d+)?", token))
+
+
+def validate_imageset(assets_dir: Path, asset_name: str) -> list[str]:
+    """校验 imageset 目录及其 1x 文件，返回可直接打印的问题。"""
+    imageset = assets_dir / f"{asset_name}.imageset"
+    if not imageset.is_dir():
+        return [f"缺 imageset {asset_name}.imageset"]
+
+    contents_path = imageset / "Contents.json"
+    if not contents_path.is_file():
+        return [f"缺 {asset_name}.imageset/Contents.json"]
+    try:
+        with contents_path.open(encoding="utf-8") as f:
+            contents = json.load(f)
+    except (OSError, json.JSONDecodeError) as exc:
+        return [f"{asset_name}.imageset/Contents.json 无法解析：{exc}"]
+
+    problems: list[str] = []
+    filenames = [
+        image.get("filename")
+        for image in contents.get("images", [])
+        if isinstance(image, dict) and image.get("filename")
+    ]
+    if not filenames:
+        return [f"{asset_name}.imageset/Contents.json 未声明 PNG"]
+    for filename in filenames:
+        if not isinstance(filename, str) or Path(filename).name != filename:
+            problems.append(f"{asset_name}.imageset 文件名非法：{filename!r}")
+            continue
+        png = imageset / filename
+        if not png.is_file():
+            problems.append(f"{asset_name}.imageset 缺文件 {filename}")
+            continue
+        try:
+            header = png.read_bytes()
+            if header[:8] != b"\x89PNG\r\n\x1a\n" or len(header) < 29:
+                problems.append(f"{asset_name}.imageset 文件不是有效 PNG：{filename}")
+            elif header[12:16] != b"IHDR":
+                problems.append(f"{asset_name}.imageset PNG 缺少 IHDR：{filename}")
+            elif int.from_bytes(header[16:20], "big") <= 0 or int.from_bytes(header[20:24], "big") <= 0:
+                problems.append(f"{asset_name}.imageset PNG 尺寸非法：{filename}")
+            elif header[25] not in (4, 6):
+                problems.append(f"{asset_name}.imageset PNG 缺少 alpha 通道：{filename}")
+        except OSError as exc:
+            problems.append(f"{asset_name}.imageset 文件无法读取 {filename}：{exc}")
+    return problems
 
 
 # --------------------------------------------------------------------------- #
@@ -322,6 +368,24 @@ def cmd_add(args: argparse.Namespace) -> int:
             print(f"[导入] {asset_name} <- {rel(png)}")
             write_imageset(assets, asset_name, png, args.dry_run)
 
+        # 检查并导入独立的 preview 图
+        preview_name = manifest.get("preview_path")
+        if preview_name and preview_name != item_id:
+            # 查找候选 preview png
+            preview_candidates = [
+                fd / f"{preview_name}.png",
+                fd / f"{item_id}_preview.png",
+                fd / "preview.png"
+            ]
+            for p_cand in preview_candidates:
+                if p_cand.exists():
+                    print(f"[导入预览] {preview_name} <- {rel(p_cand)}")
+                    write_imageset(assets, preview_name, p_cand, args.dry_run)
+                    break
+            else:
+                print(f"  [错误] {fd.name}: preview PNG 不存在（preview_path={preview_name}）")
+                asset_error = True
+
         if asset_error:
             skipped += 1
             continue
@@ -397,6 +461,9 @@ def cmd_validate(args: argparse.Namespace) -> int:
         if fit not in FITMODE_SNAKE_TO_CAMEL.values():
             print(f"[错误] {item_id}: fitMode={fit} 非法（应为 {list(FITMODE_SNAKE_TO_CAMEL.values())}）")
             problems += 1
+        if cat == "sticker" and fit != "stretch":
+            print(f"[错误] {item_id}: sticker 只支持 fitMode=stretch")
+            problems += 1
         if fit == "ninePatch":
             insets = it.get("ninePatchInsets")
             if not insets or not all(k in insets for k in ("top", "left", "bottom", "right")):
@@ -410,14 +477,27 @@ def cmd_validate(args: argparse.Namespace) -> int:
                 problems += 1
             for r in ratios:
                 asset_name = f"{it.get('resourcePath', item_id)}_{r}"
-                if not (assets / f"{asset_name}.imageset").is_dir():
-                    print(f"[错误] {item_id}: 缺 imageset {asset_name}.imageset")
+                for problem in validate_imageset(assets, asset_name):
+                    print(f"[错误] {item_id}: {problem}")
                     problems += 1
         else:
             asset_name = it.get("resourcePath", item_id)
-            if not (assets / f"{asset_name}.imageset").is_dir():
-                print(f"[错误] {item_id}: 缺 imageset {asset_name}.imageset")
+            checked_assets = {asset_name}
+            for problem in validate_imageset(assets, asset_name):
+                print(f"[错误] {item_id}: {problem}")
                 problems += 1
+            preview_name = it.get("previewPath") or asset_name
+            if preview_name not in checked_assets:
+                checked_assets.add(preview_name)
+                for problem in validate_imageset(assets, preview_name):
+                    print(f"[错误] {item_id}: preview {problem}")
+                    problems += 1
+        if fit == "ratioSet":
+            preview_name = it.get("previewPath")
+            if preview_name:
+                for problem in validate_imageset(assets, preview_name):
+                    print(f"[错误] {item_id}: preview {problem}")
+                    problems += 1
     if problems:
         print(f"\n校验失败：{problems} 个问题")
         return 1

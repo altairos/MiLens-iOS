@@ -103,6 +103,41 @@ final class EditorDecorationRenderTests: XCTestCase {
                     "ratioSet 选中的素材应绘制到画布")
     }
 
+    /// 生产目录中的 12 个贴纸都必须同时可预览、可解码并能进入真实导出管线。
+    /// 该测试使用 Bundle 中的 catalog 与 Asset Catalog，不用合成占位素材替代生产资源。
+    func testProductionStickerPackRendersThroughExport() throws {
+        let catalog = try loadProductionCatalog()
+        let stickers = catalog.items(for: .sticker)
+        XCTAssertEqual(stickers.count, 12)
+
+        let base = try makeColorImage(side: 80, color: .white)
+        for item in stickers {
+            XCTAssertEqual(item.previewPath, item.resourcePath, "贴纸预览应复用同一 imageset：\(item.id)")
+            let image = try XCTUnwrap(
+                UIImage(named: item.resourcePath),
+                "贴纸 Asset Catalog 缺失或无法解码：\(item.resourcePath)"
+            )
+            let source = DecorationRenderSource(
+                image: try XCTUnwrap(image.cgImage),
+                fitMode: item.fitMode,
+                ninePatchInsets: item.ninePatchInsets
+            )
+            let layer = EditorLayer(
+                id: item.id, type: .sticker, zIndex: 2,
+                x: 40, y: 40, width: 40, height: 40,
+                resourcePath: item.resourcePath
+            )
+            let data = processor.renderExport(
+                baseImage: base,
+                layers: [photoLayer(side: 80), layer],
+                canvasSize: CGSize(width: 80, height: 80),
+                format: resolveSaveFormat(hasAlpha: true),
+                decorationProvider: { $0 == item.resourcePath ? source : nil }
+            )
+            XCTAssertNotNil(data, "生产贴纸导出失败：\(item.id)")
+        }
+    }
+
     // MARK: - ② 透明贴纸边缘
 
     /// PNG：贴纸 alpha=0 区域透出白底图——无黑边（premultiply 错误会在透明区露黑）。
@@ -190,6 +225,14 @@ final class EditorDecorationRenderTests: XCTestCase {
     private func photoLayer(side: Double) -> EditorLayer {
         EditorLayer(id: "photo_1", type: .photo, zIndex: 0, x: side / 2, y: side / 2,
                     width: side, height: side)
+    }
+
+    private func loadProductionCatalog() throws -> DecorationCatalog {
+        let url = Bundle.main.url(
+            forResource: "catalog", withExtension: "json", subdirectory: "Decorations"
+        ) ?? Bundle.main.url(forResource: "catalog", withExtension: "json")
+        let data = try XCTUnwrap(url.flatMap { try? Data(contentsOf: $0) }, "生产 catalog 不在测试 Bundle")
+        return try JSONDecoder().decode(DecorationCatalog.self, from: data)
     }
 
     /// 纯色方图（scale=1：cgImage 像素 = side×side）。

@@ -1,0 +1,10 @@
+{
+  "id": "sticker_birthday_cake",
+  "name": "decoration.sticker.birthdayCake",
+  "category": "sticker",
+  "fit_mode": "stretch",
+  "is_premium": true,
+  "group": "memorial",
+  "sort_order": 43,
+  "native_aspect_ratio": 1.0
+}

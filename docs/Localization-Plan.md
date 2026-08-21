@@ -1,6 +1,6 @@
 # MiLens 全球本地化计划
 
-最后更新：2026-08-17（回退 1c623e9 误入主 catalog 的 117 条 en 初译，修复 commit b3b0a79，CI 全绿 run 31961932575——红线教训见 §5.4：翻译完整导入前 catalog 只能含源语言；2026-08-16 MiLensWidget 接入 String Catalog，工具链支持多 catalog × 多源码根与 Excel sheet 去歧义；2026-08-15 CI 缺译门禁过渡期降级 `--allow-missing-translations`；2026-08-10 定案首发 7 语言：zh-Hans / zh-Hant / ja / ko / en / fr / de）
+最后更新：2026-08-21（全量英文本地化 100% 完成：全部 1239 个 key 注入 String Catalog，遵循 pal/pals 术语规范，0 缺译、0 占位符漂移、0 格式问题；2026-08-17（回退 1c623e9 误入主 catalog 的 117 条 en 初译，修复 commit b3b0a79，CI 全绿 run 31961932575——红线教训见 §5.4：翻译完整导入前 catalog 只能含源语言；2026-08-16 MiLensWidget 接入 String Catalog，工具链支持多 catalog × 多源码根与 Excel sheet 去歧义；2026-08-15 CI 缺译门禁过渡期降级 `--allow-missing-translations`；2026-08-10 定案首发 7 语言：zh-Hans / zh-Hant / ja / ko / en / fr / de）
 
 > 本文档是 MiLens 全球首发本地化工作的唯一事实来源：语言矩阵、各国市场注意要点、翻译工作流、质量门禁、ASO 关键词策略与时间线。工具与命令见 [DEVELOPMENT.md](../DEVELOPMENT.md) §4.5，商店文案见 [AppStore-metadata.md](AppStore-metadata.md)，商业决策见 [ADR-0010](adr/0010-commercialization-and-emotion-triggers.md)。
 
@@ -537,7 +537,7 @@ App Store 元数据与 App 内翻译分别验收，提交 ASC 前逐语言核对
 |---|---|---|---|---|---|---|
 | 拼豆图纸 | bead pattern | アイロンビーズ図案 | 비즈 도안 | Bügelperlen-Vorlage | modèle de perles à repasser | 拼豆圖紙 |
 | 拼豆工作室 | bead studio | ビーズスタジオ | 비즈 스튜디오 | Bead-Studio | studio de perles | 拼豆工作室 |
-| 宠物档案 | pet profile | ペットのプロフィール | 반려동물 프로필 | Haustierprofil | profil de l'animal | 寵物檔案 |
+| 宠物档案 | pal profile (严禁用 pet) | ペットのプロフィール | 반려동물 프로필 | Haustierprofil | profil de l'animal | 寵物檔案 |
 | 成长时间线 | growth timeline | 成長タイムライン | 성장 타임라인 | Wachstumszeitleiste | chronologie de croissance | 成長時間軸 |
 | 往日回忆 | memories | 思い出 | 추억 | Erinnerungen | souvenirs | 往日回憶 |
 | 时光机 | time machine | タイムマシン | 타임머신 | Zeitmaschine | machine à remonter le temps | 時光機 |
@@ -589,7 +589,7 @@ App Store 元数据与 App 内翻译分别验收，提交 ASC 前逐语言核对
 | 2.1 | **MarketProfile 区域差异化基础设施**：`MarketProfile` 模型 + `@Environment(\.marketProfile)` 注入 + Typography 委托 + PrivacyInfoView 隐私叙事强度（GDPR 区第 4 条强化声明）+ `PrivacyNarrativeLogic` 纯逻辑 + 22 单测；5 处硬编码 `zh_CN` 清理 | #2 | ✅ 已完成（2026-08-13）|
 | 2.5 | Excel 资产工作簿（`localization-assets.py` + 9 sheet，en 初译 150 条）| #1 | ✅ 已完成 |
 | 3 | 术语表定稿（批次 0 前）| — | 0.5 天 |
-| 4 | en 全量审校 + 导入 + check | #3 | 1 天 |
+| 4 | en 全量审校 + 导入 + check | #3 | ✅ 已完成（2026-08-21，1239 key 100% 注入，0 缺译，pal 规范落地）|
 | 5 | ja + zh-Hant 翻译 | #4 | 1-2 天 |
 | 6 | ko + de + fr 翻译（de/fr 长度专项）| #4 | 1-2 天 |
 | 7 | `localization.py check` 增强：每语言统计 + `needs_review`(`--strict`)/占位符漂移(默认阻断)/长度规则(`--length-rules`)/硬编码检测(`--hardcoded`)；单测 `tools/test_localization.py` | #4 | ✅ 已完成（2026-08-12）|

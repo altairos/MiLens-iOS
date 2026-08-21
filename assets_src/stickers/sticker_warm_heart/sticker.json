@@ -1,0 +1,10 @@
+{
+  "id": "sticker_warm_heart",
+  "name": "decoration.sticker.warmHeart",
+  "category": "sticker",
+  "fit_mode": "stretch",
+  "is_premium": false,
+  "group": "daily",
+  "sort_order": 30,
+  "native_aspect_ratio": 1.0
+}

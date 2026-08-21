@@ -1,0 +1,10 @@
+{
+  "id": "sticker_sleepy_moon",
+  "name": "decoration.sticker.sleepyMoon",
+  "category": "sticker",
+  "fit_mode": "stretch",
+  "is_premium": false,
+  "group": "daily",
+  "sort_order": 34,
+  "native_aspect_ratio": 1.0
+}

@@ -1,0 +1,10 @@
+{
+  "id": "sticker_food_bowl",
+  "name": "decoration.sticker.foodBowl",
+  "category": "sticker",
+  "fit_mode": "stretch",
+  "is_premium": false,
+  "group": "daily",
+  "sort_order": 33,
+  "native_aspect_ratio": 1.0
+}

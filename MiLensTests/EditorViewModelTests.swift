@@ -663,6 +663,45 @@ final class EditorViewModelTests: XCTestCase {
         XCTAssertNil(vm.decorationVM.currentFrameResourcePath)
     }
 
+    /// 预览与导出都必须把相框放在贴纸下面，即使相框是后添加的。
+    func testStableRenderOrderKeepsFrameBelowStickerWhenFrameAddedLast() async {
+        let vm = await makeLoadedVM(catalog: makeDecorationCatalog())
+
+        vm.selectTool(.sticker)
+        vm.decorationVM.addSticker(vm.decorationCatalog.find("sticker_paw")!, isPro: true)
+        vm.selectTool(.frame)
+        vm.decorationVM.applyFrame(vm.decorationCatalog.find("frame_a")!, isPro: true)
+
+        XCTAssertEqual(vm.layers.map(\.type), [.photo, .sticker, .frame],
+                       "文档顺序可以因操作顺序变化")
+        XCTAssertEqual(orderedRenderLayers(vm.layers).map(\.type), [.photo, .frame, .sticker],
+                       "稳定合成顺序必须让 frame 位于 sticker 下方")
+    }
+
+    /// 每次命中都应能切换贴纸，并可点空白处清除选中。
+    func testLayerSelectionCanSwitchBetweenStickersAndClearOnEmptyTap() async {
+        let vm = await makeLoadedVM(catalog: makeDecorationCatalog())
+        var first = EditorLayer(
+            id: "sticker_first", type: .sticker, x: 120, y: 150,
+            width: 80, height: 80, resourcePath: "sticker_paw")
+        var second = EditorLayer(
+            id: "sticker_second", type: .sticker, x: 280, y: 150,
+            width: 80, height: 80, resourcePath: "sticker_paw")
+        vm.document.add(&first)
+        vm.document.add(&second)
+        vm.document.select(nil)
+        vm.syncState()
+
+        vm.selectLayer(at: CGPoint(x: 120, y: 150))
+        XCTAssertEqual(vm.activeLayerID, first.id)
+
+        vm.selectLayer(at: CGPoint(x: 280, y: 150))
+        XCTAssertEqual(vm.activeLayerID, second.id)
+
+        vm.selectLayer(at: CGPoint(x: 10, y: 10))
+        XCTAssertNil(vm.activeLayerID)
+    }
+
     /// 标题行图标动作：移除相框（可撤销恢复）；删除贴纸（非贴纸选中态静默）。
     func testRemoveFrameAndDeleteStickerHeaderActions() async {
         let vm = await makeLoadedVM(catalog: makeDecorationCatalog())

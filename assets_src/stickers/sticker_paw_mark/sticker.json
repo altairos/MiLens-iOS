@@ -1,0 +1,10 @@
+{
+  "id": "sticker_paw_mark",
+  "name": "decoration.sticker.pawMark",
+  "category": "sticker",
+  "fit_mode": "stretch",
+  "is_premium": false,
+  "group": "paw",
+  "sort_order": 20,
+  "native_aspect_ratio": 1.0
+}

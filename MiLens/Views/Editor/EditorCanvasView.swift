@@ -17,6 +17,10 @@ struct EditorCanvasView: View {
     /// moveActiveLayer 为增量语义：差值传入，否则重复累加导致图层超速漂移）。
     @State private var layerDragLast: CGSize = .zero
 
+    /// 当前图层手势是否已经完成首次命中。每次手势都先按触点重新命中，
+    /// 这样可以在多张贴纸之间切换选中，也可以点空白处清除选中。
+    @State private var layerGestureHasSelected = false
+
     var body: some View {
         GeometryReader { geo in
             let canvasRect = Self.fitRect(container: geo.size, aspectRatio: viewModel.photoAspectRatio)
@@ -35,7 +39,7 @@ struct EditorCanvasView: View {
                 }
                 .frame(width: canvasRect.width, height: canvasRect.height)
                 .contentShape(Rectangle())
-                .gesture(canvasGesture(canvasRect: canvasRect))
+                .gesture(canvasGesture())
             }
             .onAppear {
                 viewModel.setCanvasSize(canvasRect.size)
@@ -67,7 +71,7 @@ struct EditorCanvasView: View {
 
     @ViewBuilder
     private var textLayers: some View {
-        ForEach(viewModel.layers) { layer in
+        ForEach(orderedRenderLayers(viewModel.layers)) { layer in
             if layer.type == .text && layer.visible {
                 Text(layer.text)
                     .font(.system(size: layer.fontSize))
@@ -91,7 +95,9 @@ struct EditorCanvasView: View {
     /// - 命中：贴纸参与点选/手势（命中判定在 selectLayer）；相框铺满画布保持不可命中。
     @ViewBuilder
     private var decorationLayers: some View {
-        ForEach(viewModel.layers) { layer in
+        // 预览必须与导出共用稳定合成顺序：photo → frame → sticker → text。
+        // 否则先加贴纸、后加相框时，相框会错误地盖在贴纸上。
+        ForEach(orderedRenderLayers(viewModel.layers)) { layer in
             if (layer.type == .frame || layer.type == .sticker) && layer.visible,
                let source = viewModel.resolveDecorationSource(for: layer) {
                 DecorationLayerView(layer: layer, source: source)
@@ -204,20 +210,22 @@ struct EditorCanvasView: View {
 
     /// 画布手势：裁剪模式拖动裁剪框；常规模式点选/拖动/缩放/旋转活动图层（手势合并为一条历史）。
     /// 缩放/旋转仅在无工具激活时生效（避免裁剪模式误改活动图层）。
-    private func canvasGesture(canvasRect: CGRect) -> some Gesture {
+    private func canvasGesture() -> some Gesture {
         DragGesture(minimumDistance: 0)
             .onChanged { value in
                 if viewModel.tool == .crop {
                     cropDragChanged(value)
                 } else {
-                    layerTapOrDragChanged(value, canvasRect: canvasRect)
+                    layerTapOrDragChanged(value)
                 }
             }
             .onEnded { _ in
                 if viewModel.tool == .crop {
                     cropDragStart = nil
+                    layerGestureHasSelected = false
                 } else {
                     layerDragLast = .zero
+                    layerGestureHasSelected = false
                     viewModel.endLayerGesture()
                 }
             }
@@ -252,15 +260,14 @@ struct EditorCanvasView: View {
         ))
     }
 
-    /// 常规模式：无活动图层时点选（画布内坐标），有活动图层时拖动。
+    /// 常规模式：每次手势先按触点命中图层，再拖动命中的活动图层。
+    /// DragGesture 附着在画布内部 ZStack，location 已经是画布本地坐标，
+    /// 不应再次减去外层 GeometryReader 的 canvasRect 原点。
     /// translation 为相对手势起点的累计值，取差值作为增量传给 moveActiveLayer。
-    private func layerTapOrDragChanged(_ value: DragGesture.Value, canvasRect: CGRect) {
-        if viewModel.activeLayerID == nil {
-            let p = CGPoint(
-                x: value.location.x - canvasRect.minX,
-                y: value.location.y - canvasRect.minY
-            )
-            viewModel.selectLayer(at: p)
+    private func layerTapOrDragChanged(_ value: DragGesture.Value) {
+        if !layerGestureHasSelected {
+            layerGestureHasSelected = true
+            viewModel.selectLayer(at: value.location)
         }
         if viewModel.activeLayerID != nil {
             viewModel.beginLayerGesture()

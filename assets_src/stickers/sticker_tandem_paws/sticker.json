@@ -1,0 +1,10 @@
+{
+  "id": "sticker_tandem_paws",
+  "name": "decoration.sticker.tandemPaws",
+  "category": "sticker",
+  "fit_mode": "stretch",
+  "is_premium": false,
+  "group": "paw",
+  "sort_order": 21,
+  "native_aspect_ratio": 1.0
+}

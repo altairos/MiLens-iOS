@@ -1,0 +1,10 @@
+{
+  "id": "sticker_sun_paw",
+  "name": "decoration.sticker.sunPaw",
+  "category": "sticker",
+  "fit_mode": "stretch",
+  "is_premium": false,
+  "group": "recommended",
+  "sort_order": 10,
+  "native_aspect_ratio": 1.0
+}

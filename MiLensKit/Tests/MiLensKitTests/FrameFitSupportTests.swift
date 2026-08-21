@@ -159,4 +159,40 @@ final class FrameFitSupportTests: XCTestCase {
         let result = pickClosestAspectRatio(targetRatio: 1.0, candidates: ["abc", "1x1"])
         XCTAssertEqual(result, "1x1")
     }
+
+    // MARK: - computeRatioSetAspectFillGeometry
+
+    func testAspectFillEqualRatios() {
+        // 素材 3:4 (0.75)，画布 300x400 (0.75) -> 完全贴合
+        let geo = computeRatioSetAspectFillGeometry(assetAspectRatio: 0.75, canvasWidth: 300, canvasHeight: 400)
+        XCTAssertEqual(geo.x, 0, accuracy: 1e-9)
+        XCTAssertEqual(geo.y, 0, accuracy: 1e-9)
+        XCTAssertEqual(geo.width, 300, accuracy: 1e-9)
+        XCTAssertEqual(geo.height, 400, accuracy: 1e-9)
+    }
+
+    func testAspectFillWiderCanvasCropsVertically() {
+        // 素材 3:4 (0.75)，画布 400x400 (1.0，比相框更宽) -> 宽铺满 400，高放大到 533.33，垂直居中 y = -66.66
+        let geo = computeRatioSetAspectFillGeometry(assetAspectRatio: 0.75, canvasWidth: 400, canvasHeight: 400)
+        XCTAssertEqual(geo.x, 0, accuracy: 1e-9)
+        XCTAssertEqual(geo.width, 400, accuracy: 1e-9)
+        XCTAssertEqual(geo.height, 400.0 / 0.75, accuracy: 1e-6)
+        XCTAssertEqual(geo.y, (400.0 - 400.0 / 0.75) / 2.0, accuracy: 1e-6)
+    }
+
+    func testAspectFillNarrowerCanvasCropsHorizontally() {
+        // 素材 1:1 (1.0)，画布 300x400 (0.75，比相框更窄) -> 高铺满 400，宽放大到 400，水平居中 x = -50
+        let geo = computeRatioSetAspectFillGeometry(assetAspectRatio: 1.0, canvasWidth: 300, canvasHeight: 400)
+        XCTAssertEqual(geo.y, 0, accuracy: 1e-9)
+        XCTAssertEqual(geo.height, 400, accuracy: 1e-9)
+        XCTAssertEqual(geo.width, 400, accuracy: 1e-9)
+        XCTAssertEqual(geo.x, -50, accuracy: 1e-9)
+    }
+
+    func testAspectFillInvalidInputsFallback() {
+        let geo = computeRatioSetAspectFillGeometry(assetAspectRatio: 0, canvasWidth: 100, canvasHeight: 100)
+        XCTAssertEqual(geo.width, 100)
+        XCTAssertEqual(geo.height, 100)
+    }
 }
+

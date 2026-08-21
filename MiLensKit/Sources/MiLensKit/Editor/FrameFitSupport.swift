@@ -162,3 +162,46 @@ public func pickClosestAspectRatio(targetRatio: Double, candidates: [String]) ->
     }
     return best?.token
 }
+
+// MARK: - 多比例素材等比贴合几何计算
+
+/// 多比例素材在目标画布上的绘制几何（居中等比铺满或留白）。
+public struct AspectFitGeometry: Equatable, Sendable {
+    public var x: Double
+    public var y: Double
+    public var width: Double
+    public var height: Double
+
+    public init(x: Double, y: Double, width: Double, height: Double) {
+        self.x = x
+        self.y = y
+        self.width = width
+        self.height = height
+    }
+}
+
+/// 计算多比例相框在目标画布上的等比外切填充几何（AspectFill，保证四周完全覆盖画布，无黑边）。
+public func computeRatioSetAspectFillGeometry(
+    assetAspectRatio: Double,
+    canvasWidth: Double,
+    canvasHeight: Double
+) -> AspectFitGeometry {
+    guard assetAspectRatio > 0, canvasWidth > 0, canvasHeight > 0 else {
+        return AspectFitGeometry(x: 0, y: 0, width: max(0, canvasWidth), height: max(0, canvasHeight))
+    }
+    let canvasRatio = canvasWidth / canvasHeight
+    if canvasRatio > assetAspectRatio {
+        // 画布比相框更宽 -> 按宽度铺满，高度居中裁剪
+        let drawW = canvasWidth
+        let drawH = canvasWidth / assetAspectRatio
+        let drawY = (canvasHeight - drawH) / 2.0
+        return AspectFitGeometry(x: 0, y: drawY, width: drawW, height: drawH)
+    } else {
+        // 画布比相框更窄 -> 按高度铺满，宽度居中裁剪
+        let drawH = canvasHeight
+        let drawW = canvasHeight * assetAspectRatio
+        let drawX = (canvasWidth - drawW) / 2.0
+        return AspectFitGeometry(x: drawX, y: 0, width: drawW, height: drawH)
+    }
+}
+

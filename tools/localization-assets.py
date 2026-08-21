@@ -137,22 +137,25 @@ def sheet_from_xcstrings(wb: Workbook, path: Path) -> None:
 
 OVERVIEW = [
     # (资产, 行数说明, {语言: 状态})
-    ("1. App UI 文案（Localizable ~150 key）", "144 key，String Catalog", {
+    ("1. App UI 文案（Localizable ~1189 key）", "1189 key，String Catalog", {
         "zh-Hans": "✅ 源语言", "zh-Hant": "待翻译", "ja": "待翻译", "ko": "待翻译",
-        "en": "初译待审（needs_review）", "fr": "待翻译", "de": "待翻译"}),
+        "en": "✅ 完成（100% translated）", "fr": "待翻译", "de": "待翻译"}),
     ("2. 权限说明 + App 显示名（InfoPlist 3 key）", "权限文案 + CFBundleDisplayName", {
         "zh-Hans": "✅ 源语言", "zh-Hant": "待翻译", "ja": "待翻译", "ko": "待翻译",
-        "en": "初译待审（needs_review）", "fr": "待翻译", "de": "待翻译"}),
-    ("3. App Store 元数据", "名称/副标题/描述/关键词/推广文本/审核备注", {
+        "en": "✅ 完成（100% translated）", "fr": "待翻译", "de": "待翻译"}),
+    ("3. 小组件文案（MiLensWidget 47 key）", "47 key，String Catalog", {
+        "zh-Hans": "✅ 源语言", "zh-Hant": "待翻译", "ja": "待翻译", "ko": "待翻译",
+        "en": "✅ 完成（100% translated）", "fr": "待翻译", "de": "待翻译"}),
+    ("4. App Store 元数据", "名称/副标题/描述/关键词/推广文本/审核备注", {
         "zh-Hans": "✅ 已定稿", "zh-Hant": "待制作", "ja": "待制作", "ko": "待制作",
-        "en": "待制作", "fr": "待制作", "de": "待制作"}),
-    ("4. 订阅产品描述（ASC）", "3 产品 × 显示名/描述", {
+        "en": "✅ 已定稿 (Pal 规范)", "fr": "待制作", "de": "待制作"}),
+    ("5. 订阅产品描述（ASC）", "3 产品 × 显示名/描述", {
         "zh-Hans": "✅ 已定稿", "zh-Hant": "待制作", "ja": "待制作", "ko": "待制作",
-        "en": "待制作", "fr": "待制作", "de": "待制作"}),
-    ("5. 隐私政策网页", "docs/privacy-policy.html，?lang= 切换", {
+        "en": "✅ 已定稿", "fr": "待制作", "de": "待制作"}),
+    ("6. 隐私政策网页", "docs/privacy-policy.html，?lang= 切换", {
         "zh-Hans": "✅ 已发布", "zh-Hant": "待制作", "ja": "待制作", "ko": "待制作",
         "en": "待制作", "fr": "待制作", "de": "待制作"}),
-    ("6. 截图/预览素材", "3 设备尺寸 × 5 张 × 文案覆盖层", {
+    ("7. 截图/预览素材", "3 设备尺寸 × 5 张 × 文案覆盖层", {
         "zh-Hans": "待制作", "zh-Hant": "待制作", "ja": "待制作", "ko": "待制作",
         "en": "待制作", "fr": "待制作", "de": "待制作"}),
 ]
@@ -175,7 +178,7 @@ APP_NAME = {
     "zh-Hant": "咪Lens - 寵物照片整理與拼豆創作",
     "ja": "咪Lens - ペット写真整理とアイロンビーズ図案",
     "ko": "MiLens - 반려동물 사진 정리와 비즈 도안",
-    "en": "MiLens - Pet Photos & Bead Art",
+    "en": "MiLens - Pal Photos & Bead Art",
     "fr": "MiLens - Photos animaux & perles à repasser",
     "de": "MiLens - Haustierfotos & Bügelperlen-Vorlagen",
 }
@@ -184,7 +187,7 @@ SUBTITLE = {
     "zh-Hant": "拾回散落的每一張照片，記住你與毛小孩共度的一生",
     "ja": "ペットの写真を整理して、アイロンビーズの図案に",
     "ko": "반려동물 사진 정리와 비즈 도안 만들기",
-    "en": "Every pet photo, organized & turned into bead art",
+    "en": "Every photo of your pal, organized & turned into bead art",
     "fr": "Triez les photos d'animaux, créez des perles à repasser",
     "de": "Haustierfotos sortieren & Bügelperlen-Vorlagen",
 }

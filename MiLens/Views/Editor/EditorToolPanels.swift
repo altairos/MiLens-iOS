@@ -75,9 +75,15 @@ struct EditorGroupToolRow: View {
         case .adjust: return [(.crop, "crop", "裁剪"), (.rotate, "rotate.right", "旋转"), (.adjust, "slider.horizontal.3", "调色"), (.flip, "arrow.left.and.right.righttriangle.left.righttriangle.right", "翻转")]
         case .smart: return [(.cutout, "scissors", "抠图")]
         case .decorate:
-            var list: [(EditorToolMode, String, String)] = [(.text, "textformat", "文字")]
-            if viewModel.hasStickerItems { list.append((.sticker, "sticker", "贴纸")) }
-            if viewModel.hasFrameItems { list.append((.frame, "photo.on.rectangle", "相框")) }
+            var list: [(EditorToolMode, String, String)] = [
+                (.text, "textformat", String(localized: "editor.tool.text"))
+            ]
+            if viewModel.hasStickerItems {
+                list.append((.sticker, "sticker", String(localized: "editor.tool.sticker")))
+            }
+            if viewModel.hasFrameItems {
+                list.append((.frame, "photo.on.rectangle", String(localized: "editor.tool.frame")))
+            }
             return list
         case .create, .none: return []
         }

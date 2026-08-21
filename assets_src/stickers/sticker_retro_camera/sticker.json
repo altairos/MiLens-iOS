@@ -1,0 +1,10 @@
+{
+  "id": "sticker_retro_camera",
+  "name": "decoration.sticker.retroCamera",
+  "category": "sticker",
+  "fit_mode": "stretch",
+  "is_premium": false,
+  "group": "daily",
+  "sort_order": 32,
+  "native_aspect_ratio": 1.0
+}

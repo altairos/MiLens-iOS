@@ -1,0 +1,10 @@
+{
+  "id": "sticker_adoption_ribbon",
+  "name": "decoration.sticker.adoptionRibbon",
+  "category": "sticker",
+  "fit_mode": "stretch",
+  "is_premium": true,
+  "group": "memorial",
+  "sort_order": 42,
+  "native_aspect_ratio": 1.0
+}

@@ -1,0 +1,10 @@
+{
+  "id": "sticker_bloom_flower",
+  "name": "decoration.sticker.bloomFlower",
+  "category": "sticker",
+  "fit_mode": "stretch",
+  "is_premium": false,
+  "group": "daily",
+  "sort_order": 31,
+  "native_aspect_ratio": 1.0
+}

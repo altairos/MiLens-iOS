@@ -67,7 +67,8 @@ struct EditorDecorationPanelView: View {
             Image(systemName: "trash")
                 .font(.system(size: Sizing.iconMd))
                 .foregroundStyle(Color.milensDanger)
-                .frame(width: 28, height: 28)
+                // 图标保持 28pt，按钮触控区域遵循全局 44pt 最小值。
+                .frame(width: Sizing.touchTarget, height: Sizing.touchTarget)
                 .contentShape(Rectangle())
         }
         .disabled(!isEnabled)

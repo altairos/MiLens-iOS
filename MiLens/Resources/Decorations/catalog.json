@@ -167,6 +167,22 @@
       "ninePatchInsets": null,
       "supportedRatios": null,
       "nativeAspectRatio": 1.0
+    },
+    {
+      "id": "frame_spring_botanical",
+      "name": "decoration.frame.springBotanical",
+      "category": "frame",
+      "resourcePath": "frame_spring_botanical",
+      "previewPath": "frame_spring_botanical_preview",
+      "isPremium": false,
+      "group": "paper",
+      "sortOrder": 10,
+      "fitMode": "ratioSet",
+      "ninePatchInsets": null,
+      "supportedRatios": [
+        "3x4"
+      ],
+      "nativeAspectRatio": 0.75
     }
   ]
 }

@@ -1,0 +1,14 @@
+{
+  "id": "frame_spring_botanical",
+  "name": "decoration.frame.springBotanical",
+  "category": "frame",
+  "fit_mode": "ratio_set",
+  "is_premium": false,
+  "group": "paper",
+  "sort_order": 10,
+  "supported_ratios": [
+    "3x4"
+  ],
+  "native_aspect_ratio": 0.75,
+  "preview_path": "frame_spring_botanical_preview"
+}

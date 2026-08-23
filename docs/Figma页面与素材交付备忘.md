@@ -21,7 +21,7 @@
 - V1 的一级导航只有四个 Tab：**首页、伙伴、创作、我的**。相册、照片详情、编辑器、时间线和创作流程是二级页面，不新增 Tab。
 - V1 创作首页只展示目前能真实完成的五项：**拼豆图纸、伙伴卡片、成长对比、宠物名片、红包封面**。AI 写真、回忆视频、商城、社区、账号和手表不应进入 V1 Figma 主流程。
 - 设计稿不能只交一张“正常状态图”。每个页面至少要覆盖：Loading、Empty、Error、Permission Denied、Partial Data、Offline/Resource Missing；适用时还要有 Selected、Pressed、Disabled、Paywall、Dark Mode、High Contrast、Dynamic Type 和 iPad 版。
-- 当前仓库的 `Assets.xcassets` 主要是颜色 token 和 App Icon，已有两套字体（霞鹜文楷、Fraunces）；**品牌插画、伙伴示例图、装饰素材、相框、贴纸、相簿皮肤目前都没有作为正式资源交付**。
+- 当前仓库的 `Assets.xcassets` 主要是颜色 token 和 App Icon，已有两套字体（霞鹜文楷、Fraunces）；**品牌插画、伙伴示例图、相簿皮肤仍没有作为正式资源交付**；装饰素材已开始交付（12 贴纸 + 1 相框入 catalog，见 [Frame-Sticker-Development-Plan.md §5.3](Frame-Sticker-Development-Plan.md)）。
 
 ## 2. Figma 文件建议结构
 
@@ -61,7 +61,7 @@
 | S-01–07 | 我的、Pro、隐私、通知、外观、帮助、关于 | 已有 | P0 |
 | R-01 | 数据库恢复/本地数据无法加载 | 已有恢复页 | P1 |
 | M-01–04 | 纪念卡、月度精选、年度回忆册、相簿模式 | 规划/接口预留 | FUTURE |
-| D-01–02 | 编辑器相框、贴纸资源选择器 | Figma 操作态与复用资源单元已交付；代码只有类型/目录接口，正式 catalog 与素材仍为空 | FUTURE / 设计已交付 |
+| D-01–02 | 编辑器相框、贴纸资源选择器 | Figma 操作态与复用资源单元已交付；代码面板与 catalog 已实装（12 贴纸 + 1 相框，[开发计划 §5.3](Frame-Sticker-Development-Plan.md)），首批规划相框余 5 个 | P1 / 部分交付 |
 | PR-01 | 实体打印产品选择/报价/订单 | 只有服务接口 | FUTURE |
 
 ---
@@ -176,7 +176,7 @@
 | E-06 编辑结果 | 保存中、保存成功、保存失败、文件缺失；回到照片详情 |
 | E-07 Future 装饰工具 | 贴纸：选中图层、拖动、双指缩放/旋转、删除、横向分类与素材轨；相框：整画布图层、比例自动适配、移除、横向分类与缩略图轨。稿件作为实现规格，代码开放仍受 catalog/feature flag 控制 |
 
-当前高保真节点：[`Adjust` 422:813](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=422-813)、[`Crop` 422:817](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=422-817)、[`Text` 422:821](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=422-821)、[`Cutout` 422:825](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=422-825)、[`Sticker` 555:1075](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=555-1075)、[`Frame` 558:1152](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=558-1152)。Decorate 组只保留文字/贴纸/相框，不包含“留白”“签名”。03–06 基础态与 05A/05B 操作态共用 342×40pt 横向滚动二级工具轨；贴纸/相框虽已有可执行的设计规格，仍属于 Future 代码能力，不得在 catalog 为空时伪装为可用。保存/分享统一进入 `Output / Share Preview`，不额外伪造一级工具。
+当前高保真节点：[`Adjust` 422:813](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=422-813)、[`Crop` 422:817](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=422-817)、[`Text` 422:821](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=422-821)、[`Cutout` 422:825](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=422-825)、[`Sticker` 555:1075](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=555-1075)、[`Frame` 558:1152](https://www.figma.com/design/WnT7DCK1XCyPwnS38SE87p/MiLens-iOS?node-id=558-1152)。Decorate 组只保留文字/贴纸/相框，不包含“留白”“签名”。03–06 基础态与 05A/05B 操作态共用 342×40pt 横向滚动二级工具轨；贴纸/相框代码与 catalog 已实装（12 贴纸 + 1 相框，入口由 catalog 门禁控制），素材缺失时必须显示真实空态而不是注入演示素材。保存/分享统一进入 `Output / Share Preview`，不额外伪造一级工具。
 
 ### 4.7 创作与拼豆
 
@@ -264,8 +264,8 @@
 
 | 素材包 | 需要交付 | 当前状态 |
 |---|---|---|
-| 编辑器相框 | 基础相框、高级相框、节日相框、透明边界、缩略图、分类、Pro 标记 | `EditorLayerType.frame` 与 `DecorationCatalog` 已预留；Figma 选择/操作态与复用单元已交付，正式资源、catalog 内容和代码面板未实施 |
-| 编辑器贴纸 | 爪印、日期、爱心、食物、玩具、节日、彩虹桥等；PNG/SVG、边界、缩略图、分类、Pro 标记 | `EditorLayerType.sticker` 已预留；Figma 选择/变换/删除操作态已交付，正式资源、catalog 内容和代码面板未实施 |
+| 编辑器相框 | 基础相框、高级相框、节日相框、透明边界、缩略图、分类、Pro 标记 | 面板/合成/历史已实装（M0–M2）；catalog 已有 `frame_spring_botanical`（仅 3x4），首批规划 6 相框余 5 个未制作（[开发计划 §5.3](Frame-Sticker-Development-Plan.md)） |
+| 编辑器贴纸 | 爪印、日期、爱心、食物、玩具、节日、彩虹桥等；PNG/SVG、边界、缩略图、分类、Pro 标记 | 面板/合成/历史已实装（M0–M2）；catalog 已有 12 个贴纸（玩具球、彩虹桥主题未做），`decoration.sticker.*` a11y key 已补齐 7 语言（[开发计划 §5.3](Frame-Sticker-Development-Plan.md)） |
 | 贴纸文字/字体包 | 可商用字体、手写字、日期数字、中文长文案适配 | 当前编辑器只有文字工具和固定颜色预设，没有贴纸字体包 |
 | 相簿浏览模式 | 复古翻页、拍立得散页、杂志版式的背景、纸张、装订、翻页动效 | `GalleryMode` 已有类型接口；Pro 模式尚未实现页面 |
 | 实体打印 | 相册、明信片套装、拼豆材料包、周边的商品图、包装、尺寸和价格展示 | `PrintService` 只有接口/占位模型；真实订单为 V1.x |
@@ -354,7 +354,7 @@
 
 本轮返修统一了 12 张扩展稿的 `color/surface/canvas` 背景与 44pt 通用返回控件；其中 02、07–11 还同步校正了实际回退填充，避免变量已绑定而画面仍为纯白。编辑器图标已从散线/字符占位替换为单体 SVG Vector Group；所有 `studio/copper` 绑定替换为主系统的 `color/action/brand` 深铜红。03/04/05/06 已按紧凑三层 `EditorPanelArea` 重排：参数纸内依次是二级标题、342×40pt 横向滚动 Tool Row 和当前参数，一级 Group Dock 常驻；调色页的五条 342×36pt Slider 收入 342×85pt 纵向滚动视口，行间距 2pt且不显示右侧数字。四张编辑画布统一为 `x=24 / y=109 / 342×489pt`，参数纸从 `y=606pt` 起；画布底到铜红线 8pt，线底到二级标题顶 9pt。Group Dock 保持用户确认的 `x=24 / y=767 / 342×54pt` 浅色连续导航面，三等分按钮，选中项使用 `color/action/brand` 图标、文字与 48×2pt 短刻度，未选项使用 `color/text/secondary`，不再使用暗房底、悬浮胶囊或卡片阴影。SwiftUI 实现须从实时 safe area 推导底部位置，不复制参考稿绝对 y 值。
 
-2026-08-13 装饰与注释补充：Decorate 二级轨收敛为文字/贴纸/相框。贴纸操作态提供选中层、拖动、双指缩放/旋转、删除、横向分类轨与横向素材轨；相框操作态提供整画布图层、3:4 自动适配、移除、横向分类轨与相框缩略图。素材单元包含 Default/Selected/Locked 三态与 Pro 语义。07/08 主页面新增注释 Display 行，07A/08A 使用 Editing 变体原位输入；建议 36 个中文字符上限，预览与导出引用同一草稿状态。当前仓库的装饰 catalog 为空，且两类作品暂无注释业务状态，因此这些页面是代码落实依据，不能写成已上线能力。
+2026-08-13 装饰与注释补充：Decorate 二级轨收敛为文字/贴纸/相框。贴纸操作态提供选中层、拖动、双指缩放/旋转、删除、横向分类轨与横向素材轨；相框操作态提供整画布图层、3:4 自动适配、移除、横向分类轨与相框缩略图。素材单元包含 Default/Selected/Locked 三态与 Pro 语义。07/08 主页面新增注释 Display 行，07A/08A 使用 Editing 变体原位输入；建议 36 个中文字符上限，预览与导出引用同一草稿状态。当前仓库的装饰 catalog 已有 12 贴纸 + 1 相框（入口按门禁自动出现），但两类作品暂无注释业务状态，因此这些页面是代码落实依据，不能写成已上线能力。
 
 2026-08-13 最终精修：12 的 AirDrop、微信、信息、更多由字符占位替换为 24×24pt 可编辑矢量并绑定语义色；05A/05B 的 Dock 中文统一为 Noto Sans SC Medium 12pt 与 32pt 文本框，消除“调整/装饰”裁字；05/05A/05B 图层标题右侧的图层名、手势提示及删除/移除文字被移除，只保留 28×28pt 图标动作；六张编辑态的二级选中刻度从行底收紧到文字下方 5pt；02 的 20×20pt 双时态交换矢量中心校正到 `(195, 270)`。对 12 张主页面与 4 张操作态完成最终截图和结构审计：全部为 390×844pt、绑定 `color/surface/canvas`、可见字号不小于 10pt、无缺失字体、无 detached 实例。
 

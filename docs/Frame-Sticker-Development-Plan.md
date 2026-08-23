@@ -1,6 +1,6 @@
 # MiLens 相框与贴纸开发计划
 
-最后核对：2026-08-16
+最后核对：2026-08-24
 
 > 本文定义图片编辑器「装饰」组中相框与贴纸的产品边界、交互、素材契约、工程实施顺序和验收标准。视觉与几何规格以 [UI-DESIGN.md §6.8](../UI-DESIGN.md#68-图片编辑器) 和 Figma `05A · Editor / Sticker`、`05B · Editor / Frame` 为准；编辑器架构与资源生命周期遵循 [DESIGN.md](../DESIGN.md)；里程碑状态见 [PLAN.md](../PLAN.md)。
 
@@ -118,6 +118,14 @@
 
 第二批贴纸候选为档案藏印、食盆、玩具球、月亮睡眠、生日蛋糕、领养丝带。正式制作前需在 Figma 中完成同一笔触、颜色和缩略图可读性审查。
 
+### 5.3 实装状态（2026-08-24）
+
+catalog 现有 13 条 = 12 贴纸 + 1 相框，均已通过 `tools/frame_import.py validate`：
+
+- **贴纸 12/12**：首批 6（Sun Paw、Paw Mark、Warm Heart、Bloom Flower、Retro Camera、Radiant Star）+ 第二批候选 5（档案藏印、食盆、月亮睡眠、生日蛋糕、领养丝带；玩具球未做）+ 规划外 Tandem Paws（爪印组）。全部 `stretch`、免费。
+- **相框 1/6**：`frame_spring_botanical`（春日花叶，规划外新增，`paper` 组，`ratio_set` 仅 `3x4`——2026-08-24 用户批准的单比例交付，偏差记录见 §6.2）。首批规划的 Linen Register、Polaroid、Film、Editorial、Ribbon、Holiday 仍未制作。
+- **已知缺口**：无。12 个贴纸的 `name` / a11y key（`decoration.sticker.*`）已全部录入 `Localizable.xcstrings`（包含 zh-Hans, zh-Hant, en, ja, ko, fr, de 7 国语言完整翻译），VoiceOver 读屏无障碍体验完整达标。
+
 ## 6. 素材制作与导入契约
 
 ### 6.1 通用要求
@@ -137,6 +145,8 @@
 | `ratio_set` | 拍立得、胶片、手工纸、复杂花纹 | 只提供一个比例后依赖拉伸兜底 |
 
 首批 `ratio_set` 支持 `1x1`、`3x4`、`4x3`、`16x9`、`9x16`。比例缺失属于素材校验失败，不在运行时静默选择方向错误的图片。
+
+> **已批准偏差（2026-08-24）**：`frame_spring_botanical` 仅交付 `3x4`（用户决策「此次只做 3:4」）。运行时 `resolveDecorationResource` 会在其他比例画布上解析到 `3x4` 素材并被整体非等比拉伸，植物装饰存在变形风险；后续补齐其余比例 PNG 后消除。导入工具 validate 不强制五比例齐备（只校验比例命名合法与 imageset 存在），五比例要求仍作为正式交付目标保留。
 
 ### 6.3 manifest 约定
 

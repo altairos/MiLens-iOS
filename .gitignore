@@ -53,6 +53,9 @@ Package.resolved
 tmp/
 tools/*.py
 !tools/subset-display-fonts.py
+# 本地化修正管线依赖（apply_all_en.py 裸 import，必须随仓库分发）
+!tools/en_corrections.py
+!tools/apply_en_corrections.py
 
 # Python 生成产物（模型转换工具链）
 __pycache__/

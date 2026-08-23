@@ -1,0 +1,4914 @@
+{
+  "CFBundleDisplayName": {
+    "zh-Hans": "咪Lens",
+    "zh-Hant": "咪Lens"
+  },
+  "NSPhotoLibraryAddUsageDescription": {
+    "zh-Hans": "咪Lens 需要保存导出的拼豆图纸和照片到相册。",
+    "zh-Hant": "咪Lens 需要取得權限，以便將匯出的拼豆圖稿、毛小孩卡片及照片儲存至「照片」圖庫。"
+  },
+  "NSPhotoLibraryUsageDescription": {
+    "zh-Hans": "咪Lens 需要访问相册来发现和整理你伙伴的照片。所有分析在本地完成。App 不会主动上传照片；编辑产物可能随用户启用的系统备份保存。",
+    "zh-Hant": "咪Lens 需要存取相簿以尋找並整理您的毛小孩照片。所有分析均在本機完成，App 不會主動上傳照片；編輯後的作品可能隨您啟用的系統備份進行儲存。"
+  },
+  "widget.common.daysLater": {
+    "zh-Hans": "天后",
+    "zh-Hant": "天後"
+  },
+  "widget.common.daysLaterCount %lld": {
+    "zh-Hans": "%lld 天后",
+    "zh-Hant": "%lld 天後"
+  },
+  "widget.common.join %@ %@": {
+    "zh-Hans": "%1$@ · %2$@",
+    "zh-Hant": "%1$@ · %2$@"
+  },
+  "widget.common.recent": {
+    "zh-Hans": "最近",
+    "zh-Hant": "近期"
+  },
+  "widget.common.today": {
+    "zh-Hans": "今天",
+    "zh-Hant": "今天"
+  },
+  "widget.empty.createPetFirst": {
+    "zh-Hans": "先建立一份伙伴档案",
+    "zh-Hant": "先建立一份毛小孩檔案"
+  },
+  "widget.entity.anniversary": {
+    "zh-Hans": "纪念日",
+    "zh-Hant": "紀念日"
+  },
+  "widget.entity.pet": {
+    "zh-Hans": "伙伴",
+    "zh-Hant": "毛小孩"
+  },
+  "widget.intents.anniversary.auto": {
+    "zh-Hans": "自动（最近）",
+    "zh-Hant": "自動（近期）"
+  },
+  "widget.intents.anniversary.settings.description": {
+    "zh-Hans": "选择展示哪个伙伴的哪个纪念日倒计时",
+    "zh-Hant": "選擇要在小工具中顯示哪位毛小孩的哪項紀念日倒數"
+  },
+  "widget.intents.anniversary.settings.title": {
+    "zh-Hans": "纪念日设置",
+    "zh-Hant": "紀念日設定"
+  },
+  "widget.intents.pet.all": {
+    "zh-Hans": "全部伙伴",
+    "zh-Hant": "所有毛小孩"
+  },
+  "widget.intents.photoEcho.content": {
+    "zh-Hans": "内容",
+    "zh-Hant": "內容"
+  },
+  "widget.intents.photoEcho.contentSource": {
+    "zh-Hans": "内容来源",
+    "zh-Hant": "內容來源"
+  },
+  "widget.intents.photoEcho.settings.description": {
+    "zh-Hans": "选择展示哪个伙伴的哪类照片",
+    "zh-Hant": "選擇要在小工具中顯示哪位毛小孩的哪類照片"
+  },
+  "widget.intents.photoEcho.settings.title": {
+    "zh-Hans": "相片回声设置",
+    "zh-Hant": "照片回聲設定"
+  },
+  "widget.intents.photoEcho.source.recentWork": {
+    "zh-Hans": "最近作品",
+    "zh-Hant": "近期作品"
+  },
+  "widget.intents.photoEcho.source.todayOrRecent": {
+    "zh-Hans": "今日 / 最近",
+    "zh-Hant": "今日 / 近期"
+  },
+  "widget.intents.photoEcho.source.yearsAgoToday": {
+    "zh-Hans": "往日回忆",
+    "zh-Hant": "往日回憶"
+  },
+  "widget.intents.selectPet.description": {
+    "zh-Hans": "选择这个 Widget 展示的伙伴档案",
+    "zh-Hant": "選擇此小工具要顯示的毛小孩檔案"
+  },
+  "widget.intents.selectPet.title": {
+    "zh-Hans": "选择伙伴",
+    "zh-Hant": "選擇毛小孩"
+  },
+  "widget.lifeArchive.description": {
+    "zh-Hans": "这份档案已经积累了多久、多少照片和多少记忆",
+    "zh-Hant": "記錄你們相伴了多久，以及近期的照片與珍貴回憶"
+  },
+  "widget.lifeArchive.empty.noPhotos": {
+    "zh-Hans": "档案还没有照片",
+    "zh-Hant": "檔案中尚無照片"
+  },
+  "widget.lifeArchive.name": {
+    "zh-Hans": "档案年轮",
+    "zh-Hant": "檔案年輪"
+  },
+  "widget.lifeArchive.stat.memories": {
+    "zh-Hans": "记忆",
+    "zh-Hant": "回憶"
+  },
+  "widget.lifeArchive.stat.photos": {
+    "zh-Hans": "照片",
+    "zh-Hant": "照片"
+  },
+  "widget.lifeArchive.stat.works": {
+    "zh-Hans": "作品",
+    "zh-Hant": "作品"
+  },
+  "widget.lockscreen.countdown.name": {
+    "zh-Hans": "倒计时",
+    "zh-Hant": "倒數計時"
+  },
+  "widget.lockscreen.memory.createFile": {
+    "zh-Hans": "建档",
+    "zh-Hant": "建立檔案"
+  },
+  "widget.lockscreen.memory.description": {
+    "zh-Hans": "伙伴名与一段回忆的日期和标题",
+    "zh-Hant": "毛小孩名字與一段回憶的日期與標題"
+  },
+  "widget.lockscreen.memory.name": {
+    "zh-Hans": "一段回忆",
+    "zh-Hant": "一段回憶"
+  },
+  "widget.lockscreen.memory.pending": {
+    "zh-Hans": "待记录",
+    "zh-Hant": "待記錄"
+  },
+  "widget.photoEcho.description": {
+    "zh-Hans": "回看今天、往日或最近的一张照片",
+    "zh-Hant": "重溫今天、往日或近期的一張照片"
+  },
+  "widget.photoEcho.empty.noPhoto": {
+    "zh-Hans": "留下一张照片",
+    "zh-Hant": "留下第一張照片"
+  },
+  "widget.photoEcho.header %@": {
+    "zh-Hans": "MiLens · %@",
+    "zh-Hant": "MiLens · %@"
+  },
+  "widget.photoEcho.name": {
+    "zh-Hans": "相片回声",
+    "zh-Hant": "照片回聲"
+  },
+  "widget.stale.updated %@": {
+    "zh-Hans": "更新于 %@",
+    "zh-Hant": "更新於 %@"
+  },
+  "widget.stale.waitingSync": {
+    "zh-Hans": "等待数据同步",
+    "zh-Hant": "正在等待資料同步"
+  },
+  "widget.upcoming.daysTogether.adoption %lld": {
+    "zh-Hans": "已陪伴 %lld 天",
+    "zh-Hant": "已陪伴 %lld 天"
+  },
+  "widget.upcoming.daysTogether.birthday %lld": {
+    "zh-Hans": "出生至今 %lld 天",
+    "zh-Hant": "出生至今 %lld 天"
+  },
+  "widget.upcoming.daysTogether.memorial %lld": {
+    "zh-Hans": "已记录 %lld 天",
+    "zh-Hant": "已記錄 %lld 天"
+  },
+  "widget.upcoming.description": {
+    "zh-Hans": "指定一个纪念日的倒计时，或自动取最近的一个",
+    "zh-Hant": "倒數毛小孩的下一個重要日子，或自動選取最近的紀念日"
+  },
+  "widget.upcoming.empty.missing": {
+    "zh-Hans": "该纪念日已不存在",
+    "zh-Hant": "該紀念日已不存在"
+  },
+  "widget.upcoming.empty.none": {
+    "zh-Hans": "还没有纪念日",
+    "zh-Hant": "目前尚無紀念日"
+  },
+  "widget.upcoming.name": {
+    "zh-Hans": "纪念日",
+    "zh-Hant": "即將到來的紀念日"
+  },
+  "widget.upcoming.remainingDays %lld": {
+    "zh-Hans": "还有 %lld 天",
+    "zh-Hant": "還有 %lld 天"
+  },
+  "widget.upcoming.today": {
+    "zh-Hans": "今天是这个日子",
+    "zh-Hant": "就是今天"
+  },
+  "+": {
+    "zh-Hans": "",
+    "zh-Hant": "+"
+  },
+  "a11y.bead.generate": {
+    "zh-Hans": "生成拼豆图纸",
+    "zh-Hant": "產生拼豆圖稿"
+  },
+  "a11y.create.beadEntry": {
+    "zh-Hans": "拼豆图纸，选择照片开始",
+    "zh-Hant": "拼豆圖稿，選取照片開始"
+  },
+  "a11y.create.petCardEntry": {
+    "zh-Hans": "伙伴卡片，选择照片开始",
+    "zh-Hant": "毛小孩卡片，選取照片開始"
+  },
+  "a11y.editor.adjust": {
+    "zh-Hans": "调整",
+    "zh-Hant": "調整"
+  },
+  "a11y.editor.back": {
+    "zh-Hans": "返回",
+    "zh-Hant": "返回"
+  },
+  "a11y.editor.color %@": {
+    "zh-Hans": "颜色 %@",
+    "zh-Hant": "顏色 %@"
+  },
+  "a11y.editor.decorate": {
+    "zh-Hans": "装饰",
+    "zh-Hant": "裝飾"
+  },
+  "a11y.editor.decoration.proBadge": {
+    "zh-Hans": "Pro 专属",
+    "zh-Hant": "Pro 專屬"
+  },
+  "a11y.editor.decoration.unavailable": {
+    "zh-Hans": "素材不可用",
+    "zh-Hant": "素材不可用"
+  },
+  "a11y.editor.deleteSticker": {
+    "zh-Hans": "删除贴纸",
+    "zh-Hant": "刪除貼圖"
+  },
+  "a11y.editor.deleteText": {
+    "zh-Hans": "删除文字",
+    "zh-Hant": "刪除文字"
+  },
+  "a11y.editor.redo": {
+    "zh-Hans": "重做",
+    "zh-Hant": "重做"
+  },
+  "a11y.editor.removeFrame": {
+    "zh-Hans": "移除相框",
+    "zh-Hant": "移除相框"
+  },
+  "a11y.editor.save": {
+    "zh-Hans": "保存",
+    "zh-Hant": "儲存"
+  },
+  "a11y.editor.smart": {
+    "zh-Hans": "智能",
+    "zh-Hant": "智慧增強"
+  },
+  "a11y.editor.undo": {
+    "zh-Hans": "撤销",
+    "zh-Hant": "復原"
+  },
+  "a11y.gallery.date %lld %lld": {
+    "zh-Hans": "，%lld月%lld日",
+    "zh-Hant": "，%lld月%lld日"
+  },
+  "a11y.gallery.favorite": {
+    "zh-Hans": "，已收藏",
+    "zh-Hant": "，已收藏"
+  },
+  "a11y.gallery.lockedPhoto": {
+    "zh-Hans": "已锁定照片",
+    "zh-Hant": "已鎖定照片"
+  },
+  "a11y.gallery.photo": {
+    "zh-Hans": "照片",
+    "zh-Hant": "照片"
+  },
+  "a11y.gallery.selected": {
+    "zh-Hans": "，已选择",
+    "zh-Hant": "，已選取"
+  },
+  "a11y.home.bell": {
+    "zh-Hans": "待看的回忆",
+    "zh-Hant": "待看的回憶"
+  },
+  "a11y.home.openPhoto %@": {
+    "zh-Hans": "打开照片，%@",
+    "zh-Hant": "打開照片，%@"
+  },
+  "a11y.onboarding.back": {
+    "zh-Hans": "返回上一步",
+    "zh-Hant": "返回上一步"
+  },
+  "a11y.onboarding.privacyAgree": {
+    "zh-Hans": "同意隐私政策",
+    "zh-Hant": "同意隱私權政策"
+  },
+  "a11y.onboarding.step %lld %lld": {
+    "zh-Hans": "第 %lld 步，共 %lld 步",
+    "zh-Hant": "第 %lld 步，共 %lld 步"
+  },
+  "a11y.petcard.generate": {
+    "zh-Hans": "生成伙伴卡片",
+    "zh-Hant": "產生毛小孩卡片"
+  },
+  "a11y.pets.avatar %@": {
+    "zh-Hans": "%@头像",
+    "zh-Hant": "%@大頭貼"
+  },
+  "a11y.pets.avatarPhoto %@": {
+    "zh-Hans": "%@的头像照片",
+    "zh-Hant": "%@的大頭貼照片"
+  },
+  "a11y.photoView.assign": {
+    "zh-Hans": "归属到伙伴",
+    "zh-Hant": "歸屬到毛小孩"
+  },
+  "a11y.photoView.edit": {
+    "zh-Hans": "编辑",
+    "zh-Hant": "編輯"
+  },
+  "a11y.photoView.favorite": {
+    "zh-Hans": "收藏",
+    "zh-Hant": "收藏"
+  },
+  "a11y.timeline.representativePhoto": {
+    "zh-Hans": "代表照片",
+    "zh-Hant": "代表照片"
+  },
+  "about.fonts.note": {
+    "zh-Hans": "以上字体均以 SIL Open Font License 1.1 授权，许可证原文随 App 分发。",
+    "zh-Hant": "本軟體使用之開源字型均遵循相應之開源授權協議。"
+  },
+  "about.fonts.title": {
+    "zh-Hans": "字体与开源许可",
+    "zh-Hant": "字型致謝"
+  },
+  "action.saveDraft": {
+    "zh-Hans": "保存草稿",
+    "zh-Hant": "儲存草稿"
+  },
+  "action.saveShare": {
+    "zh-Hans": "保存并分享",
+    "zh-Hant": "儲存並分享"
+  },
+  "album.candidates.cardPending": {
+    "zh-Hans": "待确认",
+    "zh-Hant": "待確認"
+  },
+  "album.candidates.cardSelected": {
+    "zh-Hans": "已选",
+    "zh-Hant": "已選"
+  },
+  "album.candidates.continue %lld": {
+    "zh-Hans": "继续确认归属 · %lld 张",
+    "zh-Hant": "繼續確認歸屬 · %lld 張"
+  },
+  "album.candidates.quotaHint": {
+    "zh-Hans": "更大容量，请使用 MiLens Pro",
+    "zh-Hant": "更大容量，請使用 MiLens Pro"
+  },
+  "album.candidates.subtitle": {
+    "zh-Hans": "以下只是候选，请由你确认后再导入。",
+    "zh-Hant": "以下僅為候選照片，請由您確認後再匯入。"
+  },
+  "album.candidates.tabAll %lld": {
+    "zh-Hans": "全部 %lld",
+    "zh-Hant": "全部 %lld"
+  },
+  "album.candidates.tabPending %lld": {
+    "zh-Hans": "待确认 %lld",
+    "zh-Hant": "待確認 %lld"
+  },
+  "album.candidates.tabSelected %lld": {
+    "zh-Hans": "已选 %lld",
+    "zh-Hant": "已選 %lld"
+  },
+  "album.candidates.title": {
+    "zh-Hans": "似乎有熟悉的伙伴",
+    "zh-Hant": "似乎有熟悉的毛小孩身影"
+  },
+  "album.petSelect.confirm %lld": {
+    "zh-Hans": "确认导入 · %lld 张",
+    "zh-Hant": "確認匯入 · %lld 張"
+  },
+  "album.petSelect.confirmTo %@": {
+    "zh-Hans": "确认并导入到%@",
+    "zh-Hant": "確認並匯入到%@"
+  },
+  "album.petSelect.countUnit": {
+    "zh-Hans": "张",
+    "zh-Hant": "張"
+  },
+  "album.petSelect.defaultPetName": {
+    "zh-Hans": "新档案",
+    "zh-Hant": "新檔案"
+  },
+  "album.petSelect.defaultPetShort": {
+    "zh-Hans": "伙伴",
+    "zh-Hant": "毛小孩"
+  },
+  "album.petSelect.evidenceMark": {
+    "zh-Hans": "待归档照片",
+    "zh-Hant": "待歸檔照片"
+  },
+  "album.petSelect.importMark": {
+    "zh-Hans": "本次导入",
+    "zh-Hant": "本次匯入"
+  },
+  "album.petSelect.importTarget %@": {
+    "zh-Hans": "加入「%@」的档案",
+    "zh-Hant": "加入「%@」的檔案"
+  },
+  "album.petSelect.newArchiveHint": {
+    "zh-Hans": "由你填写名字和资料",
+    "zh-Hant": "由您填寫名字和資料"
+  },
+  "album.petSelect.newArchiveTitle": {
+    "zh-Hans": "新建伙伴档案",
+    "zh-Hant": "建立毛小孩檔案"
+  },
+  "album.petSelect.petMeta %@ %lld": {
+    "zh-Hans": "%@ · %lld 张照片",
+    "zh-Hant": "%@ · %lld 張照片"
+  },
+  "album.petSelect.quotaNote %lld %lld": {
+    "zh-Hans": "确认后才会写入；导入后免费额度 %lld / %lld",
+    "zh-Hant": "確認後才會寫入；匯入後免費額度 %lld / %lld"
+  },
+  "album.petSelect.sectionTitle": {
+    "zh-Hans": "伙伴档案",
+    "zh-Hant": "毛小孩檔案"
+  },
+  "album.petSelect.selectedMark": {
+    "zh-Hans": "已选择",
+    "zh-Hant": "已選擇"
+  },
+  "album.quota.existingKept": {
+    "zh-Hans": "现有档案仍在设备上",
+    "zh-Hant": "現有檔案仍保留在裝置上"
+  },
+  "album.quota.later": {
+    "zh-Hans": "暂不升级",
+    "zh-Hant": "暫不升級"
+  },
+  "album.quota.mark": {
+    "zh-Hans": "免费照片额度",
+    "zh-Hant": "免費照片額度"
+  },
+  "album.quota.resilience1.desc": {
+    "zh-Hans": "不会删除、压缩或移动已有照片",
+    "zh-Hant": "不會刪除、壓縮或移動現有照片"
+  },
+  "album.quota.resilience1.title": {
+    "zh-Hans": "现有档案保持原样",
+    "zh-Hant": "現有檔案保持原樣"
+  },
+  "album.quota.resilience2.desc": {
+    "zh-Hans": "候选照片不会自动写入任何伙伴档案",
+    "zh-Hant": "候選照片不會自動寫入任何毛小孩檔案"
+  },
+  "album.quota.resilience2.title": {
+    "zh-Hans": "继续由你确认归属",
+    "zh-Hant": "繼續由您親自確認歸屬"
+  },
+  "album.quota.resilience3.desc": {
+    "zh-Hans": "方案与实际价格在购买前显示",
+    "zh-Hant": "方案與實際價格在購買前顯示"
+  },
+  "album.quota.resilience3.title": {
+    "zh-Hans": "升级信息来自 App Store",
+    "zh-Hant": "升級資訊來自 App Store"
+  },
+  "album.quota.subtitle": {
+    "zh-Hans": "升级后可以继续导入；不升级也不会影响已经保存的内容。",
+    "zh-Hant": "升級後可以繼續匯入；不升級也不會影響已經儲存的內容。"
+  },
+  "album.quota.title %lld": {
+    "zh-Hans": "免费 %lld 张额度已用完",
+    "zh-Hant": "免費 %lld 張額度已用完"
+  },
+  "album.quota.usedUp": {
+    "zh-Hans": "已全部使用",
+    "zh-Hant": "已全部使用"
+  },
+  "album.quota.viewPro": {
+    "zh-Hans": "查看 MiLens Pro",
+    "zh-Hant": "查看 MiLens Pro"
+  },
+  "album.success.dateMark %@ %@": {
+    "zh-Hans": "%@ · %@",
+    "zh-Hant": "%@ · %@"
+  },
+  "album.success.joined %@": {
+    "zh-Hans": "已加入「%@」的档案",
+    "zh-Hant": "已加入「%@」的檔案"
+  },
+  "album.success.localBody": {
+    "zh-Hans": "照片不会上传；已有内容也不会被移动。",
+    "zh-Hant": "照片不會上傳；現有內容也不會被移動。"
+  },
+  "album.success.localTitle": {
+    "zh-Hans": "只在这台设备上",
+    "zh-Hant": "只在這台裝置上"
+  },
+  "album.success.privacyNote": {
+    "zh-Hans": "归档完成 · 你仍可随时删除或重新分配照片",
+    "zh-Hant": "歸檔完成 · 您仍可隨時刪除或重新分配照片"
+  },
+  "album.success.statOriginal": {
+    "zh-Hans": "原片",
+    "zh-Hant": "原片"
+  },
+  "album.success.statPet": {
+    "zh-Hans": "伙伴",
+    "zh-Hant": "毛小孩"
+  },
+  "album.success.statThumbnail": {
+    "zh-Hans": "缩略图",
+    "zh-Hant": "縮圖"
+  },
+  "album.success.title %lld": {
+    "zh-Hans": "%lld 张照片已归档",
+    "zh-Hant": "%lld 張照片已歸檔"
+  },
+  "album.success.viewPhotos %@": {
+    "zh-Hans": "查看%@的照片",
+    "zh-Hant": "查看%@的照片"
+  },
+  "archive.preview.panelBody": {
+    "zh-Hans": "统计、记忆与近期照片属于同一张连续档案纸。",
+    "zh-Hant": "統計、記憶與近期照片屬於同一張連續檔案紙。"
+  },
+  "archive.preview.panelTitle": {
+    "zh-Hans": "连续档案纸",
+    "zh-Hant": "連續檔案紙"
+  },
+  "avatar.crop.failed": {
+    "zh-Hans": "无法裁切图片，请重试",
+    "zh-Hant": "無法裁切圖片，請重試"
+  },
+  "avatar.crop.hint": {
+    "zh-Hans": "拖动调整裁切位置，捏合缩放",
+    "zh-Hant": "拖移調整裁切位置，雙指縮放大小"
+  },
+  "bead.generating.cancel": {
+    "zh-Hans": "取消生成",
+    "zh-Hant": "取消產生"
+  },
+  "bead.generating.log": {
+    "zh-Hans": "显影记录",
+    "zh-Hant": "顯影記錄"
+  },
+  "bead.generating.step1": {
+    "zh-Hans": "识别伙伴主体",
+    "zh-Hant": "辨識毛小孩主體"
+  },
+  "bead.generating.step2": {
+    "zh-Hans": "智能抠图",
+    "zh-Hant": "智慧去背"
+  },
+  "bead.generating.step3": {
+    "zh-Hans": "匹配 MARD 色卡",
+    "zh-Hant": "比對 MARD 拼豆色卡"
+  },
+  "bead.generating.step4": {
+    "zh-Hans": "生成拼豆图纸",
+    "zh-Hant": "產生拼豆圖稿"
+  },
+  "bead.generating.subtitle": {
+    "zh-Hans": "先保住轮廓，再把每一处颜色落到 MARD 色卡。",
+    "zh-Hant": "先保留輪廓，再將每處色彩對應至 MARD 拼豆色卡。"
+  },
+  "bead.generating.title": {
+    "zh-Hans": "图纸显影中",
+    "zh-Hant": "圖稿顯影中"
+  },
+  "bead.pattern.parametersOverline": {
+    "zh-Hans": "PATTERN PARAMETERS",
+    "zh-Hant": "PATTERN PARAMETERS"
+  },
+  "bead.pattern.parametersTitle": {
+    "zh-Hans": "图纸参数",
+    "zh-Hant": "圖稿參數"
+  },
+  "bead.phase.locked": {
+    "zh-Hans": "主体已锁定 · 正在配色",
+    "zh-Hant": "主體已鎖定 · 正在配色"
+  },
+  "bead.result.a4Desc": {
+    "zh-Hans": "单页 PDF · 打印友好",
+    "zh-Hant": "單頁 PDF · 隨時可列印"
+  },
+  "bead.result.a4Title": {
+    "zh-Hans": "A4 制作图纸",
+    "zh-Hant": "A4 製作圖稿"
+  },
+  "bead.result.keepTitle": {
+    "zh-Hans": "将这一次的作品永久珍藏",
+    "zh-Hant": "將這一次的作品永久珍藏"
+  },
+  "bead.result.materialSortedBy %lld": {
+    "zh-Hans": "%lld 色 · 按用量排序",
+    "zh-Hant": "%lld 色 · 按用量排序"
+  },
+  "bead.result.overline": {
+    "zh-Hans": "ARCHIVE OUTPUT",
+    "zh-Hant": "ARCHIVE OUTPUT"
+  },
+  "bead.result.saveHdDesc": {
+    "zh-Hans": "原始像素 · 透明背景可选",
+    "zh-Hant": "原始像素 · 透明背景可選"
+  },
+  "bead.result.shareDesc": {
+    "zh-Hans": "系统分享面板",
+    "zh-Hant": "系統分享選單"
+  },
+  "bead.result.shareTitle": {
+    "zh-Hans": "分享作品",
+    "zh-Hant": "分享作品"
+  },
+  "bead.step.done": {
+    "zh-Hans": "已完成",
+    "zh-Hant": "已完成"
+  },
+  "bead.step.inProgress": {
+    "zh-Hans": "进行中",
+    "zh-Hant": "進行中"
+  },
+  "bead.step.waiting": {
+    "zh-Hans": "等待",
+    "zh-Hant": "等待"
+  },
+  "bell.confirm.body.new": {
+    "zh-Hans": "系统图库里有待确认的新照片，要现在添加吗？",
+    "zh-Hant": "系統照片圖庫中有待確認的新照片，要現在新增嗎？"
+  },
+  "bell.confirm.body.stale": {
+    "zh-Hans": "已经两周没有添加新照片了",
+    "zh-Hant": "已經兩週沒有新增新照片了"
+  },
+  "bell.confirm.cancel": {
+    "zh-Hans": "以后再说",
+    "zh-Hant": "以後再說"
+  },
+  "bell.confirm.confirm": {
+    "zh-Hans": "去添加",
+    "zh-Hant": "前往新增"
+  },
+  "bell.confirm.title.new": {
+    "zh-Hans": "可能多了新照片",
+    "zh-Hant": "可能多了新照片"
+  },
+  "bell.confirm.title.stale": {
+    "zh-Hans": "该记录新照片了",
+    "zh-Hant": "該記錄新照片了"
+  },
+  "bell.menu.memories": {
+    "zh-Hans": "查看今日回忆",
+    "zh-Hant": "查看今日回憶"
+  },
+  "bell.menu.newPhoto": {
+    "zh-Hans": "去添加新照片",
+    "zh-Hant": "前往新增新照片"
+  },
+  "bell.menu.title": {
+    "zh-Hans": "有新的提醒",
+    "zh-Hant": "有新的提醒"
+  },
+  "businessCard.saveFailed": {
+    "zh-Hans": "保存失败",
+    "zh-Hant": "儲存失敗"
+  },
+  "businessCard.template.binding": {
+    "zh-Hans": "私人装帧",
+    "zh-Hant": "私人裝幀"
+  },
+  "businessCard.template.darkroom": {
+    "zh-Hans": "夜间暗房",
+    "zh-Hant": "夜間暗房"
+  },
+  "businessCard.template.gallery": {
+    "zh-Hans": "现代画廊",
+    "zh-Hant": "現代畫廊"
+  },
+  "businessCard.template.museum": {
+    "zh-Hans": "博物馆典藏",
+    "zh-Hant": "博物館典藏"
+  },
+  "businesscard.loadFailed": {
+    "zh-Hans": "伙伴加载失败",
+    "zh-Hant": "毛小孩載入失敗"
+  },
+  "businesscard.overline": {
+    "zh-Hans": "HORIZONTAL NAMECARD",
+    "zh-Hant": "HORIZONTAL NAMECARD"
+  },
+  "businesscard.selectTemplate": {
+    "zh-Hans": "选择模版",
+    "zh-Hant": "選擇範本"
+  },
+  "businesscard.spec": {
+    "zh-Hans": "PNG · 高清",
+    "zh-Hant": "PNG · 高畫質"
+  },
+  "businesscard.tag.aloof": {
+    "zh-Hans": "高冷",
+    "zh-Hant": "高冷"
+  },
+  "businesscard.tag.chatty": {
+    "zh-Hans": "话痨",
+    "zh-Hant": "話嘮"
+  },
+  "businesscard.tag.clingy": {
+    "zh-Hans": "黏人",
+    "zh-Hant": "黏人"
+  },
+  "businesscard.tag.curious": {
+    "zh-Hans": "好奇",
+    "zh-Hant": "好奇"
+  },
+  "businesscard.tag.foodie": {
+    "zh-Hans": "贪吃",
+    "zh-Hant": "貪吃"
+  },
+  "businesscard.tag.gentle": {
+    "zh-Hans": "温顺",
+    "zh-Hant": "溫順"
+  },
+  "businesscard.tag.lively": {
+    "zh-Hans": "活泼",
+    "zh-Hant": "活潑"
+  },
+  "businesscard.tag.mischievous": {
+    "zh-Hans": "调皮",
+    "zh-Hant": "調皮"
+  },
+  "businesscard.tag.sensible": {
+    "zh-Hans": "懂事",
+    "zh-Hant": "懂事"
+  },
+  "businesscard.tag.sleepy": {
+    "zh-Hans": "爱睡",
+    "zh-Hant": "愛睡"
+  },
+  "businesscard.tag.timid": {
+    "zh-Hans": "胆小",
+    "zh-Hant": "膽小"
+  },
+  "businesscard.tag.tsundere": {
+    "zh-Hans": "傲娇",
+    "zh-Hant": "傲嬌"
+  },
+  "common.back": {
+    "zh-Hans": "返回",
+    "zh-Hant": "返回"
+  },
+  "common.cancel": {
+    "zh-Hans": "取消",
+    "zh-Hant": "取消"
+  },
+  "common.confirm": {
+    "zh-Hans": "确定",
+    "zh-Hant": "確認"
+  },
+  "common.continue": {
+    "zh-Hans": "继续",
+    "zh-Hant": "繼續"
+  },
+  "common.delete": {
+    "zh-Hans": "删除",
+    "zh-Hant": "刪除"
+  },
+  "common.done": {
+    "zh-Hans": "完成",
+    "zh-Hant": "完成"
+  },
+  "common.notSelected": {
+    "zh-Hans": "未选择",
+    "zh-Hant": "未選取"
+  },
+  "common.ok": {
+    "zh-Hans": "好",
+    "zh-Hant": "確定"
+  },
+  "common.save": {
+    "zh-Hans": "保存",
+    "zh-Hant": "儲存"
+  },
+  "common.selected": {
+    "zh-Hans": "已选择",
+    "zh-Hant": "已選取"
+  },
+  "common.share": {
+    "zh-Hans": "分享",
+    "zh-Hant": "分享"
+  },
+  "create.bead.a4pdf": {
+    "zh-Hans": "Pro · A4 PDF",
+    "zh-Hant": "Pro · A4 PDF"
+  },
+  "create.bead.abstraction": {
+    "zh-Hans": "概括度",
+    "zh-Hant": "概括度"
+  },
+  "create.bead.adjust": {
+    "zh-Hans": "调整方案",
+    "zh-Hant": "調整方案"
+  },
+  "create.bead.advanced": {
+    "zh-Hans": "高级设置",
+    "zh-Hant": "進階設定"
+  },
+  "create.bead.boardSize": {
+    "zh-Hans": "图纸尺寸",
+    "zh-Hant": "圖稿尺寸"
+  },
+  "create.bead.change": {
+    "zh-Hans": "更换",
+    "zh-Hant": "更換"
+  },
+  "create.bead.collapsed": {
+    "zh-Hans": "已收起",
+    "zh-Hant": "已收起"
+  },
+  "create.bead.color": {
+    "zh-Hans": "颜色",
+    "zh-Hant": "顏色"
+  },
+  "create.bead.currentRecipe": {
+    "zh-Hans": "当前方案",
+    "zh-Hant": "目前方案"
+  },
+  "create.bead.cutoutOnly": {
+    "zh-Hans": "只拼主体",
+    "zh-Hant": "只拼主體"
+  },
+  "create.bead.dailyQuota": {
+    "zh-Hans": "每日 5 次",
+    "zh-Hant": "每日 5 次"
+  },
+  "create.bead.denoise": {
+    "zh-Hans": "减杂点",
+    "zh-Hant": "減少雜點"
+  },
+  "create.bead.desc": {
+    "zh-Hans": "把一张照片变成可动手完成的图案，附配色方案与材料清单。",
+    "zh-Hant": "把一張照片變成可動手完成的圖案，附配色方案與材料清單。"
+  },
+  "create.bead.effectCount %lld": {
+    "zh-Hans": "共 %lld 种效果",
+    "zh-Hant": "共 %lld 種效果"
+  },
+  "create.bead.expanded": {
+    "zh-Hans": "已展开",
+    "zh-Hant": "已展開"
+  },
+  "create.bead.export.desc": {
+    "zh-Hans": "高清图纸导出 · 含格号与完整色卡",
+    "zh-Hant": "高畫質圖稿匯出 · 含格號與完整色卡"
+  },
+  "create.bead.export.title": {
+    "zh-Hans": "将这一次的作品永久珍藏",
+    "zh-Hant": "將這一次的作品永久珍藏"
+  },
+  "create.bead.exporting": {
+    "zh-Hans": "导出中...",
+    "zh-Hant": "匯出中…"
+  },
+  "create.bead.generatePattern": {
+    "zh-Hans": "生成拼豆图纸",
+    "zh-Hant": "產生拼豆圖稿"
+  },
+  "create.bead.generating": {
+    "zh-Hans": "正在生成...",
+    "zh-Hant": "正在產生…"
+  },
+  "create.bead.localProcessHint": {
+    "zh-Hans": "照片仅在设备上处理 · 抠图失败会安全回退原图",
+    "zh-Hant": "照片僅在裝置上處理 · 去背失敗會安全退回原圖"
+  },
+  "create.bead.materialCount %lld %lld": {
+    "zh-Hans": "%1$lld 颗 → 建议准备 %2$lld 颗",
+    "zh-Hant": "%1$lld 顆 → 建議準備 %2$lld 顆"
+  },
+  "create.bead.materialList": {
+    "zh-Hans": "材料清单",
+    "zh-Hant": "材料清單"
+  },
+  "create.bead.mode.color": {
+    "zh-Hans": "彩色",
+    "zh-Hant": "彩色"
+  },
+  "create.bead.mode.letter": {
+    "zh-Hans": "字母序号",
+    "zh-Hant": "字母序號"
+  },
+  "create.bead.outline": {
+    "zh-Hans": "轮廓",
+    "zh-Hant": "輪廓"
+  },
+  "create.bead.saveAlbum": {
+    "zh-Hans": "保存相册",
+    "zh-Hant": "儲存至相簿"
+  },
+  "create.bead.saveHd": {
+    "zh-Hans": "保存高清图纸",
+    "zh-Hant": "儲存高畫質圖稿"
+  },
+  "create.bead.selectEffect": {
+    "zh-Hans": "选择效果",
+    "zh-Hant": "選擇效果"
+  },
+  "create.bead.source": {
+    "zh-Hans": "来源照片",
+    "zh-Hant": "來源照片"
+  },
+  "create.bead.sourceMeta": {
+    "zh-Hans": "原图",
+    "zh-Hant": "原圖"
+  },
+  "create.bead.studio": {
+    "zh-Hans": "拼豆工作室",
+    "zh-Hant": "拼豆工作室"
+  },
+  "create.bead.title": {
+    "zh-Hans": "拼豆图纸",
+    "zh-Hant": "拼豆圖稿"
+  },
+  "create.bead.transition": {
+    "zh-Hans": "过渡",
+    "zh-Hant": "過渡"
+  },
+  "create.bead.unlimited": {
+    "zh-Hans": "不限次数",
+    "zh-Hant": "不限次數"
+  },
+  "create.bead.viewAll": {
+    "zh-Hans": "查看全部",
+    "zh-Hant": "查看全部"
+  },
+  "create.bead.viewExport": {
+    "zh-Hans": "查看图纸与导出",
+    "zh-Hant": "查看圖稿與匯出"
+  },
+  "create.bead.zoomHint": {
+    "zh-Hans": "💡 放大图纸即可显示编号",
+    "zh-Hant": "💡 放大圖稿即可顯示編號"
+  },
+  "create.businessCard.desc": {
+    "zh-Hans": "生成带有头像、性格标签和简介的社交名片卡。",
+    "zh-Hant": "產生帶有大頭貼、性格標籤和簡介的社群名片卡。"
+  },
+  "create.businessCard.title": {
+    "zh-Hans": "伙伴名片",
+    "zh-Hant": "毛小孩名片"
+  },
+  "create.empty.body": {
+    "zh-Hans": "从相册导入照片后，就可以从这里开始创作。",
+    "zh-Hant": "從相簿匯入照片後，就可以從這裡開始創作。"
+  },
+  "create.empty.cta": {
+    "zh-Hans": "去相册添加",
+    "zh-Hant": "前往相簿新增"
+  },
+  "create.empty.title": {
+    "zh-Hans": "先保存一张照片",
+    "zh-Hant": "先儲存一張照片"
+  },
+  "create.encode.failed": {
+    "zh-Hans": "图片编码失败，请重试",
+    "zh-Hant": "圖片編碼失敗，請重試"
+  },
+  "create.growthCompare.desc": {
+    "zh-Hans": "选两张不同时期的照片，并排看到时间留下的变化。",
+    "zh-Hant": "選兩張不同時期的照片，並排看見時間留下的變化。"
+  },
+  "create.growthCompare.hint": {
+    "zh-Hans": "两张照片，一段时光。保存到相册或分享给家人。",
+    "zh-Hant": "兩張照片，一段時光。儲存到相簿或分享給家人。"
+  },
+  "create.growthCompare.title": {
+    "zh-Hans": "成长对比",
+    "zh-Hant": "成長對比"
+  },
+  "create.header.subtitle": {
+    "zh-Hans": "只使用设备里的照片 · 本地生成",
+    "zh-Hant": "只使用裝置裡的照片 · 本機產生"
+  },
+  "create.header.title": {
+    "zh-Hans": "把共同生活，\n做成可以留下的作品",
+    "zh-Hant": "把共同生活，\n做成可以留下的作品"
+  },
+  "create.headline": {
+    "zh-Hans": "让照片继续有去处。",
+    "zh-Hant": "讓照片繼續有去處。"
+  },
+  "create.load.failed": {
+    "zh-Hans": "照片加载失败",
+    "zh-Hant": "照片載入失敗"
+  },
+  "create.petCard.desc": {
+    "zh-Hans": "把一张照片做成竖版纪念卡，带上名字与成为家人的日子。",
+    "zh-Hant": "把一張照片做成直式紀念卡，附上名字與成為家人的日子。"
+  },
+  "create.petCard.hint": {
+    "zh-Hans": "长按或保存到相册后，可作为壁纸或分享给家人。",
+    "zh-Hant": "長按或儲存到相簿後，可作為桌布或分享給家人。"
+  },
+  "create.petCard.selectPhoto": {
+    "zh-Hans": "选择一张照片生成纪念卡片",
+    "zh-Hant": "選擇一張照片產生紀念卡片"
+  },
+  "create.petCard.title": {
+    "zh-Hans": "伙伴卡片",
+    "zh-Hant": "毛小孩卡片"
+  },
+  "create.project.bead.desc": {
+    "zh-Hans": "图纸 · 色号 · 用量",
+    "zh-Hant": "圖稿 · 色號 · 用量"
+  },
+  "create.project.businessCard.desc": {
+    "zh-Hans": "分享这份可爱",
+    "zh-Hant": "分享這份可愛"
+  },
+  "create.project.growthCompare.desc": {
+    "zh-Hans": "从过去到现在",
+    "zh-Hant": "從過去到現在"
+  },
+  "create.project.petCard.desc": {
+    "zh-Hans": "纪念珍贵瞬间",
+    "zh-Hant": "紀念珍貴瞬間"
+  },
+  "create.project.redPacket.desc": {
+    "zh-Hans": "四种微信红包封面模版 + 上传指引",
+    "zh-Hant": "四種紅包封面範本 + 上傳指引"
+  },
+  "create.redPacket.badge": {
+    "zh-Hans": "红包",
+    "zh-Hant": "紅包"
+  },
+  "create.redPacket.desc": {
+    "zh-Hans": "生成微信红包封面素材（957×1278），预览红包 4 个场景。",
+    "zh-Hant": "產生紅包封面素材（957×1278），預覽紅包 4 個場景。"
+  },
+  "create.redPacket.title": {
+    "zh-Hans": "红包封面",
+    "zh-Hant": "紅包封面"
+  },
+  "create.redPacket.wechat": {
+    "zh-Hans": "微信",
+    "zh-Hant": "微信"
+  },
+  "create.render.failed": {
+    "zh-Hans": "卡片渲染失败，请重试",
+    "zh-Hant": "卡片算繪失敗，請重試"
+  },
+  "create.save.failed": {
+    "zh-Hans": "保存失败",
+    "zh-Hant": "儲存失敗"
+  },
+  "create.save.libraryFailed %@": {
+    "zh-Hans": "保存到相册失败：%@",
+    "zh-Hant": "儲存到相簿失敗：%@"
+  },
+  "create.save.success": {
+    "zh-Hans": "✅ 已保存到相册",
+    "zh-Hant": "✅ 已儲存到相簿"
+  },
+  "create.sectionSupporting": {
+    "zh-Hans": "选择一张照片",
+    "zh-Hant": "選擇一張照片"
+  },
+  "create.sectionTitle": {
+    "zh-Hans": "可以开始的作品",
+    "zh-Hant": "可以開始的作品"
+  },
+  "create.studio.overline": {
+    "zh-Hans": "CREATION DARKROOM",
+    "zh-Hant": "CREATION DARKROOM"
+  },
+  "create.studio.title": {
+    "zh-Hans": "让美好的回忆\n以作品形式留在指尖。",
+    "zh-Hant": "讓美好的回憶\n以作品形式留在指尖。"
+  },
+  "create.subheadline": {
+    "zh-Hans": "从已经保存的照片开始，做一份真正属于它的作品。",
+    "zh-Hant": "從已經儲存的照片開始，做一份真正屬於毛小孩的作品。"
+  },
+  "decoration.panel.empty": {
+    "zh-Hans": "装饰资源暂未安装",
+    "zh-Hant": "裝飾資源暫未安裝"
+  },
+  "decoration.sticker.limit %lld": {
+    "zh-Hans": "贴纸最多添加 %lld 个",
+    "zh-Hant": "貼紙最多新增 %lld 個"
+  },
+  "editor.adjust.manual": {
+    "zh-Hans": "手动调整",
+    "zh-Hant": "手動調整"
+  },
+  "editor.adjust.reset": {
+    "zh-Hans": "重置",
+    "zh-Hant": "重設"
+  },
+  "editor.crop.ratio.free": {
+    "zh-Hans": "自由",
+    "zh-Hant": "自由"
+  },
+  "editor.cutout.action.applied": {
+    "zh-Hans": "重新抠图",
+    "zh-Hant": "重新去背"
+  },
+  "editor.cutout.action.error": {
+    "zh-Hans": "重试",
+    "zh-Hant": "重試"
+  },
+  "editor.cutout.action.idle": {
+    "zh-Hans": "开始抠图",
+    "zh-Hant": "開始去背"
+  },
+  "editor.cutout.action.processing": {
+    "zh-Hans": "识别中…",
+    "zh-Hant": "辨識中…"
+  },
+  "editor.cutout.done": {
+    "zh-Hans": "已完成",
+    "zh-Hant": "已完成"
+  },
+  "editor.cutout.localProcessing": {
+    "zh-Hans": "本地处理",
+    "zh-Hant": "本機處理"
+  },
+  "editor.cutout.notUploaded": {
+    "zh-Hans": "照片未上传",
+    "zh-Hant": "照片未上傳"
+  },
+  "editor.cutout.outputFormat": {
+    "zh-Hans": "输出格式",
+    "zh-Hant": "輸出格式"
+  },
+  "editor.cutout.transparentPng": {
+    "zh-Hans": "透明背景 PNG",
+    "zh-Hant": "透明背景 PNG"
+  },
+  "editor.error.title": {
+    "zh-Hans": "无法继续",
+    "zh-Hant": "無法繼續"
+  },
+  "editor.exit.dialog.saveTitle": {
+    "zh-Hans": "保存编辑？",
+    "zh-Hant": "儲存編輯？"
+  },
+  "editor.exit.dialog.unsavedTitle": {
+    "zh-Hans": "有未保存的修改",
+    "zh-Hant": "有未儲存的修改"
+  },
+  "editor.exit.saveAndQuit": {
+    "zh-Hans": "保存并退出",
+    "zh-Hant": "儲存並結束"
+  },
+  "editor.exit.saveOnly": {
+    "zh-Hans": "仅保存",
+    "zh-Hant": "僅儲存"
+  },
+  "editor.filter.cool": {
+    "zh-Hans": "冷调",
+    "zh-Hant": "冷調"
+  },
+  "editor.filter.mono": {
+    "zh-Hans": "黑白",
+    "zh-Hant": "黑白"
+  },
+  "editor.filter.original": {
+    "zh-Hans": "原图",
+    "zh-Hant": "原圖"
+  },
+  "editor.filter.soft": {
+    "zh-Hans": "柔和",
+    "zh-Hant": "柔和"
+  },
+  "editor.filter.vivid": {
+    "zh-Hans": "鲜明",
+    "zh-Hant": "鮮明"
+  },
+  "editor.filter.warm": {
+    "zh-Hans": "暖阳",
+    "zh-Hant": "暖陽"
+  },
+  "editor.panel.adjust": {
+    "zh-Hans": "调色",
+    "zh-Hant": "調色"
+  },
+  "editor.panel.crop": {
+    "zh-Hans": "构图比例",
+    "zh-Hant": "構圖比例"
+  },
+  "editor.panel.cutout": {
+    "zh-Hans": "主体抠图",
+    "zh-Hant": "主體去背"
+  },
+  "editor.panel.flip": {
+    "zh-Hans": "翻转",
+    "zh-Hant": "翻轉"
+  },
+  "editor.panel.frame": {
+    "zh-Hans": "相框",
+    "zh-Hant": "相框"
+  },
+  "editor.panel.rotate": {
+    "zh-Hans": "旋转",
+    "zh-Hant": "旋轉"
+  },
+  "editor.panel.sticker": {
+    "zh-Hans": "贴纸",
+    "zh-Hant": "貼圖"
+  },
+  "editor.panel.text": {
+    "zh-Hans": "文字图层",
+    "zh-Hant": "文字圖層"
+  },
+  "editor.text.add": {
+    "zh-Hans": "添加到图片",
+    "zh-Hant": "新增到圖片"
+  },
+  "editor.text.placeholder": {
+    "zh-Hans": "输入文字",
+    "zh-Hant": "輸入文字"
+  },
+  "editor.text.size": {
+    "zh-Hans": "字号",
+    "zh-Hant": "字級"
+  },
+  "editor.text.stroke": {
+    "zh-Hans": "描边",
+    "zh-Hant": "描邊"
+  },
+  "editor.transform.ccw": {
+    "zh-Hans": "左转",
+    "zh-Hant": "左轉"
+  },
+  "editor.transform.cw": {
+    "zh-Hans": "右转",
+    "zh-Hant": "右轉"
+  },
+  "editor.transform.flipH": {
+    "zh-Hans": "水平",
+    "zh-Hant": "水平"
+  },
+  "editor.transform.flipV": {
+    "zh-Hans": "垂直",
+    "zh-Hant": "垂直"
+  },
+  "field.annotation.label": {
+    "zh-Hans": "注释",
+    "zh-Hant": "註記說明"
+  },
+  "field.annotation.placeholder": {
+    "zh-Hans": "为这张卡片写一句话",
+    "zh-Hant": "新增一段補充說明…"
+  },
+  "field.edit": {
+    "zh-Hans": "编辑",
+    "zh-Hant": "編輯"
+  },
+  "field.owner": {
+    "zh-Hans": "照护人",
+    "zh-Hant": "毛爸媽稱呼"
+  },
+  "field.owner.placeholder %@": {
+    "zh-Hans": "如：%@妈妈",
+    "zh-Hant": "例：%@ 的毛爸媽"
+  },
+  "field.owner.placeholder.fallback": {
+    "zh-Hans": "如：小橘妈妈",
+    "zh-Hant": "請輸入您的稱呼"
+  },
+  "field.tagline": {
+    "zh-Hans": "一句话",
+    "zh-Hant": "個性簽名"
+  },
+  "field.tagline.placeholder": {
+    "zh-Hans": "如：家里的开心果",
+    "zh-Hant": "用一句話形容毛小孩…"
+  },
+  "field.tags": {
+    "zh-Hans": "个性标签",
+    "zh-Hant": "標籤"
+  },
+  "field.tags.placeholder": {
+    "zh-Hans": "选择性格标签",
+    "zh-Hant": "新增標籤（以逗號或空格分隔）"
+  },
+  "gallery.empty.body": {
+    "zh-Hans": "扫描系统相册，自动发现你伙伴的照片",
+    "zh-Hant": "掃描系統相簿，自動發現你的毛小孩照片"
+  },
+  "gallery.empty.cta": {
+    "zh-Hans": "开始扫描",
+    "zh-Hant": "開始掃描"
+  },
+  "gallery.empty.filtered": {
+    "zh-Hans": "没有符合条件的照片",
+    "zh-Hant": "沒有符合條件的照片"
+  },
+  "gallery.empty.title": {
+    "zh-Hans": "还没有照片",
+    "zh-Hant": "還沒有照片"
+  },
+  "gallery.import.freeArchiveMark": {
+    "zh-Hans": "FREE ARCHIVE",
+    "zh-Hant": "FREE ARCHIVE"
+  },
+  "gallery.import.lifeLogMark": {
+    "zh-Hans": "LIFE LOG ARCHIVE",
+    "zh-Hant": "LIFE LOG ARCHIVE"
+  },
+  "gallery.import.localMark": {
+    "zh-Hans": "LOCAL ARCHIVE",
+    "zh-Hant": "LOCAL ARCHIVE"
+  },
+  "gallery.photoCount %lld": {
+    "zh-Hans": "%lld 张",
+    "zh-Hant": "%lld 張"
+  },
+  "gallery.quota.resilienceMark": {
+    "zh-Hans": "RESILIENCE / LOCAL",
+    "zh-Hant": "RESILIENCE / LOCAL"
+  },
+  "gallery.scan.completeTitle": {
+    "zh-Hans": "扫描完成",
+    "zh-Hant": "掃描完成"
+  },
+  "gallery.scan.failedTitle": {
+    "zh-Hans": "扫描未完成",
+    "zh-Hant": "掃描未完成"
+  },
+  "gallery.scan.importPhotos %lld": {
+    "zh-Hans": "导入 %lld 张照片",
+    "zh-Hant": "匯入 %lld 張照片"
+  },
+  "gallery.scan.openSettings": {
+    "zh-Hans": "去设置",
+    "zh-Hant": "前往設定"
+  },
+  "gallery.scan.permissionDenied": {
+    "zh-Hans": "需要照片访问权限才能扫描相册。\n可在「设置 → 隐私 → 照片」中开启。",
+    "zh-Hant": "需要照片存取權限才能掃描相簿。\n可在「設定 → 隱私權與安全性 → 照片」中開啟。"
+  },
+  "gallery.scan.progress %@": {
+    "zh-Hans": "正在扫描 %@",
+    "zh-Hant": "正在掃描 %@"
+  },
+  "gallery.scanImport": {
+    "zh-Hans": "扫描并导入照片",
+    "zh-Hant": "掃描並匯入照片"
+  },
+  "gallery.select": {
+    "zh-Hans": "选择",
+    "zh-Hant": "選取"
+  },
+  "gallery.title": {
+    "zh-Hans": "照片",
+    "zh-Hant": "照片"
+  },
+  "growthcompare.overline": {
+    "zh-Hans": "GROWTH COMPARE",
+    "zh-Hant": "GROWTH COMPARE"
+  },
+  "help.a1": {
+    "zh-Hans": "在相册页使用「扫描」，咪Lens 会在本机找出可能含伙伴的照片，确认后导入。",
+    "zh-Hant": "在相簿頁使用「掃描」，咪Lens 會在本機找出可能包含毛小孩的照片，確認後匯入。"
+  },
+  "help.a2": {
+    "zh-Hans": "扫描确认时选择伙伴即可；相册里也可以多选照片后归档到指定伙伴。",
+    "zh-Hant": "掃描確認時選擇毛小孩即可；相簿裡也可以多選照片後歸檔到指定毛小孩。"
+  },
+  "help.a3": {
+    "zh-Hans": "在创作 Tab 选择「拼豆图纸」，挑一张照片，调整尺寸与风格后即可生成并导出。",
+    "zh-Hant": "在創作分頁選擇「拼豆圖稿」，挑一張照片，調整尺寸與風格後即可產生並匯出。"
+  },
+  "help.a4": {
+    "zh-Hans": "拼豆图纸可以保存到系统相册，也可以通过系统分享发送给他人。",
+    "zh-Hant": "拼豆圖稿可以儲存到系統相簿，也可以透過系統分享傳送給他人。"
+  },
+  "help.q1": {
+    "zh-Hans": "如何找到手机里伙伴的照片？",
+    "zh-Hant": "如何找到手機裡的毛小孩照片？"
+  },
+  "help.q2": {
+    "zh-Hans": "如何把照片归到伙伴档案？",
+    "zh-Hant": "如何把照片歸到毛小孩檔案？"
+  },
+  "help.q3": {
+    "zh-Hans": "如何制作拼豆图纸？",
+    "zh-Hant": "如何製作拼豆圖稿？"
+  },
+  "help.q4": {
+    "zh-Hans": "导出的作品保存在哪里？",
+    "zh-Hant": "匯出的作品儲存在哪裡？"
+  },
+  "home.backup.banner.action": {
+    "zh-Hans": "去导出备份",
+    "zh-Hant": "前往匯出備份"
+  },
+  "home.backup.banner.body %lld": {
+    "zh-Hans": "已记录 %1$lld 张珍贵的瞬间，导出一份备份，让这些温暖的故事完整保留。",
+    "zh-Hant": "已記錄 %1$lld 張珍貴瞬間，匯出一份備份，讓這些溫暖的故事完整保留。"
+  },
+  "home.backup.banner.title": {
+    "zh-Hans": "给记忆多一层守护",
+    "zh-Hant": "給記憶多一層守護"
+  },
+  "home.editorialTitle": {
+    "zh-Hans": "今晚，留一会儿给\n它",
+    "zh-Hant": "今晚，留一會兒給\n它"
+  },
+  "home.empty.body": {
+    "zh-Hans": "从相册里选几张和它有关的照片，\n我们会把每一天整理好。",
+    "zh-Hant": "從相簿裡選幾張和它有關的照片，\n我們會把每一天整理好。"
+  },
+  "home.empty.cta": {
+    "zh-Hans": "添加照片",
+    "zh-Hant": "新增照片"
+  },
+  "home.empty.title": {
+    "zh-Hans": "先留下一张照片",
+    "zh-Hant": "先留下一張照片"
+  },
+  "home.hero.date %lld %lld %@": {
+    "zh-Hans": "%1$lld月%2$lld日 · %3$@",
+    "zh-Hant": "%1$lld月%2$lld日 · %3$@"
+  },
+  "home.hero.title": {
+    "zh-Hans": "今天，也把她\n认真地记下来",
+    "zh-Hant": "今天，也把它\n認真地記下來"
+  },
+  "home.hero.todayLabel": {
+    "zh-Hans": "今天的陪伴",
+    "zh-Hant": "今天的陪伴"
+  },
+  "home.loadError": {
+    "zh-Hans": "暂时无法读取照片，请稍后再试。",
+    "zh-Hant": "暫時無法讀取照片，請稍後再試。"
+  },
+  "home.memory.datePet %@ %@": {
+    "zh-Hans": "%@·%@",
+    "zh-Hant": "%@ · %@"
+  },
+  "home.memory.yearsAgo %lld": {
+    "zh-Hans": "%lld年前的今天",
+    "zh-Hant": "%lld 年前的今天"
+  },
+  "home.memoryOpen": {
+    "zh-Hans": "查看这段回忆",
+    "zh-Hant": "查看這段回憶"
+  },
+  "home.memoryTitle": {
+    "zh-Hans": "最近回忆",
+    "zh-Hant": "近期回憶"
+  },
+  "home.retry": {
+    "zh-Hans": "再试一次",
+    "zh-Hant": "再試一次"
+  },
+  "home.today": {
+    "zh-Hans": "今天",
+    "zh-Hant": "今天"
+  },
+  "home.todayTime %@": {
+    "zh-Hans": "今天 %@",
+    "zh-Hant": "今天 %@"
+  },
+  "home.upcoming.adoption %@": {
+    "zh-Hans": "第一次见面的日子",
+    "zh-Hant": "第一次見面的日子"
+  },
+  "home.upcoming.birthday %@": {
+    "zh-Hans": "%@的生日",
+    "zh-Hant": "%@的生日"
+  },
+  "home.upcoming.days.adoption %lld %lld": {
+    "zh-Hans": "还有%lld天·已陪伴%lld天",
+    "zh-Hant": "還有%lld天 · 已陪伴%lld天"
+  },
+  "home.upcoming.days.adoption.arrived %lld %lld": {
+    "zh-Hans": "还有%lld天·来到家%lld天",
+    "zh-Hant": "還有%lld天 · 來到家%lld天"
+  },
+  "home.upcoming.days.adoption.family %@ %lld %lld": {
+    "zh-Hans": "还有%lld天·和%@成为家人%lld天",
+    "zh-Hant": "還有%lld天 · 和%@成為家人%lld天"
+  },
+  "home.upcoming.days.adoption.together %lld %lld": {
+    "zh-Hans": "还有%lld天·相处%lld天",
+    "zh-Hant": "還有%lld天 · 相處%lld天"
+  },
+  "home.upcoming.days.birthday %lld %lld": {
+    "zh-Hans": "还有%lld天·出生至今%lld天",
+    "zh-Hant": "還有%lld天 · 出生至今%lld天"
+  },
+  "home.upcoming.days.memorial %lld %lld": {
+    "zh-Hans": "还有%lld天·已记录%lld天",
+    "zh-Hant": "還有%lld天 · 已記錄%lld天"
+  },
+  "home.upcoming.lookBack": {
+    "zh-Hans": "回看那一天 →",
+    "zh-Hant": "回看那一天 →"
+  },
+  "home.upcoming.sectionLabel": {
+    "zh-Hans": "即将到来的日子",
+    "zh-Hant": "即將到來的日子"
+  },
+  "home.yearlyRecap.body": {
+    "zh-Hans": "把这一年的精彩瞬间装订成册",
+    "zh-Hant": "把這一年的精彩瞬間裝訂成冊"
+  },
+  "home.yearlyRecap.title": {
+    "zh-Hans": "年度回忆",
+    "zh-Hant": "年度回憶"
+  },
+  "memory.addMore": {
+    "zh-Hans": "继续添加",
+    "zh-Hant": "繼續新增"
+  },
+  "memory.archiveHint": {
+    "zh-Hans": "保存后会进入时间线，可随时修改",
+    "zh-Hant": "儲存後會進入時間線，可隨時修改"
+  },
+  "memory.bodyLabel": {
+    "zh-Hans": "写下当时的事",
+    "zh-Hant": "寫下當時的事"
+  },
+  "memory.draft": {
+    "zh-Hans": "自动保存草稿",
+    "zh-Hant": "自動儲存草稿"
+  },
+  "memory.kind.adoptionDay": {
+    "zh-Hans": "成为家人纪念",
+    "zh-Hant": "成為家人紀念"
+  },
+  "memory.kind.birthday": {
+    "zh-Hans": "生日纪念",
+    "zh-Hant": "生日紀念"
+  },
+  "memory.kind.growthCompare": {
+    "zh-Hans": "成长对比",
+    "zh-Hant": "成長對比"
+  },
+  "memory.kind.milestone": {
+    "zh-Hans": "里程碑",
+    "zh-Hant": "里程碑"
+  },
+  "memory.kind.monthlyRecap": {
+    "zh-Hans": "月度精选",
+    "zh-Hant": "月度精選"
+  },
+  "memory.kind.yearlyRecap": {
+    "zh-Hans": "年度回忆",
+    "zh-Hant": "年度回憶"
+  },
+  "memory.occurredAt": {
+    "zh-Hans": "发生时间",
+    "zh-Hant": "發生時間"
+  },
+  "memory.photoEvidence": {
+    "zh-Hans": "照片证据",
+    "zh-Hant": "照片佐證"
+  },
+  "memory.saveToPet %@": {
+    "zh-Hans": "保存到%@的生命档案",
+    "zh-Hant": "儲存到%@的生命檔案"
+  },
+  "memory.titleLabel": {
+    "zh-Hans": "标题",
+    "zh-Hant": "標題"
+  },
+  "memory.type.date": {
+    "zh-Hans": "重要日期",
+    "zh-Hant": "重要日期"
+  },
+  "memory.type.photo": {
+    "zh-Hans": "照片记忆",
+    "zh-Hant": "照片記憶"
+  },
+  "memory.type.text": {
+    "zh-Hans": "文字记忆",
+    "zh-Hant": "文字記憶"
+  },
+  "memory.type.work": {
+    "zh-Hans": "作品",
+    "zh-Hant": "作品"
+  },
+  "memory.typeLabel": {
+    "zh-Hans": "记忆类型",
+    "zh-Hant": "記憶類型"
+  },
+  "notify.anniversary.adoption.body %@": {
+    "zh-Hans": "去看看你们一起留下的回忆吧。",
+    "zh-Hant": "去看看你們一起留下的回憶吧。"
+  },
+  "notify.anniversary.adoption.title %@": {
+    "zh-Hans": "今天是和%@成为家人的日子",
+    "zh-Hant": "今天是和%@成為家人的日子"
+  },
+  "notify.anniversary.birthday.body %@": {
+    "zh-Hans": "去看看%@的生日回忆吧。",
+    "zh-Hant": "去看看%@的生日回憶吧。"
+  },
+  "notify.anniversary.birthday.title %@": {
+    "zh-Hans": "今天是%@的生日",
+    "zh-Hant": "今天是%@的生日"
+  },
+  "notify.backup.body": {
+    "zh-Hans": "你和小伙伴的故事越来越长，导出一份备份，让每个温暖的瞬间都安然无恙。",
+    "zh-Hant": "你和毛小孩的故事越來越長，匯出一份備份，讓每個溫暖的瞬間都安然無恙。"
+  },
+  "notify.backup.title": {
+    "zh-Hans": "记忆值得妥善珍藏",
+    "zh-Hant": "記憶值得妥善珍藏"
+  },
+  "notify.defaultPetName": {
+    "zh-Hans": "小宝贝",
+    "zh-Hant": "小寶貝"
+  },
+  "notify.memory.title": {
+    "zh-Hans": "往日回忆",
+    "zh-Hant": "往日回憶"
+  },
+  "notify.memory.today %@": {
+    "zh-Hans": "往年今日的回忆：%@",
+    "zh-Hant": "往年今日的回憶：%@"
+  },
+  "notify.memory.yearsAgo %lld %@": {
+    "zh-Hans": "%lld年前的今天：%@",
+    "zh-Hant": "%lld 年前的今天：%@"
+  },
+  "notify.milestone.body %@ %lld": {
+    "zh-Hans": "%@已经来到这个家%lld天了",
+    "zh-Hant": "%@已經來到這個家%lld天了"
+  },
+  "notify.milestone.title %lld": {
+    "zh-Hans": "来到家%lld天",
+    "zh-Hant": "來到家%lld天"
+  },
+  "notify.newPhoto.body.new": {
+    "zh-Hans": "可能多了伙伴的新照片，找找看？",
+    "zh-Hant": "可能多了毛小孩的新照片，找找看？"
+  },
+  "notify.newPhoto.body.stale": {
+    "zh-Hans": "有两周没添新照片了，最近有拍新的吗？",
+    "zh-Hant": "有兩週沒添新照片了，最近有拍新的嗎？"
+  },
+  "notify.newPhoto.title": {
+    "zh-Hans": "系统图库里有新照片",
+    "zh-Hant": "系統照片圖庫裡有新照片"
+  },
+  "notify.timemachine.asking %lld %@": {
+    "zh-Hans": "%lld年前的今天，%@在做什么呢？",
+    "zh-Hant": "%lld 年前的今天，%@ 在做什麼呢？"
+  },
+  "notify.timemachine.companion %lld %@": {
+    "zh-Hans": "%lld年前的今天，%@这样陪伴着你",
+    "zh-Hant": "%lld 年前的今天，%@ 陪在身邊"
+  },
+  "notify.timemachine.flight %lld": {
+    "zh-Hans": "时光飞逝，%lld年前的今天",
+    "zh-Hant": "時光飛逝 · %lld 年前的今天"
+  },
+  "notify.timemachine.flightNote %lld %@": {
+    "zh-Hans": "%lld年前的今天，%@",
+    "zh-Hant": "%lld 年前的今天，%@"
+  },
+  "notify.timemachine.title %lld": {
+    "zh-Hans": "%lld年前的今天",
+    "zh-Hant": "%lld 年前的今天"
+  },
+  "onboarding.candidates.body %@": {
+    "zh-Hans": "这些只是与%@特征基准相近的候选；请逐张确认。",
+    "zh-Hant": "已為您篩選出可能包含 %@ 的照片，請確認並勾選要匯入檔案的照片。"
+  },
+  "onboarding.candidates.cta %lld %@": {
+    "zh-Hans": "确认将这 %lld 张照片写入%@的档案",
+    "zh-Hant": "確認匯入 %lld 張照片至 %@"
+  },
+  "onboarding.candidates.status.pending": {
+    "zh-Hans": "待确认",
+    "zh-Hant": "待確認"
+  },
+  "onboarding.candidates.status.selected": {
+    "zh-Hans": "已选",
+    "zh-Hant": "已選取"
+  },
+  "onboarding.candidates.tab.all %lld": {
+    "zh-Hans": "全部 %lld",
+    "zh-Hant": "全部 %lld"
+  },
+  "onboarding.candidates.tab.pending %lld": {
+    "zh-Hans": "待确认 %lld",
+    "zh-Hant": "待確認 %lld"
+  },
+  "onboarding.candidates.tab.selected %lld": {
+    "zh-Hans": "已选 %lld",
+    "zh-Hant": "已選取 %lld"
+  },
+  "onboarding.candidates.title": {
+    "zh-Hans": "似乎有熟悉的伙伴",
+    "zh-Hant": "確認候選照片"
+  },
+  "onboarding.createArchive.body": {
+    "zh-Hans": "先登记名字与伙伴类型；\n此时还不会扫描系统图库。",
+    "zh-Hant": "先登記名字與毛小孩種類；\n此時還不會掃描系統照片圖庫。"
+  },
+  "onboarding.createArchive.card.body": {
+    "zh-Hans": "肖像会在注册照片后\n由你确认。",
+    "zh-Hant": "註冊照片後，\n由您確認肖像。"
+  },
+  "onboarding.createArchive.card.waiting": {
+    "zh-Hans": "等待一位伙伴",
+    "zh-Hant": "等待填寫"
+  },
+  "onboarding.createArchive.cta": {
+    "zh-Hans": "创建第一份档案",
+    "zh-Hant": "下一步：建立特徵基準"
+  },
+  "onboarding.createArchive.mark": {
+    "zh-Hans": "ARCHIVE 001",
+    "zh-Hant": "NEW ARCHIVE"
+  },
+  "onboarding.createArchive.nameLabel": {
+    "zh-Hans": "伙伴叫什么名字？",
+    "zh-Hant": "毛小孩名字"
+  },
+  "onboarding.createArchive.namePlaceholder": {
+    "zh-Hans": "小满",
+    "zh-Hant": "請輸入名字，例如：麻糬、咪咪"
+  },
+  "onboarding.createArchive.note": {
+    "zh-Hans": "先有档案，后有特征基准；\n扫描结果不会自动进入档案。",
+    "zh-Hant": "先建立檔案，再建立特徵基準；\n掃描結果不會自動匯入檔案。"
+  },
+  "onboarding.createArchive.saveFailed": {
+    "zh-Hans": "保存失败，请重试",
+    "zh-Hant": "儲存失敗，請檢查輸入內容後再試。"
+  },
+  "onboarding.createArchive.species.other": {
+    "zh-Hans": "其他伙伴",
+    "zh-Hant": "其他毛小孩"
+  },
+  "onboarding.createArchive.speciesLabel": {
+    "zh-Hans": "选择伙伴类型",
+    "zh-Hant": "毛小孩種類"
+  },
+  "onboarding.createArchive.title": {
+    "zh-Hans": "先为伙伴建立\n生命档案",
+    "zh-Hant": "先為毛小孩建立\n生命檔案"
+  },
+  "onboarding.feature.badge": {
+    "zh-Hans": "特征基准",
+    "zh-Hant": "本機特徵辨識"
+  },
+  "onboarding.feature.baseline": {
+    "zh-Hans": "FEATURE BASELINE",
+    "zh-Hant": "特徵基準照"
+  },
+  "onboarding.feature.cta": {
+    "zh-Hans": "建立特征基准",
+    "zh-Hant": "開始分析特徵"
+  },
+  "onboarding.feature.done.body": {
+    "zh-Hans": "现在「咪Lens」有了进行相似度比较的基准；\n候选仍不等于确定识别。",
+    "zh-Hant": "現在「咪Lens」已有進行相似度比對的基準；\n候選結果仍不等於最終確認。"
+  },
+  "onboarding.feature.done.count %lld": {
+    "zh-Hans": "%lld 张注册照片",
+    "zh-Hant": "已分析 %lld 張特徵照"
+  },
+  "onboarding.feature.done.cta": {
+    "zh-Hans": "允许扫描系统图库",
+    "zh-Hant": "開始相簿掃描"
+  },
+  "onboarding.feature.done.localOnly": {
+    "zh-Hans": "仅保存在本机",
+    "zh-Hant": "完全在裝置端處理 · 不上傳雲端"
+  },
+  "onboarding.feature.done.next.body": {
+    "zh-Hans": "需要在系统面板允许访问全部照片。\n扫描只会生成候选，不会自动导入。",
+    "zh-Hant": "請在系統設定中允許存取全部照片。\n掃描只會產生候選，不會自動匯入。"
+  },
+  "onboarding.feature.done.next.note": {
+    "zh-Hans": "你仍可随时停止扫描或撤回权限。",
+    "zh-Hant": "照片安全留在手機中，由您決定最終匯入哪些照片。"
+  },
+  "onboarding.feature.done.next.title": {
+    "zh-Hans": "下一步：全面扫描系统图库",
+    "zh-Hant": "下一步：相簿整理"
+  },
+  "onboarding.feature.done.title %@": {
+    "zh-Hans": "%@的特征基准，\n已经建立",
+    "zh-Hant": "%@ 的特徵基準，\n已建立"
+  },
+  "onboarding.feature.guidance.angle": {
+    "zh-Hans": "角度有变化",
+    "zh-Hant": "多角度正面照"
+  },
+  "onboarding.feature.guidance.angle.detail": {
+    "zh-Hans": "正面、侧面与全身照",
+    "zh-Hant": "正面、微側臉均可，有助於提高比對準確度"
+  },
+  "onboarding.feature.guidance.clarity": {
+    "zh-Hans": "清晰可见",
+    "zh-Hant": "五官清晰無遮擋"
+  },
+  "onboarding.feature.guidance.clarity.detail": {
+    "zh-Hans": "避免严重模糊或遮挡",
+    "zh-Hant": "避免過度背光、模糊或被雜物遮擋臉部"
+  },
+  "onboarding.feature.guidance.single %@": {
+    "zh-Hans": "只包含%@",
+    "zh-Hant": "畫面中僅有 %@"
+  },
+  "onboarding.feature.guidance.single.detail": {
+    "zh-Hans": "减少其他动物干扰",
+    "zh-Hant": "避免多隻毛小孩同框，確保特徵提取純淨"
+  },
+  "onboarding.feature.intro.body %@": {
+    "zh-Hans": "选择清晰、角度不同、只包含%@的照片；\n所有处理都在本机完成。",
+    "zh-Hant": "請選擇清晰、角度不同、只包含 %@ 的照片；\n所有處理都在本機完成。"
+  },
+  "onboarding.feature.intro.title": {
+    "zh-Hans": "用 8–15 张照片，\n建立特征基准",
+    "zh-Hant": "用 8–15 張照片，\n建立特徵基準"
+  },
+  "onboarding.feature.maxCount %lld": {
+    "zh-Hans": "最多选择 %lld 张照片",
+    "zh-Hant": "最多可選取 %lld 張"
+  },
+  "onboarding.feature.minCount %lld": {
+    "zh-Hans": "请至少选择 %lld 张照片",
+    "zh-Hant": "至少選取 %lld 張"
+  },
+  "onboarding.feature.processing.body %lld": {
+    "zh-Hans": "将 %lld 张照片汇总为比较基准；\n不会上传，也不会在此时扫描图库。",
+    "zh-Hant": "將 %lld 張照片彙整為比對基準；\n不會上傳，也不會在此時掃描照片圖庫。"
+  },
+  "onboarding.feature.processing.cta": {
+    "zh-Hans": "正在建立基准…",
+    "zh-Hant": "正在分析中…"
+  },
+  "onboarding.feature.processing.status": {
+    "zh-Hans": "正在汇总特征基准",
+    "zh-Hant": "本機神經網路計算中"
+  },
+  "onboarding.feature.processing.title %@": {
+    "zh-Hans": "正在本机建立\n%@的特征基准",
+    "zh-Hant": "正在本機建立\n%@ 的特徵基準"
+  },
+  "onboarding.feature.ready %lld": {
+    "zh-Hans": "%lld 张已准备好",
+    "zh-Hant": "已就緒 %lld 張"
+  },
+  "onboarding.feature.ready.note %@": {
+    "zh-Hans": "只用来建立%@的本机特征基准。",
+    "zh-Hant": "已完成 %@ 的特徵分析，可直接開始掃描相簿。"
+  },
+  "onboarding.feature.registerFailed %@": {
+    "zh-Hans": "注册失败：%@",
+    "zh-Hant": "註冊失敗：%@"
+  },
+  "onboarding.feature.registered %lld": {
+    "zh-Hans": "已注册 %lld 张照片的视觉特征",
+    "zh-Hant": "已成功註冊 %lld 張特徵照"
+  },
+  "onboarding.feature.reselect %lld": {
+    "zh-Hans": "重新选择（已选 %lld 张）",
+    "zh-Hant": "重新選取（已選 %lld 張）"
+  },
+  "onboarding.feature.select": {
+    "zh-Hans": "选择 8–15 张照片",
+    "zh-Hant": "從相簿選取照片"
+  },
+  "onboarding.feature.stage.extract": {
+    "zh-Hans": "提取本机特征",
+    "zh-Hant": "提取外觀特徵向量"
+  },
+  "onboarding.feature.stage.quality": {
+    "zh-Hans": "检查照片质量",
+    "zh-Hant": "評估照片光線與清晰度"
+  },
+  "onboarding.feature.stage.summarize %@": {
+    "zh-Hans": "汇总为%@的基准",
+    "zh-Hant": "建構 %@ 專屬辨識基準"
+  },
+  "onboarding.import.body %lld": {
+    "zh-Hans": "将已确认的 %lld 张照片写入本地档案；\n复制与索引过程都不会离开这台设备。",
+    "zh-Hant": "將已確認的 %lld 張照片寫入本機檔案；\n複製與建立索引的過程都不會離開這台裝置。"
+  },
+  "onboarding.import.count %lld": {
+    "zh-Hans": "%lld 张照片已写入档案",
+    "zh-Hant": "已匯入 %lld 張照片"
+  },
+  "onboarding.import.cta %@": {
+    "zh-Hans": "开启%@的生命档案",
+    "zh-Hant": "進入 %@ 的時光相簿"
+  },
+  "onboarding.import.keep.body": {
+    "zh-Hans": "你和小伙伴的每一天都值得被完整记住。MiLens 可以把这些日子打包成一份专属的备份文件，无论时光怎样流转，温暖的瞬间都不会走散。",
+    "zh-Hant": "你和毛小孩的每一天都值得被完整記住。MiLens 可以把這些日子打包成一份專屬的備份檔案，無論時光如何流轉，溫暖的瞬間都不會走散。"
+  },
+  "onboarding.import.keep.title": {
+    "zh-Hans": "把这份珍贵的回忆好好留存",
+    "zh-Hant": "安全儲存於本機"
+  },
+  "onboarding.import.lens.title": {
+    "zh-Hans": "正在写入生命档案",
+    "zh-Hant": "時光相簿就緒"
+  },
+  "onboarding.import.local.body": {
+    "zh-Hans": "照片不会上传；已有内容也不会被移动。",
+    "zh-Hant": "所有照片與資料均安全儲存在您的裝置上。"
+  },
+  "onboarding.import.local.title": {
+    "zh-Hans": "只在这台设备上",
+    "zh-Hant": "100% 離線可用"
+  },
+  "onboarding.import.localMark": {
+    "zh-Hans": "LOCAL ARCHIVE",
+    "zh-Hant": "ON-DEVICE ARCHIVE"
+  },
+  "onboarding.import.longArchiveMark": {
+    "zh-Hans": "LIFE LONG ARCHIVE",
+    "zh-Hant": "PERPETUAL MEMORY ARCHIVE"
+  },
+  "onboarding.import.memoryMark": {
+    "zh-Hans": "MEMORY SAFEKEEPING",
+    "zh-Hant": "MEMORY STREAM"
+  },
+  "onboarding.import.memoryTitle %@": {
+    "zh-Hans": "%@的第一段照片记忆已经就位",
+    "zh-Hant": "%@ 的相伴時光"
+  },
+  "onboarding.import.note": {
+    "zh-Hans": "归档完成 · 你仍可随时删除或重新分配照片",
+    "zh-Hant": "隨時可以在相簿頁面新增更多照片"
+  },
+  "onboarding.import.stage.archive %@": {
+    "zh-Hans": "写入%@的档案",
+    "zh-Hant": "建立 %@ 的時間軸索引"
+  },
+  "onboarding.import.stage.copy": {
+    "zh-Hans": "复制原片",
+    "zh-Hant": "建立本機沙盒副本"
+  },
+  "onboarding.import.stage.thumbnails": {
+    "zh-Hans": "生成缩略图索引",
+    "zh-Hant": "產生高畫質縮圖快取"
+  },
+  "onboarding.import.stat.originals": {
+    "zh-Hans": "原片",
+    "zh-Hant": "原圖保護"
+  },
+  "onboarding.import.stat.pets": {
+    "zh-Hans": "伙伴",
+    "zh-Hant": "歸屬毛小孩"
+  },
+  "onboarding.import.stat.thumbnails": {
+    "zh-Hans": "缩略图",
+    "zh-Hant": "縮圖索引"
+  },
+  "onboarding.import.title %@": {
+    "zh-Hans": "正在写进\n%@的生命档案",
+    "zh-Hant": "正在寫入\n%@ 的生命檔案"
+  },
+  "onboarding.import.writing %lld": {
+    "zh-Hans": "正在写入 %lld 张照片…",
+    "zh-Hant": "正在寫入資料… %lld 張"
+  },
+  "onboarding.overline.candidates": {
+    "zh-Hans": "ALBUM / CANDIDATES",
+    "zh-Hant": "CANDIDATES"
+  },
+  "onboarding.overline.createArchive": {
+    "zh-Hans": "LIFE ARCHIVE · 建立档案",
+    "zh-Hant": "CREATE ARCHIVE"
+  },
+  "onboarding.overline.featureDone": {
+    "zh-Hans": "FEATURE REGISTER · 已建立",
+    "zh-Hant": "FEATURE READY"
+  },
+  "onboarding.overline.featureIntro": {
+    "zh-Hans": "FEATURE REGISTER · 8—15 张",
+    "zh-Hant": "FEATURE BASELINE"
+  },
+  "onboarding.overline.featureProcessing": {
+    "zh-Hans": "FEATURE REGISTER · 本机处理",
+    "zh-Hant": "EXTRACTING FEATURES"
+  },
+  "onboarding.overline.fullScan": {
+    "zh-Hans": "LOCAL SCAN · 特征基准已就绪",
+    "zh-Hant": "FULL LIBRARY SCAN"
+  },
+  "onboarding.overline.importing": {
+    "zh-Hans": "ARCHIVE IMPORT · 本机写入",
+    "zh-Hant": "IMPORTING PHOTOS"
+  },
+  "onboarding.overline.privacy": {
+    "zh-Hans": "FIRST LIGHT · 隐私摘要",
+    "zh-Hant": "PRIVACY PROMISE"
+  },
+  "onboarding.overline.success": {
+    "zh-Hans": "ARCHIVE / ENTRY",
+    "zh-Hant": "COMPLETED"
+  },
+  "onboarding.overline.welcome": {
+    "zh-Hans": "FIRST LIGHT · 欢迎",
+    "zh-Hant": "WELCOME TO MILENS"
+  },
+  "onboarding.privacy.auth.denied": {
+    "zh-Hans": "相册权限未开启",
+    "zh-Hant": "尚未開啟「照片」存取權限"
+  },
+  "onboarding.privacy.auth.denied.hint": {
+    "zh-Hans": "可在「设置 → 隐私 → 照片」中开启，扫描需要访问照片才能筛选候选",
+    "zh-Hant": "請至「設定 > 隱私權與安全性 > 照片」中開啟存取權限，以利掃描候選照片。"
+  },
+  "onboarding.privacy.auth.full": {
+    "zh-Hans": "已获得全部照片访问权限",
+    "zh-Hant": "已取得完整「照片」存取權限"
+  },
+  "onboarding.privacy.auth.limited": {
+    "zh-Hans": "已获得部分照片访问权限",
+    "zh-Hant": "已取得部分「照片」存取權限"
+  },
+  "onboarding.privacy.body": {
+    "zh-Hans": "「咪Lens」只读取访问范围内的本地照片，\n最终导入什么，始终由你确认。",
+    "zh-Hant": "「咪Lens」僅在您授權的範圍內讀取裝置上的相片，\n最終匯入哪些照片，始終由您親自確認。"
+  },
+  "onboarding.privacy.card.body": {
+    "zh-Hans": "不上传照片；不在云端留副本。",
+    "zh-Hant": "絕不上傳照片；亦不在雲端保留任何副本。"
+  },
+  "onboarding.privacy.card.note": {
+    "zh-Hans": "本机特征基准 · 由你命名",
+    "zh-Hant": "本機特徵基準 · 隱私專屬"
+  },
+  "onboarding.privacy.card.title": {
+    "zh-Hans": "只在本机整理",
+    "zh-Hant": "僅在本機整理"
+  },
+  "onboarding.privacy.cta": {
+    "zh-Hans": "继续建档",
+    "zh-Hant": "授權並繼續"
+  },
+  "onboarding.privacy.hint": {
+    "zh-Hans": "稍后也可以在系统设置中调整照片访问范围。",
+    "zh-Hant": "稍後也可隨時在系統「設定」中調整照片存取範圍。"
+  },
+  "onboarding.privacy.onDevice": {
+    "zh-Hans": "ON DEVICE",
+    "zh-Hant": "ON DEVICE"
+  },
+  "onboarding.privacy.requesting": {
+    "zh-Hans": "请求中…",
+    "zh-Hant": "正在請求授權…"
+  },
+  "onboarding.privacy.rule.confirm": {
+    "zh-Hans": "由你确认导入",
+    "zh-Hant": "由您確認匯入"
+  },
+  "onboarding.privacy.rule.confirm.detail": {
+    "zh-Hans": "候选不等于识别结果",
+    "zh-Hant": "候選照片不等於最終結果，由您親自決定"
+  },
+  "onboarding.privacy.rule.leave": {
+    "zh-Hans": "照片不离开设备",
+    "zh-Hant": "照片不離開本機"
+  },
+  "onboarding.privacy.rule.leave.detail": {
+    "zh-Hans": "不会上传到服务器",
+    "zh-Hant": "絕不上傳至外部伺服器"
+  },
+  "onboarding.privacy.rule.local": {
+    "zh-Hans": "分析在本机完成",
+    "zh-Hant": "完全在本機分析"
+  },
+  "onboarding.privacy.rule.local.detail": {
+    "zh-Hans": "只处理相册缩略图",
+    "zh-Hant": "僅在本機處理相簿縮圖與特徵提取"
+  },
+  "onboarding.privacy.title": {
+    "zh-Hans": "你的照片，\n只属于这台设备",
+    "zh-Hant": "您的照片，\n只屬於這台裝置"
+  },
+  "onboarding.scan.body %@": {
+    "zh-Hans": "正在以%@的特征基准进行比较；\n发现的内容仍需要你逐张确认。",
+    "zh-Hant": "正在以 %@ 的特徵基準進行比對；\n發現的照片仍需您逐張確認。"
+  },
+  "onboarding.scan.candidates.hint": {
+    "zh-Hans": "扫描完成后由你确认",
+    "zh-Hant": "掃描完成後由您確認"
+  },
+  "onboarding.scan.candidates.title": {
+    "zh-Hans": "当前相似候选",
+    "zh-Hant": "目前相似候選照片"
+  },
+  "onboarding.scan.complete": {
+    "zh-Hans": "扫描完成",
+    "zh-Hant": "相簿掃描完成"
+  },
+  "onboarding.scan.finish": {
+    "zh-Hans": "完成引导",
+    "zh-Hant": "完成引導"
+  },
+  "onboarding.scan.found %lld %@": {
+    "zh-Hans": "发现 %lld 张可能包含%@的照片，\n需要你逐张确认。",
+    "zh-Hant": "發現 %lld 張可能包含 %@ 的照片，\n需要您逐張確認。"
+  },
+  "onboarding.scan.incomplete": {
+    "zh-Hans": "扫描暂时没完成",
+    "zh-Hant": "掃描尚未完成"
+  },
+  "onboarding.scan.incomplete.hint": {
+    "zh-Hans": "你可以跳过扫描，稍后在相册页随时开始。",
+    "zh-Hant": "您可以略過掃描，稍後在相簿頁面隨時重新開始。"
+  },
+  "onboarding.scan.none %@": {
+    "zh-Hans": "没有发现可能包含%@的照片，\n你仍可以手动导入。",
+    "zh-Hant": "未發現可能包含 %@ 的照片，\n您仍可隨後手動匯入。"
+  },
+  "onboarding.scan.progress %lld %lld": {
+    "zh-Hans": "正在寻找它的身影... %lld/%lld",
+    "zh-Hant": "正在尋找它的身影… %lld/%lld"
+  },
+  "onboarding.scan.scanning": {
+    "zh-Hans": "正在全面扫描…",
+    "zh-Hant": "正在全面掃描相簿…"
+  },
+  "onboarding.scan.skip": {
+    "zh-Hans": "跳过扫描，继续",
+    "zh-Hant": "略過掃描，繼續"
+  },
+  "onboarding.scan.stage.thumbnails": {
+    "zh-Hans": "读取系统图库缩略图",
+    "zh-Hant": "讀取系統照片圖庫縮圖"
+  },
+  "onboarding.scan.status.comparing": {
+    "zh-Hans": "本机扫描 · 正在比较",
+    "zh-Hant": "本機掃描 · 正在比對"
+  },
+  "onboarding.scan.status.completed": {
+    "zh-Hans": "本机扫描 · 已完成",
+    "zh-Hant": "本機掃描 · 已完成"
+  },
+  "onboarding.scan.title": {
+    "zh-Hans": "正在全面扫描\n系统图库",
+    "zh-Hant": "正在全面掃描\n系統照片圖庫"
+  },
+  "onboarding.scan.unit": {
+    "zh-Hans": "张",
+    "zh-Hant": "張"
+  },
+  "onboarding.scan.viewCandidates %lld": {
+    "zh-Hans": "查看 %lld 张候选",
+    "zh-Hant": "查看 %lld 張候選照片"
+  },
+  "onboarding.status.done": {
+    "zh-Hans": "已完成",
+    "zh-Hant": "已完成"
+  },
+  "onboarding.status.inProgress": {
+    "zh-Hans": "进行中",
+    "zh-Hant": "進行中"
+  },
+  "onboarding.status.later": {
+    "zh-Hans": "稍后",
+    "zh-Hant": "稍後"
+  },
+  "onboarding.welcome.agreePrefix": {
+    "zh-Hans": "我已阅读并同意",
+    "zh-Hant": "我已閱讀並同意"
+  },
+  "onboarding.welcome.archiveMark": {
+    "zh-Hans": "EMPTY ARCHIVE / 00",
+    "zh-Hant": "EMPTY ARCHIVE / 00"
+  },
+  "onboarding.welcome.cta": {
+    "zh-Hans": "建立第一份档案",
+    "zh-Hant": "建立第一份檔案"
+  },
+  "onboarding.welcome.emptyBody": {
+    "zh-Hans": "档案现在是空的。\n从第一段相伴开始。",
+    "zh-Hant": "檔案目前是空的。\n從記錄第一段溫暖相伴開始。"
+  },
+  "onboarding.welcome.emptyNote": {
+    "zh-Hans": "照片留在设备上，记录由你命名。",
+    "zh-Hant": "照片安全保留在裝置上，記錄由您親自命名。"
+  },
+  "onboarding.welcome.emptyTitle": {
+    "zh-Hans": "等待第一位伙伴",
+    "zh-Hant": "等待第一位毛小孩"
+  },
+  "onboarding.welcome.hero": {
+    "zh-Hans": "把相伴的一生，\n留在这里",
+    "zh-Hant": "把相伴的一生，\n留在這裡"
+  },
+  "onboarding.welcome.privacyLink": {
+    "zh-Hans": "《隐私政策》",
+    "zh-Hant": "《隱私權政策》"
+  },
+  "onboarding.welcome.termsLink": {
+    "zh-Hans": "《服务条款》",
+    "zh-Hant": "《服務條款》"
+  },
+  "onboarding.welcome.waypoint.confirm": {
+    "zh-Hans": "由你确认",
+    "zh-Hant": "由您確認"
+  },
+  "onboarding.welcome.waypoint.deletable": {
+    "zh-Hans": "随时可删",
+    "zh-Hant": "隨時可刪"
+  },
+  "onboarding.welcome.waypoint.organize": {
+    "zh-Hans": "本机整理",
+    "zh-Hant": "本機整理"
+  },
+  "paywall.alert.ok": {
+    "zh-Hans": "好",
+    "zh-Hant": "好"
+  },
+  "paywall.alert.title": {
+    "zh-Hans": "提示",
+    "zh-Hant": "提示"
+  },
+  "paywall.badge.recommended": {
+    "zh-Hans": "推荐",
+    "zh-Hant": "推薦"
+  },
+  "paywall.benefit.albumModes": {
+    "zh-Hans": "复古相簿翻页浏览模式",
+    "zh-Hant": "復古相簿翻頁瀏覽模式"
+  },
+  "paywall.benefit.beadQuota": {
+    "zh-Hans": "拼豆图纸不限次数生成",
+    "zh-Hant": "拼豆圖稿不限次數產生"
+  },
+  "paywall.benefit.cardTemplates": {
+    "zh-Hans": "多套精美卡片模板",
+    "zh-Hant": "多套精美卡片範本"
+  },
+  "paywall.benefit.family": {
+    "zh-Hans": "支持家庭共享（由 Apple StoreKit 提供）",
+    "zh-Hant": "支援「家人共享」（由 Apple StoreKit 提供）"
+  },
+  "paywall.benefit.offlineBackup": {
+    "zh-Hans": "照片离线备份与恢复",
+    "zh-Hant": "照片離線備份與回復"
+  },
+  "paywall.benefit.photoStorage": {
+    "zh-Hans": "不限量保存伙伴照片",
+    "zh-Hant": "不限量儲存毛小孩照片"
+  },
+  "paywall.benefit.profiles": {
+    "zh-Hans": "最多管理 20 个伙伴档案",
+    "zh-Hant": "最多管理 20 個毛小孩檔案"
+  },
+  "paywall.benefit.timeline": {
+    "zh-Hans": "查看完整成长时间线（含一年前的故事）",
+    "zh-Hant": "查看完整成長時間線（含一年前的故事）"
+  },
+  "paywall.benefit.timelineExport": {
+    "zh-Hans": "成长时间线导出分享",
+    "zh-Hant": "成長時間線匯出分享"
+  },
+  "paywall.benefit.watermarkFree": {
+    "zh-Hans": "导出作品无水印",
+    "zh-Hant": "匯出作品無浮水印"
+  },
+  "paywall.benefit1.desc": {
+    "zh-Hans": "不限伙伴数量，档案彼此清晰",
+    "zh-Hant": "不限毛小孩數量，檔案彼此清晰"
+  },
+  "paywall.benefit1.title": {
+    "zh-Hans": "独立保存每一位伙伴",
+    "zh-Hant": "獨立儲存每一位毛小孩"
+  },
+  "paywall.benefit2.desc": {
+    "zh-Hans": "年度回顾按真实日期生成",
+    "zh-Hant": "年度回顧按真實日期產生"
+  },
+  "paywall.benefit2.title": {
+    "zh-Hans": "把时间整理成生命章节",
+    "zh-Hant": "把時間整理成生命章節"
+  },
+  "paywall.benefit3.desc": {
+    "zh-Hans": "高清导出照片、记忆与拼豆图纸",
+    "zh-Hant": "高畫質匯出照片、記憶與拼豆圖稿"
+  },
+  "paywall.benefit3.title": {
+    "zh-Hans": "作品与原片都能高质量带走",
+    "zh-Hant": "作品與原片都能高畫質帶走"
+  },
+  "paywall.close": {
+    "zh-Hans": "关闭",
+    "zh-Hant": "關閉"
+  },
+  "paywall.cta.confirm": {
+    "zh-Hans": "确认并继续",
+    "zh-Hant": "確認並繼續"
+  },
+  "paywall.cta.lifetime.price": {
+    "zh-Hans": "永久解锁 · %@",
+    "zh-Hant": "永久解鎖 · %@"
+  },
+  "paywall.cta.subscribe.price": {
+    "zh-Hans": "立即订阅 · %@",
+    "zh-Hant": "立即訂閱 · %@"
+  },
+  "paywall.cta.trial %lld": {
+    "zh-Hans": "免费试用 %d 天",
+    "zh-Hant": "免費試用 %d 天"
+  },
+  "paywall.cta.unavailable": {
+    "zh-Hans": "暂不可购买",
+    "zh-Hant": "暫不可購買"
+  },
+  "paywall.disclosure.period": {
+    "zh-Hans": "周期",
+    "zh-Hant": "週期"
+  },
+  "paywall.disclosure.price": {
+    "zh-Hans": "价格",
+    "zh-Hant": "價格"
+  },
+  "paywall.disclosure.title": {
+    "zh-Hans": "购买前请确认",
+    "zh-Hant": "購買前請確認"
+  },
+  "paywall.disclosure.trial": {
+    "zh-Hans": "试用",
+    "zh-Hant": "試用"
+  },
+  "paywall.footer.links": {
+    "zh-Hans": "恢复购买   ·   使用条款   ·   隐私政策",
+    "zh-Hant": "回復購買   ·   服務條款   ·   隱私權政策"
+  },
+  "paywall.future.body": {
+    "zh-Hans": "V1.0 计划加入高级模板与高清导出，Pro 用户上线后自动解锁。",
+    "zh-Hant": "V1.0 計畫加入進階範本與高畫質匯出，Pro 用戶上線後自動解鎖。"
+  },
+  "paywall.hero.features": {
+    "zh-Hans": "更多伙伴 · 完整回顾 · 高质量导出",
+    "zh-Hant": "更多毛小孩 · 完整回顧 · 高畫質匯出"
+  },
+  "paywall.hero.subtitle": {
+    "zh-Hans": "更多伙伴 · 完整回顾 · 高质量导出",
+    "zh-Hant": "更多毛小孩 · 完整回顧 · 高畫質匯出"
+  },
+  "paywall.hero.title": {
+    "zh-Hans": "把她的一生，\n完整地留在身边",
+    "zh-Hant": "把牠的一生，\n完整地留在身邊"
+  },
+  "paywall.important.terms": {
+    "zh-Hans": "服务条款中的责任限制、自动续费等重要条款，请在购买前阅读。",
+    "zh-Hant": "服務條款中的責任限制、自動續訂等重要條款，請在購買前閱讀。"
+  },
+  "paywall.link.privacy": {
+    "zh-Hans": "隐私政策",
+    "zh-Hant": "隱私權政策"
+  },
+  "paywall.link.terms": {
+    "zh-Hans": "服务条款",
+    "zh-Hant": "服務條款"
+  },
+  "paywall.load.failed": {
+    "zh-Hans": "暂时无法加载订阅信息，请检查网络后重试。",
+    "zh-Hant": "暫時無法載入訂閱資訊，請檢查網路後重試。"
+  },
+  "paywall.period.lifetime": {
+    "zh-Hans": "一次性购买",
+    "zh-Hant": "一次性購買"
+  },
+  "paywall.period.monthly": {
+    "zh-Hans": "每月自动续费",
+    "zh-Hant": "每月自動續訂"
+  },
+  "paywall.period.once": {
+    "zh-Hans": "一次性",
+    "zh-Hant": "一次性"
+  },
+  "paywall.period.yearly": {
+    "zh-Hans": "每年自动续费",
+    "zh-Hant": "每年自動續訂"
+  },
+  "paywall.plan.annual": {
+    "zh-Hans": "年度方案",
+    "zh-Hant": "年度方案"
+  },
+  "paywall.plan.getApp": {
+    "zh-Hans": "从 App Store 获取",
+    "zh-Hant": "從 App Store 取得"
+  },
+  "paywall.plan.monthly": {
+    "zh-Hans": "月度方案",
+    "zh-Hant": "月度方案"
+  },
+  "paywall.pro.owned": {
+    "zh-Hans": "你已解锁 MiLens Pro",
+    "zh-Hant": "你已解鎖 MiLens Pro"
+  },
+  "paywall.purchase.agreement": {
+    "zh-Hans": "购买前同意服务条款和隐私政策",
+    "zh-Hant": "購買前同意服務條款和隱私權政策"
+  },
+  "paywall.purchase.and": {
+    "zh-Hans": "和",
+    "zh-Hant": "和"
+  },
+  "paywall.purchase.failed": {
+    "zh-Hans": "购买未完成，请稍后再试。",
+    "zh-Hant": "購買未完成，請稍後再試。"
+  },
+  "paywall.purchase.pending": {
+    "zh-Hans": "购买待确认，完成后将自动解锁。",
+    "zh-Hant": "購買待確認，完成後將自動解鎖。"
+  },
+  "paywall.purchase.title": {
+    "zh-Hans": "一份生命档案，值得长期保存",
+    "zh-Hant": "一份生命檔案，值得長期儲存"
+  },
+  "paywall.restore": {
+    "zh-Hans": "恢复购买",
+    "zh-Hant": "回復購買"
+  },
+  "paywall.restore.done": {
+    "zh-Hans": "已恢复你的购买。",
+    "zh-Hant": "已回復你的購買。"
+  },
+  "paywall.restore.failed": {
+    "zh-Hans": "恢复购买失败，请稍后再试。",
+    "zh-Hant": "回復購買失敗，請稍後再試。"
+  },
+  "paywall.restore.none": {
+    "zh-Hans": "未找到可恢复的购买。",
+    "zh-Hant": "未找到可回復的購買。"
+  },
+  "paywall.retry": {
+    "zh-Hans": "重试",
+    "zh-Hant": "重試"
+  },
+  "paywall.source": {
+    "zh-Hans": "从 App Store 获取",
+    "zh-Hant": "從 App Store 取得"
+  },
+  "paywall.subtitle": {
+    "zh-Hans": "一次解锁全部创作能力",
+    "zh-Hant": "一次解鎖全部創作能力"
+  },
+  "paywall.terms.lifetime": {
+    "zh-Hans": "一次购买，永久使用，无后续费用。",
+    "zh-Hant": "一次購買，永久使用，無後續費用。"
+  },
+  "paywall.terms.subscription": {
+    "zh-Hans": "按 %@ 自动续费，可随时在 App Store 账户设置中取消，取消后当前已生效周期不受影响。",
+    "zh-Hant": "按 %@ 自動續訂，可隨時在 App Store 帳號設定中取消，取消後當前已生效週期不受影響。"
+  },
+  "paywall.terms.trial": {
+    "zh-Hans": "免费试用 %1$d 天，之后按 %2$@ 自动续费。可随时在 App Store 账户设置中取消，取消后当前已生效周期不受影响。",
+    "zh-Hant": "免費試用 %1$d 天，之後按 %2$@ 自動續訂。可隨時在 App Store 帳號設定中取消，取消後當前已生效週期不受影響。"
+  },
+  "paywall.title": {
+    "zh-Hans": "把这张照片做成一份作品",
+    "zh-Hant": "把這張照片做成一份作品"
+  },
+  "paywall.trial.hint %lld": {
+    "zh-Hans": "前 %d 天免费",
+    "zh-Hant": "前 %d 天免費"
+  },
+  "pet.add.title": {
+    "zh-Hans": "添加伙伴",
+    "zh-Hant": "新增毛小孩"
+  },
+  "pet.age.join": {
+    "zh-Hans": "",
+    "zh-Hant": " "
+  },
+  "pet.age.months %lld": {
+    "zh-Hans": "%lld个月",
+    "zh-Hant": "%lld 個月"
+  },
+  "pet.age.unknown": {
+    "zh-Hans": "未知",
+    "zh-Hant": "未知"
+  },
+  "pet.age.years %lld": {
+    "zh-Hans": "%lld岁",
+    "zh-Hant": "%lld 歲"
+  },
+  "pet.card.birthdayYears %lld": {
+    "zh-Hans": "%lld岁生日",
+    "zh-Hant": "%lld 歲生日"
+  },
+  "pet.card.daysHome %lld": {
+    "zh-Hans": "来到家%lld天",
+    "zh-Hant": "來到家裡 %lld 天"
+  },
+  "pet.card.fallbackSubtitle": {
+    "zh-Hans": "值得记住的一天",
+    "zh-Hant": "值得記住的一天"
+  },
+  "pet.card.fallbackTitle": {
+    "zh-Hans": "这一天",
+    "zh-Hant": "這一天"
+  },
+  "pet.card.subtitle %@ %@": {
+    "zh-Hans": "%@ · %@",
+    "zh-Hant": "%@ · %@"
+  },
+  "pet.companionship.arrived %lld": {
+    "zh-Hans": "来到家%lld天",
+    "zh-Hant": "來到家裡 %lld 天"
+  },
+  "pet.companionship.family %@ %lld": {
+    "zh-Hans": "和%@成为家人%lld天",
+    "zh-Hant": "和%@成為家人%lld天"
+  },
+  "pet.companionship.future": {
+    "zh-Hans": "相处时间尚未开始",
+    "zh-Hant": "相處時間尚未開始"
+  },
+  "pet.companionship.together %lld": {
+    "zh-Hans": "相处%lld天",
+    "zh-Hant": "相伴 %lld 天"
+  },
+  "pet.companionship.unknown": {
+    "zh-Hans": "相处天数未知",
+    "zh-Hant": "相處天數未知"
+  },
+  "pet.daysTogether %lld": {
+    "zh-Hans": "相处%lld天",
+    "zh-Hant": "相處 %lld 天"
+  },
+  "pet.edit.adoptionDay": {
+    "zh-Hans": "领养日",
+    "zh-Hant": "領養日"
+  },
+  "pet.edit.avatar.change": {
+    "zh-Hans": "更换",
+    "zh-Hant": "更換"
+  },
+  "pet.edit.avatar.choose": {
+    "zh-Hans": "选择",
+    "zh-Hant": "選擇"
+  },
+  "pet.edit.avatar.footer": {
+    "zh-Hans": "选择一张照片裁切为圆形头像",
+    "zh-Hant": "選擇一張照片裁切為圓形大頭貼"
+  },
+  "pet.edit.birthday": {
+    "zh-Hans": "生日",
+    "zh-Hant": "生日"
+  },
+  "pet.edit.clearDates": {
+    "zh-Hans": "清除日期",
+    "zh-Hant": "清除日期"
+  },
+  "pet.edit.delete.message %@": {
+    "zh-Hans": "确定删除「%@」吗？\n关联照片将解除归属但不会删除。",
+    "zh-Hant": "確定刪除「%@」嗎？\n關聯照片將解除歸屬但不會刪除。"
+  },
+  "pet.edit.delete.title": {
+    "zh-Hans": "删除伙伴档案",
+    "zh-Hant": "刪除毛小孩檔案"
+  },
+  "pet.edit.feature.failed %@": {
+    "zh-Hans": "注册失败：%@",
+    "zh-Hant": "註冊失敗：%@"
+  },
+  "pet.edit.feature.footer.new %lld %lld": {
+    "zh-Hans": "选择 %lld–%lld 张不同角度与光线的照片，导入新照片时将自动归入此档案",
+    "zh-Hant": "選擇 %lld–%lld 張不同角度與光線的照片，匯入新照片時將自動歸入此檔案"
+  },
+  "pet.edit.feature.footer.update %lld %lld": {
+    "zh-Hans": "更新特征需要重新选择照片（%lld–%lld 张）",
+    "zh-Hant": "更新特徵需要重新選擇照片（%lld–%lld 張）"
+  },
+  "pet.edit.feature.maxPhotos %lld": {
+    "zh-Hans": "最多选择 %lld 张照片",
+    "zh-Hant": "最多選擇 %lld 張照片"
+  },
+  "pet.edit.feature.minPhotos %lld": {
+    "zh-Hans": "请至少选择 %lld 张照片",
+    "zh-Hant": "請至少選擇 %lld 張照片"
+  },
+  "pet.edit.feature.progress %lld/%lld": {
+    "zh-Hans": "正在提取特征 %lld/%lld",
+    "zh-Hant": "正在提取特徵 %lld/%lld"
+  },
+  "pet.edit.feature.register": {
+    "zh-Hans": "选择照片注册",
+    "zh-Hant": "選擇照片註冊"
+  },
+  "pet.edit.feature.registered": {
+    "zh-Hans": "已注册视觉特征",
+    "zh-Hant": "已註冊視覺特徵"
+  },
+  "pet.edit.feature.reregister": {
+    "zh-Hans": "重新注册（更新特征）",
+    "zh-Hant": "重新註冊（更新特徵）"
+  },
+  "pet.edit.feature.selected %lld": {
+    "zh-Hans": "已选 %lld 张",
+    "zh-Hant": "已選 %lld 張"
+  },
+  "pet.edit.feature.start": {
+    "zh-Hans": "开始注册",
+    "zh-Hant": "開始註冊"
+  },
+  "pet.edit.feature.success %lld": {
+    "zh-Hans": "已注册 %lld 张照片的视觉特征",
+    "zh-Hant": "已註冊 %lld 張照片的視覺特徵"
+  },
+  "pet.edit.feature.unavailable": {
+    "zh-Hans": "AI 模型未就绪，暂不能注册视觉特征",
+    "zh-Hant": "AI 模型未就緒，暫不能註冊視覺特徵"
+  },
+  "pet.edit.gender": {
+    "zh-Hans": "性别",
+    "zh-Hant": "性別"
+  },
+  "pet.edit.name.placeholder": {
+    "zh-Hans": "名字",
+    "zh-Hant": "名字"
+  },
+  "pet.edit.name.unnamed": {
+    "zh-Hans": "未命名",
+    "zh-Hant": "未命名"
+  },
+  "pet.edit.notLoaded": {
+    "zh-Hans": "档案未加载",
+    "zh-Hant": "檔案未載入"
+  },
+  "pet.edit.note.footer %lld": {
+    "zh-Hans": "每条不超过 %lld 字",
+    "zh-Hant": "每條不超過 %lld 字"
+  },
+  "pet.edit.note.placeholder": {
+    "zh-Hans": "添加重要事件（可选）",
+    "zh-Hant": "新增重要事件（選填）"
+  },
+  "pet.edit.note.tooLong %lld": {
+    "zh-Hans": "备忘条目不能超过%lld个字符",
+    "zh-Hant": "備忘條目不能超過%lld個字元"
+  },
+  "pet.edit.note.tooLongToSave %lld": {
+    "zh-Hans": "重要事件备注不能超过%lld个字符，请修改后再保存",
+    "zh-Hant": "重要事件備註不能超過%lld個字元，請修改後再儲存"
+  },
+  "pet.edit.saveFailed": {
+    "zh-Hans": "保存失败，请重试",
+    "zh-Hant": "儲存失敗，請重試"
+  },
+  "pet.edit.section.avatar": {
+    "zh-Hans": "头像",
+    "zh-Hant": "大頭貼"
+  },
+  "pet.edit.section.basic": {
+    "zh-Hans": "基本信息",
+    "zh-Hant": "基本資訊"
+  },
+  "pet.edit.section.dates": {
+    "zh-Hans": "重要日期",
+    "zh-Hant": "重要日期"
+  },
+  "pet.edit.section.feature": {
+    "zh-Hans": "视觉特征",
+    "zh-Hant": "視覺特徵"
+  },
+  "pet.edit.section.notes": {
+    "zh-Hans": "重要事件",
+    "zh-Hant": "重要事件"
+  },
+  "pet.edit.section.speciesGender": {
+    "zh-Hans": "物种与性别",
+    "zh-Hant": "物種與性別"
+  },
+  "pet.edit.species": {
+    "zh-Hans": "物种",
+    "zh-Hant": "物種"
+  },
+  "pet.edit.unsaved.continue": {
+    "zh-Hans": "继续编辑",
+    "zh-Hant": "繼續編輯"
+  },
+  "pet.edit.unsaved.discard": {
+    "zh-Hans": "放弃修改",
+    "zh-Hant": "放棄修改"
+  },
+  "pet.edit.unsaved.title": {
+    "zh-Hans": "有未保存的修改",
+    "zh-Hant": "有未儲存的修改"
+  },
+  "pet.form.countLimit %lld": {
+    "zh-Hans": "最多支持管理 %lld 只伙伴",
+    "zh-Hant": "最多支援管理 %lld 位毛小孩"
+  },
+  "pet.form.name.required": {
+    "zh-Hans": "请输入伙伴名字",
+    "zh-Hant": "請輸入毛小孩名字"
+  },
+  "pet.gender.female": {
+    "zh-Hans": "女孩子",
+    "zh-Hant": "女孩子"
+  },
+  "pet.gender.male": {
+    "zh-Hans": "男孩子",
+    "zh-Hant": "男孩子"
+  },
+  "pet.gender.unknown": {
+    "zh-Hans": "未知",
+    "zh-Hant": "未知"
+  },
+  "pet.profile.addMemory": {
+    "zh-Hans": "添加一条记忆",
+    "zh-Hant": "新增一條記憶"
+  },
+  "pet.profile.allPhotos": {
+    "zh-Hans": "照片",
+    "zh-Hant": "照片"
+  },
+  "pet.profile.archiveOrigin": {
+    "zh-Hans": "档案起点",
+    "zh-Hant": "檔案起點"
+  },
+  "pet.profile.born": {
+    "zh-Hans": "生于",
+    "zh-Hant": "生於"
+  },
+  "pet.profile.continueRecording": {
+    "zh-Hans": "继续记录",
+    "zh-Hant": "繼續記錄"
+  },
+  "pet.profile.continuity.body": {
+    "zh-Hans": "从第一张照片、第一次出门，到每天微小的变化；所有片段都回到它发生的时间里。",
+    "zh-Hant": "從第一張照片、第一次出門，到每天微小的變化；所有片段都回到它發生的時間裡。"
+  },
+  "pet.profile.continuity.headline": {
+    "zh-Hans": "将散落的记忆，\n装订成流动的时间之河",
+    "zh-Hant": "將散落的記憶，\n裝訂成流動的時間之河"
+  },
+  "pet.profile.daysHomeTitle": {
+    "zh-Hans": "来到家",
+    "zh-Hant": "來到家"
+  },
+  "pet.profile.daysLabel": {
+    "zh-Hans": "相处天数",
+    "zh-Hant": "相處天數"
+  },
+  "pet.profile.edit": {
+    "zh-Hans": "编辑档案",
+    "zh-Hant": "編輯檔案"
+  },
+  "pet.profile.eyebrow": {
+    "zh-Hans": "LIFE LONG ARCHIVE",
+    "zh-Hant": "LIFE LONG ARCHIVE"
+  },
+  "pet.profile.importantEvents": {
+    "zh-Hans": "重要事件",
+    "zh-Hant": "重要事件"
+  },
+  "pet.profile.intro": {
+    "zh-Hans": "把每一张照片，放回它发生的时间里。",
+    "zh-Hant": "把每一張照片，放回它發生的時間裡。"
+  },
+  "pet.profile.lifeMark %lld": {
+    "zh-Hans": "LIFE 02 · %lld DAYS",
+    "zh-Hant": "LIFE 02 · %lld DAYS"
+  },
+  "pet.profile.loadFailed": {
+    "zh-Hans": "档案加载失败",
+    "zh-Hant": "檔案載入失敗"
+  },
+  "pet.profile.memoryTitle": {
+    "zh-Hans": "一段记忆",
+    "zh-Hant": "一段記憶"
+  },
+  "pet.profile.nextLeafMark": {
+    "zh-Hans": "NEXT LEAF · 2026.06",
+    "zh-Hant": "NEXT LEAF · 2026.06"
+  },
+  "pet.profile.noCategoryPhotos": {
+    "zh-Hans": "这个分类还没有照片",
+    "zh-Hant": "這個分類還沒有照片"
+  },
+  "pet.profile.noPhotos": {
+    "zh-Hans": "还没有照片",
+    "zh-Hant": "還沒有照片"
+  },
+  "pet.profile.pinned.recent": {
+    "zh-Hans": "最近的一张",
+    "zh-Hant": "最近的一張"
+  },
+  "pet.profile.pinned.section": {
+    "zh-Hans": "置顶记忆 · PAGE 01",
+    "zh-Hant": "置頂記憶 · PAGE 01"
+  },
+  "pet.profile.recentPhotos": {
+    "zh-Hans": "最近照片",
+    "zh-Hant": "最近照片"
+  },
+  "pet.profile.speciesAge %@ %@": {
+    "zh-Hans": "%@ · %@",
+    "zh-Hant": "%@ · %@"
+  },
+  "pet.profile.stat.days": {
+    "zh-Hans": "天",
+    "zh-Hant": "天"
+  },
+  "pet.profile.stat.importantDays": {
+    "zh-Hans": "重要日子",
+    "zh-Hant": "重要日子"
+  },
+  "pet.profile.stat.memories": {
+    "zh-Hans": "记忆",
+    "zh-Hant": "記憶"
+  },
+  "pet.profile.stat.photos": {
+    "zh-Hans": "照片",
+    "zh-Hant": "照片"
+  },
+  "pet.profile.stat.works": {
+    "zh-Hans": "作品",
+    "zh-Hant": "作品"
+  },
+  "pet.profile.timeline.openFull": {
+    "zh-Hans": "打开完整生命时间线",
+    "zh-Hant": "打開完整生命時間線"
+  },
+  "pet.profile.timeline.sampleBody": {
+    "zh-Hans": "一条风很大的路，一次主动跑进海水里的勇气。",
+    "zh-Hant": "一條風很大的路，一次主動跑進海水裡的勇氣。"
+  },
+  "pet.profile.timeline.sampleTitle": {
+    "zh-Hans": "夏天开始前的傍晚",
+    "zh-Hant": "夏天開始前的傍晚"
+  },
+  "pet.profile.timelineLink": {
+    "zh-Hans": "查看完整生命时间线  →",
+    "zh-Hant": "查看完整生命時間線  →"
+  },
+  "pet.profile.unassignedHint": {
+    "zh-Hans": "尚未归属伙伴的照片",
+    "zh-Hant": "尚未歸屬毛小孩的照片"
+  },
+  "pet.profile.unassignedHintBody": {
+    "zh-Hans": "在相册中导入或扫描照片后，尚未归属伙伴的照片会出现在这里。",
+    "zh-Hant": "在相簿中匯入或掃描照片後，尚未歸屬毛小孩的照片會出現在這裡。"
+  },
+  "pet.profile.viewAll %lld": {
+    "zh-Hans": "查看全部 %lld 张",
+    "zh-Hant": "查看全部 %lld 張"
+  },
+  "pet.profile.worksHintBody": {
+    "zh-Hans": "在图片编辑器中保存过的照片，会出现在这里。",
+    "zh-Hant": "在圖片編輯器中儲存過的照片，會出現在這裡。"
+  },
+  "pet.species.cat": {
+    "zh-Hans": "喵星人",
+    "zh-Hant": "貓咪"
+  },
+  "pet.species.dog": {
+    "zh-Hans": "汪星人",
+    "zh-Hant": "狗狗"
+  },
+  "pet.species.unknown": {
+    "zh-Hans": "未知",
+    "zh-Hant": "未知"
+  },
+  "petcard.gallery.label": {
+    "zh-Hans": "生命档案 · 纪念卡",
+    "zh-Hant": "生命檔案 · 紀念卡"
+  },
+  "petcard.museum.label": {
+    "zh-Hans": "生命档案·纪念卡",
+    "zh-Hant": "生命檔案 · 紀念卡"
+  },
+  "petcard.overline": {
+    "zh-Hans": "PET CARD",
+    "zh-Hant": "PET CARD"
+  },
+  "petcard.spec": {
+    "zh-Hans": "4:5 · 竖版",
+    "zh-Hant": "4:5 · 直式"
+  },
+  "pets.card.photoCount %lld": {
+    "zh-Hans": "%lld 张照片",
+    "zh-Hant": "%lld 張照片"
+  },
+  "pets.delete": {
+    "zh-Hans": "删除伙伴",
+    "zh-Hant": "刪除毛小孩"
+  },
+  "pets.empty.body": {
+    "zh-Hans": "为它建立一份档案，\n照片、纪念日和故事都会留在这里。",
+    "zh-Hant": "為它建立一份檔案，\n照片、紀念日和故事都會留在這裡。"
+  },
+  "pets.empty.cta": {
+    "zh-Hans": "添加伙伴",
+    "zh-Hant": "新增毛小孩"
+  },
+  "pets.empty.title": {
+    "zh-Hans": "还没有伙伴档案",
+    "zh-Hant": "還沒有毛小孩檔案"
+  },
+  "photo.assign.batchTitle %lld": {
+    "zh-Hans": "归属 %lld 张照片",
+    "zh-Hant": "歸屬 %lld 張照片"
+  },
+  "photo.assign.empty": {
+    "zh-Hans": "还没有伙伴，先去登记",
+    "zh-Hant": "還沒有毛小孩，先去建立一隻吧"
+  },
+  "photo.assign.failed": {
+    "zh-Hans": "归属失败",
+    "zh-Hant": "歸屬失敗"
+  },
+  "photo.assign.title": {
+    "zh-Hans": "归属到伙伴",
+    "zh-Hant": "歸屬到毛小孩"
+  },
+  "photo.assign.unassign": {
+    "zh-Hans": "移出归属",
+    "zh-Hant": "移出歸屬"
+  },
+  "photo.assign.unassignHint": {
+    "zh-Hans": "不归属任何伙伴",
+    "zh-Hant": "不歸屬任何毛小孩"
+  },
+  "photo.batch.assign": {
+    "zh-Hans": "归属到伙伴",
+    "zh-Hant": "歸屬到毛小孩"
+  },
+  "photo.batch.delete": {
+    "zh-Hans": "删除",
+    "zh-Hant": "刪除"
+  },
+  "photo.batch.delete.confirm %lld": {
+    "zh-Hans": "删除选中的 %lld 张照片？",
+    "zh-Hant": "刪除選取的 %lld 張照片？"
+  },
+  "photo.batch.selected %lld": {
+    "zh-Hans": "已选 %lld 张",
+    "zh-Hant": "已選 %lld 張"
+  },
+  "photo.bead.create": {
+    "zh-Hans": "创作拼豆图纸",
+    "zh-Hant": "創作拼豆圖稿"
+  },
+  "photo.delete.confirmSingle": {
+    "zh-Hans": "删除这张照片？",
+    "zh-Hant": "刪除這張照片？"
+  },
+  "photo.detail.addToMemory": {
+    "zh-Hans": "加入生命记忆",
+    "zh-Hant": "加入生命記憶"
+  },
+  "photo.detail.archived": {
+    "zh-Hans": "已归档",
+    "zh-Hant": "已歸檔"
+  },
+  "photo.detail.assign": {
+    "zh-Hans": "分配归属",
+    "zh-Hant": "分配歸屬"
+  },
+  "photo.detail.editInfo": {
+    "zh-Hans": "编辑信息",
+    "zh-Hant": "編輯資訊"
+  },
+  "photo.detail.share": {
+    "zh-Hans": "分享导出",
+    "zh-Hant": "分享匯出"
+  },
+  "photo.favorite": {
+    "zh-Hans": "收藏",
+    "zh-Hant": "收藏"
+  },
+  "photo.remove.message": {
+    "zh-Hans": "只会从咪Lens 的整理记录中移除，不会删除系统相册原图。",
+    "zh-Hant": "只會從咪Lens 的整理記錄中移除，不會刪除系統相簿原圖。"
+  },
+  "photo.remove.title": {
+    "zh-Hans": "从咪Lens 移除",
+    "zh-Hant": "從咪Lens 移除"
+  },
+  "photo.unfavorite": {
+    "zh-Hans": "取消收藏",
+    "zh-Hant": "取消收藏"
+  },
+  "picker.bead.empty": {
+    "zh-Hans": "还没有照片",
+    "zh-Hant": "還沒有照片"
+  },
+  "picker.bead.emptyDesc": {
+    "zh-Hans": "先到相册导入照片，再回来生成拼豆图纸",
+    "zh-Hant": "先到相簿匯入照片，再回來產生拼豆圖稿"
+  },
+  "picker.bead.fromArchive": {
+    "zh-Hans": "选择照片生成拼豆图纸",
+    "zh-Hant": "選取照片產生拼豆圖稿"
+  },
+  "picker.bead.title": {
+    "zh-Hans": "选择照片",
+    "zh-Hant": "選取照片"
+  },
+  "picker.businessCard.empty": {
+    "zh-Hans": "还没有伙伴档案",
+    "zh-Hant": "還沒有毛小孩檔案"
+  },
+  "picker.businessCard.emptyDesc": {
+    "zh-Hans": "先到「伙伴」Tab 建立档案，再来生成名片",
+    "zh-Hant": "先到「毛小孩」分頁建立毛小孩檔案，再來產生名片"
+  },
+  "picker.businessCard.fromArchive": {
+    "zh-Hans": "选择一位伙伴",
+    "zh-Hant": "選取一位毛小孩"
+  },
+  "picker.businessCard.title": {
+    "zh-Hans": "选择伙伴",
+    "zh-Hant": "選取毛小孩"
+  },
+  "picker.compare.clear": {
+    "zh-Hans": "清空",
+    "zh-Hant": "清空"
+  },
+  "picker.compare.empty": {
+    "zh-Hans": "还没有照片",
+    "zh-Hant": "還沒有照片"
+  },
+  "picker.compare.emptyDesc": {
+    "zh-Hans": "先到相册导入照片，再回来生成成长对比卡片",
+    "zh-Hant": "先到相簿匯入照片，再回來產生成長對比卡片"
+  },
+  "picker.compare.fromArchive": {
+    "zh-Hans": "从生命档案选择",
+    "zh-Hant": "從生命檔案選取"
+  },
+  "picker.compare.headline": {
+    "zh-Hans": "先把「从前」和「现在」\n放在一起。",
+    "zh-Hant": "先把「從前」和「現在」\n放在一起。"
+  },
+  "picker.compare.hint": {
+    "zh-Hans": "轻点已选照片即可重新指定",
+    "zh-Hant": "輕點已選照片即可重新指定"
+  },
+  "picker.compare.start": {
+    "zh-Hans": "开始对比",
+    "zh-Hant": "開始對比"
+  },
+  "picker.compare.title": {
+    "zh-Hans": "选择两段时光",
+    "zh-Hant": "選取兩段時光"
+  },
+  "picker.filter.all": {
+    "zh-Hans": "全部",
+    "zh-Hant": "全部"
+  },
+  "picker.petCard.empty": {
+    "zh-Hans": "还没有照片",
+    "zh-Hant": "還沒有照片"
+  },
+  "picker.petCard.emptyDesc": {
+    "zh-Hans": "先到相册导入照片，再回来生成伙伴卡片",
+    "zh-Hant": "先到相簿匯入照片，再回來產生毛小孩卡片"
+  },
+  "picker.petCard.fromArchive": {
+    "zh-Hans": "选择照片生成伙伴卡片",
+    "zh-Hant": "選取照片產生毛小孩卡片"
+  },
+  "picker.petCard.title": {
+    "zh-Hans": "选择照片",
+    "zh-Hant": "選取照片"
+  },
+  "picker.redPacket.empty": {
+    "zh-Hans": "还没有照片",
+    "zh-Hant": "還沒有照片"
+  },
+  "picker.redPacket.emptyDesc": {
+    "zh-Hans": "先到相册导入照片，再回来生成红包封面",
+    "zh-Hant": "先到相簿匯入照片，再回來產生紅包封面"
+  },
+  "picker.redPacket.fromArchive": {
+    "zh-Hans": "选择一张竖版照片效果最好（微信红包封面为 957×1278）",
+    "zh-Hant": "選取一張直式照片效果最好（紅包封面為 957×1278）"
+  },
+  "picker.redPacket.title": {
+    "zh-Hans": "选择封面照片",
+    "zh-Hant": "選取封面照片"
+  },
+  "picker.role.earlier": {
+    "zh-Hans": "从前",
+    "zh-Hant": "從前"
+  },
+  "picker.role.recent": {
+    "zh-Hans": "现在",
+    "zh-Hant": "現在"
+  },
+  "preview.contentArea": {
+    "zh-Hans": "内容区",
+    "zh-Hant": "內容區"
+  },
+  "privacy.commit.control": {
+    "zh-Hans": "由你决定导入什么",
+    "zh-Hant": "由您決定匯入內容"
+  },
+  "privacy.commit.control.detail": {
+    "zh-Hans": "扫描只找出候选照片；导入哪张、归给哪位伙伴，都由你确认。",
+    "zh-Hant": "掃描僅找出候選照片；匯入哪張、歸屬於哪位毛小孩，均由您親自確認。"
+  },
+  "privacy.commit.gdpr": {
+    "zh-Hans": "无云端，不上传",
+    "zh-Hant": "無雲端處理，絕不上傳"
+  },
+  "privacy.commit.gdpr.detail": {
+    "zh-Hans": "所有照片的识别与分析都在设备本地完成，不经过任何云服务，不连接任何外部服务器。",
+    "zh-Hant": "所有照片的辨識與特徵分析均在本機完成，不經過任何雲端服務，亦不連接任何外部伺服器。"
+  },
+  "privacy.commit.local": {
+    "zh-Hans": "分析在本机完成",
+    "zh-Hant": "完全在本機分析"
+  },
+  "privacy.commit.local.detail": {
+    "zh-Hans": "伙伴照片识别由设备本地的模型完成，不经过任何服务器。",
+    "zh-Hant": "毛小孩照片辨識由裝置本機模型處理，完全不經過任何伺服器。"
+  },
+  "privacy.commit.ondevice": {
+    "zh-Hans": "照片不主动上传",
+    "zh-Hant": "照片不會主動上傳"
+  },
+  "privacy.commit.ondevice.detail": {
+    "zh-Hans": "App 不会主动上传照片；编辑产物可能随用户启用的系统备份保存。",
+    "zh-Hant": "App 不會主動上傳照片；編輯後的作品可能隨您啟用的系統備份進行儲存。"
+  },
+  "privacy.commit.title": {
+    "zh-Hans": "本地处理承诺",
+    "zh-Hant": "本機隱私承諾"
+  },
+  "privacy.permissions.manage": {
+    "zh-Hans": "管理照片与通知权限",
+    "zh-Hant": "管理照片與通知權限"
+  },
+  "privacy.policy.link": {
+    "zh-Hans": "查看隐私政策",
+    "zh-Hant": "查看隱私權政策"
+  },
+  "privacy.storage.detail": {
+    "zh-Hans": "导入的照片副本与档案数据保存在 App 沙盒内。删除 App 会一并删除这些数据；系统相册中的原图不受影响。",
+    "zh-Hant": "匯入的照片副本與檔案資料儲存在 App 沙盒內。刪除 App 會一併移除這些資料；系統相簿中的原始照片不受任何影響。"
+  },
+  "privacy.storage.title": {
+    "zh-Hans": "数据存储",
+    "zh-Hant": "資料儲存"
+  },
+  "quota.downgrade.banner": {
+    "zh-Hans": "已超出免费版 50 张限额，删除多余照片或续费解锁",
+    "zh-Hant": "已超出免費版 50 張限額，刪除多餘照片或續訂解鎖"
+  },
+  "quota.locked.badge": {
+    "zh-Hans": "Pro",
+    "zh-Hant": "Pro"
+  },
+  "quota.locked.sheet.body": {
+    "zh-Hans": "免费版可查看最近 50 张照片，更早的已锁定。续费可恢复全部访问，或清理超额照片释放存储空间。",
+    "zh-Hant": "免費版可查看最近 50 張照片，更早的已鎖定。續訂可回復全部存取，或清理超額照片釋放儲存空間。"
+  },
+  "quota.locked.sheet.cta.manage": {
+    "zh-Hans": "管理存储",
+    "zh-Hant": "管理儲存空間"
+  },
+  "quota.locked.sheet.cta.renew": {
+    "zh-Hans": "续费恢复全部",
+    "zh-Hant": "續訂回復全部"
+  },
+  "quota.locked.sheet.title": {
+    "zh-Hans": "部分照片已锁定",
+    "zh-Hant": "部分照片已鎖定"
+  },
+  "recap.empty.body": {
+    "zh-Hans": "导入照片后，这里会生成年度回忆册",
+    "zh-Hant": "匯入照片後，這裡會產生年度回憶冊"
+  },
+  "recap.empty.title": {
+    "zh-Hans": "还没有照片",
+    "zh-Hant": "還沒有照片"
+  },
+  "recap.exportFailed": {
+    "zh-Hans": "导出失败",
+    "zh-Hant": "匯出失敗"
+  },
+  "recap.exportFailedDetail %@": {
+    "zh-Hans": "导出失败：%@",
+    "zh-Hant": "匯出失敗：%@"
+  },
+  "recap.monthCount %lld": {
+    "zh-Hans": "%lld 张",
+    "zh-Hant": "%lld 張"
+  },
+  "recap.monthPhoto %@": {
+    "zh-Hans": "%@ 的代表照片",
+    "zh-Hant": "%@ 的代表照片"
+  },
+  "recap.renderFailed": {
+    "zh-Hans": "渲染失败",
+    "zh-Hant": "算繪失敗"
+  },
+  "recap.title": {
+    "zh-Hans": "回忆册",
+    "zh-Hant": "回憶冊"
+  },
+  "recap.totalPhotos %lld": {
+    "zh-Hans": "共 %lld 张照片",
+    "zh-Hant": "共 %lld 張照片"
+  },
+  "recovery.body": {
+    "zh-Hans": "打开本地相册记录时出现问题。您可以重试，或重建本地数据：清除 MiLens 记录，同时也会删除沙盒中已保存的照片副本（导入/编辑产物）。系统相册中的原图不受影响。",
+    "zh-Hant": "開啟本機相簿記錄時出現問題。您可以重試，或重建本機資料：清除 MiLens 記錄，同時也會刪除沙盒中已儲存的照片副本（匯入／編輯產物）。系統相簿中的原圖不受影響。"
+  },
+  "recovery.diagCreateFailed %@": {
+    "zh-Hans": "创建诊断目录失败：%@",
+    "zh-Hant": "建立診斷目錄失敗：%@"
+  },
+  "recovery.diagError %@": {
+    "zh-Hans": "错误：%@",
+    "zh-Hant": "錯誤：%@"
+  },
+  "recovery.diagHeader": {
+    "zh-Hans": "MiLens 启动失败诊断",
+    "zh-Hant": "MiLens 啟動失敗診斷"
+  },
+  "recovery.diagTime %@": {
+    "zh-Hans": "时间：%@",
+    "zh-Hant": "時間：%@"
+  },
+  "recovery.diagWriteFailed %@": {
+    "zh-Hans": "写入诊断文件失败：%@",
+    "zh-Hant": "寫入診斷檔案失敗：%@"
+  },
+  "recovery.diagnosticsExported": {
+    "zh-Hans": "诊断已导出",
+    "zh-Hant": "診斷已匯出"
+  },
+  "recovery.exportDiagnostics": {
+    "zh-Hans": "导出诊断信息",
+    "zh-Hant": "匯出診斷資訊"
+  },
+  "recovery.exportFailed": {
+    "zh-Hans": "导出失败",
+    "zh-Hant": "匯出失敗"
+  },
+  "recovery.rebuild": {
+    "zh-Hans": "重建",
+    "zh-Hant": "重建"
+  },
+  "recovery.rebuildConfirmBody": {
+    "zh-Hans": "将清除 MiLens 中的相册记录、伙伴档案及沙盒中已保存的照片副本（导入/编辑产物），且无法恢复。系统相册中的原图不会被删除。",
+    "zh-Hant": "將清除 MiLens 中的相簿記錄、毛小孩檔案及沙盒中已儲存的照片副本（匯入/編輯產物），且無法回復。系統相簿中的原圖不會被刪除。"
+  },
+  "recovery.rebuildConfirmTitle": {
+    "zh-Hans": "重建本地数据？",
+    "zh-Hant": "重建本機資料？"
+  },
+  "recovery.rebuildData": {
+    "zh-Hans": "重建本地数据",
+    "zh-Hant": "重建本機資料"
+  },
+  "recovery.retry": {
+    "zh-Hans": "重试",
+    "zh-Hant": "重試"
+  },
+  "recovery.title": {
+    "zh-Hans": "本地数据无法加载",
+    "zh-Hant": "本機資料無法載入"
+  },
+  "redpacket.accessory.bow": {
+    "zh-Hans": "蝴蝶结",
+    "zh-Hant": "蝴蝶結"
+  },
+  "redpacket.accessory.coin": {
+    "zh-Hans": "金币",
+    "zh-Hant": "金幣"
+  },
+  "redpacket.accessory.firecracker": {
+    "zh-Hans": "鞭炮",
+    "zh-Hant": "鞭炮"
+  },
+  "redpacket.accessory.flower": {
+    "zh-Hans": "花卉",
+    "zh-Hant": "花卉"
+  },
+  "redpacket.accessory.heart": {
+    "zh-Hans": "爱心",
+    "zh-Hant": "愛心"
+  },
+  "redpacket.accessory.lantern": {
+    "zh-Hans": "灯笼",
+    "zh-Hant": "燈籠"
+  },
+  "redpacket.accessory.paw": {
+    "zh-Hans": "爪印",
+    "zh-Hant": "爪印"
+  },
+  "redpacket.accessory.star": {
+    "zh-Hans": "星星",
+    "zh-Hant": "星星"
+  },
+  "redpacket.action.export": {
+    "zh-Hans": "导出封面",
+    "zh-Hant": "匯出封面"
+  },
+  "redpacket.action.share": {
+    "zh-Hans": "分享",
+    "zh-Hant": "分享"
+  },
+  "redpacket.coverTitle": {
+    "zh-Hans": "封面标题",
+    "zh-Hant": "封面標題"
+  },
+  "redpacket.coverTitle.placeholder": {
+    "zh-Hans": "祝福语",
+    "zh-Hant": "祝福語"
+  },
+  "redpacket.cutout.canEdit": {
+    "zh-Hans": "可继续编辑",
+    "zh-Hant": "可繼續編輯"
+  },
+  "redpacket.cutout.changePhoto": {
+    "zh-Hans": "换一张照片",
+    "zh-Hant": "換一張照片"
+  },
+  "redpacket.cutout.confirmTitle": {
+    "zh-Hans": "确认抠图",
+    "zh-Hant": "確認去背"
+  },
+  "redpacket.cutout.continue": {
+    "zh-Hans": "继续",
+    "zh-Hant": "繼續"
+  },
+  "redpacket.cutout.done": {
+    "zh-Hans": "抠图完成",
+    "zh-Hant": "去背完成"
+  },
+  "redpacket.cutout.failed": {
+    "zh-Hans": "抠图失败，请重试或换一张照片",
+    "zh-Hant": "去背失敗，請重試或換一張照片"
+  },
+  "redpacket.cutout.failedShort": {
+    "zh-Hans": "抠图失败",
+    "zh-Hant": "去背失敗"
+  },
+  "redpacket.cutout.loading": {
+    "zh-Hans": "加载中…",
+    "zh-Hant": "載入中…"
+  },
+  "redpacket.cutout.nextStep": {
+    "zh-Hans": "下一步",
+    "zh-Hant": "下一步"
+  },
+  "redpacket.cutout.processing": {
+    "zh-Hans": "正在抠图…",
+    "zh-Hant": "正在去背…"
+  },
+  "redpacket.cutout.ready": {
+    "zh-Hans": "抠图完成，可以进入工作室编辑了",
+    "zh-Hant": "去背完成，可以進入工作室編輯了"
+  },
+  "redpacket.cutout.retry": {
+    "zh-Hans": "重试",
+    "zh-Hant": "重試"
+  },
+  "redpacket.cutout.status": {
+    "zh-Hans": "抠图状态",
+    "zh-Hant": "去背狀態"
+  },
+  "redpacket.cutout.subjectSeparated": {
+    "zh-Hans": "主体已分离",
+    "zh-Hant": "主體已分離"
+  },
+  "redpacket.cutout.tool.changePhoto": {
+    "zh-Hans": "换图",
+    "zh-Hant": "換圖"
+  },
+  "redpacket.cutout.tool.cutout": {
+    "zh-Hans": "抠图",
+    "zh-Hant": "去背"
+  },
+  "redpacket.cutout.tool.retry": {
+    "zh-Hans": "重试",
+    "zh-Hant": "重試"
+  },
+  "redpacket.export.chatPreview": {
+    "zh-Hans": "场景预览",
+    "zh-Hant": "場景預覽"
+  },
+  "redpacket.export.defaultSender": {
+    "zh-Hans": "家人",
+    "zh-Hant": "家人"
+  },
+  "redpacket.export.defaultTitle": {
+    "zh-Hans": "恭喜发财",
+    "zh-Hant": "恭喜發財"
+  },
+  "redpacket.export.discard": {
+    "zh-Hans": "放弃",
+    "zh-Hant": "放棄"
+  },
+  "redpacket.export.editorialTitle": {
+    "zh-Hans": "从聊天到打开，\n看看完整效果。",
+    "zh-Hant": "從聊天到打開，\n看看完整效果。"
+  },
+  "redpacket.export.exceeded": {
+    "zh-Hans": "超出限制",
+    "zh-Hant": "超出限制"
+  },
+  "redpacket.export.fail.fileSize": {
+    "zh-Hans": "文件超过限制，最大",
+    "zh-Hant": "檔案超過限制，最大"
+  },
+  "redpacket.export.fail.format": {
+    "zh-Hans": "格式不受支持",
+    "zh-Hant": "格式不受支援"
+  },
+  "redpacket.export.fail.size": {
+    "zh-Hans": "尺寸不符合平台要求",
+    "zh-Hant": "尺寸不符合平台要求"
+  },
+  "redpacket.export.fileSize": {
+    "zh-Hans": "文件大小",
+    "zh-Hant": "檔案大小"
+  },
+  "redpacket.export.format": {
+    "zh-Hans": "格式",
+    "zh-Hant": "格式"
+  },
+  "redpacket.export.hasWatermark": {
+    "zh-Hans": "免费版导出含 MiLens 水印",
+    "zh-Hant": "免費版匯出含 MiLens 水印"
+  },
+  "redpacket.export.howToUse": {
+    "zh-Hans": "保存到相册后，在微信红包封面页面选择自定义封面即可",
+    "zh-Hant": "儲存到相簿後，在微信紅包封面頁面選擇自訂封面即可"
+  },
+  "redpacket.export.loadFailed": {
+    "zh-Hans": "加载草稿失败",
+    "zh-Hant": "載入草稿失敗"
+  },
+  "redpacket.export.noWatermark": {
+    "zh-Hans": "无水印导出（Pro）",
+    "zh-Hant": "無水印匯出（Pro）"
+  },
+  "redpacket.export.openButton": {
+    "zh-Hans": "開",
+    "zh-Hant": "開"
+  },
+  "redpacket.export.passed": {
+    "zh-Hans": "符合规格",
+    "zh-Hant": "符合規格"
+  },
+  "redpacket.export.previewNote": {
+    "zh-Hans": "以上为示意效果，实际显示以微信为准",
+    "zh-Hant": "以上為示意效果，實際顯示以微信為準"
+  },
+  "redpacket.export.proHint": {
+    "zh-Hans": "升级 Pro 后导出无水印",
+    "zh-Hant": "升級 Pro 後匯出無水印"
+  },
+  "redpacket.export.productCheck": {
+    "zh-Hans": "成品检查",
+    "zh-Hant": "成品檢查"
+  },
+  "redpacket.export.saveFailed": {
+    "zh-Hans": "保存到相册失败，请检查相册权限",
+    "zh-Hant": "儲存到相簿失敗，請檢查相簿權限"
+  },
+  "redpacket.export.saveOrShare": {
+    "zh-Hans": "保存或分享",
+    "zh-Hant": "儲存或分享"
+  },
+  "redpacket.export.saved": {
+    "zh-Hans": "已保存到相册",
+    "zh-Hant": "已儲存到相簿"
+  },
+  "redpacket.export.scene.banner": {
+    "zh-Hans": "聊天横幅",
+    "zh-Hant": "聊天橫幅"
+  },
+  "redpacket.export.scene.card": {
+    "zh-Hans": "红包卡片",
+    "zh-Hant": "紅包卡片"
+  },
+  "redpacket.export.scene.list": {
+    "zh-Hans": "红包列表",
+    "zh-Hant": "紅包列表"
+  },
+  "redpacket.export.scene.open": {
+    "zh-Hans": "拆红包页",
+    "zh-Hant": "拆紅包頁"
+  },
+  "redpacket.export.sceneLabel": {
+    "zh-Hans": "场景预览",
+    "zh-Hant": "場景預覽"
+  },
+  "redpacket.export.sceneOverline": {
+    "zh-Hans": "SCENE PREVIEW",
+    "zh-Hant": "SCENE PREVIEW"
+  },
+  "redpacket.export.scenePreview": {
+    "zh-Hans": "场景预览",
+    "zh-Hant": "場景預覽"
+  },
+  "redpacket.export.shareFailed": {
+    "zh-Hans": "分享准备失败，请重试",
+    "zh-Hant": "分享準備失敗，請重試"
+  },
+  "redpacket.export.shareReady": {
+    "zh-Hans": "已准备分享，选择目标应用即可",
+    "zh-Hant": "已準備分享，選擇目標應用程式即可"
+  },
+  "redpacket.export.shareTitle": {
+    "zh-Hans": "分享预览",
+    "zh-Hant": "分享預覽"
+  },
+  "redpacket.export.size": {
+    "zh-Hans": "尺寸",
+    "zh-Hant": "尺寸"
+  },
+  "redpacket.export.status": {
+    "zh-Hans": "状态",
+    "zh-Hant": "狀態"
+  },
+  "redpacket.export.step.openCover": {
+    "zh-Hans": "打开红包封面",
+    "zh-Hant": "打開紅包封面"
+  },
+  "redpacket.export.step.saveImage": {
+    "zh-Hans": "保存图片",
+    "zh-Hant": "儲存圖片"
+  },
+  "redpacket.export.step.selectCustom": {
+    "zh-Hans": "选自定义封面",
+    "zh-Hant": "選自訂封面"
+  },
+  "redpacket.export.title": {
+    "zh-Hans": "导出预览",
+    "zh-Hant": "匯出預覽"
+  },
+  "redpacket.optimize.after": {
+    "zh-Hans": "优化后",
+    "zh-Hant": "最佳化後"
+  },
+  "redpacket.optimize.applied": {
+    "zh-Hans": "已为你调整",
+    "zh-Hant": "已為你調整"
+  },
+  "redpacket.optimize.before": {
+    "zh-Hans": "优化前",
+    "zh-Hant": "最佳化前"
+  },
+  "redpacket.optimize.button": {
+    "zh-Hans": "智能优化",
+    "zh-Hant": "智慧最佳化"
+  },
+  "redpacket.optimize.disclaimer": {
+    "zh-Hans": "智能优化不会承诺平台审核通过",
+    "zh-Hant": "智慧最佳化不保證平台審核一定通過"
+  },
+  "redpacket.optimize.noSourceChange": {
+    "zh-Hans": "未更换原图，也未重新抠图",
+    "zh-Hant": "未更換原圖，亦未重新去背"
+  },
+  "redpacket.optimize.suggestTitle": {
+    "zh-Hans": "建议优化",
+    "zh-Hant": "建議最佳化"
+  },
+  "redpacket.optimize.summary.noChanges": {
+    "zh-Hans": "当前画面无需调整",
+    "zh-Hant": "目前畫面無需調整"
+  },
+  "redpacket.optimize.summary.petPos": {
+    "zh-Hans": "伙伴主体移入安全区",
+    "zh-Hant": "毛小孩移入安全區"
+  },
+  "redpacket.optimize.summary.textPos": {
+    "zh-Hans": "文字移入安全区",
+    "zh-Hant": "文字移入安全區"
+  },
+  "redpacket.optimize.undoThis": {
+    "zh-Hans": "撤销本次调整",
+    "zh-Hant": "復原本次調整"
+  },
+  "redpacket.overline": {
+    "zh-Hans": "WECHAT RED ENVELOPES",
+    "zh-Hant": "WECHAT RED ENVELOPES"
+  },
+  "redpacket.quality.allGood": {
+    "zh-Hans": "全部通过",
+    "zh-Hant": "全部通過"
+  },
+  "redpacket.quality.badge.error": {
+    "zh-Hans": "问题",
+    "zh-Hant": "問題"
+  },
+  "redpacket.quality.badge.warning": {
+    "zh-Hans": "建议",
+    "zh-Hant": "建議"
+  },
+  "redpacket.quality.brightness.bright.detail": {
+    "zh-Hans": "照片偏亮（亮度 %lld%%），可能过曝",
+    "zh-Hant": "照片偏亮（亮度 %lld%%），可能過曝"
+  },
+  "redpacket.quality.brightness.dark.detail": {
+    "zh-Hans": "照片偏暗（亮度 %lld%%），建议提亮",
+    "zh-Hant": "照片偏暗（亮度 %lld%%），建議提亮"
+  },
+  "redpacket.quality.brightness.highlightClipping.detail": {
+    "zh-Hans": "高光细节较少（高光剪切 %lld%%），建议降低曝光",
+    "zh-Hant": "高光細節較少（高光剪切 %lld%%），建議降低曝光"
+  },
+  "redpacket.quality.brightness.pass.detail": {
+    "zh-Hans": "亮度适中",
+    "zh-Hant": "亮度適中"
+  },
+  "redpacket.quality.brightness.shadowClipping.detail": {
+    "zh-Hans": "暗部细节较少（阴影剪切 %lld%%），建议适度提亮",
+    "zh-Hant": "暗部細節較少（陰影剪切 %lld%%），建議適度提亮"
+  },
+  "redpacket.quality.brightness.unavailable.detail": {
+    "zh-Hans": "无法读取原图像素，尚未完成亮度检查",
+    "zh-Hant": "無法讀取原圖像素，尚未完成亮度檢查"
+  },
+  "redpacket.quality.clarity.blur.detail": {
+    "zh-Hans": "清晰度偏低（Laplacian 方差 %lld），照片可能模糊",
+    "zh-Hant": "清晰度偏低（Laplacian 方差 %lld），照片可能模糊"
+  },
+  "redpacket.quality.clarity.pass.detail": {
+    "zh-Hans": "清晰度良好",
+    "zh-Hant": "清晰度良好"
+  },
+  "redpacket.quality.clarity.resolution.detail": {
+    "zh-Hans": "原图分辨率 %1$lld×%2$lld（%3$lld 像素），建议使用更高清的照片",
+    "zh-Hant": "原圖解析度 %1$lld×%2$lld（%3$lld 像素），建議使用更高畫質的照片"
+  },
+  "redpacket.quality.clarity.soft.detail": {
+    "zh-Hans": "清晰度一般（%lld），建议更换更清晰的照片",
+    "zh-Hant": "清晰度一般（%lld），建議更換更清晰的照片"
+  },
+  "redpacket.quality.clarity.unavailable.detail": {
+    "zh-Hans": "无法读取原图像素，尚未完成清晰度检查",
+    "zh-Hant": "無法讀取原圖像素，尚未完成清晰度檢查"
+  },
+  "redpacket.quality.completed": {
+    "zh-Hans": "已完成",
+    "zh-Hant": "已完成"
+  },
+  "redpacket.quality.composition.clipped.detail": {
+    "zh-Hans": "伙伴主体有 %lld%% 超出画布，可能被裁切",
+    "zh-Hant": "毛小孩主體有 %lld%% 超出畫布，可能被裁切"
+  },
+  "redpacket.quality.composition.pass.detail": {
+    "zh-Hans": "构图良好",
+    "zh-Hant": "構圖良好"
+  },
+  "redpacket.quality.composition.safezone.detail": {
+    "zh-Hans": "伙伴主体仅有 %lld%% 位于安全区，红包控件可能遮挡主体",
+    "zh-Hant": "毛小孩主體僅有 %lld%% 位於安全區，紅包元件可能遮擋主體"
+  },
+  "redpacket.quality.composition.small.detail": {
+    "zh-Hans": "伙伴主体占比偏小（%lld%%），建议放大或移动",
+    "zh-Hant": "毛小孩主體佔比偏小（%lld%%），建議放大或移動"
+  },
+  "redpacket.quality.cutout.background.detail": {
+    "zh-Hans": "前景覆盖 %lld%%，可能混入较多背景",
+    "zh-Hant": "前景覆蓋 %lld%%，可能混入較多背景"
+  },
+  "redpacket.quality.cutout.fragmented.detail": {
+    "zh-Hans": "抠图包含较多零散区域（%lld%%），建议重试",
+    "zh-Hant": "去背包含較多零散區域（%lld%%），建議重試"
+  },
+  "redpacket.quality.cutout.incomplete.detail": {
+    "zh-Hans": "主体与画面边缘接触较多（%lld%%），请确认耳朵或尾巴是否完整",
+    "zh-Hant": "主體與畫面邊緣接觸較多（%lld%%），請確認耳朵或尾巴是否完整"
+  },
+  "redpacket.quality.cutout.pass.detail": {
+    "zh-Hans": "抠图良好",
+    "zh-Hant": "去背良好"
+  },
+  "redpacket.quality.cutout.retry.detail": {
+    "zh-Hans": "识别到的主体过少（%lld%%），抠图可能失败",
+    "zh-Hant": "辨識到的主體過少（%lld%%），去背可能失敗"
+  },
+  "redpacket.quality.cutout.rough.detail": {
+    "zh-Hans": "抠图边缘较粗糙（破碎度 %lld%%），建议重试",
+    "zh-Hant": "去背邊緣較粗糙（破碎度 %lld%%），建議重試"
+  },
+  "redpacket.quality.cutout.unavailable.detail": {
+    "zh-Hans": "尚未获得有效抠图蒙版，请重新抠图",
+    "zh-Hant": "尚未獲得有效去背遮罩，請重新去背"
+  },
+  "redpacket.quality.dim.brightness": {
+    "zh-Hans": "亮度",
+    "zh-Hant": "亮度"
+  },
+  "redpacket.quality.dim.clarity": {
+    "zh-Hans": "清晰度",
+    "zh-Hant": "清晰度"
+  },
+  "redpacket.quality.dim.composition": {
+    "zh-Hans": "构图",
+    "zh-Hant": "構圖"
+  },
+  "redpacket.quality.dim.cutout": {
+    "zh-Hans": "抠图",
+    "zh-Hant": "去背"
+  },
+  "redpacket.quality.dim.readability": {
+    "zh-Hans": "可读性",
+    "zh-Hant": "可讀性"
+  },
+  "redpacket.quality.done": {
+    "zh-Hans": "完成",
+    "zh-Hant": "完成"
+  },
+  "redpacket.quality.hasIssues": {
+    "zh-Hans": "有改进建议",
+    "zh-Hant": "有改進建議"
+  },
+  "redpacket.quality.intelligentCheck": {
+    "zh-Hans": "智能检测",
+    "zh-Hant": "智慧檢測"
+  },
+  "redpacket.quality.level.error": {
+    "zh-Hans": "需要修复",
+    "zh-Hant": "需要修復"
+  },
+  "redpacket.quality.level.pass": {
+    "zh-Hans": "质量良好",
+    "zh-Hant": "品質良好"
+  },
+  "redpacket.quality.level.warning": {
+    "zh-Hans": "有改进建议",
+    "zh-Hant": "有改進建議"
+  },
+  "redpacket.quality.notEvaluated": {
+    "zh-Hans": "尚未进行质量检测",
+    "zh-Hant": "尚未進行品質檢測"
+  },
+  "redpacket.quality.onlySuggestion": {
+    "zh-Hans": "只给建议\n确认后才调整",
+    "zh-Hant": "只給建議\n確認後才調整"
+  },
+  "redpacket.quality.overline": {
+    "zh-Hans": "QUALITY",
+    "zh-Hant": "QUALITY"
+  },
+  "redpacket.quality.readability.contrast.detail": {
+    "zh-Hans": "文字与背景对比度偏低，建议更换文字风格",
+    "zh-Hant": "文字與背景對比度偏低，建議更換文字風格"
+  },
+  "redpacket.quality.readability.noText.detail": {
+    "zh-Hans": "无文本内容",
+    "zh-Hant": "無文字內容"
+  },
+  "redpacket.quality.readability.pass.detail": {
+    "zh-Hans": "文字可读性良好",
+    "zh-Hant": "文字可讀性良好"
+  },
+  "redpacket.quality.readability.zone.detail": {
+    "zh-Hans": "文字位置在风险区内，红包场景中可能被遮挡",
+    "zh-Hant": "文字位置在風險區內，紅包場景中可能被遮擋"
+  },
+  "redpacket.quality.recheck": {
+    "zh-Hans": "重新检测",
+    "zh-Hant": "重新檢測"
+  },
+  "redpacket.quality.startCheck": {
+    "zh-Hans": "开始检测",
+    "zh-Hant": "開始檢測"
+  },
+  "redpacket.quality.status.error": {
+    "zh-Hans": "问题",
+    "zh-Hant": "問題"
+  },
+  "redpacket.quality.status.pass": {
+    "zh-Hans": "通过",
+    "zh-Hant": "通過"
+  },
+  "redpacket.quality.status.warning": {
+    "zh-Hans": "建议",
+    "zh-Hant": "建議"
+  },
+  "redpacket.quality.thisAdjustment": {
+    "zh-Hans": "本次调整",
+    "zh-Hant": "本次調整"
+  },
+  "redpacket.quality.title": {
+    "zh-Hans": "质量检测",
+    "zh-Hant": "品質檢測"
+  },
+  "redpacket.render.failed": {
+    "zh-Hans": "封面渲染失败，请重试",
+    "zh-Hant": "封面算繪失敗，請重試"
+  },
+  "redpacket.save.failed": {
+    "zh-Hans": "保存失败",
+    "zh-Hant": "儲存失敗"
+  },
+  "redpacket.spec": {
+    "zh-Hans": "957 × 1278 px PNG（< 500 KB）",
+    "zh-Hant": "957 × 1278 px PNG（< 500 KB）"
+  },
+  "redpacket.style.elegant": {
+    "zh-Hans": "雅致",
+    "zh-Hant": "雅致"
+  },
+  "redpacket.style.festive": {
+    "zh-Hans": "喜庆",
+    "zh-Hant": "喜慶"
+  },
+  "redpacket.style.gold": {
+    "zh-Hans": "金色",
+    "zh-Hant": "金色"
+  },
+  "redpacket.style.petName": {
+    "zh-Hans": "昵称",
+    "zh-Hant": "暱稱"
+  },
+  "redpacket.style.seal": {
+    "zh-Hans": "印章",
+    "zh-Hant": "印章"
+  },
+  "redpacket.template.floralSpring.desc": {
+    "zh-Hans": "粉色花卉温桑风",
+    "zh-Hant": "粉色花卉溫馨風"
+  },
+  "redpacket.template.floralSpring.title": {
+    "zh-Hans": "花卉春",
+    "zh-Hant": "花卉春"
+  },
+  "redpacket.template.fortuneGold.desc": {
+    "zh-Hans": "金色招财进宝风",
+    "zh-Hant": "金色招財進寶風"
+  },
+  "redpacket.template.fortuneGold.title": {
+    "zh-Hans": "招财金",
+    "zh-Hant": "招財金"
+  },
+  "redpacket.template.free": {
+    "zh-Hans": "免费",
+    "zh-Hant": "免費"
+  },
+  "redpacket.template.newYearRed.desc": {
+    "zh-Hans": "经典红色喜庆风",
+    "zh-Hant": "經典紅色喜慶風"
+  },
+  "redpacket.template.newYearRed.title": {
+    "zh-Hans": "新年红",
+    "zh-Hant": "新年紅"
+  },
+  "redpacket.template.petFresh.desc": {
+    "zh-Hans": "青色清新可爱风",
+    "zh-Hant": "青色清新可愛風"
+  },
+  "redpacket.template.petFresh.title": {
+    "zh-Hans": "茸茸清新",
+    "zh-Hant": "茸茸清新"
+  },
+  "redpacket.title": {
+    "zh-Hans": "红包封面",
+    "zh-Hant": "紅包封面"
+  },
+  "redpacket.uploadGuide.link": {
+    "zh-Hans": "查看微信红包封面上传指引 →",
+    "zh-Hant": "查看微信紅包封面上傳指引 →"
+  },
+  "redpacket.uploadGuide.note": {
+    "zh-Hans": "导出后需要上传到微信红包封面平台才能使用",
+    "zh-Hant": "匯出後需要上傳到微信紅包封面平台才能使用"
+  },
+  "redpacket.watermarkHint": {
+    "zh-Hans": "免费导出含 MiLens 水印",
+    "zh-Hant": "免費匯出含 MiLens 水印"
+  },
+  "redpacket.workshop.center": {
+    "zh-Hans": "置中",
+    "zh-Hant": "置中"
+  },
+  "redpacket.workshop.channel.accessory": {
+    "zh-Hans": "配饰",
+    "zh-Hant": "配飾"
+  },
+  "redpacket.workshop.channel.blessing": {
+    "zh-Hans": "祝福语",
+    "zh-Hant": "祝福語"
+  },
+  "redpacket.workshop.channel.pet": {
+    "zh-Hans": "伙伴",
+    "zh-Hant": "毛小孩"
+  },
+  "redpacket.workshop.chooseTemplate": {
+    "zh-Hans": "选择一个风格模板",
+    "zh-Hant": "選擇一個風格範本"
+  },
+  "redpacket.workshop.cutoutHint": {
+    "zh-Hans": "选中后进入工作室，将自动进行智能抠图",
+    "zh-Hant": "選取後進入工作室，將自動進行智慧去背"
+  },
+  "redpacket.workshop.delete": {
+    "zh-Hans": "删除",
+    "zh-Hant": "刪除"
+  },
+  "redpacket.workshop.enter": {
+    "zh-Hans": "进入工作室",
+    "zh-Hant": "進入工作室"
+  },
+  "redpacket.workshop.export": {
+    "zh-Hans": "导出",
+    "zh-Hant": "匯出"
+  },
+  "redpacket.workshop.layer.accessory": {
+    "zh-Hans": "配饰图层",
+    "zh-Hant": "配飾圖層"
+  },
+  "redpacket.workshop.layer.blessing": {
+    "zh-Hans": "祝福语图层",
+    "zh-Hant": "祝福語圖層"
+  },
+  "redpacket.workshop.layer.pet": {
+    "zh-Hans": "伙伴图层",
+    "zh-Hant": "毛小孩圖層"
+  },
+  "redpacket.workshop.loadError.back": {
+    "zh-Hans": "返回",
+    "zh-Hant": "返回"
+  },
+  "redpacket.workshop.loadError.photo": {
+    "zh-Hans": "照片无法读取，请返回重新选择",
+    "zh-Hant": "照片無法讀取，請返回重新選取"
+  },
+  "redpacket.workshop.loadError.template": {
+    "zh-Hans": "模板不可用，请返回重新选择",
+    "zh-Hant": "範本不可用，請返回重新選取"
+  },
+  "redpacket.workshop.noPhotos": {
+    "zh-Hans": "还没有照片",
+    "zh-Hant": "還沒有照片"
+  },
+  "redpacket.workshop.noPhotosDesc": {
+    "zh-Hans": "先在首页导入伙伴照片",
+    "zh-Hant": "先在首頁匯入毛小孩照片"
+  },
+  "redpacket.workshop.photoPicker": {
+    "zh-Hans": "选择照片",
+    "zh-Hant": "選取照片"
+  },
+  "redpacket.workshop.reset": {
+    "zh-Hans": "恢复默认",
+    "zh-Hant": "回復預設"
+  },
+  "redpacket.workshop.selectPhoto": {
+    "zh-Hans": "从相册选择伙伴照片",
+    "zh-Hant": "從相簿選取毛小孩照片"
+  },
+  "redpacket.workshop.templatePicker": {
+    "zh-Hans": "选择模板",
+    "zh-Hant": "選擇範本"
+  },
+  "redpacket.workshop.templateSwitcher": {
+    "zh-Hans": "切换模板",
+    "zh-Hant": "切換範本"
+  },
+  "redpacket.workshop.textStyle": {
+    "zh-Hans": "文字风格",
+    "zh-Hant": "文字風格"
+  },
+  "redpacket.workshop.title": {
+    "zh-Hans": "红包工作室",
+    "zh-Hant": "紅包工作室"
+  },
+  "redpacket.workshop.tool.accessory": {
+    "zh-Hans": "配饰",
+    "zh-Hant": "配飾"
+  },
+  "redpacket.workshop.tool.optimize": {
+    "zh-Hans": "优化",
+    "zh-Hant": "最佳化"
+  },
+  "redpacket.workshop.tool.photo": {
+    "zh-Hans": "照片",
+    "zh-Hant": "照片"
+  },
+  "redpacket.workshop.tool.template": {
+    "zh-Hans": "模板",
+    "zh-Hant": "範本"
+  },
+  "redpacket.workshop.tool.text": {
+    "zh-Hans": "文字",
+    "zh-Hant": "文字"
+  },
+  "redpacket.workshop.transform.center": {
+    "zh-Hans": "居中",
+    "zh-Hant": "居中"
+  },
+  "redpacket.workshop.transform.changePhoto": {
+    "zh-Hans": "换图",
+    "zh-Hant": "換圖"
+  },
+  "redpacket.workshop.transform.move": {
+    "zh-Hans": "拖动",
+    "zh-Hant": "拖動"
+  },
+  "redpacket.workshop.transform.rotate": {
+    "zh-Hans": "旋转",
+    "zh-Hant": "旋轉"
+  },
+  "redpacket.workshop.transform.scale": {
+    "zh-Hans": "缩放",
+    "zh-Hant": "縮放"
+  },
+  "reminders.empty.body": {
+    "zh-Hans": "添加伙伴档案和照片后，这里会提醒你生日、成为家人的日子和值得回看的回忆。",
+    "zh-Hant": "新增毛小孩檔案和照片後，這裡會提醒你生日、成為家人的日子和值得回看的回憶。"
+  },
+  "reminders.empty.hint": {
+    "zh-Hans": "开启「纪念提醒」可以收到系统通知",
+    "zh-Hant": "開啟「紀念提醒」可以收到系統通知"
+  },
+  "reminders.empty.title": {
+    "zh-Hans": "暂时没有待看的回忆",
+    "zh-Hant": "暫時沒有待看的回憶"
+  },
+  "reminders.loadError": {
+    "zh-Hans": "暂时无法加载回忆，请稍后重试。",
+    "zh-Hant": "暫時無法載入回憶，請稍後重試。"
+  },
+  "reminders.section.memories": {
+    "zh-Hans": "往日回忆",
+    "zh-Hant": "往日回憶"
+  },
+  "reminders.section.today": {
+    "zh-Hans": "今日",
+    "zh-Hant": "今日"
+  },
+  "reminders.section.upcoming": {
+    "zh-Hans": "即将到来的日子",
+    "zh-Hant": "即將到來的日子"
+  },
+  "reminders.title": {
+    "zh-Hans": "待看的回忆",
+    "zh-Hant": "待看的回憶"
+  },
+  "reminders.today.adoption %@": {
+    "zh-Hans": "和%@成为家人的日子",
+    "zh-Hant": "和%@成為家人的日子"
+  },
+  "reminders.today.birthday %@": {
+    "zh-Hans": "%@的生日",
+    "zh-Hant": "%@的生日"
+  },
+  "reminders.today.memory %lld": {
+    "zh-Hans": "%lld年前的今天",
+    "zh-Hant": "%lld年前的今天"
+  },
+  "reminders.today.milestone %@ %lld": {
+    "zh-Hans": "%@来到家%lld天",
+    "zh-Hant": "%@來到家%lld天"
+  },
+  "reminders.upcoming.dayUnit": {
+    "zh-Hans": "天",
+    "zh-Hant": "天"
+  },
+  "reminders.upcoming.daysLeft %lld": {
+    "zh-Hans": "还有%lld天",
+    "zh-Hant": "還有%lld天"
+  },
+  "reminders.upcoming.today": {
+    "zh-Hans": "今天",
+    "zh-Hant": "今天"
+  },
+  "settings.about.entry": {
+    "zh-Hans": "关于咪Lens",
+    "zh-Hant": "關於咪Lens"
+  },
+  "settings.about.version": {
+    "zh-Hans": "版本",
+    "zh-Hant": "版本"
+  },
+  "settings.appearance.dark": {
+    "zh-Hans": "深色",
+    "zh-Hant": "深色"
+  },
+  "settings.appearance.light": {
+    "zh-Hans": "浅色",
+    "zh-Hant": "淺色"
+  },
+  "settings.appearance.system": {
+    "zh-Hans": "跟随系统",
+    "zh-Hant": "跟隨系統"
+  },
+  "settings.appearance.title": {
+    "zh-Hans": "外观",
+    "zh-Hant": "外觀"
+  },
+  "settings.backup.comingSoon": {
+    "zh-Hans": "即将上线",
+    "zh-Hant": "即將上線"
+  },
+  "settings.backup.confirmAction": {
+    "zh-Hans": "开始导出",
+    "zh-Hant": "開始匯出"
+  },
+  "settings.backup.confirmHint": {
+    "zh-Hans": "导出会将原图与全部档案打包为 .milensbackup 文件。照片较多时可能需要一些时间。",
+    "zh-Hant": "匯出會將原圖與全部檔案打包為 .milensbackup 檔案。照片較多時可能需要一些時間。"
+  },
+  "settings.backup.confirmPets %lld": {
+    "zh-Hans": "伙伴档案：%1$lld 个",
+    "zh-Hant": "毛小孩檔案：%1$lld 個"
+  },
+  "settings.backup.confirmPhotos %lld": {
+    "zh-Hans": "照片：%1$lld 张",
+    "zh-Hant": "照片：%1$lld 張"
+  },
+  "settings.backup.confirmSize %@": {
+    "zh-Hans": "预计大小：%1$@",
+    "zh-Hant": "預估大小：%1$@"
+  },
+  "settings.backup.confirmTitle": {
+    "zh-Hans": "确认导出内容",
+    "zh-Hant": "確認匯出內容"
+  },
+  "settings.backup.export": {
+    "zh-Hans": "备份导出",
+    "zh-Hant": "備份匯出"
+  },
+  "settings.backup.exportReady": {
+    "zh-Hans": "备份已生成",
+    "zh-Hant": "備份已產生"
+  },
+  "settings.backup.exportReadyHint": {
+    "zh-Hans": "选择保存位置：文件 App、iCloud 云盘或隔空投送到电脑。把这份记忆好好保存，让温暖的故事无论何时都在。",
+    "zh-Hant": "選擇儲存位置：檔案 App、iCloud 雲碟或透過 AirDrop 傳送到電腦。把這份記憶好好儲存，讓溫暖的故事無論何時都在。"
+  },
+  "settings.backup.failed": {
+    "zh-Hans": "操作失败",
+    "zh-Hant": "操作失敗"
+  },
+  "settings.backup.hint.body": {
+    "zh-Hans": "你和小伙伴的每一天都值得被完整留住。建议定期使用「备份导出」生成 .milensbackup 文件，保存到 iCloud 云盘或隔空投送到电脑，让珍贵的记忆多一份守护。",
+    "zh-Hant": "你和毛小孩的每一天都值得被完整留住。建議定期使用「備份匯出」產生 .milensbackup 檔案，儲存到 iCloud 雲碟或透過 AirDrop 傳送到電腦，讓珍貴的記憶多一份守護。"
+  },
+  "settings.backup.hint.title": {
+    "zh-Hans": "数据安全提示",
+    "zh-Hant": "資料安全提示"
+  },
+  "settings.backup.lastBackup %@": {
+    "zh-Hans": "上次备份 %1$@",
+    "zh-Hant": "上次備份 %1$@"
+  },
+  "settings.backup.modeUpdated": {
+    "zh-Hans": "已更新备份策略",
+    "zh-Hant": "已更新備份策略"
+  },
+  "settings.backup.modeUpdatedMessage": {
+    "zh-Hans": "现有照片已按新策略重新标记。",
+    "zh-Hant": "現有照片已按新策略重新標記。"
+  },
+  "settings.backup.multiVolumeHint %lld": {
+    "zh-Hans": "本次导出分为 %1$lld 个分卷文件，请全部保存",
+    "zh-Hant": "本次匯出分為 %1$lld 個分卷檔案，請全部儲存"
+  },
+  "settings.backup.neverBackup": {
+    "zh-Hans": "尚未备份，把记忆完整留存",
+    "zh-Hant": "尚未備份，把記憶完整留存"
+  },
+  "settings.backup.ok": {
+    "zh-Hans": "好",
+    "zh-Hant": "好"
+  },
+  "settings.backup.phase.collecting": {
+    "zh-Hans": "收集档案信息",
+    "zh-Hant": "收集檔案資訊"
+  },
+  "settings.backup.phase.compressing": {
+    "zh-Hans": "压缩打包",
+    "zh-Hant": "壓縮打包"
+  },
+  "settings.backup.phase.copying": {
+    "zh-Hans": "复制照片文件",
+    "zh-Hant": "複製照片檔案"
+  },
+  "settings.backup.phase.done": {
+    "zh-Hans": "即将完成",
+    "zh-Hant": "即將完成"
+  },
+  "settings.backup.phase.progress %lld %@": {
+    "zh-Hans": "%1$lld%% · %2$@",
+    "zh-Hant": "%1$lld%% · %2$@"
+  },
+  "settings.backup.photoBackupMode": {
+    "zh-Hans": "照片副本纳入系统备份",
+    "zh-Hant": "照片副本納入系統備份"
+  },
+  "settings.backup.photoBackupMode.footer": {
+    "zh-Hans": "关闭可节省 iCloud 存储空间（原图可从相册重建）。开启后导入副本将随系统备份保存，数据更安全。",
+    "zh-Hant": "關閉可節省 iCloud 儲存空間（原圖可從相簿重建）。開啟後匯入副本將隨系統備份儲存，資料更安全。"
+  },
+  "settings.backup.proOnly": {
+    "zh-Hans": "Pro 专属功能",
+    "zh-Hant": "Pro 專屬功能"
+  },
+  "settings.backup.restore": {
+    "zh-Hans": "备份恢复",
+    "zh-Hant": "備份回復"
+  },
+  "settings.backup.restoreComplete": {
+    "zh-Hans": "恢复完成",
+    "zh-Hant": "回復完成"
+  },
+  "settings.backup.restoreSummary %lld %lld %lld %lld": {
+    "zh-Hans": "已导入 %1$lld 个档案、%2$lld 张照片、%3$lld 个事件（%4$lld 项已存在跳过）",
+    "zh-Hant": "已匯入 %1$lld 個檔案、%2$lld 張照片、%3$lld 個事件（%4$lld 項已存在跳過）"
+  },
+  "settings.backup.share": {
+    "zh-Hans": "保存或分享备份",
+    "zh-Hant": "儲存或分享備份"
+  },
+  "settings.backup.zipHint": {
+    "zh-Hans": "备份包是标准 ZIP 格式。在 Windows 电脑上把后缀 .milensbackup 改成 .zip 即可解压查看照片与元数据。",
+    "zh-Hant": "備份包是標準 ZIP 格式。在 Windows 電腦上把副檔名 .milensbackup 改成 .zip 即可解壓縮查看照片與詮釋資料。"
+  },
+  "settings.bellShake.all": {
+    "zh-Hans": "全部",
+    "zh-Hant": "全部"
+  },
+  "settings.bellShake.anniversaryOnly": {
+    "zh-Hans": "仅纪念日",
+    "zh-Hant": "僅紀念日"
+  },
+  "settings.bellShake.newPhotoOnly": {
+    "zh-Hans": "仅新照片",
+    "zh-Hant": "僅新照片"
+  },
+  "settings.bellShake.off": {
+    "zh-Hans": "不晃动",
+    "zh-Hant": "不晃動"
+  },
+  "settings.bellShake.title": {
+    "zh-Hans": "铃铛提醒",
+    "zh-Hant": "鈴鐺提醒"
+  },
+  "settings.footer.privacy": {
+    "zh-Hans": "无联网功能 · 无信息收集 · 无需注册账号",
+    "zh-Hant": "無連網功能 · 無資訊收集 · 無需註冊帳號"
+  },
+  "settings.notifications.denied.message": {
+    "zh-Hans": "如需接收纪念提醒，请在系统设置中允许「咪Lens」发送通知。",
+    "zh-Hant": "如需接收紀念提醒，請在系統設定中允許「咪Lens」傳送通知。"
+  },
+  "settings.notifications.denied.ok": {
+    "zh-Hans": "知道了",
+    "zh-Hant": "知道了"
+  },
+  "settings.notifications.denied.title": {
+    "zh-Hans": "通知权限未开启",
+    "zh-Hant": "通知權限未開啟"
+  },
+  "settings.notifications.footer": {
+    "zh-Hans": "开启后：生日、成为家人的日子当天 09:00 提醒；里程碑和时光机在合适的时候提醒。",
+    "zh-Hant": "開啟後：生日、成為家人的日子當天 09:00 提醒；里程碑和時光機在合適的時候提醒。"
+  },
+  "settings.notifications.reminders": {
+    "zh-Hans": "纪念提醒",
+    "zh-Hant": "紀念提醒"
+  },
+  "settings.privacy.badge.body": {
+    "zh-Hans": "本地分析 · 随时可导出",
+    "zh-Hant": "本機分析 · 隨時可匯出"
+  },
+  "settings.privacy.badge.title": {
+    "zh-Hans": "照片只保存在设备上",
+    "zh-Hant": "照片只儲存在裝置上"
+  },
+  "settings.privacy.local": {
+    "zh-Hans": "本地数据与隐私说明",
+    "zh-Hant": "本機資料與隱私說明"
+  },
+  "settings.privacy.policy": {
+    "zh-Hans": "隐私政策",
+    "zh-Hant": "隱私權政策"
+  },
+  "settings.pro.active.title": {
+    "zh-Hans": "已解锁 MiLens Pro",
+    "zh-Hant": "已解鎖 MiLens Pro"
+  },
+  "settings.pro.card.body": {
+    "zh-Hans": "更多伙伴、更长回顾与完整导出",
+    "zh-Hant": "更多毛小孩、更長回顧與完整匯出"
+  },
+  "settings.pro.card.body.active": {
+    "zh-Hans": "感谢支持，长期档案现已完整",
+    "zh-Hant": "感謝支持，長期檔案現已完整"
+  },
+  "settings.pro.card.cta": {
+    "zh-Hans": "了解 Pro 版 →",
+    "zh-Hant": "瞭解 Pro 版 →"
+  },
+  "settings.pro.card.cta.active": {
+    "zh-Hans": "管理订阅 →",
+    "zh-Hant": "管理訂閱 →"
+  },
+  "settings.pro.card.headline": {
+    "zh-Hans": "让长期档案更完整",
+    "zh-Hant": "讓長期檔案更完整"
+  },
+  "settings.pro.card.headline.active": {
+    "zh-Hans": "全部功能已解锁",
+    "zh-Hant": "全部功能已解鎖"
+  },
+  "settings.pro.manage": {
+    "zh-Hans": "管理订阅",
+    "zh-Hant": "管理訂閱"
+  },
+  "settings.pro.unlock.subtitle": {
+    "zh-Hans": "解锁完整拼豆工作室与图片编辑器",
+    "zh-Hant": "解鎖完整拼豆工作室與圖片編輯器"
+  },
+  "settings.pro.unlock.title": {
+    "zh-Hans": "解锁 MiLens Pro",
+    "zh-Hant": "解鎖 MiLens Pro"
+  },
+  "settings.section.about": {
+    "zh-Hans": "关于",
+    "zh-Hant": "關於"
+  },
+  "settings.section.appearance": {
+    "zh-Hans": "外观",
+    "zh-Hant": "外觀"
+  },
+  "settings.section.notifications": {
+    "zh-Hans": "通知",
+    "zh-Hant": "通知"
+  },
+  "settings.section.preferences": {
+    "zh-Hans": "偏好设置",
+    "zh-Hant": "偏好設定"
+  },
+  "settings.section.privacy": {
+    "zh-Hans": "隐私与数据",
+    "zh-Hant": "隱私與資料"
+  },
+  "settings.section.pro": {
+    "zh-Hans": "MiLens Pro",
+    "zh-Hant": "MiLens Pro"
+  },
+  "settings.section.support": {
+    "zh-Hans": "支持与版本",
+    "zh-Hant": "支援與版本"
+  },
+  "settings.storage.count %lld %lld": {
+    "zh-Hans": "%1$lld/%2$lld 张",
+    "zh-Hant": "%1$lld/%2$lld 張"
+  },
+  "settings.storage.title": {
+    "zh-Hans": "照片存储",
+    "zh-Hant": "照片儲存空間"
+  },
+  "settings.subtitle.suffix": {
+    "zh-Hans": "，把所有回忆留在你的设备上",
+    "zh-Hant": "，把所有回憶留在你的裝置上"
+  },
+  "settings.support.help": {
+    "zh-Hans": "使用帮助",
+    "zh-Hant": "使用說明"
+  },
+  "settings.title": {
+    "zh-Hans": "我的",
+    "zh-Hant": "我的"
+  },
+  "share.action.saveLibrary": {
+    "zh-Hans": "存到系统图库",
+    "zh-Hant": "存到系統相簿"
+  },
+  "share.action.share": {
+    "zh-Hans": "分享成品",
+    "zh-Hant": "分享成品"
+  },
+  "share.panel.destinations": {
+    "zh-Hans": "系统分享目标",
+    "zh-Hant": "系統分享目標"
+  },
+  "share.panel.more": {
+    "zh-Hans": "更多",
+    "zh-Hant": "更多"
+  },
+  "share.panel.privacy": {
+    "zh-Hans": "照片在设备端生成；只有主动分享时才会离开 MiLens。",
+    "zh-Hant": "照片在裝置端產生；只有主動分享時才會離開 MiLens。"
+  },
+  "share.panel.title": {
+    "zh-Hans": "保存与分享",
+    "zh-Hant": "儲存與分享"
+  },
+  "share.platform.douyin": {
+    "zh-Hans": "抖音",
+    "zh-Hant": "抖音"
+  },
+  "share.platform.moments": {
+    "zh-Hans": "朋友圈",
+    "zh-Hant": "朋友圈"
+  },
+  "share.platform.rednote": {
+    "zh-Hans": "小红书",
+    "zh-Hant": "小紅書"
+  },
+  "share.platform.wechat": {
+    "zh-Hans": "微信",
+    "zh-Hant": "微信"
+  },
+  "share.preview.close": {
+    "zh-Hans": "关闭",
+    "zh-Hant": "關閉"
+  },
+  "share.preview.headline": {
+    "zh-Hans": "这张照片，已经有了\n另一种留下来的方式。",
+    "zh-Hant": "這張照片，已經有了\n另一種留下來的方式。"
+  },
+  "share.preview.overline": {
+    "zh-Hans": "READY TO KEEP",
+    "zh-Hant": "READY TO KEEP"
+  },
+  "share.preview.title": {
+    "zh-Hans": "成品预览",
+    "zh-Hant": "成品預覽"
+  },
+  "share.sheet.morePlatforms": {
+    "zh-Hans": "更多平台",
+    "zh-Hant": "更多平台"
+  },
+  "share.sheet.subtitle": {
+    "zh-Hans": "分享到社交平台，让更多人看到它",
+    "zh-Hant": "分享到社群平台，讓更多人看到它"
+  },
+  "share.sheet.title": {
+    "zh-Hans": "分享作品",
+    "zh-Hant": "分享作品"
+  },
+  "share.sheet.watermarkHint": {
+    "zh-Hans": "免费版导出带 MiLens 水印，升级 Pro 可去除",
+    "zh-Hant": "免費版匯出帶 MiLens 水印，升級 Pro 可去除"
+  },
+  "source.businessCard.meta": {
+    "zh-Hans": "档案头像",
+    "zh-Hant": "檔案大頭貼"
+  },
+  "source.change": {
+    "zh-Hans": "更换",
+    "zh-Hant": "更換"
+  },
+  "source.petCard.meta": {
+    "zh-Hans": "来源照片",
+    "zh-Hant": "來源照片"
+  },
+  "source.redPacket.meta": {
+    "zh-Hans": "封面素材",
+    "zh-Hant": "封面素材"
+  },
+  "startup.unknownError": {
+    "zh-Hans": "未知错误",
+    "zh-Hant": "啟動時發生未知的錯誤。"
+  },
+  "tab.create": {
+    "zh-Hans": "创作",
+    "zh-Hant": "創作"
+  },
+  "tab.home": {
+    "zh-Hans": "首页",
+    "zh-Hant": "首頁"
+  },
+  "tab.pets": {
+    "zh-Hans": "伙伴",
+    "zh-Hant": "毛小孩"
+  },
+  "tab.settings": {
+    "zh-Hans": "我的",
+    "zh-Hant": "我的"
+  },
+  "timeline.addMemory": {
+    "zh-Hans": "添加记忆",
+    "zh-Hant": "新增記憶"
+  },
+  "timeline.addMemory.bodyPlaceholder": {
+    "zh-Hans": "写一句话（可选）",
+    "zh-Hant": "寫一句話（選填）"
+  },
+  "timeline.addMemory.comingSoon": {
+    "zh-Hans": "添加记忆功能即将推出，敬请期待。",
+    "zh-Hant": "新增記憶功能即將推出，敬請期待。"
+  },
+  "timeline.addMemory.content": {
+    "zh-Hans": "内容",
+    "zh-Hant": "內容"
+  },
+  "timeline.addMemory.date": {
+    "zh-Hans": "日期",
+    "zh-Hant": "日期"
+  },
+  "timeline.addMemory.noPet": {
+    "zh-Hans": "请先创建伙伴档案",
+    "zh-Hant": "請先建立毛小孩檔案"
+  },
+  "timeline.addMemory.noPhoto": {
+    "zh-Hans": "不关联照片",
+    "zh-Hant": "不關聯照片"
+  },
+  "timeline.addMemory.options": {
+    "zh-Hans": "选项",
+    "zh-Hant": "選項"
+  },
+  "timeline.addMemory.pet": {
+    "zh-Hans": "归属伙伴",
+    "zh-Hant": "歸屬毛小孩"
+  },
+  "timeline.addMemory.pinned": {
+    "zh-Hans": "置顶到档案首页",
+    "zh-Hant": "置頂到檔案首頁"
+  },
+  "timeline.addMemory.relatedPhoto": {
+    "zh-Hans": "关联照片",
+    "zh-Hant": "關聯照片"
+  },
+  "timeline.addMemory.save": {
+    "zh-Hans": "保存记忆",
+    "zh-Hant": "儲存記憶"
+  },
+  "timeline.addMemory.saveFailed": {
+    "zh-Hans": "保存失败，请重试",
+    "zh-Hant": "儲存失敗，請重試"
+  },
+  "timeline.addMemory.titlePlaceholder": {
+    "zh-Hans": "给它起个标题",
+    "zh-Hant": "給它起個標題"
+  },
+  "timeline.addMemory.titleRequired": {
+    "zh-Hans": "请填写标题",
+    "zh-Hant": "請填寫標題"
+  },
+  "timeline.allPets": {
+    "zh-Hans": "全部伙伴",
+    "zh-Hant": "全部毛小孩"
+  },
+  "timeline.birthday.subtitle %lld": {
+    "zh-Hans": "第%lld个生日",
+    "zh-Hant": "第%lld個生日"
+  },
+  "timeline.birthday.title %@ %lld": {
+    "zh-Hans": "%@%lld岁啦！🎂",
+    "zh-Hant": "%@ %lld歲啦！🎂"
+  },
+  "timeline.chapter.subtitle": {
+    "zh-Hans": "把日常慢慢变成共同的历史",
+    "zh-Hant": "把日常慢慢變成共同的歷史"
+  },
+  "timeline.chapter.together %lld": {
+    "zh-Hans": "一起生活的第%lld年",
+    "zh-Hant": "一起生活的第%lld年"
+  },
+  "timeline.empty.body": {
+    "zh-Hans": "添加伙伴档案和照片后，这里会自动生成成长时间线",
+    "zh-Hant": "新增毛小孩檔案和照片後，這裡會自動產生成長時間線"
+  },
+  "timeline.empty.title": {
+    "zh-Hans": "还没有成长记录",
+    "zh-Hant": "還沒有成長記錄"
+  },
+  "timeline.event.adoption %@": {
+    "zh-Hans": "和%@成为家人的日子",
+    "zh-Hant": "和%@成為家人的日子"
+  },
+  "timeline.event.birthday %@": {
+    "zh-Hans": "%@的生日",
+    "zh-Hant": "%@的生日"
+  },
+  "timeline.export.dateRange %@ %@": {
+    "zh-Hans": "%@ — %@",
+    "zh-Hant": "%@ — %@"
+  },
+  "timeline.export.entryCount %lld": {
+    "zh-Hans": "%lld 条记录",
+    "zh-Hant": "%lld 筆記錄"
+  },
+  "timeline.export.watermark": {
+    "zh-Hans": "由 MiLens 制作",
+    "zh-Hant": "由 MiLens 製作"
+  },
+  "timeline.exportFailed": {
+    "zh-Hans": "导出失败",
+    "zh-Hant": "匯出失敗"
+  },
+  "timeline.exportFailedDetail %@": {
+    "zh-Hans": "导出失败：%@",
+    "zh-Hant": "匯出失敗：%@"
+  },
+  "timeline.filterAll": {
+    "zh-Hans": "全部",
+    "zh-Hant": "全部"
+  },
+  "timeline.lockedBannerCTA": {
+    "zh-Hans": "升级 MiLens Pro，查看完整成长时间线",
+    "zh-Hant": "升級 MiLens Pro，查看完整成長時間線"
+  },
+  "timeline.lockedBannerTitle": {
+    "zh-Hans": "一年前的故事，仍然替你保存着",
+    "zh-Hant": "一年前的故事，仍然替你保留著"
+  },
+  "timeline.lockedEmptyBody": {
+    "zh-Hans": "升级 MiLens Pro，查看一年前的成长记录。",
+    "zh-Hant": "升級 MiLens Pro，查看一年前的成長記錄。"
+  },
+  "timeline.lockedEmptyTitle": {
+    "zh-Hans": "你的早期故事还在这里",
+    "zh-Hant": "你的早期故事還在這裡"
+  },
+  "timeline.memoryType.photo": {
+    "zh-Hans": "照片记忆",
+    "zh-Hant": "照片記憶"
+  },
+  "timeline.memoryType.text": {
+    "zh-Hans": "文字记忆",
+    "zh-Hant": "文字記憶"
+  },
+  "timeline.memoryType.work": {
+    "zh-Hans": "作品记录",
+    "zh-Hant": "作品記錄"
+  },
+  "timeline.month %lld": {
+    "zh-Hans": "%lld月",
+    "zh-Hant": "%lld 月"
+  },
+  "timeline.photo.title %@": {
+    "zh-Hans": "%@的照片",
+    "zh-Hant": "%@的照片"
+  },
+  "timeline.photo.title.default": {
+    "zh-Hans": "照片",
+    "zh-Hant": "照片"
+  },
+  "timeline.previewDaysLeft %lld": {
+    "zh-Hans": "完整时间线体验还剩 %lld 天",
+    "zh-Hant": "完整時間線體驗還剩 %lld 天"
+  },
+  "timeline.previewUnlockCTA": {
+    "zh-Hans": "现在解锁，继续保存全部故事",
+    "zh-Hant": "現在解鎖，繼續保留全部故事"
+  },
+  "timeline.reference.update.subtitle %@": {
+    "zh-Hans": "%@正在快速成长，建议重新选择照片注册",
+    "zh-Hant": "%@正在快速成長，建議重新選擇照片註冊"
+  },
+  "timeline.reference.update.title %@": {
+    "zh-Hans": "建议为%@更新参考照片",
+    "zh-Hant": "建議為%@更新參考照片"
+  },
+  "timeline.renderFailed": {
+    "zh-Hans": "时间线渲染失败，请重试",
+    "zh-Hant": "時間線算繪失敗，請重試"
+  },
+  "timeline.title": {
+    "zh-Hans": "成长时间线",
+    "zh-Hant": "成長時間線"
+  },
+  "timeline.type.adoption": {
+    "zh-Hans": "纪念日",
+    "zh-Hant": "紀念日"
+  },
+  "timeline.type.birthday": {
+    "zh-Hans": "生日",
+    "zh-Hant": "生日"
+  },
+  "timeline.viewProBenefits": {
+    "zh-Hans": "查看 Pro 权益",
+    "zh-Hant": "查看 Pro 權益"
+  },
+  "timeline.work.fromPhoto": {
+    "zh-Hans": "由一张照片生成",
+    "zh-Hant": "由一張照片產生"
+  },
+  "timeline.work.saved": {
+    "zh-Hans": "已保存",
+    "zh-Hant": "已儲存"
+  },
+  "timeline.year %lld": {
+    "zh-Hans": "%lld年",
+    "zh-Hant": "%lld 年"
+  },
+  "upload.action.wechatShare": {
+    "zh-Hans": "用微信分享",
+    "zh-Hant": "用微信分享"
+  },
+  "upload.headline": {
+    "zh-Hans": "封面已经做好，\n接下来交给微信。",
+    "zh-Hant": "封面已經做好，\n接下來交給微信。"
+  },
+  "upload.platformNote": {
+    "zh-Hans": "MiLens 只负责生成与导出；上传、审核和发布均在微信完成。",
+    "zh-Hant": "MiLens 只負責產生與匯出；上傳、審核與發布均在微信完成。"
+  },
+  "upload.proof.spec": {
+    "zh-Hans": "957 × 1278 px · PNG",
+    "zh-Hant": "957 × 1278 px · PNG"
+  },
+  "upload.proof.title": {
+    "zh-Hans": "导出规格已通过",
+    "zh-Hant": "匯出規格已通過"
+  },
+  "upload.proof.watermark": {
+    "zh-Hans": "免费版 · 含 MiLens 小字水印",
+    "zh-Hant": "免費版 · 含 MiLens 小字浮水印"
+  },
+  "upload.step.01.desc": {
+    "zh-Hans": "保存时请选择原始尺寸。",
+    "zh-Hant": "儲存時請選擇原始尺寸。"
+  },
+  "upload.step.01.title": {
+    "zh-Hans": "先把封面图存到系统相册",
+    "zh-Hant": "先把封面圖存到系統相簿"
+  },
+  "upload.step.02.desc": {
+    "zh-Hans": "在浏览器中登录并进入个人定制。",
+    "zh-Hant": "在瀏覽器中登入並進入個人客製化。"
+  },
+  "upload.step.02.title": {
+    "zh-Hans": "打开微信红包封面开放平台",
+    "zh-Hant": "打開微信紅包封面開放平台"
+  },
+  "upload.step.03.desc": {
+    "zh-Hans": "不要二次压缩，确认主体完整。",
+    "zh-Hant": "不要二次壓縮，確認主體完整。"
+  },
+  "upload.step.03.title": {
+    "zh-Hans": "上传封面图并检查裁切",
+    "zh-Hant": "上傳封面圖並檢查裁切"
+  },
+  "upload.step.04.desc": {
+    "zh-Hans": "审核状态与结果由微信平台提供。",
+    "zh-Hant": "審核狀態與結果由微信平台提供。"
+  },
+  "upload.step.04.title": {
+    "zh-Hans": "按平台流程提交审核",
+    "zh-Hant": "按平台流程提交審核"
+  },
+  "upload.title": {
+    "zh-Hans": "上传指引",
+    "zh-Hant": "上傳指引"
+  },
+  "·": {
+    "zh-Hans": "",
+    "zh-Hant": "·"
+  },
+  "−": {
+    "zh-Hans": "",
+    "zh-Hant": "−"
+  },
+  "为它创建第一份档案": {
+    "zh-Hans": "",
+    "zh-Hant": "為牠建立第一份檔案"
+  },
+  "保存": {
+    "zh-Hans": "",
+    "zh-Hant": "儲存"
+  },
+  "保存后将以 PNG 格式保留透明背景": {
+    "zh-Hans": "",
+    "zh-Hant": "儲存後將以 PNG 格式保留透明背景"
+  },
+  "分享": {
+    "zh-Hans": "",
+    "zh-Hant": "分享"
+  },
+  "原图预览 · 生成后这里会实时显示拼豆效果": {
+    "zh-Hans": "",
+    "zh-Hant": "原圖預覽 · 產生後這裡會即時顯示拼豆效果"
+  },
+  "可在「设置 → 隐私 → 照片」中开启，也可以稍后在相册页授权": {
+    "zh-Hans": "",
+    "zh-Hant": "可在「設定 → 隱私權與安全性 → 照片」中開啟，也可以稍後在相簿頁授權"
+  },
+  "启用\"只拼主体\"时会自动抠图；失败后仍会使用原图继续生成": {
+    "zh-Hans": "",
+    "zh-Hant": "啟用「只拼主體」時會自動去背；失敗後仍會使用原圖繼續產生"
+  },
+  "和它一起的每一天": {
+    "zh-Hans": "",
+    "zh-Hant": "和牠在一起的每一天"
+  },
+  "咪Lens": {
+    "zh-Hans": "",
+    "zh-Hant": "咪Lens"
+  },
+  "图纸尺寸": {
+    "zh-Hans": "",
+    "zh-Hant": "圖稿尺寸"
+  },
+  "头像选择功能将在后续版本支持": {
+    "zh-Hans": "",
+    "zh-Hant": "大頭貼選取功能將在後續版本支援"
+  },
+  "字号": {
+    "zh-Hans": "",
+    "zh-Hant": "字級"
+  },
+  "它叫什么名字？": {
+    "zh-Hans": "",
+    "zh-Hant": "牠叫什麼名字？"
+  },
+  "宠物卡片": {
+    "zh-Hans": "",
+    "zh-Hant": "毛小孩卡片"
+  },
+  "开始使用": {
+    "zh-Hans": "",
+    "zh-Hant": "開始使用"
+  },
+  "当前方案": {
+    "zh-Hans": "",
+    "zh-Hant": "目前方案"
+  },
+  "我们找到了它": {
+    "zh-Hans": "",
+    "zh-Hant": "我們找到了牠"
+  },
+  "我已阅读并同意": {
+    "zh-Hans": "",
+    "zh-Hant": "我已閱讀並同意"
+  },
+  "把它的一生，留在这里": {
+    "zh-Hans": "",
+    "zh-Hant": "把牠的一生，留在這裡"
+  },
+  "拼豆图纸": {
+    "zh-Hans": "",
+    "zh-Hant": "拼豆圖稿"
+  },
+  "推荐：拼豆插画": {
+    "zh-Hans": "",
+    "zh-Hant": "推薦：拼豆插畫"
+  },
+  "未标注日期": {
+    "zh-Hans": "",
+    "zh-Hant": "未標註日期"
+  },
+  "材料清单": {
+    "zh-Hans": "",
+    "zh-Hant": "材料清單"
+  },
+  "档案已创建": {
+    "zh-Hans": "",
+    "zh-Hant": "檔案已建立"
+  },
+  "概括度": {
+    "zh-Hans": "",
+    "zh-Hant": "概括度"
+  },
+  "特别的缘分": {
+    "zh-Hans": "",
+    "zh-Hant": "特別的緣分"
+  },
+  "知道啦": {
+    "zh-Hans": "",
+    "zh-Hant": "知道啦"
+  },
+  "这位可爱的宝贝和本APP的开发者同一天出生。\n感谢屏幕前的你，呵护着如此珍贵的生命。": {
+    "zh-Hans": "",
+    "zh-Hant": "這位可愛的寶貝和本 App 的開發者同一天出生。\n感謝螢幕前的你，呵護著如此珍貴的生命。"
+  },
+  "选择效果": {
+    "zh-Hans": "",
+    "zh-Hant": "選擇效果"
+  },
+  "隐私优先": {
+    "zh-Hans": "",
+    "zh-Hant": "隱私優先"
+  },
+  "颜色数量": {
+    "zh-Hans": "",
+    "zh-Hant": "顏色數量"
+  },
+  "颜色过渡": {
+    "zh-Hans": "",
+    "zh-Hant": "顏色過渡"
+  },
+  "🎂": {
+    "zh-Hans": "",
+    "zh-Hant": "🎂"
+  },
+  "💡 放大图纸即可显示编号": {
+    "zh-Hans": "",
+    "zh-Hant": "💡 放大圖稿即可顯示編號"
+  }
+}

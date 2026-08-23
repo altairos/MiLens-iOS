@@ -159,7 +159,8 @@ struct PhotoViewView: View {
                             .foregroundStyle(photo.isFavorite ? Color.milensActionPrimary : Color.milensInk)
                     }
                 }
-                .accessibilityLabel(String(localized: "a11y.gallery.favorite"))
+                // 独立收藏按钮 label：不复用 a11y.gallery.favorite（后者带拼接前导逗号）
+                .accessibilityLabel(String(localized: "a11y.photoView.favorite"))
             }
         }
         .padding(.horizontal, 19)

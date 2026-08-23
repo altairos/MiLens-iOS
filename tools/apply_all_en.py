@@ -60,7 +60,6 @@ ALL_PLAIN["settings.backup.confirmPhotos %lld"] = "%1$lld Photos"
 ALL_PLAIN["settings.backup.confirmSize %@"] = "Estimated Size: %1$@"
 ALL_PLAIN["settings.backup.lastBackup %@"] = "Last Backup: %1$@"
 ALL_PLAIN["settings.backup.multiVolumeHint %lld"] = "Split into %1$lld volumes due to large library size"
-ALL_PLAIN["create.bead.materialCount %lld %lld"] = "%1$lld Colors · %2$lld Beads Total"
 ALL_PLAIN["settings.storage.count %lld %lld"] = "%1$lld/%2$lld photos"
 ALL_PLAIN["settings.storage.freeUsage %lld %lld"] = "Free: %1$lld/%2$lld photos"
 ALL_PLAIN["pet.profile.speciesAge %@ %@"] = "%@ · %@"
@@ -77,8 +76,7 @@ ALL_PLAIN["redpacket.quality.cutout.fragmented.detail"] = "Cutout edge fragmenta
 ALL_PLAIN["redpacket.quality.cutout.incomplete.detail"] = "Cutout subject completeness is %lld%%"
 ALL_PLAIN["redpacket.quality.cutout.retry.detail"] = "Cutout precision score is %lld — please retry"
 ALL_PLAIN["redpacket.quality.cutout.rough.detail"] = "Cutout edge roughness is %lld"
-ALL_PLAIN["home.upcoming.adoption %@"] = "Adoption Anniversary"
-ALL_PLAIN["notify.anniversary.adoption.body %@"] = "Relive the wonderful memories from the past year."
+ALL_PLAIN["home.upcoming.adoption %@"] = "%@'s Adoption Anniversary"
 # Reviewed corrections must be applied after the legacy explicit overrides above.
 ALL_PLAIN.update(CORRECTIONS)
 

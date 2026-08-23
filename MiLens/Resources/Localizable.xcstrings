@@ -24,7 +24,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : ""
+            "value" : "+"
           }
         },
         "zh-Hant" : {
@@ -59,7 +59,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "アイロンビーズの図案を生成"
+            "value" : "アイロンビーズ図案を作成"
           }
         },
         "zh-Hans" : {
@@ -100,7 +100,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "アイロンビーズの図案 · 写真を選んで開始"
+            "value" : "アイロンビーズ図案。写真を選んで開始"
           }
         },
         "zh-Hans" : {
@@ -141,7 +141,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "パートナーカード、開始するには写真を選択してください"
+            "value" : "うちの子カード。写真を選んで開始"
           }
         },
         "zh-Hans" : {
@@ -305,7 +305,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "飾る"
+            "value" : "デコレーション"
           }
         },
         "zh-Hans" : {
@@ -346,7 +346,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "プロ専用"
+            "value" : "Pro限定"
           }
         },
         "zh-Hans" : {
@@ -387,7 +387,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "材料が利用できません"
+            "value" : "素材を利用できません"
           }
         },
         "zh-Hans" : {
@@ -428,7 +428,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "ステッカーを剥がす"
+            "value" : "ステッカーを削除"
           }
         },
         "zh-Hans" : {
@@ -633,7 +633,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "知的"
+            "value" : "自動調整"
           }
         },
         "zh-Hans" : {
@@ -674,7 +674,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "キャンセル"
+            "value" : "取り消す"
           }
         },
         "zh-Hans" : {
@@ -715,7 +715,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "、%lld月 %lld日"
+            "value" : "、%lld月%lld日"
           }
         },
         "zh-Hans" : {
@@ -756,7 +756,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "、集められました"
+            "value" : "、お気に入り"
           }
         },
         "zh-Hans" : {
@@ -797,7 +797,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "写真がロックされました"
+            "value" : "ロックされた写真"
           }
         },
         "zh-Hans" : {
@@ -920,7 +920,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "見られる思い出"
+            "value" : "未確認の思い出"
           }
         },
         "zh-Hans" : {
@@ -961,7 +961,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "写真を開きます、%@"
+            "value" : "写真を開く、%@"
           }
         },
         "zh-Hans" : {
@@ -1125,7 +1125,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "パートナーカードを生成する"
+            "value" : "うちの子カードを作成"
           }
         },
         "zh-Hans" : {
@@ -1166,7 +1166,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%@アバター"
+            "value" : "%@のプロフィール画像"
           }
         },
         "zh-Hans" : {
@@ -1207,7 +1207,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%@ のアバター写真"
+            "value" : "%@のプロフィール写真"
           }
         },
         "zh-Hans" : {
@@ -1248,7 +1248,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "パートナーに属している"
+            "value" : "うちの子に追加"
           }
         },
         "zh-Hans" : {
@@ -1330,7 +1330,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "集める"
+            "value" : "お気に入りに追加"
           }
         },
         "zh-Hans" : {
@@ -1576,7 +1576,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "確認中"
+            "value" : "未確認"
           }
         },
         "zh-Hans" : {
@@ -1658,7 +1658,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "所有権の確認を続けます · %lld Zhang"
+            "value" : "追加先の確認を続ける・%lld枚"
           }
         },
         "zh-Hans" : {
@@ -1699,7 +1699,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "さらに容量が必要な場合は、MiLens Proを使用してください"
+            "value" : "さらに保存するにはMiLens Proをご利用ください"
           }
         },
         "zh-Hans" : {
@@ -1740,7 +1740,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "以下はあくまで候補ですので、インポート前にご確認ください。"
+            "value" : "以下は候補です。取り込む前に一枚ずつ確認してください。"
           }
         },
         "zh-Hans" : {
@@ -1822,7 +1822,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "確認中 %lld"
+            "value" : "未確認 %lld"
           }
         },
         "zh-Hans" : {
@@ -1863,7 +1863,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%lldが選択されました"
+            "value" : "選択済み %lld"
           }
         },
         "zh-Hans" : {
@@ -1904,7 +1904,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "見覚えのあるパートナーがいるようです"
+            "value" : "見覚えのある子がいるようです"
           }
         },
         "zh-Hans" : {
@@ -1945,7 +1945,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "読み込みを確認 · %lld枚"
+            "value" : "取り込みを確認・%lld枚"
           }
         },
         "zh-Hans" : {
@@ -1986,7 +1986,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "確認して %@ にインポートします"
+            "value" : "確認して%@のプロフィールへ追加"
           }
         },
         "zh-Hans" : {
@@ -2027,7 +2027,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "開ける"
+            "value" : "枚"
           }
         },
         "zh-Hans" : {
@@ -2068,7 +2068,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "新しいファイル"
+            "value" : "新しいプロフィール"
           }
         },
         "zh-Hans" : {
@@ -2109,7 +2109,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "パートナー"
+            "value" : "うちの子"
           }
         },
         "zh-Hans" : {
@@ -2150,7 +2150,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "アーカイブされる写真"
+            "value" : "追加待ちの写真"
           }
         },
         "zh-Hans" : {
@@ -2191,7 +2191,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "このインポート"
+            "value" : "今回の取り込み"
           }
         },
         "zh-Hans" : {
@@ -2232,7 +2232,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "「%@」のファイルを追加"
+            "value" : "「%@」のプロフィールに追加"
           }
         },
         "zh-Hans" : {
@@ -2273,7 +2273,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "名前や情報を入力していきます"
+            "value" : "名前とプロフィールを入力します"
           }
         },
         "zh-Hans" : {
@@ -2314,7 +2314,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "新しいパートナープロファイルを作成する"
+            "value" : "うちの子プロフィールを新規作成"
           }
         },
         "zh-Hans" : {
@@ -2355,7 +2355,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%@ · %lld写真"
+            "value" : "%@・写真%lld枚"
           }
         },
         "zh-Hans" : {
@@ -2396,7 +2396,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "確認後に書き込みます。インポート後の空き割り当て量 %lld / %lld"
+            "value" : "確認後に追加されます・取り込み後の無料枠 %lld/%lld"
           }
         },
         "zh-Hans" : {
@@ -2437,7 +2437,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "パートナープロフィール"
+            "value" : "うちの子プロフィール"
           }
         },
         "zh-Hans" : {
@@ -2519,7 +2519,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "既存のアーカイブはまだデバイス上にあります"
+            "value" : "保存済みのデータは端末に残ります"
           }
         },
         "zh-Hans" : {
@@ -2560,7 +2560,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "まだアップグレードしていません"
+            "value" : "今はアップグレードしない"
           }
         },
         "zh-Hans" : {
@@ -2601,7 +2601,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "無料の写真クレジット"
+            "value" : "無料で保存できる写真"
           }
         },
         "zh-Hans" : {
@@ -2642,7 +2642,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "既存の写真は削除、圧縮、移動されません"
+            "value" : "保存済みの写真を削除、圧縮、移動することはありません"
           }
         },
         "zh-Hans" : {
@@ -2683,7 +2683,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "既存のファイルはそのまま残ります"
+            "value" : "保存済みの内容はそのまま"
           }
         },
         "zh-Hans" : {
@@ -2724,7 +2724,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "候補の写真がパートナーのプロフィールに自動的に保存されることはありません"
+            "value" : "候補写真がうちの子プロフィールへ自動的に追加されることはありません"
           }
         },
         "zh-Hans" : {
@@ -2765,7 +2765,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "所有権を確認するのはあなた次第です"
+            "value" : "追加先は引き続き自分で確認"
           }
         },
         "zh-Hans" : {
@@ -2806,7 +2806,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "購入前にプランと実際の価格を表示"
+            "value" : "購入前にプランと実際の価格を表示します"
           }
         },
         "zh-Hans" : {
@@ -2847,7 +2847,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "アップグレード情報はApp Storeから取得されます"
+            "value" : "アップグレード情報はApp Storeから取得"
           }
         },
         "zh-Hans" : {
@@ -2888,7 +2888,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "アップグレード後もインポートを続けることができます。アップグレードしなくても、すでに保存されているコンテンツは影響を受けません。"
+            "value" : "アップグレードすると、さらに写真を取り込めます。アップグレードしなくても、保存済みの内容には影響しません。"
           }
         },
         "zh-Hans" : {
@@ -2929,7 +2929,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "無料の %lldクォータが使い果たされました"
+            "value" : "無料枠の%lld枚を使い切りました"
           }
         },
         "zh-Hans" : {
@@ -2970,7 +2970,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "全て使用済み"
+            "value" : "すべて使用済み"
           }
         },
         "zh-Hans" : {
@@ -3052,7 +3052,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%@ · %@"
+            "value" : "%@・%@"
           }
         },
         "zh-Hans" : {
@@ -3093,7 +3093,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "ファイルが「%@」に追加されました"
+            "value" : "「%@」のプロフィールに追加しました"
           }
         },
         "zh-Hans" : {
@@ -3134,7 +3134,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "写真はアップロードされません。既存のコンテンツは移動されません。"
+            "value" : "写真をアップロードしたり、保存済みの内容を移動したりすることはありません。"
           }
         },
         "zh-Hans" : {
@@ -3175,7 +3175,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "このデバイスのみ"
+            "value" : "この端末の中だけで"
           }
         },
         "zh-Hans" : {
@@ -3216,7 +3216,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "アーカイブが完了しました · 写真はいつでも削除または再割り当てできます"
+            "value" : "追加完了・写真はいつでも削除したり、別の子へ移したりできます"
           }
         },
         "zh-Hans" : {
@@ -3257,7 +3257,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "オリジナルフィルム"
+            "value" : "元の写真"
           }
         },
         "zh-Hans" : {
@@ -3298,7 +3298,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "パートナー"
+            "value" : "うちの子"
           }
         },
         "zh-Hans" : {
@@ -3380,7 +3380,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%lld個の写真がアーカイブされました"
+            "value" : "%lld枚の写真を追加しました"
           }
         },
         "zh-Hans" : {
@@ -3421,7 +3421,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%@ さんの写真を見る"
+            "value" : "%@の写真を見る"
           }
         },
         "zh-Hans" : {
@@ -3462,7 +3462,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "統計、思い出、最近の写真は、同じ連続アーカイブ用紙に属します。"
+            "value" : "統計、思い出、最近の写真を、一続きのアーカイブとして表示します。"
           }
         },
         "zh-Hans" : {
@@ -3503,7 +3503,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "連続アーカイブ用紙"
+            "value" : "一続きのアーカイブ"
           }
         },
         "zh-Hans" : {
@@ -3626,7 +3626,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "生成をキャンセルする"
+            "value" : "生成をキャンセル"
           }
         },
         "zh-Hans" : {
@@ -3667,7 +3667,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "生成ログ"
+            "value" : "生成の記録"
           }
         },
         "zh-Hans" : {
@@ -3708,7 +3708,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "パートナーの被写体を認識"
+            "value" : "ペットの被写体を認識"
           }
         },
         "zh-Hans" : {
@@ -3749,7 +3749,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "スマート切り抜き"
+            "value" : "被写体を自動で切り抜き"
           }
         },
         "zh-Hans" : {
@@ -3790,7 +3790,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "MARDカラーカードと一致します"
+            "value" : "MARDカラーチャートに合わせる"
           }
         },
         "zh-Hans" : {
@@ -3831,7 +3831,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "図案を生成"
+            "value" : "アイロンビーズ図案を生成"
           }
         },
         "zh-Hans" : {
@@ -3872,7 +3872,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "まず輪郭を保ち、すべての色をMARDカラーチャートに配置します"
+            "value" : "輪郭を残しながら、すべての色をMARDカラーチャートへ置き換えます。"
           }
         },
         "zh-Hans" : {
@@ -3913,7 +3913,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "図案の生成中"
+            "value" : "図案を生成中"
           }
         },
         "zh-Hans" : {
@@ -3995,7 +3995,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "描画パラメータ"
+            "value" : "図案の設定"
           }
         },
         "zh-Hans" : {
@@ -4036,7 +4036,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "被写体はロック中・カラーマッチング中"
+            "value" : "被写体を確定・配色中"
           }
         },
         "zh-Hans" : {
@@ -4077,7 +4077,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "単一ページのPDF · 印刷に適しています"
+            "value" : "1ページPDF・印刷向け"
           }
         },
         "zh-Hans" : {
@@ -4118,7 +4118,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "A4製作図案"
+            "value" : "A4制作図案"
           }
         },
         "zh-Hans" : {
@@ -4159,7 +4159,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "この作品を永遠に集めてください"
+            "value" : "この作品を大切に残す"
           }
         },
         "zh-Hans" : {
@@ -4200,7 +4200,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%lldカラー · 用途別に並べ替え"
+            "value" : "%lld色・使用量順"
           }
         },
         "zh-Hans" : {
@@ -4282,7 +4282,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "オリジナルピクセル・透明背景オプション"
+            "value" : "元の解像度・背景透過も選択可能"
           }
         },
         "zh-Hans" : {
@@ -4323,7 +4323,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "システム共有パネル"
+            "value" : "システムの共有メニュー"
           }
         },
         "zh-Hans" : {
@@ -4364,7 +4364,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "自分の作品を共有する"
+            "value" : "作品を共有"
           }
         },
         "zh-Hans" : {
@@ -4487,7 +4487,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "待って"
+            "value" : "待機中"
           }
         },
         "zh-Hans" : {
@@ -4528,7 +4528,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "「写真」アプリで確認できる新しい写真があります。今すぐ追加しますか？"
+            "value" : "「写真」アプリに新しい写真があるようです。探しに行きますか？"
           }
         },
         "zh-Hans" : {
@@ -4569,7 +4569,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "2週間経っても新しい写真は追加されませんでした"
+            "value" : "写真を追加してから2週間が経ちました"
           }
         },
         "zh-Hans" : {
@@ -4610,7 +4610,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "それについては後で話してください"
+            "value" : "あとで"
           }
         },
         "zh-Hans" : {
@@ -4651,7 +4651,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "追加に移動"
+            "value" : "写真を追加"
           }
         },
         "zh-Hans" : {
@@ -4692,7 +4692,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "もっと新しい写真があるかも知れません"
+            "value" : "新しい写真があるかもしれません"
           }
         },
         "zh-Hans" : {
@@ -4733,7 +4733,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "新しい写真を記録する時間です"
+            "value" : "最近の写真も残しませんか"
           }
         },
         "zh-Hans" : {
@@ -4815,7 +4815,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "新しい写真の追加に移動"
+            "value" : "新しい写真を追加"
           }
         },
         "zh-Hans" : {
@@ -4856,7 +4856,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "新しいリマインダーがあります"
+            "value" : "お知らせがあります"
           }
         },
         "zh-Hans" : {
@@ -5102,7 +5102,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "パートナーの読み込みに失敗しました"
+            "value" : "うちの子を読み込めませんでした"
           }
         },
         "zh-Hans" : {
@@ -5266,7 +5266,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "よそよそしい"
+            "value" : "クール"
           }
         },
         "zh-Hans" : {
@@ -5348,7 +5348,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "しがみつく"
+            "value" : "甘えん坊"
           }
         },
         "zh-Hans" : {
@@ -5430,7 +5430,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "よく深い"
+            "value" : "食いしん坊"
           }
         },
         "zh-Hans" : {
@@ -5512,7 +5512,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "活気のある"
+            "value" : "元気いっぱい"
           }
         },
         "zh-Hans" : {
@@ -5553,7 +5553,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "いたずらな"
+            "value" : "いたずら好き"
           }
         },
         "zh-Hans" : {
@@ -5594,7 +5594,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "賢明な"
+            "value" : "おりこう"
           }
         },
         "zh-Hans" : {
@@ -5840,7 +5840,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "もちろん"
+            "value" : "確認"
           }
         },
         "zh-Hans" : {
@@ -5881,7 +5881,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "続く"
+            "value" : "続ける"
           }
         },
         "zh-Hans" : {
@@ -5922,7 +5922,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "消去"
+            "value" : "削除"
           }
         },
         "zh-Hans" : {
@@ -5963,7 +5963,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "仕上げる"
+            "value" : "完了"
           }
         },
         "zh-Hans" : {
@@ -6045,7 +6045,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "良い"
+            "value" : "OK"
           }
         },
         "zh-Hans" : {
@@ -6250,7 +6250,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "一般化"
+            "value" : "簡略化"
           }
         },
         "zh-Hans" : {
@@ -6291,7 +6291,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "調整計画"
+            "value" : "設定を調整"
           }
         },
         "zh-Hans" : {
@@ -6414,7 +6414,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "交換する"
+            "value" : "変更"
           }
         },
         "zh-Hans" : {
@@ -6455,7 +6455,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "集めた"
+            "value" : "折りたたみ済み"
           }
         },
         "zh-Hans" : {
@@ -6537,7 +6537,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "現在の計画"
+            "value" : "現在の設定"
           }
         },
         "zh-Hans" : {
@@ -6578,7 +6578,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "本体のみ"
+            "value" : "被写体のみ"
           }
         },
         "zh-Hans" : {
@@ -6660,7 +6660,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "ノイズポイントを減らす"
+            "value" : "細かなノイズを減らす"
           }
         },
         "zh-Hans" : {
@@ -6701,7 +6701,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "写真を配色と素材リストを使って自分で作るパターンに変換します。"
+            "value" : "一枚の写真を、実際に作れるアイロンビーズ図案へ。配色と材料リストも確認できます。"
           }
         },
         "zh-Hans" : {
@@ -6742,7 +6742,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "合計 %lld個の効果"
+            "value" : "%lld種類の仕上がり"
           }
         },
         "zh-Hans" : {
@@ -6783,7 +6783,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "拡張された"
+            "value" : "展開済み"
           }
         },
         "zh-Hans" : {
@@ -6824,7 +6824,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "高解像度図案のエクスポート · マス番号と完全なカラーチャート付き"
+            "value" : "高解像度図案・マス番号とカラーチャート付き"
           }
         },
         "zh-Hans" : {
@@ -6865,7 +6865,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "この作品を永遠に集めてください"
+            "value" : "この作品を大切に残す"
           }
         },
         "zh-Hans" : {
@@ -6947,7 +6947,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "アイロンビーズの図案を生成"
+            "value" : "アイロンビーズ図案を作成"
           }
         },
         "zh-Hans" : {
@@ -7029,7 +7029,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "写真は端末内でのみ加工・切り抜きに失敗した場合は元の画像を安全に返却します"
+            "value" : "写真は端末上でのみ処理・切り抜きに失敗した場合は元の写真を使用"
           }
         },
         "zh-Hans" : {
@@ -7070,7 +7070,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%1$lld錠剤 → %2$lld錠剤を準備することをお勧めします"
+            "value" : "%1$lld粒 → %2$lld粒の用意がおすすめ"
           }
         },
         "zh-Hans" : {
@@ -7111,7 +7111,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "素材一覧"
+            "value" : "材料リスト"
           }
         },
         "zh-Hans" : {
@@ -7152,7 +7152,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "色"
+            "value" : "カラー"
           }
         },
         "zh-Hans" : {
@@ -7275,7 +7275,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "アルバムを保存する"
+            "value" : "「写真」アプリに保存"
           }
         },
         "zh-Hans" : {
@@ -7316,7 +7316,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "HD図案を保存"
+            "value" : "高画質図案を保存"
           }
         },
         "zh-Hans" : {
@@ -7357,7 +7357,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "エフェクトを選択"
+            "value" : "仕上がりを選択"
           }
         },
         "zh-Hans" : {
@@ -7398,7 +7398,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "出典写真"
+            "value" : "元にした写真"
           }
         },
         "zh-Hans" : {
@@ -7439,7 +7439,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "原画"
+            "value" : "元の写真"
           }
         },
         "zh-Hans" : {
@@ -7480,7 +7480,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "ピンドゥスタジオ"
+            "value" : "ビーズスタジオ"
           }
         },
         "zh-Hans" : {
@@ -7521,7 +7521,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "アイロンビーズの図案"
+            "value" : "アイロンビーズ図案"
           }
         },
         "zh-Hans" : {
@@ -7562,7 +7562,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "遷移"
+            "value" : "色のなじみ方"
           }
         },
         "zh-Hans" : {
@@ -7685,7 +7685,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "図案の表示とエクスポート"
+            "value" : "図案を確認して書き出す"
           }
         },
         "zh-Hans" : {
@@ -7767,7 +7767,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "アバター、パーソナリティタグ、略歴を含むソーシャル名刺を生成します。"
+            "value" : "プロフィール写真、性格タグ、紹介文をまとめた名刺カードを作成します。"
           }
         },
         "zh-Hans" : {
@@ -7808,7 +7808,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "パートナーの名刺"
+            "value" : "うちの子名刺"
           }
         },
         "zh-Hans" : {
@@ -7849,7 +7849,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "「写真」アプリから写真をインポートしたら、ここから作成を開始できます。"
+            "value" : "アルバムへ写真を取り込むと、ここから作品を作れます。"
           }
         },
         "zh-Hans" : {
@@ -7890,7 +7890,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "アルバムに移動して追加します"
+            "value" : "アルバムで写真を追加"
           }
         },
         "zh-Hans" : {
@@ -7931,7 +7931,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "まず写真を保存してください"
+            "value" : "まずは写真を一枚保存しましょう"
           }
         },
         "zh-Hans" : {
@@ -8013,7 +8013,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "異なる時期の2枚の写真を選択し、時間の経過とともに残された変化を並べて確認します。"
+            "value" : "時期の異なる写真を二枚選び、成長の変化を並べて見比べます。"
           }
         },
         "zh-Hans" : {
@@ -8136,7 +8136,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "デバイスの写真のみを使用してください · ローカルで生成された写真"
+            "value" : "端末内の写真だけを使用・端末上で生成"
           }
         },
         "zh-Hans" : {
@@ -8177,7 +8177,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "一緒に暮らすために、\n残せる作品を作る"
+            "value" : "一緒に暮らす日々を、\n残せる作品に"
           }
         },
         "zh-Hans" : {
@@ -8218,7 +8218,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "写真が行き場を持ち続けられるように。"
+            "value" : "写真に、次の居場所を。"
           }
         },
         "zh-Hans" : {
@@ -8300,7 +8300,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "写真を縦型の記念カードに、お名前と家族になった日を入れます。"
+            "value" : "写真を縦型の記念カードに。名前と家族になった日も添えられます。"
           }
         },
         "zh-Hans" : {
@@ -8382,7 +8382,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "写真を選択して記念カードを作成します"
+            "value" : "記念カードにする写真を選択"
           }
         },
         "zh-Hans" : {
@@ -8423,7 +8423,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "パートナーカード"
+            "value" : "うちの子カード"
           }
         },
         "zh-Hans" : {
@@ -8587,7 +8587,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "貴重な瞬間を思い出してください"
+            "value" : "大切な瞬間を記念に"
           }
         },
         "zh-Hans" : {
@@ -8628,7 +8628,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "WeChat紅包カバーのテンプレート4種 + アップロードガイド"
+            "value" : "WeChat紅包カバー4種類・アップロード案内"
           }
         },
         "zh-Hans" : {
@@ -8669,7 +8669,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "赤い封筒"
+            "value" : "WeChat紅包"
           }
         },
         "zh-Hans" : {
@@ -8710,7 +8710,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "WeChat紅包カバーの素材（957×1278）を生成し、4つのシーンで紅包をプレビューできます"
+            "value" : "WeChat紅包カバー用の画像（957×1278）を作成し、4つの表示場面を確認できます。"
           }
         },
         "zh-Hans" : {
@@ -8751,7 +8751,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "赤い封筒の表紙"
+            "value" : "WeChat紅包カバー"
           }
         },
         "zh-Hans" : {
@@ -8792,7 +8792,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "微信"
+            "value" : "WeChat"
           }
         },
         "zh-Hans" : {
@@ -8997,7 +8997,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "写真を選択してください"
+            "value" : "写真を一枚選択"
           }
         },
         "zh-Hans" : {
@@ -9038,7 +9038,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "始められる作品"
+            "value" : "作れる作品"
           }
         },
         "zh-Hans" : {
@@ -9120,7 +9120,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "良い思い出を作りましょう\n作品という形であなたの指先に残ります。"
+            "value" : "大切な思い出を、\n手元に残る作品へ。"
           }
         },
         "zh-Hans" : {
@@ -9161,7 +9161,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "保存した写真から始めて、本当に自分だけの作品を作りましょう。"
+            "value" : "保存した写真から、この子だけの作品を作りましょう。"
           }
         },
         "zh-Hans" : {
@@ -10541,7 +10541,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "無料"
+            "value" : "自由"
           }
         },
         "zh-Hans" : {
@@ -10582,7 +10582,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "画像を再カットする"
+            "value" : "切り抜き直す"
           }
         },
         "zh-Hans" : {
@@ -10623,7 +10623,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "もう一度やり直してください"
+            "value" : "もう一度試す"
           }
         },
         "zh-Hans" : {
@@ -10664,7 +10664,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "写真の切り抜きを始める"
+            "value" : "切り抜きを開始"
           }
         },
         "zh-Hans" : {
@@ -10828,7 +10828,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "写真がアップロードされていません"
+            "value" : "写真はアップロードしません"
           }
         },
         "zh-Hans" : {
@@ -11156,7 +11156,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "冷たい口調"
+            "value" : "クール"
           }
         },
         "zh-Hans" : {
@@ -11197,7 +11197,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "黒と白"
+            "value" : "モノクロ"
           }
         },
         "zh-Hans" : {
@@ -11238,7 +11238,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "原画"
+            "value" : "オリジナル"
           }
         },
         "zh-Hans" : {
@@ -11279,7 +11279,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "柔らかい"
+            "value" : "ソフト"
           }
         },
         "zh-Hans" : {
@@ -11320,7 +11320,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "明確な"
+            "value" : "鮮やか"
           }
         },
         "zh-Hans" : {
@@ -11361,7 +11361,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "暖かい太陽"
+            "value" : "ウォーム"
           }
         },
         "zh-Hans" : {
@@ -11402,7 +11402,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "カラーグレーディング"
+            "value" : "色調整"
           }
         },
         "zh-Hans" : {
@@ -11443,7 +11443,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "構成比率"
+            "value" : "切り抜き比率"
           }
         },
         "zh-Hans" : {
@@ -11607,7 +11607,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "回転させる"
+            "value" : "回転"
           }
         },
         "zh-Hans" : {
@@ -11771,7 +11771,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "テキストを入力してください"
+            "value" : "文字を入力"
           }
         },
         "zh-Hans" : {
@@ -11812,7 +11812,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "フォントサイズ"
+            "value" : "文字サイズ"
           }
         },
         "zh-Hans" : {
@@ -11853,7 +11853,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "脳卒中"
+            "value" : "縁取り"
           }
         },
         "zh-Hans" : {
@@ -12035,7 +12035,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "左折してください"
+            "value" : "左に回転"
           }
         },
         "zh-Hans" : {
@@ -12076,7 +12076,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "右折"
+            "value" : "右に回転"
           }
         },
         "zh-Hans" : {
@@ -12117,7 +12117,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "レベル"
+            "value" : "左右反転"
           }
         },
         "zh-Hans" : {
@@ -12158,7 +12158,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "垂直"
+            "value" : "上下反転"
           }
         },
         "zh-Hans" : {
@@ -12609,7 +12609,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "「写真」アプリをスキャンして、パートナーの写真を自動的に検出します"
+            "value" : "「写真」アプリをスキャンして、ペットの写真を自動で見つけます"
           }
         },
         "zh-Hans" : {
@@ -12650,7 +12650,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "スキャンを開始する"
+            "value" : "スキャンを開始"
           }
         },
         "zh-Hans" : {
@@ -12691,7 +12691,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "一致する写真はありません"
+            "value" : "条件に合う写真はありません"
           }
         },
         "zh-Hans" : {
@@ -12773,7 +12773,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "無料のアーカイブ"
+            "value" : "FREE ARCHIVE"
           }
         },
         "zh-Hans" : {
@@ -12814,7 +12814,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "ライフログアーカイブ"
+            "value" : "LIFE LOG ARCHIVE"
           }
         },
         "zh-Hans" : {
@@ -12855,7 +12855,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "ローカルアーカイブ"
+            "value" : "LOCAL ARCHIVE"
           }
         },
         "zh-Hans" : {
@@ -12896,7 +12896,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%lldチャン"
+            "value" : "%lld枚"
           }
         },
         "zh-Hans" : {
@@ -12937,7 +12937,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "レジリエンス / ローカル"
+            "value" : "RESILIENCE / LOCAL"
           }
         },
         "zh-Hans" : {
@@ -13019,7 +13019,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "スキャンが完了していません"
+            "value" : "スキャンを完了できませんでした"
           }
         },
         "zh-Hans" : {
@@ -13060,7 +13060,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%lld枚の写真をインポート"
+            "value" : "%lld枚の写真を取り込む"
           }
         },
         "zh-Hans" : {
@@ -13101,7 +13101,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "設定に移動"
+            "value" : "設定を開く"
           }
         },
         "zh-Hans" : {
@@ -13142,7 +13142,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "アルバムをスキャンするには写真へのアクセスが必要です。\n「設定→プライバシー→写真」でオンにできます。"
+            "value" : "アルバムをスキャンするには、写真へのアクセスが必要です。\n「設定」→「プライバシーとセキュリティ」→「写真」で許可できます。"
           }
         },
         "zh-Hans" : {
@@ -13183,7 +13183,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%@ をスキャン中"
+            "value" : "%@をスキャン中"
           }
         },
         "zh-Hans" : {
@@ -13224,7 +13224,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "写真をスキャンしてインポートする"
+            "value" : "写真をスキャンして取り込む"
           }
         },
         "zh-Hans" : {
@@ -13265,7 +13265,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "選ぶ"
+            "value" : "選択"
           }
         },
         "zh-Hans" : {
@@ -13388,7 +13388,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "アルバムページで [スキャン] を使用すると、MiLensがパートナーが含まれている可能性のある写真を見つけて確認し、インポートします。"
+            "value" : "アルバム画面で「スキャン」を使うと、ペットが写っている可能性のある写真を端末上で探します。確認した写真だけを取り込めます。"
           }
         },
         "zh-Hans" : {
@@ -13429,7 +13429,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "確認のためにスキャンするときにパートナーを選択するだけです。アルバム内の複数の写真を選択して、指定したパートナーにアーカイブすることもできます。"
+            "value" : "スキャン結果を確認するときに、追加先のうちの子を選べます。アルバムで複数の写真を選び、まとめてプロフィールへ追加することもできます。"
           }
         },
         "zh-Hans" : {
@@ -13470,7 +13470,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "作成タブの「豆の描画」を選択し、写真を選択し、サイズやスタイルを調整して生成し、エクスポートします。"
+            "value" : "「つくる」タブで「アイロンビーズ図案」を選び、写真、サイズ、仕上がりを選択して生成・書き出しできます。"
           }
         },
         "zh-Hans" : {
@@ -13511,7 +13511,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "アイロンビーズの図案は「写真」アプリに保存したり、共有機能でほかの人に送ったりできます。"
+            "value" : "アイロンビーズ図案は「写真」アプリへ保存するか、システムの共有機能で送れます。"
           }
         },
         "zh-Hans" : {
@@ -13552,7 +13552,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "携帯電話でパートナーの写真を見つけるにはどうすればよいですか？"
+            "value" : "端末にあるペットの写真を見つけるには？"
           }
         },
         "zh-Hans" : {
@@ -13593,7 +13593,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "パートナープロフィールに写真を追加するにはどうすればよいですか？"
+            "value" : "写真をうちの子プロフィールへ追加するには？"
           }
         },
         "zh-Hans" : {
@@ -13634,7 +13634,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "豆の絵を描くにはどうすればよいですか？"
+            "value" : "アイロンビーズ図案を作るには？"
           }
         },
         "zh-Hans" : {
@@ -13675,7 +13675,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "エクスポートされた作品はどこに保存されますか？"
+            "value" : "書き出した作品はどこに保存されますか？"
           }
         },
         "zh-Hans" : {
@@ -13716,7 +13716,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "バックアップのエクスポートに移動"
+            "value" : "バックアップを書き出す"
           }
         },
         "zh-Hans" : {
@@ -13757,7 +13757,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%1$lld個の貴重な瞬間が記録されました。これらの心温まる物語をそのままの状態で保存するには、バックアップをエクスポートしてください。"
+            "value" : "%1$lld枚の大切な瞬間を記録しました。バックアップを書き出して、温かな物語をそのまま残しましょう。"
           }
         },
         "zh-Hans" : {
@@ -13798,7 +13798,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "思い出にさらなる保護層を与える"
+            "value" : "思い出を、もうひとつの安心で守る"
           }
         },
         "zh-Hans" : {
@@ -13839,7 +13839,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "今夜、少し時間をとって、\nそれ"
+            "value" : "今夜は少しだけ、\nこの子との時間を"
           }
         },
         "zh-Hans" : {
@@ -13880,7 +13880,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "アルバムから関連する写真を数枚選択し、\n毎日整理していきます。"
+            "value" : "アルバムから、この子が写っている写真を選んでください。\n一日一日の思い出として整理します。"
           }
         },
         "zh-Hans" : {
@@ -13962,7 +13962,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "まずは写真を残してください"
+            "value" : "まずは一枚、写真を残しましょう"
           }
         },
         "zh-Hans" : {
@@ -14003,7 +14003,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%1$lld月 %2$lld日 · %3$@"
+            "value" : "%1$lld月%2$lld日・%3$@"
           }
         },
         "zh-Hans" : {
@@ -14044,7 +14044,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "今日、彼女も\n注意深く書き留めてください"
+            "value" : "今日も、この子を\n大切に記録する"
           }
         },
         "zh-Hans" : {
@@ -14085,7 +14085,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "今日の交友関係"
+            "value" : "今日のひととき"
           }
         },
         "zh-Hans" : {
@@ -14126,7 +14126,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "現在写真を読み込めません。後でもう一度お試しください。"
+            "value" : "写真を読み込めません。しばらくしてからもう一度お試しください。"
           }
         },
         "zh-Hans" : {
@@ -14303,7 +14303,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "この思い出をチェックしてください"
+            "value" : "この思い出を見る"
           }
         },
         "zh-Hans" : {
@@ -14385,7 +14385,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "もう一度やり直してください"
+            "value" : "もう一度試す"
           }
         },
         "zh-Hans" : {
@@ -14508,7 +14508,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%@と初めて会った日"
+            "value" : "%@と初めて出会った日"
           }
         },
         "zh-Hans" : {
@@ -14549,7 +14549,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%@ の誕生日"
+            "value" : "%@の誕生日"
           }
         },
         "zh-Hans" : {
@@ -14590,7 +14590,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "残り %lld日があります · すでに %lld日を伴います"
+            "value" : "あと%lld日・一緒に過ごして%lld日"
           }
         },
         "zh-Hans" : {
@@ -14631,7 +14631,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "残り %lld日、帰宅まで %lld日です"
+            "value" : "あと%lld日・お迎えから%lld日"
           }
         },
         "zh-Hans" : {
@@ -14672,7 +14672,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "残り %lld日、%@ と家族になるまであと %lld日です"
+            "value" : "あと%lld日・%@と家族になって%lld日"
           }
         },
         "zh-Hans" : {
@@ -14713,7 +14713,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%lld日と仲良くやっていくのにあと %lld日あります"
+            "value" : "あと%lld日・一緒に暮らして%lld日"
           }
         },
         "zh-Hans" : {
@@ -14754,7 +14754,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "残り %lld日 · 誕生から %lld日"
+            "value" : "あと%lld日・生まれてから%lld日"
           }
         },
         "zh-Hans" : {
@@ -14795,7 +14795,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "残り %lld日があります · %lld日が記録されました"
+            "value" : "あと%lld日・記録を始めて%lld日"
           }
         },
         "zh-Hans" : {
@@ -14836,7 +14836,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "あの日を振り返って →"
+            "value" : "あの日を振り返る →"
           }
         },
         "zh-Hans" : {
@@ -14877,7 +14877,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "今後の日々"
+            "value" : "もうすぐ迎える日"
           }
         },
         "zh-Hans" : {
@@ -14918,7 +14918,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "今年の素晴らしい瞬間を本にまとめます"
+            "value" : "一年の大切な瞬間を、一冊のようにまとめます"
           }
         },
         "zh-Hans" : {
@@ -14959,7 +14959,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "今年の思い出"
+            "value" : "一年の思い出"
           }
         },
         "zh-Hans" : {
@@ -15000,7 +15000,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "追加を続けます"
+            "value" : "続けて追加"
           }
         },
         "zh-Hans" : {
@@ -15041,7 +15041,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "保存後はタイムラインに入り、いつでも変更できます。"
+            "value" : "保存するとタイムラインに追加され、あとからいつでも編集できます"
           }
         },
         "zh-Hans" : {
@@ -15082,7 +15082,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "その時何が起こったかを書き留める"
+            "value" : "その日のことを書く"
           }
         },
         "zh-Hans" : {
@@ -15123,7 +15123,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "下書きを自動的に保存する"
+            "value" : "下書きを自動保存"
           }
         },
         "zh-Hans" : {
@@ -15164,7 +15164,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "家族の思い出になる"
+            "value" : "家族になった記念日"
           }
         },
         "zh-Hans" : {
@@ -15205,7 +15205,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "誕生日記念"
+            "value" : "誕生日"
           }
         },
         "zh-Hans" : {
@@ -15287,7 +15287,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "マイルストーン"
+            "value" : "節目"
           }
         },
         "zh-Hans" : {
@@ -15328,7 +15328,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "毎月のおすすめ"
+            "value" : "今月の思い出"
           }
         },
         "zh-Hans" : {
@@ -15369,7 +15369,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "今年の思い出"
+            "value" : "一年の思い出"
           }
         },
         "zh-Hans" : {
@@ -15410,7 +15410,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "発生時刻"
+            "value" : "日付"
           }
         },
         "zh-Hans" : {
@@ -15451,7 +15451,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "証拠写真"
+            "value" : "思い出の写真"
           }
         },
         "zh-Hans" : {
@@ -15492,7 +15492,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%@ のライフファイルに保存"
+            "value" : "%@のライフアーカイブに保存"
           }
         },
         "zh-Hans" : {
@@ -15574,7 +15574,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "重要な日付"
+            "value" : "大切な日"
           }
         },
         "zh-Hans" : {
@@ -15615,7 +15615,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "写真の記憶"
+            "value" : "写真の思い出"
           }
         },
         "zh-Hans" : {
@@ -15656,7 +15656,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "単語の記憶"
+            "value" : "ことばの思い出"
           }
         },
         "zh-Hans" : {
@@ -15697,7 +15697,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "仕事"
+            "value" : "作品"
           }
         },
         "zh-Hans" : {
@@ -15779,7 +15779,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%@と一緒に作った思い出を見に行きましょう。"
+            "value" : "%@と一緒に残した思い出を振り返ってみませんか。"
           }
         },
         "zh-Hans" : {
@@ -15820,7 +15820,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "今日は%@と家族になる日です"
+            "value" : "今日は%@と家族になった記念日です"
           }
         },
         "zh-Hans" : {
@@ -15861,7 +15861,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%@ の誕生日の思い出をチェックしてみましょう。"
+            "value" : "%@の誕生日の思い出を振り返ってみましょう。"
           }
         },
         "zh-Hans" : {
@@ -15943,7 +15943,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "あなたとパートナーの物語はどんどん長くなります。バックアップを書き出して、温かなひとときをみんな守りましょう。"
+            "value" : "うちの子との物語が増えてきました。バックアップを書き出して、温かな瞬間を大切に守りましょう。"
           }
         },
         "zh-Hans" : {
@@ -15984,7 +15984,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "思い出はきちんと大切にする価値がある"
+            "value" : "大切な思い出を、きちんと残しませんか"
           }
         },
         "zh-Hans" : {
@@ -16025,7 +16025,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "小さな赤ちゃん"
+            "value" : "うちの子"
           }
         },
         "zh-Hans" : {
@@ -16066,7 +16066,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "過去の思い出"
+            "value" : "あの日の思い出"
           }
         },
         "zh-Hans" : {
@@ -16107,7 +16107,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "この日の思い出：%@"
+            "value" : "あの日の思い出：%@"
           }
         },
         "zh-Hans" : {
@@ -16243,7 +16243,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%@は%lld日間ここにいます"
+            "value" : "%@をお迎えして%lld日になりました"
           }
         },
         "zh-Hans" : {
@@ -16284,7 +16284,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "帰宅後%lld日"
+            "value" : "お迎えから%lld日"
           }
         },
         "zh-Hans" : {
@@ -16325,7 +16325,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "もしかしたらあなたのパートナーの新しい写真があるかもしれません、見てみてください？"
+            "value" : "ペットの新しい写真があるかもしれません。探してみませんか？"
           }
         },
         "zh-Hans" : {
@@ -16366,7 +16366,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "2週間経っても新しい写真は追加されていません。最近何か新しい写真を撮りましたか？"
+            "value" : "新しい写真を追加してから2週間が経ちました。最近撮った写真はありませんか？"
           }
         },
         "zh-Hans" : {
@@ -16487,7 +16487,7 @@
               "other" : {
                 "stringUnit" : {
                   "state" : "translated",
-                  "value" : "%@ は %lld年前のこの日に何をしていましたか？"
+                  "value" : "%lld年前の今日、%@は何をしていたでしょう？"
                 }
               }
             }
@@ -16582,7 +16582,7 @@
               "other" : {
                 "stringUnit" : {
                   "state" : "translated",
-                  "value" : "%lld年前の今日、%@はこうしてあなたに同行しました"
+                  "value" : "%lld年前の今日、%@はこんなふうにそばにいてくれました"
                 }
               }
             }
@@ -16677,7 +16677,7 @@
               "other" : {
                 "stringUnit" : {
                   "state" : "translated",
-                  "value" : "時が経つのは早い、今日は %lld年前のことでした"
+                  "value" : "時がたつのは早いもの。%lld年前の今日を振り返りませんか"
                 }
               }
             }
@@ -16923,7 +16923,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "これらは、%@ 機能のベースラインに近い候補のみです。一つずつ確認してください。"
+            "value" : "これらは%@の特徴に近い候補です。写真を一枚ずつ確認してください。"
           }
         },
         "zh-Hans" : {
@@ -16964,7 +16964,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "これらの %lld写真を %@ のファイルに書き込むことを確認します"
+            "value" : "%lld枚の写真を確認して、%@のプロフィールに追加"
           }
         },
         "zh-Hans" : {
@@ -17005,7 +17005,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "確認中"
+            "value" : "未確認"
           }
         },
         "zh-Hans" : {
@@ -17128,7 +17128,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "確認中 %lld"
+            "value" : "未確認 %lld"
           }
         },
         "zh-Hans" : {
@@ -17169,7 +17169,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%lldが選択されました"
+            "value" : "選択済み %lld"
           }
         },
         "zh-Hans" : {
@@ -17210,7 +17210,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "見覚えのあるパートナーがいるようです"
+            "value" : "見覚えのある子がいるようです"
           }
         },
         "zh-Hans" : {
@@ -17251,7 +17251,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "まず名前とパートナーのタイプを登録します。\n現時点では写真ライブラリはスキャンされません。"
+            "value" : "まず、この子の名前と種類を登録します。\nこの段階では写真ライブラリをスキャンしません。"
           }
         },
         "zh-Hans" : {
@@ -17292,7 +17292,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "写真登録後にポートレートを撮影します\n確認するかどうかはあなた次第です。"
+            "value" : "登録する写真を選んだあと、\nプロフィール写真はご自身で確認できます。"
           }
         },
         "zh-Hans" : {
@@ -17333,7 +17333,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "パートナーを待っています"
+            "value" : "うちの子を待っています"
           }
         },
         "zh-Hans" : {
@@ -17374,7 +17374,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "最初のプロファイルを作成する"
+            "value" : "最初のプロフィールを作成"
           }
         },
         "zh-Hans" : {
@@ -17415,7 +17415,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "アーカイブ001"
+            "value" : "ARCHIVE 001"
           }
         },
         "zh-Hans" : {
@@ -17456,7 +17456,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "あなたのパートナーの名前は何ですか？"
+            "value" : "この子の名前を教えてください"
           }
         },
         "zh-Hans" : {
@@ -17497,7 +17497,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "小満"
+            "value" : "こはる"
           }
         },
         "zh-Hans" : {
@@ -17538,7 +17538,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "最初にファイルがあり、次に機能ベンチマークがあります。\nスキャン結果はアーカイブに自動的には入力されません。"
+            "value" : "先にプロフィールを作り、そのあと特徴の基準を登録します。\nスキャン結果が自動的に追加されることはありません。"
           }
         },
         "zh-Hans" : {
@@ -17579,7 +17579,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "保存に失敗しました。もう一度お試しください"
+            "value" : "保存できませんでした。もう一度お試しください"
           }
         },
         "zh-Hans" : {
@@ -17620,7 +17620,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "他のパートナー"
+            "value" : "その他"
           }
         },
         "zh-Hans" : {
@@ -17661,7 +17661,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "パートナーのタイプを選択してください"
+            "value" : "この子の種類を選択"
           }
         },
         "zh-Hans" : {
@@ -17702,7 +17702,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "まずはパートナー向けに作成する\nライフアーカイブ"
+            "value" : "まずは、うちの子の\nプロフィールを作成"
           }
         },
         "zh-Hans" : {
@@ -17743,7 +17743,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "機能ベンチマーク"
+            "value" : "特徴の基準"
           }
         },
         "zh-Hans" : {
@@ -17784,7 +17784,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "機能ベースライン"
+            "value" : "FEATURE BASELINE"
           }
         },
         "zh-Hans" : {
@@ -17825,7 +17825,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "機能のベースラインを確立する"
+            "value" : "特徴の基準を登録"
           }
         },
         "zh-Hans" : {
@@ -17866,7 +17866,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "現在、「MiLens」には類似性比較のためのベンチマークが用意されています。\n候補者はまだ明確な身分に達していません。"
+            "value" : "MiLensで写真の類似度を比べる準備ができました。\n候補は確定した認識結果ではありません。"
           }
         },
         "zh-Hans" : {
@@ -17907,7 +17907,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%lld件の登録写真"
+            "value" : "登録写真 %lld枚"
           }
         },
         "zh-Hans" : {
@@ -17948,7 +17948,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "写真ライブラリのスキャンを許可する"
+            "value" : "写真ライブラリのスキャンを許可"
           }
         },
         "zh-Hans" : {
@@ -17989,7 +17989,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "ローカルのみに保存"
+            "value" : "端末内にのみ保存"
           }
         },
         "zh-Hans" : {
@@ -18030,7 +18030,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "システムパネル内のすべての写真へのアクセスを許可する必要があります。\nスキャンでは候補が生成されるだけで、自動的にはインポートされません。"
+            "value" : "システムの画面で、すべての写真へのアクセスを許可してください。\nスキャンで作られるのは候補だけで、自動的には取り込みません。"
           }
         },
         "zh-Hans" : {
@@ -18071,7 +18071,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "いつでもスキャンを停止したり、許可を取り消したりすることができます。"
+            "value" : "スキャンの停止やアクセス権の取り消しは、いつでも行えます。"
           }
         },
         "zh-Hans" : {
@@ -18112,7 +18112,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "次のステップ：写真ライブラリの包括的なスキャン"
+            "value" : "次へ：写真ライブラリ全体をスキャン"
           }
         },
         "zh-Hans" : {
@@ -18153,7 +18153,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%@ の機能ベンチマーク、\nすでに確立されている"
+            "value" : "%@の特徴の基準を\n登録しました"
           }
         },
         "zh-Hans" : {
@@ -18194,7 +18194,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "角度が変わります"
+            "value" : "さまざまな角度"
           }
         },
         "zh-Hans" : {
@@ -18235,7 +18235,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "正面、側面、全身の写真"
+            "value" : "正面・横顔・全身の写真"
           }
         },
         "zh-Hans" : {
@@ -18276,7 +18276,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "はっきりと見える"
+            "value" : "はっきり写っている"
           }
         },
         "zh-Hans" : {
@@ -18317,7 +18317,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "深刻なぼやけや遮蔽を避ける"
+            "value" : "大きなぼけや隠れがない写真"
           }
         },
         "zh-Hans" : {
@@ -18358,7 +18358,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%@ のみが含まれます"
+            "value" : "%@だけが写っている"
           }
         },
         "zh-Hans" : {
@@ -18399,7 +18399,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "他の動物からの干渉を減らす"
+            "value" : "ほかの動物が写り込んでいない写真"
           }
         },
         "zh-Hans" : {
@@ -18440,7 +18440,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "鮮明で、角度が異なり、%@ のみが含まれる写真を選択してください。\nすべての処理はローカルで行われます。"
+            "value" : "鮮明で、角度が異なり、%@だけが写っている写真を選んでください。\n処理はすべて端末上で行います。"
           }
         },
         "zh-Hans" : {
@@ -18481,7 +18481,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "8 ～ 15枚の写真を使用し、\n機能のベースラインを確立する"
+            "value" : "8〜15枚の写真で、\n特徴の基準を作成"
           }
         },
         "zh-Hans" : {
@@ -18522,7 +18522,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "最大 %lld枚の写真を選択してください"
+            "value" : "選べる写真は最大%lld枚です"
           }
         },
         "zh-Hans" : {
@@ -18563,7 +18563,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "少なくとも %lld枚の写真を選択してください"
+            "value" : "写真を%lld枚以上選んでください"
           }
         },
         "zh-Hans" : {
@@ -18604,7 +18604,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%lld枚の写真をベースラインとして集約します。\n現時点ではアップロードされず、ギャラリーはスキャンされません。"
+            "value" : "%lld枚の写真から比較用の基準を作成します。\nアップロードや写真ライブラリのスキャンは行いません。"
           }
         },
         "zh-Hans" : {
@@ -18645,7 +18645,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "ベースラインを構築しています…"
+            "value" : "基準を作成中…"
           }
         },
         "zh-Hans" : {
@@ -18686,7 +18686,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "機能ベースラインの要約"
+            "value" : "写真の特徴をまとめています"
           }
         },
         "zh-Hans" : {
@@ -18727,7 +18727,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "このマシンで作成する\n%@ の機能ベンチマーク"
+            "value" : "端末上で%@の\n特徴の基準を作成中"
           }
         },
         "zh-Hans" : {
@@ -18768,7 +18768,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%lld枚のシートが準備できました"
+            "value" : "%lld枚の写真を選択済み"
           }
         },
         "zh-Hans" : {
@@ -18809,7 +18809,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%@ のネイティブ機能のベースラインを確立するためにのみ使用されます。"
+            "value" : "%@を見つけるための特徴の基準として、端末内でのみ使用します。"
           }
         },
         "zh-Hans" : {
@@ -18850,7 +18850,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "登録に失敗しました：%@"
+            "value" : "登録できませんでした：%@"
           }
         },
         "zh-Hans" : {
@@ -18891,7 +18891,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "登録された%lld写真の視覚的特徴"
+            "value" : "%lld枚の写真から特徴を登録しました"
           }
         },
         "zh-Hans" : {
@@ -18932,7 +18932,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "再選択 （%lld個の写真が選択されました）"
+            "value" : "選び直す（%lld枚選択済み）"
           }
         },
         "zh-Hans" : {
@@ -18973,7 +18973,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "8 ～ 15枚の写真を選択してください"
+            "value" : "写真を8〜15枚選択"
           }
         },
         "zh-Hans" : {
@@ -19014,7 +19014,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "ネイティブ機能を抽出する"
+            "value" : "写真の特徴を端末上で抽出"
           }
         },
         "zh-Hans" : {
@@ -19055,7 +19055,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "写真の品質をチェックする"
+            "value" : "写真の品質を確認"
           }
         },
         "zh-Hans" : {
@@ -19096,7 +19096,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%@ として要約されたベースライン"
+            "value" : "%@の比較基準を作成"
           }
         },
         "zh-Hans" : {
@@ -19137,7 +19137,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "確認された %lld写真をローカルファイルに書き込みます。\nコピープロセスもインデックス作成プロセスもデバイスから離れることはありません。"
+            "value" : "確認した%lld枚の写真をプロフィールに追加します。\nコピーと索引の作成は、すべてこの端末上で行います。"
           }
         },
         "zh-Hans" : {
@@ -19178,7 +19178,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%lld写真がファイルに書き込まれました"
+            "value" : "%lld枚の写真をプロフィールに追加しました"
           }
         },
         "zh-Hans" : {
@@ -19219,7 +19219,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%@ のライフファイルを開く"
+            "value" : "%@のライフアーカイブを開く"
           }
         },
         "zh-Hans" : {
@@ -19260,7 +19260,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "友達と過ごす毎日は、その全体を思い出す価値があります。MiLensは最近を専用のバックアップファイルにパッケージ化できます。どんなに時間が経っても、温かい時間は決して消えることはありません。"
+            "value" : "うちの子と過ごす毎日は、かけがえのない思い出です。MiLensなら、その日々を専用のバックアップとしてまとめて残せます。大切な時間を、これからもずっとそばに。"
           }
         },
         "zh-Hans" : {
@@ -19301,7 +19301,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "この大切な思い出を大切に保管してください"
+            "value" : "大切な思い出を、これからもずっと"
           }
         },
         "zh-Hans" : {
@@ -19342,7 +19342,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "ライフファイルの書き込み"
+            "value" : "ライフアーカイブに追加中"
           }
         },
         "zh-Hans" : {
@@ -19383,7 +19383,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "写真はアップロードされません。既存のコンテンツは移動されません。"
+            "value" : "写真をアップロードしたり、既存の写真を移動したりすることはありません。"
           }
         },
         "zh-Hans" : {
@@ -19424,7 +19424,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "このデバイスのみ"
+            "value" : "この端末の中だけで"
           }
         },
         "zh-Hans" : {
@@ -19465,7 +19465,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "ローカルアーカイブ"
+            "value" : "LOCAL ARCHIVE"
           }
         },
         "zh-Hans" : {
@@ -19506,7 +19506,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "生涯にわたるアーカイブ"
+            "value" : "LIFE LONG ARCHIVE"
           }
         },
         "zh-Hans" : {
@@ -19547,7 +19547,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "思い出の保護"
+            "value" : "MEMORY SAFEKEEPING"
           }
         },
         "zh-Hans" : {
@@ -19588,7 +19588,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%@の最初の思い出が保存されました"
+            "value" : "%@との最初の思い出を保存しました"
           }
         },
         "zh-Hans" : {
@@ -19629,7 +19629,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "アーカイブが完了しました · 写真はいつでも削除または再割り当てできます"
+            "value" : "追加完了・写真はいつでも削除したり、別の子へ移したりできます"
           }
         },
         "zh-Hans" : {
@@ -19670,7 +19670,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%@ のファイルに書き込みます"
+            "value" : "%@のプロフィールに追加"
           }
         },
         "zh-Hans" : {
@@ -19711,7 +19711,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "オリジナルフィルムをコピーする"
+            "value" : "元の写真をコピー"
           }
         },
         "zh-Hans" : {
@@ -19752,7 +19752,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "サムネイルインデックスの生成"
+            "value" : "サムネイルの索引を作成"
           }
         },
         "zh-Hans" : {
@@ -19793,7 +19793,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "オリジナルフィルム"
+            "value" : "元の写真"
           }
         },
         "zh-Hans" : {
@@ -19834,7 +19834,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "パートナー"
+            "value" : "うちの子"
           }
         },
         "zh-Hans" : {
@@ -19916,7 +19916,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "執筆\n%@ の人生プロフィール"
+            "value" : "%@のライフアーカイブに\n追加しています"
           }
         },
         "zh-Hans" : {
@@ -19957,7 +19957,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%lld枚の写真を書き込んでいます…"
+            "value" : "%lld枚の写真を追加中…"
           }
         },
         "zh-Hans" : {
@@ -19998,7 +19998,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "アルバム / 候補者"
+            "value" : "ALBUM / CANDIDATES"
           }
         },
         "zh-Hans" : {
@@ -20039,7 +20039,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "LIFE ARCHIVE · アーカイブを作成する"
+            "value" : "LIFE ARCHIVE・プロフィール作成"
           }
         },
         "zh-Hans" : {
@@ -20080,7 +20080,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "機能登録 · 作成されました"
+            "value" : "FEATURE REGISTER・登録完了"
           }
         },
         "zh-Hans" : {
@@ -20121,7 +20121,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "特集登録 · 8 - 15写真"
+            "value" : "FEATURE REGISTER・8〜15枚"
           }
         },
         "zh-Hans" : {
@@ -20162,7 +20162,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "機能レジスタ・ネイティブ処理"
+            "value" : "FEATURE REGISTER・端末内処理"
           }
         },
         "zh-Hans" : {
@@ -20203,7 +20203,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "ローカルスキャン · 機能ベースラインの準備が完了しました"
+            "value" : "LOCAL SCAN・特徴の基準を登録済み"
           }
         },
         "zh-Hans" : {
@@ -20244,7 +20244,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "アーカイブインポート · ネイティブライティング"
+            "value" : "ARCHIVE IMPORT・端末内に追加"
           }
         },
         "zh-Hans" : {
@@ -20285,7 +20285,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "FIRST LIGHT · プライバシーの概要"
+            "value" : "FIRST LIGHT・プライバシー概要"
           }
         },
         "zh-Hans" : {
@@ -20326,7 +20326,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "アーカイブ/エントリー"
+            "value" : "ARCHIVE / ENTRY"
           }
         },
         "zh-Hans" : {
@@ -20367,7 +20367,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "ファーストライト · ようこそ"
+            "value" : "FIRST LIGHT・ようこそ"
           }
         },
         "zh-Hans" : {
@@ -20408,7 +20408,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "アルバムの権限が有効になっていません"
+            "value" : "写真へのアクセスが許可されていません"
           }
         },
         "zh-Hans" : {
@@ -20449,7 +20449,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "「設定→プライバシー→写真」でオンにできます。スキャンでは、候補をフィルタリングするために写真にアクセスする必要があります。"
+            "value" : "「設定」→「プライバシーとセキュリティ」→「写真」で許可できます。候補を探すには写真へのアクセスが必要です。"
           }
         },
         "zh-Hans" : {
@@ -20490,7 +20490,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "すべての写真へのアクセスを受け取りました"
+            "value" : "すべての写真へのアクセスを許可済み"
           }
         },
         "zh-Hans" : {
@@ -20531,7 +20531,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "いくつかの写真へのアクセスを取得しました"
+            "value" : "選択した写真へのアクセスを許可済み"
           }
         },
         "zh-Hans" : {
@@ -20572,7 +20572,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "「MiLens」はアクセス範囲内のローカル写真のみを読み込みます。\n最終的に何がインポートされるかは、常にユーザーが確認する必要があります。"
+            "value" : "MiLensが読み取るのは、アクセスを許可した端末内の写真だけです。\n実際に取り込む写真は、必ずご自身で確認できます。"
           }
         },
         "zh-Hans" : {
@@ -20613,7 +20613,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "写真はアップロードされていません。クラウドにはコピーが残りません。"
+            "value" : "写真をアップロードせず、クラウドにもコピーを残しません。"
           }
         },
         "zh-Hans" : {
@@ -20654,7 +20654,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "ネイティブ機能ベンチマーク · 自分で名前を付けます"
+            "value" : "端末内の特徴データ・名前は自分で登録"
           }
         },
         "zh-Hans" : {
@@ -20695,7 +20695,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "このマシンのみで整理する"
+            "value" : "端末の中だけで整理"
           }
         },
         "zh-Hans" : {
@@ -20736,7 +20736,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "ファイルの作成を続ける"
+            "value" : "プロフィール作成へ進む"
           }
         },
         "zh-Hans" : {
@@ -20777,7 +20777,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "写真のアクセス範囲は、後からシステム設定で調整することもできます。"
+            "value" : "写真へのアクセス範囲は、あとからシステム設定で変更できます。"
           }
         },
         "zh-Hans" : {
@@ -20818,7 +20818,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "デバイス上で"
+            "value" : "ON DEVICE"
           }
         },
         "zh-Hans" : {
@@ -20859,7 +20859,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "リクエスト中…"
+            "value" : "アクセスをリクエスト中…"
           }
         },
         "zh-Hans" : {
@@ -20900,7 +20900,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "インポートを確認するかどうかはあなた次第です"
+            "value" : "取り込み前に自分で確認"
           }
         },
         "zh-Hans" : {
@@ -20941,7 +20941,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "候補と認識結果が等しくない"
+            "value" : "候補は確定した認識結果ではありません"
           }
         },
         "zh-Hans" : {
@@ -20982,7 +20982,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "写真はデバイスの外に残らない"
+            "value" : "写真が端末の外へ送信されることはありません"
           }
         },
         "zh-Hans" : {
@@ -21023,7 +21023,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "サーバーにはアップロードされません"
+            "value" : "サーバーへアップロードしません"
           }
         },
         "zh-Hans" : {
@@ -21064,7 +21064,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "分析はローカルで行われます"
+            "value" : "解析は端末上で完結"
           }
         },
         "zh-Hans" : {
@@ -21105,7 +21105,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "アルバムのサムネイルのみを処理する"
+            "value" : "写真のサムネイルだけを処理します"
           }
         },
         "zh-Hans" : {
@@ -21146,7 +21146,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "あなたの写真、\nこのデバイスのみに属します"
+            "value" : "あなたの写真は、\nこの端末の中だけに"
           }
         },
         "zh-Hans" : {
@@ -21187,7 +21187,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%@ の機能ベンチマークと比較します。\n見つかったものは、まだ1つずつ確認する必要があります。"
+            "value" : "%@の特徴の基準と写真を比較しています。\n見つかった候補は、一枚ずつご自身で確認できます。"
           }
         },
         "zh-Hans" : {
@@ -21228,7 +21228,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "スキャン完了後に確認されます"
+            "value" : "スキャン完了後に確認できます"
           }
         },
         "zh-Hans" : {
@@ -21269,7 +21269,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "現在の類似候補者"
+            "value" : "似ている写真の候補"
           }
         },
         "zh-Hans" : {
@@ -21351,7 +21351,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "ブートを完了する"
+            "value" : "案内を完了"
           }
         },
         "zh-Hans" : {
@@ -21392,7 +21392,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%@ を含む可能性のある写真が %lld個見つかりました。\nそれぞれの写真を確認する必要があります。"
+            "value" : "%@が写っている可能性のある写真が%lld枚見つかりました。\n一枚ずつ確認してください。"
           }
         },
         "zh-Hans" : {
@@ -21474,7 +21474,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "スキャンをスキップして、後からアルバムページでいつでもスキャンを開始できます。"
+            "value" : "ここではスキップして、あとからアルバム画面でいつでも開始できます。"
           }
         },
         "zh-Hans" : {
@@ -21515,7 +21515,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%@ が含まれる可能性のある写真は見つかりませんでした。\n手動でインポートすることもできます。"
+            "value" : "%@が写っている可能性のある写真は見つかりませんでした。\n写真は手動でも取り込めます。"
           }
         },
         "zh-Hans" : {
@@ -21556,7 +21556,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "探しています… %lld/%lld"
+            "value" : "この子を探しています… %lld/%lld"
           }
         },
         "zh-Hans" : {
@@ -21597,7 +21597,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "フルスキャン中です…"
+            "value" : "写真ライブラリをスキャン中…"
           }
         },
         "zh-Hans" : {
@@ -21638,7 +21638,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "スキャンをスキップして続行する"
+            "value" : "スキャンをスキップして続ける"
           }
         },
         "zh-Hans" : {
@@ -21679,7 +21679,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "「写真」アプリのサムネイルを読む"
+            "value" : "「写真」アプリのサムネイルを読み込み"
           }
         },
         "zh-Hans" : {
@@ -21720,7 +21720,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "ローカルでスキャン・比較"
+            "value" : "端末内スキャン・比較中"
           }
         },
         "zh-Hans" : {
@@ -21761,7 +21761,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "ローカルスキャン · 完了"
+            "value" : "端末内スキャン・完了"
           }
         },
         "zh-Hans" : {
@@ -21802,7 +21802,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "フルスキャン中です\n「写真」アプリ"
+            "value" : "写真ライブラリ全体を\nスキャン中"
           }
         },
         "zh-Hans" : {
@@ -21843,7 +21843,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "開ける"
+            "value" : "枚"
           }
         },
         "zh-Hans" : {
@@ -21884,7 +21884,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%lld人の候補者を表示"
+            "value" : "%lld枚の候補を確認"
           }
         },
         "zh-Hans" : {
@@ -22007,7 +22007,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "後で"
+            "value" : "あとで"
           }
         },
         "zh-Hans" : {
@@ -22048,7 +22048,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "読んで同意します"
+            "value" : "内容を確認し、同意します"
           }
         },
         "zh-Hans" : {
@@ -22089,7 +22089,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "空のアーカイブ / 00"
+            "value" : "EMPTY ARCHIVE / 00"
           }
         },
         "zh-Hans" : {
@@ -22130,7 +22130,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "最初のファイルを作成する"
+            "value" : "最初のプロフィールを作成"
           }
         },
         "zh-Hans" : {
@@ -22171,7 +22171,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "ファイルは空になりました。\n最初の段落から始めます。"
+            "value" : "プロフィールはまだ空です。\n最初の思い出から始めましょう。"
           }
         },
         "zh-Hans" : {
@@ -22212,7 +22212,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "写真はデバイスに保存され、記録にはユーザーが名前を付けます。"
+            "value" : "写真は端末に残り、記録の名前はご自身で決められます。"
           }
         },
         "zh-Hans" : {
@@ -22253,7 +22253,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "最初のパートナーを待っています"
+            "value" : "最初のうちの子を待っています"
           }
         },
         "zh-Hans" : {
@@ -22294,7 +22294,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "一生一緒に、\nここにいてください"
+            "value" : "この子との一生を、\nここに残す"
           }
         },
         "zh-Hans" : {
@@ -22417,7 +22417,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "あなたによって確認されました"
+            "value" : "自分で確認"
           }
         },
         "zh-Hans" : {
@@ -22499,7 +22499,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "地元組織"
+            "value" : "端末内で整理"
           }
         },
         "zh-Hans" : {
@@ -22663,7 +22663,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "レトロアルバムのページめくり閲覧モード"
+            "value" : "レトロアルバムのページめくり表示"
           }
         },
         "zh-Hans" : {
@@ -22704,7 +22704,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "アイロンビーズの図案を無制限に生成"
+            "value" : "アイロンビーズ図案を回数無制限で作成"
           }
         },
         "zh-Hans" : {
@@ -22745,7 +22745,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "絶妙なカードテンプレートの複数のセット"
+            "value" : "豊富なカードテンプレート"
           }
         },
         "zh-Hans" : {
@@ -22786,7 +22786,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "ホームシェアリングをサポート（Apple StoreKitによって提供）"
+            "value" : "Appleのファミリー共有に対応"
           }
         },
         "zh-Hans" : {
@@ -22827,7 +22827,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "写真のオフラインバックアップとリカバリ"
+            "value" : "写真のオフラインバックアップと復元"
           }
         },
         "zh-Hans" : {
@@ -22868,7 +22868,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "パートナーの写真を無制限に保存"
+            "value" : "ペットの写真を枚数無制限で保存"
           }
         },
         "zh-Hans" : {
@@ -22909,7 +22909,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "最大20のパートナープロファイルを管理"
+            "value" : "うちの子プロフィールを最大20件まで管理"
           }
         },
         "zh-Hans" : {
@@ -22950,7 +22950,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "完全な成長タイムラインを表示 （1年前のストーリーを含む）"
+            "value" : "1年以上前を含む、すべての成長タイムラインを表示"
           }
         },
         "zh-Hans" : {
@@ -22991,7 +22991,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "成長タイムラインのエクスポートと共有"
+            "value" : "成長タイムラインを書き出して共有"
           }
         },
         "zh-Hans" : {
@@ -23032,7 +23032,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "ウォーターマークなしで作品をエクスポート"
+            "value" : "作品を透かしなしで書き出し"
           }
         },
         "zh-Hans" : {
@@ -23073,7 +23073,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "パートナーの数に制限はなく、ファイルは相互にクリアです"
+            "value" : "登録数の制限なく、一匹ずつ思い出を整理できます"
           }
         },
         "zh-Hans" : {
@@ -23114,7 +23114,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "各パートナーを個別に保存する"
+            "value" : "一匹ずつ大切に記録"
           }
         },
         "zh-Hans" : {
@@ -23155,7 +23155,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "年次レビューは実際の日付に基づいて生成されます"
+            "value" : "実際の日付をもとに、一年の思い出をまとめます"
           }
         },
         "zh-Hans" : {
@@ -23196,7 +23196,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "時間を人生の章に分けて整理する"
+            "value" : "時間を、いのちの物語へ"
           }
         },
         "zh-Hans" : {
@@ -23237,7 +23237,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "写真・思い出・アイロンビーズの図案を高解像度で書き出し"
+            "value" : "写真、思い出、アイロンビーズ図案を高画質で書き出せます"
           }
         },
         "zh-Hans" : {
@@ -23278,7 +23278,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "作品もオリジナルフィルムも高画質でお持ち帰り可能"
+            "value" : "作品も元の写真も高画質で保存"
           }
         },
         "zh-Hans" : {
@@ -23319,7 +23319,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "閉鎖"
+            "value" : "閉じる"
           }
         },
         "zh-Hans" : {
@@ -23360,7 +23360,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "確認して続行"
+            "value" : "確認して続ける"
           }
         },
         "zh-Hans" : {
@@ -23401,7 +23401,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "永久にロック解除されました · %@"
+            "value" : "買い切りで利用・%@"
           }
         },
         "zh-Hans" : {
@@ -23442,7 +23442,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "今すぐ購読 · %@"
+            "value" : "今すぐ登録・%@"
           }
         },
         "zh-Hans" : {
@@ -23522,7 +23522,7 @@
               "other" : {
                 "stringUnit" : {
                   "state" : "translated",
-                  "value" : "%d日間の無料トライアル"
+                  "value" : "%d日間無料で試す"
                 }
               }
             }
@@ -23578,7 +23578,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "まだ購入できません"
+            "value" : "現在購入できません"
           }
         },
         "zh-Hans" : {
@@ -23619,7 +23619,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "サイクル"
+            "value" : "期間"
           }
         },
         "zh-Hans" : {
@@ -23701,7 +23701,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "ご購入前にご確認ください"
+            "value" : "購入前にご確認ください"
           }
         },
         "zh-Hans" : {
@@ -23742,7 +23742,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "試してみる"
+            "value" : "無料体験"
           }
         },
         "zh-Hans" : {
@@ -23783,7 +23783,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "購入を復元する · 利用規約 · プライバシーポリシー"
+            "value" : "購入を復元・利用規約・プライバシーポリシー"
           }
         },
         "zh-Hans" : {
@@ -23824,7 +23824,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "V1.0では、高度なテンプレートと高解像度エクスポートが追加される予定で、Proユーザーはオンラインになった後に自動的にロックが解除されます。"
+            "value" : "V1.0では上位テンプレートと高画質書き出しを追加予定です。Proをご利用の方は、提供開始後に自動で使えるようになります。"
           }
         },
         "zh-Hans" : {
@@ -23865,7 +23865,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "より多くのパートナー · 完全なレビュー · 高品質のエクスポート"
+            "value" : "もっと多くのうちの子・すべての思い出・高画質書き出し"
           }
         },
         "zh-Hans" : {
@@ -23906,7 +23906,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "より多くのパートナー · 完全なレビュー · 高品質のエクスポート"
+            "value" : "もっと多くのうちの子・すべての思い出・高画質書き出し"
           }
         },
         "zh-Hans" : {
@@ -23947,7 +23947,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "彼女の生涯を通じて、\n完全に私と一緒にいてください"
+            "value" : "この子の一生を、\nずっとそばに残す"
           }
         },
         "zh-Hans" : {
@@ -23988,7 +23988,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "ご購入前に利用規約の責任制限や自動更新などの重要事項を必ずお読みください。"
+            "value" : "責任制限や自動更新などの重要事項について、購入前に利用規約をお読みください。"
           }
         },
         "zh-Hans" : {
@@ -24111,7 +24111,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "サブスクリプション情報を一時的にロードできません。ネットワークを確認して、もう一度お試しください。"
+            "value" : "サブスクリプション情報を読み込めません。通信環境を確認して、もう一度お試しください。"
           }
         },
         "zh-Hans" : {
@@ -24152,7 +24152,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "1回限りの購入"
+            "value" : "買い切り"
           }
         },
         "zh-Hans" : {
@@ -24193,7 +24193,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "毎月の自動更新"
+            "value" : "月ごとに自動更新"
           }
         },
         "zh-Hans" : {
@@ -24234,7 +24234,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "使い捨て"
+            "value" : "1回限り"
           }
         },
         "zh-Hans" : {
@@ -24275,7 +24275,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "毎年自動更新"
+            "value" : "年ごとに自動更新"
           }
         },
         "zh-Hans" : {
@@ -24316,7 +24316,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "年間計画"
+            "value" : "年間プラン"
           }
         },
         "zh-Hans" : {
@@ -24398,7 +24398,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "月額プラン"
+            "value" : "月間プラン"
           }
         },
         "zh-Hans" : {
@@ -24439,7 +24439,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "MiLens Proのロックを解除しました"
+            "value" : "MiLens Proを利用できます"
           }
         },
         "zh-Hans" : {
@@ -24480,7 +24480,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "ご購入前に利用規約とプライバシーポリシーに同意してください"
+            "value" : "購入前に利用規約とプライバシーポリシーへ同意してください"
           }
         },
         "zh-Hans" : {
@@ -24521,7 +24521,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "そして"
+            "value" : "と"
           }
         },
         "zh-Hans" : {
@@ -24562,7 +24562,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "購入は完了していません。後でもう一度お試しください。"
+            "value" : "購入を完了できませんでした。しばらくしてからもう一度お試しください。"
           }
         },
         "zh-Hans" : {
@@ -24603,7 +24603,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "購入には確認が必要で、完了すると自動的にロックが解除されます。"
+            "value" : "購入の承認待ちです。完了すると自動的に利用できるようになります。"
           }
         },
         "zh-Hans" : {
@@ -24644,7 +24644,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "長期保存に値する人生のアーカイブ"
+            "value" : "大切な記録を、これからもずっと"
           }
         },
         "zh-Hans" : {
@@ -24685,7 +24685,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "購入を再開する"
+            "value" : "購入を復元"
           }
         },
         "zh-Hans" : {
@@ -24726,7 +24726,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "購入は復元されました。"
+            "value" : "購入を復元しました。"
           }
         },
         "zh-Hans" : {
@@ -24767,7 +24767,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "購入を復元できませんでした。後でもう一度お試しください。"
+            "value" : "購入を復元できませんでした。しばらくしてからもう一度お試しください。"
           }
         },
         "zh-Hans" : {
@@ -24808,7 +24808,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "復元可能な購入は見つかりませんでした。"
+            "value" : "復元できる購入が見つかりませんでした。"
           }
         },
         "zh-Hans" : {
@@ -24849,7 +24849,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "もう一度やり直してください"
+            "value" : "もう一度試す"
           }
         },
         "zh-Hans" : {
@@ -24931,7 +24931,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "すべての創造的な能力を一度に解放する"
+            "value" : "すべての創作機能をまとめて解放"
           }
         },
         "zh-Hans" : {
@@ -24972,7 +24972,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "一度購入すれば永久に使用でき、その後の料金はかかりません。"
+            "value" : "一度購入すれば、追加料金なしでいつまでも利用できます。"
           }
         },
         "zh-Hans" : {
@@ -25013,7 +25013,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%@ を押して自動的に更新します。App Storeのアカウント設定でいつでもキャンセルできます。キャンセル後も現在の有効期間は影響を受けません。"
+            "value" : "%@ごとに自動更新されます。App Storeのアカウント設定からいつでも解約できます。解約後も、現在の利用期間が終わるまでは引き続き利用できます。"
           }
         },
         "zh-Hans" : {
@@ -25054,7 +25054,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%1$d日間無料試用し、その後 %2$@ で自動更新されます。App Storeのアカウント設定でいつでもキャンセルできます。キャンセル後も、現在の有効期間は影響を受けません。"
+            "value" : "最初の%1$d日間は無料です。その後は%2$@ごとに自動更新されます。App Storeのアカウント設定からいつでも解約できます。解約後も、現在の利用期間が終わるまでは引き続き利用できます。"
           }
         },
         "zh-Hans" : {
@@ -25095,7 +25095,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "この写真を作品にします"
+            "value" : "この写真を作品に"
           }
         },
         "zh-Hans" : {
@@ -25175,7 +25175,7 @@
               "other" : {
                 "stringUnit" : {
                   "state" : "translated",
-                  "value" : "最初の %d日間は無料"
+                  "value" : "最初の%d日間は無料"
                 }
               }
             }
@@ -25231,7 +25231,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "パートナーを追加"
+            "value" : "うちの子を登録"
           }
         },
         "zh-Hans" : {
@@ -25272,7 +25272,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : ""
+            "value" : "⁠"
           }
         },
         "zh-Hans" : {
@@ -25408,7 +25408,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "未知"
+            "value" : "不明"
           }
         },
         "zh-Hans" : {
@@ -25583,7 +25583,7 @@
               "other" : {
                 "stringUnit" : {
                   "state" : "translated",
-                  "value" : "%lldの誕生日"
+                  "value" : "%lld歳の誕生日"
                 }
               }
             }
@@ -25678,7 +25678,7 @@
               "other" : {
                 "stringUnit" : {
                   "state" : "translated",
-                  "value" : "帰宅後%lld日"
+                  "value" : "お迎えから%lld日"
                 }
               }
             }
@@ -25734,7 +25734,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "思い出す価値のある一日"
+            "value" : "忘れたくない一日"
           }
         },
         "zh-Hans" : {
@@ -25816,7 +25816,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%@ · %@"
+            "value" : "%@・%@"
           }
         },
         "zh-Hans" : {
@@ -25896,7 +25896,7 @@
               "other" : {
                 "stringUnit" : {
                   "state" : "translated",
-                  "value" : "帰宅後%lld日"
+                  "value" : "お迎えから%lld日"
                 }
               }
             }
@@ -25952,7 +25952,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%@ と %lld日間家族になります"
+            "value" : "%@と家族になって%lld日"
           }
         },
         "zh-Hans" : {
@@ -25993,7 +25993,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "一緒の時間はまだ始まっていない"
+            "value" : "一緒に過ごす日々はまだ始まっていません"
           }
         },
         "zh-Hans" : {
@@ -26073,7 +26073,7 @@
               "other" : {
                 "stringUnit" : {
                   "state" : "translated",
-                  "value" : "%lld日間仲良くしましょう"
+                  "value" : "一緒に暮らして%lld日"
                 }
               }
             }
@@ -26129,7 +26129,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "一緒に過ごした日数は不明"
+            "value" : "一緒に過ごした日数は不明です"
           }
         },
         "zh-Hans" : {
@@ -26209,7 +26209,7 @@
               "other" : {
                 "stringUnit" : {
                   "state" : "translated",
-                  "value" : "%lld日間仲良くしましょう"
+                  "value" : "一緒に暮らして%lld日"
                 }
               }
             }
@@ -26265,7 +26265,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "養子縁組の日"
+            "value" : "お迎え記念日"
           }
         },
         "zh-Hans" : {
@@ -26306,7 +26306,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "交換する"
+            "value" : "変更"
           }
         },
         "zh-Hans" : {
@@ -26347,7 +26347,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "選ぶ"
+            "value" : "選択"
           }
         },
         "zh-Hans" : {
@@ -26388,7 +26388,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "写真を選択して丸いアバターに切り抜きます"
+            "value" : "写真を一枚選び、丸いプロフィール画像に切り抜きます"
           }
         },
         "zh-Hans" : {
@@ -26470,7 +26470,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "クリア日付"
+            "value" : "日付を消去"
           }
         },
         "zh-Hans" : {
@@ -26511,7 +26511,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "「%@」を削除してもよろしいですか？\n関連する写真は帰属されませんが、削除されません。"
+            "value" : "「%@」を削除しますか？\n関連する写真はプロフィールから外れますが、写真自体は削除されません。"
           }
         },
         "zh-Hans" : {
@@ -26552,7 +26552,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "パートナープロフィールを削除する"
+            "value" : "うちの子プロフィールを削除"
           }
         },
         "zh-Hans" : {
@@ -26593,7 +26593,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "登録に失敗しました：%@"
+            "value" : "登録できませんでした：%@"
           }
         },
         "zh-Hans" : {
@@ -26634,7 +26634,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "角度と照明が異なる %lld ～ %lld枚の写真を選択してください。新しい写真をインポートすると、その写真は自動的にこのファイルに含まれます。"
+            "value" : "角度や明るさの異なる写真を%lld〜%lld枚選んでください。新しく取り込んだ写真は、このプロフィールへ自動的に追加されます。"
           }
         },
         "zh-Hans" : {
@@ -26675,7 +26675,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "機能を更新するには写真を再選択する必要があります （%lld–%lld写真）"
+            "value" : "特徴を更新するには、写真を%lld〜%lld枚選び直してください"
           }
         },
         "zh-Hans" : {
@@ -26716,7 +26716,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "最大 %lld枚の写真を選択してください"
+            "value" : "選べる写真は最大%lld枚です"
           }
         },
         "zh-Hans" : {
@@ -26757,7 +26757,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "少なくとも %lld枚の写真を選択してください"
+            "value" : "写真を%lld枚以上選んでください"
           }
         },
         "zh-Hans" : {
@@ -26798,7 +26798,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "特徴 %lld/%lldを抽出しています"
+            "value" : "写真の特徴を抽出中 %lld/%lld"
           }
         },
         "zh-Hans" : {
@@ -26839,7 +26839,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "写真登録を選択"
+            "value" : "写真を選んで登録"
           }
         },
         "zh-Hans" : {
@@ -26880,7 +26880,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "登録された視覚的特徴"
+            "value" : "写真の特徴を登録済み"
           }
         },
         "zh-Hans" : {
@@ -26921,7 +26921,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "再登録（特性の更新）"
+            "value" : "登録し直す（特徴を更新）"
           }
         },
         "zh-Hans" : {
@@ -26962,7 +26962,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%lld枚の写真が選択されました"
+            "value" : "%lld枚選択済み"
           }
         },
         "zh-Hans" : {
@@ -27003,7 +27003,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "登録を開始する"
+            "value" : "登録を開始"
           }
         },
         "zh-Hans" : {
@@ -27044,7 +27044,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "登録された%lld写真の視覚的特徴"
+            "value" : "%lld枚の写真から特徴を登録しました"
           }
         },
         "zh-Hans" : {
@@ -27085,7 +27085,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "AIモデルは準備ができておらず、視覚的な特徴はまだ登録できません。"
+            "value" : "AIモデルの準備ができていないため、写真の特徴を登録できません。"
           }
         },
         "zh-Hans" : {
@@ -27208,7 +27208,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "無名"
+            "value" : "名前未設定"
           }
         },
         "zh-Hans" : {
@@ -27249,7 +27249,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "ファイルがロードされていません"
+            "value" : "プロフィールを読み込めませんでした"
           }
         },
         "zh-Hans" : {
@@ -27290,7 +27290,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "エントリごとに %lld語を超えてはなりません"
+            "value" : "1件につき%lld文字まで"
           }
         },
         "zh-Hans" : {
@@ -27331,7 +27331,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "重要なイベントを追加します （オプション）"
+            "value" : "大切な出来事を追加（任意）"
           }
         },
         "zh-Hans" : {
@@ -27372,7 +27372,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "メモエントリは %lld文字を超えることはできません"
+            "value" : "メモは%lld文字以内で入力してください"
           }
         },
         "zh-Hans" : {
@@ -27413,7 +27413,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "重要なイベントに関するメモは %lld文字を超えることはできません。保存する前に変更してください。"
+            "value" : "大切な出来事のメモは%lld文字以内に修正してから保存してください"
           }
         },
         "zh-Hans" : {
@@ -27454,7 +27454,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "保存に失敗しました。もう一度お試しください"
+            "value" : "保存できませんでした。もう一度お試しください"
           }
         },
         "zh-Hans" : {
@@ -27495,7 +27495,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "アバター"
+            "value" : "プロフィール写真"
           }
         },
         "zh-Hans" : {
@@ -27577,7 +27577,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "重要な日付"
+            "value" : "大切な日"
           }
         },
         "zh-Hans" : {
@@ -27618,7 +27618,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "視覚的特徴"
+            "value" : "写真の特徴"
           }
         },
         "zh-Hans" : {
@@ -27659,7 +27659,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "重要なイベント"
+            "value" : "大切な出来事"
           }
         },
         "zh-Hans" : {
@@ -27700,7 +27700,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "種族と性別"
+            "value" : "種類と性別"
           }
         },
         "zh-Hans" : {
@@ -27741,7 +27741,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "種"
+            "value" : "種類"
           }
         },
         "zh-Hans" : {
@@ -27823,7 +27823,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "変更を放棄する"
+            "value" : "変更を破棄"
           }
         },
         "zh-Hans" : {
@@ -27864,7 +27864,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "未保存の変更があります"
+            "value" : "保存していない変更があります"
           }
         },
         "zh-Hans" : {
@@ -27905,7 +27905,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "最大 %lldパートナーのみの管理をサポートします"
+            "value" : "プロフィールは最大%lld件まで登録できます"
           }
         },
         "zh-Hans" : {
@@ -27946,7 +27946,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "パートナー名を入力してください"
+            "value" : "この子の名前を入力してください"
           }
         },
         "zh-Hans" : {
@@ -28069,7 +28069,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "未知"
+            "value" : "不明"
           }
         },
         "zh-Hans" : {
@@ -28110,7 +28110,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "思い出を追加する"
+            "value" : "思い出を追加"
           }
         },
         "zh-Hans" : {
@@ -28192,7 +28192,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "ファイルの開始点"
+            "value" : "記録のはじまり"
           }
         },
         "zh-Hans" : {
@@ -28233,7 +28233,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "に生まれた"
+            "value" : "生まれた日"
           }
         },
         "zh-Hans" : {
@@ -28274,7 +28274,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "録音を続ける"
+            "value" : "記録を続ける"
           }
         },
         "zh-Hans" : {
@@ -28315,7 +28315,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "最初の写真、初めての外出、毎日の小さな変化まで。すべての断片はそれが起こった時間に戻ります。"
+            "value" : "最初の写真、初めてのお出かけ、毎日の小さな変化まで。すべての出来事を、その日へと戻します。"
           }
         },
         "zh-Hans" : {
@@ -28356,7 +28356,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "散り散りになった思い出、\n流れる時間の川に留めて"
+            "value" : "散らばった思い出を、\n流れる時間の一冊へ"
           }
         },
         "zh-Hans" : {
@@ -28397,7 +28397,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "家に帰ってください"
+            "value" : "お迎えから"
           }
         },
         "zh-Hans" : {
@@ -28479,7 +28479,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "プロフィールの編集"
+            "value" : "プロフィールを編集"
           }
         },
         "zh-Hans" : {
@@ -28520,7 +28520,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "生涯にわたるアーカイブ"
+            "value" : "LIFE LONG ARCHIVE"
           }
         },
         "zh-Hans" : {
@@ -28561,7 +28561,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "重要なイベント"
+            "value" : "大切な出来事"
           }
         },
         "zh-Hans" : {
@@ -28602,7 +28602,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "それぞれの写真を撮影当時に戻します。"
+            "value" : "一枚一枚の写真を、撮った日の思い出へ。"
           }
         },
         "zh-Hans" : {
@@ -28643,7 +28643,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "ライフ02 · %lld DAYS"
+            "value" : "LIFE 02・%lld DAYS"
           }
         },
         "zh-Hans" : {
@@ -28684,7 +28684,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "ファイルの読み込みに失敗しました"
+            "value" : "プロフィールを読み込めませんでした"
           }
         },
         "zh-Hans" : {
@@ -28725,7 +28725,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "思い出"
+            "value" : "ひとつの思い出"
           }
         },
         "zh-Hans" : {
@@ -28766,7 +28766,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "ネクストリーフ · 2026.06"
+            "value" : "NEXT LEAF・2026.06"
           }
         },
         "zh-Hans" : {
@@ -28889,7 +28889,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "最新のもの"
+            "value" : "最近の一枚"
           }
         },
         "zh-Hans" : {
@@ -28930,7 +28930,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "ピン留めされた思い出 · PAGE 01"
+            "value" : "大切な思い出・PAGE 01"
           }
         },
         "zh-Hans" : {
@@ -29012,7 +29012,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%@ · %@"
+            "value" : "%@・%@"
           }
         },
         "zh-Hans" : {
@@ -29053,7 +29053,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "空"
+            "value" : "日"
           }
         },
         "zh-Hans" : {
@@ -29217,7 +29217,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "仕事"
+            "value" : "作品"
           }
         },
         "zh-Hans" : {
@@ -29258,7 +29258,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "完全な人生のタイムラインを開く"
+            "value" : "すべての成長タイムラインを開く"
           }
         },
         "zh-Hans" : {
@@ -29299,7 +29299,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "非常に風が強い道、そして海に飛び込む勇気。"
+            "value" : "風の強い道と、自分から海へ飛び込んだ小さな勇気。"
           }
         },
         "zh-Hans" : {
@@ -29340,7 +29340,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "夏が始まる前の夕方"
+            "value" : "夏が始まる前の夕暮れ"
           }
         },
         "zh-Hans" : {
@@ -29381,7 +29381,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "生涯のタイムラインを見る →"
+            "value" : "すべての成長タイムラインを見る →"
           }
         },
         "zh-Hans" : {
@@ -29422,7 +29422,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "まだパートナーに帰属されていない写真"
+            "value" : "まだプロフィールに追加していない写真"
           }
         },
         "zh-Hans" : {
@@ -29463,7 +29463,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "アルバム内の写真をインポートまたはスキャンした後、パートナーがまだ所有していない写真がここに表示されます。"
+            "value" : "取り込みまたはスキャンした写真のうち、どの子のプロフィールにも追加していない写真がここに表示されます。"
           }
         },
         "zh-Hans" : {
@@ -29504,7 +29504,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%lld枚の写真をすべて表示"
+            "value" : "%lld枚すべてを見る"
           }
         },
         "zh-Hans" : {
@@ -29545,7 +29545,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "画像エディタで保存した写真がここに表示されます。"
+            "value" : "写真エディタで保存した作品がここに表示されます。"
           }
         },
         "zh-Hans" : {
@@ -29586,7 +29586,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "猫人間"
+            "value" : "ねこ"
           }
         },
         "zh-Hans" : {
@@ -29627,7 +29627,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "犬"
+            "value" : "いぬ"
           }
         },
         "zh-Hans" : {
@@ -29668,7 +29668,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "未知"
+            "value" : "不明"
           }
         },
         "zh-Hans" : {
@@ -29791,7 +29791,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "パートナーカード"
+            "value" : "UCHINOKO CARD"
           }
         },
         "zh-Hans" : {
@@ -29832,7 +29832,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "4:5・縦バージョン"
+            "value" : "4:5・縦型"
           }
         },
         "zh-Hans" : {
@@ -29873,7 +29873,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%lld写真"
+            "value" : "写真%lld枚"
           }
         },
         "zh-Hans" : {
@@ -29914,7 +29914,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "パートナーの削除"
+            "value" : "うちの子を削除"
           }
         },
         "zh-Hans" : {
@@ -29955,7 +29955,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "それ用のファイルを作成し、\n写真、記念日、ストーリーはここに残ります。"
+            "value" : "この子のプロフィールを作ると、\n写真や記念日、物語をここに残せます。"
           }
         },
         "zh-Hans" : {
@@ -29996,7 +29996,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "パートナーを追加"
+            "value" : "うちの子を登録"
           }
         },
         "zh-Hans" : {
@@ -30037,7 +30037,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "パートナープロフィールはまだありません"
+            "value" : "うちの子プロフィールはまだありません"
           }
         },
         "zh-Hans" : {
@@ -30078,7 +30078,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "写真は %lldに帰属します"
+            "value" : "%lld枚の追加先を選択"
           }
         },
         "zh-Hans" : {
@@ -30119,7 +30119,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "まだパートナーがいない場合は、まず登録してください。"
+            "value" : "うちの子がまだいません。先に登録してください。"
           }
         },
         "zh-Hans" : {
@@ -30160,7 +30160,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "アトリビューションの失敗"
+            "value" : "プロフィールに追加できませんでした"
           }
         },
         "zh-Hans" : {
@@ -30201,7 +30201,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "パートナーに属している"
+            "value" : "うちの子に追加"
           }
         },
         "zh-Hans" : {
@@ -30242,7 +30242,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "権利確定から抜け出す"
+            "value" : "プロフィールから外す"
           }
         },
         "zh-Hans" : {
@@ -30283,7 +30283,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "どのパートナーも所有していない"
+            "value" : "どのプロフィールにも追加しない"
           }
         },
         "zh-Hans" : {
@@ -30324,7 +30324,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "パートナーに属している"
+            "value" : "うちの子に追加"
           }
         },
         "zh-Hans" : {
@@ -30365,7 +30365,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "消去"
+            "value" : "削除"
           }
         },
         "zh-Hans" : {
@@ -30406,7 +30406,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "選択した %lld枚の写真を削除しますか？"
+            "value" : "選択した%lld枚の写真を削除しますか？"
           }
         },
         "zh-Hans" : {
@@ -30447,7 +30447,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%lld枚の写真が選択されました"
+            "value" : "%lld枚選択済み"
           }
         },
         "zh-Hans" : {
@@ -30488,7 +30488,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "アイロンビーズの図案を作成"
+            "value" : "アイロンビーズ図案を作る"
           }
         },
         "zh-Hans" : {
@@ -30570,7 +30570,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "人生の記憶を追加する"
+            "value" : "思い出に追加"
           }
         },
         "zh-Hans" : {
@@ -30611,7 +30611,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "アーカイブ済み"
+            "value" : "保存済み"
           }
         },
         "zh-Hans" : {
@@ -30652,7 +30652,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "所有権の割り当て"
+            "value" : "プロフィールへの追加先"
           }
         },
         "zh-Hans" : {
@@ -30693,7 +30693,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "情報を編集する"
+            "value" : "情報を編集"
           }
         },
         "zh-Hans" : {
@@ -30734,7 +30734,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "共有エクスポート"
+            "value" : "書き出して共有"
           }
         },
         "zh-Hans" : {
@@ -30775,7 +30775,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "集める"
+            "value" : "お気に入りに追加"
           }
         },
         "zh-Hans" : {
@@ -30816,7 +30816,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "MiLensの整理記録から取り除かれるだけで、「写真」アプリの元の画像は削除されません。"
+            "value" : "MiLensの整理記録からのみ削除します。「写真」アプリの元の写真は削除されません。"
           }
         },
         "zh-Hans" : {
@@ -30857,7 +30857,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "MiLensから取り除く"
+            "value" : "MiLensから削除"
           }
         },
         "zh-Hans" : {
@@ -30898,7 +30898,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "お気に入りをキャンセルする"
+            "value" : "お気に入りから削除"
           }
         },
         "zh-Hans" : {
@@ -30980,7 +30980,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "まず「写真」アプリから写真を読み込み、ここに戻ってアイロンビーズの図案を生成しましょう。"
+            "value" : "先にアルバムへ写真を取り込み、ここでアイロンビーズ図案を作成してください"
           }
         },
         "zh-Hans" : {
@@ -31021,7 +31021,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "写真を選んでアイロンビーズの図案を生成"
+            "value" : "アイロンビーズ図案にする写真を選択"
           }
         },
         "zh-Hans" : {
@@ -31103,7 +31103,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "パートナープロフィールはまだありません"
+            "value" : "うちの子プロフィールはまだありません"
           }
         },
         "zh-Hans" : {
@@ -31144,7 +31144,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "まず「パートナー」タブに移動してファイルを作成し、次に名刺を生成します。"
+            "value" : "先に「うちの子」タブでプロフィールを作成してください"
           }
         },
         "zh-Hans" : {
@@ -31185,7 +31185,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "パートナーを選択してください"
+            "value" : "うちの子を選択"
           }
         },
         "zh-Hans" : {
@@ -31226,7 +31226,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "パートナーを選択してください"
+            "value" : "うちの子を選択"
           }
         },
         "zh-Hans" : {
@@ -31349,7 +31349,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "まず「写真」アプリに移動して写真をインポートし、次に戻って成長比較カードを生成します。"
+            "value" : "先にアルバムへ写真を取り込み、ここで成長比較カードを作成してください"
           }
         },
         "zh-Hans" : {
@@ -31390,7 +31390,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "ライフファイルから選択"
+            "value" : "ライフアーカイブから選択"
           }
         },
         "zh-Hans" : {
@@ -31431,7 +31431,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "まず「以前」と「今」を分ける\nすべてをまとめてください。"
+            "value" : "「あのころ」と「今」を\n並べてみましょう。"
           }
         },
         "zh-Hans" : {
@@ -31472,7 +31472,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "選択した写真をタップして再割り当てします"
+            "value" : "選択済みの写真をタップすると選び直せます"
           }
         },
         "zh-Hans" : {
@@ -31513,7 +31513,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "比較を開始する"
+            "value" : "比較を開始"
           }
         },
         "zh-Hans" : {
@@ -31554,7 +31554,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "2つの期間を選択してください"
+            "value" : "ふたつの時間を選択"
           }
         },
         "zh-Hans" : {
@@ -31677,7 +31677,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "まず「写真」アプリに移動して写真をインポートし、次に戻ってパートナーカードを生成します。"
+            "value" : "先にアルバムへ写真を取り込み、ここでうちの子カードを作成してください"
           }
         },
         "zh-Hans" : {
@@ -31718,7 +31718,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "写真を選択してパートナーカードを生成します"
+            "value" : "うちの子カードにする写真を選択"
           }
         },
         "zh-Hans" : {
@@ -31841,7 +31841,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "まず「写真」アプリから写真を読み込み、ここに戻って紅包カバーを生成しましょう。"
+            "value" : "先にアルバムへ写真を取り込み、ここでWeChat紅包カバーを作成してください"
           }
         },
         "zh-Hans" : {
@@ -31882,7 +31882,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "最高の効果を得るには、縦長の写真を選択してください （WeChatの赤い封筒のカバーは957×1278）"
+            "value" : "縦向きの写真がおすすめです（WeChat紅包カバー：957×1278）"
           }
         },
         "zh-Hans" : {
@@ -31923,7 +31923,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "カバー写真を選択してください"
+            "value" : "カバー写真を選択"
           }
         },
         "zh-Hans" : {
@@ -31964,7 +31964,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "むかしむかし"
+            "value" : "あのころ"
           }
         },
         "zh-Hans" : {
@@ -32087,7 +32087,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "何をインポートするかはあなた次第です"
+            "value" : "取り込む写真は自分で選べます"
           }
         },
         "zh-Hans" : {
@@ -32128,7 +32128,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "スキャンでは候補となる写真のみが検出されます。どの写真をインポートするか、どのパートナーに帰属させるかを確認するのはあなた次第です。"
+            "value" : "スキャンで見つけるのは候補写真だけです。取り込む写真と、どの子のプロフィールに追加するかは、必ずご自身で確認できます。"
           }
         },
         "zh-Hans" : {
@@ -32169,7 +32169,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "クラウドもアップロードも不要"
+            "value" : "クラウド不使用・アップロードなし"
           }
         },
         "zh-Hans" : {
@@ -32210,7 +32210,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "すべての写真の認識と分析は、クラウドサービスを経由したり、外部サーバーに接続したりすることなく、デバイス上でローカルに完了します。"
+            "value" : "写真の認識と解析はすべて端末上で行います。クラウドサービスや外部サーバーには接続しません。"
           }
         },
         "zh-Hans" : {
@@ -32251,7 +32251,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "分析はローカルで行われます"
+            "value" : "解析は端末上で完結"
           }
         },
         "zh-Hans" : {
@@ -32292,7 +32292,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "パートナーの写真認識は、デバイスのローカルのモデルによって行われ、サーバーを経由しません。"
+            "value" : "ペットの写真認識には端末内のモデルを使用し、サーバーを経由しません。"
           }
         },
         "zh-Hans" : {
@@ -32333,7 +32333,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "写真は積極的にアップロードされていません"
+            "value" : "写真を自動送信しません"
           }
         },
         "zh-Hans" : {
@@ -32374,7 +32374,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "アプリは写真を自動的にアップロードしません。編集した製品は、ユーザーが有効にしたシステムバックアップとともに保存できます。"
+            "value" : "写真を自動的にアップロードすることはありません。編集した作品は、システムバックアップを有効にしている場合にバックアップへ含まれることがあります。"
           }
         },
         "zh-Hans" : {
@@ -32415,7 +32415,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "ローカル処理への取り組み"
+            "value" : "端末内処理について"
           }
         },
         "zh-Hans" : {
@@ -32456,7 +32456,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "写真と通知の権限を管理する"
+            "value" : "写真と通知のアクセス権を管理"
           }
         },
         "zh-Hans" : {
@@ -32538,7 +32538,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "インポートされた写真のコピーとアーカイブデータはアプリサンドボックスに保存されます。アプリを削除すると、これらのデータも削除されます。「写真」アプリ内の元の画像は影響を受けません。"
+            "value" : "取り込んだ写真のコピーとプロフィールデータは、App内に保存されます。Appを削除するとこれらのデータも削除されますが、「写真」アプリの元の写真には影響しません。"
           }
         },
         "zh-Hans" : {
@@ -32579,7 +32579,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "データストレージ"
+            "value" : "データの保存先"
           }
         },
         "zh-Hans" : {
@@ -33030,7 +33030,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%lldチャン"
+            "value" : "%lld枚"
           }
         },
         "zh-Hans" : {
@@ -33235,7 +33235,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "ローカルアルバムレコードを開く際に問題が発生しました。もう一度試すか、ローカルデータを再構築できます。MiLensレコードをクリアすると、サンドボックス （アーティファクトのインポート/編集） に保存されている写真のコピーも削除されます。「写真」アプリ内の元の画像には影響しません。"
+            "value" : "ローカルのアルバムデータを開けませんでした。もう一度試すか、ローカルデータを再構築できます。再構築すると、MiLensの記録と、App内に保存された写真のコピー（取り込み・編集した作品）が削除されます。「写真」アプリの元の写真には影響しません。"
           }
         },
         "zh-Hans" : {
@@ -33276,7 +33276,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "診断ディレクトリの作成に失敗しました：%@"
+            "value" : "診断フォルダを作成できませんでした：%@"
           }
         },
         "zh-Hans" : {
@@ -33317,7 +33317,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "間違い：%@"
+            "value" : "エラー：%@"
           }
         },
         "zh-Hans" : {
@@ -33358,7 +33358,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "MiLens起動不良診断"
+            "value" : "MiLens 起動エラー診断"
           }
         },
         "zh-Hans" : {
@@ -33399,7 +33399,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "時間：%@"
+            "value" : "日時：%@"
           }
         },
         "zh-Hans" : {
@@ -33440,7 +33440,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "診断ファイルの書き込みに失敗しました：%@"
+            "value" : "診断ファイルを書き込めませんでした：%@"
           }
         },
         "zh-Hans" : {
@@ -33481,7 +33481,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "エクスポートされた診断"
+            "value" : "診断情報を書き出しました"
           }
         },
         "zh-Hans" : {
@@ -33522,7 +33522,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "診断情報をエクスポートする"
+            "value" : "診断情報を書き出す"
           }
         },
         "zh-Hans" : {
@@ -33563,7 +33563,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "エクスポートに失敗しました"
+            "value" : "書き出しに失敗しました"
           }
         },
         "zh-Hans" : {
@@ -33604,7 +33604,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "復興"
+            "value" : "再構築"
           }
         },
         "zh-Hans" : {
@@ -33645,7 +33645,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "MiLensのアルバムレコード、パートナーファイル、サンドボックス （製品のインポート/編集） に保存された写真のコピーは消去され、復元できなくなります。「写真」アプリ内の元の写真は削除されません。"
+            "value" : "MiLensのアルバム記録、うちの子プロフィール、App内に保存された写真のコピー（取り込み・編集した作品）を削除します。この操作は取り消せません。「写真」アプリの元の写真は削除されません。"
           }
         },
         "zh-Hans" : {
@@ -33727,7 +33727,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "ローカルデータを再構築する"
+            "value" : "ローカルデータを再構築"
           }
         },
         "zh-Hans" : {
@@ -33768,7 +33768,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "もう一度やり直してください"
+            "value" : "もう一度試す"
           }
         },
         "zh-Hans" : {
@@ -33809,7 +33809,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "ローカルデータをロードできません"
+            "value" : "ローカルデータを読み込めません"
           }
         },
         "zh-Hans" : {
@@ -35531,7 +35531,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "アルバムに保存した後、WeChatの赤い封筒の表紙ページでカスタマイズされた表紙を選択します。"
+            "value" : "「写真」アプリへ保存したあと、WeChatの紅包カバー画面でカスタムカバーを選択します。"
           }
         },
         "zh-Hans" : {
@@ -36023,7 +36023,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "赤い封筒カード"
+            "value" : "紅包カード"
           }
         },
         "zh-Hans" : {
@@ -36064,7 +36064,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "赤い封筒のリスト"
+            "value" : "紅包リスト"
           }
         },
         "zh-Hans" : {
@@ -36105,7 +36105,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "赤い封筒のページを開く"
+            "value" : "紅包を開く画面"
           }
         },
         "zh-Hans" : {
@@ -36474,7 +36474,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "赤い封筒のカバーを開けて"
+            "value" : "紅包カバーを開く"
           }
         },
         "zh-Hans" : {
@@ -36966,7 +36966,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "パートナー被写体が安全地帯に移動する"
+            "value" : "ペット被写体が安全地帯に移動する"
           }
         },
         "zh-Hans" : {
@@ -37089,7 +37089,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Wechatの赤い封筒"
+            "value" : "WECHAT RED PACKET"
           }
         },
         "zh-Hans" : {
@@ -37745,7 +37745,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "パートナーのボディは %lld%% キャンバスを超えているため、切り取られる可能性があります"
+            "value" : "ペットのボディは %lld%% キャンバスを超えているため、切り取られる可能性があります"
           }
         },
         "zh-Hans" : {
@@ -37827,7 +37827,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "パートナーの被写体の%lld%%しか安全領域内になく、紅包のUIが被写体を隠す可能性があります"
+            "value" : "ペットの被写体の%lld%%しか安全領域内になく、紅包のUIが被写体を隠す可能性があります"
           }
         },
         "zh-Hans" : {
@@ -37868,7 +37868,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "パートナーの被写体が小さすぎます（%lld%%）。拡大または移動をおすすめします。"
+            "value" : "ペットの被写体が小さすぎます（%lld%%）。拡大または移動をおすすめします。"
           }
         },
         "zh-Hans" : {
@@ -38688,7 +38688,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "ただアドバイスを与えるだけ\n確認の上調整してください"
+            "value" : "結果は目安です\n確認しながら調整してください"
           }
         },
         "zh-Hans" : {
@@ -38893,7 +38893,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "テキストの位置はリスク領域内にあるため、赤い封筒のシーンでブロックされる可能性があります。"
+            "value" : "文字が注意領域にあるため、紅包画面のUIに隠れる可能性があります。"
           }
         },
         "zh-Hans" : {
@@ -39918,7 +39918,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "赤い封筒の表紙"
+            "value" : "WeChat紅包カバー"
           }
         },
         "zh-Hans" : {
@@ -39959,7 +39959,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "WeChat紅包カバーのアップロードガイドを見る →"
+            "value" : "WeChat紅包カバーのアップロード手順を見る →"
           }
         },
         "zh-Hans" : {
@@ -40000,7 +40000,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "書き出したあと、使用前にWeChat紅包カバーのプラットフォームへアップロードする必要があります。"
+            "value" : "書き出した画像は、利用前にWeChatの紅包カバープラットフォームへアップロードする必要があります。"
           }
         },
         "zh-Hans" : {
@@ -40205,7 +40205,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "パートナー"
+            "value" : "ペット"
           }
         },
         "zh-Hans" : {
@@ -40533,7 +40533,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "パートナー層"
+            "value" : "ペット層"
           }
         },
         "zh-Hans" : {
@@ -40738,7 +40738,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "最初にパートナーの写真をホームページにインポートします"
+            "value" : "先にアルバムへペットの写真を取り込んでください"
           }
         },
         "zh-Hans" : {
@@ -40861,7 +40861,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "アルバムからパートナーの写真を選択"
+            "value" : "アルバムからペットの写真を選択"
           }
         },
         "zh-Hans" : {
@@ -41025,7 +41025,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "赤い封筒スタジオ"
+            "value" : "紅包カバースタジオ"
           }
         },
         "zh-Hans" : {
@@ -41476,7 +41476,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "パートナーのプロフィールと写真を追加すると、誕生日、家族になった日、振り返る価値のある思い出を思い出させるでしょう。"
+            "value" : "うちの子プロフィールと写真を追加すると、誕生日やお迎え記念日、振り返りたい思い出をお知らせします。"
           }
         },
         "zh-Hans" : {
@@ -41558,7 +41558,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "まだ見たい記憶がない"
+            "value" : "振り返る思い出はまだありません"
           }
         },
         "zh-Hans" : {
@@ -41722,7 +41722,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "今後の日々"
+            "value" : "もうすぐ迎える日"
           }
         },
         "zh-Hans" : {
@@ -41763,7 +41763,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "見られる思い出"
+            "value" : "お知らせ"
           }
         },
         "zh-Hans" : {
@@ -41927,7 +41927,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%@ は %lld日に帰宅しました"
+            "value" : "%@をお迎えして%lld日"
           }
         },
         "zh-Hans" : {
@@ -41968,7 +41968,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "空"
+            "value" : "日"
           }
         },
         "zh-Hans" : {
@@ -42009,7 +42009,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "残り %lld日あります"
+            "value" : "あと%lld日"
           }
         },
         "zh-Hans" : {
@@ -42173,7 +42173,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "暗い"
+            "value" : "ダーク"
           }
         },
         "zh-Hans" : {
@@ -42214,7 +42214,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "明るい色"
+            "value" : "ライト"
           }
         },
         "zh-Hans" : {
@@ -42255,7 +42255,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "システムに従ってください"
+            "value" : "システム設定に合わせる"
           }
         },
         "zh-Hans" : {
@@ -42378,7 +42378,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "エクスポートの開始"
+            "value" : "書き出しを開始"
           }
         },
         "zh-Hans" : {
@@ -42419,7 +42419,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "エクスポートでは、元のイメージとすべてのファイルが .milensbackupファイルにパッケージ化されます。写真の枚数が多い場合は時間がかかる場合がございます。"
+            "value" : "元の写真とすべてのプロフィールを.milensbackupファイルにまとめます。写真が多い場合は時間がかかることがあります。"
           }
         },
         "zh-Hans" : {
@@ -42460,7 +42460,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "パートナーファイル：%1$lld"
+            "value" : "プロフィール：%1$lld件"
           }
         },
         "zh-Hans" : {
@@ -42501,7 +42501,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "写真：%1$lld写真"
+            "value" : "写真：%1$lld枚"
           }
         },
         "zh-Hans" : {
@@ -42583,7 +42583,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "エクスポート内容の確認"
+            "value" : "書き出す内容を確認"
           }
         },
         "zh-Hans" : {
@@ -42624,7 +42624,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "バックアップエクスポート"
+            "value" : "バックアップを書き出す"
           }
         },
         "zh-Hans" : {
@@ -42665,7 +42665,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "バックアップが生成されました"
+            "value" : "バックアップを作成しました"
           }
         },
         "zh-Hans" : {
@@ -42706,7 +42706,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "保存場所を選択します：ファイルApp、iCloud Drive、またはコンピューターへのAirDrop。この思い出を大切に保管して、いつでも温かい物語をそばに置いてください。"
+            "value" : "保存先を選んでください：「ファイル」App、iCloud Drive、またはAirDrop。大切な思い出を安全な場所に保管しましょう。"
           }
         },
         "zh-Hans" : {
@@ -42747,7 +42747,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "操作が失敗しました"
+            "value" : "操作に失敗しました"
           }
         },
         "zh-Hans" : {
@@ -42788,7 +42788,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "あなたと友達が一緒に過ごす毎日は、そのままにしておく価値があります。貴重な思い出を保護するために、定期的に「バックアップエクスポート」を使用して .milensbackupファイルを生成し、それらをiCloudディスクに保存するか、コンピュータにエアドロップすることをお勧めします。"
+            "value" : "うちの子との大切な日々を守るため、定期的にバックアップを書き出し、iCloud DriveやAirDropで安全な場所に保存することをおすすめします。"
           }
         },
         "zh-Hans" : {
@@ -42829,7 +42829,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "データセキュリティのヒント"
+            "value" : "データを安全に保つために"
           }
         },
         "zh-Hans" : {
@@ -42870,7 +42870,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "最後のバックアップ %1$@"
+            "value" : "前回のバックアップ：%1$@"
           }
         },
         "zh-Hans" : {
@@ -42911,7 +42911,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "バックアップポリシーが更新されました"
+            "value" : "バックアップ設定を更新しました"
           }
         },
         "zh-Hans" : {
@@ -42952,7 +42952,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "既存の写真は新しいポリシーで再タグ付けされました。"
+            "value" : "保存済みの写真にも新しい設定を適用しました。"
           }
         },
         "zh-Hans" : {
@@ -42993,7 +42993,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "このエクスポートは %1$lldボリュームファイルに分割されています。すべて保存してください。"
+            "value" : "バックアップは%1$lld個の分割ファイルです。すべて保存してください。"
           }
         },
         "zh-Hans" : {
@@ -43034,7 +43034,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "まだバックアップしていません。思い出をまるごと残しておきましょう"
+            "value" : "バックアップはまだありません。大切な思い出を残しましょう"
           }
         },
         "zh-Hans" : {
@@ -43075,7 +43075,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "良い"
+            "value" : "OK"
           }
         },
         "zh-Hans" : {
@@ -43116,7 +43116,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "アーカイブ情報を収集する"
+            "value" : "プロフィール情報を収集中"
           }
         },
         "zh-Hans" : {
@@ -43157,7 +43157,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "圧縮梱包"
+            "value" : "圧縮してまとめています"
           }
         },
         "zh-Hans" : {
@@ -43198,7 +43198,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "写真ファイルをコピーする"
+            "value" : "写真をコピー中"
           }
         },
         "zh-Hans" : {
@@ -43239,7 +43239,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "ほぼ完成"
+            "value" : "まもなく完了"
           }
         },
         "zh-Hans" : {
@@ -43321,7 +43321,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "システムバックアップに写真のコピーが含まれています"
+            "value" : "写真のコピーをシステムバックアップに含める"
           }
         },
         "zh-Hans" : {
@@ -43362,7 +43362,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "iCloudストレージ容量を節約するにはオフにします （元の画像は「写真」アプリから再構築できます）。オンにすると、インポートされたコピーがシステムバックアップとともに保存されるため、データの安全性が高まります。"
+            "value" : "オフにするとiCloudの容量を節約できます（元の写真から再作成可能）。オンにすると、取り込んだコピーもシステムバックアップに保存されます。"
           }
         },
         "zh-Hans" : {
@@ -43403,7 +43403,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "プロ専用の機能"
+            "value" : "Pro限定機能"
           }
         },
         "zh-Hans" : {
@@ -43444,7 +43444,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "バックアップと復元"
+            "value" : "バックアップから復元"
           }
         },
         "zh-Hans" : {
@@ -43485,7 +43485,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "復旧完了"
+            "value" : "復元が完了しました"
           }
         },
         "zh-Hans" : {
@@ -43526,7 +43526,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%1$lldファイル、%2$lld写真、%3$lldイベントをインポートしました （%4$lld項目はスキップされました）"
+            "value" : "プロフィール%1$lld件、写真%2$lld枚、イベント%3$lld件を取り込みました（既存の%4$lld件はスキップ）"
           }
         },
         "zh-Hans" : {
@@ -43567,7 +43567,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "バックアップを保存または共有する"
+            "value" : "バックアップを保存または共有"
           }
         },
         "zh-Hans" : {
@@ -43608,7 +43608,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "バックアップパッケージは標準のZIP形式です。Windowsコンピューターでは、拡張子 .milensbackupを .zipに変更して解凍し、写真とメタデータを表示します。"
+            "value" : "バックアップは標準のZIP形式です。Windowsでは拡張子を.milensbackupから.zipに変更すると、写真とメタデータを確認できます。"
           }
         },
         "zh-Hans" : {
@@ -43649,7 +43649,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "全て"
+            "value" : "すべて"
           }
         },
         "zh-Hans" : {
@@ -43772,7 +43772,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "揺れない"
+            "value" : "動かさない"
           }
         },
         "zh-Hans" : {
@@ -43813,7 +43813,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "ベルリマインダー"
+            "value" : "ベルのアニメーション"
           }
         },
         "zh-Hans" : {
@@ -43936,7 +43936,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "知っていた"
+            "value" : "OK"
           }
         },
         "zh-Hans" : {
@@ -43977,7 +43977,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "通知許可が有効になっていません"
+            "value" : "通知が許可されていません"
           }
         },
         "zh-Hans" : {
@@ -44018,7 +44018,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "オンにすると、誕生日や家族になった日の09:00にリマインダーが送信されます。マイルストーンやタイムマシンが適切なタイミングで知らせてくれます。"
+            "value" : "オンにすると、誕生日とお迎え記念日の09:00に通知します。節目や過去の今日の思い出も、適切なタイミングでお知らせします。"
           }
         },
         "zh-Hans" : {
@@ -44182,7 +44182,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "ローカルデータとプライバシーに関する通知"
+            "value" : "端末内データとプライバシー"
           }
         },
         "zh-Hans" : {
@@ -44264,7 +44264,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "ロック解除されたMiLens Pro"
+            "value" : "MiLens Proを利用中"
           }
         },
         "zh-Hans" : {
@@ -44305,7 +44305,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "より多くのパートナー、より長いレビュー、そして完全なエクスポート"
+            "value" : "もっと多くのうちの子、すべての思い出、高画質書き出し"
           }
         },
         "zh-Hans" : {
@@ -44346,7 +44346,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "ご支援のおかげで長期アーカイブが完成しました"
+            "value" : "ご利用ありがとうございます。すべての記録を残せます"
           }
         },
         "zh-Hans" : {
@@ -44387,7 +44387,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "プロについて詳しく見る→"
+            "value" : "Proについて詳しく見る →"
           }
         },
         "zh-Hans" : {
@@ -44469,7 +44469,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "長期アーカイブをより完全なものにする"
+            "value" : "大切な記録をもっと豊かに"
           }
         },
         "zh-Hans" : {
@@ -44510,7 +44510,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "すべての機能がロック解除されました"
+            "value" : "すべての機能を利用できます"
           }
         },
         "zh-Hans" : {
@@ -44551,7 +44551,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "サブスクリプションを管理する"
+            "value" : "サブスクリプションを管理"
           }
         },
         "zh-Hans" : {
@@ -44592,7 +44592,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "完全なPindou Studioと画像エディターのロックを解除します"
+            "value" : "ビーズスタジオと写真エディタの全機能を解放"
           }
         },
         "zh-Hans" : {
@@ -44633,7 +44633,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "MiLens Proのロックを解除する"
+            "value" : "MiLens Proを解放"
           }
         },
         "zh-Hans" : {
@@ -44756,7 +44756,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "通知する"
+            "value" : "通知"
           }
         },
         "zh-Hans" : {
@@ -44879,7 +44879,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "MiLensプロ"
+            "value" : "MiLens Pro"
           }
         },
         "zh-Hans" : {
@@ -44961,7 +44961,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%1$lld/%2$lld個"
+            "value" : "%1$lld/%2$lld枚"
           }
         },
         "zh-Hans" : {
@@ -45125,7 +45125,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "私の"
+            "value" : "マイページ"
           }
         },
         "zh-Hans" : {
@@ -45207,7 +45207,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "完成品を共有する"
+            "value" : "作品を共有"
           }
         },
         "zh-Hans" : {
@@ -45248,7 +45248,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "システム共有の目標"
+            "value" : "共有先"
           }
         },
         "zh-Hans" : {
@@ -45289,7 +45289,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "もっと"
+            "value" : "その他"
           }
         },
         "zh-Hans" : {
@@ -45330,7 +45330,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "写真はデバイス上で生成されます。アクティブに共有されている場合にのみ、MiLensから離れます。"
+            "value" : "写真は端末上で作成され、共有操作をしたときだけMiLensの外へ送られます。"
           }
         },
         "zh-Hans" : {
@@ -45371,7 +45371,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "保存して共有する"
+            "value" : "保存と共有"
           }
         },
         "zh-Hans" : {
@@ -45412,7 +45412,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "ティックトック"
+            "value" : "Douyin（抖音）"
           }
         },
         "zh-Hans" : {
@@ -45453,7 +45453,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "瞬間"
+            "value" : "WeChatモーメンツ"
           }
         },
         "zh-Hans" : {
@@ -45494,7 +45494,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "小さな赤い本"
+            "value" : "RED（小紅書）"
           }
         },
         "zh-Hans" : {
@@ -45535,7 +45535,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "微信"
+            "value" : "WeChat"
           }
         },
         "zh-Hans" : {
@@ -45576,7 +45576,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "閉鎖"
+            "value" : "閉じる"
           }
         },
         "zh-Hans" : {
@@ -45617,7 +45617,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "この写真はすでに存在します\nもう一つの滞在方法。"
+            "value" : "この写真に、\n新しい残し方ができました。"
           }
         },
         "zh-Hans" : {
@@ -45658,7 +45658,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "すぐに保管可能"
+            "value" : "READY TO KEEP"
           }
         },
         "zh-Hans" : {
@@ -45740,7 +45740,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "さらなるプラットフォーム"
+            "value" : "その他の共有先"
           }
         },
         "zh-Hans" : {
@@ -45781,7 +45781,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "ソーシャルプラットフォームで共有して、より多くの人に見てもらいましょう"
+            "value" : "作品を共有して、もっと多くの人に届けましょう"
           }
         },
         "zh-Hans" : {
@@ -45822,7 +45822,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "自分の作品を共有する"
+            "value" : "作品を共有"
           }
         },
         "zh-Hans" : {
@@ -45863,7 +45863,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "無料版ではMiLensウォーターマークを付けてエクスポートしますが、Proにアップグレードすると削除できます。"
+            "value" : "無料版の書き出しにはMiLensの透かしが入ります。Proでは透かしを削除できます。"
           }
         },
         "zh-Hans" : {
@@ -45945,7 +45945,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "交換する"
+            "value" : "変更"
           }
         },
         "zh-Hans" : {
@@ -45986,7 +45986,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "出典写真"
+            "value" : "元の写真"
           }
         },
         "zh-Hans" : {
@@ -46109,7 +46109,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "創造"
+            "value" : "つくる"
           }
         },
         "zh-Hans" : {
@@ -46150,7 +46150,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "フロントページ"
+            "value" : "ホーム"
           }
         },
         "zh-Hans" : {
@@ -46191,7 +46191,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "パートナー"
+            "value" : "うちの子"
           }
         },
         "zh-Hans" : {
@@ -46232,7 +46232,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "私の"
+            "value" : "マイページ"
           }
         },
         "zh-Hans" : {
@@ -46314,7 +46314,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "文章を書きます（オプション）"
+            "value" : "ひとことを入力（任意）"
           }
         },
         "zh-Hans" : {
@@ -46355,7 +46355,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "思い出の追加機能は近日公開予定です。お楽しみに。"
+            "value" : "思い出を追加する機能は近日公開予定です。お楽しみに。"
           }
         },
         "zh-Hans" : {
@@ -46396,7 +46396,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "コンテンツ"
+            "value" : "内容"
           }
         },
         "zh-Hans" : {
@@ -46478,7 +46478,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "まずパートナープロフィールを作成してください"
+            "value" : "先にうちの子プロフィールを作成してください"
           }
         },
         "zh-Hans" : {
@@ -46519,7 +46519,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "写真とは関係ありません"
+            "value" : "写真を関連付けない"
           }
         },
         "zh-Hans" : {
@@ -46601,7 +46601,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "所属パートナー"
+            "value" : "うちの子"
           }
         },
         "zh-Hans" : {
@@ -46642,7 +46642,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "ファイルのホームページにピン留めする"
+            "value" : "プロフィールの先頭に表示"
           }
         },
         "zh-Hans" : {
@@ -46683,7 +46683,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "関連写真"
+            "value" : "関連する写真"
           }
         },
         "zh-Hans" : {
@@ -46765,7 +46765,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "保存に失敗しました。もう一度お試しください"
+            "value" : "保存できませんでした。もう一度お試しください"
           }
         },
         "zh-Hans" : {
@@ -46806,7 +46806,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "タイトルを付けてください"
+            "value" : "タイトルを付ける"
           }
         },
         "zh-Hans" : {
@@ -46888,7 +46888,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "すべてのパートナー"
+            "value" : "すべてのペット"
           }
         },
         "zh-Hans" : {
@@ -46929,7 +46929,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%lldの誕生日"
+            "value" : "%lld回目の誕生日"
           }
         },
         "zh-Hans" : {
@@ -46970,7 +46970,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%@%lld歳！ 🎂"
+            "value" : "%@、%lld歳になりました！🎂"
           }
         },
         "zh-Hans" : {
@@ -47011,7 +47011,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "日常生活を共有の歴史に変える"
+            "value" : "何気ない毎日を、ふたりの歴史へ"
           }
         },
         "zh-Hans" : {
@@ -47052,7 +47052,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "一緒に暮らして %lld年"
+            "value" : "一緒に暮らして%lld年目"
           }
         },
         "zh-Hans" : {
@@ -47093,7 +47093,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "パートナーのプロフィールと写真を追加すると、ここで成長タイムラインが自動的に生成されます。"
+            "value" : "うちの子プロフィールと写真を追加すると、成長タイムラインが自動で作られます"
           }
         },
         "zh-Hans" : {
@@ -47134,7 +47134,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "成長記録はまだありません"
+            "value" : "成長の記録はまだありません"
           }
         },
         "zh-Hans" : {
@@ -47175,7 +47175,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%@ と家族になった日"
+            "value" : "%@と家族になった日"
           }
         },
         "zh-Hans" : {
@@ -47216,7 +47216,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%@ の誕生日"
+            "value" : "%@の誕生日"
           }
         },
         "zh-Hans" : {
@@ -47337,7 +47337,7 @@
               "other" : {
                 "stringUnit" : {
                   "state" : "translated",
-                  "value" : "%lldレコード"
+                  "value" : "%lld件の記録"
                 }
               }
             }
@@ -47393,7 +47393,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "MiLens制作"
+            "value" : "MiLensで作成"
           }
         },
         "zh-Hans" : {
@@ -47434,7 +47434,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "エクスポートに失敗しました"
+            "value" : "書き出しに失敗しました"
           }
         },
         "zh-Hans" : {
@@ -47475,7 +47475,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "エクスポートに失敗しました：%@"
+            "value" : "書き出しに失敗しました：%@"
           }
         },
         "zh-Hans" : {
@@ -47516,7 +47516,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "全て"
+            "value" : "すべて"
           }
         },
         "zh-Hans" : {
@@ -47557,7 +47557,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "MiLens Proをアップグレードして、完全な成長タイムラインを表示します"
+            "value" : "MiLens Proにアップグレードして、すべての成長タイムラインを見る"
           }
         },
         "zh-Hans" : {
@@ -47598,7 +47598,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "1年前の物語はまだあなたのために保存されています"
+            "value" : "1年以上前の物語も、大切に保存しています"
           }
         },
         "zh-Hans" : {
@@ -47639,7 +47639,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "MiLens Proをアップグレードすると、1年前の成長記録を確認できます。"
+            "value" : "MiLens Proにアップグレードすると、1年以上前の成長記録も見られます。"
           }
         },
         "zh-Hans" : {
@@ -47680,7 +47680,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "あなたの初期のストーリーはまだここにあります"
+            "value" : "最初のころの物語も、ここにあります"
           }
         },
         "zh-Hans" : {
@@ -47721,7 +47721,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "写真の記憶"
+            "value" : "写真の思い出"
           }
         },
         "zh-Hans" : {
@@ -47762,7 +47762,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "単語の記憶"
+            "value" : "ことばの思い出"
           }
         },
         "zh-Hans" : {
@@ -47803,7 +47803,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "作業記録"
+            "value" : "作品の記録"
           }
         },
         "zh-Hans" : {
@@ -48060,7 +48060,7 @@
               "other" : {
                 "stringUnit" : {
                   "state" : "translated",
-                  "value" : "完全なタイムラインエクスペリエンスは残り %lld日です"
+                  "value" : "すべてのタイムラインを見られる期間は、あと%lld日です"
                 }
               }
             }
@@ -48116,7 +48116,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "今すぐロックを解除して全文の保存を続けてください"
+            "value" : "今すぐ解放して、すべての物語を残す"
           }
         },
         "zh-Hans" : {
@@ -48157,7 +48157,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%@ は急速に増加しているため、登録する写真を再選択することをお勧めします"
+            "value" : "%@が成長しています。写真を選び直して特徴を更新することをおすすめします"
           }
         },
         "zh-Hans" : {
@@ -48198,7 +48198,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%@ の参照写真を更新することをお勧めします。"
+            "value" : "%@の参考写真を更新しませんか"
           }
         },
         "zh-Hans" : {
@@ -48239,7 +48239,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "タイムラインのレンダリングに失敗しました。もう一度お試しください。"
+            "value" : "タイムラインを表示できませんでした。もう一度お試しください。"
           }
         },
         "zh-Hans" : {
@@ -48280,7 +48280,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "成長スケジュール"
+            "value" : "成長タイムライン"
           }
         },
         "zh-Hans" : {
@@ -48321,7 +48321,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "周年"
+            "value" : "お迎え記念日"
           }
         },
         "zh-Hans" : {
@@ -48403,7 +48403,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "プロの特典を見る"
+            "value" : "Proの特典を見る"
           }
         },
         "zh-Hans" : {
@@ -48444,7 +48444,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "写真から生成された"
+            "value" : "一枚の写真から作成"
           }
         },
         "zh-Hans" : {
@@ -48485,7 +48485,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "保存されました"
+            "value" : "保存済み"
           }
         },
         "zh-Hans" : {
@@ -48621,7 +48621,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "WeChatで共有する"
+            "value" : "WeChatで共有"
           }
         },
         "zh-Hans" : {
@@ -48662,7 +48662,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "カバーの準備ができましたので、\n次に、それをWeChatに渡します。"
+            "value" : "カバー画像ができました。\n次はWeChatへアップロードします。"
           }
         },
         "zh-Hans" : {
@@ -48703,7 +48703,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "MiLensは生成とエクスポートのみを担当します。アップロード、レビュー、公開はすべてWeChat上で完了します。"
+            "value" : "MiLensで行うのは画像の作成と書き出しだけです。アップロード、審査、公開はWeChat上で行います。"
           }
         },
         "zh-Hans" : {
@@ -48785,7 +48785,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "輸出仕様書に合格しました"
+            "value" : "書き出し仕様を満たしています"
           }
         },
         "zh-Hans" : {
@@ -48826,7 +48826,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "無料版 · MiLensの小さなフォントの透かしが含まれています"
+            "value" : "無料版・小さなMiLensの透かし入り"
           }
         },
         "zh-Hans" : {
@@ -48867,7 +48867,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "保存する際は元のサイズを選択してください。"
+            "value" : "保存時は元のサイズを選んでください。"
           }
         },
         "zh-Hans" : {
@@ -48908,7 +48908,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "まずカバー画像を「写真」アプリに保存します"
+            "value" : "カバー画像を「写真」アプリに保存"
           }
         },
         "zh-Hans" : {
@@ -48949,7 +48949,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "ブラウザにログインし、「カスタマイズ」に進みます。"
+            "value" : "ブラウザでログインし、「カスタマイズ」へ進みます。"
           }
         },
         "zh-Hans" : {
@@ -48990,7 +48990,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "WeChatの赤い封筒のカバーを開くオープンプラットフォーム"
+            "value" : "WeChat紅包カバーのオープンプラットフォームを開く"
           }
         },
         "zh-Hans" : {
@@ -49031,7 +49031,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "2重圧縮は行わず、本体が完成していることを確認してください。"
+            "value" : "再圧縮せず、被写体がすべて収まっていることを確認してください。"
           }
         },
         "zh-Hans" : {
@@ -49072,7 +49072,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "カバー画像をアップロードしてトリミングを確認する"
+            "value" : "カバー画像をアップロードして切り抜きを確認"
           }
         },
         "zh-Hans" : {
@@ -49113,7 +49113,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "レビューのステータスと結果は、WeChatプラットフォームによって提供されます。"
+            "value" : "審査状況と結果はWeChat上で確認できます。"
           }
         },
         "zh-Hans" : {
@@ -49154,7 +49154,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "プラットフォームのプロセスに従って審査のために送信する"
+            "value" : "画面の案内に沿って審査へ提出"
           }
         },
         "zh-Hans" : {
@@ -49195,7 +49195,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "アップロードのガイドライン"
+            "value" : "アップロード手順"
           }
         },
         "zh-Hans" : {
@@ -49235,7 +49235,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : ""
+            "value" : "・"
           }
         },
         "zh-Hant" : {
@@ -49269,7 +49269,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : ""
+            "value" : "−"
           }
         },
         "zh-Hant" : {
@@ -49303,7 +49303,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "その最初のファイルを作成します"
+            "value" : "この子の最初のプロフィールを作成"
           }
         },
         "zh-Hant" : {
@@ -49371,7 +49371,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "透明な背景は保存後もPNG形式で保持されます"
+            "value" : "保存すると、透明な背景を保ったPNG形式で書き出されます"
           }
         },
         "zh-Hant" : {
@@ -49439,7 +49439,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "元画像プレビュー ・生成直後にスペル効果が表示されます。"
+            "value" : "元の写真・生成したアイロンビーズ図案がここに表示されます"
           }
         },
         "zh-Hant" : {
@@ -49473,7 +49473,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "「設定 → プライバシーとセキュリティ → 写真」でオンにすることも、後でアルバムページで承認することもできます"
+            "value" : "「設定」→「プライバシーとセキュリティ」→「写真」で許可できます。あとでアルバム画面から設定することもできます"
           }
         },
         "zh-Hant" : {
@@ -49507,7 +49507,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "「本体のみ」を有効にすると自動で記憶されます。失敗後も、元のイメージが引き続き使用されて生成が継続されます。"
+            "value" : "「被写体のみ」をオンにすると自動で背景を切り抜きます。失敗した場合は元の写真を使って生成を続けます"
           }
         },
         "zh-Hant" : {
@@ -49541,7 +49541,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "毎日それと一緒に"
+            "value" : "この子と過ごす毎日"
           }
         },
         "zh-Hant" : {
@@ -49609,7 +49609,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "アートワークのサイズ"
+            "value" : "図案サイズ"
           }
         },
         "zh-Hant" : {
@@ -49643,7 +49643,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "写真選択機能は次のバージョンでサポートされる予定です"
+            "value" : "プロフィール写真の選択は今後のバージョンで対応予定です"
           }
         },
         "zh-Hant" : {
@@ -49677,7 +49677,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "フォントレベル"
+            "value" : "文字サイズ"
           }
         },
         "zh-Hant" : {
@@ -49711,7 +49711,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "その名前は何ですか？"
+            "value" : "この子の名前を教えてください"
           }
         },
         "zh-Hant" : {
@@ -49745,7 +49745,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "毛むくじゃらの子供のカード"
+            "value" : "うちの子カード"
           }
         },
         "zh-Hant" : {
@@ -49779,7 +49779,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "始めましょう"
+            "value" : "はじめる"
           }
         },
         "zh-Hant" : {
@@ -49813,7 +49813,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "現在の計画"
+            "value" : "現在の設定"
           }
         },
         "zh-Hant" : {
@@ -49847,7 +49847,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "私たちはそれを見つけました"
+            "value" : "この子を見つけました"
           }
         },
         "zh-Hant" : {
@@ -49881,7 +49881,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "読んで同意します"
+            "value" : "内容を確認し、同意します"
           }
         },
         "zh-Hant" : {
@@ -49915,7 +49915,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "一生ここに残しておいてください"
+            "value" : "この子の一生を、ここに残す"
           }
         },
         "zh-Hant" : {
@@ -49949,7 +49949,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "ピンドゥオのアートワーク"
+            "value" : "アイロンビーズ図案"
           }
         },
         "zh-Hant" : {
@@ -49983,7 +49983,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "おすすめ：ピンドゥのイラスト"
+            "value" : "おすすめ：アイロンビーズ風イラスト"
           }
         },
         "zh-Hant" : {
@@ -50051,7 +50051,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "素材一覧"
+            "value" : "材料リスト"
           }
         },
         "zh-Hant" : {
@@ -50085,7 +50085,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "ファイルが作成されました"
+            "value" : "プロフィールを作成しました"
           }
         },
         "zh-Hant" : {
@@ -50119,7 +50119,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "一般化"
+            "value" : "簡略化"
           }
         },
         "zh-Hant" : {
@@ -50153,7 +50153,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "特別な運命"
+            "value" : "特別なご縁"
           }
         },
         "zh-Hant" : {
@@ -50187,7 +50187,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "わかった"
+            "value" : "わかりました"
           }
         },
         "zh-Hant" : {
@@ -50221,7 +50221,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "この愛らしい赤ちゃんは、このアプリの開発者と同じ日に生まれました。\nスクリーンの前にいて、このような尊い命を守ってくれてありがとう。"
+            "value" : "このかわいい子は、アプリ開発者と同じ誕生日です。\n大切な命を見守ってくださるあなたに、心から感謝します。"
           }
         },
         "zh-Hant" : {
@@ -50255,7 +50255,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "エフェクトを選択"
+            "value" : "仕上がりを選択"
           }
         },
         "zh-Hant" : {
@@ -50289,7 +50289,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "プライバシー第一"
+            "value" : "プライバシーを最優先"
           }
         },
         "zh-Hant" : {
@@ -50323,7 +50323,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "色量"
+            "value" : "色数"
           }
         },
         "zh-Hant" : {
@@ -50357,7 +50357,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "色の変化"
+            "value" : "色のなじみ方"
           }
         },
         "zh-Hant" : {
@@ -50391,7 +50391,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : ""
+            "value" : "🎂"
           }
         },
         "zh-Hant" : {
@@ -50425,7 +50425,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "💡 アートワークを拡大すると番号が表示されます"
+            "value" : "💡 図案を拡大すると番号が表示されます"
           }
         },
         "zh-Hant" : {

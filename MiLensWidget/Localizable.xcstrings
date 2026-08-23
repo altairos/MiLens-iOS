@@ -107,7 +107,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%1$@ · %2$@"
+            "value" : "%1$@・%2$@"
           }
         },
         "zh-Hans" : {
@@ -230,7 +230,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "最初にパートナーのプロフィールを作成しましょう"
+            "value" : "まず、うちの子プロフィールを作成しましょう"
           }
         },
         "zh-Hans" : {
@@ -271,7 +271,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "周年"
+            "value" : "記念日"
           }
         },
         "zh-Hans" : {
@@ -312,7 +312,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "パートナー"
+            "value" : "うちの子"
           }
         },
         "zh-Hans" : {
@@ -353,7 +353,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "自動（最新）"
+            "value" : "自動（直近）"
           }
         },
         "zh-Hans" : {
@@ -394,7 +394,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "どのパートナーに対してどの記念日カウントダウンを表示するかを選択してください"
+            "value" : "表示するうちの子と記念日のカウントダウンを選びます"
           }
         },
         "zh-Hans" : {
@@ -435,7 +435,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "記念日設定"
+            "value" : "記念日の設定"
           }
         },
         "zh-Hans" : {
@@ -476,7 +476,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "すべてのパートナー"
+            "value" : "すべてのペット"
           }
         },
         "zh-Hans" : {
@@ -517,7 +517,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "コンテンツ"
+            "value" : "表示内容"
           }
         },
         "zh-Hans" : {
@@ -558,7 +558,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "コンテンツソース"
+            "value" : "写真の種類"
           }
         },
         "zh-Hans" : {
@@ -599,7 +599,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "どのパートナーのどの写真を表示するかを選択してください"
+            "value" : "表示するうちの子と写真の種類を選びます"
           }
         },
         "zh-Hans" : {
@@ -640,7 +640,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "フォトエコー設定"
+            "value" : "フォトエコーの設定"
           }
         },
         "zh-Hans" : {
@@ -722,7 +722,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "今日/最近"
+            "value" : "今日または最近"
           }
         },
         "zh-Hans" : {
@@ -763,7 +763,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "過去の思い出"
+            "value" : "あの日の思い出"
           }
         },
         "zh-Hans" : {
@@ -804,7 +804,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "このウィジェットで表示されるパートナープロフィールを選択します"
+            "value" : "このウィジェットに表示するうちの子プロフィールを選びます"
           }
         },
         "zh-Hans" : {
@@ -845,7 +845,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "パートナーを選択してください"
+            "value" : "うちの子を選択"
           }
         },
         "zh-Hans" : {
@@ -886,7 +886,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "このアーカイブにはどれくらいの期間、どれだけの写真が、どれだけの思い出が蓄積されてきたのでしょうか？"
+            "value" : "一緒に過ごした日々と、写真や思い出の数を振り返ります"
           }
         },
         "zh-Hans" : {
@@ -968,7 +968,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "年輪をアーカイブする"
+            "value" : "思い出の年輪"
           }
         },
         "zh-Hans" : {
@@ -1091,7 +1091,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "仕事"
+            "value" : "作品"
           }
         },
         "zh-Hans" : {
@@ -1173,7 +1173,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "ファイルを作成する"
+            "value" : "プロフィールを作成"
           }
         },
         "zh-Hans" : {
@@ -1214,7 +1214,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "パートナーの名前と日付と思い出のタイトル"
+            "value" : "うちの子の名前と、思い出の日付・タイトルを表示します"
           }
         },
         "zh-Hans" : {
@@ -1255,7 +1255,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "思い出"
+            "value" : "ひとつの思い出"
           }
         },
         "zh-Hans" : {
@@ -1296,7 +1296,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "記録予定"
+            "value" : "まだ記録がありません"
           }
         },
         "zh-Hans" : {
@@ -1337,7 +1337,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "今日、過去、最近の写真を振り返ってください"
+            "value" : "今日、過去の今日、または最近の写真を振り返ります"
           }
         },
         "zh-Hans" : {
@@ -1378,7 +1378,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "写真を残す"
+            "value" : "最初の写真を残しましょう"
           }
         },
         "zh-Hans" : {
@@ -1419,7 +1419,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "MiLens · %@"
+            "value" : "MiLens・%@"
           }
         },
         "zh-Hans" : {
@@ -1501,7 +1501,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%@ に更新されました"
+            "value" : "%@に更新"
           }
         },
         "zh-Hans" : {
@@ -1583,7 +1583,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%lld日間同行"
+            "value" : "家族になって%lld日"
           }
         },
         "zh-Hans" : {
@@ -1665,7 +1665,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%lld日が記録されました"
+            "value" : "記録を始めて%lld日"
           }
         },
         "zh-Hans" : {
@@ -1706,7 +1706,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "記念日までのカウントダウンを指定するか、最も近い記念日を自動的に選択します"
+            "value" : "記念日を指定するか、直近の記念日を自動で表示します"
           }
         },
         "zh-Hans" : {
@@ -1747,7 +1747,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "この記念日はもう存在しません"
+            "value" : "この記念日は削除されています"
           }
         },
         "zh-Hans" : {
@@ -1788,7 +1788,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "まだ記念日はありません"
+            "value" : "記念日はまだありません"
           }
         },
         "zh-Hans" : {
@@ -1829,7 +1829,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "周年"
+            "value" : "記念日"
           }
         },
         "zh-Hans" : {
@@ -1870,7 +1870,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "残り %lld日"
+            "value" : "あと%lld日"
           }
         },
         "zh-Hans" : {
@@ -1911,7 +1911,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "今日がその日です"
+            "value" : "今日は記念日です"
           }
         },
         "zh-Hans" : {

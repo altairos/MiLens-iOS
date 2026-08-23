@@ -2,7 +2,7 @@
 
 > **首发范围变更（2026-08-22）**：首发支持 6 种语言：zh-Hans、zh-Hant、ja、en、fr、de。韩文（ko）延期，不纳入首发翻译、商店资产、隐私政策、截图和验收；文档中保留的韩国市场内容仅作为后续版本备忘。
 
-最后更新：2026-08-22（全量德文本地化 100% 完成：全部 1256 个 key 注入 String Catalog，遵循 Bügelperlen / Haustier（功能层）/ dein Liebling（情感层）/ du 亲昵称谓规范，0 缺译、0 占位符漂移、21 条 plural 规范化；全量法文本地化 100% 完成：全部 1245 个 key 注入 String Catalog，遵循 compagnon / perles à repasser 术语规范，0 缺译、0 占位符漂移、0 格式问题；2026-08-21 全量英文本地化 100% 完成：全部 1239 个 key 注入 String Catalog，遵循 pal/pals 术语规范，0 缺译、0 占位符漂移、0 格式问题；2026-08-17 回退 1c623e9 误入主 catalog 的 117 条 en 初译，修复 commit b3b0a79，CI 全绿 run 31961932575——红线教训见 §5.4：翻译完整导入前 catalog 只能含源语言；2026-08-16 MiLensWidget 接入 String Catalog，工具链支持多 catalog × 多源码根与 Excel sheet 去歧义；2026-08-15 CI 缺译门禁过渡期降级 `--allow-missing-translations`；2026-08-10 定案首发 7 语言：zh-Hans / zh-Hant / ja / ko / en / fr / de）
+最后更新：2026-08-23（全量日文本地化重译完成：App / InfoPlist / Widget 共 1256 个 key 全部收进 `tools/ja_translations.json` 单一事实源，按「ペット（功能层）／うちの子・この子（情感层）／大切な家族（叙事层）」规范重译，清除裸词「パートナー」及既有量词、拼豆、隐私、付费语义误译；严格门禁 0 缺译、0 `needs_review`、0 占位符漂移；全量德文本地化 100% 完成：全部 1256 个 key 注入 String Catalog，遵循 Bügelperlen / Haustier（功能层）/ dein Liebling（情感层）/ du 亲昵称谓规范，0 缺译、0 占位符漂移、21 条 plural 规范化；全量法文本地化 100% 完成：全部 1245 个 key 注入 String Catalog，遵循 compagnon / perles à repasser 术语规范，0 缺译、0 占位符漂移、0 格式问题；2026-08-21 全量英文本地化 100% 完成：全部 1239 个 key 注入 String Catalog，遵循 pal/pals 术语规范，0 缺译、0 占位符漂移、0 格式问题；2026-08-17 回退 1c623e9 误入主 catalog 的 117 条 en 初译，修复 commit b3b0a79，CI 全绿 run 31961932575——红线教训见 §5.4：翻译完整导入前 catalog 只能含源语言；2026-08-16 MiLensWidget 接入 String Catalog，工具链支持多 catalog × 多源码根与 Excel sheet 去歧义；2026-08-15 CI 缺译门禁过渡期降级 `--allow-missing-translations`；2026-08-10 定案首发 7 语言：zh-Hans / zh-Hant / ja / ko / en / fr / de）
 
 > 本文档是 MiLens 全球首发本地化工作的唯一事实来源：语言矩阵、各国市场注意要点、翻译工作流、质量门禁、ASO 关键词策略与时间线。工具与命令见 [DEVELOPMENT.md](../DEVELOPMENT.md) §4.5，商店文案见 [AppStore-metadata.md](AppStore-metadata.md)，商业决策见 [ADR-0010](adr/0010-commercialization-and-emotion-triggers.md)。
 
@@ -541,8 +541,8 @@ App Store 元数据与 App 内翻译分别验收，提交 ASC 前逐语言核对
 |---|---|---|---|---|---|---|
 | 拼豆图纸 | bead pattern | アイロンビーズ図案 | 비즈 도안 | Bügelperlen-Vorlage | modèle de perles à repasser | 拼豆圖稿 |
 | 拼豆工作室 | bead studio | ビーズスタジオ | 비즈 스튜디오 | Bead-Studio | studio de perles | 拼豆工作室 |
-| 伙伴档案（原宠物档案，2026-08-22 收口） | pal profile（禁用 pet，一律 pal/companion） | ペットのプロフィール | 반려동물 프로필 | Haustierprofil（功能层） | profil du compagnon | 生命檔案／毛小孩檔案 |
-| 伙伴（产品称呼，原「宠物」已收口） | pal / companion（禁用 pet） | ペット（日语中性，可用） | 반려동물 | Haustier（功能层）／Liebling（情感层） | compagnon | 毛小孩（2026-08-22 统一，不用「毛孩」） |
+| 伙伴档案（原宠物档案，2026-08-22 收口） | pal profile（禁用 pet，一律 pal/companion） | ペットプロフィール（功能层）／うちの子プロフィール（品牌、情感层） | 반려동물 프로필 | Haustierprofil（功能层） | profil du compagnon | 生命檔案／毛小孩檔案 |
+| 伙伴（产品称呼，原「宠物」已收口） | pal / companion（禁用 pet） | ペット（品类、权限、帮助等功能层）／うちの子・この子（品牌、情感层）／大切な家族（叙事层）；禁用裸词「パートナー」作为实体名 | 반려동물 | Haustier（功能层）／Liebling（情感层） | compagnon | 毛小孩（2026-08-22 统一，不用「毛孩」） |
 | 成长时间线 | growth timeline | 成長タイムライン | 성장 타임라인 | Wachstumszeitleiste | chronologie de croissance | 成長時間軸 |
 | 往日回忆 | memories | 思い出 | 추억 | Erinnerungen | souvenirs | 往日回憶 |
 | 时光机 | time machine | タイムマシン | 타임머신 | Zeitmaschine | machine à remonter le temps | 時光機 |
@@ -557,6 +557,14 @@ App Store 元数据与 App 内翻译分别验收，提交 ASC 前逐语言核对
 | 语气/语法要求 | 记录敬语、正式度、性别、复数、标点和地区差异 |
 | 审校状态 | 初译、开发者自审、母语终审、已锁定 |
 | 最后变更 | 记录变更日期、原因和受影响页面 |
+
+**日语「伙伴」分层规则（2026-08-23 定稿）**：
+
+- App Store 品类、照片权限、帮助、设置及首次出现等需要明确对象的功能语境使用「ペット」；
+- 主 Tab、登记、档案内指代等品牌与情感语境优先使用「うちの子／この子」，例如「うちの子」「うちの子を登録」「この子の写真」；
+- 品牌叙事可使用「大切な家族／かけがえのない存在」，但「家族」不作为选择器、计数或数据实体的独立名称；
+- 禁止将中文「伙伴」逐字统一翻译为裸词「パートナー」。该词只允许在宠物对象已经明确的极少量宣传句中受限定使用（如「かけがえのないパートナー」），不得用于 Tab、按钮、权限、档案名、计数和选择器；
+- 「相棒」偏随意且更像人与狗的搭档，「コンパニオンアニマル／伴侶動物」偏专业，均不作为全局产品术语。
 
 ---
 

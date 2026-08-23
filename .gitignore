@@ -53,6 +53,8 @@ Package.resolved
 tmp/
 tools/*.py
 !tools/subset-display-fonts.py
+# CI lint 作业按名运行（ci.yml「Check decoration asset catalog」），必须随仓库分发
+!tools/test_frame_import.py
 # 本地化修正管线依赖（apply_all_en.py 裸 import，必须随仓库分发）
 !tools/en_corrections.py
 !tools/apply_en_corrections.py

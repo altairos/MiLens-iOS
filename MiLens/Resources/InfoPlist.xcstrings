@@ -25,7 +25,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "ミレンズ"
+            "value" : "MiLens"
           }
         },
         "zh-Hans" : {
@@ -48,7 +48,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "MiLens benötigt Zugriff auf Fotos, um Bügelperlen-Muster, Haustierkarten und Zeitleistenbilder zu speichern."
+            "value" : "MiLens benötigt Fotozugriff, um Bügelperlen-Muster, Haustierkarten und Zeitleisten zu sichern."
           }
         },
         "en" : {
@@ -66,7 +66,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Lens は、エクスポートされたパズルの図面と写真をフォト アルバムに保存する必要があります。"
+            "value" : "MiLensは、書き出したアイロンビーズの図案と写真を「写真」アプリに保存します。"
           }
         },
         "zh-Hans" : {
@@ -89,7 +89,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Finde Fotos deines Haustiers und erstelle Profile. Alles bleibt auf dem Gerät."
+            "value" : "MiLens ordnet Haustierfotos lokal. Keine Uploads; Werke können im System-Backup liegen."
           }
         },
         "en" : {
@@ -101,13 +101,13 @@
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "MiLens accède à vos photos pour repérer et organiser celles de votre compagnon. Toute l'analyse se fait sur l'appareil ; l'app n'envoie pas de photos de sa propre initiative, et vos créations peuvent suivre les sauvegardes système que vous avez activées."
+            "value" : "MiLens organise vos photos localement, sans envoi. Les créations peuvent suivre vos sauvegardes."
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "MiLens では、パートナーの写真を見つけて整理するにはフォト アルバムにアクセスする必要があります。すべての分析はローカルで行われます。アプリは写真を自動的にアップロードしません。編集した製品は、ユーザーが有効にしたシステム バックアップとともに保存できます。"
+            "value" : "MiLensは、パートナーの写真を探して整理するために写真ライブラリへアクセスします。解析はすべて端末上で行われ、写真が自動的にアップロードされることはありません。編集した作品は、システムバックアップが有効な場合に一緒に保存されることがあります。"
           }
         },
         "zh-Hans" : {
@@ -119,7 +119,7 @@
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "咪Lens 需要存取相簿以尋找並整理您的毛小孩照片。所有分析均在本機完成，App 不會主動上傳照片；編輯後的作品可能隨您啟用的系統備份進行儲存。"
+            "value" : "咪Lens 需要存取相簿，以尋找並整理你毛小孩的照片。所有分析均在本機完成；App 不會主動上傳照片，編輯後的作品可能隨你啟用的系統備份儲存。"
           }
         }
       }

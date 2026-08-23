@@ -25,7 +25,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "天の女王"
+            "value" : "日後"
           }
         },
         "zh-Hans" : {
@@ -66,7 +66,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%lld クイーン"
+            "value" : "%lld日後"
           }
         },
         "zh-Hans" : {
@@ -148,7 +148,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "最近の"
+            "value" : "最近"
           }
         },
         "zh-Hans" : {
@@ -230,7 +230,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "最初にパートナー プロフィールを作成します"
+            "value" : "最初にパートナーのプロフィールを作成しましょう"
           }
         },
         "zh-Hans" : {
@@ -640,7 +640,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "写真エコー設定"
+            "value" : "フォトエコー設定"
           }
         },
         "zh-Hans" : {
@@ -804,7 +804,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "このウィジェットで表示されるパートナー プロフィールを選択します"
+            "value" : "このウィジェットで表示されるパートナープロフィールを選択します"
           }
         },
         "zh-Hans" : {
@@ -1009,7 +1009,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "メモリ"
+            "value" : "思い出"
           }
         },
         "zh-Hans" : {
@@ -1360,7 +1360,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Noch keine Fotos"
+            "value" : "Halte heute ein Foto fest"
           }
         },
         "en" : {
@@ -1419,7 +1419,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "ミレンズ · %@"
+            "value" : "MiLens · %@"
           }
         },
         "zh-Hans" : {
@@ -1460,7 +1460,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "写真エコー"
+            "value" : "フォトエコー"
           }
         },
         "zh-Hans" : {
@@ -1495,7 +1495,7 @@
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Mis à jour : %@"
+            "value" : "Mis à jour : %@"
           }
         },
         "ja" : {
@@ -1583,7 +1583,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%lld 日間同行"
+            "value" : "%lld日間同行"
           }
         },
         "zh-Hans" : {
@@ -1665,7 +1665,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%lld 日が記録されました"
+            "value" : "%lld日が記録されました"
           }
         },
         "zh-Hans" : {
@@ -1729,7 +1729,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Profil nicht gefunden"
+            "value" : "Dieser Jahrestag ist nicht mehr vorhanden"
           }
         },
         "en" : {
@@ -1870,7 +1870,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "残り %lld 日"
+            "value" : "残り %lld日"
           }
         },
         "zh-Hans" : {

@@ -13,7 +13,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "days later"
+            "value" : "In"
           }
         },
         "fr" : {
@@ -1501,7 +1501,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%@に更新"
+            "value" : "%@に更新しました"
           }
         },
         "zh-Hans" : {

@@ -30,7 +30,6 @@ CORRECTIONS: dict[str, str] = {
     "pet.form.countLimit %lld": "You can manage up to %lld pals.",
     # A3 原译 "Colors · Beads Total" 把建议购买量标成总量。zh 源文
     #    「%1$lld 颗 → 建议准备 %2$lld 颗」。
-    "create.bead.materialCount %lld %lld": "%1$lld beads · %2$lld recommended",
     # A5 zh 现行源文「去看看你们一起留下的回忆吧。」无时间范围，
     #    原译 "from the past year" 无中生有。2026-08-23 复核：代码实参
     #    传宠物名（AnniversaryLogic.swift），zh 源文已补 %@，en 同步。
@@ -89,13 +88,6 @@ CORRECTIONS: dict[str, str] = {
         "size and style, then generate and export."
     ),
     "onboarding.scan.incomplete.hint": "You can skip the scan and start it anytime from the Photos page.",
-    "可在「设置 → 隐私 → 照片」中开启，也可以稍后在相册页授权": (
-        "You can enable it in Settings → Privacy → Photos, or authorize later from the Photos page"
-    ),
-    "启用\"只拼主体\"时会自动抠图；失败后仍会使用原图继续生成": (
-        "Enabling “Subject Only” automatically cuts out the pal subject; if "
-        "that fails, generation continues with the original photo"
-    ),
     # C8/C9 两个 key 的 EN 恰好交叉互换（照片记忆↔照片）。
     "timeline.memoryType.photo": "Photo Memory",
     "timeline.photo.title.default": "Photo",
@@ -117,7 +109,6 @@ CORRECTIONS: dict[str, str] = {
     "redpacket.workshop.cutoutHint": "Pick a photo and the smart cutout runs automatically",
     "redpacket.quality.readability.zone.detail": "Text is in a risk zone and may be covered by WeChat UI",
     "settings.backup.failed": "Backup Failed",              # Backup process encountered an error 冗长
-    "保存后将以 PNG 格式保留透明背景": "Saves as PNG to keep the transparent background",
 
     # --- Widget -------------------------------------------------------------
     # 与 widget.lifeArchive.empty.noPhotos（"No photos yet"）撞车；zh 为祈使句。
@@ -218,9 +209,6 @@ CORRECTIONS: dict[str, str] = {
     "timeline.birthday.title %@ %lld": "Happy Birthday, %@! 🎂 Turning %lld today",
     "redpacket.export.openButton": "Open Button Safe Zone",
     "redpacket.export.loadFailed": "Couldn't load your draft",
-    "redpacket.export.saveFailed": (
-        "Couldn't save to Photos — check Photos permission and try again"
-    ),
     "redpacket.export.shareFailed": "Couldn't prepare sharing — please try again",
     "redpacket.export.shareReady": "Ready to share — choose an app to continue",
     "redpacket.export.howToUse": (
@@ -228,7 +216,6 @@ CORRECTIONS: dict[str, str] = {
     ),
     "redpacket.export.editorialTitle": "From chat to the reveal,\nsee the full effect.",
     "redpacket.cutout.loading": "Loading…",
-    "redpacket.cutout.ready": "Cutout ready — edit it in the workshop",
     "redpacket.cutout.failed": "Cutout failed — try again or choose a different photo",
     "redpacket.workshop.loadError.photo": "Couldn't load the photo — go back and pick another",
     "redpacket.workshop.loadError.template": "Couldn't load the template — go back and pick another",
@@ -245,7 +232,6 @@ CORRECTIONS: dict[str, str] = {
         "Thanks for your support — your lifetime archive is now complete"
     ),
     "settings.subtitle.suffix": " · keeping every memory on your device",
-    "share.sheet.subtitle": "Share it on social media so more people can see it",
     "home.loadError": "Couldn't load your photos — please try again later",
     "notify.anniversary.birthday.body %@": "Take a look back at %@'s birthday memories",
     "notify.milestone.title %lld": "%lld Days Home",
@@ -269,7 +255,6 @@ CORRECTIONS: dict[str, str] = {
         "You've captured %1$lld precious moments — export a backup to keep "
         "every story safe."
     ),
-    "create.header.subtitle": "Photos stay on your device · Generated locally",
     "create.bead.localProcessHint": (
         "Processed on device only · Falls back to the original photo if cutout fails"
     ),
@@ -300,9 +285,6 @@ CORRECTIONS: dict[str, str] = {
     ),
     "picker.petCard.emptyDesc": (
         "Import photos on the Photos page first, then come back to create a pal card"
-    ),
-    "picker.redPacket.emptyDesc": (
-        "Import photos on the Photos page first, then come back to create a Red Packet cover"
     ),
 
     # --- 新 key（结构操作见本文件头部说明；此值供 apply_all_en.py 校验与幂等注入） ---

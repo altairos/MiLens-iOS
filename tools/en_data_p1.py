@@ -112,19 +112,11 @@ PLURALS_EN = {
         "one": "1st Birthday",
         "other": "Birthday #%lld",
     },
-    "pet.card.daysHome %lld": {
-        "one": "Home for 1 day",
-        "other": "Home for %lld days",
-    },
     "pet.companionship.arrived %lld": {
         "one": "Home for 1 day",
         "other": "Home for %lld days",
     },
     "pet.companionship.together %lld": {
-        "one": "Together for 1 day",
-        "other": "Together for %lld days",
-    },
-    "pet.daysTogether %lld": {
         "one": "Together for 1 day",
         "other": "Together for %lld days",
     },
@@ -139,10 +131,6 @@ PLURALS_EN = {
     "timeline.previewDaysLeft %lld": {
         "one": "1 day left in full preview",
         "other": "%lld days left in full preview",
-    },
-    "timeline.year %lld": {
-        "one": "Year %lld",
-        "other": "Year %lld",
     },
 }
 
@@ -354,15 +342,12 @@ PALS_EN = {
     "pet.profile.action.more": "More Actions",
     "pet.profile.action.scanMore": "Scan for Photos",
     "pet.profile.action.timeline": "Growth Timeline",
-    "pet.profile.daysHomeTitle": "Home Together",
-    "pet.profile.daysLabel": "Days Together",
     "pet.profile.empty.cta": "Import Photos",
     "pet.profile.empty.subtitle": "Scan or import photos to start building the timeline",
     "pet.profile.empty.title": "No Photos Archived Yet",
     "pet.profile.eyebrow": "A Lifetime Archive",
     "pet.profile.lifeMark %lld": "LIFE MARK · %lld",
     "pet.profile.loadFailed": "Failed to Load Pal Profile",
-    "pet.profile.memoryTitle": "A Memory",
     "pet.profile.milestones.title": "Milestones",
     "pet.profile.noPhoto": "No photo",
     "pet.profile.noProfile": "No Pal Profile",
@@ -376,11 +361,9 @@ PALS_EN = {
     "pet.profile.section.growth": "Growth Records",
     "pet.profile.section.memories": "Precious Memories",
     "pet.profile.section.recentPhotos": "Recent Photos",
-    "pet.profile.speciesAge %@ %@": "%@ · %@",
     "pet.profile.stat.days": "Days Together",
     "pet.profile.stat.memories": "Memories",
     "pet.profile.stat.photos": "Photos",
-    "pet.profile.stat.works": "Works",
     "pet.species.cat": "Cat",
     "pet.species.dog": "Dog",
     "pet.species.unknown": "Unknown",

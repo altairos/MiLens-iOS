@@ -2,7 +2,7 @@
 
 > **首发范围变更（2026-08-22）**：首发支持 6 种语言：zh-Hans、zh-Hant、ja、en、fr、de。韩文（ko）延期，不纳入首发翻译、商店资产、隐私政策、截图和验收；文档中保留的韩国市场内容仅作为后续版本备忘。
 
-最后更新：2026-08-23（全量日文本地化重译完成：App / InfoPlist / Widget 共 1256 个 key 全部收进 `tools/ja_translations.json` 单一事实源，按「ペット（功能层）／うちの子・この子（情感层）／大切な家族（叙事层）」规范重译，清除裸词「パートナー」及既有量词、拼豆、隐私、付费语义误译；严格门禁 0 缺译、0 `needs_review`、0 占位符漂移；全量德文本地化 100% 完成：全部 1256 个 key 注入 String Catalog，遵循 Bügelperlen / Haustier（功能层）/ dein Liebling（情感层）/ du 亲昵称谓规范，0 缺译、0 占位符漂移、21 条 plural 规范化；全量法文本地化 100% 完成：全部 1245 个 key 注入 String Catalog，遵循 compagnon / perles à repasser 术语规范，0 缺译、0 占位符漂移、0 格式问题；2026-08-21 全量英文本地化 100% 完成：全部 1239 个 key 注入 String Catalog，遵循 pal/pals 术语规范，0 缺译、0 占位符漂移、0 格式问题；2026-08-17 回退 1c623e9 误入主 catalog 的 117 条 en 初译，修复 commit b3b0a79，CI 全绿 run 31961932575——红线教训见 §5.4：翻译完整导入前 catalog 只能含源语言；2026-08-16 MiLensWidget 接入 String Catalog，工具链支持多 catalog × 多源码根与 Excel sheet 去歧义；2026-08-15 CI 缺译门禁过渡期降级 `--allow-missing-translations`；2026-08-10 定案首发 7 语言：zh-Hans / zh-Hant / ja / ko / en / fr / de）
+最后更新：2026-08-23（死键清理完成：主 catalog 1206→1022（-184 = F 类全无引用 170 + 盘点补录 14），`tools/ja_translations.json` 1256→1072 同步；en 8 数据源 -182、fr/zh_hant 数据源及 apply 脚本 PLURAL_KEYS/ALL_PLAIN 残留同步清理；含转义引号/`\uXXXX` 转义/集合元素/dict 索引赋值四种漏网形态二次清理 + `localization-assets.py` 工作簿种子去污染（-48）；#7.8 盘点的 5 个预留未接线 key（`picker.redPacket.*`/`redpacket.export.saveFailed`/`redpacket.quality.badge|level.error`）一并删除；check 多余 key 253→69（均为活键），HEAD vs 工作区 key 集合对比验证 11 数据源「清单外误删 0 / 新增 0 / 应删未删 0」，工作簿重生成正常；ja 母语级审校 80 处修正落地：P0 错译 31 / P1 翻译腔 17 / P2 术语统一 32（含 overline 装饰英文统一 8 处），xcstrings 与 `tools/ja_translations.json` 双写，`apply_all_ja.py` 重注入无回退，术语分层基准沉淀 §8；全量日文本地化重译完成：App / InfoPlist / Widget 共 1256 个 key 全部收进 `tools/ja_translations.json` 单一事实源，按「ペット（功能层）／うちの子・この子（情感层）／大切な家族（叙事层）」规范重译，清除裸词「パートナー」及既有量词、拼豆、隐私、付费语义误译；严格门禁 0 缺译、0 `needs_review`、0 占位符漂移；全量德文本地化 100% 完成：全部 1256 个 key 注入 String Catalog，遵循 Bügelperlen / Haustier（功能层）/ dein Liebling（情感层）/ du 亲昵称谓规范，0 缺译、0 占位符漂移、21 条 plural 规范化；全量法文本地化 100% 完成：全部 1245 个 key 注入 String Catalog，遵循 compagnon / perles à repasser 术语规范，0 缺译、0 占位符漂移、0 格式问题；2026-08-21 全量英文本地化 100% 完成：全部 1239 个 key 注入 String Catalog，遵循 pal/pals 术语规范，0 缺译、0 占位符漂移、0 格式问题；2026-08-17 回退 1c623e9 误入主 catalog 的 117 条 en 初译，修复 commit b3b0a79，CI 全绿 run 31961932575——红线教训见 §5.4：翻译完整导入前 catalog 只能含源语言；2026-08-16 MiLensWidget 接入 String Catalog，工具链支持多 catalog × 多源码根与 Excel sheet 去歧义；2026-08-15 CI 缺译门禁过渡期降级 `--allow-missing-translations`；2026-08-10 定案首发 7 语言：zh-Hans / zh-Hant / ja / ko / en / fr / de）
 
 > 本文档是 MiLens 全球首发本地化工作的唯一事实来源：语言矩阵、各国市场注意要点、翻译工作流、质量门禁、ASO 关键词策略与时间线。工具与命令见 [DEVELOPMENT.md](../DEVELOPMENT.md) §4.5，商店文案见 [AppStore-metadata.md](AppStore-metadata.md)，商业决策见 [ADR-0010](adr/0010-commercialization-and-emotion-triggers.md)。
 
@@ -219,6 +219,8 @@ python tools/localization.py check \
 **本批收口（2026-08-16）**：25 处硬编码英文装饰迁移 `String(localized:)` + 25 key 落库（zh=translated 原样 / en=needs_review 初译，含 plural `pet.profile.lifeMark %lld`），Onboarding 全流程 overline 统一走 `OnboardingViewModel.stepOverline`（7 个 step 视图消除重复副本）；明细见工作项 #7.11。
 
 **en 译文落地（2026-08-22）**：C 类 12 key 与收口 25 key 中 en 值照抄全大写装饰的 35 key 已全部按 Title Case 方向修正（含 `pet.profile.lifeMark %lld`）；zh/zh-Hant 源装饰原样保留。复检：en 全大写照抄清单已清零（`build/loc-verify.txt`）。
+
+**ja 译文落地（2026-08-23 母语级审校裁定）**：ja 对全大写英文装饰 overline **统一保留英文原样**（`ARCHIVE OUTPUT` / `SCENE PREVIEW` 等 8 处，`tools/apply_ja_corrections.py`），不译成日文——`EditorialOverline` 组件注释即以「CREATION DARKROOM」等英文示例标注设计意图，BeadResultComponents 侧为拉丁衬线字体（JacquesFrancois）。例外：`petcard.overline` 为品牌妙笔「UCHINOKO CARD」（用户裁定保留）；`onboarding.overline.*`（10 key）为「英文标签・日文说明」混合形态（`FIRST LIGHT・ようこそ`），保留；`pet.profile.eyebrow` / `share.preview.overline` 原已英文，确认不动。zh 源装饰原样保留的规则不变。
 
 ---
 
@@ -566,6 +568,37 @@ App Store 元数据与 App 内翻译分别验收，提交 ASC 前逐语言核对
 - 禁止将中文「伙伴」逐字统一翻译为裸词「パートナー」。该词只允许在宠物对象已经明确的极少量宣传句中受限定使用（如「かけがえのないパートナー」），不得用于 Tab、按钮、权限、档案名、计数和选择器；
 - 「相棒」偏随意且更像人与狗的搭档，「コンパニオンアニマル／伴侶動物」偏专业，均不作为全局产品术语。
 
+**日语 UI 术语分层基准（2026-08-23 母语级审校定稿）**
+
+> 全量重译版经逐条母语级审校，80 处修正双写落库（`tools/apply_ja_corrections.py`：xcstrings + `tools/ja_translations.json`；验证：`apply_all_ja.py` 重注入无回退、`localization.py check` 0 缺译 0 needs_review、`build/locv_ja.py` 数据源漂移 0）。以下为后续新增 ja 文案的判定基准；宠物称谓分层见上方规则，品类/ASO 词见 §4.1。
+
+| 概念 | 定稿 | 禁用与风险 |
+|---|---|---|
+| 导出 | 書き出す／書き出し | 輸出（外贸语义，P0 错译）、エクスポート（生硬） |
+| 解锁 | アンロック | 解放（政治/精神语义，P0 错译） |
+| 导入 | 取り込む | インポート |
+| 水印 | ウォーターマーク | 透かし（传统印版权威语境，App 语境割裂） |
+| 清晰度指标 | シャープネス | 透明度（=不透明度，灾难级歧义）、明瞭さ、鮮明度 |
+| 图层 | レイヤー | 層（物理/抽象层，P0 错译） |
+| 文字工具 | テキスト | 言葉（言语/话语，P0 错译） |
+| 抠图/构图主体 | 被写体 | 主題（话题，P0 错译） |
+| 安全区 | 安全な範囲 | 安全地帯（战区/地理）、安全領域、セーフエリア |
+| 设备 | 端末 | デバイス（与隐私叙事「写真は端末から出ません」同源一致） |
+| 状态 | 状態 | 州（行政区划，P0 错译） |
+| Pro 徽标/权益 | Pro（半角拉丁） | プロ（与全语言通用 PRO 徽标一致） |
+| 旋转等工具名 | 名词形（回転／テキスト） | 动词形（回転させる）；按钮 CTA 可用动词形（続ける） |
+| 完成态后缀 | ～済み（保存済み／アーカイブ済み） | 说明句直译（保存が完了しました×徽标场景） |
+| 饰件/风格命名 | リボン／ハート／金貨／ゴールド | 直译单字（ちょうネクタイ／愛／金，歧义） |
+| 编辑式 overline | 英文原样（§3.7 ja 落地段） | 日文翻译；例外：UCHINOKO CARD、onboarding 混合形态 |
+
+**风格与格式基准**：
+
+- 占位符/品牌词与前后日文**不加半角空格**：`%@と家族になった日`、`%lld枚`、`MiLens Proをアンロック`；
+- 状态徽标/结论用名词短句或です结短句：`問題あり`／`要修正`／`すべて合格`／`バランスの良い構図です`，不写主语错位直译（`全員合格`×）；
+- 四字祝词保留汉字形态：红包默认祝福语 `恭喜発財`（不译成说明句）；
+- 亲属称谓用柔性词：占位示例 `例：シャオジュのママ`（不用硬译 `母親`，目标人群为普通养宠家庭）；
+- うちの子／ペット 分层、禁用裸词パートナー等按上方「伙伴」分层规则执行。
+
 ---
 
 ## 9. 验收标准（首发前逐条打勾）
@@ -610,7 +643,7 @@ App Store 元数据与 App 内翻译分别验收，提交 ASC 前逐语言核对
 | 7.6 | accessibilityLabel 等 UI 字面量核对与迁移（22 处 → `String(localized:)` 或 catalog 补 key）| #7 | ✅ 已完成（25 个 `a11y.*` key）|
 | 7.7 | 纯逻辑层动态文案本地化（通知 6 模板 / 宠物卡片 / 物种名 / 年龄 / 时间线导出 / 水印 / 分享 / 首页 / 启动错误）| #7.6 | ✅ 已完成（代码部分；快照测试 → #7.7b）|
 | 7.7b | 动态文案固定 locale 快照测试（en_US/de_DE/ja_JP 断言，复用 utcCalendar 注入模式）| #7.7 | ✅ 已完成（2026-08-16 `DynamicCopyLocaleSnapshotTests`：zh-Hans 全量精确快照（通知/档案/卡片/导出）+ en_US/de_DE/ja_JP 回退等值层；`String(localized:locale:)` 不切换查表语言，各语言精确快照随 #4–#6 翻译导入升级）|
-| 7.8 | 空状态与错误提示盘点收口（全部调用点核对、三段式规范、StoreKit 错误映射）| #7 | ✅ 已完成（2026-08-16：盘点 74 相关 key（69 used / 5 预留未接线——`picker.redPacket.*` 红包入口实际走 workshop 流程、`redpacket.export.saveFailed`/`redpacket.quality.badge|level.error` 预留）；迁移 19 处硬编码（相册/伙伴/首页空态、扫描权限提示、启动恢复三段、editor 抠图四态、名片保存失败）+18 key；清理 18 条 Xcode 自动提取空壳。遗留：Onboarding 编辑式文案（~19 处）已随 #7.13 收口；MiLensKit 侧 `availableTags`→`availableTagKeys`（12 key）与 `RedPacketQualityItem.detail`→`detailKey`+`detailArgs`（26 分支）已 key 化（2026-08-16，+38 manual key，草稿改存 key 旧值宽容保留），剩余 `cutoutStatusText`（Kit 层中文、有 Kit 测试锚定））|
+| 7.8 | 空状态与错误提示盘点收口（全部调用点核对、三段式规范、StoreKit 错误映射）| #7 | ✅ 已完成（2026-08-16：盘点 74 相关 key（69 used / 5 预留未接线——已于 2026-08-23 死键清理删除：`picker.redPacket.*` 红包入口实际走 workshop 流程、`redpacket.export.saveFailed`/`redpacket.quality.badge|level.error` 预留）；迁移 19 处硬编码（相册/伙伴/首页空态、扫描权限提示、启动恢复三段、editor 抠图四态、名片保存失败）+18 key；清理 18 条 Xcode 自动提取空壳。遗留：Onboarding 编辑式文案（~19 处）已随 #7.13 收口；MiLensKit 侧 `availableTags`→`availableTagKeys`（12 key）与 `RedPacketQualityItem.detail`→`detailKey`+`detailArgs`（26 分支）已 key 化（2026-08-16，+38 manual key，草稿改存 key 旧值宽容保留），剩余 `cutoutStatusText`（Kit 层中文、有 Kit 测试锚定））|
 | 7.9 | 工作簿补充翻译上下文、禁用表达、审校人/日期和源文案版本字段 | #3 | 0.5 天 |
 | 7.10 | 页面级 key 化批次（按页迁移裸中文 → `String(localized:)`）：PetEditView 整页 | #7.8 | ✅ 已完成（2026-08-16：View 19 处 + PetEditViewModel 6 处（错误/特征注册提示）+ 纯逻辑层 3 处（PetFormLogic 备忘校验、PetProfileLogic 名字必填，`locale: Locale = .current` 注入模式）；catalog +40 key（38 个 `pet.edit.*` + `common.delete` + `pet.form.name.required`，zh-Hans 与原裸中文逐字一致，既有中文断言测试不动）；清理 5 条无引用空壳（“保存”保留——EditorView 仍字面量引用）；check（CI 同款 `--allow-missing-translations`）0 阻断、无缺 key、无多余新 key，`--hardcoded` 中本页 4 文件清零。遗留：EditorView 等其余页面同批次推进；Onboarding 已随 #7.13 收口）|
 | 7.11 | 装饰性英文文案 key 化收口（25 处硬编码 → `String(localized:)` + 25 key 落库 zh 原样/en 初译 needs_review；OnboardingViewModel.stepOverline 统一 7 个 step 视图 overline 消重复；`--hardcoded` 增英文装饰 warning 检测 + 词级白名单与 MILENS 水印整串白名单；§3.7 规范增补）| #7.10 | ✅ 已完成（2026-08-16：含 plural `pet.profile.lifeMark %lld`；`OnboardingViewModelTests` 断言改 catalog 同表查取防语言环境 flaky；资产工作簿再生成 en 初译 181 条。遗留登记（随 #7.10 页面级批次推进）：BeadResultComponents:24 副标题中文、PetProfileComponents:107-141 样例卡中文叙事、BusinessCardArtwork 中文 fieldLabel、PetsView:230-243 生日彩蛋、Onboarding 编辑式正文中文 ~19 处（已随 #7.13 收口）；`NEXT LEAF · 2026.06` 等假日期数据改真数据另走产品决策）|

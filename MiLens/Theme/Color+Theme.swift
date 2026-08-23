@@ -112,6 +112,15 @@ extension Color {
     /// 小红书品牌红（#F2446B 近似）
     static let milensBrandRedNote = Color("BrandRedNote")
 
+    // MARK: - 微信红包场景预览（固定平台前景，不随主题变化）
+
+    /// 微信客户端叠加在自定义封面前方的橙红色块；只用于场景预览，不进入导出图。
+    static let milensRedPacketSystemForeground = Color("RedPacketSystemForeground")
+    /// 微信客户端“开”按钮的浅金底色；只用于场景预览。
+    static let milensRedPacketSystemButton = Color("RedPacketSystemButton")
+    /// 微信客户端“开”按钮的低对比文字色；只用于场景预览。
+    static let milensRedPacketSystemButtonLabel = Color("RedPacketSystemButtonLabel")
+
     /// 分隔线（浅：#ECE7E1 / 深：#2E2823）
     static let milensSeparator = Color("Separator")
     /// 卡片描边/输入框边（浅：#E5DFD8 / 深：#383129）
